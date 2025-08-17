@@ -1,16 +1,21 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa" dir="rtl" class="dark">
 
 <head>
     @include('layouts.client.link')
     {!! SEO::generate() !!}
 </head>
 
-<body>
+<body class="dark">
 
-<div class="flex flex-col min-h-screen bg-background">
+<div class="flex flex-col min-h-screen bg-background ">
+
+{{--    <div id="loadingOverlay">--}}
+{{--        <img src="/client/loading.png" alt="SDFR Loading Logo" class="loading-logo rounded-xl">--}}
+{{--    </div>--}}
+
     <!-- header -->
-    <livewire:client.layout.header/>
+    <livewire:client.layout.header  />
     <!-- end header -->
 
     <main class="flex-auto py-5">

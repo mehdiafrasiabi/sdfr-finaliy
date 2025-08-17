@@ -1,31 +1,34 @@
 <?php
 
+use App\Livewire\admin\Blog\Create as CreateBlog;
+use App\Livewire\Admin\Blog\Index as BlogIndex;
+use App\Livewire\Admin\CreateAdvisingSession\Create as CreateAdvisingSession;
+use App\Livewire\Admin\CreateAdvisingSession\Index as IndexAdvisingSession;
+use App\Livewire\Admin\Notification\Create as NotificationCreate;
+use App\Livewire\Admin\ReportStudentStudy\Index as ReportStudentStudy;
+use App\Livewire\Admin\SendToSuperAdmin\Index as SendToSuperAdminContactDocumentation;
+use App\Livewire\Admin\Student\Exam\Index as StudentExamIndex;
+use App\Livewire\Admin\Student\Exam\StudentDetail;
+use App\Livewire\Admin\Student\Exam\StudentResult;
+use App\Livewire\Admin\Student\MeetGoogle;
+use App\Livewire\Admin\Student\Plan\Detail as StudentPlanDetail;
+use App\Livewire\Admin\Student\Plan\Index as StudentPlanIndex;
+use App\Livewire\Admin\Student\ReportDaily as StudentReportDaily;
+use App\Livewire\Admin\Student\ReportStatus\Index as StudentReportStatusIndex;
+use App\Livewire\Admin\Student\ReportStatus\Detail as StudentReportStatusDetail;
+use App\Livewire\Admin\Student\StudySession\Index as StudentStudySessionIndex;
+use App\Livewire\Admin\Student\StudySession\Show as StudentStudySessionShow;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Admin\Dashboard\Index as DashboardIndex;
-use App\Livewire\Admin\Country\Index as CountryIndex;
-use App\Livewire\Admin\State\Index as StateIndex;
-use App\Livewire\Admin\City\Index as CityIndex;
-use App\Livewire\Admin\Category\Index as CategoryIndex;
-use App\Livewire\Admin\Category\Feature as CategoryFeature;
-use App\Livewire\Admin\Product\index as ProductIndex;
-use App\Livewire\Admin\Product\create as ProductCreate;
-use App\Livewire\Admin\Product\content as ProductContent;
-use App\Livewire\Admin\Product\CkUpload;
-use App\Livewire\Admin\Payment\Index as PaymentMethodIndex;
 use App\Livewire\Admin\Setting\ContactUs\Index as ContactUsIndex;
 use App\Livewire\Admin\Setting\GeneralSetting\Index as GeneralSettingIndex;
-use App\Livewire\Admin\Story\Index as StoryIndex;
-use App\Livewire\Admin\User\Index as UserIndex;
-use App\Livewire\Admin\Transaction\Index as TransactionIndex;
-use App\Livewire\Admin\Order\Details as OrderDetails;
-use App\Livewire\Admin\Order\Index as OrderIndex;
 use App\Livewire\Admin\Student\Index as StudentIndex;
-use App\Livewire\Admin\Student\Barnameh as StudentPlan;
-use App\Livewire\Admin\Student\ReportMonthly as StudentReportMonthly;
-use App\Livewire\Admin\Student\Information as StudentInformation;
-use App\Livewire\Admin\Coupon\Index as CouponIndex;
+use App\Livewire\Admin\Student\ReportCalling\Index as ReportCallingIndex;
+use App\Livewire\Admin\Student\ReportCalling\Detail as ReportCallingDetail;
+use  App\Livewire\Admin\Student\ReportDailyActivities\Index as ReportDailyActivitiesIndex;
+use  App\Livewire\Admin\Student\ReportDailyActivities\Detail as ReportDailyActivitiesDetail;
 use App\Livewire\Admin\Auth\Index as AuthIndex;
-use App\Livewire\Admin\AdminUser\Index as AdminIndex;
+use App\Livewire\Admin\Blog\CkUpload;
 
 
 
@@ -37,47 +40,46 @@ Route::name('admin.')->group(function () {
     Route::middleware('auth:admin')->group(function () {
         //Dashboard
         Route::get('/dashboard',DashboardIndex::class)->name('dashboard.index');
-        //Map->Done
-        Route::get('/country',CountryIndex::class)->name('country.index');
-        Route::get('/state',StateIndex::class)->name('state.index');
-        Route::get('/city',CityIndex::class)->name('city.index');
-        //Category
-        Route::get('/category', CategoryIndex::class)->name('category.index');
-        Route::get('/category/{category}/features', CategoryFeature::class)->name('category.features');
-        //Product Route
-        Route::get('/product', ProductIndex::class)->name('product.index');
-        Route::get('/product/create', ProductCreate::class)->name('product.create');
-        Route::get('/product/content/{product}', ProductContent::class)->name('product.content');
-        Route::post('/ck-upload/{productId}', [CkUpload::class, 'upload'])->name('ck-upload');
-
-        //PaymentMethod
-        Route::get('/paymentMethod',PaymentMethodIndex::class)->name('paymentMethod.index');
 
         //Setting Website
         Route::get('/setting/contact-us',ContactUsIndex::class)->name('setting.contact-us.index');
         Route::get('/setting/general-setting',GeneralSettingIndex::class)->name('setting.general-setting.index');
 
-        //Story
-        Route::get('/story',StoryIndex::class)->name('story.index');
-
-        //User
-        Route::get('/user',UserIndex::class)->name('user.index');
-        //Order
-        Route::get('/order', OrderIndex::class)->name('order.index');
-        Route::get('/order/{order}', OrderDetails::class)->name('order.details');
-        //Transaction
-        Route::get('/transaction',TransactionIndex::class)->name('transaction.index');
         //Student
         Route::get('/student',StudentIndex::class)->name('student.index');
-        Route::get('/student/{student}/plan',StudentPlan::class)->name('student.plan');
-        Route::get('/student/{student}/reportMonthly',StudentReportMonthly::class)->name('student.report');
-        Route::get('/student/{student}/information',StudentInformation::class)->name('student.information');
+        Route::get('/studentReportDay',StudentReportDaily::class)->name('reportStudentDay');
+        Route::get('/student/{student}/meetGoogle',MeetGoogle::class)->name('student.meetGoogle');
 
-        //coupon
-        Route::get('/coupon',CouponIndex::class)->name('coupon.index');
+        Route::get('/sendFile/contactDocumentation',SendToSuperAdminContactDocumentation::class)->name('sendFile.contactDocumentation');
+        Route::get('/sendFile/reportStudentStudy',ReportStudentStudy::class)->name('sendFile.ReportStudentStudy');
 
-        //Admin
-        Route::get('/adminUser',AdminIndex::class)->name('admin.index');
+        Route::get('/exam/index',StudentExamIndex::class)->name('student.exam.index');
+        Route::get('/exam/{exam}/studentResult',StudentResult::class)->name('student.exam.studentResult');
+        Route::get('/exam/{exam}/studentResult/{attempt}/detail',StudentDetail::class)->name('student.exam.studentResultDetail');
+
+        Route::get('/notification',NotificationCreate::class)->name('student.notification');
+
+        Route::get('/studentPlan',StudentPlanIndex::class)->name('student.plan.index');
+        Route::get('/studentPlan/{student}/plan',StudentPlanDetail::class)->name('student.plan.detail');
+
+        Route::get('/studentReportStatus',StudentReportStatusIndex::class)->name('student.reportStudent.index');
+        Route::get('/studentReportStatus/{student}/ReportStatus',StudentReportStatusDetail::class)->name('student.reportStudent.detail');
+
+        Route::get('/studentReportCalling',ReportCallingIndex::class)->name('student.reportCalling.index');
+        Route::get('/studentReportCalling/{student}/ReportCalling',ReportCallingDetail::class)->name('student.reportCalling.detail');
+
+        Route::get('/studentReportDailyActivities',ReportDailyActivitiesIndex::class)->name('student.reportDailyActivities.index');
+        Route::get('/studentReportDailyActivities/{student}/ReportDailyActivities',ReportDailyActivitiesDetail::class)->name('student.reportDailyActivities.detail');
+
+        Route::get('/blog/index',BlogIndex::class)->name('blog.index');
+        Route::get('/blog/create',CreateBlog::class)->name('blog.create');
+        Route::post('/admin/blog/{blog}/ckeditor/upload', [CkUpload::class, 'upload'])->name('blog.ckeUpload');
+
+        Route::get('/studentStudySession',StudentStudySessionIndex::class)->name('student.studySession.index');
+        Route::get('/studentStudySession/{student}/study',StudentStudySessionShow::class)->name('student.studySession.detail');
+
+        Route::get('/advising-sessions', IndexAdvisingSession::class)->name('advising-sessions.index');
+        Route::get('/advising-sessions/create', CreateAdvisingSession::class)->name('advising-sessions.create');
 
     });
 

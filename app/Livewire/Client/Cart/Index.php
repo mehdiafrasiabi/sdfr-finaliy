@@ -206,21 +206,19 @@ class Index extends Component
             'order_number' => $orderNumber,
         ]);
     }
-    public function submitOrderBeforePayment($cartItems, $getPaymentMethodId, $orderNumber)
-    {
-        DB::transaction(function () use ($cartItems, $getPaymentMethodId, $orderNumber) {
-            $order = $this->createOrder($orderNumber, $getPaymentMethodId);
-            $this->createOrderItem($cartItems, $order->id);
-            $this->createPayment($order->id, $orderNumber);
-        });
-    }
 
-    public function submitOrder(PaymentGateWayInterface $paymentGateway)
+
+
+    public function goToOrderInfo()
     {
-        $cartItems = Cart::query()->where('user_id', Auth::id())->get();
-        $orderNumber = 'REF-' . Str::uuid()->toString();
-        $this->submitOrderBeforePayment($cartItems, $paymentGateway->getPaymentMethodId(), $orderNumber);
-        return $paymentGateway->request($this->totalAmount, $orderNumber);
+        session()->put('checkout', [
+            'totalAmount' => $this->totalAmount,
+            'totalOriginalPrice' => $this->totalOriginalPrice,
+            'discountAmount' => $this->discountCodeAmount,
+            'cartItems' => $this->cartItems->pluck('id')->toArray(),
+        ]);
+
+        return redirect()->route('client.checkout.cart.info');
     }
 
     public function render()

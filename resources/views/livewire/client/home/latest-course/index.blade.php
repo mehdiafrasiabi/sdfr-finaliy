@@ -13,11 +13,10 @@
                                     </svg>
                                 </span>
                 <div class="flex flex-col font-black text-2xl space-y-2">
-                    <span class="font-black xs:text-2xl text-lg text-primary">آخرین دوره های</span>
-                    <span class="font-semibold xs:text-base text-sm text-foreground">منتشر شده</span>
+                    <span class="font-black xs:text-2xl text-lg text-primary"> دوره های SDFR</span>
                 </div>
             </div>
-            <a href="/client/series.html"
+            <a href="{{route('client.shop')}}"
                class="sm:w-auto w-11 h-11 inline-flex items-center justify-center gap-1 bg-secondary rounded-full text-foreground transition-colors hover:text-primary sm:px-4">
                 <span class="font-semibold text-sm sm:block hidden">مشاهده همه</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
@@ -34,6 +33,9 @@
         <div class="swiper col3-swiper-slider">
             <div class="swiper-wrapper">
                @foreach($latestProducts as $item)
+                    @php
+                        $lastPrice = \App\Models\Product::latest()->value('price');
+                    @endphp
                     <div class="swiper-slide">
                         <!-- course:card -->
                         <div class="relative">

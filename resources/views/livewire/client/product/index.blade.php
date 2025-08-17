@@ -246,7 +246,7 @@
                             </a>
                         @endif
                     @else
-                         <a href="{{route('client.auth.index')}}"
+                         <a href="{{route('client.auth.login')}}"
                                 class="w-full h-11 inline-flex items-center justify-center gap-1 bg-red-500 rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
                             <span class="font-semibold text-sm">لطفا ابتدا وارد شوید</span>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"

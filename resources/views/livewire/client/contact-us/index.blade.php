@@ -65,9 +65,9 @@
                     </div>
                     <div class="font-black text-foreground">شماره تماس دفتر</div>
                 </div>
-                <a href="tel: 0902-002-9757"
+                <a href="tel: 05135092160"
                    class="inline-flex font-bold text-base text-foreground transition-colors hover:text-primary"
-                   dir="ltr">0902-002-9757</a>
+                   dir="ltr">051-35092160</a>
             </div>
             <div class="space-y-5">
                 <div class="flex items-center gap-3">
@@ -75,11 +75,11 @@
                         <div class="w-1 h-1 bg-foreground rounded-full"></div>
                         <div class="w-2 h-2 bg-foreground rounded-full"></div>
                     </div>
-                    <div class="font-black text-foreground">آدرس دفتر</div>
+                    <div class="font-black text-foreground">آدرس دفتر مرکزی</div>
                 </div>
                 <span
                     class="inline-flex font-bold text-base text-foreground transition-colors hover:text-primary">
-                        مشهد ، بلوار دانش آموز ، دانش آموز 7 ، دفتر SDFR
+                      خراسان رضوی ، مشهد
                 </span>
             </div>
         </div>

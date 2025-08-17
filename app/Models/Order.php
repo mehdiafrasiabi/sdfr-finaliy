@@ -20,6 +20,10 @@ class Order extends Model
     {
         return $this->belongsTo(Payment::class,'id','order_id');
     }
+    public function personalInformation()
+    {
+        return $this->belongsTo(PersonalInformation::class,'id','user_id');
+    }
     public function paymentMethod()
     {
         return $this->belongsTo(PaymentMethod::class);
@@ -29,4 +33,9 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
 }

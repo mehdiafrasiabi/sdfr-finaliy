@@ -13,6 +13,7 @@ class Index extends Component
         $latestProducts = Product::query()
             ->select('id', 'name','title','tag','price','meeting_time','course_time','p_code')
             ->with('coverImage','seo')
+            ->orderBy('price', 'asc') // 👈 اینجا
             ->get();
         $this->latestProducts = $latestProducts;
     }

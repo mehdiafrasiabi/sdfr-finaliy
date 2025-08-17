@@ -2,13 +2,17 @@
 
 namespace App\Livewire\Client\Profile\Ticket;
 
+use App\Models\Ticket;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class Index extends Component
 {
-    use SEOTools;
+    use SEOTools,WithPagination;
 
+
+    public string $search = '';
     public function mount()
     {
         $this->seoConfig();
@@ -18,8 +22,26 @@ class Index extends Component
         $this->seo()
             ->setTitle('پشتیبانی');
     }
+
+
+    protected $updatesQueryString = ['search'];
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
-        return view('livewire.client.profile.ticket.index')->layout('layouts.client.app');
+        $tickets = Ticket::with('department')
+            ->where('user_id', auth()->id())
+            ->where(function ($q) {
+                $q->where('title', 'like', "%{$this->search}%")
+                    ->orWhere('status', 'like', "%{$this->search}%");
+            })
+            ->latest()
+            ->paginate(10);
+
+        return view('livewire.client.profile.ticket.index', ['tickets' => $tickets])->layout('layouts.client.app');
     }
 }

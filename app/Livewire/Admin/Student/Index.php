@@ -1,22 +1,64 @@
 <?php
 namespace App\Livewire\Admin\Student;
 
+use App\Exports\StudentsByAdminExport;
 use App\Models\Student;
 use Artesaos\SEOTools\Traits\SEOTools;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 class Index extends Component
 {
     use WithPagination,SEOTools;
 
     public $search = ''; // جستجو در نام دانش‌آموز
-    public $course_id = ''; // دریافت دوره از URL
+
+    public function changeStatus($startId, $value)
+    {
+        $validator = Validator::make(['star' => $value, 'id' => $startId],
+            [
+                'id' => 'required|exists:students,id',
+                'star' => 'required|in:A,B,C,D'
+            ],
+            [
+                '*.required' => 'فیلد اجیاری است.',
+                'star.in' => 'فرمت اشتباه است',
+                'id.exists' => 'وضعیت سطح  نامعتبر'
+            ]
+        );
+        $validator->validate();
+        $this->resetValidation();
+        $this->dispatch('success', 'با موفقیت ثبت شد');
+
+        Student::query()->updateOrCreate(
+            [
+                'id' => $startId
+            ],
+            [
+                'star' => $value
+            ]);
+    }
+    public function getStatusColor($status)
+    {
+        switch ($status) {
+            case 'A':
+                return 'success';
+            case 'B':
+                return 'white';
+            case 'C':
+                return 'warning';
+            case 'D':
+                return 'danger';
+
+        }
+    }
 
     public function mount()
     {
         // دریافت پارامتر course_id از URL
-        $this->course_id = request()->query('course_id', '');
         $this->seoConfig();
     }
     public function seoConfig()
@@ -24,37 +66,45 @@ class Index extends Component
         $this->seo()
             ->setTitle('دانش آموزان');
     }
+    public function exportExcel()
+    {
+        $admin = auth()->user();
+        $adminId = $admin->id;
+        $adminName = $admin->name ?: 'admin'; // اگر نام نبود، fallback
+
+        $fileName = Str::slug($adminName) . '_students_' . now()->format('Ymd_His') . '.xlsx';
+
+        return Excel::download(
+            new StudentsByAdminExport($adminId),
+            $fileName
+        );
+    }
     public function render()
     {
-        $studentsQuery = Student::query()->with('payment.order.orderItems.product', 'payment.order.user');
+        $adminId = auth()->id(); // گرفتن ID پشتیبان لاگین شده
 
-        // اگر جستجو فعال بود، آن را اعمال می‌کنیم
+        $studentsQuery = Student::query()
+            ->with([
+                'payment.order.orderItems.product',
+                'payment.order.user',
+                'user.personalInformation' // اضافه شد
+            ])
+            ->where('supporter_id', $adminId)->orWhere('advisor_id', $adminId);
+        ;
+        // فقط دانش‌آموزان مربوط به همین پشتیبان
+
+        // اگر جستجو فعال بود
         if ($this->search) {
             $studentsQuery->whereHas('payment.order.user', function ($query) {
-                // بررسی جستجو در نام کاربر
                 $query->where('name', 'like', '%' . $this->search . '%');
             });
         }
 
-        // فیلتر بر اساس دوره از URL
-        if ($this->course_id && $this->course_id != 'all') {
-            $studentsQuery->whereHas('payment.order.orderItems.product', function ($query) {
-                // فیلتر بر اساس ID محصول
-                if ($this->course_id == 1) {
-                    $query->where('id', 1); // کوانتوم و توسعه
-                } elseif ($this->course_id == 2) {
-                    $query->where('id', 2); // سکوی پرتاب
-                } elseif ($this->course_id == 3) {
-                    $query->where('id', 3); // دوره‌های دیگر
-                }
-            });
-        }
-
-        // صفحه‌بندی نتایج
         $students = $studentsQuery->paginate(10);
 
         return view('livewire.admin.student.index', [
             'students' => $students,
         ])->layout('layouts.admin.app');
     }
+
 }

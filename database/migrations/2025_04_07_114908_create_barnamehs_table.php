@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('barnameh');
-            $table->foreignId('student_id')->constrained();
+            $table->foreignId('student_id')->constrained(); // اگر student حذف شد، برنامه هم حذف شود
+            $table->foreignId('admin_id')->constrained();   // پشتیبان سازنده برنامه
+
             $table->softDeletes();
             $table->timestamps();
         });

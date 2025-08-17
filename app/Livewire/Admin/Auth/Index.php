@@ -23,18 +23,26 @@ class Index extends Component
                 'email.exists'=>'نام کاربری نامعتبر',
                 'mobile.exists'=>'تلفن همراه  نامعتبر',
                 'mobile.regex'=>'لطفا شماره تلفن همراه خود را به درستی وارد کنید',
-
             ]
         );
         $validator->validate();
         $this->resetValidation();
-        $credentials = ['email'=> $formData['email'],'mobile'=> $formData['mobile'],'password' => $formData['password']];
 
-        $admin = Auth::guard('admin');
-        if ($admin->attempt($credentials)) {
-            session()->flash('messageSuccess','مدیر عزیز،خوش اومدی');
+        $credentials = ['email'=> $formData['email'],'mobile'=> $formData['mobile'],'password' => $formData['password']];
+        $adminGuard = Auth::guard('admin');
+
+        if ($adminGuard->attempt($credentials)) {
+            $adminUser = $adminGuard->user();
+            if ($adminUser->hasRole('super admin')) {
+                // اگر سوپر ادمین است، فوراً لاگ‌اوت کن
+                $adminGuard->logout();
+                session()->flash('message', ' اجازه ورود به این بخش را ندارید.');
+                return redirect()->route('admin.sign-in');
+            }
+
+            session()->flash('messageSuccess','مدیر عزیز، خوش اومدی');
             return redirect()->route('admin.dashboard.index');
-        }else{
+        } else {
             session()->flash('message','نام کاربری یا رمز عبور نامعتبر است .');
         }
     }
@@ -48,6 +56,7 @@ class Index extends Component
 
     public function render()
     {
+
         return view('livewire.admin.auth.index')->layout('layouts.admin.auth');
     }
 }

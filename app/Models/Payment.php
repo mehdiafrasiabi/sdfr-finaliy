@@ -14,6 +14,15 @@ class Payment extends Model
     {
         return $this->belongsTo(Order::class);
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function personalInformation()
+    {
+        return $this->belongsTo(PersonalInformation::class);
+    }
 
 
 }

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('order_number');
             $table->string('refNumber')->nullable()->unique();
             $table->string('cardNumber')->nullable();
+            $table->foreignId('personal_information_id')->constrained('personal_information');
             $table->enum('status',['pending','completed','cancelled'])->default('pending');
             $table->timestamps();
         });

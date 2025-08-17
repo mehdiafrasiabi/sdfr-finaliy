@@ -24,7 +24,7 @@
     }
 
     .intro-skeleton .skeleton-img {
-        flex: 1 1 300px;
+        flex: 1 1 100px;
         aspect-ratio: 1 / 1.3;
         background: #333;
         border-radius: 20px;
@@ -51,7 +51,7 @@
     }
 
     .intro-skeleton .skeleton-badge {
-        width: 160px;
+        width: 100px;
         height: 20px;
         background: #333;
         border-radius: 10px;
@@ -76,7 +76,7 @@
 
     .intro-skeleton .skeleton-text {
         width: 100%;
-        height: 16px;
+        height: 100px;
         background: #333;
         border-radius: 6px;
         animation: shimmer 2s infinite linear;

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('report');
             $table->foreignId('student_id')->constrained();
+            $table->foreignId('admin_id')->constrained();
             $table->softDeletes();
             $table->timestamps();
         });

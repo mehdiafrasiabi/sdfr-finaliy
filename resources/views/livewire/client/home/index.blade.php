@@ -102,18 +102,28 @@
             <livewire:client.home.features.index lazy/>
             <!-- end features -->
 
+            <livewire:client.home.collaboration.index/>
+
             <!-- section:latest-courses -->
             <livewire:client.home.latest-course.index />
             <!-- end section:latest-courses -->
+
+
         </div>
         <!-- end container -->
 
         <!-- feedback -->
-        <livewire:client.home.feedback.index/>
         <!-- end feedback -->
+        <div class="max-w-7xl space-y-14 px-4 mx-auto">
+            <livewire:client.home.top-student.index/>
+
+        </div>
+        <livewire:client.home.feedback.index/>
 
         <!-- blog -->
         <livewire:client.home.blog.index/>
+
+
         <!-- end blog -->
     </div>
 

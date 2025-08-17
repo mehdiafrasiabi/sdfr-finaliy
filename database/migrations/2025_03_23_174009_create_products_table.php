@@ -16,6 +16,10 @@ return new class extends Migration
             $table->string('name');
             $table->string('title');
             $table->string('tag')->nullable();
+            $table->enum('type', ['weekly', 'monthly', 'yearly_online', 'yearly_offline']);
+            $table->unsignedSmallInteger('duration_days')->default(30); // مدت دوره به روز
+            $table->boolean('has_supporter')->default(false); // پشتیبان دارد یا خیر
+            $table->boolean('has_advisor')->default(false); // مشاور دارد یا خیر
             $table->string('course_time');
             $table->string('meeting_time');
             $table->bigInteger('price')->default(0);

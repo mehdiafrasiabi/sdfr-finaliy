@@ -15,4 +15,13 @@ class Barnameh extends Model
     {
         return $this->belongsTo(ReportMonthly::class);
     }
+    public function admin()
+    {
+        return $this->belongsTo(\App\Models\Admin::class);
+    }
+    public function views()
+    {
+        return $this->hasMany(BarnamehView::class);
+    }
+
 }

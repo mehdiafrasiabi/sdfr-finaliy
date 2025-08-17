@@ -44,6 +44,8 @@ class Product extends Model
                 'course_time' => $formData['course_time'],
                 'meeting_time' => $formData['meeting_time'],
                 'category_id' => $formData['categoryId'],
+                'has_supporter' => $formData['has_supporter'],
+                'has_advisor' => $formData['has_advisor'],
                 'p_code' => config('app.name') . '-' . $this->generateProductCode(),
             ]
         );
@@ -142,5 +144,18 @@ class Product extends Model
     {
         return $this->belongsTo(SeoItem::class, 'id', 'ref_id');
     }
+    public function features()
+    {
+        return $this->hasMany(ProductFeature::class);
+    }
 
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+
+    public function students()
+    {
+        return $this->hasMany(Student::class);
+    }
 }

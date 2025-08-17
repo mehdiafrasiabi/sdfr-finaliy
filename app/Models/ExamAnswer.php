@@ -2,17 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class ExamAnswer extends Model
 {
-    use HasFactory;
 
     protected $guarded = [];
-
-    public function examUser()
+    public function answers()
     {
-        return $this->belongsTo(ExamStudent::class);
+        return $this->hasMany(ExamAnswer::class);
     }
 }

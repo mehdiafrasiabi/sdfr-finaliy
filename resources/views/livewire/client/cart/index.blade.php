@@ -214,7 +214,7 @@
                             </div>
                         </div>
                     </div>
-                    <button type="submit" wire:click="submitOrder"
+                    <button type="submit" wire:click="goToOrderInfo"
                             class="w-full h-11 inline-flex items-center justify-center gap-1 bg-primary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
                         <span class="font-semibold text-sm">تکمیل فرایند خرید</span>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"

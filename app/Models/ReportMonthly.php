@@ -9,4 +9,8 @@ class ReportMonthly extends Model
 {
     use HasFactory,softDeletes;
     protected $guarded = [];
+    public function student()
+    {
+        return $this->belongsTo(\App\Models\Student::class);
+    }
 }

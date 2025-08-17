@@ -1,9 +1,8 @@
-<div>
-    <div class="max-w-7xl space-y-14 px-4 mx-auto">
-        <!-- articles -->
-        <div
-            class="lg:flex lg:items-center lg:gap-10 bg-gradient-to-l from-secondary to-background rounded-2xl sm:p-10 p-5">
-            <div class="lg:w-4/12 flex items-start gap-5 lg:mb-0 mb-8">
+<div class="max-w-7xl space-y-14 px-4 mx-auto">
+    <!-- articles -->
+    <div
+        class="lg:flex lg:items-center lg:gap-10 bg-gradient-to-l from-secondary to-background rounded-2xl sm:p-10 p-5">
+        <div class="lg:w-4/12 flex items-start gap-5 lg:mb-0 mb-8">
                             <span
                                 class="flex-shrink-0 flex items-center justify-center w-12 h-12 bg-primary text-primary-foreground rounded-full">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
@@ -13,79 +12,84 @@
                                           clip-rule="evenodd"></path>
                                 </svg>
                             </span>
-                <div class="flex flex-col space-y-2">
+            <div class="flex flex-col space-y-2">
                                 <span class="font-black xs:text-2xl text-lg text-primary">
-                                    از گوشه و اطراف دنیای کنکور
+                                   از گوشه و اطراف دنیای کنکور
                                 </span>
-                    <span class="font-semibold xs:text-base text-sm text-muted">
-                        نوشتن کار جالبیه که از هزاران سال همراه ما بوده و کمک کرده تا همیشه به روز باشیم،
-                        مادر SDFR فضای رو به شکلی آماده کردیم تا شما بتونید بهترین نتیجه هارو بگیرید :)
-                    </span>
-                </div>
+                <span class="font-semibold xs:text-base text-sm text-muted">
+نوشتن کار جالبیه که از هزاران سال همراه ما بوده و کمک کرده تا همیشه به روز باشیم، مادر SDFR فضای رو به شکلی آماده کردیم تا شما بتونید بهترین نتیجه هارو بگیرید :)
+
+                </span>
             </div>
-            <div class="lg:w-8/12 w-full lg:mx-auto">
-                <div class="grid sm:grid-cols-2 grid-cols-1 gap-x-5 gap-y-8 space-y-8">
-                    <div class="space-y-5">
-                        <!-- article:card -->
-                        <div class="relative bg-background rounded-xl p-4">
-                            <div class="relative mb-3 z-20">
-                                <a href="/client/article-detail.html" class="block">
-                                    <img src="/client/assets/images/courses/test.jpg" class="max-w-full rounded-xl"
-                                         alt="..."/>
+        </div>
+        <div class="lg:w-8/12 w-full lg:mx-auto">
+            <div class="grid sm:grid-cols-2 grid-cols-1 gap-x-5 gap-y-8 space-y-8">
+                @foreach($blogs as $blog)
+                <div class="space-y-5">
+
+                        @php
+                            $slug = optional($blog->seo)->slug ?? \Illuminate\Support\Str::slug($blog->title);
+
+                                $image = $blog->images->first();
+                        @endphp
+                    <!-- article:card -->
+                    <div class="relative bg-background rounded-xl p-4">
+                        <div class="relative mb-3 z-20">
+                            <a href="{{ route('client.blog.show', [$blog->blog_code, $slug]) }}" class="block">
+                                <img src="{{asset('blogs/'.$blog->id.'/photo/'.$image->path)}}" class="max-w-full rounded-xl" alt=" {{ $blog->seo->meta_title }}">
+                            </a>
+                            <button type="button"
+                                    class="absolute left-3 -bottom-3 w-9 h-9 inline-flex items-center justify-center bg-secondary rounded-full shadow-xl text-muted transition-colors hover:text-red-500 z-10">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                     class="w-5 h-5">
+                                    <path
+                                        d="m9.653 16.915-.005-.003-.019-.01a20.759 20.759 0 0 1-1.162-.682 22.045 22.045 0 0 1-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 0 1 8-2.828A4.5 4.5 0 0 1 18 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 0 1-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 0 1-.69.001l-.002-.001Z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="relative space-y-3 z-10">
+                            <h2 class="font-bold text-sm">
+                                <a href="{{ route('client.blog.show', [$blog->blog_code, $slug]) }}"
+                                   class="line-clamp-1 text-foreground transition-colors hover:text-primary">
+                                    {{ $blog->title }}
                                 </a>
-                                <button type="button"
-                                        class="absolute left-3 -bottom-3 w-9 h-9 inline-flex items-center justify-center bg-secondary rounded-full shadow-xl text-muted transition-colors hover:text-red-500 z-10">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                         fill="currentColor" class="w-5 h-5">
-                                        <path
-                                            d="m9.653 16.915-.005-.003-.019-.01a20.759 20.759 0 0 1-1.162-.682 22.045 22.045 0 0 1-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 0 1 8-2.828A4.5 4.5 0 0 1 18 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 0 1-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 0 1-.69.001l-.002-.001Z">
-                                        </path>
-                                    </svg>
-                                </button>
-                            </div>
-                            <div class="relative space-y-3 z-10">
-                                <h2 class="font-bold text-sm">
-                                    <a href="/client/article-detail.html"
-                                       class="line-clamp-1 text-foreground transition-colors hover:text-primary">
-                                        همایش بزرگ انتخاب رشته کنکور به سبک SDFR
-                                    </a>
-                                </h2>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-1">
-                                        <div
-                                            class="flex-shrink-0 w-8 h-8 border border-white rounded-full overflow-hidden">
-                                            <img src="/client/assets/images/avatars/01.jpeg"
-                                                 class="w-full h-full object-cover" alt="...">
-                                        </div>
-                                        <a href="/client/lecturer.html"
-                                           class="line-clamp-1 font-bold text-xs text-foreground transition-colors hover:text-primary">
-                                                        حریربافان
-                                        </a>
+                            </h2>
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-1">
+                                    <div class="flex-shrink-0 w-8 h-8 border border-white rounded-full overflow-hidden">
+                                        <img src="/client/assets/images/blog/01.jpeg"
+                                             class="w-full h-full object-cover" alt="...">
                                     </div>
-                                    <a href="/client/article-category.html"
-                                       class="bg-primary/10 rounded-full text-primary transition-all hover:opacity-80 py-1 px-4">
-                                        <span class="font-bold text-xxs">مشاوره کنکوری</span>
-                                    </a>
+                                    <a href="#"
+                                       class="line-clamp-1 font-bold text-xs text-foreground transition-colors hover:text-primary">
+
+                                        گروه آموزشی SDFR</a>
                                 </div>
-                                <div class="flex justify-end">
-                                    <div class="flex items-center gap-1 text-muted">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                             class="w-5 h-5">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                  d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                        </svg>
-                                        <span class="font-semibold text-xs text-muted">زمان مطالعه:</span>
-                                        <span class="font-semibold text-xs text-foreground">۲۰ دقیقه</span>
-                                    </div>
+                                <a href="{{ route('client.blog.show', [$blog->blog_code, $slug]) }}"
+                                   class="bg-primary/10 rounded-full text-primary transition-all hover:opacity-80 py-1 px-4">
+                                    <span class="font-bold text-xxs">{{$blog->category->name}}</span>
+                                </a>
+                            </div>
+                            <div class="flex justify-end">
+                                <div class="flex items-center gap-1 text-muted">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+                                    </svg>
+                                    <span class="font-semibold text-xs text-muted">زمان مطالعه:</span>
+                                    <span class="font-semibold text-xs text-foreground">{{$blog->study_time}} دقیقه</span>
                                 </div>
                             </div>
                         </div>
-                        <!-- end article:card -->
                     </div>
+                    <!-- end article:card -->
+
                 </div>
+                @endforeach
             </div>
         </div>
-        <!-- end articles -->
     </div>
+    <!-- end articles -->
 </div>

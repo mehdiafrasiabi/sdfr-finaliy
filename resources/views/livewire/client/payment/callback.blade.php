@@ -375,6 +375,7 @@
                     <h2 class="font-bold text-xl text-foreground">
                         {{session('paymentSuccess')}}
                     </h2>
+                    <div class="h-11 inline-flex items-center justify-center bg-primary rounded-full text-white px-8 mr-auto" href="{{route('client.profile.dashboard')}}">ورود به پنل کاربری</div>
                 </div>
             </div>
         </div>
@@ -1445,6 +1446,8 @@
                         <h2 class="font-bold text-xl text-foreground">
                             {{session('paymentError')}}
                         </h2>
+                        <div class="h-11 inline-flex items-center justify-center bg-red-500 rounded-full text-white px-8 mr-auto" href="{{route('client.checkout.cart')}}">خرید مجدد</div>
+
                     </div>
                 </div>
             </div>
@@ -1452,6 +1455,7 @@
             {{session('paymentError')}}
 
         </div>
-    @endif
+
+        @endif
 
 </div>

@@ -66,13 +66,6 @@
                                     @enderror
                                 </div>
                             </div>
-                            @error('password')
-                            <div class="col-12">
-                                <div class="mb-4">
-                                    <div class="text-danger" style="margin-top: 5px">{{$message}}</div>
-                                </div>
-                                @enderror
-                            </div>
                             @if(session()->has('message'))
                                 <div class="text-center text-white alert  text-danger bg-danger">{{session('message')}}</div>
                             @endif

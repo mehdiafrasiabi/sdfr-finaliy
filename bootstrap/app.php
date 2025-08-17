@@ -11,12 +11,22 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        ]);
+
         $middleware->redirectGuestsTo(function (){
             $currentPath= request()->path();
             if (str_starts_with($currentPath,'admin')){
                 return route('admin.sign-in');
+            } elseif (str_starts_with($currentPath,'manager')){
+                return route('manager.sign-in');
+            }else{
+                return route('client.auth.login');
+
             }
-                return route('client.auth.index');
 
         });
 

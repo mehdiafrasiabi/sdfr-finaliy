@@ -14,9 +14,21 @@ return new class extends Migration
         Schema::create('reports', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained();
-            $table->string('report_file');
-            $table->text('report_date');
-            $table->string('description')->nullable();
+            $table->foreignId('admin_id')->constrained();
+            $table->date('execution_date');
+            // تعداد پارت موظفی و انجام شده
+            $table->unsignedTinyInteger('required_parts')->default(0); // 1 تا 10
+            $table->unsignedTinyInteger('done_parts')->default(0); // 1 تا 10
+
+            // تست‌ها
+            $table->unsignedInteger('required_tests')->default(0)->nullable();
+            $table->unsignedInteger('done_tests')->default(0)->nullable();
+            // ساعات گوشی
+            $table->unsignedTinyInteger('phone_study_hours')->default(0); // 1 تا 24
+            $table->unsignedTinyInteger('phone_nonstudy_hours')->default(0); // 1 تا 24
+
+            $table->string('report_file')->nullable();
+            $table->text('description')->nullable();
             $table->boolean('complacent')->default(true);
             $table->enum('status', ['pending','completed','rejected'])->default('pending');
             $table->timestamps();

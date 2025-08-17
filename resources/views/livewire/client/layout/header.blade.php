@@ -1,6 +1,6 @@
 <div>
     <header class="bg-background/80 backdrop-blur-xl border-b border-border sticky top-0 z-30"
-            x-data="{ offcanvasOpen: false, openSearchBox: false }">
+            x-data="{ offcanvasOpen: false }">
         <!-- container -->
         <div class="max-w-7xl relative px-4 mx-auto">
             <div class="flex items-center gap-8 h-20">
@@ -29,282 +29,106 @@
                         <a href="{{route('client.home')}}"
                            class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground">
                             <span class="font-semibold">صفحه اصلی</span>
-                            {{--                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"--}}
-                            {{--                                 stroke-width="1.5" stroke="currentColor" class="w-5 h-5">--}}
-                            {{--                                <path stroke-linecap="round" stroke-linejoin="round"--}}
-                            {{--                                      d="m19.5 8.25-7.5 7.5-7.5-7.5"/>--}}
-                            {{--                            </svg>--}}
+
                         </a>
-                        {{--                        <div--}}
-                        {{--                            class="absolute right-0 top-full opacity-0 invisible transition-all group-hover/categories:opacity-100 group-hover/categories:visible pt-5 z-10">--}}
-                        {{--                            <ul--}}
-                        {{--                                class="flex flex-col relative w-56 min-h-[300px] bg-background border border-border shadow-2xl shadow-black/5">--}}
-                        {{--                                <li class="group">--}}
-                        {{--                                    <a href="#"--}}
-                        {{--                                       class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">--}}
-                        {{--                                        <span class="font-semibold text-sm">برنامه نویسی وب</span>--}}
-                        {{--                                        <span class="absolute left-3">--}}
-                        {{--                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"--}}
-                        {{--                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">--}}
-                        {{--                                                    <path stroke-linecap="round" stroke-linejoin="round"--}}
-                        {{--                                                          d="M15.75 19.5 8.25 12l7.5-7.5"/>--}}
-                        {{--                                                </svg>--}}
-                        {{--                                            </span>--}}
-                        {{--                                    </a>--}}
-                        {{--                                    <ul--}}
-                        {{--                                        class="absolute -top-px -bottom-px right-full flex flex-wrap flex-col w-96 bg-background border border-border shadow-2xl shadow-black/5 space-y-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible px-3 pt-8 pb-3">--}}
-                        {{--                                        <li class="absolute top-2">--}}
-                        {{--                                                <span class="font-bold text-sm text-muted cursor-default">محبوب ترین--}}
-                        {{--                                                    موضوعات</span>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">جاوااسکریپت</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">نود جی اس</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">ریکت جی اس</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">ویو جی اس</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">تیلویند</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">بوت استرپ</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">سی اس اس</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">اچ تی ام ال</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">پی اچ پی</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">لاراول</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">لایووایر</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">آلپاین جی اس</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">دات نت</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                    </ul>--}}
-                        {{--                                </li>--}}
-                        {{--                                <li class="group">--}}
-                        {{--                                    <a href="#"--}}
-                        {{--                                       class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">--}}
-                        {{--                                        <span class="font-semibold text-sm">دیتا ساینس</span>--}}
-                        {{--                                        <span class="absolute left-3">--}}
-                        {{--                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"--}}
-                        {{--                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">--}}
-                        {{--                                                    <path stroke-linecap="round" stroke-linejoin="round"--}}
-                        {{--                                                          d="M15.75 19.5 8.25 12l7.5-7.5"/>--}}
-                        {{--                                                </svg>--}}
-                        {{--                                            </span>--}}
-                        {{--                                    </a>--}}
-                        {{--                                    <ul--}}
-                        {{--                                        class="absolute -top-px -bottom-px right-full flex flex-wrap flex-col w-96 bg-background border border-border shadow-2xl shadow-black/5 space-y-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible px-3 pt-8 pb-3">--}}
-                        {{--                                        <li class="absolute top-2">--}}
-                        {{--                                                <span class="font-bold text-sm text-muted cursor-default">محبوب ترین--}}
-                        {{--                                                    موضوعات</span>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">جاوااسکریپت</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">نود جی اس</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">ریکت جی اس</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">ویو جی اس</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">پی اچ پی</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">لاراول</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">لایووایر</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">آلپاین جی اس</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                        <li class="w-1/2">--}}
-                        {{--                                            <a href="#"--}}
-                        {{--                                               class="flex items-center gap-2 text-muted before:content-[''] before:inline-block before:w-1 before:h-1 before:bg-border before:rounded-full transition-colors hover:text-primary hover:before:bg-primary">--}}
-                        {{--                                                <span class="font-semibold text-sm">دات نت</span>--}}
-                        {{--                                            </a>--}}
-                        {{--                                        </li>--}}
-                        {{--                                    </ul>--}}
-                        {{--                                </li>--}}
-                        {{--                                <li>--}}
-                        {{--                                    <a href="#"--}}
-                        {{--                                       class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">--}}
-                        {{--                                        <span class="font-semibold text-sm">زبانهای برنامه نویسی</span>--}}
-                        {{--                                        <span class="absolute left-3">--}}
-                        {{--                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"--}}
-                        {{--                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">--}}
-                        {{--                                                    <path stroke-linecap="round" stroke-linejoin="round"--}}
-                        {{--                                                          d="M15.75 19.5 8.25 12l7.5-7.5"/>--}}
-                        {{--                                                </svg>--}}
-                        {{--                                            </span>--}}
-                        {{--                                    </a>--}}
-                        {{--                                </li>--}}
-                        {{--                                <li>--}}
-                        {{--                                    <a href="#"--}}
-                        {{--                                       class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">--}}
-                        {{--                                        <span class="font-semibold text-sm">توسعه بازی</span>--}}
-                        {{--                                        <span class="absolute left-3">--}}
-                        {{--                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"--}}
-                        {{--                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">--}}
-                        {{--                                                    <path stroke-linecap="round" stroke-linejoin="round"--}}
-                        {{--                                                          d="M15.75 19.5 8.25 12l7.5-7.5"/>--}}
-                        {{--                                                </svg>--}}
-                        {{--                                            </span>--}}
-                        {{--                                    </a>--}}
-                        {{--                                </li>--}}
-                        {{--                                <li>--}}
-                        {{--                                    <a href="#"--}}
-                        {{--                                       class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">--}}
-                        {{--                                        <span class="font-semibold text-sm">برنامه نویسی موبایل</span>--}}
-                        {{--                                        <span class="absolute left-3">--}}
-                        {{--                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"--}}
-                        {{--                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">--}}
-                        {{--                                                    <path stroke-linecap="round" stroke-linejoin="round"--}}
-                        {{--                                                          d="M15.75 19.5 8.25 12l7.5-7.5"/>--}}
-                        {{--                                                </svg>--}}
-                        {{--                                            </span>--}}
-                        {{--                                    </a>--}}
-                        {{--                                </li>--}}
-                        {{--                                <li>--}}
-                        {{--                                    <a href="#"--}}
-                        {{--                                       class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">--}}
-                        {{--                                        <span class="font-semibold text-sm">طراحی دیتابیس</span>--}}
-                        {{--                                        <span class="absolute left-3">--}}
-                        {{--                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"--}}
-                        {{--                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">--}}
-                        {{--                                                    <path stroke-linecap="round" stroke-linejoin="round"--}}
-                        {{--                                                          d="M15.75 19.5 8.25 12l7.5-7.5"/>--}}
-                        {{--                                                </svg>--}}
-                        {{--                                            </span>--}}
-                        {{--                                    </a>--}}
-                        {{--                                </li>--}}
-                        {{--                                <li>--}}
-                        {{--                                    <a href="#"--}}
-                        {{--                                       class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">--}}
-                        {{--                                        <span class="font-semibold text-sm">تست نویسی</span>--}}
-                        {{--                                        <span class="absolute left-3">--}}
-                        {{--                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"--}}
-                        {{--                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">--}}
-                        {{--                                                    <path stroke-linecap="round" stroke-linejoin="round"--}}
-                        {{--                                                          d="M15.75 19.5 8.25 12l7.5-7.5"/>--}}
-                        {{--                                                </svg>--}}
-                        {{--                                            </span>--}}
-                        {{--                                    </a>--}}
-                        {{--                                </li>--}}
-                        {{--                            </ul>--}}
-                        {{--                        </div>--}}
+
                     </div>
                     <!-- end categories -->
 
                     <!-- menu -->
                     <ul class="flex items-center gap-5">
                         <li>
-                            <a href="{{route('client.shop')}}"
+                            <a href="{{route('client.shop')}}" wire:navigate
                                class="inline-flex text-muted transition-colors hover:text-foreground">
-                                <span class="font-semibold">مشاوره</span>
+                                <span class="font-semibold">دوره ها </span>
                             </a>
                         </li>
-                        <li>
-                            <a href="{{route('client.about-us')}}"
-                               class="inline-flex text-muted transition-colors hover:text-foreground">
-                                <span class="font-semibold">درباره ما</span>
+                        <div class="relative group/categories">
+                            <a href="#"
+                               class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground">
+                                <span class="font-semibold text-sm">بلاگ</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">\
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
                             </a>
-                        </li>
-                        <li>
-                            <a href="{{route('client.contact-us')}}"
-                               class="inline-flex text-muted transition-colors hover:text-foreground">
-                                <span class="font-semibold">ارتباط با ما</span>
+                            <div
+                                class="absolute right-0 top-full opacity-0 invisible transition-all group-hover/categories:opacity-100 group-hover/categories:visible pt-5 z-10">
+                                <ul
+                                    class="flex flex-col relative w-56 min-h-[100px] bg-background border border-border shadow-2xl shadow-black/5">
+                                    <li class="group">
+                                        <a href="{{route('client.blog')}}"
+                                           class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
+                                            <span class="font-semibold text-sm">مقالات</span>
+
+                                        </a>
+                                    </li>
+
+                                    <li class="group">
+                                        <a href="{{route('client.blog.ExamQuestion')}}"
+                                           class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
+                                            <span class="font-semibold text-sm">نمونه سوالات امتحانی</span>
+
+                                        </a>
+                                    </li>
+                                    <li class="group">
+                                        <a href="{{route('client.course')}}"
+                                           class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
+                                            <span class="font-semibold text-sm">دوره های آموزشی</span>
+
+                                        </a>
+                                    </li>
+
+
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="relative group/categories">
+                            <a href="#"
+                               class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground">
+                                <span class="font-semibold text-sm">لینک های مفید</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                </svg>
                             </a>
-                        </li>
+                            <div
+                                class="absolute right-0 top-full opacity-0 invisible transition-all group-hover/categories:opacity-100 group-hover/categories:visible pt-5 z-10">
+                                <ul
+                                    class="flex flex-col relative w-56 min-h-[100px] bg-background border border-border shadow-2xl shadow-black/5">
+                                    <li class="group">
+                                        <a href="{{route('client.about-us')}}"
+                                           class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
+                                            <span class="font-semibold text-sm">درباره ما</span>
+
+                                        </a>
+                                    </li>
+                                    <li class="group">
+                                        <a href="{{route('client.contact-us')}}"
+                                           class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
+                                            <span class="font-semibold text-sm">ارتباط با ما</span>
+
+                                        </a>
+                                    </li>
+                                    <li class="group">
+                                        <a href="{{route('client.terms')}}"
+                                           class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
+                                            <span class="font-semibold text-sm">قوانین و مقررات</span>
+
+                                        </a>
+                                    </li>
+
+
+                                </ul>
+                            </div>
+                        </div>
                         <li>
-                            <a href="{{route('client.terms')}}"
+                            <a target="_blank"
+                                href="https://survey.porsline.ir/s/stlcBHD8"
                                class="inline-flex text-muted transition-colors hover:text-foreground">
-                                <span class="font-semibold">قوانین و مقررات</span>
+                                <span class="font-semibold">همکاری با مجموعه</span>
                             </a>
                         </li>
                     </ul>
@@ -313,31 +137,17 @@
 
                 <div class="flex items-center md:gap-5 gap-3 mr-auto">
                     <!-- darkMode:button -->
-                    <button type="button"
-                            class="hidden lg:inline-flex items-center justify-center w-10 h-10 bg-secondary rounded-full text-foreground"
+                    <div type="button"
                             id="dark-mode-button">
-                            <span class="light-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"/>
-                                </svg>
-                            </span>
-                        <span class="dark-icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"/>
-                                </svg>
-                            </span>
-                    </button>
+
+                    </div>
                     <!-- end darkMode:button -->
 
                     <!-- openSearchBox:button -->
 
                     <!-- end openSearchBox:button -->
                     @if(\Illuminate\Support\Facades\Auth::check())
-                        <a href="{{route('client.checkout.cart')}}"
+                        <a href="{{route('client.checkout.cart')}}" wire:navigate
                            class="inline-flex items-center justify-center relative w-10 h-10 bg-secondary rounded-full text-foreground">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                  stroke="currentColor" class="w-5 h-5">
@@ -359,11 +169,13 @@
                             <button class="flex items-center sm:gap-3 gap-1" x-on:click="isOpen = !isOpen">
                                 <span
                                     class="inline-flex items-center justify-center w-9 h-9 bg-secondary rounded-full text-foreground">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                                    </svg>
+
+                                        <img src="{{ (auth()->check() && auth()->user()->picture && file_exists(public_path('user/img/'.auth()->id().'/'.auth()->user()->picture)))
+                          ? asset('user/img/'.auth()->id().'/'.auth()->user()->picture)
+                             : asset('client/assets/images/avatars/01.jpeg') }}"
+                                             class="rounded rounded-full">
+
+
                                 </span>
                                 <span class="xs:flex flex-col items-start hidden text-xs space-y-1">
                                     <span class="font-semibold text-foreground"> {{auth()->user()->name}} عزیز</span>
@@ -392,16 +204,6 @@
                                         <span class="font-semibold text-xs">مشاهده پروفایل</span>
                                     </a>
 
-                                    <a href="{{route('client.profile.notification')}}"
-                                       class="flex items-center gap-2 w-full text-foreground transition-colors hover:text-primary px-3 py-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                  d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0">
-                                            </path>
-                                        </svg>
-                                        <span class="font-semibold text-xs">اعلانات</span>
-                                    </a>
                                     <a href="{{route('client.profile.plan')}}"
                                        class="flex items-center gap-2 w-full text-foreground transition-colors hover:text-primary px-3 py-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -427,7 +229,7 @@
                         <!-- end user:dropdown -->
                     @else
                         <!-- login-register:button -->
-                        <a href="{{route('client.auth.index')}}"
+                        <a href="{{route('client.auth.login')}}"
                            class="inline-flex items-center justify-center gap-1 h-10 bg-primary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                  class="w-6 h-6">
@@ -435,7 +237,7 @@
                                       d="M7.5 3.75A1.5 1.5 0 0 0 6 5.25v13.5a1.5 1.5 0 0 0 1.5 1.5h6a1.5 1.5 0 0 0 1.5-1.5V15a.75.75 0 0 1 1.5 0v3.75a3 3 0 0 1-3 3h-6a3 3 0 0 1-3-3V5.25a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3V9A.75.75 0 0 1 15 9V5.25a1.5 1.5 0 0 0-1.5-1.5h-6Zm5.03 4.72a.75.75 0 0 1 0 1.06l-1.72 1.72h10.94a.75.75 0 0 1 0 1.5H10.81l1.72 1.72a.75.75 0 1 1-1.06 1.06l-3-3a.75.75 0 0 1 0-1.06l3-3a.75.75 0 0 1 1.06 0Z"
                                       clip-rule="evenodd"/>
                             </svg>
-                            <span class="font-semibold text-sm">حساب کاربری</span>
+                            <span class="font-semibold text-sm">پرتال دانش آموزی</span>
                         </a>
                         <!-- end login-register:button -->
                     @endif
@@ -445,24 +247,7 @@
             </div>
 
             <!-- searchBox -->
-            <div class="absolute inset-x-4 hidden lg:flex flex-col h-full bg-background transition-all"
-                 x-bind:class="openSearchBox ? 'top-0' : '-top-full'">
-                <form action="#" class="h-full">
-                    <div class="flex items-center h-full relative">
-                        <input type="text"
-                               class="form-input w-full !ring-0 !ring-offset-0 bg-background border-0 focus:border-0 text-foreground"
-                               placeholder="نام دوره،مقاله و یا دسته بندی را وارد نمایید.."/>
-                        <button type="button"
-                                class="absolute left-0 inline-flex items-center justify-center w-9 h-9 bg-secondary rounded-full text-muted transition-colors hover:text-red-500"
-                                x-on:click="openSearchBox = false">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                 stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
-                            </svg>
-                        </button>
-                    </div>
-                </form>
-            </div>
+
             <!-- end searchBox -->
         </div>
         <!-- end container -->
@@ -496,17 +281,11 @@
                 <div class="space-y-5 p-4">
 
                     <div class="h-px bg-border"></div>
-                    <label class="relative w-full flex items-center justify-between cursor-pointer">
-                        <span class="font-bold text-sm text-foreground">تم تاریک</span>
-                        <input type="checkbox" class="sr-only peer" id="dark-mode-checkbox"/>
-                        <div
-                            class="w-11 h-5 relative bg-background border-2 border-border peer-focus:outline-none rounded-full peer peer-checked:after:left-[26px] peer-checked:after:bg-background after:content-[''] after:absolute after:left-0.5 after:top-0.5 after:bg-border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-primary peer-checked:border-primary">
-                        </div>
-                    </label>
-                    <div class="h-px bg-border"></div>
+                        <input type="hidden"  id="dark-mode-checkbox"/>
+
                     <ul class="flex flex-col space-y-1">
                         <li>
-                            <a href="{{route('client.home')}}"
+                            <a href="{{route('client.home')}}" wire:navigate
                                class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                      class="w-5 h-5">
@@ -518,7 +297,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{route('client.shop')}}"
+                            <a href="{{route('client.shop')}}" wire:navigate
                                class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                      class="w-6 h-6">
@@ -526,11 +305,48 @@
                                           d="M3 6a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3V6ZM3 15.75a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-2.25Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3v-2.25Z"
                                           clip-rule="evenodd"></path>
                                 </svg>
-                                <span class="font-semibold text-xs">مشاوره</span>
+                                <span class="font-semibold text-xs">دوره ها </span>
                             </a>
                         </li>
                         <li>
-                            <a href="{{route('client.about-us')}}"
+                            <a href="{{route('client.blog')}}" wire:navigate
+                               class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                     class="w-6 h-6">
+                                    <path fill-rule="evenodd"
+                                          d="M3 6a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3V6ZM3 15.75a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-2.25Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3v-2.25Z"
+                                          clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="font-semibold text-xs">مقالات</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{route('client.blog.ExamQuestion')}}" wire:navigate
+                               class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                     class="w-6 h-6">
+                                    <path fill-rule="evenodd"
+                                          d="M3 6a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3V6ZM3 15.75a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-2.25Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3v-2.25Z"
+                                          clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="font-semibold text-xs">نمونه سوال امتحانی</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{route('client.course')}}" wire:navigate
+                               class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                     class="w-6 h-6">
+                                    <path fill-rule="evenodd"
+                                          d="M3 6a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3v2.25a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3V6ZM3 15.75a3 3 0 0 1 3-3h2.25a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3v-2.25Zm9.75 0a3 3 0 0 1 3-3H18a3 3 0 0 1 3 3V18a3 3 0 0 1-3 3h-2.25a3 3 0 0 1-3-3v-2.25Z"
+                                          clip-rule="evenodd"></path>
+                                </svg>
+                                <span class="font-semibold text-xs">دوره های آموزشی</span>
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="{{route('client.about-us')}}" wire:navigate
                                class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -542,7 +358,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{route('client.contact-us')}}"
+                            <a href="{{route('client.contact-us')}}" wire:navigate
                                class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                                      class="w-5 h-5">
@@ -554,7 +370,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="{{route('client.terms')}}"
+                            <a href="{{route('client.terms')}}" wire:navigate
                                class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -563,6 +379,18 @@
                                     </path>
                                 </svg>
                                 <span class="font-semibold text-xs">قوانین و مقررات</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{route('client.terms')}}" wire:navigate
+                               class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z">
+                                    </path>
+                                </svg>
+                                <span class="font-semibold text-xs">همکاری با مجموعه</span>
                             </a>
                         </li>
                     </ul>
@@ -574,6 +402,7 @@
                  x-bind:class="offcanvasOpen ? 'opacity-100 visible' : 'opacity-0 invisible'"
                  x-on:click="offcanvasOpen = false">
             </div><!-- end offcanvas:overlay -->
-        </div><!-- end offcanvas -->
+        </div>
+        <!-- end offcanvas -->
     </header>
 </div>

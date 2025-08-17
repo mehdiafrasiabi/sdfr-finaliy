@@ -35,7 +35,7 @@ class Index extends Component
                 });
             })
             ->select('id', 'name', 'title', 'tag', 'price', 'meeting_time', 'course_time', 'p_code')
-            ->latest()
+            ->orderBy('price', 'asc') // بر اساس قیمت از کم به زیاد
             ->get();
 
         return view('livewire.client.shop.index', compact('products'));

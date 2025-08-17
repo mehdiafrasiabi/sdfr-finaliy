@@ -35,7 +35,7 @@
                                 </span>
                             <div class="flex flex-col font-black space-y-2">
                                 <span class="text-sm text-primary">شماره تلفن</span>
-                                <span class="text-foreground">0902-002-9757</span>
+                                <span class="text-foreground">051-35092160</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-5">
@@ -111,31 +111,16 @@
                                         <div class="w-1 h-1 bg-foreground rounded-full"></div>
                                         <div class="w-2 h-2 bg-foreground rounded-full"></div>
                                     </div>
-                                    <div class="font-black text-foreground">خبرنامه</div>
+                                    <div class="font-black text-foreground">نشان های اعتماد</div>
                                 </div>
-                                <p class="text-sm text-muted">
-                                    برای اطلاع از جدیدترین اخبار و جشنوراه‌های تخفیفی SDFR تلفن خود
-                                    را وارد کنید.
-                                </p>
-                                <form action="#">
-                                    <div class="flex items-center gap-3 relative">
-                                            <span class="absolute right-3 text-muted">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                     fill="currentColor" class="w-5 h-5">
-                                                      <path fill-rule="evenodd"
-                                                      d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.542 11.542 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-1.149 0-2.263-.15-3.326-.43A13.022 13.022 0 0 1 2.43 8.326 13.019 13.019 0 0 1 2 5V3.5Z"
-                                                      clip-rule="evenodd"></path>
-                                                 </svg>
-                                            </span>
-                                        <input type="email"
-                                               class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-0 focus:border-border rounded-xl text-sm text-foreground pr-10"
-                                               placeholder="تلقن همراه" required/>
-                                        <button type="submit"
-                                                class="h-11 inline-flex items-center justify-center gap-3 bg-primary rounded-xl whitespace-nowrap text-xs text-primary-foreground transition-all hover:opacity-80 px-4">
-                                            ثبت
-                                        </button>
-                                    </div>
-                                </form>
+                                <div class="text-sm text-muted">
+{{--                                    <a referrerpolicy='origin' target='_blank'--}}
+{{--                                       href='https://trustseal.enamad.ir/?id=631278&Code=tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'><img--}}
+{{--                                            referrerpolicy='origin'--}}
+{{--                                            src='https://trustseal.enamad.ir/logo.aspx?id=631278&Code=tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'--}}
+{{--                                            alt='' style='cursor:pointer' code='tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'>--}}
+{{--                                    </a>--}}
+                                </div>
                             </div>
                             <div class="space-y-5">
                                 <div class="flex items-center gap-3">
@@ -147,7 +132,7 @@
                                 </div>
                                 <ul class="flex flex-wrap items-center gap-5">
                                     <li>
-                                        <a href="#"
+                                        <a href="https://instagram.com/sdfr.me"
                                            class="flex items-center justify-center w-12 h-12 bg-secondary rounded-full text-foreground transition-colors hover:text-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                                  stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -159,7 +144,7 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a href="#"
+                                        <a href="https://t.me/Atghiaeee"
                                            class="flex items-center justify-center w-12 h-12 bg-secondary rounded-full text-foreground transition-colors hover:text-primary">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                                  stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -188,6 +173,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="flex items-center gap-3 py-5">
                 <p class="text-xs text-muted">&#169; کليه حقوق محفوظ است</p>
                 <div class="flex-grow border-t border-border border-dashed"></div>

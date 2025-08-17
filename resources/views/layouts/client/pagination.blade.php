@@ -1,27 +1,48 @@
 @if ($paginator->hasPages())
-    <div class="paginating-container pagination-default">
-        <ul class="pagination">
+    <nav class="flex justify-center mt-6" role="navigation" aria-label="Pagination Navigation">
+        <ul class="inline-flex items-center space-x-1 rtl:space-x-reverse">
+
             {{-- Previous Page Link --}}
             @if ($paginator->onFirstPage())
-                <li class="prev disabled text-white"><a href="javascript:void(0);">Prev</a></li>
+                <li>
+                    <span class="inline-flex items-center px-3 py-1 text-sm text-gray-400 bg-gray-100 rounded-full cursor-not-allowed">
+                        قبلی
+                    </span>
+                </li>
             @else
-                <li class="prev"><a href="javascript:void(0);" wire:click="previousPage" rel="prev">Prev</a></li>
+                <li>
+                    <button wire:click="previousPage" rel="prev"
+                            class="inline-flex items-center px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-100">
+                        قبلی
+                    </button>
+                </li>
             @endif
 
             {{-- Pagination Elements --}}
             @foreach ($elements as $element)
-                {{-- "Three Dots" Separator --}}
+                {{-- Dots --}}
                 @if (is_string($element))
-                    <li class="disabled"><a href="javascript:void(0);">{{ $element }}</a></li>
+                    <li>
+                        <span class="px-3 py-1 text-sm text-gray-400">{{ $element }}</span>
+                    </li>
                 @endif
 
-                {{-- Array Of Links --}}
+                {{-- Page Numbers --}}
                 @if (is_array($element))
                     @foreach ($element as $page => $url)
                         @if ($page == $paginator->currentPage())
-                            <li class="active"><a href="javascript:void(0);">{{ $page }}</a></li>
+                            <li>
+                                <span class="inline-flex items-center px-3 py-1 text-sm font-semibold text-white bg-primary rounded-full shadow">
+                                    {{ $page }}
+                                </span>
+                            </li>
                         @else
-                            <li><a href="javascript:void(0);" wire:click="gotoPage({{ $page }})">{{ $page }}</a></li>
+                            <li>
+                                <button wire:click="gotoPage({{ $page }})"
+                                        class="inline-flex items-center px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-100">
+                                    {{ $page }}
+                                </button>
+                            </li>
                         @endif
                     @endforeach
                 @endif
@@ -29,10 +50,20 @@
 
             {{-- Next Page Link --}}
             @if ($paginator->hasMorePages())
-                <li class="next"><a href="javascript:void(0);" wire:click="nextPage" rel="next">Next</a></li>
+                <li>
+                    <button wire:click="nextPage" rel="next"
+                            class="inline-flex items-center px-3 py-1 text-sm text-gray-700 bg-white border border-gray-300 rounded-full hover:bg-gray-100">
+                        بعدی
+                    </button>
+                </li>
             @else
-                <li class="next disabled"><a href="javascript:void(0);">Next</a></li>
+                <li>
+                    <span class="inline-flex items-center px-3 py-1 text-sm text-gray-400 bg-gray-100 rounded-full cursor-not-allowed">
+                        بعدی
+                    </span>
+                </li>
             @endif
+
         </ul>
-    </div>
+    </nav>
 @endif

@@ -5,120 +5,11 @@
     @endpush
     <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
         <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
-            <!-- user:info -->
-            <div class="flex items-center gap-5 mb-5">
-                <div class="flex items-center gap-3">
-                    <div class="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden">
-                        <img src="/client/assets/images/avatars/01.jpeg" class="w-full h-full object-cover"
-                             alt="..." />
-                    </div>
-                    <div class="flex flex-col items-start space-y-1">
-                        <span class="text-xs text-muted">خوش آمدید</span>
-                        <span class="line-clamp-1 font-semibold text-sm text-foreground cursor-default">جلال
-                                        بهرامی راد</span>
-                    </div>
-                </div>
-            </div>
+
             <!-- end user:info -->
 
             <!-- user:menus -->
-            <ul class="flex flex-col space-y-3 bg-secondary rounded-2xl p-5">
-                <li>
-                    <a href="{{route('client.profile.dashboard')}}"
-                       class="w-full h-11 inline-flex items-center text-right gap-3 bg-background rounded-full text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                             class="w-5 h-5">
-                            <path fill-rule="evenodd"
-                                  d="M1.5 7.125c0-1.036.84-1.875 1.875-1.875h6c1.036 0 1.875.84 1.875 1.875v3.75c0 1.036-.84 1.875-1.875 1.875h-6A1.875 1.875 0 0 1 1.5 10.875v-3.75Zm12 1.5c0-1.036.84-1.875 1.875-1.875h5.25c1.035 0 1.875.84 1.875 1.875v8.25c0 1.035-.84 1.875-1.875 1.875h-5.25a1.875 1.875 0 0 1-1.875-1.875v-8.25ZM3 16.125c0-1.036.84-1.875 1.875-1.875h5.25c1.036 0 1.875.84 1.875 1.875v2.25c0 1.035-.84 1.875-1.875 1.875h-5.25A1.875 1.875 0 0 1 3 18.375v-2.25Z"
-                                  clip-rule="evenodd" />
-                        </svg>
-                        <span class="font-semibold text-xs">پیشخوان</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{route('client.profile.notification')}}"
-                       class="w-full h-11 inline-flex items-center text-right gap-3 bg-background rounded-full text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0">
-                            </path>
-                        </svg>
-                        <span class="font-semibold text-xs">اعلانات</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{route('client.profile.plan')}}"
-                       class="w-full h-11 inline-flex items-center text-right gap-3 bg-background rounded-full text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5">
-                            </path>
-                        </svg>
-                        <span class="font-semibold text-xs">برنامه و گزارش های من</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{route('client.profile.report')}}"
-                       class="w-full h-11 inline-flex items-center text-right gap-3 bg-primary rounded-full text-primary-foreground px-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z">
-                            </path>
-                        </svg>
-                        <span class="font-semibold text-xs">گزارش های روزانه من</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="{{route('client.profile.financial')}}"
-                       class="w-full h-11 inline-flex items-center text-right gap-3 bg-background rounded-full text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M21 12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 9m18 0V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v3">
-                            </path>
-                        </svg>
-                        <span class="font-semibold text-xs">مالی و اشتراک</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{route('client.profile.ticket')}}"
-                       class="w-full h-11 inline-flex items-center text-right gap-3 bg-background rounded-full text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="size-5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 0 1 .778-.332 48.294 48.294 0 0 0 5.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" />
-                        </svg>
-                        <span class="font-semibold text-xs">تیکت و پشتیبانی</span>
-                    </a>
-                </li>
-
-                <li>
-                    <a href="{{route('client.profile.edit')}}"
-                       class="w-full h-11 inline-flex items-center text-right gap-3 bg-background rounded-full text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125">
-                            </path>
-                        </svg>
-                        <span class="font-semibold text-xs">ویرایش پروفایل</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{{route('client.logout')}}"
-                       class="w-full h-11 inline-flex items-center text-right gap-3 bg-background rounded-full text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15">
-                            </path>
-                        </svg>
-                        <span class="font-semibold text-xs">خروج از حساب</span>
-                    </a>
-                </li>
-            </ul>
+            <livewire:client.profile.sidebar/>
             <!-- end user:menus -->
         </div>
 
@@ -131,7 +22,7 @@
                             <div class="w-1 h-1 bg-foreground rounded-full"></div>
                             <div class="w-2 h-2 bg-foreground rounded-full"></div>
                         </div>
-                        <div class="font-black text-foreground">دوره های من</div>
+                        <div class="font-black text-foreground">گزارش های من</div>
                     </div>
                     <!-- end section:title -->
 
@@ -167,7 +58,8 @@
                                         <!-- inactive icon -->
                                         <span x-show="activeTab !== 'tabOne'">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                             viewBox="0 0 24 24" stroke-width="1.5"
+                                                             stroke="currentColor"
                                                              class="w-5 h-5">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                   d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5">
@@ -201,7 +93,8 @@
                                         <!-- inactive icon -->
                                         <span x-show="activeTab !== 'tabTwo'">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                             viewBox="0 0 24 24" stroke-width="1.5"
+                                                             stroke="currentColor"
                                                              class="w-5 h-5">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                   d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z">
@@ -229,154 +122,457 @@
                                     <div class="font-black text-foreground">گزارش</div>
                                 </div>
 
-                                    <div class="flex items-start gap-3 relative bg-zinc-50 dark:bg-zinc-900 border border-border rounded-xl p-5" x-show="open" x-data="{ open: true }">
-                                        <!-- alert:icon -->
-                                        <span class="text-yellow-500">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"></path>
+                                <div
+                                    class="flex items-start gap-3 relative bg-zinc-50 dark:bg-zinc-900 border border-border rounded-xl p-5"
+                                    x-show="open" x-data="{ open: true }">
+                                    <!-- alert:icon -->
+                                    <span class="text-yellow-500">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                                         fill="currentColor" class="w-5 h-5">
+                                                        <path fill-rule="evenodd"
+                                                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+                                                              clip-rule="evenodd"></path>
                                                     </svg>
                                                 </span><!-- alert:icon -->
 
-                                        <!-- alert:content -->
-                                        <div class="flex flex-col items-start">
-                                            <!-- alert:title -->
-                                            <div class="font-bold text-sm text-yellow-500 mb-2">
-                                                توجه :&zwnj;
-                                            </div><!-- end alert:title -->
+                                    <!-- alert:content -->
+                                    <div class="flex flex-col items-start">
+                                        <!-- alert:title -->
+                                        <div class="font-bold text-sm text-yellow-500 mb-2">
+                                            توجه :&zwnj;
+                                        </div><!-- end alert:title -->
 
-                                            <!-- alert:desc -->
-                                            <div class="font-semibold text-xs text-zinc-400">
-                                                <ul>
-                                                    <li>لطفا اطلاعات خود را با دقت وارد کنید.</li>
-                                                </ul>
-                                            </div><!-- end alert:desc -->
+                                        <!-- alert:desc -->
+                                        <div class="font-semibold text-xs text-zinc-400">
+                                            <ul>
+                                                <li>1- لطفا اطلاعات خود را با دقت وارد کنید.</li>
+                                                <li>2- تمام فیلد های ستاره دار
+                                                    <sup class="text-red-500 text-xs font-bold">*</sup>
+                                                    باید پر شود.</li>
+                                                <li>3- سعی کنید گزارش را هرشب ارسال کنید تا امتیاز بیشتری دریافت کنبد.</li>
+                                                <li>4- چناچه از گزارش عقب ماندید در تاریخ گزارش تاریخ مربوطه را وارد کنید.</li>
+                                                <li>گزارش های شما پس از ارسال، توسط پشتیبان شما مشاهده خواهد شد که در قسمت "گزارش های ارسال شده" میتوانید وضعیت گزارش خود را مشاهده کنید</li>
+                                            </ul>
+                                        </div><!-- end alert:desc -->
 
-                                            <!-- alert:actions -->
-                                            <div class="flex flex-wrap items-center gap-3 mt-5">
-                                                <button type="button" class="flex items-center gap-x-1 text-zinc-400 underline-offset-1 hover:underline" x-on:click="open = false">
-                                                    <span class="font-bold text-xs">فهمیدم</span>
-                                                </button>
-                                            </div><!-- end alert:actions -->
-                                        </div><!-- end alert:content -->
-                                    </div>
-                                    <form wire:submit="submit(Object.fromEntries(new FormData($event.target)))"
-                                          class="space-y-5">
-                                        <div class="grid sm:grid-cols-2 gap-5">
-                                            <div class="space-y-1">
-                                                <label for="name" class="font-medium text-xs text-muted">
-                                                    توضیحات
-                                                </label>
-                                                <sup class="text-red-500">*</sup>
-                                                <input type="text" id="name" name="name" wire:model="name"
-                                                       class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
-                                                @error('name')
-                                                <div class="font-medium text-xs text-muted text-red-500">
-                                                    {{$message}}
-                                                </div>
-                                                @enderror
-                                            </div>
-                                            <div class="space-y-1">
-                                                <label for="birth_date"
-                                                       class="font-medium text-xs text-muted">تاریخ گزارش :</label>
-                                                <sup class="text-red-500">*</sup>
-                                                <input type="tel" id="report_date" dir="ltr" name="birth_date"
-                                                       wire:model.lazy="birth_date"
-                                                       class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
-                                                @error('birth_date')
-                                                <div class="font-medium text-xs text-muted text-red-500">
-                                                    {{$message}}
-                                                </div>
-                                                @enderror
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-3">
-                                            <div class="flex items-center gap-1">
-                                                <div class="w-1 h-1 bg-foreground rounded-full"></div>
-                                                <div class="w-2 h-2 bg-foreground rounded-full"></div>
-                                            </div>
-                                            <div class="font-black text-foreground">آپلود فایل</div>
-                                        </div>
-                                        <div class="grid sm:grid-cols-2 gap-5">
-                                            <div class="space-y-1">
-                                                <label class="inline-flex items-center gap-x-1 border rounded-full text-muted py-2.5 px-5 cursor-pointer hover:text-foreground" for="customFile" x-data="{ files: null }">
-                                                    <input type="file" class="sr-only" id="customFile" x-on:change="files = Object.values($event.target.files)">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                                                        <path fill-rule="evenodd" d="M11.914 4.086a2 2 0 0 0-2.828 0l-5 5a2 2 0 1 0 2.828 2.828l.556-.555a.75.75 0 0 1 1.06 1.06l-.555.556a3.5 3.5 0 0 1-4.95-4.95l5-5a3.5 3.5 0 0 1 4.95 4.95l-1.972 1.972a2.125 2.125 0 0 1-3.006-3.005L9.97 4.97a.75.75 0 1 1 1.06 1.06L9.058 8.003a.625.625 0 0 0 .884.883l1.972-1.972a2 2 0 0 0 0-2.828Z" clip-rule="evenodd"></path>
-                                                    </svg>
-                                                    <span class="font-semibold text-xs" x-text="files ? files.map(file => file.name).join(', ') : 'بارگذاری ..'">photo_2025-04-21_23-34-33.jpg</span>
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex justify-end gap-5">
-                                            <button type="submit" name="submit"
-                                                    class="h-11 inline-flex items-center justify-center bg-primary rounded-full text-white px-8 mr-auto">
-                                                <span class="font-semibold text-sm" wire:loading.remove>ثبت</span>
-                                                <div wire:loading>
-                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                         xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                         viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"
-                                                         width="40px" height="40px"
-                                                         style="shape-rendering: auto; display: block; background: transparent;">
-                                                        <g>
-                                                            <path stroke="none" fill="#ffffff"
-                                                                  d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
-                                                                <animateTransform values="0 50 51.5;360 50 51.5"
-                                                                                  keyTimes="0;1"
-                                                                                  repeatCount="indefinite"
-                                                                                  dur="0.8130081300813008s"
-                                                                                  type="rotate"
-                                                                                  attributeName="transform"/>
-                                                            </path>
-                                                            <g/>
-                                                        </g>
-                                                    </svg>
-                                                </div>
+                                        <!-- alert:actions -->
+                                        <div class="flex flex-wrap items-center gap-3 mt-5">
+                                            <button type="button"
+                                                    class="flex items-center gap-x-1 text-zinc-400 underline-offset-1 hover:underline"
+                                                    x-on:click="open = false">
+                                                <span class="font-bold text-xs">فهمیدم</span>
                                             </button>
+                                        </div><!-- end alert:actions -->
+                                    </div><!-- end alert:content -->
+                                </div>
+                                <form wire:submit.prevent="submit"
+                                      class="space-y-5">
+                                    <div class="grid sm:grid-cols-2 gap-5">
+                                        <div class="space-y-1">
+                                            <label for="required_parts" class="font-medium text-xs text-muted">
+
+                                                تعداد پارت موظفی امروز :</label>
+                                            <sup class="text-red-500">*</sup>
+                                            <select type="text" id="required_parts" name="required_parts" wire:model="required_parts"
+                                                   class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
+                                                @for($i=0;$i<=10;$i++)
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endfor
+                                            </select>
+                                            @error('required_parts')
+                                            <div class="font-medium text-xs text-muted text-red-500">
+                                                {{$message}}
+                                            </div>
+                                            @enderror
                                         </div>
-                                    </form>
+                                        <div class="space-y-1">
+                                            <label for="done_parts"
+                                                   class="font-medium text-xs text-muted">تعداد پارت انجام شده :</label>
+                                            <sup class="text-red-500">*</sup>
+                                            <select type="text" id="done_parts" name="done_parts" wire:model="done_parts"
+                                                    class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
+                                                @for($i=0;$i<=10;$i++)
+                                                    <option value="{{ $i }}">{{ $i }}</option>
+                                                @endfor
+                                            </select>
+                                            @error('done_parts')
+                                            <div class="font-medium text-xs text-muted text-red-500">
+                                                {{$message}}
+                                            </div>
+                                            @enderror
+
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label for="required_tests"
+                                                   class="font-medium text-xs text-muted">تعداد کل تست‌های موظفی :</label>
+                                            <input type="tel" id="required_tests" dir="ltr" name="required_tests" min="0"
+                                                   maxlength="4"
+                                                   wire:model="required_tests"
+                                                   class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
+                                            @error('required_tests')
+                                            <div class="font-medium text-xs text-muted text-red-500">
+                                                {{$message}}
+                                            </div>
+                                            @enderror
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label for="done_tests"
+                                                   class="font-medium text-xs text-muted">تعداد تست های زده شده :</label>
+                                            <input type="tel" id="done_tests" dir="ltr" name="done_tests" min="0"
+                                                   maxlength="4"
+                                                   wire:model="done_tests"
+                                                   class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
+                                            @error('done_tests')
+                                            <div class="font-medium text-xs text-muted text-red-500">
+                                                {{$message}}
+                                            </div>
+                                            @enderror
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label for="phone_study_hours"
+                                                   class="font-medium text-xs text-muted">ساعات درگیر با گوشی (درسی) :</label>
+                                            <sup class="text-red-500">*</sup>
+                                            <input type="tel" id="phone_study_hours" dir="ltr" name="phone_study_hours" min="0" max="24"
+                                                   maxlength="2"
+                                                   wire:model="phone_study_hours"
+                                                   class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
+                                            @error('phone_study_hours')
+                                            <div class="font-medium text-xs text-muted text-red-500">
+                                                {{$message}}
+                                            </div>
+                                            @enderror
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label for="phone_nonstudy_hours"
+                                                   class="font-medium text-xs text-muted">ساعات درگیر با گوشی (غیر درسی) :</label>
+                                            <sup class="text-red-500">*</sup>
+                                            <input type="tel" id="phone_nonstudy_hours" dir="ltr" name="phone_nonstudy_hours" min="0" max="24"
+                                                   maxlength="2"
+                                                   wire:model="phone_nonstudy_hours"
+                                                   class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
+                                            @error('phone_nonstudy_hours')
+                                            <div class="font-medium text-xs text-muted text-red-500">
+                                                {{$message}}
+                                            </div>
+                                            @enderror
+                                        </div>
+
+                                        <div class="space-y-1">
+                                            <label for="jalali_date" class="font-medium text-xs text-muted">تاریخ انجام گزارش :</label>
+                                            <sup class="text-red-500">*</sup>
+                                            <input type="text" id="jalali_date" dir="ltr" name="jalali_date"
+                                                   wire:model.lazy="jalali_date"
+                                                   class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
+                                            @error('jalali_date')
+                                            <div class="font-medium text-xs text-muted text-red-500">
+                                                {{$message}}
+                                            </div>
+                                            @enderror
+                                        </div>
+
+
+
+                                    </div>
+                                    <div class="grid sm:grid-cols-4 gap-5">
+                                        <div class="space-y-1">
+                                            <label for="name" class="font-medium text-xs text-muted">
+                                                توضیحات
+                                            </label>
+                                            <textarea type="text" rows="5" wire:model="description"
+                                                      class="form-textarea w-full !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"></textarea>
+
+                                            @error('description')
+                                            <div class="font-medium text-xs text-muted text-red-500">
+                                                {{$message}}
+                                            </div>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="grid sm:grid-cols-2 gap-5">
+                                        <div class="space-y-1">
+                                            <label for="complacent" class="block font-semibold text-xs text-foreground">حس من نسبت به گزارش امروز:
+                                                <sup class="text-red-500">*</sup>
+
+                                            </label>
+
+                                            <div class="flex items-center gap-x-8">
+                                                <label class="flex items-center gap-2 cursor-pointer">
+                                                    <input type="radio" name="complacent" class="form-radio !ring-0 !ring-offset-0 bg-border border-0" value="1" wire:model="complacent">
+                                                    <span class="text-sm text-muted">  راضی ام</span>
+                                                </label>
+                                                <label class="flex items-center gap-2 cursor-pointer">
+                                                    <input type="radio" name="complacent" class="form-radio !ring-0 !ring-offset-0 bg-border border-0" value="0" wire:model="complacent">
+                                                    <span class="text-sm text-muted">راضی نیستم </span>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <div class="flex items-center gap-1">
+                                            <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                                            <div class="w-2 h-2 bg-foreground rounded-full"></div>
+                                        </div>
+                                        <div class="font-black text-foreground">آپلود فایل(اختیاری)</div>
+                                    </div>
+                                    <div class="grid sm:grid-cols-2 gap-5">
+                                        <div class="space-y-1">
+                                            <label
+                                                class="inline-flex items-center gap-x-1 border rounded-full text-muted py-2.5 px-5 cursor-pointer hover:text-foreground"
+                                                for="customFile" x-data="{ files: null }">
+                                                <input type="file" class="sr-only" id="customFile"
+                                                       wire:model="report_file" accept="image/*"
+                                                       x-on:change="files = Object.values($event.target.files)">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
+                                                     fill="currentColor" class="size-4">
+                                                    <path fill-rule="evenodd"
+                                                          d="M11.914 4.086a2 2 0 0 0-2.828 0l-5 5a2 2 0 1 0 2.828 2.828l.556-.555a.75.75 0 0 1 1.06 1.06l-.555.556a3.5 3.5 0 0 1-4.95-4.95l5-5a3.5 3.5 0 0 1 4.95 4.95l-1.972 1.972a2.125 2.125 0 0 1-3.006-3.005L9.97 4.97a.75.75 0 1 1 1.06 1.06L9.058 8.003a.625.625 0 0 0 .884.883l1.972-1.972a2 2 0 0 0 0-2.828Z"
+                                                          clip-rule="evenodd"></path>
+                                                </svg>
+                                                <span class="font-semibold text-xs"
+                                                      x-text="files ? files.map(file => file.name).join(', ') : 'بارگذاری ..'"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-end gap-5">
+                                        <button type="submit"
+                                                class="h-11 inline-flex items-center justify-center bg-primary rounded-full text-white px-8 mr-auto">
+                                            <span class="font-semibold text-sm" wire:loading.remove>ثبت</span>
+                                            <div wire:loading>
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                     viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"
+                                                     width="40px" height="40px"
+                                                     style="shape-rendering: auto; display: block; background: transparent;">
+                                                    <g>
+                                                        <path stroke="none" fill="#ffffff"
+                                                              d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
+                                                            <animateTransform values="0 50 51.5;360 50 51.5"
+                                                                              keyTimes="0;1"
+                                                                              repeatCount="indefinite"
+                                                                              dur="0.8130081300813008s"
+                                                                              type="rotate"
+                                                                              attributeName="transform"/>
+                                                        </path>
+                                                        <g/>
+                                                    </g>
+                                                </svg>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </form>
 
                             </div>
                             <!-- end tabs:contents:tabOne -->
 
                             <!-- tabs:contents:tabTwo -->
                             <div x-show="activeTab === 'tabTwo'">
-                                <div
-                                    class="flex flex-col items-center justify-center w-full max-w-md space-y-12 mx-auto">
-                                    <img src="/client/assets/images/theme/empty.svg"
-                                         class="w-full max-w-xs opacity-35" alt="..." />
-                                    <div class="text-center space-y-3">
-                                        <h2 class="font-bold text-xl text-foreground">
-                                            موردی یافت نشد :)
-                                        </h2>
-                                        <p class="font-semibold text-sm text-muted">
-                                            هنوز دوره ای به صورت کامل مشاهده نکرده اید،بعد از اتمام دوره
-                                            هایی که در آن شرکت کرده اید می توانید از این بخش برای
-                                            گرفتن مدرک اقدام کنید.
-                                        </p>
-                                    </div>
+                                <div class="relative   @if($reports->isNotEmpty()) container overflow-x-auto @endif">
+                                    <table class="w-full text-sm text-right">
+                                        @if($reports->isNotEmpty())
+                                            <thead
+                                                class="text-xs text-muted uppercase bg-background border-b border-border">
+                                            <tr>
+                                                <th class="whitespace-nowrap p-5">ردیف</th>
+                                                <th class="whitespace-nowrap p-5">تاریخ انجام گزارش</th>
+                                                <th class="whitespace-nowrap p-5">پارت های موظفی</th>
+                                                <th class="whitespace-nowrap p-5">پارت های انجام شده</th>
+                                                <th class="whitespace-nowrap p-5">دروسی که انجام نشده</th>
+                                                <th class="whitespace-nowrap p-5">تست های موظفی</th>
+                                                <th class="whitespace-nowrap p-5">تست های زده شده</th>
+                                                <th class="whitespace-nowrap p-5">ساعات درگیر با گوشی (درسی) </th>
+                                                <th class="whitespace-nowrap p-5">ساعات درگیر با گوشی (غیر درسی)</th>
+                                                <th class="whitespace-nowrap p-5">توضیحات</th>
+                                                <th class="whitespace-nowrap p-5">رضایت</th>
+                                                <th class="whitespace-nowrap p-5">وضعیت</th>
+                                                <th class="whitespace-nowrap p-5">فایل</th>
+                                                <th class="whitespace-nowrap p-5">تاریخ ثبت</th>
+                                            </tr>
+                                            </thead>
+
+
+                                            <tbody>
+                                            @foreach($reports as $report)
+                                                <tr class="odd:bg-secondary even:bg-background whitespace-nowrap">
+                                                    <td class="p-5">
+                                                        <div
+                                                            class="font-black text-xs text-foreground">{{$loop->iteration + $reports->firstItem() - 1}}</div>
+                                                    </td>
+
+                                                    <td class="p-5">
+                                                        <div class="flex items-center gap-2">
+                                                     <span class=" text-xs text-foreground ">{{ jalali($report->execution_date ?? '---' )->format('Y-m-d')}}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-5">
+                                                        <div class="flex items-center gap-2">
+                                                     <span class="  text-foreground ">{{ $report->required_parts ?? '---' }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-5">
+                                                        <div class="flex items-center gap-2">
+                                                     <span class=" text-xs text-white ">{{ $report->done_parts ?? '---' }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-5">
+                                                        <div class="flex items-center gap-2">
+                                                     <span class=" text-xs text-white ">{{ $report->missed_subjects ?? '---' }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-5">
+                                                        <div class="flex items-center gap-2">
+                                                     <span class=" text-xs text-white ">{{ $report->required_tests ?? '---' }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-5">
+                                                        <div class="flex items-center gap-2">
+                                                     <span class=" text-sm text-white ">{{ $report->done_tests ?? '---' }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-5">
+                                                        <div class="flex items-center gap-2">
+                                                     <span class=" text-sm text-white ">{{ $report->phone_study_hours ?? '---' }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-5">
+                                                        <div class="flex items-center gap-2">
+                                                     <span class=" text-sm text-white ">{{ $report->phone_nonstudy_hours ?? '---' }}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-5">
+                                                        <div class="flex items-center gap-2">
+                                                     <span class=" text-sm text-foreground ">{{ $report->description ?? '---' }}</span>
+                                                        </div>
+                                                    </td>
+
+                                                    <td class="p-5">
+                                                        <div class=" text-muted whitespace-nowrap">
+                                                             <span class="text-xs text-foreground ">
+                                                                 @if($report->complacent == 1)
+                                                                     <span  class="font-bold text-success text-xs"> راضی ام</span>
+                                                                 @elseif($report->complacent ==0)
+                                                                    <span class="font-bold text-yellow-500 text-xs"> تلاشمو قرار بیشتر کنم و بترکونم</span>
+                                                                 @endif
+                                                             </span>
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-5">
+                                                        <div class="text-xs text-muted whitespace-nowrap">
+                                                            @if($report->status === 'completed')
+                                                                <div class="flex-shrink-0 rounded-full bg-green-500/20 p-1">
+                                                                    <div class="h-1.5 w-1.5 rounded-full bg-green-500"></div>
+                                                                </div>
+                                                                <span class="font-bold text-green-500">تایید شده</span>
+                                                            @elseif($report->status === 'pending')
+                                                                <div class="flex-shrink-0 rounded-full bg-yellow-500/20">
+                                                                    <div class="h-1.5 w-1.5 rounded-full bg-yellow-500"></div>
+                                                                </div>
+                                                                <span class="font-bold text-yellow-500">در انتظار</span>
+                                                            @else
+                                                                <div class="flex-shrink-0 rounded-full bg-red-500-500/20 p-1">
+                                                                    <div class="h-1.5 w-1.5 rounded-full bg-red-500"></div>
+                                                                </div>
+                                                                <span class="font-bold text-red-500">رد شده</span>
+                                                            @endif
+
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-5">
+                                                        <div class="text-xs text-muted whitespace-nowrap">
+                                                            @if(isset($report->report_file))
+                                                                <a href="{{asset('students/reportsDaily/'.auth()->id()).'/'.$report->report_file}}">مشاهده</a>
+                                                            @else
+                                                                فایلی برای مشاهده وجود ندارد
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                    <td class="p-5">
+                                                        <div class="text-xs text-muted whitespace-nowrap">
+                                                            {{jalali($report->created_at)->format('%d %B %Y | H:i')}}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+
+                                        @else
+                                            <div class="flex flex-col items-center justify-center space-y-12">
+                                                <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35"
+                                                     alt="..."/>
+                                                <div class="text-center space-y-3">
+                                                    <h2 class="font-bold text-xl text-foreground">
+                                                        برنامه مشاوره ای برای شما وجود ندارد.
+                                                    </h2>
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                    </table>
+
+                                </div>
+                                <div class="p-5 text-xs text-muted whitespace-nowrap text-white">
+                                    {{$reports->links('layouts.client.pagination')}}
                                 </div>
                             </div>
                             <!-- end tabs:contents:tabTwo -->
                         </div><!-- end tabs:contents -->
-                    </div><!-- end tabs container -->
+                    </div>
+                    <!-- end tabs container -->
                 </div>
             </div>
         </div>
     </div>
-    @push('script')
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
-        <script>
-            $(document).ready(function () {
-                $("#report_date").persianDatepicker({
-                    format: "YYYY/MM/DD",
-                    initialValueType: 'gregorian',
-                    calendarType: 'persian',
-                    autoClose: true
+        @push('script')
+            <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const $input = $("#jalali_date");
+
+                    const picker = $input.persianDatepicker({
+                        format: "YYYY/MM/DD",
+                        initialValueType: 'gregorian',
+                        calendarType: 'persian',
+                        autoClose: true,
+                        onSelect: function (unix) {
+                            const pd = new persianDate(unix);
+                            const formatted = pd.format('YYYY/MM/DD');
+
+                            // نمایش در خود input
+                            $input.val(formatted);
+
+                            // پیدا کردن نزدیک‌ترین کامپوننت Livewire مربوط به این input
+                            const livewireRoot = $input[0].closest('[wire\\:id]');
+                            if (!livewireRoot) {
+                                console.warn('کامپوننت Livewire پیدا نشد برای input تاریخ.');
+                                return;
+                            }
+
+                            const wireId = livewireRoot.getAttribute('wire:id');
+                            if (!wireId) {
+                                console.warn('wire:id یافت نشد روی ریشه Livewire.');
+                                return;
+                            }
+
+                            // ست کردن مستقیم پراپرتی
+                            try {
+                                const comp = window.Livewire.find(wireId);
+                                if (comp && typeof comp.set === 'function') {
+                                    comp.set('jalali_date', formatted);
+                                    console.log('jalali_date به کامپوننت گزارش ست شد:', formatted);
+                                } else {
+                                    console.warn('کامپوننت یا متد set پیدا نشد.');
+                                }
+                            } catch (e) {
+                                console.error('خطا در یافتن/ست کردن Livewire component:', e);
+                            }
+                        }
+                    }).data('datepicker');
                 });
-            });
-        </script>
-    @endpush
+            </script>
+        @endpush
+
+
+
 </div>

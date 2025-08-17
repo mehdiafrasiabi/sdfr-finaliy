@@ -3,24 +3,30 @@
 <script src="/admin/src/plugins/src/perfect-scrollbar/perfect-scrollbar.min.js"></script>
 <script src="/admin/src/plugins/src/mousetrap/mousetrap.min.js"></script>
 <script src="/admin/src/plugins/src/waves/waves.min.js"></script>
-<script src="/admin/layouts/vertical-dark-menu/app.js"></script>
+<script src="/admin/layouts/modern-dark-menu/app.js"></script>
+<script src="/admin/src/plugins/src/highlight/highlight.pack.js"></script>
 <script src="/admin/src/assets/js/custom.js"></script>
 <script src="/admin/src/assets/js/apps/contact.js"></script>
+<script src="/admin/src/assets/js/scrollspyNav.js"></script>
+<script src="/admin/src/plugins/src/global/vendors.min.js"></script>
 
 <!-- END GLOBAL MANDATORY SCRIPTS -->
 
 <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
 <script src="/admin/src/plugins/src/apex/apexcharts.min.js"></script>
+<script src="/admin/src/assets/js/dashboard/dash_1.js"></script>
 <script src="/admin/src/assets/js/dashboard/dash_2.js"></script>
 <script src="/admin/src/plugins/src/sweetalerts2/sweetalerts2.min.js"></script>
 <script src="/admin/src/plugins/src/sweetalerts2/custom-sweetalert.js"></script>
 
 <script src="/admin/src/plugins/src/table/datatable/datatables.js"></script>
-<script src="/admin/src/plugins/src/table/datatable/datatables.js"></script>
 <script src="/admin/src/plugins/src/table/datatable/button-ext/dataTables.buttons.min.js"></script>
 <script src="/admin/src/assets/js/apps/invoice-list.js"></script>
 <script src="/admin/src/plugins/src/jquery-ui/jquery-ui.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/persian-datepicker/dist/js/persian-datepicker.min.js"></script>
 <script>
 
     ecommerceList = $('#ecommerce-list').DataTable({

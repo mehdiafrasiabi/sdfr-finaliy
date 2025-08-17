@@ -57,4 +57,28 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
 
     }
+    public function student()
+    {
+        return $this->hasOne(Student::class);
+    }
+
+    public function personalInformation()
+    {
+        return $this->hasOne(PersonalInformation::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+    public function supportedStudents()
+    {
+        // این رابطه همه دانش‌آموزانی را که این کاربر (با role 'admin' یا 'supporter') پشتیبان آن‌هاست، برمی‌گرداند.
+        return $this->hasMany(Student::class, 'supporter_id');
+    }
+    public function advisor()
+    {
+        return $this->belongsTo(Admin::class, 'advisor_id');
+    }
+
 }

@@ -108,10 +108,52 @@ class RolePermissionSeeder extends Seeder
             'edit contact_us',
             'delete contact_us',
 
+            'view exams',
+            'create exams',
+            'edit exams',
+            'delete exams',
+            'publish exams', // برای انتشار آزمون
+            'grade exams', // برای نمره دهی
 
+            //مدیریت کارنامه ها
+            'view report_cards',
+            'create report_cards',
+            'edit report_cards',
+            'delete report_cards',
+            'publish report_cards',
 
+            // دسترسی‌های جدید و ترکیبی برای پشتیبان تحصیلی
+            'view_students_for_academic_support',
+            'view_reports_for_academic_support',
+            'create_reports_for_academic_support',
+            'edit_reports_for_academic_support',
+            'delete_reports_for_academic_support',
+            'view_report_monthlies_for_academic_support',
+            'create_report_monthlies_for_academic_support',
+            'edit_report_monthlies_for_academic_support',
+            'delete_report_monthlies_for_academic_support',
+            'view_exams_for_academic_support',
+            'create_exams_for_academic_support',
+            'edit_exams_for_academic_support',
+            'delete_exams_for_academic_support',
+            'publish_exams_for_academic_support',
+            'grade_exams_for_academic_support',
+            'view_report_cards_for_academic_support',
+            'create_report_cards_for_academic_support',
+            'edit_report_cards_for_academic_support',
+            'delete_report_cards_for_academic_support',
+            'publish_report_cards_for_academic_support',
 
+            // دسترسی‌های جدید برای مشاور تحصیلی
+            'view students with support info',
+            'view student reports with support info',
+            'view_exams_for_academic_advisor',
+            'create_exams_for_academic_advisor',
+            'publish_exams_for_academic_advisor',
+
+            'upload weekly program',
         ];
+
         //ایجاد دسترسی در دیتابیس
         foreach ($permissions as $permission) {
             Permission::query()->firstOrCreate(
@@ -130,8 +172,8 @@ class RolePermissionSeeder extends Seeder
         $superAdmin->givePermissionTo(Permission::all());
 
         $productAdmin = Role::query()->firstOrCreate([
-           'name' => 'product admin',
-           'guard_name' => 'admin'
+            'name' => 'product admin',
+            'guard_name' => 'admin'
         ]);
         $productAdmin->givePermissionTo([
             'view products', 'create products', 'edit products', 'delete products',
@@ -142,16 +184,16 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $orderAdmin = Role::query()->firstOrCreate([
-           'name' => 'order admin',
-           'guard_name' => 'admin'
+            'name' => 'order admin',
+            'guard_name' => 'admin'
         ]);
         $orderAdmin->givePermissionTo([
             'view orders', 'process orders',
         ]);
 
         $paymentAdmin = Role::query()->firstOrCreate([
-           'name' => 'payment admin',
-           'guard_name' => 'admin'
+            'name' => 'payment admin',
+            'guard_name' => 'admin'
         ]);
         $paymentAdmin->givePermissionTo([
             'view payments', 'process payments',
@@ -200,15 +242,66 @@ class RolePermissionSeeder extends Seeder
             'create reports', 'edit reports', 'delete reports', 'view report_monthlies', 'create report_monthlies', 'edit report_monthlies', 'delete report_monthlies',
         ]);
 
+
         $mapAdmin = Role::query()->firstOrCreate([
-           'name' => 'map admin',
-           'guard_name' => 'admin'
+            'name' => 'map admin',
+            'guard_name' => 'admin'
         ]);
         $mapAdmin->givePermissionTo([
             'view countries', 'create countries', 'edit countries', 'delete countries',
             'view states', 'create states','edit states','delete states',
         ]);
 
+        // تعریف نقش پشتیبان تحصیلی و دادن دسترسی های مربوطه
+        $academicSupport = Role::query()->firstOrCreate([
+            'name' => 'academic support',
+            'guard_name' => 'admin'
+        ]);
+        $academicSupport->givePermissionTo([
+            // دسترسی به لیست و مشخصات دانش آموزان
+            'view_students_for_academic_support',
+            'view personal_information',
+
+            // دسترسی به کل سیستم گزارش دهی
+            'view_reports_for_academic_support',
+            'create_reports_for_academic_support',
+            'edit_reports_for_academic_support',
+            'delete_reports_for_academic_support',
+            'view_report_monthlies_for_academic_support',
+            'create_report_monthlies_for_academic_support',
+            'edit_report_monthlies_for_academic_support',
+            'delete_report_monthlies_for_academic_support',
+
+            // دسترسی به کل سیستم برگزاری آزمون
+            'view_exams_for_academic_support',
+            'create_exams_for_academic_support',
+            'edit_exams_for_academic_support',
+            'delete_exams_for_academic_support',
+            'publish_exams_for_academic_support',
+            'grade_exams_for_academic_support',
+
+            // دسترسی به کل سیستم کارنامه
+            'view_report_cards_for_academic_support',
+            'create_report_cards_for_academic_support',
+            'edit_report_cards_for_academic_support',
+            'delete_report_cards_for_academic_support',
+            'publish_report_cards_for_academic_support',
+        ]);
+
+        // نقش جدید مشاور تحصیلی
+        $academicAdvisor = Role::query()->firstOrCreate([
+            'name' => 'academic_advisor',
+            'guard_name' => 'admin'
+        ]);
+        $academicAdvisor->givePermissionTo([
+            'view students with support info',
+            'view student reports with support info',
+            'view exams',
+            'upload weekly program',
+            'view_exams_for_academic_advisor',
+            'create_exams_for_academic_advisor',
+            'publish_exams_for_academic_advisor',
+        ]);
 
         $superAdminUser = Admin::query()->firstOrCreate(
             [
@@ -281,6 +374,17 @@ class RolePermissionSeeder extends Seeder
             ]
         );
         $studentAdminUser->assignRole('student admin');
+        $studentAdminUser = Admin::query()->firstOrCreate(
+            [
+                'email'=>'harirbafan@gmail.com',
+            ],
+            [
+                'name'=>'حریربافان',
+                'password'=> bcrypt('password'),
+                'mobile'=>'09952486571'
+            ]
+        );
+        $studentAdminUser->assignRole('student admin');
 
         $storyAdminUser = Admin::query()->firstOrCreate(
             [
@@ -318,5 +422,29 @@ class RolePermissionSeeder extends Seeder
         );
         $userAdminUser->assignRole('user admin');
 
+        $academicSupportUser = Admin::query()->firstOrCreate(
+            [
+                'email' => 'academicsupport@gmail.com',
+            ],
+            [
+                'name' => 'پشتیبان تحصیلی',
+                'password' => bcrypt('password'),
+                'mobile' => '09123458795'
+            ]
+        );
+        $academicSupportUser->assignRole('academic support');
+
+        // کاربر جدید مشاور تحصیلی
+        $academicAdvisorUser = Admin::query()->firstOrCreate(
+            [
+                'email' => 'academicadvisor@gmail.com',
+            ],
+            [
+                'name' => 'مشاور تحصیلی',
+                'password' => bcrypt('password'),
+                'mobile' => '09121234567'
+            ]
+        );
+        $academicAdvisorUser->assignRole('academic_advisor');
     }
 }
