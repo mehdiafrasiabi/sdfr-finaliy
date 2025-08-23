@@ -93,4 +93,25 @@
     }
     window.onload = checkInternetSpeed;
 </script>
+<script>
+    let attrs = [
+        'snapshot',
+        'effects',
+        // 'id'
+    ];
+
+    function snapKill() {
+        document.querySelectorAll('div').forEach(function (element) {
+            for (let i in attrs) {
+                if (element.getAttribute(`wire:${attrs[i]}`) !== null) {
+                    element.removeAttribute(`wire:${attrs[i]}`);
+                }
+            }
+        });
+    }
+
+    window.addEventListener('load', (ev) => {
+        snapKill();
+    });
+</script>
 @stack('script')

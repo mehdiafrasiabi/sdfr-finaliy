@@ -15,6 +15,7 @@
 {{--    </div>--}}
 
     <!-- header -->
+
     <livewire:client.layout.header  />
     <!-- end header -->
 

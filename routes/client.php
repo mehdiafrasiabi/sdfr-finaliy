@@ -72,30 +72,30 @@ Route::name('client.')->group(function () {
         Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
 
         //Profile
-        Route::get('/profile-dashboard',ProfileDashboard::class)->name('profile.dashboard');
-        Route::get('/profile-star',Star::class)->name('profile.star');
+        Route::get('/profile/dashboard',ProfileDashboard::class)->name('profile.dashboard');
+        Route::get('/profile/star',Star::class)->name('profile.star');
 
         Route::get('/ProfessionalTools/pomodoro',ProfessionalToolsPomodoroTimer::class)->name('profile.professionalTools.pomodoro');
         Route::get('/ProfessionalTools/studySession',StudySession::class)->name('profile.professionalTools.studySession');
         Route::get('/ProfessionalTools/starredChecklist',ProfessionalToolsStarredChecklistIndex::class)->name('profile.professionalTools.starredChecklist');
         Route::get('/ProfessionalTools/starredChecklist/detail',TopicStar::class)->name('profile.professionalTools.TopicStar');
 
-        Route::get('/ProfessionalTools',ProfessionalToolsIndex::class)->name('profile.professionalTools.index');
+        Route::get('/profile/ProfessionalTools',ProfessionalToolsIndex::class)->name('profile.professionalTools.index');
 
-        Route::get('/profile-meetGoogle',ProfileMeetGoogle::class)->name('profile.meetGoogle');
+        Route::get('/profile/meetGoogle',ProfileMeetGoogle::class)->name('profile.meetGoogle');
 
-        Route::get('/profile-reportStudentStudy',ProfileReportStudentStudy::class)->name('profile.reportStudentStudy');
+        Route::get('/profile/reportStudentStudy',ProfileReportStudentStudy::class)->name('profile.reportStudentStudy');
 
-        Route::get('/profile-edit',ProfileEdit::class)->name('profile.edit');
-        Route::get('/profile-financial',ProfileFinancial::class)->name('profile.financial');
-        Route::get('/profile-installment',ProfileInstallment::class)->name('profile.installment');
-        Route::get('/profile-installmentDetail',ProfileInstallmentDetail::class)->name('profile.installmentDetail');
+        Route::get('/profile/edit',ProfileEdit::class)->name('profile.edit');
+        Route::get('/profile/financial',ProfileFinancial::class)->name('profile.financial');
+        Route::get('/profile/installment',ProfileInstallment::class)->name('profile.installment');
+        Route::get('/profile/installmentDetail',ProfileInstallmentDetail::class)->name('profile.installmentDetail');
 
-        Route::get('/profile-plan',ProfilePlan::class)->name('profile.plan');
+        Route::get('/profile/plan',ProfilePlan::class)->name('profile.plan');
 
-        Route::get('/profile-personalInformation',ProfilePersonalInformation::class)->name('profile.personal');
+        Route::get('/profile/personalInformation',ProfilePersonalInformation::class)->name('profile.personal');
 
-        Route::get('/profile-report',ProfileReport::class)->name('profile.report');
+        Route::get('/profile/report',ProfileReport::class)->name('profile.report');
 
         Route::get('/profile/ticket',ProfileTicketIndex::class)->name('profile.ticket');
         Route::get('/profile/ticket/show/{ticket}',ProfileTicketShow::class)->name('profile.ticket.show');
