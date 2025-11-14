@@ -1,34 +1,87 @@
-/.phpunit.cache
-/node_modules
-/public_html/build
-/public_html/hot
-/public_html/storage
-/public_html/adminsFile
-/public_html/student
-/public_html/ticket
-/public_html/user
-/storage/*.key
-/storage/pail
-/storage/app
-/vendor
+# ========================================
+# Laravel Defaults
+# ========================================
+
+/vendor/
+/node_modules/
 .env
-.env.backup
-.env.production
-.phpactor.json
+.env.*
+/storage/*.key
+/storage/framework/cache/data
+/storage/framework/sessions
+/storage/framework/views
+/storage/logs
+/storage/app
+/storage/pail
+
+# PHPUnit
 .phpunit.result.cache
-Homestead.json
-Homestead.yaml
+.phpunit.cache
+
+# IDE
+/.idea
+/.vscode
+/.fleet
+/.zed
+/.nova
+
+# Composer Auth
+/auth.json
+
+# Misc
 npm-debug.log
 yarn-error.log
-/auth.json
-/.fleet
-/.idea
-/.nova
-/.vscode
-/.zed
+Homestead.json
+Homestead.yaml
+.phpactor.json
+
+# ========================================
+# PUBLIC (only static assets should be tracked)
+# ========================================
+
+# Do NOT track user uploads or dynamic content
 public/storage/
 public/uploads/
+public_html/storage/
+public_html/adminsFile/
+public_html/blog/
+public_html/blogs/
+public_html/products/
+public_html/stories/
+public_html/student/
+public_html/exam/
+public_html/exams/
+public_html/ticket/
+public_html/user/
+
+# If you changed "public" to "public_html", allow only assets:
+public_html/hot
+public_html/build
+
+# ========================================
+# Large/Binary files
+# ========================================
 *.zip
+*.rar
+*.7z
+*.tar
+*.gz
 *.mp4
 *.avi
-*.rar
+*.mov
+*.mkv
+*.mp3
+
+# ========================================
+# Allow STATIC ASSETS inside public_html
+# (These will be included in Git)
+# ========================================
+
+!public_html/
+!public_html/admin/
+!public_html/admin/assets/
+!public_html/manager/
+!public_html/manager/assets/
+!public_html/client/
+!public_html/fonts/
+
