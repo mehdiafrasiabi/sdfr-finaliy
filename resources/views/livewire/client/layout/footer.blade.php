@@ -1,4 +1,5 @@
 <div>
+
     <footer class="pt-20">
         <div class="max-w-7xl px-4 mx-auto">
             <div class="flex items-center gap-3">
@@ -67,9 +68,9 @@
                             <div class="font-black text-foreground">دربــــاره</div>
                         </div>
                         <p class="font-semibold text-sm text-muted">
-                            سایت SDFR یکی از پرتلاش‌ترین و بروزترین وبسایت های آموزشی در سطح ایران است که همیشه تلاش
-                            کرده تا بتواند جدیدترین و بروزترین مقالات و دوره‌های آموزشی را در اختیار علاقه‌مندان ایرانی
-                            قرار دهد.
+                            SDFR، اولین سامانه هوشمند مشاوره و آنالیز دقیق تحصیلی در ایران!
+                            با صرفه جویی در وقت و هزینه، پشتیبانی تحصیلی روزانه و ابزار های حرفه ای و هوشمند آموزشی حس
+                            پیشرفت در آزمون های تشریحی و تستی را تجربه کنید!
                         </p>
                     </div>
                 </div>
@@ -114,12 +115,11 @@
                                     <div class="font-black text-foreground">نشان های اعتماد</div>
                                 </div>
                                 <div class="text-sm text-muted">
-{{--                                    <a referrerpolicy='origin' target='_blank'--}}
-{{--                                       href='https://trustseal.enamad.ir/?id=631278&Code=tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'><img--}}
-{{--                                            referrerpolicy='origin'--}}
-{{--                                            src='https://trustseal.enamad.ir/logo.aspx?id=631278&Code=tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'--}}
-{{--                                            alt='' style='cursor:pointer' code='tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'>--}}
-{{--                                    </a>--}}
+                                    <a referrerpolicy='origin' target='_blank'
+                                       href='https://trustseal.enamad.ir/?id=631278&Code=tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'><img
+                                            referrerpolicy='origin'
+                                            src='https://trustseal.enamad.ir/logo.aspx?id=631278&Code=tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'
+                                            alt='' style='cursor:pointer' code='tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'></a>
                                 </div>
                             </div>
                             <div class="space-y-5">

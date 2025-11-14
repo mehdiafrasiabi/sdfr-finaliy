@@ -1,267 +1,260 @@
-<div class="header-container container-xxl">
-    <header class="header navbar navbar-expand-sm expand-header">
+<div class="md:flex md:items-center md:justify-between">
+    <div class="flex items-center justify-center md:justify-normal">
+        <div
+            class="relative leading-none top-px ltr:mr-[13px] ltr:md:mr-[18px] ltr:lg:mr-[23px] rtl:ml-[13px] rtl:md:ml-[18px] rtl:lg:ml-[23px]"
+        >
+            <button
+                type="button"
+                class="hide-sidebar-toggle transition-all inline-block hover:text-primary-500"
+                id="hide-sidebar-toggle"
+            >
+                <i class="material-symbols-outlined !text-[20px]"> menu </i>
+            </button>
+        </div>
+        <form class="relative w-[250px] lg:w-[260px]">
+            <input
+                type="text"
+                placeholder="اینجا جستجو کنید....."
+                class="bg-gray-50 border border-gray-50 h-[44px] rounded-md w-full block text-black pt-[11px] pb-[12px] px-[13px] md:px-[16px] placeholder:text-gray-500 outline-0 dark:bg-[#15203c] dark:text-white dark:border-[#15203c] dark:placeholder:text-gray-400"
+            />
+            <button
+                type="button"
+                class="absolute text-primary-500 mt-[2px] ltr:right-[13px] ltr:md:right-[15px] rtl:left-[13px] rtl:md:left-[15px] top-1/2 -translate-y-1/2"
+            >
+                <i class="material-symbols-outlined !text-[20px]"> search </i>
+            </button>
+        </form>
+    </div>
+    <ul class="flex items-center justify-center md:justify-normal mt-[13px] md:mt-0">
+        <li
+            class="relative mx-[8px] md:mx-[10px] lg:mx-[12px] ltr:first:ml-0 ltr:last:mr-0 rtl:first:mr-0 rtl:last:ml-0"
+        >
+            <button
+                type="button"
+                class="light-dark-toggle leading-none inline-block transition-all relative top-[2px] text-[#fe7a36]"
+                id="light-dark-toggle"
+            >
+                <i class="material-symbols-outlined !text-[20px] md:!text-[22px]"> light_mode </i>
+            </button>
+        </li>
 
-        <a href="javascript:void(0);" class="sidebarCollapse text-white">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                 class="feather feather-menu">
-                <line x1="3" y1="12" x2="21" y2="12"></line>
-                <line x1="3" y1="6" x2="21" y2="6"></line>
-                <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-        </a>
-
-
-        <ul class="navbar-item flex-row ms-lg-auto ms-0">
-
-
-            <li class="nav-item theme-toggle-item">
-                <a href="javascript:void(0);" class="nav-link theme-toggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="feather feather-moon dark-mode">
-                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                    </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="feather feather-sun light-mode">
-                        <circle cx="12" cy="12" r="5"></circle>
-                        <line x1="12" y1="1" x2="12" y2="3"></line>
-                        <line x1="12" y1="21" x2="12" y2="23"></line>
-                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                        <line x1="1" y1="12" x2="3" y2="12"></line>
-                        <line x1="21" y1="12" x2="23" y2="12"></line>
-                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                    </svg>
-                </a>
-            </li>
-
-            <li class="nav-item dropdown notification-dropdown">
-                <a href="javascript:void(0);" class="nav-link dropdown-toggle" id="notificationDropdown"
-                   data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="feather feather-bell">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-                    </svg>
-                    <span class="badge badge-success"></span>
-                </a>
-
-                <div class="dropdown-menu position-absolute" aria-labelledby="notificationDropdown">
-                    <div class="drodpown-title message">
-                        <h6 class="d-flex justify-content-between"><span class="align-self-center">Messages</span> <span
-                                class="badge badge-primary">9 Unread</span></h6>
-                    </div>
-                    <div class="notification-scroll">
-                        <div class="dropdown-item">
-                            <div class="media server-log">
-                                <img src="/admin/src/assets/img/profile-16.jpeg" class="img-fluid me-2" alt="avatar">
-                                <div class="media-body">
-                                    <div class="data-info">
-                                        <h6 class="">Kara Young</h6>
-                                        <p class="">1 hr ago</p>
-                                    </div>
-
-                                    <div class="icon-status">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
+        <li
+            class="relative mx-[8px] md:mx-[10px] lg:mx-[12px] ltr:first:ml-0 ltr:last:mr-0 rtl:first:mr-0 rtl:last:ml-0"
+        >
+            <button
+                type="button"
+                class="leading-none inline-block transition-all relative top-[2px] hover:text-primary-500"
+                id="fullscreenBtn"
+            >
+                <i class="material-symbols-outlined !text-[22px] md:!text-[24px]" id="fullscreenIcon"> fullscreen </i>
+            </button>
+        </li>
+        <li
+            class="relative notifications-menu mx-[8px] md:mx-[10px] lg:mx-[12px] ltr:first:ml-0 ltr:last:mr-0 rtl:first:mr-0 rtl:last:ml-0"
+        >
+            <button
+                type="button"
+                class="leading-none inline-block transition-all relative top-[2px] hover:text-primary-500"
+                id="dropdownToggleBtn"
+            >
+                <i class="material-symbols-outlined !text-[22px] md:!text-[24px]"> notifications </i>
+                <span
+                    class="top-[3px] ltr:right-[4px] rtl:left-[4px] w-[6px] h-[6px] rounded-full absolute bg-orange-500"
+                ></span>
+            </button>
+            <div
+                class="notifications-menu-dropdown bg-white dark:bg-[#0c1427] transition-all shadow-3xl dark:shadow-none py-[17px] absolute mt-[17px] md:mt-[20px] w-[290px] md:w-[350px] z-[1] top-full ltr:-right-[120px] ltr:md:right-0 rtl:-left-[120px] rtl:md:left-0 rounded-md"
+            >
+                <div class="flex items-center justify-between px-[20px] pb-[17px]">
+                <span class="font-semibold text-black dark:text-white text-[15px]">
+                  اعلان ها
+                  <span class="text-gray-500 dark:text-gray-400 font-normal text-base"> (03) </span>
+                </span>
+                    <a href="javascript:void(0);" class="text-primary-500"> پاکسازی همه </a>
+                </div>
+                <ul class="mb-[18px]">
+                    <li
+                        class="relative border-b border-gray-100 dark:border-[#172036] border-dashed py-[17px] ltr:pl-[75px] ltr:pr-[20px] rtl:pr-[75px] rtl:pl-[20px] first:border-t first:border-gray-100 dark:first:border-[#172036]"
+                    >
+                        <div
+                            class="rounded-full flex items-center justify-center absolute text-center transition-all top-1/2 -translate-y-1/2 ltr:left-[20px] rtl:right-[20px] w-[44px] h-[44px] text-primary-500 bg-[#4936f50d]"
+                        >
+                            <i class="material-symbols-outlined !text-[22px]"> sms </i>
                         </div>
-
-                        <div class="dropdown-item">
-                            <div class="media ">
-                                <img src="/admin/src/assets/img/profile-15.jpeg" class="img-fluid me-2" alt="avatar">
-                                <div class="media-body">
-                                    <div class="data-info">
-                                        <h6 class="">Daisy Anderson</h6>
-                                        <p class="">8 hrs ago</p>
-                                    </div>
-
-                                    <div class="icon-status">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
+                        <span class="block mb-[3px] text-black dark:text-white">
+                    شما درخواست کرده اید
+                    <strong class="font-semibold">برداشت از حساب</strong>
+                  </span>
+                        <span class="block"> 2 ساعت پیش </span>
+                        <a href="notifications.html" class="block left-0 top-0 right-0 bottom-0 z-[1] absolute"></a>
+                    </li>
+                    <li
+                        class="relative border-b border-gray-100 dark:border-[#172036] border-dashed py-[17px] ltr:pl-[75px] ltr:pr-[20px] rtl:pr-[75px] rtl:pl-[20px] first:border-t first:border-gray-100 dark:first:border-[#172036]"
+                    >
+                        <div
+                            class="rounded-full flex items-center justify-center absolute text-center transition-all top-1/2 -translate-y-1/2 ltr:left-[20px] rtl:right-[20px] w-[44px] h-[44px] text-[#39b2de] bg-[#4936f50d]"
+                        >
+                            <i class="material-symbols-outlined !text-[22px]"> person </i>
                         </div>
-
-                        <div class="dropdown-item">
-                            <div class="media file-upload">
-                                <img src="/admin/src/assets/img/profile-21.jpeg" class="img-fluid me-2" alt="avatar">
-                                <div class="media-body">
-                                    <div class="data-info">
-                                        <h6 class="">Oscar Garner</h6>
-                                        <p class="">14 hrs ago</p>
-                                    </div>
-
-                                    <div class="icon-status">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
+                        <span class="block mb-[3px] text-black dark:text-white">
+                    <strong class="font-semibold">کاربر جدید</strong> اضافه شده به Trezo
+                  </span>
+                        <span class="block"> 3 ساعت پیش </span>
+                        <a href="notifications.html" class="block left-0 top-0 right-0 bottom-0 z-[1] absolute"></a>
+                        <span
+                            class="inline-block rounded-full bg-primary-500 absolute w-[6px] h-[6px] right-[20px] top-1/2 -translate-y-1/2"
+                        ></span>
+                    </li>
+                    <li
+                        class="relative border-b border-gray-100 dark:border-[#172036] border-dashed py-[17px] ltr:pl-[75px] ltr:pr-[20px] rtl:pr-[75px] rtl:pl-[20px] first:border-t first:border-gray-100 dark:first:border-[#172036]"
+                    >
+                        <div
+                            class="rounded-full flex items-center justify-center absolute text-center transition-all top-1/2 -translate-y-1/2 ltr:left-[20px] rtl:right-[20px] w-[44px] h-[44px] text-[#00b69b] bg-[#4936f50d]"
+                        >
+                            <i class="material-symbols-outlined !text-[22px]"> mark_email_unread </i>
                         </div>
-
-                        <div class="drodpown-title notification mt-2">
-                            <h6 class="d-flex justify-content-between"><span
-                                    class="align-self-center">Notifications</span> <span class="badge badge-secondary">16 New</span>
-                            </h6>
-                        </div>
-
-                        <div class="dropdown-item">
-                            <div class="media server-log">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round" class="feather feather-server">
-                                    <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                                    <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                                    <line x1="6" y1="6" x2="6" y2="6"></line>
-                                    <line x1="6" y1="18" x2="6" y2="18"></line>
-                                </svg>
-                                <div class="media-body">
-                                    <div class="data-info">
-                                        <h6 class="">Server Rebooted</h6>
-                                        <p class="">45 min ago</p>
-                                    </div>
-
-                                    <div class="icon-status">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="dropdown-item">
-                            <div class="media file-upload">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round" class="feather feather-file-text">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                    <polyline points="14 2 14 8 20 8"></polyline>
-                                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                                    <polyline points="10 9 9 9 8 9"></polyline>
-                                </svg>
-                                <div class="media-body">
-                                    <div class="data-info">
-                                        <h6 class="">Kelly Portfolio.pdf</h6>
-                                        <p class="">670 kb</p>
-                                    </div>
-
-                                    <div class="icon-status">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="dropdown-item">
-                            <div class="media ">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                     stroke-linejoin="round" class="feather feather-heart">
-                                    <path
-                                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                                </svg>
-                                <div class="media-body">
-                                    <div class="data-info">
-                                        <h6 class="">Licence Expiring Soon</h6>
-                                        <p class="">8 hrs ago</p>
-                                    </div>
-
-                                    <div class="icon-status">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round" class="feather feather-x">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
+                        <span class="block mb-[3px] text-black dark:text-white">
+                    شما درخواست کرده اید
+                    <strong class="font-semibold">برداشت از حساب</strong>
+                  </span>
+                        <span class="block"> 1 روز قبل </span>
+                        <a href="notifications.html" class="block left-0 top-0 right-0 bottom-0 z-[1] absolute"></a>
+                    </li>
+                </ul>
+                <div class="text-center">
+                    <a
+                        href="notifications.html"
+                        class="inline-block font-medium relative text-primary-500 transition-all hover:underline"
+                    >
+                        دیدن همه اعلان ها
+                    </a>
+                </div>
+            </div>
+        </li>
+        <li
+            class="relative profile-menu mx-[8px] md:mx-[10px] lg:mx-[12px] ltr:first:ml-0 ltr:last:mr-0 rtl:first:mr-0 rtl:last:ml-0"
+        >
+            <button
+                type="button"
+                class="flex items-center -mx-[5px] relative ltr:pr-[14px] rtl:pl-[14px] text-black dark:text-white"
+                id="dropdownToggleBtn"
+            >
+                <img
+                    src="/admin/assets/images/admin.png"
+                    class="w-[35px] h-[35px] md:w-[42px] md:h-[42px] rounded-full ltr:md:mr-[2px] ltr:lg:mr-[8px] rtl:md:ml-[2px] rtl:lg:ml-[8px] border-[2px] border-primary-200 inline-block"
+                    alt="admin-image"
+                />
+                <span class="block font-semibold text-[0] lg:text-base"> </span>
+                <i
+                    class="ri-arrow-down-s-line text-[15px] absolute ltr:-right-[3px] rtl:-left-[3px] top-1/2 -translate-y-1/2 mt-px"
+                ></i>
+            </button>
+            <div
+                class="profile-menu-dropdown bg-white dark:bg-[#0c1427] transition-all shadow-3xl dark:shadow-none py-[22px] absolute mt-[13px] md:mt-[14px] w-[195px] z-[1] top-full ltr:right-0 rtl:left-0 rounded-md"
+            >
+                <div
+                    class="flex items-center border-b border-gray-100 dark:border-[#172036] pb-[12px] mx-[20px] mb-[10px]"
+                >
+                    <img
+                        src="/admin/assets/images/admin.png"
+                        class="rounded-full w-[31px] h-[31px] ltr:mr-[9px] rtl:ml-[9px] border-2 border-primary-200 inline-block"
+                        alt="admin-image"
+                    />
+                    <div>
+                        <span class="block text-black dark:text-white font-medium">
+                        {{\Illuminate\Support\Facades\Auth::user()->name}}
+                        </span>
+                        <span class="block text-xs">
+                               @foreach (\Illuminate\Support\Facades\Auth::user()->getRoleNames() as $role)
+                                {{ $role }}
+                            @endforeach
+                        </span>
                     </div>
                 </div>
-
-            </li>
-
-            <li class="nav-item dropdown user-profile-dropdown  order-lg-0 order-1">
-                <a href="javascript:void(0);" class="nav-link dropdown-toggle user" id="userProfileDropdown"
-                   data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    <div class="avatar-container">
-                        <div class="avatar avatar-sm avatar-indicators avatar-online">
-                            <img alt="avatar" src="/admin/src/assets/img/profile-30.png" class="rounded-circle">
-                        </div>
-                    </div>
-                </a>
-
-                <div class="dropdown-menu position-absolute" aria-labelledby="userProfileDropdown">
-                    <div class="dropdown-item">
-                        <a href="#">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="feather feather-user">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="12" cy="7" r="4"></circle>
-                            </svg>
-                            <span>پروفایل</span>
+                <ul>
+                    <li>
+                        <a
+                            href="{{route('admin.dashboard.index')}}"
+                            class="block relative py-[7px] ltr:pl-[50px] ltr:pr-[20px] rtl:pr-[50px] rtl:pl-[20px] text-black dark:text-white transition-all hover:text-primary-500"
+                        >
+                            <i
+                                class="material-symbols-outlined top-1/2 -translate-y-1/2 !text-[22px] absolute ltr:left-[20px] rtl:right-[20px]"
+                            >
+                                account_circle
+                            </i>
+                            پروفایل من
                         </a>
-                    </div>
-                    <div class="dropdown-item">
-                        <a href="#">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="feather feather-inbox">
-                                <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline>
-                                <path
-                                    d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
-                            </svg>
-                            <span>پیام ها</span>
+                    </li>
+                    <li>
+                        <a
+                            href="chat.html"
+                            class="block relative py-[7px] ltr:pl-[50px] ltr:pr-[20px] rtl:pr-[50px] rtl:pl-[20px] text-black dark:text-white transition-all hover:text-primary-500"
+                        >
+                            <i
+                                class="material-symbols-outlined top-1/2 -translate-y-1/2 !text-[22px] absolute ltr:left-[20px] rtl:right-[20px]"
+                            >
+                                chat
+                            </i>
+                            پیام
                         </a>
-                    </div>
-                    <div class="dropdown-item">
-                        <a href="{{route('admin.logout')}}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round" class="feather feather-log-out">
-                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                                <polyline points="16 17 21 12 16 7"></polyline>
-                                <line x1="21" y1="12" x2="9" y2="12"></line>
-                            </svg>
-                            <span>خروج</span>
+                    </li>
+                    <li>
+                        <a
+                            href="to-do-list.html"
+                            class="block relative py-[7px] ltr:pl-[50px] ltr:pr-[20px] rtl:pr-[50px] rtl:pl-[20px] text-black dark:text-white transition-all hover:text-primary-500"
+                        >
+                            <i
+                                class="material-symbols-outlined top-1/2 -translate-y-1/2 !text-[22px] absolute ltr:left-[20px] rtl:right-[20px]"
+                            >
+                                format_list_bulleted
+                            </i>
+                            کار های من
                         </a>
-                    </div>
-                </div>
-
-            </li>
-        </ul>
-    </header>
+                    </li>
+                </ul>
+                <div class="border-t border-gray-100 dark:border-[#172036] mx-[20px] my-[9px]"></div>
+                <ul>
+                    <li>
+                        <a
+                            href="settings.html"
+                            class="block relative py-[7px] ltr:pl-[50px] ltr:pr-[20px] rtl:pr-[50px] rtl:pl-[20px] text-black dark:text-white transition-all hover:text-primary-500"
+                        >
+                            <i
+                                class="material-symbols-outlined top-1/2 -translate-y-1/2 !text-[22px] absolute ltr:left-[20px] rtl:right-[20px]"
+                            >
+                                settings
+                            </i>
+                            تنظیمات
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            href="faq.html"
+                            class="block relative py-[7px] ltr:pl-[50px] ltr:pr-[20px] rtl:pr-[50px] rtl:pl-[20px] text-black dark:text-white transition-all hover:text-primary-500"
+                        >
+                            <i
+                                class="material-symbols-outlined top-1/2 -translate-y-1/2 !text-[22px] absolute ltr:left-[20px] rtl:right-[20px]"
+                            >
+                                support
+                            </i>
+                            پشتیبانی
+                        </a>
+                    </li>
+                    <li>
+                        <a
+                            href="{{route('admin.logout')}}"
+                            class="block relative py-[7px] ltr:pl-[50px] ltr:pr-[20px] rtl:pr-[50px] rtl:pl-[20px] text-black dark:text-white transition-all hover:text-primary-500"
+                        >
+                            <i
+                                class="material-symbols-outlined top-1/2 -translate-y-1/2 !text-[22px] absolute ltr:left-[20px] rtl:right-[20px]"
+                            >
+                                logout
+                            </i>
+                            خروج از حساب
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+    </ul>
 </div>

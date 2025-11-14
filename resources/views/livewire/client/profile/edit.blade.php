@@ -137,8 +137,7 @@
                                         </div>
                                         <div class="space-y-1">
                                             <label for="subject"
-                                                   class="block font-semibold text-xs text-foreground">فایل
-                                                پیوست:</label>
+                                                   class="block font-semibold text-xs text-foreground">تصویر پروفایل:</label>
                                             <label
                                                 class="inline-flex items-center gap-x-1 border rounded-full text-muted py-2.5 px-5 cursor-pointer hover:text-foreground"
                                                 for="customFile" x-data="{ files: null }">

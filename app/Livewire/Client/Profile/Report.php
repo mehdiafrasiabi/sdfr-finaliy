@@ -17,13 +17,12 @@ class Report extends Component
     use WithFileUploads, UploadFile,WithPagination,SEOTools;
 
     public $report_file, $complacent;
-    public $jalali_date; // مثل: ۱۴۰۴/۰۵/۱۰
-    public $required_parts = 0;
-    public $done_parts = 0;
-    public $required_tests = 0;
-    public $done_tests = 0;
-    public $phone_study_hours = 0;
-    public $phone_nonstudy_hours = 0;
+    public $required_parts = '';
+    public $done_parts = '';
+    public $required_tests = '';
+    public $done_tests = '';
+    public $phone_study_hours = '';
+    public $phone_nonstudy_hours = '';
     public $description = '';
     public function mount()
     {
@@ -36,20 +35,13 @@ class Report extends Component
 
     public function setJalaliDate($date)
     {
-        $this->jalali_date = $date;
         // اگر خواستی بلافاصله اعتبارسنجی‌ش کنی:
         $this->validateOnly('jalali_date');
     }
-    private function normalizePersianNumbers(string $input): string
-    {
-        $persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
-        $latin   = ['0','1','2','3','4','5','6','7','8','9'];
-        return str_replace($persian, $latin, $input);
-    }
+
     public function submit()
     {
         $this->validate([
-            'jalali_date' => ['required', 'regex:/^[0-9۰-۹]{4}\/[0-9۰-۹]{1,2}\/[0-9۰-۹]{1,2}$/u'],
             'required_parts' => ['required', 'integer', 'between:0,10'],
             'done_parts' => ['required', 'integer', 'between:0,10'],
             'required_tests' => ['nullable', 'integer', 'min:0'],
@@ -60,8 +52,7 @@ class Report extends Component
             'description' => ['nullable', 'string', 'max:1000'],
             'complacent' => ['required', Rule::in([0,1, '0', '1'])],
         ], [
-            'jalali_date.required' => 'وارد کردن تاریخ اجرا الزامی است.',
-            'jalali_date.regex' => 'فرمت تاریخ باید به شکل صحیح شمسی باشد. مثال: ۱۴۰۴/۰۵/۱۰.',
+
             'required_parts.required' => 'تعداد پارت موظفی امروز را انتخاب کن.',
             'required_parts.integer' => 'تعداد پارت موظفی باید عدد باشد.',
             'required_parts.between' => 'تعداد پارت موظفی باید بین ۰ تا ۱۰ باشد.',
@@ -115,9 +106,6 @@ class Report extends Component
             );
         }
 
-        $normalizedJalali = $this->normalizePersianNumbers(trim($this->jalali_date));
-        [$gy, $gm, $gd] = CalendarUtils::toGregorian(...explode('/', $normalizedJalali));
-        $executionDate = sprintf('%04d-%02d-%02d', $gy, $gm, $gd);
 
         ReportModel::create([
             'student_id' => $student->id,
@@ -128,7 +116,6 @@ class Report extends Component
             'done_tests' => $this->done_tests,
             'phone_study_hours' => $this->phone_study_hours,
             'phone_nonstudy_hours' => $this->phone_nonstudy_hours,
-            'execution_date' => $executionDate,
             'description' => $this->description,
             'complacent' => $this->complacent,
             'report_file' => $filePath,
@@ -137,7 +124,6 @@ class Report extends Component
         $this->reset([
             'report_file',
             'complacent',
-            'jalali_date',
             'required_parts',
             'done_parts',
             'required_tests',

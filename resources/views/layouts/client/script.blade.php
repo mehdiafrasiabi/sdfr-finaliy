@@ -6,6 +6,8 @@
 <script type="text/javascript">
     ["keydown","touchmove","touchstart","mouseover"].forEach(function(v){window.addEventListener(v,function(){if(!window.isGoftinoAdded){window.isGoftinoAdded=1;var i="hjF21Y",d=document,g=d.createElement("script"),s="https://www.goftino.com/widget/"+i,l=localStorage.getItem("goftino_"+i);g.type="text/javascript",g.async=!0,g.src=l?s+"?o="+l:s;d.getElementsByTagName("head")[0].appendChild(g);}})});
 </script>
+<script src="/client/assets/js/story-player/story-player.js"></script>
+
 <script>
     window.addEventListener('success', function(event) {
         Toastify({
@@ -93,25 +95,5 @@
     }
     window.onload = checkInternetSpeed;
 </script>
-<script>
-    let attrs = [
-        'snapshot',
-        'effects',
-        // 'id'
-    ];
 
-    function snapKill() {
-        document.querySelectorAll('div').forEach(function (element) {
-            for (let i in attrs) {
-                if (element.getAttribute(`wire:${attrs[i]}`) !== null) {
-                    element.removeAttribute(`wire:${attrs[i]}`);
-                }
-            }
-        });
-    }
-
-    window.addEventListener('load', (ev) => {
-        snapKill();
-    });
-</script>
 @stack('script')

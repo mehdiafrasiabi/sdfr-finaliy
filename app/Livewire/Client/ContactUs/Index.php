@@ -30,12 +30,12 @@ class Index extends Component
             [
                 'name' => 'required|string|max:150',
                 'mobile' => ['required','min:11','regex:/^09\d{9}$/'],
-                'text' => 'string|max:150',
+                'text' => 'string|max:600',
             ],
             [
                 '*.required'=>'فیلد اجباری است .',
                 '*.string'=>'فرمت نوشتاری اشتباه است .',
-                '*.max'=>'حداکثر تعداد:150 کارکتر',
+                '*.max'=>'حداکثر تعداد:600 کارکتر',
                 '*.min'=>'شمار موبایل همراه 11 رقم است .',
                 '*.regex'=>'لطفا شماره موبایل خود را به درستی وارد کنید.',
             ]

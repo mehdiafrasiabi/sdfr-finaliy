@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('student_id')->constrained();
             $table->foreignId('admin_id')->constrained();
-            $table->date('execution_date');
             // تعداد پارت موظفی و انجام شده
             $table->unsignedTinyInteger('required_parts')->default(0); // 1 تا 10
             $table->unsignedTinyInteger('done_parts')->default(0); // 1 تا 10

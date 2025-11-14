@@ -331,7 +331,15 @@
                                     <ul class="nav nav-sm flex-column">
 
                                         <li class="nav-item">
-                                            <a href="{{route('manager.setting.contactUs')}}" class="nav-link " data-key="t-basic">ارتباط با ما </a>
+                                            <a href="{{route('manager.setting.schoolSdfr')}}" class="nav-link " data-key="t-basic">حضور sdfr در هر مدرسه</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{route('manager.setting.topStudent')}}" class="nav-link " data-key="t-basic">گوشه از لبخند ستارگان</a>
+                                        </li>
+
+                                        <li class="nav-item">
+                                            <a href="{{route('manager.setting.contactUs')}}" class="nav-link "
+                                               data-key="t-basic">ارتباط با ما </a>
                                         </li>
 
                                     </ul>

@@ -1,164 +1,180 @@
-<div class="row layout-spacing layout-top-spacing" id="cancel-row">
+<div class="lg:col-span-2">
+    <!-- Recent Leads -->
+    <div class="trezo-card bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md">
+        <div class="trezo-card-header mb-[20px] md:mb-[25px] flex items-center justify-between">
+            <div class="trezo-card-title">
+                <h5 class="!mb-0">لیست کل دانش آموزان </h5>
+            </div>
 
-    <div class="col-lg-12">
-        <div class="statbox widget box box-shadow">
-            <div class="widget-content widget-content-area">
-                @canany(['view_students_for_academic_support','view students with support info'])
+            <div class="trezo-card-subtitle sm:flex sm:items-center">
+                <form class="relative sm:w-[240px] ltr:sm:mr-[20px] rtl:sm:ml-[20px] my-[13px] sm:my-0">
+                    <label
+                        class="leading-none absolute ltr:left-[13px] rtl:right-[13px] text-black dark:text-white mt-px top-1/2 -translate-y-1/2">
+                        <i class="material-symbols-outlined !text-[20px]"> search </i>
+                    </label>
+                    <input type="text" placeholder="جستجو....."
+                           wire:model.live.debounce.350ms="search"
+                           class="bg-gray-50 border border-gray-50 h-[36px] text-xs rounded-md w-full block text-black pt-[11px] pb-[12px] ltr:pl-[38px] rtl:pr-[38px] ltr:pr-[13px] ltr:md:pr-[16px] rtl:pl-[13px] rtl:md:pl-[16px] placeholder:text-gray-500 outline-0 dark:bg-[#15203c] dark:text-white dark:border-[#15203c] dark:placeholder:text-gray-400">
+                </form>
+                <div class="trezo-card-dropdown relative">
+                    <button wire:click="exportExcel" wire:loading.attr="disabled"
+                            class="text-white trezo-card-dropdown-btn inline-block bg-secondary-500 rounded-md border border-gray-100 py-[5px] md:py-[6.5px] px-[12px] md:px-[19px] transition-all hover:bg-secondary-400 dark:border-[#172036] dark:hover:bg-[#0a0e19]">
+                        <span wire:loading>در حال تهیه...</span>
+                        <span wire:loading.remove>خروجی اکسل</span>
+                    </button>
+                    <button  class="btn btn-outline-success" >
 
-                    <div id="style-2_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4 no-footer">
-                        <div class="dt--top-section">
-                            <div class="row">
-
-                                <div
-                                    class="col-12 col-sm-6 d-flex justify-content-sm-end justify-content-center mt-sm-0 mt-3">
-                                    <div id="style-2_filter" class="dataTables_filter"><label>
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                 stroke-linecap="round" stroke-linejoin="round"
-                                                 class="feather feather-search">
-                                                <circle cx="11" cy="11" r="8"></circle>
-                                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                                            </svg>
-                                            <input type="text" wire:model.live.debounce.350ms="search"
-                                                   class="form-control"
-                                                   id="input-search"
-                                                   placeholder="نام دانش آموز">
-                                        </label>
-                                    </div>
-
-                                </div>
-                                <button wire:click="exportExcel" class="btn btn-outline-success" wire:loading.attr="disabled">
-                                    <span wire:loading>در حال تهیه...</span>
-                                    <span wire:loading.remove>خروجی اکسل</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="table-responsive">
-
-                            <table id="style-2" class="table style-2 dt-table-hover dataTable no-footer" role="grid"
-                                   aria-describedby="style-2_info" style="width: 1444px;">
-                                <thead>
-                                <tr role="row">
-                                    <th class="checkbox-column dt-no-sorting sorting_asc" rowspan="1" colspan="1"
-                                        aria-label=" Record Id " style="width: 70px;">
-                                        #
-                                    </th>
-                                    <th class="sorting" tabindex="0" aria-controls="style-2" rowspan="1" colspan="1"
-                                        aria-label="First Name: activate to sort column ascending" style="width: 138px;">
-                                        دانش آموز
-                                    </th>
-                                    <th class="sorting" tabindex="0" aria-controls="style-2" rowspan="1" colspan="1"
-                                        aria-label="Last Name: activate to sort column ascending" style="width: 135px;">
-                                        تلفن همراه
-                                    </th>
-
-                                    <th class="sorting" tabindex="0" aria-controls="style-2" rowspan="1" colspan="1"
-                                        aria-label="Mobile No.: activate to sort column ascending" style="width: 166px;">
-                                        پدر
-                                    </th>
-                                    <th class="text-center sorting" tabindex="0" aria-controls="style-2" rowspan="1"
-                                        colspan="1" aria-label="Image: activate to sort column ascending"
-                                        style="width: 87px;">
-                                        مادر
-                                    </th>
-                                    <th class="text-center sorting" tabindex="0" aria-controls="style-2" rowspan="1"
-                                        colspan="1" aria-label="Status: activate to sort column ascending"
-                                        style="width: 134px;">تعداد امتیازات
-                                    </th>
-                                    <th class="text-center sorting" tabindex="0" aria-controls="style-2" rowspan="1"
-                                        colspan="1" aria-label="Status: activate to sort column ascending"
-                                        style="width: 134px;">سطح آموزشی
-                                    </th>
-                                    <th class="text-center dt-no-sorting sorting" tabindex="0" aria-controls="style-2"
-                                        rowspan="1" colspan="1" aria-label="Action: activate to sort column ascending"
-                                        style="width: 92px;">عملیات
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody>
-
-                                @foreach($students as $student)
-
-                                    <tr role="row" class="odd">
-                                        <td class=" sorting_1">
-                                            {{$loop->iteration + $students->firstItem() - 1}}
-                                        </td>
-                                        <td>{{$student->user->personalInformation->name }}</td>
-                                        <td>{{$student->payment->order->user->mobile}}</td>
-                                        <td>{{$student->user->personalInformation->father_mobile }}</td>
-                                        <td>{{$student->user->personalInformation->mother_mobile }}</td>
-
-                                        <td class="text-center"><span class="shadow-none badge badge-primary">بزودی</span></td>
-
-                                        <td>
-                                            @can('view personal_information')
-                                                <select
-                                                    wire:confirm="آیا از انتخاب خود برای تغییر سطح آموزشی اطمینان دارید ؟"
-                                                    wire:change="changeStatus({{$student->id}},$event.target.value)"
-                                                    class="form-select rounded-pill mb-3  text-{{$student->statusColor}}">
-                                                    <option value="A" {{$student->star=='A' ? 'selected' :''}}>
-                                                        A
-                                                    </option>
-                                                    <option value="B" {{$student->star=='B' ? 'selected' :''}}>
-                                                        B
-                                                    </option>
-                                                    <option value="C" {{$student->star=='C' ? 'selected' :''}}>
-                                                        C
-                                                    </option>
-                                                    <option value="D" {{$student->star=='D' ? 'selected' :''}}>
-                                                        D
-                                                    </option>
-                                                </select>
-
-                                            @else
-                                                <div class="alert alert-danger">عدم دسترسی!!</div>
-                                            @endcan
-                                        </td>
-                                        <td class="text-center">
-
-
-
-                                            <a href="{{route('admin.student.meetGoogle',$student->payment->order->user->id)}}">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                     stroke-linecap="round" stroke-linejoin="round"
-                                                     class="feather feather-video">
-                                                    <polygon points="23 7 16 12 23 17 23 7"></polygon>
-                                                    <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-                                                </svg>
-                                            </a>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="dt--bottom-section d-sm-flex justify-content-sm-between text-center">
-
-                            <div class="dt--pagination">
-                                <div class="dataTables_paginate paging_simple_numbers" id="style-2_paginate">
-                                    {{$students ->links('layouts.admin.pagination')}}
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                @else
-                    <div class="alert alert-icon-left alert-light-danger alert-dismissible fade show mb-4" role="alert">
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
-                            <svg data-bs-dismiss="alert"> ...</svg>
-                        </button>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="feather feather-check-square">
-                            <polyline points="9 11 12 14 22 4"></polyline>
-                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-                        </svg>
-                        <strong></strong>
-                        شما به این قسمت دسترسی ندارید !!!
-                    </div>
-                @endcanany
+                    </button>
+                </div>
             </div>
         </div>
+        <div class="trezo-card-content -mx-[20px] md:-mx-[25px]">
+            <div class="table-responsive overflow-x-auto">
+                <table class="w-full">
+                    <thead class="text-black dark:text-white">
+                    <tr>
+
+                        <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                            #
+                        </th>
+                        <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                            دانش آموز
+                        </th>
+                        <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                            تلفن همراه
+                        </th>
+                        <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                            تلفن پدر
+                        </th>
+                        <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                            تلفن مادر
+                        </th>
+                        <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                            پایه
+                        </th>
+                        <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                            رشته
+                        </th>
+                        <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                            تعداد امتیازات
+                        </th>
+                        <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                            سطح اموزشی
+                        </th>
+                        <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                            عملیات
+                        </th>
+
+                    </tr>
+                    </thead>
+                    <tbody class="text-black dark:text-white">
+                    @forelse($students as $student)
+                        <tr>
+                            <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+                                {{$loop->iteration + $students->firstItem() - 1}}
+                            </td>
+                            <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+                                <div class="flex items-center">
+                                    <div class="ltr:ml-[12px] rtl:mr-[12px]">
+                                            <span
+                                                class="block font-medium">{{$student->user->personalInformation->name }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+                                {{$student->payment->order->user->mobile}}
+                            </td>
+                            <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+                                {{$student->user->personalInformation->father_mobile}}
+                            </td>
+                            <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+                                {{$student->user->personalInformation->mother_mobile}}
+
+                            </td>
+                            <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+
+
+                                @if($student->user->personalInformation->grade == 12)
+                                دوازدهم
+                                @elseif($student->user->personalInformation->grade == 11)
+                                    یازدهم
+                                @elseif($student->user->personalInformation->grade == 10)
+                                    دهم
+                                @endif
+
+                            </td>
+                            <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+
+
+                                @if($student->user->personalInformation->field == 'math')
+                                ریاضی
+                                @elseif($student->user->personalInformation->field == 'experimental')
+                                    تجربی
+                                @elseif($student->user->personalInformation->field == 'human')
+                                    انسانی
+                                @endif
+
+                            </td>
+
+                            <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+                                30امتیاز
+                            </td>
+                            <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+                                @can('view personal_information')
+                                    <select
+                                        wire:confirm="آیا از انتخاب خود برای تغییر سطح آموزشی اطمینان دارید ؟"
+                                        wire:change="changeStatus({{$student->id}},$event.target.value)"
+                                        class="h-[55px] text-{{$student->statusColor}} rounded-md border border-gray-200 dark:border-[#172036] bg-white dark:bg-[#0c1427] px-[13px] block w-full outline-0 cursor-pointer transition-all focus:border-primary-500">
+                                        <option selected="">انتخاب کنید</option>
+                                        <option value="A" {{$student->star=='A' ? 'selected' :''}}>
+                                            A
+                                        </option>
+                                        <option value="B" {{$student->star=='B' ? 'selected' :''}}>
+                                            B
+                                        </option>
+                                        <option value="C" {{$student->star=='C' ? 'selected' :''}}>
+                                            C
+                                        </option>
+                                        <option value="D" {{$student->star=='D' ? 'selected' :''}}>
+                                            D
+                                        </option>
+                                    </select>
+                                @else
+                                    <div class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+                                        {{$student->star}}
+                                    </div>
+                                @endcanany
+                            </td>
+                            <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+                                <div class="flex items-center gap-[9px]">
+                                    <a href="{{route('admin.student.meetGoogle',$student->payment->order->user->id)}}"
+                                       class="text-gray-500 dark:text-gray-400 leading-none">
+                                        <i class="material-symbols-outlined !text-md">edit</i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+
+                            <div class="text-center">
+                                <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="loop"
+                                           colors="primary:#121331,secondary:#08a88a"
+                                           style="width:75px;height:75px"></lord-icon>
+                                <h5 class="mt-2">متاسفیم! هیچ نتیجه ای یافت نشد</h5>
+
+                            </div>
+                        </td>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+            <div class="px-[20px] md:px-[25px] pt-[12px] md:pt-[14px] sm:flex sm:items-center justify-between">
+                {{ $students->links('layouts.admin.pagination') }}
+
+            </div>
+        </div>
+        <div class="mt-[15px] md:mt-[20px]"></div>
+
     </div>
 </div>

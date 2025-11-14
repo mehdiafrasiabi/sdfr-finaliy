@@ -1,32 +1,35 @@
-<!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
-<script src="/admin/src/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/admin/src/plugins/src/perfect-scrollbar/perfect-scrollbar.min.js"></script>
-<script src="/admin/src/plugins/src/mousetrap/mousetrap.min.js"></script>
-<script src="/admin/src/plugins/src/waves/waves.min.js"></script>
-<script src="/admin/layouts/modern-dark-menu/app.js"></script>
-<script src="/admin/src/plugins/src/highlight/highlight.pack.js"></script>
-<script src="/admin/src/assets/js/custom.js"></script>
-<script src="/admin/src/assets/js/apps/contact.js"></script>
-<script src="/admin/src/assets/js/scrollspyNav.js"></script>
-<script src="/admin/src/plugins/src/global/vendors.min.js"></script>
+<script src="/admin/assets/js/apexcharts.min.js"></script>
+<script src="/admin/assets/js/fslightbox.js"></script>
+<script src="/admin/assets/js/simplebar.min.js"></script>
+<script src="/admin/assets/js/prism.js"></script>
+<script src="/admin/assets/js/clipboard.min.js"></script>
+<script src="/admin/assets/js/swiper-bundle.min.js"></script>
+<script src="/admin/assets/js/fullcalendar.min.js"></script>
+<script src="/admin/assets/js/jsvectormap.min.js"></script>
+<script src="/admin/assets/js/world-merc.js"></script>
+<script src="/admin/assets/js/quill.min.js"></script>
+<script src="/admin/assets/js/custom.js"></script>
+<script src="https://cdn.lordicon.com/lordicon.js"></script>
 
-<!-- END GLOBAL MANDATORY SCRIPTS -->
-
-<!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
-<script src="/admin/src/plugins/src/apex/apexcharts.min.js"></script>
-<script src="/admin/src/assets/js/dashboard/dash_1.js"></script>
-<script src="/admin/src/assets/js/dashboard/dash_2.js"></script>
-<script src="/admin/src/plugins/src/sweetalerts2/sweetalerts2.min.js"></script>
-<script src="/admin/src/plugins/src/sweetalerts2/custom-sweetalert.js"></script>
-
-<script src="/admin/src/plugins/src/table/datatable/datatables.js"></script>
-<script src="/admin/src/plugins/src/table/datatable/button-ext/dataTables.buttons.min.js"></script>
-<script src="/admin/src/assets/js/apps/invoice-list.js"></script>
-<script src="/admin/src/plugins/src/jquery-ui/jquery-ui.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/persian-datepicker/dist/js/persian-datepicker.min.js"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+
+<script>
+    const target = document.documentElement;
+
+    const observer = new MutationObserver(() => {
+        if (target.classList.contains("sf-js-enabled")) {
+            target.classList.remove("sf-js-enabled");
+        }
+    });
+
+    observer.observe(target, { attributes: true, attributeFilter: ["class"] });
+
+</script>
+
 <script>
 
     ecommerceList = $('#ecommerce-list').DataTable({
@@ -79,27 +82,6 @@
             showConfirmButton: false,
             timer: 5000,
         })
-    });
-</script>
-<script>
-    let attrs = [
-        'snapshot',
-        'effects',
-        // 'id'
-    ];
-
-    function snapKill() {
-        document.querySelectorAll('div').forEach(function (element) {
-            for (let i in attrs) {
-                if (element.getAttribute(`wire:${attrs[i]}`) !== null) {
-                    element.removeAttribute(`wire:${attrs[i]}`);
-                }
-            }
-        });
-    }
-
-    window.addEventListener('load', (ev) => {
-        snapKill();
     });
 </script>
 @stack('script')

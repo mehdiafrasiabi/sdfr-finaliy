@@ -43,6 +43,12 @@ return [
             'visibility' => 'public',
             'throw' => false,
         ],
+        'public_html' => [
+            'driver' => 'local',
+            'root' => base_path('public_html'), // مسیر اصلی public_html
+            'url' => env('APP_URL') . '/student',
+            'visibility' => 'public',
+        ],
 
         's3' => [
             'driver' => 's3',

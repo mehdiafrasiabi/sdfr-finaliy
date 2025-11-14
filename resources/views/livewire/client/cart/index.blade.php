@@ -190,7 +190,7 @@
                                 <div class="flex items-center justify-between gap-3">
                                     <div class="font-bold text-xs text-foreground">موجودی کیف پول</div>
                                     <div class="flex items-center gap-1">
-                                        <span class="font-black text-base text-foreground">۵۲۰,۰۰۰</span>
+                                        <span class="font-black text-base text-foreground">0</span>
                                         <span class="text-xs text-muted">تومان</span>
                                     </div>
                                 </div>

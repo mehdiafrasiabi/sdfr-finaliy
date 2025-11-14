@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\FileDownloadController;
 use App\Livewire\admin\Blog\Create as CreateBlog;
 use App\Livewire\Admin\Blog\Index as BlogIndex;
-use App\Livewire\Admin\CreateAdvisingSession\Create as CreateAdvisingSession;
-use App\Livewire\Admin\CreateAdvisingSession\Index as IndexAdvisingSession;
+use App\Livewire\Admin\Profile\Index as profileIndex;
+use App\Livewire\Admin\Student\Consultation\CreateAdvisingSession as ConsultationCreateAdvisingSession;
+use App\Livewire\Admin\Student\Consultation\Index as StudentConsultation; ;
 use App\Livewire\Admin\Notification\Create as NotificationCreate;
 use App\Livewire\Admin\ReportStudentStudy\Index as ReportStudentStudy;
 use App\Livewire\Admin\SendToSuperAdmin\Index as SendToSuperAdminContactDocumentation;
@@ -18,10 +20,10 @@ use App\Livewire\Admin\Student\ReportStatus\Index as StudentReportStatusIndex;
 use App\Livewire\Admin\Student\ReportStatus\Detail as StudentReportStatusDetail;
 use App\Livewire\Admin\Student\StudySession\Index as StudentStudySessionIndex;
 use App\Livewire\Admin\Student\StudySession\Show as StudentStudySessionShow;
+use App\Livewire\Admin\Todo\Index as TodoIndex;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Admin\Dashboard\Index as DashboardIndex;
 use App\Livewire\Admin\Setting\ContactUs\Index as ContactUsIndex;
-use App\Livewire\Admin\Setting\GeneralSetting\Index as GeneralSettingIndex;
 use App\Livewire\Admin\Student\Index as StudentIndex;
 use App\Livewire\Admin\Student\ReportCalling\Index as ReportCallingIndex;
 use App\Livewire\Admin\Student\ReportCalling\Detail as ReportCallingDetail;
@@ -38,12 +40,16 @@ Route::name('admin.')->group(function () {
     Route::get('/logout', [AuthIndex::class,'logout'])->name('logout')->middleware('auth:admin');
 
     Route::middleware('auth:admin')->group(function () {
+
+        Route::get('/download/{token}', [FileDownloadController::class, 'download'])
+            ->name('secure.download');
+
         //Dashboard
         Route::get('/dashboard',DashboardIndex::class)->name('dashboard.index');
+        Route::get('/profile',profileIndex::class)->name('profile');
 
         //Setting Website
-        Route::get('/setting/contact-us',ContactUsIndex::class)->name('setting.contact-us.index');
-        Route::get('/setting/general-setting',GeneralSettingIndex::class)->name('setting.general-setting.index');
+        Route::get('/contact-us',ContactUsIndex::class)->name('contact-us');
 
         //Student
         Route::get('/student',StudentIndex::class)->name('student.index');
@@ -78,8 +84,10 @@ Route::name('admin.')->group(function () {
         Route::get('/studentStudySession',StudentStudySessionIndex::class)->name('student.studySession.index');
         Route::get('/studentStudySession/{student}/study',StudentStudySessionShow::class)->name('student.studySession.detail');
 
-        Route::get('/advising-sessions', IndexAdvisingSession::class)->name('advising-sessions.index');
-        Route::get('/advising-sessions/create', CreateAdvisingSession::class)->name('advising-sessions.create');
+        Route::get('/advising-sessions', StudentConsultation::class)->name('advising-sessions');
+        Route::get('/advising-sessions/{student}/create', ConsultationCreateAdvisingSession::class)->name('student.advising-sessions.create');
+
+        Route::get('/todo',TodoIndex::class)->name('todo');
 
     });
 

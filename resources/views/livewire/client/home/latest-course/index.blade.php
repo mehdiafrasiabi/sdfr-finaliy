@@ -27,6 +27,7 @@
                 </svg>
             </a>
         </div>
+
         <!-- end section:title -->
 
         <!-- section:latest-courses:slider -->

@@ -31,13 +31,17 @@ class DatabaseSeeder extends Seeder
             ExamQuestionTableSeeder::class,
             BlogsTableSeeder::class,
             BlogImagesTableSeeder::class,
-            BlogSeoItemsTableSeeder::class
+            BlogSeoItemsTableSeeder::class,
+            ExampleQuestionsTableSeeder::class,
+            SdfrSchoolsTableSeeder::class,
+            SdfrStudentsTableSeeder::class,
 
         ]);
 //        OrdersTableSeeder::class,
 //            OrderItemsTableSeeder::class,
 //            PaymentsTableSeeder::class,
 //            StudentsTableSeeder::class,
-        $this->call(ExampleQuestionsTableSeeder::class);
+
+        $this->call(StoriesTableSeeder::class);
     }
 }

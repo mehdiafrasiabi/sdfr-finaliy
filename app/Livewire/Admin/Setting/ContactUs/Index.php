@@ -41,11 +41,11 @@ class Index extends Component
     {
         switch ($status) {
             case 'pending':
-                return 'primary';
+                return 'primary-500';
             case 'canceled':
-                return 'danger';
+                return 'warning-700';
             case 'completed':
-                return 'success';
+                return 'success-600';
 
         }
     }

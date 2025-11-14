@@ -1,4 +1,6 @@
 <?php
+
+use App\Http\Controllers\FileDownloadController;
 use App\Livewire\Client\AboutUs\Index as AboutUs;
 use App\Livewire\Client\Auth\ForgotPassword as ForgotPassword;
 use App\Livewire\Client\Auth\Login as authLogin;
@@ -42,6 +44,9 @@ use App\Livewire\Client\Profile\Ticket\Create as ProfileTicketCreate;
 use Illuminate\Support\Facades\Route;
 
 Route::name('client.')->group(function () {
+    Route::get('/download/{token}', [FileDownloadController::class, 'download'])
+        ->name('secure.download');
+
     Route::get('/', HomeIndex::class)->name('home');
 
     Route::get('/shop',ShopIndex::class)->name('shop');

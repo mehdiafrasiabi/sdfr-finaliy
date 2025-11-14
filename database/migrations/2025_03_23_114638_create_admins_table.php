@@ -17,6 +17,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('mobile')->unique();
             $table->string('password');
+            $table->string('national_code')->nullable()->unique(); // کد ملی
+            $table->text('address')->nullable();       // آدرس
+            $table->string('postal_code')->nullable(); // کد پستی
+            $table->string('document')->nullable();    // فایل مدرک (pdf یا image)
+            $table->string('contract')->nullable();    // فایل مدرک (pdf یا image)
             $table->softDeletes();
             $table->timestamps();
         });

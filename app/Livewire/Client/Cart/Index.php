@@ -34,6 +34,12 @@ class Index extends Component
     public $cart = 0;
 
     public $selectedCartItemId = null;
+    public $count = 0;
+
+    public function increment()
+    {
+        $this->count++;
+    }
 
     public function confirmDeleteItem($cartItemId)
     {

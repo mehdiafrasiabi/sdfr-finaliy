@@ -1,297 +1,272 @@
-<div class="sidebar-wrapper sidebar-theme">
-    <nav id="sidebar">
+<div>
+    <div
+        class="logo bg-white dark:bg-[#0c1427] border-b border-gray-100 dark:border-[#172036] px-[25px] pt-[19px] pb-[15px] absolute z-[2] right-0 top-0 left-0">
+        <a href="{{route('admin.dashboard.index')}}" class="transition-none relative flex items-center">
+            <img src="/admin/assets/images/logo-icon.svg" alt="logo-icon"/>
+            <span class="font-bold text-black dark:text-white relative ltr:ml-[8px] rtl:mr-[8px] top-px text-xl">
+            مدیران
+          </span>
+        </a>
+        <button
+            type="button"
+            class="burger-menu inline-block absolute z-[3] top-[24px] ltr:right-[25px] rtl:left-[25px] transition-all hover:text-primary-500"
+            id="hide-sidebar-toggle2"
+        >
+            <i class="material-symbols-outlined"> بسته </i>
+        </button>
+    </div>
 
-        <div class="navbar-nav theme-brand flex-row  text-center">
-            <div class="nav-logo">
-                <div class="nav-item theme-logo">
-                    <a href="{{route('admin.dashboard.index')}}">
-                        <img src="/admin/src/assets/img/favicon.svg" alt="logo">
-                    </a>
-                </div>
-                <div class="nav-item theme-text">
-                    <a href="{{route('admin.dashboard.index')}}" class="nav-link"> SDFR </a>
+    <div class="pt-[89px] px-[25px] pb-[20px] h-screen" data-simplebar>
+        <div class="accordion">
+              <span
+                  class="block relative font-medium uppercase text-gray-400 mb-[10px] text-xs [&:not(:first-child)]:mt-[22px]">
+            داشبورد کل
+          </span>
+            <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
+                <a
+                    href="{{route('admin.dashboard.index')}}"
+                    class="accordion-button flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]">
+                    <i class="material-symbols-outlined transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px">
+                        dashboard
+                    </i>
+                    <span class="title leading-none">پیشخوان</span>
+                </a>
+            </div>
+            <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
+                <a
+                    href="{{route('admin.todo')}}"
+                    class="accordion-button flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]">
+                    <i class="material-symbols-outlined transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px">
+                        team_dashboard
+                    </i>
+                    <span class="title leading-none">لیست وظیفه</span>
+                </a>
+            </div>
+
+
+            <span
+                class="block relative font-medium uppercase text-gray-400 mb-[10px] text-xs [&:not(:first-child)]:mt-[22px]">
+            خدمات
+          </span>
+
+            <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
+                <button
+                    class="accordion-button toggle flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]"
+                    type="button"
+                >
+                    <i
+                        class="material-symbols-outlined ri-graduation-cap-line transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px"
+                    >
+                    </i>
+                    <span class="title leading-none">دانش آموزان</span>
+                </button>
+                <div class="accordion-collapse hidden">
+                    <div class="pt-[4px]">
+                        <ul class="sidebar-sub-menu">
+                            <li class="sidemenu-item mb-[4px] last:mb-0">
+                                <a
+                                    href="{{route('admin.student.index')}}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
+                                >
+                                    کل دانش آموزان
+                                </a>
+                            </li>
+                            <li class="sidemenu-item mb-[4px] last:mb-0 ">
+                                <a
+                                    href="{{route('admin.student.plan.index')}}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c] "
+                                >
+                                    برنامه درسی
+                                </a>
+                            </li>
+                            <li class="sidemenu-item mb-[4px] last:mb-0">
+                                <a
+                                    href="{{route('admin.student.reportDailyActivities.index')}}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
+                                >
+                                    گزارش
+                                </a>
+                            </li>
+                            <li class="sidemenu-item mb-[4px] last:mb-0">
+                                <a
+                                    href="{{route('admin.student.reportStudent.index')}}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
+                                >
+                                    کارنامه وضعیت
+                                </a>
+                            </li>
+                            <li class="sidemenu-item mb-[4px] last:mb-0">
+                                <a
+                                    href="{{route('admin.student.studySession.index')}}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
+                                >
+                                    میزان مطالعه دانش آموزان
+                                </a>
+                            </li>
+                            <li class="sidemenu-item mb-[4px] last:mb-0">
+                                <a
+                                    href="{{route('admin.advising-sessions')}}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
+                                >
+                                    جلسه مشاوره
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-            <div class="nav-item sidebar-toggle">
-                <div class="btn-toggle sidebarCollapse">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="feather feather-chevrons-left">
-                        <polyline points="11 17 6 12 11 7"></polyline>
-                        <polyline points="18 17 13 12 18 7"></polyline>
-                    </svg>
+
+
+            <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
+                <button
+                    class="accordion-button toggle flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]"
+                    type="button"
+                >
+                    <i
+                        class="material-symbols-outlined ri-file-chart-line transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px"
+                    >
+
+                    </i>
+                    <span class="title leading-none">گزارش روزانه دانش آموز</span>
+                </button>
+                <div class="accordion-collapse hidden">
+                    <div class="pt-[4px]">
+                        <ul class="sidebar-sub-menu">
+
+                            <li class="sidemenu-item mb-[4px] last:mb-0">
+                                <a
+                                    href="{{ route('admin.reportStudentDay', ['status' => 'all']) }}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
+                                >
+                                    همه
+                                </a>
+                            </li>
+                            <li class="sidemenu-item mb-[4px] last:mb-0">
+                                <a
+                                    href="{{ route('admin.reportStudentDay', ['status' => 'pending']) }}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[##3cb371]"
+                                >
+                                    در انتظار تایید پشتیبان
+                                </a>
+                            </li>
+                            <li class="sidemenu-item mb-[4px] last:mb-0">
+                                <a
+                                    href="{{ route('admin.reportStudentDay', ['status' => 'completed']) }}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
+                                >
+                                    تایید شده
+                                </a>
+                            </li>
+                            <li class="sidemenu-item mb-[4px] last:mb-0">
+                                <a
+                                    href="{{ route('admin.reportStudentDay', ['status' => 'rejected']) }}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
+                                >
+                                    رد شده
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
+            </div>
+            <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
+                <a
+                    href="{{route('admin.student.exam.index')}}"
+                    class="accordion-button flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]"
+                >
+                    <i
+                        class="material-symbols-outlined ri-contract-line transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px"
+                    >
+
+                    </i>
+                    <span class="title leading-none">برگزاری آزمون</span>
+                </a>
+            </div>
+
+
+            <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
+                <a
+                    href="{{route('admin.student.notification')}}"
+                    class="accordion-button flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]"
+                >
+                    <i
+                        class="material-symbols-outlined ri-arrow-right-up-line transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px"
+                    >
+
+                    </i>
+                    <span class="title leading-none">پیام به دانش آموز</span>
+                </a>
+            </div>
+            <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
+                <a
+                    href="{{route('admin.student.reportCalling.index')}}"
+                    class="accordion-button flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]"
+                >
+                    <i class="material-symbols-outlined transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px">
+                        emoji_emotions
+                    </i>
+
+
+                    <span class="title leading-none">ثبت مستندات تماس</span>
+                </a>
+            </div>
+            <span
+                class="block relative font-medium uppercase text-gray-400 mb-[10px] text-xs [&:not(:first-child)]:mt-[22px]">
+           اضافه بر سازمان
+          </span>
+            <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
+                <a
+                    href="{{route('admin.blog.index')}}"
+                    class="accordion-button flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]"
+                >
+                    <i
+                        class="material-symbols-outlined ri-news-line transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px"
+                    >
+
+                    </i>
+                    <span class="title leading-none">بلاگ </span>
+                </a>
+            </div>
+            <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
+                <a
+                    href="{{route('admin.contact-us')}}"
+                    class="accordion-button flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]"
+                >
+                    <i class="material-symbols-outlined transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px">
+                        contact_page
+                    </i>
+
+                    <span class="title leading-none">درخواست کاربران </span>
+                </a>
+            </div>
+
+            <span
+                class="block relative font-medium uppercase text-gray-400 mb-[10px] text-xs [&:not(:first-child)]:mt-[22px]">حساب کاربری</span>
+            <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
+                <a
+                    href="{{route('admin.profile')}}"
+                    class="accordion-button flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]">
+                    <i class="material-symbols-outlined transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px">
+                        account_circle
+                    </i>
+
+                    <span class="title leading-none">پروفایل من </span>
+                </a>
+            </div>
+
+            <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
+                <a
+                    href="{{route('admin.logout')}}"
+                    class="accordion-button flex items-center bg-orange-500 transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]"
+                >
+                    <i
+                        class="material-symbols-outlined transition-all text-white dark:text-white ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px"
+                    >
+                        logout
+                    </i>
+                    <span class="title leading-none text-white"> خروج از حساب </span>
+                </a>
             </div>
         </div>
-        <div class="profile-info">
-            <div class="user-info">
-                <div class="profile-img">
-                    <img src="/admin/src/assets/img/profile-30.png" alt="avatar">
-                </div>
-                <div class="profile-content">
-                    <h6 class="">{{\Illuminate\Support\Facades\Auth::user()->name}}</h6>
-                    <p class="">
-
-                        @foreach (\Illuminate\Support\Facades\Auth::user()->getRoleNames() as $role)
-                            {{ $role }}
-                        @endforeach
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="shadow-bottom"></div>
-        <ul class="list-unstyled menu-categories" id="accordionExample">
-            <li class="menu active">
-                <a href="#dashboard" data-bs-toggle="collapse" aria-expanded="true" class="dropdown-toggle">
-                    <div class="">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="feather feather-home">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                        </svg>
-                        <span>داشبورد</span>
-                    </div>
-                    <div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="feather feather-chevron-right">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </div>
-                </a>
-                <ul class="collapse submenu list-unstyled show" id="dashboard" data-bs-parent="#accordionExample">
-                    <li class="active">
-                        <a href="{{route('admin.dashboard.index')}}"> صفحه اصلی </a>
-                    </li>
-
-                </ul>
-            </li>
-
-            <li class="menu menu-heading">
-                <div class="heading">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="feather feather-minus">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    <span>خدمات</span>
-                </div>
-            </li>
-            <li class="menu">
-                <a href="#students" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <div class="">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="feather feather-users">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                            <circle cx="9" cy="7" r="4"></circle>
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                        </svg>
-                        <span>دانش اموزان</span>
-                    </div>
-                    <div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="feather feather-chevron-right">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </div>
-                </a>
-
-                {{--student--}}
-                <ul class="collapse submenu list-unstyled" id="students" data-bs-parent="#accordionExample">
-                    @canany(['view_students_for_academic_support','view students with support info'])
-                        <li>
-                            <a href="{{route('admin.student.index')}}">دانش آموزان من</a>
-                        </li>
-                    @endcanany
-
-                    @can('upload weekly program')
-                        <li>
-                            <a href="{{route('admin.student.plan.index')}}"> برنامه درسی </a>
-                        </li>
-                    @endcan
-
-                    @canany(['view_students_for_academic_support','view student reports with support info'])
-                        <li>
-                            <a href="{{route('admin.student.reportDailyActivities.index')}}">گزارش</a>
-                        </li>
-                    @endcanany
-
-                    @can('view_report_monthlies_for_academic_support')
-
-                        <li>
-                            <a href="{{route('admin.student.reportStudent.index')}}">کارنامه وضعیت</a>
-                        </li>
-                    @endcan
-                    @can('view_report_calling_for_academic_support')
-
-                        <li>
-                            <a href="{{route('admin.student.reportCalling.index')}}">ثبت مستندات تماس</a>
-                        </li>
-                    @endcan
-                        @canany(['view_students_for_academic_support','view student reports with support info'])
-
-                        <li>
-                            <a href="{{route('admin.student.studySession.index')}}">میزان مطالعه دانش آموز</a>
-                        </li>
-                        @endcanany
-                        @canany(['view_students_for_academic_support','view student reports with support info'])
-
-                        <li>
-                            <a href="{{route('admin.advising-sessions.index')}}">مشاوره فردی</a>
-                        </li>
-                        @endcanany
-                </ul>
-
-
-            </li>
-
-            {{--reportStudent--}}
-            @canany(['view_students_for_academic_support'])
-                <li class="menu">
-                    <a href="#reportStudentDay" data-bs-toggle="collapse" aria-expanded="false"
-                       class="dropdown-toggle">
-                        <div class="">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round"
-                                 class="feather feather-file">
-                                <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path>
-                                <polyline points="13 2 13 9 20 9"></polyline>
-                            </svg>
-                            <span>گزارش روزانه</span>
-                        </div>
-                        <div>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                 stroke-linejoin="round"
-                                 class="feather feather-chevron-right">
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                        </div>
-                    </a>
-                    <ul class="collapse submenu list-unstyled" id="reportStudentDay"
-                        data-bs-parent="#accordionExample">
-                        <li>
-                            <a href="{{ route('admin.reportStudentDay', ['status' => 'all']) }}"> همه </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.reportStudentDay', ['status' => 'pending']) }}"> در انتظار
-                                تایید </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.reportStudentDay', ['status' => 'completed']) }}"> تایید
-                                شده </a>
-                        </li>
-                        <li>
-                            <a href="{{ route('admin.reportStudentDay', ['status' => 'rejected']) }}"> رد
-                                شده </a>
-                        </li>
-                    </ul>
-                </li>
-            @endcanany
-
-
-
-            {{--Exam--}}
-            @canany(['view_exams_for_academic_support','view exams'])
-                <li class="menu">
-                    <a href="{{route('admin.student.exam.index')}}" aria-expanded="false" class="dropdown-toggle">
-                        <div class="">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                 fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                 class="feather feather-edit">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                            <span>آزمون ها</span>
-                        </div>
-                    </a>
-                </li>
-            @endcanany
-            <li class="menu menu-heading">
-                <div class="heading">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="feather feather-minus">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    <span>ارسال</span>
-                </div>
-            </li>
-            {{--notification(elan) --}}
-            <li class="menu">
-                <a href="{{route('admin.student.notification')}}" aria-expanded="false" class="dropdown-toggle">
-                    <div class="">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="feather feather-send">
-                            <line x1="22" y1="2" x2="11" y2="13"></line>
-                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                        </svg>
-                        <span>ارسال اعلان</span>
-                    </div>
-                </a>
-            </li>
-            <li class="menu">
-                <a href="{{route('admin.blog.index')}}" aria-expanded="false" class="dropdown-toggle">
-                    <div class="">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="feather feather-pen-tool">
-                            <path d="M12 19l7-7 3 3-7 7-3-3z"></path>
-                            <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path>
-                            <path d="M2 2l7.586 7.586"></path>
-                            <circle cx="11" cy="11" r="2"></circle>
-                        </svg>
-                        <span>بلاگ ها</span>
-                    </div>
-                </a>
-            </li>
-            {{--reportCalling --}}
-            <li class="menu">
-                <a href="#ecommerce" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                    <div class="">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="feather feather-hard-drive">
-                            <line x1="22" y1="12" x2="2" y2="12"></line>
-                            <path
-                                d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path>
-                            <line x1="6" y1="16" x2="6.01" y2="16"></line>
-                            <line x1="10" y1="16" x2="10.01" y2="16"></line>
-                        </svg>
-                        <span>ارسال مستندات به مدیر</span>
-                    </div>
-                    <div>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="feather feather-chevron-right">
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                        </svg>
-                    </div>
-                </a>
-                <ul class="collapse submenu list-unstyled" id="ecommerce" data-bs-parent="#accordionExample">
-                    <li>
-                        <a href="{{route('admin.sendFile.ReportStudentStudy')}}"> گزارشات تماس </a>
-                    </li>
-                    <li>
-                        <a href="{{route('admin.sendFile.ReportStudentStudy')}}"> گزارشات وضعیت دانش اموزان </a>
-                    </li>
-                </ul>
-            </li>
-
-
-        </ul>
-
-    </nav>
-
-
+    </div>
 </div>

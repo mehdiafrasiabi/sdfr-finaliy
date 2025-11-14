@@ -3,6 +3,7 @@
 namespace App\Livewire\Client\Layout;
 
 use App\Models\Cart;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -11,11 +12,28 @@ class Header extends Component
 {
     public $cart=0;
 
+
+    public $unreadCount = 0;
+
     public function mount()
     {
+        $this->loadUnreadCount();
         $this->cart = Cart::query()
             ->where('user_id', Auth()->id())->count();
 
+    }
+    public function loadUnreadCount()
+    {
+        $user = Auth::user();
+        $student = $user?->student;
+
+        if (! $student) {
+            $this->unreadCount = 0;
+            return;
+        }
+        $this->unreadCount = Notification::where('student_id', $student->id)
+            ->where('is_read', false)
+            ->count();
     }
 
     #[On('add-to-cart')]
@@ -36,6 +54,12 @@ class Header extends Component
             return asset("user/img/{$this->id}/{$this->picture}");
         }
         return asset('client/assets/images/avatars/01.jpeg');
+    }
+    #[On('notificationAdded')]
+    #[On('notificationRead')]
+    public function refreshUnreadCount()
+    {
+        $this->loadUnreadCount();
     }
     public function render()
     {

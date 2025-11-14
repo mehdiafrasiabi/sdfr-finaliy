@@ -1,47 +1,62 @@
 <!DOCTYPE html>
-<html lang="en">
+<html dir="rtl">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
-    <title>ورود ادمین ها</title>
-    <link rel="icon" type="image/x-icon" href="/admin/src/assets/img/favicon.ico"/>
-    <link href="/admin/layouts/vertical-dark-menu/css/light/loader.css" rel="stylesheet" type="text/css" />
-    <link href="/admin/layouts/vertical-dark-menu/css/dark/loader.css" rel="stylesheet" type="text/css" />
-    <script  src="/admin/layouts/vertical-dark-menu/loader.js"></script>
-    <!-- BEGIN GLOBAL MANDATORY STYLES -->
-    <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
-    <link href="/admin/src/bootstrap/css/bootstrap.rtl.min.css" rel="stylesheet" type="text/css" />
+    <!-- Required meta tags -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link href="/admin/layouts/vertical-dark-menu/css/light/plugins.css" rel="stylesheet" type="text/css" />
-    <link href="/admin/src/assets/css/light/authentication/auth-cover.css" rel="stylesheet" type="text/css" />
+    <!-- Links Of CSS File -->
+    <link rel="stylesheet" href="/admin/assets/css/remixicon.css" />
+    <link rel="stylesheet" href="/admin/assets/css/apexcharts.css" />
+    <link rel="stylesheet" href="/admin/assets/css/simplebar.css" />
+    <link rel="stylesheet" href="/admin/assets/css/prism.css" />
+    <link rel="stylesheet" href="/admin/assets/css/jsvectormap.min.css" />
+    <link rel="stylesheet" href="/admin/assets/css/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="/admin/assets/css/quill.snow.css" />
+    <link rel="stylesheet" href="/admin/assets/css/style.css" />
 
-    <link href="/admin/layouts/vertical-dark-menu/css/dark/plugins.css" rel="stylesheet" type="text/css" />
-    <link href="/admin/src/assets/css/dark/authentication/auth-cover.css" rel="stylesheet" type="text/css" />
-    <!-- END GLOBAL MANDATORY STYLES -->
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/admin/assets/images/favicon.ico" />
 
-    <link rel="stylesheet" href="/fonts/WebFonts/css/fontiran.css">
-    <link rel="stylesheet" href="/fonts/WebFonts/css/stylef.css">
+    <!-- Title -->
+    <title>پنل مدیریت</title>
 
+    <!-- Font Family -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap"
+        rel="stylesheet"
+    />
+
+    <!-- Material Icons -->
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+    />
 </head>
-<body class="form dark">
+<body class="dark">
+<button
+    type="button"
+    class="light-dark-toggle leading-none inline-block transition-all text-[#fe7a36] absolute top-[20px] md:top-[25px] ltr:right-[20px] rtl:left-[20px] ltr:md:right-[25px] rtl:md:left-[25px]"
+    id="light-dark-toggle"
+>
+    <i class="material-symbols-outlined !text-[20px] md:!text-[22px]">light_mode</i>
+</button>
 
-<!-- BEGIN LOADER -->
-<div id="load_screen"> <div class="loader"> <div class="loader-content">
-            <div class="spinner-grow align-self-center"></div>
-        </div></div></div>
-<!--  END LOADER -->
+{{$slot}}
 
-<div class="auth-container d-flex dark-mode">
-
-   {{$slot}}
-
-</div>
-
-<!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
-<script  src="/admin/src/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- END GLOBAL MANDATORY SCRIPTS -->
-
+<script src="/admin/assets/js/apexcharts.min.js"></script>
+<script src="/admin/assets/js/fslightbox.js"></script>
+<script src="/admin/assets/js/simplebar.min.js"></script>
+<script src="/admin/assets/js/prism.js"></script>
+<script src="/admin/assets/js/clipboard.min.js"></script>
+<script src="/admin/assets/js/swiper-bundle.min.js"></script>
+<script src="/admin/assets/js/fullcalendar.min.js"></script>
+<script src="/admin/assets/js/jsvectormap.min.js"></script>
+<script src="/admin/assets/js/world-merc.js"></script>
+<script src="/admin/assets/js/quill.min.js"></script>
+<script src="/admin/assets/js/custom.js"></script>
 
 </body>
 </html>

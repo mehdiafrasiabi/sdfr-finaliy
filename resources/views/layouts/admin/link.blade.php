@@ -1,63 +1,35 @@
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
+<!-- Required meta tags -->
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-<link rel="stylesheet" href="/fonts/WebFonts/css/fontiran.css">
-<link rel="stylesheet" href="/fonts/WebFonts/css/stylef.css">
+<!-- Links Of CSS File -->
+<link rel="stylesheet" href="/admin/assets/css/remixicon.css"/>
+<link rel="stylesheet" href="/admin/assets/css/apexcharts.css"/>
+<link rel="stylesheet" href="/admin/assets/css/simplebar.css"/>
+<link rel="stylesheet" href="/admin/assets/css/prism.css"/>
+<link rel="stylesheet" href="/admin/assets/css/jsvectormap.min.css"/>
+<link rel="stylesheet" href="/admin/assets/css/swiper-bundle.min.css"/>
+<link rel="stylesheet" href="/admin/assets/css/quill.snow.css"/>
+<link rel="stylesheet" href="/admin/assets/css/style.css"/>
 
-<link rel="icon" type="image/x-icon" href="/admin/src/assets/img/favicon.svg"/>
-<link href="/admin/layouts/modern-dark-menu/css/light/loader.css" rel="stylesheet" type="text/css" />
-<link href="/admin/layouts/modern-dark-menu/css/dark/loader.css" rel="stylesheet" type="text/css" />
-<script src="/admin/layouts/modern-dark-menu/loader.js"></script>
-
-<!-- BEGIN GLOBAL MANDATORY STYLES -->
-<link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
-<link href="/admin/src/bootstrap/css/bootstrap.rtl.min.css" rel="stylesheet" type="text/css" />
-<link href="/admin/layouts/modern-dark-menu/css/light/plugins.css" rel="stylesheet" type="text/css" />
-<link href="/admin/layouts/modern-dark-menu/css/dark/plugins.css" rel="stylesheet" type="text/css" />
-<!-- END GLOBAL MANDATORY STYLES -->
-
-<!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM STYLES -->
-<link href="/admin/src/plugins/src/apex/apexcharts.css" rel="stylesheet" type="text/css">
-<link href="/admin/src/assets/css/light/dashboard/dash_1.css" rel="stylesheet" type="text/css" />
-<link href="/admin/src/assets/css/dark/dashboard/dash_1.css" rel="stylesheet" type="text/css" />
-
-<!-- BEGIN GLOBAL MANDATORY STYLES -->
-<link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
-<!-- END GLOBAL MANDATORY STYLES -->
-
-<!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM STYLES -->
-<link href="/admin/src/assets/css/light/components/list-group.css" rel="stylesheet" type="text/css">
-<link href="/admin/src/assets/css/dark/components/list-group.css" rel="stylesheet" type="text/css">
-<!-- END PAGE LEVEL PLUGINS/CUSTOM STYLES -->
-
-<!--  BEGIN CUSTOM STYLE FILE  -->
-<link rel="stylesheet" type="text/css" href="/admin/src/assets/css/light/elements/alert.css">
-<link rel="stylesheet" type="text/css" href="/admin/src/assets/css/dark/elements/alert.css">
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="/admin/assets/images/favicon.ico"/>
 
 
-<link rel="stylesheet" href="/admin/src/plugins/src/sweetalerts2/sweetalerts2.css">
-<link href="/admin/src/assets/css/dark/scrollspyNav.css" rel="stylesheet" type="text/css" />
-<link href="/admin/src/plugins/css/dark/sweetalerts2/custom-sweetalert.css" rel="stylesheet" type="text/css" />
+<!-- Font Family -->
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+    rel="stylesheet"
+/>
 
-<link href="/admin/src/assets/css/light/elements/custom-pagination.css" rel="stylesheet" type="text/css" />
-<link href="/admin/src/assets/css/dark/elements/custom-pagination.css" rel="stylesheet" type="text/css" />
+<!-- Material Icons -->
+<link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+/>
 
-<link rel="stylesheet" type="text/css" href="/admin/src/assets/css/light/forms/switches.css">
-<link rel="stylesheet" type="text/css" href="/admin/src/assets/css/dark/forms/switches.css">
-
-
-
-<link rel="stylesheet" type="text/css" href="/admin/src/plugins/src/table/datatable/datatables.css">
-
-
-<!-- BEGIN PAGE LEVEL STYLES -->
-<link href="/admin/src/assets/css/light/components/modal.css" rel="stylesheet" type="text/css">
-<link href="/admin/src/assets/css/light/apps/contacts.css" rel="stylesheet" type="text/css" />
-
-<link href="/admin/src/assets/css/dark/components/modal.css" rel="stylesheet" type="text/css">
-<link href="/admin/src/assets/css/dark/apps/contacts.css" rel="stylesheet" type="text/css" />
-<!-- END PAGE LEVEL STYLES -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
 
 

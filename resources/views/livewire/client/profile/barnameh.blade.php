@@ -24,7 +24,7 @@
                         <!-- end section:title -->
 
                         <!-- tabs container -->
-                        <div class="space-y-5" x-data="{ activeTab: 'tabOne'}">
+                        <div class="space-y-5" x-data="{ activeTab: 'tabOne'}" wire:poll.visible>
                             <!-- tabs:list-container -->
                             <div class="relative overflow-x-auto">
                                 <!-- tabs:list -->
@@ -110,7 +110,8 @@
                                                             </div>
                                                         </td>
                                                         <td class="p-5 font-bold">
-                                                            <a href="student/{{\Illuminate\Support\Facades\Auth::id()}}/plan/{{$plan->barnameh}}"
+                                                            <a href="{{ \App\Helpers\FileHelper::publicUrl($plan->barnameh) }}"
+
                                                                target="_blank"
                                                                download
                                                                wire:click="markAsViewed({{ $plan->id }})"

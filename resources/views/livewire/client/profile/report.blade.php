@@ -1,8 +1,4 @@
 <div class="max-w-7xl space-y-14 px-4 mx-auto">
-    @push('link')
-        <link rel="stylesheet"
-              href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css"/>
-    @endpush
     <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
         <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
 
@@ -257,21 +253,6 @@
                                             @enderror
                                         </div>
 
-                                        <div class="space-y-1">
-                                            <label for="jalali_date" class="font-medium text-xs text-muted">تاریخ انجام گزارش :</label>
-                                            <sup class="text-red-500">*</sup>
-                                            <input type="text" id="jalali_date" dir="ltr" name="jalali_date"
-                                                   wire:model.lazy="jalali_date"
-                                                   class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
-                                            @error('jalali_date')
-                                            <div class="font-medium text-xs text-muted text-red-500">
-                                                {{$message}}
-                                            </div>
-                                            @enderror
-                                        </div>
-
-
-
                                     </div>
                                     <div class="grid sm:grid-cols-4 gap-5">
                                         <div class="space-y-1">
@@ -374,7 +355,6 @@
                                                 class="text-xs text-muted uppercase bg-background border-b border-border">
                                             <tr>
                                                 <th class="whitespace-nowrap p-5">ردیف</th>
-                                                <th class="whitespace-nowrap p-5">تاریخ انجام گزارش</th>
                                                 <th class="whitespace-nowrap p-5">پارت های موظفی</th>
                                                 <th class="whitespace-nowrap p-5">پارت های انجام شده</th>
                                                 <th class="whitespace-nowrap p-5">دروسی که انجام نشده</th>
@@ -397,12 +377,6 @@
                                                     <td class="p-5">
                                                         <div
                                                             class="font-black text-xs text-foreground">{{$loop->iteration + $reports->firstItem() - 1}}</div>
-                                                    </td>
-
-                                                    <td class="p-5">
-                                                        <div class="flex items-center gap-2">
-                                                     <span class=" text-xs text-foreground ">{{ jalali($report->execution_date ?? '---' )->format('Y-m-d')}}</span>
-                                                        </div>
                                                     </td>
                                                     <td class="p-5">
                                                         <div class="flex items-center gap-2">
@@ -522,57 +496,4 @@
             </div>
         </div>
     </div>
-        @push('script')
-            <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    const $input = $("#jalali_date");
-
-                    const picker = $input.persianDatepicker({
-                        format: "YYYY/MM/DD",
-                        initialValueType: 'gregorian',
-                        calendarType: 'persian',
-                        autoClose: true,
-                        onSelect: function (unix) {
-                            const pd = new persianDate(unix);
-                            const formatted = pd.format('YYYY/MM/DD');
-
-                            // نمایش در خود input
-                            $input.val(formatted);
-
-                            // پیدا کردن نزدیک‌ترین کامپوننت Livewire مربوط به این input
-                            const livewireRoot = $input[0].closest('[wire\\:id]');
-                            if (!livewireRoot) {
-                                console.warn('کامپوننت Livewire پیدا نشد برای input تاریخ.');
-                                return;
-                            }
-
-                            const wireId = livewireRoot.getAttribute('wire:id');
-                            if (!wireId) {
-                                console.warn('wire:id یافت نشد روی ریشه Livewire.');
-                                return;
-                            }
-
-                            // ست کردن مستقیم پراپرتی
-                            try {
-                                const comp = window.Livewire.find(wireId);
-                                if (comp && typeof comp.set === 'function') {
-                                    comp.set('jalali_date', formatted);
-                                    console.log('jalali_date به کامپوننت گزارش ست شد:', formatted);
-                                } else {
-                                    console.warn('کامپوننت یا متد set پیدا نشد.');
-                                }
-                            } catch (e) {
-                                console.error('خطا در یافتن/ست کردن Livewire component:', e);
-                            }
-                        }
-                    }).data('datepicker');
-                });
-            </script>
-        @endpush
-
-
-
 </div>

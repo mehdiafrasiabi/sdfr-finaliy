@@ -17,7 +17,7 @@
 {{--                    <span class="font-semibold text-xs text-primary">به زودی :)</span>--}}
 {{--                </div>--}}
                 <h2 class="font-black sm:text-5xl text-3xl text-foreground">
-                    داستان رتبه برتر شدنت، <br/>
+                    داستان رتبه شدنت، <br/>
                     از اینجا شروع میشه!
                 </h2>
                 <p class="sm:text-base text-sm text-muted">
@@ -37,9 +37,11 @@
                     </svg>
                 </a>
             </div>
+
             <div class="flex-shrink-0 flex justify-center md:w-72 w-full md:order-2 -order-1">
                 <img src="/client/assets/images/theme/intro/main.png" class="max-w-full" alt="..."/>
             </div>
         </div>
     </div>
+
 </div>

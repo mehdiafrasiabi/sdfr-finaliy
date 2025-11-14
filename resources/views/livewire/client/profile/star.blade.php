@@ -10,7 +10,7 @@
                 <livewire:client.profile.sidebar/>
                 <!-- end user:menus -->
             </div>
-            <div class="lg:col-span-9 md:col-span-8">
+            <div class="lg:col-span-9 md:col-span-8" wire:poll.visible>
                 <div class="space-y-10">
                     <div class="space-y-5">
                         <!-- section:title -->
@@ -19,10 +19,10 @@
                                 <div class="w-1 h-1 bg-foreground rounded-full"></div>
                                 <div class="w-2 h-2 bg-foreground rounded-full"></div>
                             </div>
-                            <div class="font-black text-foreground">تاریخچه تراکنشها</div>
+                            <div class="font-black text-foreground">تبدیل امتیازات</div>
                         </div>
                         <!-- end section:title -->
-                        <div class="bg-background rounded-3xl p-5">
+                        <div class="bg-background rounded-3xl p-5 blur-container">
                             <!-- tabs:contents:tabOne -->
 
                             <!-- tabs:contents:tabTwo -->
@@ -111,7 +111,9 @@
 
                             <!-- tabs:contents:tabTwo -->
 
-
+                            <div class="blur-overlay">
+                                <img src="/client/soon2.png" alt="بزودی">
+                            </div>
 
                         </div>
                     </div>

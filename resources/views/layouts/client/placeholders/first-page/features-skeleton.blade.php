@@ -1,84 +1,43 @@
-<div>
-    <style>
-        .features-skeleton {
-            width: 100%;
-            max-width: 1200px;
-            background: #1a1a1a;
-            border-radius: 15px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
+<!-- Skeleton Loader -->
+<div class="relative bg-secondary rounded-3xl my animate-pulse">
+    <!-- عنوان -->
+    <div
+        class="relative right-1/2 translate-x-1/2 -translate-y-1/2 inline-flex items-center justify-center h-12 bg-background border border-border rounded-2xl text-lg text-center px-8">
+        <div class="h-4 w-24 bg-muted rounded"></div>
+    </div>
 
-        .skeleton-title {
-            width: 120px;
-            height: 35px;
-            background: #333;
-            border-radius: 20px;
-            animation: shimmer 1.5s infinite linear;
-        }
+    <!-- لیست آیتم‌ها -->
+    <div class="flex flex-nowrap items-center justify-center gap-10 md:pb-10 pb-5 md:px-10 px-5 overflow-x-auto" dir="ltr">
+        <!-- آیتم ۱ -->
+        <div class="flex flex-col items-center justify-center text-center space-y-3 animate-pulse">
+        <span class="flex items-center justify-center w-20 h-20 rounded-full" style="background-color: #0a0a0a">
+            <div class="w-8 h-8 bg-gray-400 rounded-full"></div>
+        </span>
+            <span class="h-4 w-16 bg-gray-300 rounded"></span>
+        </div>
 
-        .skeleton-items {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-        }
+        <!-- آیتم ۲ -->
+        <div class="flex flex-col items-center justify-center text-center space-y-3 animate-pulse">
+        <span class="flex items-center justify-center w-20 h-20  rounded-full" style="background-color: #0a0a0a">
+            <div class="w-8 h-8 bg-gray-400 rounded-full"></div>
+        </span>
+            <span class="h-4 w-14 bg-gray-300 rounded"></span>
+        </div>
 
-        .skeleton-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
+        <!-- آیتم ۳ -->
+        <div class="flex flex-col items-center justify-center text-center space-y-3 animate-pulse">
+        <span class="flex items-center justify-center w-20 h-20 rounded-full" style="background-color: #0a0a0a">
+            <div class="w-8 h-8 bg-gray-400 rounded-full"></div>
+        </span>
+            <span class="h-4 w-20 bg-gray-300 rounded"></span>
+        </div>
 
-        .skeleton-icon {
-            width: 60px;
-            height: 60px;
-            background: #222;
-            border-radius: 50%;
-            animation: shimmer 1.5s infinite linear;
-        }
-
-        .skeleton-text {
-            width: 80px;
-            height: 15px;
-            background: #444;
-            border-radius: 5px;
-            animation: shimmer 1.5s infinite linear;
-        }
-
-        @keyframes shimmer {
-            0% { background-color: #333; }
-            50% { background-color: #444; }
-            100% { background-color: #333; }
-        }
-    </style>
-
-    <div class="features-skeleton">
-        <div class="skeleton-title"></div>
-        <div class="skeleton-items">
-            <div class="skeleton-item">
-                <div class="skeleton-icon"></div>
-                <div class="skeleton-text"></div>
-            </div>
-            <div class="skeleton-item">
-                <div class="skeleton-icon"></div>
-                <div class="skeleton-text"></div>
-            </div>
-            <div class="skeleton-item">
-                <div class="skeleton-icon"></div>
-                <div class="skeleton-text"></div>
-            </div>
-            <div class="skeleton-item">
-                <div class="skeleton-icon"></div>
-                <div class="skeleton-text"></div>
-            </div>
-            <div class="skeleton-item">
-                <div class="skeleton-icon"></div>
-                <div class="skeleton-text"></div>
-            </div>
+        <!-- آیتم ۴ -->
+        <div class="flex flex-col items-center justify-center text-center space-y-3 animate-pulse">
+        <span class="flex items-center justify-center w-20 h-20 bg-gray-300 rounded-full" style="background-color: #0a0a0a">
+            <div class="w-8 h-8 bg-gray-400 rounded-full"></div>
+        </span>
+            <span class="h-4 w-24 bg-gray-300 rounded"></span>
         </div>
     </div>
 </div>
