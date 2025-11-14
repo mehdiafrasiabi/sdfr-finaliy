@@ -26,3 +26,9 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+public/storage/
+public/uploads/
+*.zip
+*.mp4
+*.avi
+*.rar
