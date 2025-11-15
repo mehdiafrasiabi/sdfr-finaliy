@@ -45,9 +45,12 @@ class ReportDailyActivitiesForAdmin implements FromQuery, WithHeadings, WithMapp
     {
         $query = Report::with('student.user');
 
-        if ($this->status !== 'all') {
+        if ($this->status === 'active') {
+            $query->where('status', '!=', 'completed');
+        } elseif ($this->status !== 'all') {
             $query->where('status', $this->status);
         }
+
 
         if ($this->startDate) {
             $start = $this->parseJalaliToCarbonStart($this->startDate);

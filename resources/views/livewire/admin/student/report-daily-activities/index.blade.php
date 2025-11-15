@@ -8,7 +8,7 @@
             <div class="trezo-card bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md">
                 <div class="trezo-card-header mb-[20px] md:mb-[25px] flex items-center justify-between">
                     <div class="trezo-card-title">
-                        <h5 class="!mb-0">لیست دانش آموزان (گزارش روزانه با جزییات ) </h5>
+                        <h5 class="!mb-0">ریز گزارش روزانه دانش آموز</h5>
                     </div>
 
                     <div class="trezo-card-subtitle sm:flex sm:items-center">
@@ -50,11 +50,13 @@
                                 <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
                                     رشته
                                 </th>
-                                <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                    تعداد امتیازات
-                                </th>
+
                                 <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
                                     عملیات
+                                </th>
+
+                                <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                                    آخرین نظر دانش‌آموز
                                 </th>
 
                             </tr>
@@ -71,6 +73,11 @@
                                                 <span
                                                     class="block font-medium">{{$student->user->personalInformation->name }}</span>
                                             </div>
+                                            @if(!empty($student->unread_student_replies_count))
+                                                <span class="relative inline-flex items-center justify-center rounded-full h-5 w-5 bg-primary text-primary-foreground font-bold text-xs">
+                                                    {{ $student->unread_student_replies_count }}
+                                                </span>
+                                            @endif
                                         </div>
                                     </td>
                                     <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
@@ -96,15 +103,22 @@
                                         @endif
                                     </td>
                                     <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                        30
-                                    </td>
-                                    <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
                                         <div class="flex items-center gap-[9px]">
                                             <a href="{{route('admin.student.reportDailyActivities.detail',$student->payment->order->user->id)}}"
                                                class="text-gray-500 dark:text-gray-400 leading-none">
                                                 <i class="material-symbols-outlined !text-md">edit</i>
                                             </a>
                                         </div>
+                                    </td>
+                                    <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
+                                        @php
+                                            $latestReplyAt = $student->latest_student_reply_at ? \Illuminate\Support\Carbon::parse($student->latest_student_reply_at) : null;
+                                        @endphp
+                                        @if($latestReplyAt)
+                                            {{ \Morilog\Jalali\Jalalian::fromCarbon($latestReplyAt)->format('Y/m/d | H:i') }}
+                                        @else
+                                            ---
+                                        @endif
                                     </td>
                                 </tr>
                             @empty

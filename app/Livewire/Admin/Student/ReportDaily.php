@@ -19,11 +19,19 @@ class ReportDaily extends Component
 
     public $selectedReports = []; // آرایه‌ای از آی‌دی گزارش‌های انتخاب‌شده
     public $selectAll = false;
-    public $status = 'all';
+    public string $status = 'active';
     public $startDate = null;
     public $endDate = null;
-    protected $queryString = ['status', 'startDate', 'endDate'];
+    public string $checkTime = '21:00';
+    protected $queryString = ['startDate', 'endDate'];
     public $studentsWithoutReports = [];
+
+    public bool $commentModalOpen = false;
+    public ?int $commentReportId = null;
+    public string $advisorCommentInput = '';
+    public bool $advisorCommentReadonly = false;
+    public string $commentStudentName = '';
+    public ?string $commentStudentReply = null;
 
     protected function getStudentsWithoutReports()
     {
@@ -31,23 +39,16 @@ class ReportDaily extends Component
             ->orWhere('advisor_id', auth()->id())
             ->get();
 
-        $startOfDay = Carbon::today();
-        $endOfDay = Carbon::tomorrow()->subSecond();
+        $referenceTime = $this->resolveReferenceTime();
+        $windowStart = (clone $referenceTime)->subHours(48);
 
         $studentsWithReports = Report::where('admin_id', auth()->id())
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->whereBetween('created_at', [$windowStart, $referenceTime])
             ->pluck('student_id')
             ->toArray();
 
         $this->studentsWithoutReports = $allStudents->whereNotIn('id', $studentsWithReports);
     }
-
-    public function updatingStatus()
-    {
-        $this->resetPage();
-        $this->resetSelection();
-    }
-
     public function updatingStartDate()
     {
         $this->resetPage();
@@ -60,6 +61,17 @@ class ReportDaily extends Component
         $this->resetSelection();
     }
 
+    public function updatedCheckTime($value)
+    {
+        if (!$this->isValidTime($value)) {
+            $this->addError('checkTime', 'فرمت زمان نادرست است.');
+            return;
+        }
+
+        $this->resetErrorBag('checkTime');
+        $this->getStudentsWithoutReports();
+    }
+
     // ریست کردن انتخاب‌ها
     private function resetSelection()
     {
@@ -67,30 +79,7 @@ class ReportDaily extends Component
         $this->selectAll = false;
     }
 
-    public function changeStatus($reportId, $value)
-    {
-        $validator = Validator::make(['status' => $value, 'id' => $reportId],
-            [
-                'id' => 'required|exists:reports,id',
-                'status' => 'required|in:pending,completed,rejected'
-            ],
-            [
-                '*.required' => 'فیلد اجباری است.',
-                'status.in' => 'فرمت اشتباه است',
-                'id.exists' => 'وضعیت تماس نامعتبر'
-            ]
-        );
 
-        $validator->validate();
-        $this->resetValidation();
-
-        Report::query()->updateOrCreate(
-            ['id' => $reportId],
-            ['status' => $value]
-        );
-
-        $this->dispatch('success', 'با موفقیت ثبت شد');
-    }
 
     public function getStatusColor($status)
     {
@@ -108,7 +97,10 @@ class ReportDaily extends Component
 
     public function delete($report_id)
     {
-        Report::query()->where('id', $report_id)->delete();
+        Report::query()
+            ->where('id', $report_id)
+            ->where('admin_id', auth()->id())
+            ->delete();
 
         // اگر آیتم حذف شده در لیست انتخاب‌ها بود، حذفش کن
         $this->selectedReports = array_diff($this->selectedReports, [$report_id]);
@@ -168,11 +160,10 @@ class ReportDaily extends Component
     // گرفتن آی‌دی‌های صفحه فعلی
     private function getCurrentPageReportIds()
     {
-        $query = Report::with('student')->where('admin_id', auth()->id());
+        $query = Report::with('student.user')->where('admin_id', auth()->id());
 
-        if ($this->status !== 'all') {
-            $query->where('status', $this->status);
-        }
+        $query->where('status', '!=', 'completed');
+
 
         if ($this->startDate) {
             $start = $this->parseJalaliToCarbonStart($this->startDate);
@@ -215,6 +206,7 @@ class ReportDaily extends Component
         }
 
         Report::whereIn('id', $this->selectedReports)
+            ->where('admin_id', auth()->id())
             ->update(['status' => $action]);
 
         $this->resetSelection();
@@ -233,11 +225,135 @@ class ReportDaily extends Component
         return Excel::download(new ReportDailyActivitiesForAdmin($this->status, $this->startDate, $this->endDate), $fileName);
     }
 
+    protected function resolveReferenceTime(): Carbon
+    {
+        $time = $this->parseTime($this->checkTime) ?? Carbon::createFromTimeString('21:00', config('app.timezone'));
+        $reference = Carbon::today(config('app.timezone'))->setTimeFromTimeString($time->format('H:i'));
+
+        if (Carbon::now(config('app.timezone'))->lt($reference)) {
+            $reference->subDay();
+        }
+
+        return $reference;
+    }
+
+    protected function parseTime(string $value): ?Carbon
+    {
+        try {
+            return Carbon::createFromFormat('H:i', $value, config('app.timezone'));
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    protected function isValidTime(string $value): bool
+    {
+        return $this->parseTime($value) !== null;
+    }
+
+    public function openCommentModal(int $reportId)
+    {
+        $report = Report::with('student.user')
+            ->where('id', $reportId)
+            ->where('admin_id', auth()->id())
+            ->firstOrFail();
+
+        $this->commentReportId = $reportId;
+        $this->advisorCommentInput = $report->advisor_comment ?? '';
+        $this->advisorCommentReadonly = !empty($report->advisor_comment);
+        $this->commentStudentName = $report->student->user->name ?? '';
+        $this->commentStudentReply = $report->student_reply;
+        $this->commentModalOpen = true;
+    }
+
+    public function closeCommentModal()
+    {
+        $this->commentModalOpen = false;
+        $this->advisorCommentInput = '';
+        $this->commentReportId = null;
+        $this->advisorCommentReadonly = false;
+        $this->commentStudentReply = null;
+        $this->commentStudentName = '';
+        $this->resetErrorBag('advisorCommentInput');
+    }
+
+    public function saveAdvisorComment()
+    {
+        if (!$this->commentReportId) {
+            return;
+        }
+
+        $report = Report::where('id', $this->commentReportId)
+            ->where('admin_id', auth()->id())
+            ->firstOrFail();
+
+        if (!empty($report->advisor_comment)) {
+            $this->dispatch('warning', 'برای این گزارش قبلاً نظری ثبت شده است.');
+            $this->closeCommentModal();
+            return;
+        }
+
+        $validated = $this->validate([
+            'advisorCommentInput' => 'required|string|max:1000',
+        ], [
+            'advisorCommentInput.required' => 'متن نظر را وارد کنید.',
+            'advisorCommentInput.max' => 'طول نظر نمی‌تواند بیشتر از ۱۰۰۰ کاراکتر باشد.',
+        ]);
+
+        $report->update([
+            'advisor_comment' => $validated['advisorCommentInput'],
+            'advisor_commented_at' => now(),
+        ]);
+
+        $this->dispatch('success', 'نظر شما ثبت شد.');
+        $this->closeCommentModal();
+    }
+
+    public function changeStatus($reportId, $value)
+    {
+        $validator = Validator::make(['status' => $value, 'id' => $reportId],
+            [
+                'id' => 'required|exists:reports,id',
+                'status' => 'required|in:pending,completed,rejected'
+            ],
+            [
+                '*.required' => 'فیلد اجباری است.',
+                'status.in' => 'فرمت اشتباه است',
+                'id.exists' => 'وضعیت تماس نامعتبر'
+            ]
+        );
+
+        $validator->validate();
+        $this->resetValidation();
+
+        $report = Report::where('id', $reportId)
+            ->where('admin_id', auth()->id())
+            ->firstOrFail();
+
+        $report->update(['status' => $value]);
+
+        if ($value === 'completed') {
+            $this->selectedReports = array_diff($this->selectedReports, [$reportId]);
+        }
+
+        $this->dispatch('success', 'با موفقیت ثبت شد');
+    }
+
+
+
+
     public function render()
     {
-        $query = Report::with('student')->where('admin_id', auth()->id());
+        $query = Report::with('student.user')->where('admin_id', auth()->id());
 
-        if ($this->status !== 'all') {
+        if ($this->status === 'active') {
+            $query->where('status', '!=', 'completed');
+        } elseif ($this->status !== 'all') {
+            $query->where('status', $this->status);
+        }
+        if ($this->status === 'active') {
+            $query->where('status', '!=', 'rejected');
+        } elseif ($this->status !== 'all') {
             $query->where('status', $this->status);
         }
 
@@ -267,6 +383,7 @@ class ReportDaily extends Component
         return view('livewire.admin.student.report-daily', [
             'reports' => $reports,
             'studentsWithoutReports' => $this->studentsWithoutReports,
+            'referenceTime' => $this->resolveReferenceTime(),
         ])->layout('layouts.admin.app');
     }
 }

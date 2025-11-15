@@ -79,14 +79,7 @@
                                     برنامه درسی
                                 </a>
                             </li>
-                            <li class="sidemenu-item mb-[4px] last:mb-0">
-                                <a
-                                    href="{{route('admin.student.reportDailyActivities.index')}}"
-                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
-                                >
-                                    گزارش
-                                </a>
-                            </li>
+
                             <li class="sidemenu-item mb-[4px] last:mb-0">
                                 <a
                                     href="{{route('admin.student.reportStudent.index')}}"
@@ -116,7 +109,6 @@
                 </div>
             </div>
 
-
             <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
                 <button
                     class="accordion-button toggle flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]"
@@ -127,18 +119,17 @@
                     >
 
                     </i>
-                    <span class="title leading-none">گزارش روزانه دانش آموز</span>
+                    <span class="title leading-none">گزارشات</span>
                 </button>
                 <div class="accordion-collapse hidden">
                     <div class="pt-[4px]">
                         <ul class="sidebar-sub-menu">
-
                             <li class="sidemenu-item mb-[4px] last:mb-0">
                                 <a
-                                    href="{{ route('admin.reportStudentDay', ['status' => 'all']) }}"
+                                    href="{{route('admin.student.reportDailyActivities.index')}}"
                                     class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
                                 >
-                                    همه
+                                    گزارش
                                 </a>
                             </li>
                             <li class="sidemenu-item mb-[4px] last:mb-0">
@@ -149,26 +140,11 @@
                                     در انتظار تایید پشتیبان
                                 </a>
                             </li>
-                            <li class="sidemenu-item mb-[4px] last:mb-0">
-                                <a
-                                    href="{{ route('admin.reportStudentDay', ['status' => 'completed']) }}"
-                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
-                                >
-                                    تایید شده
-                                </a>
-                            </li>
-                            <li class="sidemenu-item mb-[4px] last:mb-0">
-                                <a
-                                    href="{{ route('admin.reportStudentDay', ['status' => 'rejected']) }}"
-                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
-                                >
-                                    رد شده
-                                </a>
-                            </li>
                         </ul>
                     </div>
                 </div>
             </div>
+
             <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
                 <a
                     href="{{route('admin.student.exam.index')}}"
@@ -192,7 +168,6 @@
                     <i
                         class="material-symbols-outlined ri-arrow-right-up-line transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px"
                     >
-
                     </i>
                     <span class="title leading-none">پیام به دانش آموز</span>
                 </a>

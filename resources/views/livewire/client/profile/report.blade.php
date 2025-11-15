@@ -349,7 +349,7 @@
                             <!-- tabs:contents:tabTwo -->
                             <div x-show="activeTab === 'tabTwo'">
                                 <div class="relative   @if($reports->isNotEmpty()) container overflow-x-auto @endif">
-                                    <table class="w-full text-sm text-right">
+                                    <table wire:poll.visible class="w-full text-sm text-right">
                                         @if($reports->isNotEmpty())
                                             <thead
                                                 class="text-xs text-muted uppercase bg-background border-b border-border">
@@ -363,7 +363,8 @@
                                                 <th class="whitespace-nowrap p-5">ساعات درگیر با گوشی (درسی) </th>
                                                 <th class="whitespace-nowrap p-5">ساعات درگیر با گوشی (غیر درسی)</th>
                                                 <th class="whitespace-nowrap p-5">توضیحات</th>
-                                                <th class="whitespace-nowrap p-5">رضایت</th>
+                                                <th class="whitespace-nowrap p-5">رضایت</th>>
+                                                <th class="whitespace-nowrap p-5">نظر مشاور</th>
                                                 <th class="whitespace-nowrap p-5">وضعیت</th>
                                                 <th class="whitespace-nowrap p-5">فایل</th>
                                                 <th class="whitespace-nowrap p-5">تاریخ ثبت</th>
@@ -415,7 +416,9 @@
                                                     </td>
                                                     <td class="p-5">
                                                         <div class="flex items-center gap-2">
-                                                     <span class=" text-sm text-foreground ">{{ $report->description ?? '---' }}</span>
+                                                     <span class=" text-sm text-foreground ">
+                                                         {{ \Illuminate\Support\Str::limit($report->description, 50) }}
+                                                     </span>
                                                         </div>
                                                     </td>
 
@@ -431,6 +434,21 @@
                                                         </div>
                                                     </td>
                                                     <td class="p-5">
+                                                        <div class="space-y-2 text-xs text-muted">
+                                                            @if($report->advisor_comment)
+                                                                <button type="button"
+                                                                        wire:click="openReplyModal({{ $report->id }})"
+                                                                        class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
+                                                                    مشاهده نظر و پاسخ
+                                                                </button>
+                                                            @else
+                                                                <span>منتظر نظر مشاور</span>
+                                                            @endif
+                                                        </div>
+                                                    </td>
+
+
+                                                    <td class="p-5">
                                                         <div class="text-xs text-muted whitespace-nowrap">
                                                             @if($report->status === 'completed')
                                                                 <div class="flex-shrink-0 rounded-full bg-green-500/20 p-1">
@@ -438,7 +456,7 @@
                                                                 </div>
                                                                 <span class="font-bold text-green-500">تایید شده</span>
                                                             @elseif($report->status === 'pending')
-                                                                <div class="flex-shrink-0 rounded-full bg-yellow-500/20">
+                                                                <div class="flex-shrink-0 rounded-full bg-yellow-500/20 p-1">
                                                                     <div class="h-1.5 w-1.5 rounded-full bg-yellow-500"></div>
                                                                 </div>
                                                                 <span class="font-bold text-yellow-500">در انتظار</span>
@@ -456,7 +474,7 @@
                                                             @if(isset($report->report_file))
                                                                 <a href="{{asset('students/reportsDaily/'.auth()->id()).'/'.$report->report_file}}">مشاهده</a>
                                                             @else
-                                                                فایلی برای مشاهده وجود ندارد
+                                                                 وجود ندارد
                                                             @endif
                                                         </div>
                                                     </td>
@@ -496,4 +514,62 @@
             </div>
         </div>
     </div>
+    @if($replyModalOpen)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" wire:click.self="closeReplyModal">
+            <div class="w-full max-w-xl mx-4 bg-background border border-border rounded-2xl shadow-2xl" wire:keydown.escape.window="closeReplyModal">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+                    <div>
+                        <h3 class="text-base font-bold text-foreground">پاسخ به نظر مشاور</h3>
+                        <p class="text-xs text-muted mt-1">امکان ثبت تنها یک پاسخ برای هر گزارش وجود دارد.</p>
+                    </div>
+                    <button type="button" wire:click="closeReplyModal" class="text-muted hover:text-foreground transition-all">
+                        <i class="material-symbols-outlined !text-[22px]">✕</i>
+                    </button>
+                </div>
+                <div class="px-6 py-5 space-y-4">
+                    <div class="space-y-2">
+                        <div class="text-xs text-muted text-primary font-bold">نظر مشاور</div>
+                        <p class="text-sm leading-6 text-foreground bg-secondary border border-border rounded-xl p-4">{{ $advisorCommentPreview }}</p>
+                    </div>
+                    @if($studentReplyPreview)
+                        <br>
+                        <div class="space-y-2">
+                            <div class="text-xs text-muted text-success font-bold">پاسخ شما</div>
+                            <p class="text-sm leading-6 text-foreground bg-secondary border border-border rounded-xl p-4">{{ $studentReplyPreview }}</p>
+                        </div>
+                    @else
+                        <div class="space-y-2">
+                            <label for="student_reply_input" class="text-sm font-medium text-foreground">پاسخ شما</label>
+                            <textarea id="student_reply_input" rows="4" wire:model.defer="studentReplyInput" class="w-full rounded-xl border border-border bg-secondary text-sm text-foreground px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/40"></textarea>
+                            @error('studentReplyInput')
+                            <div class="text-xs font-medium text-red-500">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    @endif
+
+                </div>
+                <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl">
+
+                    @if($studentReplyPreview)
+                        <button type="button" wire:click="closeReplyModal" class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">بستن</button>
+
+                    @else
+                        <button type="button" wire:click="saveStudentReply" wire:loading.attr="disabled" class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
+                            <span wire:loading.remove wire:target="saveStudentReply">ثبت پاسخ</span>
+                            <span wire:loading wire:target="saveStudentReply" class="flex items-center gap-2">
+                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                        </svg>
+                        در حال ارسال...
+                    </span>
+                        </button>
+                    @endif
+
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
+
+

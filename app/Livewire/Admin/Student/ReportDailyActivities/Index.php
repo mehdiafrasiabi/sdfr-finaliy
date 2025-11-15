@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Database\Eloquent\Builder;
 
 class Index extends Component
 {
@@ -47,18 +48,35 @@ class Index extends Component
             ->with([
                 'payment.order.orderItems.product',
                 'payment.order.user',
-                'user.personalInformation' // اضافه شد
+                'user.personalInformation'
             ])
-            ->where('supporter_id', $adminId)->orWhere('advisor_id', $adminId);        // فقط دانش‌آموزان مربوط به همین پشتیبان
+            ->withCount([
+                'reportdaily as unread_student_replies_count' => function (Builder $query) {
+                    $query->whereNotNull('student_reply')
+                        ->whereNull('student_reply_seen_at');
+                },
+            ])
+            ->withMax('reportdaily as latest_student_reply_at', 'student_replied_at')
+            ->where(function (Builder $query) use ($adminId) {
+                $query->where('supporter_id', $adminId)
+                    ->orWhere('advisor_id', $adminId);
+            });        // فقط دانش‌آموزان مربوط به همین پشتیبان
 
         // اگر جستجو فعال بود
         if ($this->search) {
-            $studentsQuery->whereHas('payment.order.user', function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%');
+            $searchTerm = '%' . $this->search . '%';
+
+            $studentsQuery->where(function (Builder $query) use ($searchTerm) {
+                $query->whereHas('user.personalInformation', function (Builder $subQuery) use ($searchTerm) {
+                    $subQuery->where('name', 'like', $searchTerm);
+                })
+                    ->orWhereHas('user', function (Builder $subQuery) use ($searchTerm) {
+                        $subQuery->where('mobile', 'like', $searchTerm);
+                    });
             });
         }
 
         $students = $studentsQuery->paginate(10);
-        return view('livewire.admin.student.report-daily-activities.index',['students' => $students])->layout('layouts.admin.app');
+        return view('livewire.admin.student.report-daily-activities.index', ['students' => $students])->layout('layouts.admin.app');
     }
 }

@@ -10,20 +10,25 @@ use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 use Livewire\WithPagination;
-use Morilog\Jalali\CalendarUtils;
 
 class Report extends Component
 {
     use WithFileUploads, UploadFile,WithPagination,SEOTools;
 
     public $report_file, $complacent;
-    public $required_parts = '';
-    public $done_parts = '';
+    public $required_parts = 0;
+    public $done_parts = 0;
     public $required_tests = '';
     public $done_tests = '';
     public $phone_study_hours = '';
     public $phone_nonstudy_hours = '';
     public $description = '';
+    public bool $replyModalOpen = false;
+    public ?int $replyReportId = null;
+    public string $studentReplyInput = '';
+    public ?string $advisorCommentPreview = null;
+    public ?string $studentReplyPreview = null;
+
     public function mount()
     {
         $this->seo()->setTitle('گزارش های روزانه من');
@@ -112,8 +117,8 @@ class Report extends Component
             'admin_id' => $admin->id,
             'required_parts' => $this->required_parts,
             'done_parts' => $this->done_parts,
-            'required_tests' => $this->required_tests,
-            'done_tests' => $this->done_tests,
+            'required_tests' => $this->required_tests === '' ? null : $this->required_tests,
+            'done_tests' => $this->done_tests === '' ? null : $this->done_tests,
             'phone_study_hours' => $this->phone_study_hours,
             'phone_nonstudy_hours' => $this->phone_nonstudy_hours,
             'description' => $this->description,
@@ -137,6 +142,92 @@ class Report extends Component
 
         $this->dispatch('success', 'گزارش با موفقیت ارسال شد.');
     }
+
+
+
+
+    public function openReplyModal(int $reportId)
+    {
+        $studentId = Auth::user()->student->id ?? null;
+        if (!$studentId) {
+            $this->dispatch('warning', 'امکان دسترسی به گزارش وجود ندارد.');
+            return;
+        }
+
+        $report = ReportModel::where('id', $reportId)
+            ->where('student_id', $studentId)
+            ->firstOrFail();
+
+        if (empty($report->advisor_comment)) {
+            $this->dispatch('warning', 'برای این گزارش هنوز نظری ثبت نشده است.');
+            return;
+        }
+
+        // نمایش پاسخ اگر وجود دارد
+        $this->studentReplyPreview = $report->student_reply ?: null;
+
+        $this->replyReportId = $reportId;
+        $this->advisorCommentPreview = $report->advisor_comment;
+
+        // فقط اگر پاسخ وجود نداشته باشد، این ورودی را پاک می‌کنیم
+        $this->studentReplyInput = '';
+
+        $this->replyModalOpen = true;
+    }
+
+
+
+
+    public function closeReplyModal()
+    {
+        $this->replyModalOpen = false;
+        $this->studentReplyPreview = null;
+
+        $this->replyReportId = null;
+        $this->studentReplyInput = '';
+        $this->advisorCommentPreview = null;
+        $this->resetErrorBag('studentReplyInput');
+    }
+
+    public function saveStudentReply()
+    {
+        if (!$this->replyReportId) {
+            return;
+        }
+
+        $studentId = Auth::user()->student->id ?? null;
+        if (!$studentId) {
+            $this->dispatch('warning', 'امکان دسترسی به گزارش وجود ندارد.');
+            return;
+        }
+
+        $report = ReportModel::where('id', $this->replyReportId)
+            ->where('student_id', $studentId)
+            ->firstOrFail();
+
+        if (!empty($report->student_reply)) {
+            $this->dispatch('warning', 'پاسخ شما قبلاً ثبت شده است.');
+            $this->closeReplyModal();
+            return;
+        }
+
+        $validated = $this->validate([
+            'studentReplyInput' => 'required|string|max:1000',
+        ], [
+            'studentReplyInput.required' => 'متن پاسخ الزامی است.',
+            'studentReplyInput.max' => 'طول پاسخ نمی‌تواند بیشتر از ۱۰۰۰ کاراکتر باشد.',
+        ]);
+
+        $report->update([
+            'student_reply' => $validated['studentReplyInput'],
+            'student_replied_at' => now(),
+            'student_reply_seen_at' => null,
+        ]);
+
+        $this->dispatch('success', 'پاسخ شما ثبت شد.');
+        $this->closeReplyModal();
+    }
+
 
     public function render()
     {

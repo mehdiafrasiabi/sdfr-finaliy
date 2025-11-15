@@ -22,14 +22,21 @@ class Detail extends Component
     public $status = 'all';
     public $startDate = null; // شمسی مثل 1403/05/01
     public $endDate = null;   // شمسی
-
     protected $queryString = ['status', 'startDate', 'endDate'];
+
+    public bool $commentModalOpen = false;
+    public ?int $commentReportId = null;
+    public string $advisorCommentInput = '';
+    public bool $advisorCommentReadonly = false;
+    public string $commentStudentName = '';
+    public ?string $commentStudentReply = null;
 
     public function mount(User $student)
     {
         $this->studentId = $student->student->id;
         $this->studentName = $student->personalInformation->name;
         $this->seoConfig();
+        $this->markStudentRepliesAsSeen();
     }
 
     public function seoConfig()
@@ -133,6 +140,75 @@ class Detail extends Component
             new ReportDailyActivitiesStudentForAdmin($this->studentId, $this->status, $this->startDate, $this->endDate),
             $fileName
         );
+    }
+
+    public function openCommentModal(int $reportId)
+    {
+        $report = Report::with('student.user')
+            ->where('id', $reportId)
+            ->where('admin_id', auth()->id())
+            ->firstOrFail();
+
+        $this->commentReportId = $reportId;
+        $this->advisorCommentInput = $report->advisor_comment ?? '';
+        $this->advisorCommentReadonly = !empty($report->advisor_comment);
+        $this->commentStudentName = $report->student->user->name ?? '';
+        $this->commentStudentReply = $report->student_reply;
+        $this->commentModalOpen = true;
+    }
+
+    public function closeCommentModal()
+    {
+        $this->commentModalOpen = false;
+        $this->advisorCommentInput = '';
+        $this->commentReportId = null;
+        $this->advisorCommentReadonly = false;
+        $this->commentStudentReply = null;
+        $this->commentStudentName = '';
+        $this->resetErrorBag('advisorCommentInput');
+    }
+
+    public function saveAdvisorComment()
+    {
+        if (!$this->commentReportId) {
+            return;
+        }
+
+        $report = Report::where('id', $this->commentReportId)
+            ->where('admin_id', auth()->id())
+            ->firstOrFail();
+
+        if (!empty($report->advisor_comment)) {
+            $this->dispatch('warning', 'برای این گزارش قبلاً نظری ثبت شده است.');
+            $this->closeCommentModal();
+            return;
+        }
+
+        $validated = $this->validate([
+            'advisorCommentInput' => 'required|string|max:1000',
+        ], [
+            'advisorCommentInput.required' => 'متن نظر را وارد کنید.',
+            'advisorCommentInput.max' => 'طول نظر نمی‌تواند بیشتر از ۱۰۰۰ کاراکتر باشد.',
+        ]);
+
+        $report->update([
+            'advisor_comment' => $validated['advisorCommentInput'],
+            'advisor_commented_at' => now(),
+        ]);
+
+        $this->dispatch('success', 'نظر شما ثبت شد.');
+        $this->closeCommentModal();
+    }
+
+    protected function markStudentRepliesAsSeen(): void
+    {
+        Report::query()
+            ->where('student_id', $this->studentId)
+            ->whereNotNull('student_reply')
+            ->whereNull('student_reply_seen_at')
+            ->update([
+                'student_reply_seen_at' => now(),
+            ]);
     }
 
     public function render()
