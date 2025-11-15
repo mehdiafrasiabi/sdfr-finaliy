@@ -5,7 +5,7 @@
                 <livewire:client.profile.sidebar/>
             </div>
 
-            <div class="lg:col-span-9 md:col-span-8">
+            <div class="lg:col-span-9 md:col-span-8" wire:poll.visible>
                 <div class="space-y-10">
                     <div class="space-y-5">
                         <div class="flex items-center gap-3">

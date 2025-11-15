@@ -1,4 +1,4 @@
-<div class="hidden md:block" wire:poll.visible>
+<div class="hidden md:block">
     <div class="flex items-center gap-5 mb-5">
         <div class="flex items-center gap-3">
             <div class="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden">

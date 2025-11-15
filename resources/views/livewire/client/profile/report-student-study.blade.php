@@ -92,7 +92,7 @@
                                                 </thead>
 
 
-                                                    <tbody  wire:poll.visible>
+                                                    <tbody >
                                                     @foreach($reportMonthly as $report)
                                                     <tr class="odd:bg-secondary even:bg-background">
                                                         <td class="p-5">

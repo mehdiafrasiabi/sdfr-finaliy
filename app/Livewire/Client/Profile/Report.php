@@ -28,7 +28,11 @@ class Report extends Component
     public string $studentReplyInput = '';
     public ?string $advisorCommentPreview = null;
     public ?string $studentReplyPreview = null;
+    // Analysis Box Properties
 
+    public bool $showAnalysisBox = false;
+
+    public array $analysisData = [];
     public function mount()
     {
         $this->seo()->setTitle('گزارش های روزانه من');
@@ -110,40 +114,427 @@ class Report extends Component
                 'reportsDaily'
             );
         }
+        $this->generateAnalysis();
+
 
 
         ReportModel::create([
+
             'student_id' => $student->id,
+
             'admin_id' => $admin->id,
+
             'required_parts' => $this->required_parts,
+
             'done_parts' => $this->done_parts,
+
             'required_tests' => $this->required_tests === '' ? null : $this->required_tests,
+
             'done_tests' => $this->done_tests === '' ? null : $this->done_tests,
+
             'phone_study_hours' => $this->phone_study_hours,
+
             'phone_nonstudy_hours' => $this->phone_nonstudy_hours,
+
             'description' => $this->description,
+
             'complacent' => $this->complacent,
+
             'report_file' => $filePath,
+
         ]);
 
+
+
         $this->reset([
+
             'report_file',
+
             'complacent',
+
             'required_parts',
+
             'done_parts',
+
             'required_tests',
+
             'done_tests',
+
             'phone_study_hours',
+
             'phone_nonstudy_hours',
+
             'description',
+
         ]);
+
+        $this->dispatch('success','گزارش شما با موفقیت ثبت گردید.');
 
         $this->mount(); // اگر می‌خواهی تاریخ مجدداً مقداردهی اولیه شمسی بگیرد
 
-        $this->dispatch('success', 'گزارش با موفقیت ارسال شد.');
+
+
+        // Show analysis box instead of success message
+
+        $this->showAnalysisBox = true;
     }
 
+    private function generateAnalysis()
 
+    {
+
+        // Parts Analysis
+
+        $partsPercentage = $this->required_parts > 0
+
+            ? ($this->done_parts / $this->required_parts) * 100
+
+            : 0;
+
+
+
+        if ($partsPercentage >= 100) {
+
+            $partsMessage = 'آفرین! تو امروز تمام پارت‌هارو انجام دادی 🎉';
+
+            $partsIcon = '🌟';
+
+            $partsColor = 'success';
+
+        } elseif ($partsPercentage >= 70) {
+
+            $partsMessage = 'آفرین! خوب بود، سعی کن همیشه پارت‌هاتو کامل کنی 👍';
+
+            $partsIcon = '✨';
+
+            $partsColor = 'primary';
+
+        } elseif ($partsPercentage >= 50) {
+
+            $partsMessage = 'خوبه اما تلاشتو بیشتر کن، می‌تونی بهتر از این باشی! 💪';
+
+            $partsIcon = '⚡';
+
+            $partsColor = 'warning';
+
+        } elseif ($partsPercentage >= 30) {
+
+            $partsMessage = 'تعداد پارت‌های انجامی خیلی کمه! مشاورت در جریانه؟ 🤔';
+
+            $partsIcon = '⚠️';
+
+            $partsColor = 'danger';
+
+        } else {
+
+            $partsMessage = 'منتظر تماس مشاور باش! 📞';
+
+            $partsIcon = '📞';
+
+            $partsColor = 'danger';
+
+        }
+
+
+
+        // Tests Analysis
+
+        $testsPercentage = 0;
+
+        $testsMessage = '';
+
+        $testsIcon = '';
+
+        $testsColor = '';
+
+
+
+        if ($this->required_tests > 0 && $this->done_tests !== '') {
+
+            $testsPercentage = ($this->done_tests / $this->required_tests) * 100;
+
+
+
+            if ($testsPercentage >= 100) {
+
+                $testsMessage = 'عااالی! تمام تست‌هاتو زدی، این روحیه رو حفظ کن! 🔥';
+
+                $testsIcon = '🎯';
+
+                $testsColor = 'success';
+
+            } elseif ($testsPercentage >= 80) {
+
+                $testsMessage = 'خیلی خوبه! داری عالی پیش میری 🚀';
+
+                $testsIcon = '💯';
+
+                $testsColor = 'success';
+
+            } elseif ($testsPercentage >= 50) {
+
+                $testsMessage = 'نصف راه رو اومدی! ادامه بده، داری خوب پیش میری 🎯';
+
+                $testsIcon = '📈';
+
+                $testsColor = 'primary';
+
+            } elseif ($testsPercentage >= 30) {
+
+                $testsMessage = 'تعداد تست‌ها کمه، باید بیشتر وقت بذاری روی تست‌ها 📚';
+
+                $testsIcon = '⏰';
+
+                $testsColor = 'warning';
+
+            } else {
+
+                $testsMessage = 'تست‌های امروز خیلی کم بود، برنامه‌ریزی دوباره کن 📝';
+
+                $testsIcon = '⚠️';
+
+                $testsColor = 'danger';
+
+            }
+
+        } elseif ($this->done_tests == 0 && $this->required_tests == 0) {
+
+            $testsMessage = 'تست موظفی نداشتی یا ثبت نکردی 📝';
+
+            $testsIcon = '📋';
+
+            $testsColor = 'muted';
+
+        }
+
+
+
+        // Phone Usage Analysis
+
+        $totalPhoneHours = $this->phone_study_hours + $this->phone_nonstudy_hours;
+
+        $phoneUsagePercentage = ($totalPhoneHours / 24) * 100;
+
+        $studyRatio = $totalPhoneHours > 0 ? ($this->phone_study_hours / $totalPhoneHours) * 100 : 0;
+
+
+
+        if ($totalPhoneHours <= 3) {
+
+            $phoneMessage = 'استفاده از موبایلت عالیه! کنترل خوبی داری 👏';
+
+            $phoneIcon = '✅';
+
+            $phoneColor = 'success';
+
+        } elseif ($totalPhoneHours <= 6) {
+
+            if ($studyRatio >= 60) {
+
+                $phoneMessage = 'خوبه که بیشتر برای درس استفاده می‌کنی، ادامه بده! 📱';
+
+                $phoneIcon = '📚';
+
+                $phoneColor = 'primary';
+
+            } else {
+
+                $phoneMessage = 'سعی کن استفاده غیردرسی از گوشی رو کمتر کنی 📵';
+
+                $phoneIcon = '⚡';
+
+                $phoneColor = 'warning';
+
+            }
+
+        } else {
+
+            $phoneMessage = 'استفاده از موبایل خیلی زیاده! این موضوع رو جدی بگیر 🚫';
+
+            $phoneIcon = '🚨';
+
+            $phoneColor = 'danger';
+
+        }
+
+
+
+        // Description Analysis
+
+        $descriptionMessage = '';
+
+        $descriptionIcon = '';
+
+        if (!empty($this->description)) {
+
+            $descriptionMessage = 'ممنون که با توضیحات کاملت راه رو هموار می‌کنی ❤️';
+
+            $descriptionIcon = '✍️';
+
+        } else {
+
+            $descriptionMessage = 'توضیحات می‌تونه به تحلیل بهتر کمک کنه 💭';
+
+            $descriptionIcon = '💬';
+
+        }
+
+
+
+        // Feeling Analysis
+
+        $feelingMessage = $this->complacent == 1
+
+            ? 'خوشحالم که راضی هستی! این احساس رو حفظ کن 😊'
+
+            : 'نگران نباش، فردا روز بهتریه! هر روز یه فرصت تازه‌ست 💙';
+
+
+
+        $feelingIcon = $this->complacent == 1 ? '😊' : '💪';
+
+
+
+        // Overall Analysis
+
+        $overallScore = ($partsPercentage + $testsPercentage) / 2;
+
+
+
+        if ($overallScore >= 80 && $totalPhoneHours <= 6) {
+
+            $overallMessage = 'گزارش امروزت عااالی بود! داری فوق‌العاده پیش میری، افتخار می‌کنم بهت! 🌟';
+
+            $overallIcon = '🏆';
+
+            $overallColor = 'success';
+
+        } elseif ($overallScore >= 60) {
+
+            $overallMessage = 'گزارش خوبی بود! با یه کم تلاش بیشتر می‌تونی عالی بشی 💪';
+
+            $overallIcon = '⭐';
+
+            $overallColor = 'primary';
+
+        } elseif ($overallScore >= 40) {
+
+            $overallMessage = 'گزارش متوسطیه، می‌دونم می‌تونی بهتر از این باشی! باور دارم بهت 🚀';
+
+            $overallIcon = '📊';
+
+            $overallColor = 'warning';
+
+        } else {
+
+            $overallMessage = 'امروز خیلی خوب نبود، اما نگران نباش! فردا شروع تازه‌ایه، با برنامه‌ریزی بهتر می‌تونی موفق بشی 💙';
+
+            $overallIcon = '🌱';
+
+            $overallColor = 'danger';
+
+        }
+
+
+
+        $this->analysisData = [
+
+            'parts' => [
+
+                'done' => $this->done_parts,
+
+                'required' => $this->required_parts,
+
+                'percentage' => round($partsPercentage, 1),
+
+                'message' => $partsMessage,
+
+                'icon' => $partsIcon,
+
+                'color' => $partsColor,
+
+            ],
+
+            'tests' => [
+
+                'done' => $this->done_tests ?: 0,
+
+                'required' => $this->required_tests ?: 0,
+
+                'percentage' => round($testsPercentage, 1),
+
+                'message' => $testsMessage,
+
+                'icon' => $testsIcon,
+
+                'color' => $testsColor,
+
+            ],
+
+            'phone' => [
+
+                'study_hours' => $this->phone_study_hours,
+
+                'nonstudy_hours' => $this->phone_nonstudy_hours,
+
+                'total_hours' => $totalPhoneHours,
+
+                'percentage' => round($phoneUsagePercentage, 1),
+
+                'study_ratio' => round($studyRatio, 1),
+
+                'message' => $phoneMessage,
+
+                'icon' => $phoneIcon,
+
+                'color' => $phoneColor,
+
+            ],
+
+            'description' => [
+
+                'filled' => !empty($this->description),
+
+                'message' => $descriptionMessage,
+
+                'icon' => $descriptionIcon,
+
+            ],
+
+            'feeling' => [
+
+                'satisfied' => $this->complacent == 1,
+
+                'message' => $feelingMessage,
+
+                'icon' => $feelingIcon,
+
+            ],
+
+            'overall' => [
+
+                'score' => round($overallScore, 1),
+
+                'message' => $overallMessage,
+
+                'icon' => $overallIcon,
+
+                'color' => $overallColor,
+
+            ],
+
+        ];
+
+    }
+    public function closeAnalysisBox()
+
+    {
+
+        $this->showAnalysisBox = false;
+
+        $this->analysisData = [];
+
+    }
 
 
     public function openReplyModal(int $reportId)
