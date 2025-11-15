@@ -226,13 +226,13 @@
                     <div class="w-1 h-1 bg-blue-500 rounded-full"></div>
                     <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
                 </div>
-                <h1 class="font-black text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-l from-blue-600 to-blue-400">
+                <h1 class="font-black text-3xl md:text-4xl text-transparent bg-clip-text bg-gradient-to-l from-blue-600 text-white">
                     {{ $exam->title }}
                 </h1>
             </div>
 
             <!-- ====== Timer & Download Section ====== -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-3 md:grid-cols-3 gap-4 spy">
                 <!-- Timer Card -->
                 <div x-data="{
                     initialTime: {{ $initialTimeInSeconds }},
@@ -274,26 +274,26 @@
                     isDanger() {
                         return this.remainingSeconds < 60;
                     }
-                }" x-init="init()" class="glass-bg rounded-2xl p-6 border border-blue-200 dark:border-blue-900 col-span-1">
-                    <div class="flex flex-col items-center justify-center gap-3">
+                }" x-init="init()" class="glass-bg rounded-3xl p-6 border border-blue-200 dark:border-blue-900 col-span-1">
+                    <div class="flex flex-col items-center justify-center gap-3 mb-2 space-y-5">
                         <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-blue-600 dark:text-blue-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-primary dark:text-primary">
                                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
                             </svg>
                             <span class="text-sm font-semibold text-foreground">زمان باقی‌مانده</span>
                         </div>
-                        <div class="timer-display text-5xl font-black"
-                             :class="isDanger() ? 'text-red-600 dark:text-red-400 timer-warning' : isWarning() ? 'text-orange-600 dark:text-orange-400' : 'text-green-600 dark:text-green-400'"
+                        <div class="timer-display font-black text-3xl md:text-4xl  bg-clip-text bg-gradient-to-l"
+                             :class="isDanger() ? 'text-red-500 dark:text-red-500 timer-warning' : isWarning() ? 'text-yellow-500 dark:text-yellow-500' : 'text-green-500 dark:text-green-500'"
                              x-text="formatTime(remainingSeconds)"></div>
-                        <p x-show="isDanger()" class="text-xs font-bold text-red-600 dark:text-red-400">⚠️ زمان به پایان می‌رسد!</p>
-                        <p x-show="isWarning() && !isDanger()" class="text-xs font-semibold text-orange-600 dark:text-orange-400">⏰ توجه به زمان</p>
+                        <p x-show="isDanger()" class="text-xs font-bold text-red-500">⚠️ زمان به پایان می‌رسد!</p>
+                        <p x-show="isWarning() && !isDanger()" class="text-xs font-semibold text-yellow-500">⏰ توجه به زمان</p>
                     </div>
                 </div>
 
                 <!-- Download Card -->
-                <a href="{{ asset($exam->pdf_path) }}" download target="_blank"
-                   class="btn-success glass-bg rounded-2xl p-6 border border-green-200 dark:border-green-900 inline-flex flex-col items-center justify-center gap-3 text-white font-semibold hover:shadow-xl transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7">
+                <a href="{{ asset($exam->pdf_path) }}" download
+                   class="btn-success glass-bg rounded-3xl space-y-5 p-6 border border-green-200 dark:border-green-900 inline-flex flex-col items-center justify-center gap-3 text-white font-semibold hover:shadow-xl transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
                         <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2z"></path>
                         <path d="M11 3L5.5 8.5l1.42 1.41L11 5.83V15h2V5.83l4.08 4.08L18.5 8.5 12 2z"></path>
                     </svg>
@@ -301,14 +301,14 @@
                 </a>
 
                 <!-- Stats Card -->
-                <div class="glass-bg rounded-2xl p-6 border border-blue-200 dark:border-blue-900">
+                <div class="glass-bg rounded-3xl p-6 border border-blue-200 dark:border-blue-900 space-y-5">
                     <div class="grid grid-cols-2 gap-3">
                         <div class="text-center">
-                            <p class="text-3xl font-black text-green-600 dark:text-green-400">{{ $this->answeredCount() }}</p>
+                            <p class="text-3xl font-black text-green-500 dark:text-green-500">{{ $this->answeredCount() }}</p>
                             <p class="text-xs text-muted mt-1 font-semibold">پاسخ داده</p>
                         </div>
                         <div class="text-center">
-                            <p class="text-3xl font-black text-red-600 dark:text-red-400">{{ $this->unansweredCount() }}</p>
+                            <p class="text-3xl font-black text-red-500 dark:text-red-500">{{ $this->unansweredCount() }}</p>
                             <p class="text-xs text-muted mt-1 font-semibold">پاسخ‌نشده</p>
                         </div>
                     </div>
@@ -397,7 +397,7 @@
             <div class="sticky top-24 h-fit">
                 <div class="glass-bg rounded-2xl p-6 border border-blue-200 dark:border-blue-900 shadow-lg">
                     <h3 class="font-bold text-lg text-foreground mb-6 flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-blue-600 dark:text-blue-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-primary dark:text-primary">
                             <path fill-rule="evenodd" d="M8.603 3.799A4.49 4.49 0 0 1 12 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 0 1 3.498 1.307 4.491 4.491 0 0 1 1.307 3.497A4.49 4.49 0 0 1 21.75 12a4.5 4.5 0 0 1-1.549 3.397 4.491 4.491 0 0 1-1.307 3.497 4.491 4.491 0 0 1-3.497 1.307A4.49 4.49 0 0 1 12 21.75a4.5 4.5 0 0 1-3.397-1.549 4.49 4.49 0 0 1-3.498-1.307 4.491 4.491 0 0 1-1.307-3.497A4.49 4.49 0 0 1 2.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 0 1 1.307-3.498 4.49 4.49 0 0 1 3.497-1.307zm7.007 6.387a.75.75 0 1 0-1.06-1.06L9.039 9.039a.75.75 0 0 0 0 1.06l5.511 5.511a.75.75 0 1 0 1.06-1.06L10.1 9.426z" clip-rule="evenodd" />
                         </svg>
                         درصد تکمیل
@@ -413,7 +413,7 @@
                             <p class="text-sm font-bold text-foreground">
                                 <span class="text-blue-600 dark:text-blue-400">{{ $this->answeredCount() }}</span> / {{ $exam->number_of_questions }}
                             </p>
-                            <p class="text-sm font-bold text-blue-600 dark:text-blue-400">
+                            <p class="text-sm font-bold text-primary dark:text-primary">
                                 {{ round(($this->answeredCount() / $exam->number_of_questions) * 100) }}%
                             </p>
                         </div>
@@ -426,11 +426,11 @@
                             <div class="progress-item rounded-lg p-3 flex items-center justify-between bg-slate-100 dark:bg-slate-800 hover:bg-slate-150 dark:hover:bg-slate-700">
                                 <span class="text-sm font-semibold text-foreground">سوال {{ $i }}</span>
                                 @if(isset($answers[$i]) && $answers[$i] !== null)
-                                    <div class="progress-badge inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-r from-green-400 to-green-600 text-white text-xs font-bold shadow-md">
+                                    <div class="progress-badge inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-r from-green-400 to-green-600 text-green-500 text-xs font-bold shadow-md">
                                         {{ $answers[$i] }}
                                     </div>
                                 @else
-                                    <div class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-300 dark:bg-slate-600 text-slate-600 dark:text-slate-300 text-xs font-semibold">
+                                    <div class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-300 dark:bg-slate-600 text-rose-500 dark:text-rose-500 text-xs font-semibold">
                                         -
                                     </div>
                                 @endif
@@ -442,11 +442,11 @@
                     <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700 space-y-3">
                         <div class="rounded-lg p-3 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
                             <p class="text-xs text-muted mb-1">✓ پاسخ داده شده</p>
-                            <p class="text-2xl font-black text-green-600 dark:text-green-400">{{ $this->answeredCount() }}</p>
+                            <p class="text-2xl font-black text-green-500 dark:text-green-500">{{ $this->answeredCount() }}</p>
                         </div>
                         <div class="rounded-lg p-3 bg-gradient-to-r from-red-50 to-red-100 dark:from-red-950 dark:to-red-900">
                             <p class="text-xs text-muted mb-1">✗ پاسخ‌نشده</p>
-                            <p class="text-2xl font-black text-red-600 dark:text-red-400">{{ $this->unansweredCount() }}</p>
+                            <p class="text-2xl font-black text-red-500 dark:text-red-500">{{ $this->unansweredCount() }}</p>
                         </div>
                     </div>
                 </div>

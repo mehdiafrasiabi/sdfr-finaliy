@@ -168,14 +168,12 @@ class Report extends Component
 
         ]);
 
-        $this->dispatch('success','گزارش شما با موفقیت ثبت گردید.');
+
 
         $this->mount(); // اگر می‌خواهی تاریخ مجدداً مقداردهی اولیه شمسی بگیرد
 
 
-
-        // Show analysis box instead of success message
-
+        $this->dispatch('success','گزارش شما با موفقیت ثبت گردید.');
         $this->showAnalysisBox = true;
     }
 

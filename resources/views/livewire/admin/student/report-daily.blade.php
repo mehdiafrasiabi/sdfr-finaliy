@@ -24,18 +24,13 @@
                 <div class="trezo-card-content">
                     <div>
                         <div class="mb-[20px] md:mb-[25px] last:mb-0">
-                            <label class="mb-[12px] font-medium block">
-                                ساعت مرجع بررسی گزارش (۴۸ ساعت اخیر)
-                            </label>
-                            <input type="time"
-                                   wire:model.debounce.500ms="checkTime"
-                                   class="h-[55px] rounded-md text-black dark:text-white border border-gray-200 dark:border-[#172036] bg-white dark:bg-[#0c1427] px-[17px] block w-full outline-0 transition-all placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-primary-500">
-                            @error('checkTime')
-                            <div class="text-[12px] font-medium text-orange-500"
-                                 style="margin-top: 7px">{{$message}}</div>
-                            @enderror
-
-
+                            <div class="text-sm text-gray-600 dark:text-gray-300 leading-6">
+                                بازه بررسی عدم ارسال گزارش به‌صورت خودکار از ساعت
+                                <span class="font-semibold">۲۳:۵۹ روز گذشته</span>
+                                تا
+                                <span class="font-semibold">۰۰:۰۱ روز آینده</span>
+                                محاسبه می‌شود.
+                            </div>
                         </div>
                         <div class="mb-[20px] md:mb-[25px] last:mb-0">
                             <label class="mb-[12px] font-medium block">
@@ -90,7 +85,7 @@
             <div class="trezo-card bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md">
                 <div class="trezo-card-header mb-[20px] md:mb-[25px] sm:flex items-center justify-between">
                     <div class="trezo-card-title">
-                        <h5 class="!mb-0">دانش‌آموزان بدون گزارش در 48 ساعت گذشته</h5>
+                        <h5 class="!mb-0">دانش‌آموزان بدون گزارش در بازه روزانه</h5>
                     </div>
                     <div class="trezo-card-subtitle mt-[15px] sm:mt-0">
                     </div>
@@ -98,15 +93,28 @@
                 <div class="trezo-card-content ">
                     <div class="table-responsive overflow-x-auto">
 
-                        @php
-                            $windowStart = $referenceTime->copy()->subHours(48);
-                        @endphp
                         <div class="trezo-card bg-red-50 dark:bg-red-900 p-4 mb-4 space-y-3">
                             <div class="text-xs text-gray-600 dark:text-gray-300">
                                 بازه بررسی: {{ jalali($windowStart)->format('%d %B %Y | H:i') }}
-                                تا {{ jalali($referenceTime)->format('%d %B %Y | H:i') }}
+                                تا {{ jalali($windowEnd)->format('%d %B %Y | H:i') }}
                             </div>
+                            @if(empty($studentsWithoutReports))
+                                <div class="text-sm text-gray-700 dark:text-gray-200">
+                                    تمامی دانش‌آموزان در این بازه گزارش ارسال کرده‌اند.
+                                </div>
+                            @else
+                                <div class="space-y-2">
+                                    <div class="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                                        اسامی دانش‌آموزان بدون گزارش:
+                                    </div>
+                                    <ul class="list-disc pl-5 space-y-1 text-sm text-gray-800 dark:text-gray-100">
+                                        @foreach($studentsWithoutReports as $studentName)
+                                            <li class="px-[8px] py-[3px] inline-block bg-primary-50 dark:bg-[#15203c] text-primary-500 rounded-sm font-medium text-xs">{{ $studentName }}</li>
 
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -193,7 +201,6 @@
                             <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
                                 نظر مشاور
                             </th>
-
 
 
                             <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
@@ -457,7 +464,8 @@
                                             <div class="space-y-2">
                                                 <div class="text-sm font-semibold text-success-500">پاسخ دانش‌آموز</div>
                                                 <br>
-                                                <p class="py-[10px] px-[15px] inline-block text-white ltr:rounded-l-md rtl:rounded-l-md" style="background-color: #0b9c0b">
+                                                <p class="py-[10px] px-[15px] inline-block text-white ltr:rounded-l-md rtl:rounded-l-md"
+                                                   style="background-color: #0b9c0b">
                                                     {{ $commentStudentReply }}
                                                 </p>
 

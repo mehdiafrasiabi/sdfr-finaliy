@@ -22,7 +22,6 @@ class ReportDaily extends Component
     public string $status = 'active';
     public $startDate = null;
     public $endDate = null;
-    public string $checkTime = '21:00';
     protected $queryString = ['startDate', 'endDate'];
     public $studentsWithoutReports = [];
 
@@ -35,19 +34,28 @@ class ReportDaily extends Component
 
     protected function getStudentsWithoutReports()
     {
-        $allStudents = Student::where('supporter_id', auth()->id())
-            ->orWhere('advisor_id', auth()->id())
+        $allStudents = Student::with('user')
+            ->where(function ($query) {
+                $query->where('supporter_id', auth()->id())
+                    ->orWhere('advisor_id', auth()->id());
+            })
             ->get();
 
-        $referenceTime = $this->resolveReferenceTime();
-        $windowStart = (clone $referenceTime)->subHours(48);
+        [$windowStart, $windowEnd] = $this->getReportingWindow();
 
         $studentsWithReports = Report::where('admin_id', auth()->id())
-            ->whereBetween('created_at', [$windowStart, $referenceTime])
+            ->whereBetween('created_at', [$windowStart, $windowEnd])
             ->pluck('student_id')
             ->toArray();
 
-        $this->studentsWithoutReports = $allStudents->whereNotIn('id', $studentsWithReports);
+        $this->studentsWithoutReports = $allStudents
+            ->whereNotIn('id', $studentsWithReports)
+            ->map(function ($student) {
+                return $student->user->name ?? null;
+            })
+            ->filter()
+            ->values()
+            ->toArray();
     }
     public function updatingStartDate()
     {
@@ -61,16 +69,6 @@ class ReportDaily extends Component
         $this->resetSelection();
     }
 
-    public function updatedCheckTime($value)
-    {
-        if (!$this->isValidTime($value)) {
-            $this->addError('checkTime', 'فرمت زمان نادرست است.');
-            return;
-        }
-
-        $this->resetErrorBag('checkTime');
-        $this->getStudentsWithoutReports();
-    }
 
     // ریست کردن انتخاب‌ها
     private function resetSelection()
@@ -225,31 +223,8 @@ class ReportDaily extends Component
         return Excel::download(new ReportDailyActivitiesForAdmin($this->status, $this->startDate, $this->endDate), $fileName);
     }
 
-    protected function resolveReferenceTime(): Carbon
-    {
-        $time = $this->parseTime($this->checkTime) ?? Carbon::createFromTimeString('21:00', config('app.timezone'));
-        $reference = Carbon::today(config('app.timezone'))->setTimeFromTimeString($time->format('H:i'));
 
-        if (Carbon::now(config('app.timezone'))->lt($reference)) {
-            $reference->subDay();
-        }
 
-        return $reference;
-    }
-
-    protected function parseTime(string $value): ?Carbon
-    {
-        try {
-            return Carbon::createFromFormat('H:i', $value, config('app.timezone'));
-        } catch (\Throwable) {
-            return null;
-        }
-    }
-
-    protected function isValidTime(string $value): bool
-    {
-        return $this->parseTime($value) !== null;
-    }
 
     public function openCommentModal(int $reportId)
     {
@@ -340,6 +315,16 @@ class ReportDaily extends Component
     }
 
 
+    protected function getReportingWindow(): array
+    {
+        $timezone = config('app.timezone');
+
+        $start = Carbon::yesterday($timezone)->setTime(23, 59, 0);
+        $end = Carbon::tomorrow($timezone)->setTime(0, 1, 0);
+
+
+        return [$start, $end];
+    }
 
 
     public function render()
@@ -375,6 +360,8 @@ class ReportDaily extends Component
 
         $this->getStudentsWithoutReports();
 
+        [$windowStart, $windowEnd] = $this->getReportingWindow();
+
         $reports->getCollection()->transform(function ($item) {
             $item->statusColor = $this->getStatusColor($item->status);
             return $item;
@@ -383,7 +370,8 @@ class ReportDaily extends Component
         return view('livewire.admin.student.report-daily', [
             'reports' => $reports,
             'studentsWithoutReports' => $this->studentsWithoutReports,
-            'referenceTime' => $this->resolveReferenceTime(),
-        ])->layout('layouts.admin.app');
+            'windowStart' => $windowStart,
+            'windowEnd' => $windowEnd,
+            ])->layout('layouts.admin.app');
     }
 }
