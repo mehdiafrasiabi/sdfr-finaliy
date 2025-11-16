@@ -97,7 +97,7 @@
                                 <label for="place_of_birth"
                                        class="font-medium text-xs text-muted">محل تولد :</label>
                                 <sup class="text-red-500">*</sup>
-                                <input type="tel" id="place_of_birth" dir="rtl" name="placeOfBirth"
+                                <input type="text" id="place_of_birth" dir="rtl" name="placeOfBirth"
                                        wire:model="placeOfBirth"
                                        class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
                                 @error('placeOfBirth')

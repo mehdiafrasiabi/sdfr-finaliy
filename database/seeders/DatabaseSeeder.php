@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             UsersTableSeeder::class,
+            AdminsTableSeeder::class,
             CountrySeeder::class,
             StateSeeder::class,
             CitySeeder::class,
@@ -35,13 +36,22 @@ class DatabaseSeeder extends Seeder
             ExampleQuestionsTableSeeder::class,
             SdfrSchoolsTableSeeder::class,
             SdfrStudentsTableSeeder::class,
+            StoriesTableSeeder::class,
+            OrdersTableSeeder::class,
+            OrderItemsTableSeeder::class,
+            PersonalInformationTableSeeder::class,
+            PaymentsTableSeeder::class,
+            StudentsTableSeeder::class,
+            ReportsTableSeeder::class,
+            ExamsTableSeeder::class,
+            ExamKeysTableSeeder::class,
+            ExamStudentTableSeeder::class,
+            ExamAnalysesTableSeeder::class,
+            ExamAttemptsTableSeeder::class
+
 
         ]);
-//        OrdersTableSeeder::class,
-//            OrderItemsTableSeeder::class,
-//            PaymentsTableSeeder::class,
-//            StudentsTableSeeder::class,
 
-        $this->call(StoriesTableSeeder::class);
+
     }
 }
