@@ -28,7 +28,7 @@ return new class extends Migration
 
             $table->string('report_file')->nullable();
             $table->text('description')->nullable();
-            $table->boolean('complacent')->default(true);
+            $table->unsignedTinyInteger('complacent')->default(0);
             $table->enum('status', ['pending','completed','rejected'])->default('pending');
             $table->timestamps();
         });

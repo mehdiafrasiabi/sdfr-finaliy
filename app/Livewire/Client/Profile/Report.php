@@ -6,7 +6,6 @@ use App\Models\Report as ReportModel;
 use App\Traits\UploadFile;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 use Livewire\WithPagination;
@@ -15,7 +14,8 @@ class Report extends Component
 {
     use WithFileUploads, UploadFile,WithPagination,SEOTools;
 
-    public $report_file, $complacent;
+    public $report_file;
+    public $complacent = 0;
     public $required_parts = 0;
     public $done_parts = 0;
     public $required_tests = '';
@@ -59,7 +59,7 @@ class Report extends Component
             'phone_nonstudy_hours' => ['required', 'integer', 'between:0,24'],
             'report_file' => ['nullable', 'file', 'max:10240', 'mimes:jpg,jpeg,png,webp'],
             'description' => ['nullable', 'string', 'max:1000'],
-            'complacent' => ['required', Rule::in([0,1, '0', '1'])],
+            'complacent' => ['required', 'integer', 'between:1,10'],
         ], [
 
             'required_parts.required' => 'تعداد پارت موظفی امروز را انتخاب کن.',
@@ -84,7 +84,8 @@ class Report extends Component
             'description.string' => 'توضیحات باید متن باشد.',
             'description.max' => 'توضیحات نمی‌تواند بیشتر از ۱۰۰۰ کاراکتر باشد.',
             'complacent.required' => 'رضایت شما الزامی است.',
-            'complacent.in' => 'گزینهٔ معتبر را انتخاب کن.',
+            'complacent.integer' => 'امتیاز حس شما باید به‌صورت عددی ثبت شود.',
+            'complacent.between' => 'لطفاً عددی بین ۱ تا ۱۰ انتخاب کن.',
         ]);
 
         if (!auth()->user()->student) {
@@ -138,7 +139,7 @@ class Report extends Component
 
             'description' => $this->description,
 
-            'complacent' => $this->complacent,
+            'complacent' => (int) $this->complacent,
 
             'report_file' => $filePath,
 
@@ -168,13 +169,10 @@ class Report extends Component
 
         ]);
 
-
-
-        $this->mount(); // اگر می‌خواهی تاریخ مجدداً مقداردهی اولیه شمسی بگیرد
-
-
-        $this->dispatch('success','گزارش شما با موفقیت ثبت گردید.');
         $this->showAnalysisBox = true;
+        $this->dispatch('analysis-ready'); // جایگزین scrollToAnalysis
+        $this->dispatch('success', 'گزارش با موفقیت ثبت شد.');
+
     }
 
     private function generateAnalysis()
@@ -381,15 +379,24 @@ class Report extends Component
 
         // Feeling Analysis
 
-        $feelingMessage = $this->complacent == 1
+        $feelingScore = (int) $this->complacent;
 
-            ? 'خوشحالم که راضی هستی! این احساس رو حفظ کن 😊'
-
-            : 'نگران نباش، فردا روز بهتریه! هر روز یه فرصت تازه‌ست 💙';
-
-
-
-        $feelingIcon = $this->complacent == 1 ? '😊' : '💪';
+        if ($feelingScore >= 9) {
+            $feelingMessage = 'عالیه! از گزارش امروزت حسابی راضی هستی و این انرژی قابل تحسینه 🤩';
+            $feelingIcon = '🤩';
+        } elseif ($feelingScore >= 7) {
+            $feelingMessage = 'خیلی خوبه! حس مثبتی داری و همین بهترین سوخت حرکتیه 😊';
+            $feelingIcon = '😄';
+        } elseif ($feelingScore >= 5) {
+            $feelingMessage = 'گزارش متوسط بود و جا برای رشد هست؛ فردا می‌تونی بهتر باشی ✨';
+            $feelingIcon = '🙂';
+        } elseif ($feelingScore >= 3) {
+            $feelingMessage = 'می‌دونم راضی نیستی، اما همین که ارزیابی کردی یعنی در مسیر پیشرفتی 💪';
+            $feelingIcon = '💪';
+        } else {
+            $feelingMessage = 'امروز سخت گذشت اما ناامید نشو؛ فردا شروعی تازه‌ست 💙';
+            $feelingIcon = '🌱';
+        }
 
 
 
@@ -501,7 +508,7 @@ class Report extends Component
 
             'feeling' => [
 
-                'satisfied' => $this->complacent == 1,
+                'score' => $feelingScore,
 
                 'message' => $feelingMessage,
 
@@ -525,7 +532,6 @@ class Report extends Component
 
     }
     public function closeAnalysisBox()
-
     {
 
         $this->showAnalysisBox = false;

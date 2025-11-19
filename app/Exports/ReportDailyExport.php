@@ -15,7 +15,7 @@ class ReportDailyExport implements FromCollection, WithHeadings
         return $this->student->reportdaily()->get()->map(function ($report) {
             return [
                 'توضیحات' => $report->description,
-                'رضایت از خود' => $report->complacent ? 'راضی‌ام' : 'نیاز به تلاش بیشتر',
+                'رضایت از خود' => $report->complacent ? $report->complacent . ' از 10' : '---',
                 'وضعیت' => match ($report->status) {
                     'pending' => 'در انتظار تایید',
                     'completed' => 'تایید شده',

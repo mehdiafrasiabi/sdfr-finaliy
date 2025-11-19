@@ -71,11 +71,8 @@ class ReportDailyActivitiesForAdmin implements FromQuery, WithHeadings, WithMapp
 
     public function map($item): array
     {
-        $complacent = match ($item->complacent) {
-            1 => 'راضی‌ام',
-            0 => 'تلاش بیشتر',
-            default => '---',
-        };
+        $rating = (int) $item->complacent;
+        $complacent = $rating > 0 ? $rating . ' از 10' : '---';
 
         $fileLink = $item->report_file
             ? url("students/reportsDaily/{$item->student_id}/{$item->report_file}")

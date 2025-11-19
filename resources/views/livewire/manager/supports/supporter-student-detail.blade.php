@@ -251,11 +251,9 @@
                                             <p class="wrap-text">{{ $item->description ?? '-' }}</p>
                                         </td>
                                         <td class="customer_name">
-                                            @if($item->complacent == 1)
-                                                <span  class="text-success wrap-text"> راضی ام</span>
-                                            @elseif($item->complacent ==0)
-                                                <span class="text-warning wrap-text "> تلاشمو قرار بیشتر کنم و بترکونم</span>
-                                            @endif
+                                          <span class="badge bg-warning-subtle text-warning-emphasis">
+                                                امتیاز: {{ $item->complacent ?? '--' }} / 10
+                                            </span>
                                         </td>
                                         <td class="customer_name">
                                             @if($item->status == 'pending')

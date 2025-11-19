@@ -264,17 +264,9 @@
                                             <div class="flex items-center">
                                                 <div class="ltr:ml-[12px] rtl:mr-[12px]">
                                                     <span class="block font-medium">
-                                                          @if($report->complacent == 1)
-                                                            <span
-                                                                class="px-[8px] py-[3px] inline-block bg-success-50 dark:bg-[#15203c] text-success-600 rounded-sm font-medium text-xs">
-                                                                راضی ام
-                                                            </span>
-                                                        @elseif($report->complacent ==0)
-                                                            <span
-                                                                class="px-[8px] py-[3px] inline-block bg-danger-50 dark:bg-[#15203c] text-danger-500 rounded-sm font-medium text-xs">
-                                                                      راضی نیستم
-                                                            </span>
-                                                        @endif
+                                                         <span class="px-[8px] py-[3px] inline-block bg-secondary text-foreground rounded-sm text-xs">
+                                                            امتیاز: {{ $report->complacent ?? '--' }} / 10
+                                                        </span>
                                                     </span>
                                                 </div>
                                             </div>

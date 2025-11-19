@@ -84,11 +84,9 @@ class ReportDailyActivitiesStudentForAdmin implements FromQuery, WithHeadings, W
 
     public function map($item): array
     {
-        $complacent = match ($item->complacent) {
-            1 => 'راضی‌ام',
-            0 => 'تلاش بیشتر',
-            default => '---',
-        };
+        $rating = (int) $item->complacent;
+        $complacent = $rating > 0 ? $rating . ' از 10' : '---';
+
         $status = match ($item->status) {
             'pending' => 'در انتظار تایید گزارش',
             'completed' => 'گزارش تایید شده است',
