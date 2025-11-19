@@ -16,6 +16,7 @@ class Index extends Component
 
     public $search = ''; // جستجو در نام دانش‌آموز
 
+
     public function mount()
     {
         // دریافت پارامتر course_id از URL

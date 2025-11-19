@@ -80,12 +80,12 @@ Route::name('client.')->group(function () {
         Route::get('/profile/dashboard',ProfileDashboard::class)->name('profile.dashboard');
         Route::get('/profile/star',Star::class)->name('profile.star');
 
+        Route::get('/profile/ProfessionalTools',ProfessionalToolsIndex::class)->name('profile.professionalTools.index');
         Route::get('/ProfessionalTools/pomodoro',ProfessionalToolsPomodoroTimer::class)->name('profile.professionalTools.pomodoro');
         Route::get('/ProfessionalTools/studySession',StudySession::class)->name('profile.professionalTools.studySession');
         Route::get('/ProfessionalTools/starredChecklist',ProfessionalToolsStarredChecklistIndex::class)->name('profile.professionalTools.starredChecklist');
         Route::get('/ProfessionalTools/starredChecklist/detail',TopicStar::class)->name('profile.professionalTools.TopicStar');
 
-        Route::get('/profile/ProfessionalTools',ProfessionalToolsIndex::class)->name('profile.professionalTools.index');
 
         Route::get('/profile/meetGoogle',ProfileMeetGoogle::class)->name('profile.meetGoogle');
 

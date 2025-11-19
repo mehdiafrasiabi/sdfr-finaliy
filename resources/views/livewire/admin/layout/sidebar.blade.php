@@ -119,7 +119,7 @@
                     >
 
                     </i>
-                    <span class="title leading-none">گزارشات</span>
+                    <span class="title leading-none">گزارش درسی</span>
                 </button>
                 <div class="accordion-collapse hidden">
                     <div class="pt-[4px]">
@@ -129,7 +129,7 @@
                                     href="{{route('admin.student.reportDailyActivities.index')}}"
                                     class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
                                 >
-                                    گزارش
+                                    گزارش جامع
                                 </a>
                             </li>
                             <li class="sidemenu-item mb-[4px] last:mb-0">
@@ -137,7 +137,7 @@
                                     href="{{ route('admin.reportStudentDay', ['status' => 'pending']) }}"
                                     class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[##3cb371]"
                                 >
-                                    در انتظار تایید پشتیبان
+                                    در انتظار تایید
                                 </a>
                             </li>
                             <li class="sidemenu-item mb-[4px] last:mb-0">
@@ -145,7 +145,7 @@
                                     href="{{ route('admin.reportMissing') }}"
                                     class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
                                 >
-                                    گزارش‌های ارسال نشده
+                                     ارسال نشده
                                 </a>
                             </li>
                         </ul>

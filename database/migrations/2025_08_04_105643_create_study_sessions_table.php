@@ -21,8 +21,9 @@ return new class extends Migration
             $table->timestamp('started_at')->nullable();
             $table->timestamp('ended_at')->nullable();
 
-            // مدت به ثانیه (محاسبه بعد از پایان)
+            // مدت واقعی و زمان برنامه‌ریزی شده
             $table->integer('duration_seconds')->nullable();
+            $table->integer('planned_seconds')->nullable();
 
             // اختیاری: یادداشت/موضوع مطالعه
             $table->string('note')->nullable();

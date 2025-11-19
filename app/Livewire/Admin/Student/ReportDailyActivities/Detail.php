@@ -235,6 +235,8 @@ class Detail extends Component
 
         $reports = $query->latest()->paginate(10);
 
-        return view('livewire.admin.student.report-daily-activities.detail',['reports' => $reports])->layout('layouts.admin.app');
+        return view('livewire.admin.student.report-daily-activities.detail',
+            ['reports' => $reports]
+        )->layout('layouts.admin.app');
     }
 }

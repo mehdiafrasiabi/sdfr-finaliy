@@ -10,7 +10,7 @@ return [
          * The default configurations to be used by the meta generator.
          */
         'defaults' => [
-            'title' => "مچموعه مشاوره تخصصی تحصیلی و آموزشی sdfr", // set false to total remove
+            'title' => "", // set false to total remove
             'titleBefore' => false, // Put defaults.title before page title, like ' - Dashboard
             'description' => 'SDFR، اولین سامانه هوشمند مشاوره و آنالیز دقیق تحصیلی در ایران!
 با صرفه جویی در وقت و هزینه، پشتیبانی تحصیلی روزانه و ابزار های حرفه ای و هوشمند آموزشی حس پیشرفت در آزمون های تشریحی و تستی را تجربه کنید!', // set false to total remove
@@ -38,7 +38,7 @@ return [
          * The default configurations to be used by the opengraph generator.
          */
         'defaults' => [
-            'title' => 'مچموعه مشاوره تخصصی تحصیلی و آموزشی SDFR', // set false to total remove
+            'title' => '', // set false to total remove
             'description' => 'SDFR، اولین سامانه هوشمند مشاوره و آنالیز دقیق تحصیلی در ایران!
 با صرفه جویی در وقت و هزینه، پشتیبانی تحصیلی روزانه و ابزار های حرفه ای و هوشمند آموزشی حس پیشرفت در آزمون های تشریحی و تستی را تجربه کنید!', // set false to total remove
             'url' => false, // Set null for using Url::current(), set false to total remove
@@ -61,7 +61,7 @@ return [
          * The default configurations to be used by the json-ld generator.
          */
         'defaults' => [
-            'title' => 'مچموعه مشاوره تخصصی تحصیلی و آموزشی SDFR', // set false to total remove
+            'title' => '', // set false to total remove
             'description' => 'SDFR، اولین سامانه هوشمند مشاوره و آنالیز دقیق تحصیلی در ایران!
 با صرفه جویی در وقت و هزینه، پشتیبانی تحصیلی روزانه و ابزار های حرفه ای و هوشمند آموزشی حس پیشرفت در آزمون های تشریحی و تستی را تجربه کنید!', // set false to total remove
             'url' => false, // Set to null or 'full' to use Url::full(), set to 'current' to use Url::current(), set false to total remove
