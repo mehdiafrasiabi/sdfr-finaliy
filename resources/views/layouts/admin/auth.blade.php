@@ -58,5 +58,6 @@
 <script src="/admin/assets/js/quill.min.js"></script>
 <script src="/admin/assets/js/custom.js"></script>
 
+@include('layouts.admin.theme-toggle-script')
 </body>
 </html>

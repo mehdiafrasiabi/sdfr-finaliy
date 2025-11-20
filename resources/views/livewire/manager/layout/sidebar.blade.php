@@ -198,7 +198,7 @@
                         <a class="nav-link menu-link {{ request()->routeIs('manager.student') ? 'active' : '' }}" href="#student" data-bs-toggle="collapse" role="button"
                            aria-expanded="false" aria-controls="student">
                             <i class=" ri-team-line"></i>
-                            <span data-key="t-base-ui">دانش اموزان و پشتیبانان</span>
+                            <span data-key="t-base-ui">دانش اموزان</span>
                         </a>
                         <div class="collapse menu-dropdown mega-dropdown-menu" id="student">
                             <div class="row">
@@ -216,6 +216,14 @@
                                         <li class="nav-item">
                                             <a href="{{route('manager.supporters')}}" class="nav-link"
                                                data-key="t-basic">پشتیبان ها</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{route('manager.advisorAssign')}}" class="nav-link"
+                                               data-key="t-basic">نیاز به انتخاب مشاور</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{route('manager.advisors')}}" class="nav-link"
+                                               data-key="t-basic">مشاور ها</a>
                                         </li>
                                     </ul>
                                 </div>

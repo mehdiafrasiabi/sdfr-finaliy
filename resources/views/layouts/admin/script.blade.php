@@ -30,6 +30,9 @@
 
 </script>
 
+
+@include('layouts.admin.theme-toggle-script')
+
 <script>
 
     ecommerceList = $('#ecommerce-list').DataTable({

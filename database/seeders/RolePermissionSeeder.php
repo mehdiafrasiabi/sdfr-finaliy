@@ -122,6 +122,7 @@ class RolePermissionSeeder extends Seeder
             'delete report_cards',
             'publish report_cards',
 
+
             // دسترسی‌های جدید و ترکیبی برای پشتیبان تحصیلی
             'view_students_for_academic_support',
             'view_reports_for_academic_support',
@@ -143,6 +144,7 @@ class RolePermissionSeeder extends Seeder
             'edit_report_cards_for_academic_support',
             'delete_report_cards_for_academic_support',
             'publish_report_cards_for_academic_support',
+            'academic support',
 
             // دسترسی‌های جدید برای مشاور تحصیلی
             'view students with support info',

@@ -6,6 +6,8 @@ use App\Livewire\Manager\Blog\Blog\Index;
 use App\Livewire\Manager\Blog\ExampleQuestion;
 use App\Livewire\Manager\Coupon\Index as CouponIndex;
 use App\Livewire\Manager\Dashboard\Analytics;
+
+use App\Livewire\Manager\Advisors\Index as AdvisorIndex;
 use App\Livewire\Manager\Dashboard\Crm;
 use App\Livewire\Manager\Exam\ExamForm as ExamForm;
 use App\Livewire\Manager\Exam\Index as ExamIndex;
@@ -39,6 +41,10 @@ use App\Livewire\Manager\Auth\Index as AuthIndex;
 use App\Livewire\Manager\Ticket\Department as DepartmentIndex;
 use App\Livewire\Manager\Ticket\Index as TicketIndex;
 use App\Livewire\Manager\Ticket\Show as TicketShow;
+
+use App\Livewire\Manager\Advisors\AdvisorStudent;
+use App\Livewire\Manager\Advisors\AdvisorStudentDetail;
+use App\Livewire\Manager\Advisors\AdvisorStudents as AdvisorAssignStudents;
 
 use Illuminate\Support\Facades\Route;
 
@@ -95,6 +101,11 @@ Route::name('manager.')->group(function () {
         Route::get('/exams/form/{exam?}', ExamForm::class)->name('exam.form');
 
         Route::get('/tasks', TaskBoard::class)->name('task.board');
+
+        Route::get('/advisorManager', AdvisorAssignStudents::class)->name('advisorAssign');
+        Route::get('/advisors', AdvisorIndex::class)->name('advisors');
+        Route::get('/advisors/{advisor}/students', AdvisorStudent::class)->name('advisors.students');
+        Route::get('/advisors/students/{student}/detail', AdvisorStudentDetail::class)->name('advisors.students.detail');
 
     });
 

@@ -2,9 +2,9 @@
     <div
         class="logo bg-white dark:bg-[#0c1427] border-b border-gray-100 dark:border-[#172036] px-[25px] pt-[19px] pb-[15px] absolute z-[2] right-0 top-0 left-0">
         <a href="{{route('admin.dashboard.index')}}" class="transition-none relative flex items-center">
-            <img src="/admin/assets/images/logo-icon.svg" alt="logo-icon"/>
+            <img src="/admin/assets/images/favicon.svg" width="35px" alt="logo-icon"/>
             <span class="font-bold text-black dark:text-white relative ltr:ml-[8px] rtl:mr-[8px] top-px text-xl">
-            مدیران
+          SDFR
           </span>
         </a>
         <button
@@ -154,18 +154,42 @@
             </div>
 
             <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">
-                <a
-                    href="{{route('admin.student.exam.index')}}"
-                    class="accordion-button flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]"
+                <button
+                    class="accordion-button toggle flex items-center transition-all py-[9px] ltr:pl-[14px] ltr:pr-[28px] rtl:pr-[14px] rtl:pl-[28px] rounded-md font-medium w-full relative hover:bg-gray-50 text-left dark:hover:bg-[#15203c]"
+                    type="button"
                 >
                     <i
                         class="material-symbols-outlined ri-contract-line transition-all text-gray-500 dark:text-gray-400 ltr:mr-[7px] rtl:ml-[7px] !text-[22px] leading-none relative -top-px"
                     >
 
                     </i>
-                    <span class="title leading-none">برگزاری آزمون</span>
-                </a>
+
+                    <span class="title leading-none">آزمون ها</span>
+                </button>
+                <div class="accordion-collapse hidden">
+                    <div class="pt-[4px]">
+                        <ul class="sidebar-sub-menu">
+                            <li class="sidemenu-item mb-[4px] last:mb-0">
+                                <a
+                                    href="{{route('admin.student.exam.index')}}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[#15203c]"
+                                >
+                                    اختصاص برگزاری
+                                </a>
+                            </li>
+                            <li class="sidemenu-item mb-[4px] last:mb-0">
+                                <a
+                                    href="{{route('admin.student.exam.students')}}"
+                                    class="sidemenu-link rounded-md flex items-center relative transition-all font-medium text-gray-500 dark:text-gray-400 py-[9px] ltr:pl-[38px] ltr:pr-[30px] rtl:pr-[38px] rtl:pl-[30px] hover:text-primary-500 hover:bg-primary-50 w-full text-left dark:hover:bg-[##3cb371]"
+                                >
+                                    نتایج
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
+
 
 
             <div class="accordion-item rounded-md text-black dark:text-white mb-[5px] whitespace-nowrap">

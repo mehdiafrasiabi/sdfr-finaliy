@@ -32,6 +32,9 @@ use  App\Livewire\Admin\Student\ReportDailyActivities\Index as ReportDailyActivi
 use  App\Livewire\Admin\Student\ReportDailyActivities\Detail as ReportDailyActivitiesDetail;
 use App\Livewire\Admin\Auth\Index as AuthIndex;
 use App\Livewire\Admin\Blog\CkUpload;
+use App\Livewire\Admin\Student\Exam\List\Index as StudentExamStudentList;
+use App\Livewire\Admin\Student\Exam\List\StudentExams as StudentExamList;
+
 
 
 
@@ -77,6 +80,10 @@ Route::name('admin.')->group(function () {
 
         Route::get('/studentReportDailyActivities',ReportDailyActivitiesIndex::class)->name('student.reportDailyActivities.index');
         Route::get('/studentReportDailyActivities/{student}/ReportDailyActivities',ReportDailyActivitiesDetail::class)->name('student.reportDailyActivities.detail');
+
+
+        Route::get('/exam/students',StudentExamStudentList::class)->name('student.exam.students');
+        Route::get('/exam/students/{student}',StudentExamList::class)->name('student.exam.students.show');
 
         Route::get('/blog/index',BlogIndex::class)->name('blog.index');
         Route::get('/blog/create',CreateBlog::class)->name('blog.create');
