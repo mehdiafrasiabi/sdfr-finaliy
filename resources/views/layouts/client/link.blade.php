@@ -38,6 +38,10 @@
         animation: pulse 2s infinite ease-in-out; /* Pulsing animation for logo */
     }
 
+    .bg-gray-600 {
+        background-color: #718096;
+    }
+
 </style>
 
 

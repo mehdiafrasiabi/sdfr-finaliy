@@ -30,12 +30,12 @@ class Index extends Component
         $this->resetValidation();
         $credentials = ['email'=> $formData['email'],'mobile'=> $formData['mobile'],'password' => $formData['password']];
 
-        $admin = Auth::guard('admin');
+        $admin = Auth::guard('manager');
         if ($admin->attempt($credentials)) {
             $adminUser = $admin->user();
 
             if (!$adminUser->hasRole('super admin')) {
-                Auth::guard('admin')->logout();
+                Auth::guard('manager')->logout();
                 session()->flash('message');
                 return; // از اینجا خارج شو، ری‌دایرکت یا نمایش پیام خطا
             }
@@ -48,7 +48,7 @@ class Index extends Component
     public function logout()
     {
         Session::flush();
-        Auth::guard('admin')->logout();
+        Auth::guard('manager')->logout();
         return redirect()->route('manager.sign-in');
     }
     public function render()

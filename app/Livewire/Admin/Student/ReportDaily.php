@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Morilog\Jalali\Jalalian;
 use App\Models\Student;
 use Carbon\Carbon;
+use App\Services\NotificationService;
 
 class ReportDaily extends Component
 {
@@ -301,7 +302,8 @@ class ReportDaily extends Component
         $validator->validate();
         $this->resetValidation();
 
-        $report = Report::where('id', $reportId)
+        $report = Report::with('student.user', 'student.personalInformation')
+            ->where('id', $reportId)
             ->where('admin_id', auth()->id())
             ->firstOrFail();
 
@@ -309,6 +311,20 @@ class ReportDaily extends Component
 
         if ($value === 'completed') {
             $this->selectedReports = array_diff($this->selectedReports, [$reportId]);
+        }
+        if (in_array($value, ['completed', 'rejected'])) {
+            $studentName = $report->student?->personalInformation->name
+                ?? $report->student?->user?->name
+                ?? 'دانش آموز عزیز';
+
+            $statusLabel = $value === 'completed' ? 'تایید' : 'رد';
+            $operationDate = Jalalian::forge(now())->format('Y/m/d');
+
+            NotificationService::sendToStudent(
+                $report->student_id,
+                'وضعیت گزارش روزانه',
+                "{$studentName}، گزارش شما به تاریخ {$operationDate} {$statusLabel} گردید."
+            );
         }
 
         $this->dispatch('success', 'با موفقیت ثبت شد');

@@ -55,7 +55,7 @@ class Notification extends Component
     public function render()
     {
         $studentId = Auth::user()->student->id ?? null;
-        $notifications = ModelsNotification::where('student_id', $studentId)->latest()->paginate(3);
+        $notifications = ModelsNotification::where('student_id', $studentId)->latest()->paginate(10);
 
         return view('livewire.client.profile.notification',[
             'notifications' => $notifications,

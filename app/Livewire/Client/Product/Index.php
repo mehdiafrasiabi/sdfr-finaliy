@@ -54,9 +54,10 @@ class Index extends Component
             'user_id' => auth()->id(),
         ]);
 
-        sleep(1);
         $this->inCart = true;
+
         $this->dispatch('add-to-cart', productId: $this->productId);
+        return $this->redirect(route('client.checkout.cart'), navigate: true);
     }
 
 

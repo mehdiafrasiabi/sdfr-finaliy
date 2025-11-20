@@ -15,6 +15,7 @@ use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
 use Morilog\Jalali\Jalalian;
 use App\Helpers\FileHelper;
+use App\Services\NotificationService;
 
 class Detail extends Component
 {
@@ -38,9 +39,17 @@ class Detail extends Component
     public function mount(User $student)
     {
         $this->studentId = $student->student->id;
-        $this->studentName = $student->personalInformation->name;
+
+        // گرفتن نام دانش آموز (اولویت: اطلاعات شخصی → نام کاربر → مقدار پیش‌فرض)
+        $this->studentName =
+            $student->personalInformation->name
+            ?? $student->name
+            ?? 'دانش آموز عزیز';
+
         $this->seoConfig();
     }
+
+
 
     public function seoConfig()
     {
@@ -61,8 +70,8 @@ class Detail extends Component
             '*.string' => 'فرمت اشتباه است !',
             'barnameh.mimes' => 'فرمت های مجاز آپلود فایل : pdf,png,jpeg !',
             'barnameh.max' => 'سایز فایل ارسالی حداکثر : 60MB',
-        ])->validate();
-
+        ]);
+        $validator->validate();
         $this->resetValidation();
 
         // 🔹 هش کردن آیدی دانش‌آموز برای امنیت
@@ -79,6 +88,20 @@ class Detail extends Component
             'student_id' => $this->studentId,
             'admin_id' => Auth::id(),
         ]);
+
+        $student = Student::with('user.personalInformation')->find($this->studentId);
+
+        $studentName =
+            $student->personalInformation->name
+            ?? $student->user->name
+            ?? 'دانش آموز عزیز';
+
+
+        NotificationService::sendToStudent(
+            $this->studentId,
+            'برنامه مشاوره ای جدید',
+            "{$studentName}، برنامه تحصیلی شما با عنوان «{$formData['title']}» برای شما قرار گرفت."
+        );
 
         // حذف فایل موقت Livewire
         if ($this->barnameh?->getRealPath() && file_exists($this->barnameh->getRealPath())) {

@@ -7,39 +7,45 @@ use Illuminate\Database\Eloquent\Model;
 class Student extends Model
 {
     protected $guarded = [];
+
     public function payment()
     {
-        return $this->belongsTo(Payment::class)->where('status', '=','completed');
+        return $this->belongsTo(Payment::class)->where('status', '=', 'completed');
     }
+
     public function examAttempts()
     {
         return $this->hasMany(ExamAttemp::class);
     }
+
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function personalInformation()
+    // حذف تابع اشتباه personalInformation()
+    // و ساخت Accessor امن:
+
+    public function getPersonalInfoAttribute()
     {
-        return $this->user->personalInformation(); // غیر مستقیم
+        return $this->user?->personalInformation;
     }
-    public function student()
-    {
-        return $this->hasOne(Student::class);
-    }
+
     public function barnamehs()
     {
         return $this->hasMany(\App\Models\Barnameh::class);
     }
+
     public function reportMonthlies()
     {
         return $this->hasMany(\App\Models\ReportMonthly::class);
     }
+
     public function reportdaily()
     {
         return $this->hasMany(\App\Models\Report::class);
     }
+
     public function exams()
     {
         return $this->belongsToMany(Exam::class);
@@ -69,9 +75,9 @@ class Student extends Model
     {
         return $this->belongsTo(Admin::class, 'advisor_id');
     }
+
     public function advisingSessions()
     {
         return $this->hasMany(AdvisingSession::class);
     }
-
 }

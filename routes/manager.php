@@ -46,14 +46,16 @@ use App\Livewire\Manager\Advisors\AdvisorStudent;
 use App\Livewire\Manager\Advisors\AdvisorStudentDetail;
 use App\Livewire\Manager\Advisors\AdvisorStudents as AdvisorAssignStudents;
 
+use App\Livewire\Manager\Newsletter\Index as NewsletterIndex;
+
 use Illuminate\Support\Facades\Route;
 
 
 Route::name('manager.')->group(function () {
 
-    Route::get('/sign-in', AuthIndex::class)->name('sign-in');
+    Route::get('/sign-in', AuthIndex::class)->name('sign-in')->middleware('guest:manager');
 
-    Route::middleware(['auth:admin', 'role:super admin'])->group(function () {
+    Route::middleware(['auth:manager', 'role:super admin'])->group(function () {
         Route::get('/logout', [AuthIndex::class, 'logout'])->name('logout');
         Route::get('/dashboard/crm', Crm::class)->name('dashboard.crm');
         Route::get('/dashboard/analytics', Analytics::class)->name('dashboard.analytics');
@@ -106,6 +108,8 @@ Route::name('manager.')->group(function () {
         Route::get('/advisors', AdvisorIndex::class)->name('advisors');
         Route::get('/advisors/{advisor}/students', AdvisorStudent::class)->name('advisors.students');
         Route::get('/advisors/students/{student}/detail', AdvisorStudentDetail::class)->name('advisors.students.detail');
+
+        Route::get('/newsletter', NewsletterIndex::class)->name('newsletter');
 
     });
 

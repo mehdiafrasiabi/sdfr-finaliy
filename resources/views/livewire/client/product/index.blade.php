@@ -5,8 +5,9 @@
                 <div class="relative z-10">
                     <!-- course:thumbnail -->
                     <div>
-                        <img src="/products/{{$product->id}}/photo/{{@$product->coverImage->path}}" class="max-w-full rounded-3xl"
-                             alt="{{$product->seo->meta_title}}" />
+                        <img src="/products/{{$product->id}}/photo/{{@$product->coverImage->path}}"
+                             class="max-w-full rounded-3xl"
+                             alt="{{$product->seo->meta_title}}"/>
                     </div>
                     <!-- end course:thumbnail -->
                 </div>
@@ -59,7 +60,8 @@
                                                 <span class="font-bold text-xs text-muted line-clamp-1">
                                                     تعداد جلسات
                                                 </span>
-                                    <span class="font-bold text-sm text-foreground line-clamp-1">  {{$product->meeting_time}}</span>
+                                    <span
+                                        class="font-bold text-sm text-foreground line-clamp-1">  {{$product->meeting_time}}</span>
                                 </div>
                             </div>
                             <div
@@ -145,7 +147,6 @@
                                         </li><!-- end tabs:list:item -->
 
 
-
                                     </ul><!-- end tabs:list -->
                                 </div><!-- end tabs:list-container -->
                             </div>
@@ -164,7 +165,7 @@
 
                                     <!-- course:description -->
                                     <div class="description">
-                                      {!! $product->description !!}
+                                        {!! $product->description !!}
                                     </div>
                                     <!-- end course:description -->
                                 </div>
@@ -189,7 +190,7 @@
                             <div class="w-1 h-1 bg-foreground rounded-full"></div>
                             <div class="w-2 h-2 bg-foreground rounded-full"></div>
                         </div>
-                        <div class="font-black text-foreground">عضویت در  {{$product->name}}</div>
+                        <div class="font-black text-foreground">عضویت در {{$product->name}}</div>
                     </div>
                 </div>
                 <div class="flex items-center justify-between gap-5">
@@ -204,38 +205,41 @@
                 <div class="flex gap-3 mt-3">
                     @if(\Illuminate\Support\Facades\Auth::check())
                         @if($hasPurchased)
-                            <div class="w-full h-11 inline-flex items-center justify-center gap-1 bg-secondary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4" style="cursor: not-allowed">
+                            <div
+                                class="w-full h-11 inline-flex items-center justify-center gap-1 bg-secondary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4"
+                                style="cursor: not-allowed">
                                 <span class="font-semibold text-sm text-success "> شما دانشجوی این دوره هستید ✅</span>
                             </div>
                         @elseif(!$inCart)
-                               <button  wire:click="addToCart"
-                            class="w-full h-11 inline-flex items-center justify-center gap-1 bg-primary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
-                        <span class="font-semibold text-sm" wire:loading.remove>اضافه به سبد خرید</span>
-                        <svg wire:loading.remove xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                             class="w-5 h-5">
-                            <path fill-rule="evenodd"
-                                  d="M14.78 14.78a.75.75 0 0 1-1.06 0L6.5 7.56v5.69a.75.75 0 0 1-1.5 0v-7.5A.75.75 0 0 1 5.75 5h7.5a.75.75 0 0 1 0 1.5H7.56l7.22 7.22a.75.75 0 0 1 0 1.06Z"
-                                  clip-rule="evenodd"></path>
-                        </svg>
-                        <div wire:loading>
-                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                 viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="40px" height="40px"
-                                 style="shape-rendering: auto; display: block; background: transparent;">
-                                <g>
-                                    <path stroke="none" fill="#ffffff"
-                                          d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
-                                        <animateTransform values="0 50 51.5;360 50 51.5" keyTimes="0;1"
-                                                          repeatCount="indefinite" dur="0.8130081300813008s"
-                                                          type="rotate" attributeName="transform"/>
-                                    </path>
-                                    <g/>
-                                </g>
-                            </svg>
-                        </div>
-                    </button>
+                            <a  wire:click="addToCart" style="cursor: pointer"
+                                    class="w-full h-11 inline-flex items-center justify-center gap-1 bg-primary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
+                                <span class="font-semibold text-sm" wire:loading.remove>خرید این محصول</span>
+                                <svg wire:loading.remove xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                     fill="currentColor"
+                                     class="w-5 h-5">
+                                    <path fill-rule="evenodd"
+                                          d="M14.78 14.78a.75.75 0 0 1-1.06 0L6.5 7.56v5.69a.75.75 0 0 1-1.5 0v-7.5A.75.75 0 0 1 5.75 5h7.5a.75.75 0 0 1 0 1.5H7.56l7.22 7.22a.75.75 0 0 1 0 1.06Z"
+                                          clip-rule="evenodd"></path>
+                                </svg>
+                                <div wire:loading>
+                                    <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                         viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="40px" height="40px"
+                                         style="shape-rendering: auto; display: block; background: transparent;">
+                                        <g>
+                                            <path stroke="none" fill="#ffffff"
+                                                  d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
+                                                <animateTransform values="0 50 51.5;360 50 51.5" keyTimes="0;1"
+                                                                  repeatCount="indefinite" dur="0.8130081300813008s"
+                                                                  type="rotate" attributeName="transform"/>
+                                            </path>
+                                            <g/>
+                                        </g>
+                                    </svg>
+                                </div>
+                            </a>
                         @else
-                            <a href="{{route('client.checkout.cart')}}"
-                                    class="w-full h-11 inline-flex items-center justify-center gap-1 bg-success rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
+                            <a wire:navigate href="{{route('client.checkout.cart')}}"
+                               class="w-full h-11 inline-flex items-center justify-center gap-1 bg-success rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
                                 <span class="font-semibold text-sm">مشاهده در سبد خرید</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                                      class="w-5 h-5">
@@ -246,8 +250,8 @@
                             </a>
                         @endif
                     @else
-                         <a href="{{route('client.auth.login')}}"
-                                class="w-full h-11 inline-flex items-center justify-center gap-1 bg-red-500 rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
+                        <a href="{{route('client.auth.login')}}"
+                           class="w-full h-11 inline-flex items-center justify-center gap-1 bg-red-500 rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
                             <span class="font-semibold text-sm">لطفا ابتدا وارد شوید</span>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                                  class="w-5 h-5">
@@ -255,7 +259,7 @@
                                       d="M14.78 14.78a.75.75 0 0 1-1.06 0L6.5 7.56v5.69a.75.75 0 0 1-1.5 0v-7.5A.75.75 0 0 1 5.75 5h7.5a.75.75 0 0 1 0 1.5H7.56l7.22 7.22a.75.75 0 0 1 0 1.06Z"
                                       clip-rule="evenodd"></path>
                             </svg>
-                         </a>
+                        </a>
                     @endif
                     <button type="button"
                             class="flex-shrink-0 w-11 h-11 inline-flex items-center justify-center bg-secondary rounded-full text-muted transition-colors hover:text-red-500">

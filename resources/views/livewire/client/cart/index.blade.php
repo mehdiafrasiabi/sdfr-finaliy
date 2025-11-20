@@ -5,7 +5,7 @@
     @endif
     <div class="max-w-7xl space-y-14 px-4 mx-auto">
         @if($cart)
-        <div class="flex md:flex-nowrap flex-wrap items-start gap-5">
+        <div class="flex md:flex-nowrap flex-wrap items-start gap-5" >
             <div class="md:w-8/12 w-full">
 
                     <!-- section:title -->
@@ -32,11 +32,11 @@
 
 
                 <!-- cart-items:wrapper -->
-                <div class="divide-y divide-dashed divide-border">
+                <div class="divide-y divide-dashed divide-border" >
                     @foreach($cartItems as $item)
                     <div class="flex sm:flex-nowrap flex-wrap items-start gap-8 relative py-6">
                         <div class="sm:w-4/12 w-full relative z-10">
-                            <a href="{{route('client.product',$item->product->p_code)}}/{{$item->product->seo->slug}}" class="block">
+                            <a wire:navigate href="{{route('client.product',$item->product->p_code)}}/{{$item->product->seo->slug}}" class="block">
                                 <img src="/products/{{$item->product->id}}/photo/{{@$item->product->coverImage->path}}" class="max-w-full rounded-3xl"
                                      alt="{{$item->product->seo->meta_title}}" />
                             </a>
@@ -58,7 +58,7 @@
                                         <span class="font-bold text-xs text-success">{{$item->product->title}}</span>
                                     </div>
                                     <h2 class="font-bold text-sm">
-                                        <a href="{{route('client.product',$item->product->p_code)}}/{{$item->product->seo->slug}}"
+                                        <a wire:navigate href="{{route('client.product',$item->product->p_code)}}/{{$item->product->seo->slug}}"
                                            class="line-clamp-1 text-foreground transition-colors hover:text-primary">{{$item->product->name}}</a>
                                     </h2>
                                 </div>

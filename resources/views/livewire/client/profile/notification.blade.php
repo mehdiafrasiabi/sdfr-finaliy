@@ -23,7 +23,7 @@
                     <!-- end section:title -->
 
                     <!-- section:notifications:wrapper -->
-                    <div class="space-y-5" wire:poll.visible>
+                    <div class="space-y-5" >
                         @forelse($notifications as $notif)
                             <div
                                 class="flex md:items-center items-start gap-5 bg-background border border-border rounded-xl p-5">
@@ -35,7 +35,7 @@
                                     </svg>
                                     <div class="w-px h-4 bg-border"></div>
                                 </div>
-                                <div class="flex flex-col items-start space-y-1">
+                                <div class="flex flex-col items-start space-y-1" wire:poll.keep-alive>
                                     <div class="font-bold text-xs text-foreground">
                                         {{$notif->title}}
                                     </div>
@@ -49,26 +49,9 @@
                                     </div>
                                 </div>
                                 @if(!$notif->is_read)
-                                    <button wire:click="markAsRead({{ $notif->id }})"
+                                    <button  wire:click="markAsRead({{ $notif->id }})"
                                             class="inline-flex items-center justify-center gap-x-1.5 h-10 bg-primary rounded-full text-primary-foreground transition-colors hover:bg-foreground hover:text-background px-6 ms-auto">
-                                        <span wire:loading.remove class="font-semibold text-xs">خوانده نشده</span>
-                                        <div wire:loading>
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                 xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                 viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="40px"
-                                                 height="40px"
-                                                 style="shape-rendering: auto; display: block; background: transparent;">
-                                                <g>
-                                                    <path stroke="none" fill="#ffffff"
-                                                          d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
-                                                        <animateTransform values="0 50 51.5;360 50 51.5" keyTimes="0;1"
-                                                                          repeatCount="indefinite" dur="0.8130081300813008s"
-                                                                          type="rotate" attributeName="transform"/>
-                                                    </path>
-                                                    <g/>
-                                                </g>
-                                            </svg>
-                                        </div>
+                                        <span  class="font-semibold text-xs">خوانده نشده</span>
                                     </button>
                                 @else
                                     <button

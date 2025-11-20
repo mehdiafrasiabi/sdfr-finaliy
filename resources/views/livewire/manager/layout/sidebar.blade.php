@@ -338,13 +338,19 @@
                                 <div class="col-lg-4">
                                     <ul class="nav nav-sm flex-column">
 
+
                                         <li class="nav-item">
                                             <a href="{{route('manager.setting.schoolSdfr')}}" class="nav-link " data-key="t-basic">حضور sdfr در هر مدرسه</a>
                                         </li>
                                         <li class="nav-item">
                                             <a href="{{route('manager.setting.topStudent')}}" class="nav-link " data-key="t-basic">گوشه از لبخند ستارگان</a>
                                         </li>
-
+                                        <li class="nav-item ">
+                                            <a class="nav-link menu-link {{ request()->routeIs('manager.newsletter') ? 'active' : '' }}" href="{{route('manager.newsletter')}}" role="button"
+                                               aria-expanded="false" aria-controls="sidebarDashboards">
+                                                <i class="ri-mail-send-line"></i> <span data-key="t-dashboards">خبرنامه</span>
+                                            </a>
+                                        </li>
                                         <li class="nav-item">
                                             <a href="{{route('manager.setting.contactUs')}}" class="nav-link "
                                                data-key="t-basic">ارتباط با ما </a>

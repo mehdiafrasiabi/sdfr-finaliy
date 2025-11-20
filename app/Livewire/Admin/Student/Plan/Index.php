@@ -42,7 +42,7 @@ class Index extends Component
     }
     public function render()
     {
-        $adminId = auth()->id(); // گرفتن ID پشتیبان لاگین شده
+        $adminId = auth()->id();
 
         $studentsQuery = Student::query()
             ->with([
@@ -50,8 +50,8 @@ class Index extends Component
                 'payment.order.user',
                 'user.personalInformation' // اضافه شد
             ])
-            ->where('advisor_id', $adminId);
-        // فقط دانش‌آموزان مربوط به همین پشتیبان
+            ->where('advisor_id', $adminId)
+        ->orWhere('supporter_id', $adminId);
 
         // اگر جستجو فعال بود
         if ($this->search) {
