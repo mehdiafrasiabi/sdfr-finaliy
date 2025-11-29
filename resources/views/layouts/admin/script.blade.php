@@ -1,21 +1,24 @@
-<script src="/admin/assets/js/apexcharts.min.js"></script>
-<script src="/admin/assets/js/fslightbox.js"></script>
-<script src="/admin/assets/js/simplebar.min.js"></script>
-<script src="/admin/assets/js/prism.js"></script>
-<script src="/admin/assets/js/clipboard.min.js"></script>
-<script src="/admin/assets/js/swiper-bundle.min.js"></script>
-<script src="/admin/assets/js/fullcalendar.min.js"></script>
-<script src="/admin/assets/js/jsvectormap.min.js"></script>
-<script src="/admin/assets/js/world-merc.js"></script>
-<script src="/admin/assets/js/quill.min.js"></script>
-<script src="/admin/assets/js/custom.js"></script>
-<script src="https://cdn.lordicon.com/lordicon.js"></script>
-
+<script src="/admin/assets/vendor/libs/jquery/jquery.js"></script>
+<script src="/admin/assets/vendor/libs/popper/popper.js"></script>
+<script src="/admin/assets/vendor/js/bootstrap.js"></script>
+<script src="/admin/assets/vendor/libs/node-waves/node-waves.js"></script>
+<script src="/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+<script src="/admin/assets/vendor/libs/hammer/hammer.js"></script>
+<script src="/admin/assets/vendor/libs/i18n/i18n.js"></script>
+<script src="/admin/assets/vendor/libs/typeahead-js/typeahead.js"></script>
+<script src="/admin/assets/vendor/js/menu.js"></script>
+<!-- endbuild -->
+<!-- Vendors JS -->
+<script src="/admin/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+<script src="/admin/assets/vendor/libs/swiper/swiper.js"></script>
+<script src="/admin/assets/vendor/libs/datatables-bs5/datatables-bootstrap5.js"></script>
+<script src="/admin/assets/vendor/libs/datatables-bs5/i18n/fa.js"></script>
+<!-- Main JS -->
+<script src="/admin/assets/js/main.js"></script>
+<!-- Page JS -->
+<script src="/admin/assets/js/dashboards-analytics.js"></script>
+<script src="/admin/assets/js/tables-datatables-basic.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/persian-datepicker/dist/js/persian-datepicker.min.js"></script>
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 
 <script>
     const target = document.documentElement;
@@ -70,6 +73,7 @@
 <script>
     window.addEventListener('success', function(event) {
         Swal.fire({
+            theme: 'auto',
             position: 'center',
             icon: 'success',
             title: event.detail,
@@ -79,6 +83,7 @@
     });
     window.addEventListener('warning', function(event) {
         Swal.fire({
+            theme: 'auto',
             position: 'center',
             icon: 'error',
             title: event.detail,

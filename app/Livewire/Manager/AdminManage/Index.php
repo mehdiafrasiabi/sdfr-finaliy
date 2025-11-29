@@ -13,7 +13,7 @@ use Livewire\WithPagination;
 use Random\RandomException;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
-
+use Illuminate\Validation\Rule;
 class Index extends Component
 {
     use SEOTools, WithPagination, WithFileUploads; // 👈 اینجا هم اضافه کن
@@ -25,7 +25,8 @@ class Index extends Component
     public $roles=[];
     public $selectedPermissions=[];
     public $selectedRoles=[];
-
+    public $isEditing = false;
+    public $editingAdminId;
     // فیلدهای جدید
     public $national_code;
     public $contract;
@@ -190,7 +191,132 @@ class Index extends Component
         $this->dispatch('success', "ادمین «{$admin->name}» با موفقیت حذف شد.");
 
     }
+    public function cancelEdit()
+    {
+        $this->resetForm();
+    }
 
+    public function edit(int $adminId)
+    {
+        $admin = Admin::query()->with(['roles', 'permissions'])->findOrFail($adminId);
+
+        $this->editingAdminId    = $admin->id;
+        $this->name              = $admin->name;
+        $this->email             = $admin->email;
+        $this->mobile            = $admin->mobile;
+        $this->national_code     = $admin->national_code;
+        $this->address           = $admin->address;
+        $this->postal_code       = $admin->postal_code;
+        $this->selectedRoles     = $admin->roles->pluck('id')->toArray();
+        $this->selectedPermissions = $admin->permissions->pluck('id')->toArray();
+
+        $this->isEditing = true;
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function update($formData)
+    {
+        $formData['selectedRoles'] = $this->selectedRoles;
+        $formData['selectedPermissions'] = $this->selectedPermissions;
+
+        $validator = Validator::make(array_merge($formData, [
+            'national_code' => $this->national_code,
+            'address'       => $this->address,
+            'postal_code'   => $this->postal_code,
+            'document'      => $this->document,
+            'contract'      => $this->contract,
+        ]), [
+            'name'                 => 'required|string|max:255',
+            'email'                => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('admins', 'email')->ignore($this->editingAdminId),
+            ],
+            'mobile'               => [
+                'required',
+                'regex:/^09\d{9}$/',
+                Rule::unique('admins', 'mobile')->ignore($this->editingAdminId),
+            ],
+            'national_code'        => [
+                'required',
+                'digits:10',
+                Rule::unique('admins', 'national_code')->ignore($this->editingAdminId),
+            ],
+            'address'              => 'required|string|max:500',
+            'postal_code'          => 'required|digits:10',
+            'document'             => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'contract'             => 'nullable|file|mimes:pdf|max:2048',
+            'selectedRoles'        => 'required|array',
+            'selectedRoles.*'      => 'exists:roles,id',
+            'selectedPermissions'  => 'required|array',
+            'selectedPermissions.*'=> 'exists:permissions,id',
+        ], [
+            '*.required'   => 'فیلد ضروری است',
+            'email.email'  => 'یک ایمیل معتبر وارد کنید',
+            '*.unique'     => 'این مقدار تکراری است',
+            '*.regex'      => 'فرمت اشتباه است',
+            '*.digits'     => 'باید دقیقا :digits رقم باشد',
+            'document.mimes' => 'فقط pdf یا تصویر مجاز است',
+            'contract.mimes' => 'فقط pdf  مجاز است',
+        ]);
+
+        $validator->validate();
+        $this->resetValidation();
+
+        $admin = Admin::findOrFail($this->editingAdminId);
+
+        $admin->update([
+            'name'          => $formData['name'],
+            'email'         => $formData['email'],
+            'mobile'        => $formData['mobile'],
+            'national_code' => $this->national_code,
+            'address'       => $this->address,
+            'postal_code'   => $this->postal_code,
+        ]);
+
+        if ($this->document) {
+            $random= mt_rand(10000000,99999999999999);
+            $filename = 'document' . time() .$random. '.' . $this->document->getClientOriginalExtension();
+
+            $path = public_path("adminsFile/{$admin->id}/");
+            if (!file_exists($path)) {
+                mkdir($path, 0777, true);
+            }
+
+            $this->document->storeAs("adminsFile/{$admin->id}", $filename, 'public');
+            $admin->update(['document' => $filename]);
+        }
+
+        if ($this->contract) {
+            $random= mt_rand(10000000,99999999999999);
+            $filename = 'contract_' . time() .$random. '.' . $this->contract->getClientOriginalExtension();
+
+            $path = public_path("adminsFile/{$admin->id}/");
+            if (!file_exists($path)) {
+                mkdir($path, 0777, true);
+            }
+
+            $this->contract->storeAs("adminsFile/{$admin->id}", $filename, 'public');
+            $admin->update(['contract' => $filename]);
+        }
+
+        $admin->roles()->sync($formData['selectedRoles']);
+        $admin->permissions()->sync($formData['selectedPermissions']);
+
+        $this->dispatch('success','با موفقیت بروزرسانی شد');
+        session()->flash('message', 'اطلاعات ادمین با موفقیت بروزرسانی شد');
+
+        $this->resetForm();
+    }
+
+    private function resetForm()
+    {
+        $this->reset(['name','email','mobile','national_code','address','postal_code','document','contract','selectedRoles','selectedPermissions','isEditing','editingAdminId']);
+    }
     public function render()
     {
         $admins = Admin::query()->with('roles.permissions')->latest()->paginate(10);

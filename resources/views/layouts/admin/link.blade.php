@@ -1,19 +1,37 @@
 <!-- Required meta tags -->
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-<!-- Links Of CSS File -->
-<link rel="stylesheet" href="/admin/assets/css/remixicon.css"/>
-<link rel="stylesheet" href="/admin/assets/css/apexcharts.css"/>
-<link rel="stylesheet" href="/admin/assets/css/simplebar.css"/>
-<link rel="stylesheet" href="/admin/assets/css/prism.css"/>
-<link rel="stylesheet" href="/admin/assets/css/jsvectormap.min.css"/>
-<link rel="stylesheet" href="/admin/assets/css/swiper-bundle.min.css"/>
-<link rel="stylesheet" href="/admin/assets/css/quill.snow.css"/>
-<link rel="stylesheet" href="/admin/assets/css/style.css"/>
-
+<meta content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" name="viewport"/>
+<meta content="" name="description"/>
 <!-- Favicon -->
-<link rel="icon" type="image/png" href="/admin/assets/images/favicon.ico"/>
+<link href="/admin/assets/img/favicon/favicon.ico" rel="icon" type="image/x-icon"/>
+<!-- Icons -->
+<link href="/admin/assets/vendor/fonts/fontawesome.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/fonts/tabler-icons.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/fonts/flag-icons.css" rel="stylesheet"/>
+<!-- Core CSS -->
+<link class="template-customizer-core-css" href="/admin/assets/vendor/css/rtl/core.css" rel="stylesheet"/>
+<link class="template-customizer-theme-css" href="/admin/assets/vendor/css/rtl/theme-default.css" rel="stylesheet"/>
+<link href="/admin/assets/css/demo.css" rel="stylesheet"/>
+<!-- Vendors CSS -->
+<link href="/admin/assets/vendor/libs/node-waves/node-waves.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/typeahead-js/typeahead.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/apex-charts/apex-charts.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/swiper/swiper.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/datatables-bs5/datatables.bootstrap5.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/datatables-responsive-bs5/responsive.bootstrap5.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/datatables-checkboxes-jquery/datatables.checkboxes.css" rel="stylesheet"/>
+<!-- Page CSS -->
+<link href="/admin/assets/vendor/css/pages/cards-advance.css" rel="stylesheet"/>
+<!-- Helpers -->
+<script src="/admin/assets/vendor/js/helpers.js"></script>
+<!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+<!--? Template customizer: To hide customizer set displayCustomizer value false in config.js.  -->
+<script src="/admin/assets/vendor/js/template-customizer.js"></script>
+<!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+<script src="/admin/assets/js/config.js"></script>
+<!-- Better experience of RTL -->
+<link href="/admin/assets/css/rtl.css" rel="stylesheet"/>
 
 
 <!-- Font Family -->

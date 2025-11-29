@@ -79,24 +79,31 @@ class Index extends Component
             $fileName
         );
     }
+
+    public function updatingSearch()
+    {
+        $this->resetPage();
+    }
+
+
     public function render()
     {
-        $adminId = auth()->id(); // گرفتن ID پشتیبان لاگین شده
+        $adminId = auth()->id();
 
         $studentsQuery = Student::query()
             ->with([
                 'payment.order.orderItems.product',
                 'payment.order.user',
-                'user.personalInformation' // اضافه شد
+                'user.personalInformation'
             ])
-            ->where('supporter_id', $adminId)->orWhere('advisor_id', $adminId);
-        ;
-        // فقط دانش‌آموزان مربوط به همین پشتیبان
+            ->where(function ($q) use ($adminId) {
+                $q->where('supporter_id', $adminId)
+                    ->orWhere('advisor_id', $adminId);
+            });
 
-        // اگر جستجو فعال بود
         if ($this->search) {
-            $studentsQuery->whereHas('payment.order.user', function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%');
+            $studentsQuery->whereHas('user.personalInformation', function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%');
             });
         }
 
@@ -106,5 +113,6 @@ class Index extends Component
             'students' => $students,
         ])->layout('layouts.admin.app');
     }
+
 
 }

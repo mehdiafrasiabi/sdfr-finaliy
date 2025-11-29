@@ -1,62 +1,76 @@
 <!DOCTYPE html>
-<html dir="rtl">
+<html class="light-style layout-wide customizer-hide" data-assets-path="/admin/assets/" data-template="vertical-menu-template" data-theme="theme-default" dir="rtl" lang="fa">
+
 <head>
-    <!-- Required meta tags -->
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-    <!-- Links Of CSS File -->
-    <link rel="stylesheet" href="/admin/assets/css/remixicon.css" />
-    <link rel="stylesheet" href="/admin/assets/css/apexcharts.css" />
-    <link rel="stylesheet" href="/admin/assets/css/simplebar.css" />
-    <link rel="stylesheet" href="/admin/assets/css/prism.css" />
-    <link rel="stylesheet" href="/admin/assets/css/jsvectormap.min.css" />
-    <link rel="stylesheet" href="/admin/assets/css/swiper-bundle.min.css" />
-    <link rel="stylesheet" href="/admin/assets/css/quill.snow.css" />
-    <link rel="stylesheet" href="/admin/assets/css/style.css" />
-
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+          name="viewport"/>
+    <meta content="" name="description"/>
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="/admin/assets/images/favicon.ico" />
+    <link href="/admin/assets/img/favicon/favicon.ico" rel="icon" type="image/x-icon"/>
+    <!-- Icons -->
+    <link href="/admin/assets/vendor/fonts/fontawesome.css" rel="stylesheet"/>
+    <link href="/admin/assets/vendor/fonts/tabler-icons.css" rel="stylesheet"/>
+    <link href="/admin/assets/vendor/fonts/flag-icons.css" rel="stylesheet"/>
+    <!-- Core CSS -->
+    <link class="template-customizer-core-css" href="/admin/assets/vendor/css/rtl/core.css" rel="stylesheet"/>
+    <link class="template-customizer-theme-css" href="/admin/assets/vendor/css/rtl/theme-default.css" rel="stylesheet"/>
+    <link href="/admin/assets/css/demo.css" rel="stylesheet"/>
+    <!-- Vendors CSS -->
+    <link href="/admin/assets/vendor/libs/node-waves/node-waves.css" rel="stylesheet"/>
+    <link href="/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet"/>
+    <link href="/admin/assets/vendor/libs/typeahead-js/typeahead.css" rel="stylesheet"/>
+    <!-- Vendor -->
+    <link href="/admin/assets/vendor/libs/@form-validation/form-validation.css" rel="stylesheet"/>
+    <!-- Page CSS -->
+    <!-- Page -->
+    <link href="/admin/assets/vendor/css/pages/page-auth.css" rel="stylesheet"/>
+    <!-- Helpers -->
+    <script src="/admin/assets/vendor/js/helpers.js"></script>
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+    <!--? Template customizer: To hide customizer set displayCustomizer value false in config.js.  -->
+    <script src="/admin/assets/vendor/js/template-customizer.js"></script>
+    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+    <script src="/admin/assets/js/config.js"></script>
+    <!-- Better experience of RTL -->
+    <link href="/admin/assets/css/rtl.css" rel="stylesheet"/>
 
-    <!-- Title -->
-    <title>پنل مدیریت</title>
-
-    <!-- Font Family -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&amp;display=swap"
-        rel="stylesheet"
-    />
-
-    <!-- Material Icons -->
-    <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
-    />
 </head>
-<body class="dark">
-<button
-    type="button"
-    class="light-dark-toggle leading-none inline-block transition-all text-[#fe7a36] absolute top-[20px] md:top-[25px] ltr:right-[20px] rtl:left-[20px] ltr:md:right-[25px] rtl:md:left-[25px]"
-    id="light-dark-toggle"
->
-    <i class="material-symbols-outlined !text-[20px] md:!text-[22px]">light_mode</i>
-</button>
 
-{{$slot}}
+<body>
 
-<script src="/admin/assets/js/apexcharts.min.js"></script>
-<script src="/admin/assets/js/fslightbox.js"></script>
-<script src="/admin/assets/js/simplebar.min.js"></script>
-<script src="/admin/assets/js/prism.js"></script>
-<script src="/admin/assets/js/clipboard.min.js"></script>
-<script src="/admin/assets/js/swiper-bundle.min.js"></script>
-<script src="/admin/assets/js/fullcalendar.min.js"></script>
-<script src="/admin/assets/js/jsvectormap.min.js"></script>
-<script src="/admin/assets/js/world-merc.js"></script>
-<script src="/admin/assets/js/quill.min.js"></script>
-<script src="/admin/assets/js/custom.js"></script>
+<div class="container-xxl">
+    <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner py-4">
+            <!-- Login -->
+            <div class="card">
+                {{$slot}}
+            </div>
+            <!-- /Register -->
+        </div>
+    </div>
+</div>
+
+
+
+<script src="/admin/assets/vendor/libs/jquery/jquery.js"></script>
+<script src="/admin/assets/vendor/libs/popper/popper.js"></script>
+<script src="/admin/assets/vendor/js/bootstrap.js"></script>
+<script src="/admin/assets/vendor/libs/node-waves/node-waves.js"></script>
+<script src="/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+<script src="/admin/assets/vendor/libs/hammer/hammer.js"></script>
+<script src="/admin/assets/vendor/libs/i18n/i18n.js"></script>
+<script src="/admin/assets/vendor/libs/typeahead-js/typeahead.js"></script>
+<script src="/admin/assets/vendor/js/menu.js"></script>
+<!-- endbuild -->
+<!-- Vendors JS -->
+<script src="/admin/assets/vendor/libs/@form-validation/popular.js"></script>
+<script src="/admin/assets/vendor/libs/@form-validation/bootstrap5.js"></script>
+<script src="/admin/assets/vendor/libs/@form-validation/auto-focus.js"></script>
+<!-- Main JS -->
+<script src="/admin/assets/js/main.js"></script>
+<!-- Page JS -->
+<script src="/admin/assets/js/pages-auth.js"></script>
 
 @include('layouts.admin.theme-toggle-script')
 </body>

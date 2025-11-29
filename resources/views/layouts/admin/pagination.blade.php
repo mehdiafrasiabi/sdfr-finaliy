@@ -1,90 +1,104 @@
 @if ($paginator->hasPages())
-    <p class="!mb-0 text-sm"></p>
-
-    <ol class="mt-[10px] sm:mt-0 flex justify-center" dir="ltr">
-        {{-- Previous Page Link --}}
-        @if ($paginator->onFirstPage())
-            <li class="inline-block mx-[1px]">
-                <a href="javascript:void(0);"
-                   class="w-[31px] h-[31px] block leading-[29px] relative text-center rounded-md border border-gray-100 dark:border-[#172036] opacity-50 cursor-not-allowed">
-                    <span class="opacity-0">0</span>
-                    <i class="material-symbols-outlined absolute left-0 right-0 top-1/2 -translate-y-1/2">
-                        chevron_left
-                    </i>
-                </a>
-            </li>
-        @else
-            <li class="inline-block mx-[1px]">
-                <a href="javascript:void(0);"
-                   wire:click="previousPage"
-                   rel="prev"
-                   class="w-[31px] h-[31px] block leading-[29px] relative text-center rounded-md border border-gray-100 dark:border-[#172036] transition-all hover:bg-primary-500 hover:text-white hover:border-primary-500">
-                    <span class="opacity-0">0</span>
-                    <i class="material-symbols-outlined absolute left-0 right-0 top-1/2 -translate-y-1/2">
-                        chevron_left
-                    </i>
-                </a>
-            </li>
-        @endif
-
-        {{-- Pagination Elements --}}
-        @foreach ($elements as $element)
-            {{-- "Three Dots" Separator --}}
-            @if (is_string($element))
-                <li class="inline-block mx-[1px]">
-                    <a href="javascript:void(0);"
-                       class="w-[31px] h-[31px] block leading-[29px] text-center rounded-md border border-gray-100 dark:border-[#172036] cursor-default">
-                        {{ $element }}
+    <nav aria-label="پیمایش صفحه">
+        <ul class="pagination">
+            {{-- دکمه صفحه اول --}}
+            @if ($paginator->onFirstPage())
+                <li class="page-item first disabled">
+                    <span class="page-link">
+                        <i class="ti ti-chevrons-right ti-xs"></i>
+                    </span>
+                </li>
+            @else
+                <li class="page-item first">
+                    <a class="page-link"
+                       href="javascript:void(0);"
+                       wire:click="gotoPage(1)">
+                        <i class="ti ti-chevrons-right ti-xs"></i>
                     </a>
                 </li>
             @endif
 
-            {{-- Array Of Links --}}
-            @if (is_array($element))
-                @foreach ($element as $page => $url)
-                    @if ($page == $paginator->currentPage())
-                        <li class="inline-block mx-[1px]">
-                            <a href="javascript:void(0);"
-                               class="w-[31px] h-[31px] block leading-[29px] text-center rounded-md border border-primary-500 bg-primary-500 text-white">
-                                {{ $page }}
-                            </a>
-                        </li>
-                    @else
-                        <li class="inline-block mx-[1px]">
-                            <a href="javascript:void(0);"
-                               wire:click="gotoPage({{ $page }})"
-                               class="w-[31px] h-[31px] block leading-[29px] text-center rounded-md border border-gray-100 dark:border-[#172036] transition-all hover:bg-primary-500 hover:text-white hover:border-primary-500">
-                                {{ $page }}
-                            </a>
-                        </li>
-                    @endif
-                @endforeach
+            {{-- دکمه قبلی --}}
+            @if ($paginator->onFirstPage())
+                <li class="page-item prev disabled">
+                    <span class="page-link">
+                        <i class="ti ti-chevron-right ti-xs"></i>
+                    </span>
+                </li>
+            @else
+                <li class="page-item prev">
+                    <a class="page-link"
+                       href="javascript:void(0);"
+                       wire:click="previousPage"
+                       rel="prev">
+                        <i class="ti ti-chevron-right ti-xs"></i>
+                    </a>
+                </li>
             @endif
-        @endforeach
 
-        {{-- Next Page Link --}}
-        @if ($paginator->hasMorePages())
-            <li class="inline-block mx-[1px]">
-                <a href="javascript:void(0);"
-                   wire:click="nextPage"
-                   rel="next"
-                   class="w-[31px] h-[31px] block leading-[29px] relative text-center rounded-md border border-gray-100 dark:border-[#172036] transition-all hover:bg-primary-500 hover:text-white hover:border-primary-500">
-                    <span class="opacity-0">0</span>
-                    <i class="material-symbols-outlined absolute left-0 right-0 top-1/2 -translate-y-1/2">
-                        chevron_right
-                    </i>
-                </a>
-            </li>
-        @else
-            <li class="inline-block mx-[1px]">
-                <a href="javascript:void(0);"
-                   class="w-[31px] h-[31px] block leading-[29px] relative text-center rounded-md border border-gray-100 dark:border-[#172036] opacity-50 cursor-not-allowed">
-                    <span class="opacity-0">0</span>
-                    <i class="material-symbols-outlined absolute left-0 right-0 top-1/2 -translate-y-1/2">
-                        chevron_right
-                    </i>
-                </a>
-            </li>
-        @endif
-    </ol>
+            {{-- شماره صفحات --}}
+            @foreach ($elements as $element)
+                {{-- سه نقطه "..." --}}
+                @if (is_string($element))
+                    <li class="page-item disabled">
+                        <span class="page-link">{{ $element }}</span>
+                    </li>
+                @endif
+
+                {{-- آرایه لینک‌ها --}}
+                @if (is_array($element))
+                    @foreach ($element as $page => $url)
+                        @if ($page == $paginator->currentPage())
+                            <li class="page-item active">
+                                <span class="page-link">{{ $page }}</span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link"
+                                   href="javascript:void(0);"
+                                   wire:click="gotoPage({{ $page }})">
+                                    {{ $page }}
+                                </a>
+                            </li>
+                        @endif
+                    @endforeach
+                @endif
+            @endforeach
+
+            {{-- دکمه بعدی --}}
+            @if ($paginator->hasMorePages())
+                <li class="page-item next">
+                    <a class="page-link"
+                       href="javascript:void(0);"
+                       wire:click="nextPage"
+                       rel="next">
+                        <i class="ti ti-chevron-left ti-xs"></i>
+                    </a>
+                </li>
+            @else
+                <li class="page-item next disabled">
+                    <span class="page-link">
+                        <i class="ti ti-chevron-left ti-xs"></i>
+                    </span>
+                </li>
+            @endif
+
+            {{-- دکمه صفحه آخر --}}
+            @if ($paginator->hasMorePages())
+                <li class="page-item last">
+                    <a class="page-link"
+                       href="javascript:void(0);"
+                       wire:click="gotoPage({{ $paginator->lastPage() }})">
+                        <i class="ti ti-chevrons-left ti-xs"></i>
+                    </a>
+                </li>
+            @else
+                <li class="page-item last disabled">
+                    <span class="page-link">
+                        <i class="ti ti-chevrons-left ti-xs"></i>
+                    </span>
+                </li>
+            @endif
+        </ul>
+    </nav>
 @endif

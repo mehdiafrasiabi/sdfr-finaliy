@@ -2,11 +2,367 @@
     @push('link')
         <link rel="stylesheet" href="/client/assets/css/apexcharts.css"/>
         <style>
+            /* Modal Wrapper با Backdrop بهتر */
+            .welcome-modal-wrapper {
+                position: fixed;
+                inset: 0;
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 1rem;
+                background: rgba(0, 0, 0, 0.75);
+                backdrop-filter: blur(8px);
+                transition: opacity 300ms ease;
+                overflow-y: auto;
+            }
 
+            .welcome-modal-wrapper.hidden {
+                display: none;
+            }
 
+            /* کارت مودال با طراحی بهتر */
+            .welcome-modal-card {
+                position: relative;
+                width: min(600px, 100%);
+                max-height: 90vh;
+                overflow-y: auto;
+                border-radius: 24px;
+                background: linear-gradient(145deg, #1a1f35, #141829);
+                box-shadow:
+                    0 25px 60px rgba(0, 0, 0, 0.5),
+                    0 0 0 1px rgba(255, 255, 255, 0.08),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                transform: scale(0.95) translateY(20px);
+                opacity: 0;
+                transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+
+            .welcome-modal-card.show {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+
+            /* Scrollbar سفارشی */
+            .welcome-modal-card::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .welcome-modal-card::-webkit-scrollbar-track {
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 10px;
+            }
+
+            .welcome-modal-card::-webkit-scrollbar-thumb {
+                background: rgba(96, 93, 255, 0.5);
+                border-radius: 10px;
+            }
+
+            .welcome-modal-card::-webkit-scrollbar-thumb:hover {
+                background: rgba(96, 93, 255, 0.7);
+            }
+
+            /* Confetti بهبود یافته */
+            .welcome-confetti {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                overflow: hidden;
+                border-radius: 24px;
+            }
+
+            .welcome-confetti span {
+                position: absolute;
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.4);
+            }
+
+            .welcome-confetti span.animate {
+                animation: confetti-pop 1.2s ease-out forwards;
+                animation-delay: calc(var(--i) * 40ms);
+            }
+
+            @keyframes confetti-pop {
+                0% {
+                    opacity: 0;
+                    transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
+                }
+                40% {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1.3) rotate(180deg);
+                }
+                100% {
+                    opacity: 0;
+                    transform: translate(
+                        calc(-50% + (var(--tx) * 1px)),
+                        calc(-50% + (var(--ty) * 1px))
+                    ) scale(0.6) rotate(360deg);
+                }
+            }
+
+            /* Menu با Gradient زیباتر */
+            .welcome-header {
+                background: linear-gradient(135deg, rgba(96, 93, 255, 0.15), rgba(173, 99, 246, 0.15));
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            /* آیکون با انیمیشن */
+            .welcome-icon {
+                position: relative;
+                overflow: hidden;
+            }
+
+            .welcome-icon::before {
+                content: '';
+                position: absolute;
+                inset: -50%;
+                background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+                animation: shine 3s infinite;
+            }
+
+            @keyframes shine {
+                0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+                50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+            }
+
+            /* لیست ویژگی‌ها */
+            .feature-list {
+                background: rgba(96, 93, 255, 0.05);
+                border: 1px solid rgba(96, 93, 255, 0.15);
+                border-radius: 16px;
+                padding: 1.25rem;
+                margin: 1.25rem 0;
+            }
+
+            .feature-list li {
+                position: relative;
+                padding-right: 1.5rem;
+                margin-bottom: 0.75rem;
+                line-height: 1.6;
+            }
+
+            .feature-list li:last-child {
+                margin-bottom: 0;
+            }
+
+            .feature-list li::before {
+                content: '✨';
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
+
+            /* دکمه بهبود یافته */
+            .welcome-button {
+                position: relative;
+                background: linear-gradient(135deg, #8b5cf6, #6366f1);
+                color: #fff;
+                padding: 1rem 2rem;
+                border: none;
+                border-radius: 16px;
+                font-weight: 700;
+                font-size: 1rem;
+                letter-spacing: -0.01em;
+                cursor: pointer;
+                overflow: hidden;
+                transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+                box-shadow:
+                    0 12px 35px rgba(99, 102, 241, 0.4),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            }
+
+            .welcome-button::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+                transform: translateX(-100%);
+                transition: transform 500ms;
+            }
+
+            .welcome-button:hover::before {
+                transform: translateX(100%);
+            }
+
+            .welcome-button:hover {
+                transform: translateY(-2px) scale(1.02);
+                box-shadow:
+                    0 16px 45px rgba(99, 102, 241, 0.5),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            }
+
+            .welcome-button:active {
+                transform: translateY(1px) scale(0.98);
+                box-shadow:
+                    0 8px 25px rgba(99, 102, 241, 0.3),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            }
+
+            /* بهبود Typography */
+            .welcome-title {
+                background: linear-gradient(135deg, #fff, #e0e7ff);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+
+            /* لینک تلگرام */
+            .telegram-link {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: #ef4444;
+                font-weight: 600;
+                padding: 0.5rem 1rem;
+                border-radius: 12px;
+                background: rgba(239, 68, 68, 0.1);
+                transition: all 200ms;
+            }
+
+            .telegram-link:hover {
+                background: rgba(239, 68, 68, 0.2);
+                transform: translateX(-4px);
+            }
+
+            /* Responsive بهتر */
+            @media (max-width: 640px) {
+                .welcome-modal-card {
+                    border-radius: 20px;
+                    margin: 1rem;
+                }
+
+                .welcome-button {
+                    padding: 0.875rem 1.5rem;
+                    font-size: 0.9rem;
+                }
+
+                .feature-list {
+                    padding: 1rem;
+                    font-size: 0.875rem;
+                }
+            }
+
+            /* Badge برای نسخه */
+            .version-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0.5rem 1rem;
+                background: rgba(96, 93, 255, 0.15);
+                border: 1px solid rgba(96, 93, 255, 0.3);
+                border-radius: 12px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                letter-spacing: 0.05em;
+                color: #a5b4fc;
+            }
         </style>
     @endpush
     <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
+
+        <div id="welcome-modal" class="welcome-modal-wrapper hidden opacity-0">
+            <div class="welcome-modal-card">
+                <!-- Confetti Effect -->
+                <div class="welcome-confetti">
+                    @for($i = 0; $i < 30; $i++)
+                        <span style="
+                            top: {{ rand(15, 85) }}%;
+                            left: {{ rand(10, 90) }}%;
+                            --tx: {{ rand(-80, 80) }};
+                            --ty: {{ rand(50, 140) }};
+                            --i: {{ $i }};
+                            background: {{ ['#8b5cf6', '#6366f1', '#ec4899', '#f59e0b'][rand(0, 3)] }};
+                        "></span>
+                    @endfor
+                </div>
+
+                <!-- Menu Section -->
+                <div class="welcome-header p-6 sm:p-8">
+                    <div class="flex items-start justify-between gap-4">
+                        <div class="flex-1 text-right">
+                            <div class="version-badge mb-3">
+                                <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+                                </svg>
+                                <span>نسخه 1.0.0.1</span>
+                            </div>
+                            <h2 class="welcome-title text-3xl sm:text-4xl font-black leading-tight mb-2">
+                                SDFR آپدیت شد! 🎉
+                            </h2>
+
+                        </div>
+                        <div class="welcome-icon w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 border border-white/10 flex items-center justify-center flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 sm:w-10 sm:h-10 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content Section -->
+                <div class="p-6 sm:p-8 space-y-6 text-right">
+                    <!-- مقدمه -->
+                    <p class="text-white text-base leading-relaxed">
+                        با افتخار به اطلاع می‌رسانیم که پنل دانش‌آموزان با موفقیت به‌روزرسانی شد. این ارتقا گامی مهم در جهت بهبود کیفیت خدمات آموزشی و ایجاد تجربه‌ای کارآمدتر است.
+                    </p>
+
+                    <!-- لیست ویژگی‌ها -->
+                    <div class="feature-list">
+                        <h3 class="text-white font-bold text-lg mb-3 flex items-center gap-2">
+                            <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            ویژگی‌های جدید
+                        </h3>
+                        <ul class="text-primary text-sm space-y-2">
+                            <li>آپدیت بخش آزمون‌ها (کلید آزمون و نتایج)</li>
+                            <li>تحلیل آزمون‌ها توسط هوش مصنوعی SDFR</li>
+                            <li>بهبود بخش گزارش‌ها</li>
+                            <li>سیستم امتیاز‌دهی ستاره‌ای</li>
+                            <li>امکان ثبت نظر پس از مشاوره</li>
+                            <li>اطلاع‌رسانی هوشمند برنامه‌ها</li>
+                            <li>آپدیت ساعت مطالعه</li>
+                            <li>بهبود‌های امنیتی و رفع باگ‌ها</li>
+                        </ul>
+                    </div>
+
+                    <!-- پیام تشکر -->
+                    <div class="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl p-4">
+                        <p class="text-success text-sm leading-relaxed">
+                            از تلاش و همراهی تمامی دانش‌آموزان، اولیا و همکاران محترم که ما را در تحقق این بهبود یاری کردند، صمیمانه سپاسگزاریم.
+                            <br>
+                            <span class="text-indigo-300 font-semibold">آینده‌ای روشن و موفقیت‌آمیز برای شما آرزومندیم 🌟</span>
+                        </p>
+                    </div>
+
+                    <!-- بخش پشتیبانی -->
+                    <div class="border-t border-white/10 pt-5">
+                        <p class="text-yellow-500 text-sm mb-3">
+                            برای گزارش مشکلات، پیشنهادات و انتقادات(تلگرام):
+                        </p>
+                        <a href="https://t.me/SdfrWebApp" target="_blank" rel="noopener" class="telegram-link">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+                            </svg>
+                            <span>@SdfrWebApp</span>
+                        </a>
+                    </div>
+                    <br>
+                    <!-- دکمه -->
+                    <div class="flex justify-center pt-2">
+                        <button id="welcome-dismiss" type="button" class="welcome-button">
+                            متوجه شدم، بریم شروع کنیم! 🚀
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
 
             <!-- end user:info -->
@@ -22,7 +378,7 @@
             <div class="space-y-10">
 
                 <!-- statistics:items:wrapper -->
-                <div class="grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-5 mb-8" wire:poll.visible>
+                <div class="grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-5 mb-8" >
                     <!-- statistics:item -->
 
                     <!-- end statistics:item -->
@@ -120,7 +476,7 @@
                 <!-- end statistics:wrapper -->
 
                 <!-- section:learning-courses -->
-                <div class="space-y-5" wire:poll.visible>
+                <div class="space-y-5" >
                     <!-- section:title -->
                     <div class="flex items-center gap-3">
                         <div class="flex items-center gap-1">
@@ -1404,4 +1760,72 @@
 
         </div>
     </div>
+
+        @push('script')
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const modal = document.getElementById('welcome-modal');
+                    if (!modal) return;
+
+                    const card = modal.querySelector('.welcome-modal-card');
+                    const dots = Array.from(modal.querySelectorAll('.welcome-confetti span'));
+                    const dismiss = document.getElementById('welcome-dismiss');
+                    const storageKey = 'clientDashboardWelcomeSeen_v1.0.0.1';
+
+                    const showModal = () => {
+                        modal.classList.remove('hidden');
+                        document.body.style.overflow = 'hidden'; // قفل کردن اسکرول صفحه
+
+                        requestAnimationFrame(() => {
+                            modal.classList.remove('opacity-0');
+                            card.classList.add('show');
+
+                            // انیمیشن confetti
+                            dots.forEach((dot, index) => {
+                                setTimeout(() => {
+                                    dot.classList.add('animate');
+                                }, index * 30);
+                            });
+                        });
+                    };
+
+                    const hideModal = () => {
+                        modal.classList.add('opacity-0');
+                        card.classList.remove('show');
+
+                        setTimeout(() => {
+                            modal.classList.add('hidden');
+                            document.body.style.overflow = ''; // بازگرداندن اسکرول
+                        }, 350);
+                    };
+
+                    // نمایش مودال اگر قبلاً ندیده
+                    if (!localStorage.getItem(storageKey)) {
+                        setTimeout(showModal, 500); // تاخیر کوتاه برای بارگذاری کامل صفحه
+                    }
+
+                    // بستن مودال
+                    dismiss?.addEventListener('click', () => {
+                        localStorage.setItem(storageKey, 'true');
+                        hideModal();
+                    });
+
+                    // بستن با کلیک روی backdrop
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            localStorage.setItem(storageKey, 'true');
+                            hideModal();
+                        }
+                    });
+
+                    // بستن با ESC
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                            localStorage.setItem(storageKey, 'true');
+                            hideModal();
+                        }
+                    });
+                });
+            </script>
+        @endpush
 </div>

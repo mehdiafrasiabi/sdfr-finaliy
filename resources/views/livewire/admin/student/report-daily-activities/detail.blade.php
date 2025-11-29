@@ -1,517 +1,440 @@
-<div>
-    <div >
-        <h4 wire:ignore style="color: #29971d">{{$studentName}}</h4>
+<div class="container-fluid">
 
+    {{-- ردیف اول: نام دانش‌آموز --}}
+    <div class="mb-3">
+        <h4  wire:ignore class="py-3 mb-4">
+            <span class="text-muted fw-light">گزارش جامع /</span>
+            <span class="text-success"> {{ $studentName }}</span>
+        </h4>
+    </div>
 
+    {{-- ردیف دوم: کارت فیلتر و خروجی اکسل --}}
+    <div class="row mb-4">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">خروجی اکسل</h5>
+                </div>
 
+                <div class="card-body">
 
-            <div class="grid lg:grid-cols-5 gap-[25px] mb-[25px]">
-                <div class="lg:col-span-3">
-                    <!-- To Do List -->
-                    <div class="trezo-card bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md">
-                        <div class="trezo-card-header mb-[20px] md:mb-[25px] sm:flex items-center justify-between">
-                            <div class="trezo-card-title">
-                                <h5 class="!mb-0">خروجی اکسل</h5>
-                            </div>
-                            <div class="trezo-card-subtitle mt-[15px] sm:mt-0">
-                                <span wire:ignore style="color: #29971d">{{$studentName}}</span>
-
-                            </div>
-                        </div>
-                        <div class="trezo-card-content ">
-                            <div class="table-responsive overflow-x-auto">
-                                <div class="mb-[20px] md:mb-[25px] last:mb-0">
-                                    <label class="mb-[12px] font-medium block">
-                                        از تاریخ (شمسی)
-                                    </label>
-                                    <select
-                                        wire:model.live.debounce.500ms="status"
-                                        class="h-[55px]  rounded-md border border-gray-200 dark:border-[#172036] bg-white dark:bg-[#0c1427] px-[13px] block w-full outline-0 cursor-pointer transition-all focus:border-primary-500">
-                                        <option selected="">برای تغییر وضعیت انتخاب کنید</option>
-                                        <option value="all">همه وضعیت‌ها</option>
-                                        <option value="pending">در انتظار</option>
-                                        <option value="completed">تایید شده</option>
-                                        <option value="rejected">رد شده</option>
-                                    </select>
-
-                                </div>
-                                <div class="mb-[20px] md:mb-[25px] last:mb-0">
-                                    <label class="mb-[12px] font-medium block">
-                                        از تاریخ (شمسی)
-                                    </label>
-                                    <input type="text"
-                                           name="startDate"
-                                           wire:model="startDate"
-                                           class="h-[55px] rounded-md text-black dark:text-white border border-gray-200 dark:border-[#172036] bg-white dark:bg-[#0c1427] px-[17px] block w-full outline-0 transition-all placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-primary-500"
-                                           placeholder="1404/05/24">
-                                    @error('startDate')
-                                    <div class="text-[12px] font-medium text-orange-500  "
-                                         style="margin-top: 7px">{{$message}}</div>
-                                    @enderror
-                                </div>
-                                <div class="mb-[20px] md:mb-[25px] last:mb-0">
-                                    <label class="mb-[12px] font-medium block">
-                                        تا تاریخ (شمسی)
-
-                                    </label>
-                                    <input type="text"
-                                           name="endDate"
-                                           wire:model="endDate"
-                                           class="h-[55px] rounded-md text-black dark:text-white border border-gray-200 dark:border-[#172036] bg-white dark:bg-[#0c1427] px-[17px] block w-full outline-0 transition-all placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-primary-500"
-                                           placeholder="1404/06/24">
-                                    @error('endDate')
-                                    <div class="text-[12px] font-medium text-orange-500  "
-                                         style="margin-top: 7px">{{$message}}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="px-[25px] pt-[12px] md:pt-[15px] ltr:text-right rtl:text-left">
-                                <button wire:click="exportExcel" type="button" wire:loading.attr="disabled"
-                                        class="inline-block transition-all rounded-md font-medium px-[13px] py-[6px] text-primary-500 border border-primary-500 hover:bg-primary-500 hover:text-white"
-                                        id="add-new-popup-toggle">
-                                  <span class="inline-block relative ltr:pl-[22px] rtl:pr-[22px]">
-                                      <i class="material-symbols-outlined !text-[22px] absolute ltr:-left-[4px] rtl:-right-[4px] top-1/2 -translate-y-1/2">
-                                              add
-                                      </i>
-                                      <span wire:loading.remove>خروجی اکسل</span>
-                                      <span wire:loading>در حال آماده‌سازی...</span>
-                                  </span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="mt-[15px] md:mt-[20px]"></div>
+                    {{-- فیلتر وضعیت --}}
+                    <div class="mb-3">
+                        <label class="form-label">
+                            وضعیت گزارش
+                        </label>
+                        <select
+                            wire:model.live.debounce.500ms="status"
+                            class="form-select">
+                            <option selected>برای تغییر وضعیت انتخاب کنید</option>
+                            <option value="all">همه وضعیت‌ها</option>
+                            <option value="pending">در انتظار</option>
+                            <option value="completed">تایید شده</option>
+                            <option value="rejected">رد شده</option>
+                        </select>
                     </div>
+
+                    {{-- از تاریخ --}}
+                    <div class="mb-3">
+                        <label class="form-label">
+                            از تاریخ (شمسی)
+                        </label>
+                        <input type="text"
+                               name="startDate"
+                               wire:model="startDate"
+                               class="form-control"
+                               placeholder="1404/05/24">
+                        @error('startDate')
+                        <div class="form-text text-danger mt-1">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+
+                    {{-- تا تاریخ --}}
+                    <div class="mb-3">
+                        <label class="form-label">
+                            تا تاریخ (شمسی)
+                        </label>
+                        <input type="text"
+                               name="endDate"
+                               wire:model="endDate"
+                               class="form-control"
+                               placeholder="1404/06/24">
+                        @error('endDate')
+                        <div class="form-text text-danger mt-1">
+                            {{ $message }}
+                        </div>
+                        @enderror
+                    </div>
+
+                    <div class="mt-3 text-start text-md-end">
+                        <button wire:click="exportExcel"
+                                type="button"
+                                wire:loading.attr="disabled"
+                                class="btn btn-outline-primary d-inline-flex align-items-center">
+                            <i class="material-symbols-outlined me-1">
+                                download
+                            </i>
+                            <span wire:loading.remove>خروجی اکسل</span>
+                            <span wire:loading>در حال آماده‌سازی...</span>
+                        </button>
+                    </div>
+
                 </div>
             </div>
-
+        </div>
     </div>
-    <div class="col-md-12 mt-3">
 
-            <div class="lg:col-span-2">
-                <!-- Recent Leads -->
-                <div class="trezo-card bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md">
-                    <div class="trezo-card-header mb-[20px] md:mb-[25px] flex items-center justify-between">
-                        <div class="trezo-card-title">
-                            <h5 class="!mb-0">لیست گزارش های دانش آموز</h5>
-                        </div>
+    {{-- ردیف سوم: لیست گزارش‌های دانش‌آموز --}}
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
 
-                    </div>
-                    <div class="trezo-card-content ">
-                        <div class="table-responsive overflow-x-auto">
-                            <table class="w-full">
-                                <thead class="text-black dark:text-white">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">لیست گزارش های دانش آموز</h5>
+                </div>
+
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">دانش آموز</th>
+                                <th scope="col">پارت های موظفی</th>
+                                <th scope="col">تست موظفی</th>
+                                <th scope="col">تست انجام شده</th>
+                                <th scope="col">درگیر با گوشی (درسی)</th>
+                                <th scope="col">درگیر با گوشی (غیر درسی)</th>
+                                <th scope="col">توضیحات</th>
+                                <th scope="col">رضایت</th>
+                                <th scope="col">فایل</th>
+                                <th scope="col">نظر مشاور</th>
+                                <th scope="col">وضعیت</th>
+                                <th scope="col">تاریخ ثبت درخواست</th>
+                                <th scope="col">تاریخ تغییر وضعیت</th>
+                                <th scope="col">عملیات</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            @forelse($reports as $report)
                                 <tr>
 
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
+                                    {{-- شماره ردیف --}}
+                                    <td>
+                                        {{ $loop->iteration + $reports->firstItem() - 1 }}
+                                    </td>
 
-                                        <div class="form-check relative top-[2px]">
-                                            <input wire:model.live="selectAll" type="checkbox" class="cursor-pointer">
-                                        </div>
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        #
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        دانش آموز
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        پارت های موظفی
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        تست موظفی
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        تست انجام شده
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        درگیر با گوشی (درسی)
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        درگیر با گوشی (غیر درسی)
-                                    </th>
+                                    {{-- نام دانش‌آموز --}}
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            {{ $report->student->user->name ?? '----' }}
+                                        </span>
+                                    </td>
 
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        توضیحات
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        رضایت
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        فایل
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        نظر مشاور
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        وضعیت
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        تاریخ ثبت درخواست
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        تاریخ تغییر وضعیت
-                                    </th>
-                                    <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                        عملیات
-                                    </th>
-                                </tr>
-                                </thead>
-                                <tbody class="text-black dark:text-white">
-                                @forelse($reports as $report)
-                                    <tr>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            <div class="form-check relative top-[2px]">
-                                                <input wire:model.live="selectedReports"
-                                                       value="{{ $report->id }}"
-                                                       type="checkbox" class="cursor-pointer">
-                                            </div>
+                                    {{-- پارت‌های موظفی --}}
+                                    <td>
+                                        <span class="fw-medium">
+                                            {{ $report->required_parts ?? '---' }}
+                                        </span>
+                                    </td>
 
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            {{$loop->iteration + $reports->firstItem() - 1}}
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            <span
-                                                class="px-[8px] py-[3px] inline-block bg-primary-50 dark:bg-[#15203c] text-primary-500 rounded-sm font-medium text-xs">
-                                                {{ $report->student->user->name ?? '----' }}
+                                    {{-- تست موظفی --}}
+                                    <td>
+                                        <span class="fw-medium">
+                                            {{ $report->required_tests ?? '---' }}
+                                        </span>
+                                    </td>
+
+                                    {{-- تست انجام شده --}}
+                                    <td>
+                                        <span class="fw-medium">
+                                            {{ $report->done_tests ?? '---' }}
+                                        </span>
+                                    </td>
+
+                                    {{-- درگیر با گوشی (درسی) --}}
+                                    <td>
+                                        <span class="fw-medium">
+                                            {{ $report->phone_study_hours ?? '---' }}
+                                        </span>
+                                    </td>
+
+                                    {{-- درگیر با گوشی (غیر درسی) --}}
+                                    <td>
+                                        <span class="fw-medium">
+                                            {{ $report->phone_nonstudy_hours ?? '---' }}
+                                        </span>
+                                    </td>
+
+                                    {{-- توضیحات با "بیشتر..." --}}
+                                    <td>
+                                        <div x-data="{ open: false }">
+                                            @php
+                                                $description = $report->description ?? '';
+                                                $words = explode(' ', $description);
+                                                $firstPart = implode(' ', array_slice($words, 0, 10));
+                                                $restPart = implode(' ', array_slice($words, 10));
+                                            @endphp
+
+                                            <span class="fw-medium">
+                                                {{ $firstPart }}
                                             </span>
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            <div class="flex items-center">
-                                                <div class="ltr:ml-[12px] rtl:mr-[12px]">
-                                                    <span
-                                                        class="block font-medium">{{ $report->required_parts ?? '---' }}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            <div class="flex items-center">
-                                                <div class="ltr:ml-[12px] rtl:mr-[12px]">
-                                                    <span
-                                                        class="block font-medium">{{ $report->required_tests ?? '---' }}</span>
-                                                </div>
 
-                                            </div>
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            <div class="flex items-center">
-                                                <div class="ltr:ml-[12px] rtl:mr-[12px]">
-                                                    <span
-                                                        class="block font-medium">{{ $report->done_tests ?? '---' }}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            <div class="flex items-center">
-                                                <div class="ltr:ml-[12px] rtl:mr-[12px]">
-                                                    <span
-                                                        class="block font-medium">{{ $report->phone_study_hours ?? '---' }}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            <div class="flex items-center">
-                                                <div class="ltr:ml-[12px] rtl:mr-[12px]">
-                                                    <span
-                                                        class="block font-medium">{{ $report->phone_nonstudy_hours ?? '---' }}</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            <div class="flex items-center">
-                                                <div class="ltr:ml-[12px] rtl:mr-[12px]" x-data="{ open: false }">
-                                                    @php
-                                                        $description = $report->description ?? '';
-                                                        $words = explode(' ', $description);
-                                                        $firstPart = implode(' ', array_slice($words, 0, 10));
-                                                        $restPart = implode(' ', array_slice($words, 10));
-                                                    @endphp
-
-                                                    <span class="block font-medium">
-                                                            {{ $firstPart }}
+                                            @if (!empty($restPart))
+                                                <div>
+                                                    <span x-show="!open"
+                                                          @click="open = true"
+                                                          class="text-primary"
+                                                          style="cursor: pointer;">
+                                                        بیشتر...
                                                     </span>
-
-                                                    @if (!empty($restPart))
-                                                        <template x-if="!open">
-                                                            <div
-                                                                style="cursor: pointer"
-                                                                @click="open = true"
-                                                                class="text- hover:underline transition-all duration-200">
-                                                                بیشتر...
-                                                            </div>
-
-                                                        </template>
-
-                                                        <template x-if="open">
-                                                            <div>
-                                                                <p x-transition.opacity.duration.300ms class="mt-2 wrap-text">
-                                                                    {{ $restPart }}
-                                                                </p>
-                                                                <button
-                                                                    style="cursor: pointer"
-                                                                    @click="open = false"
-                                                                    class="text-red-500 hover:underline transition-all duration-200 mt-1">
-                                                                    بستن
-                                                                </button>
-                                                            </div>
-                                                        </template>
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </td>
-
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            <div class="flex items-center">
-                                                <div class="ltr:ml-[12px] rtl:mr-[12px]">
-                                                    <span class="block font-medium">
-                                                         <span class="px-[8px] py-[3px] inline-block bg-secondary text-foreground rounded-sm text-xs">
-                                                            امتیاز: {{ $report->complacent ?? '--' }} / 10
+                                                    <div x-show="open" class="mt-2">
+                                                        <p class="mb-1">
+                                                            {{ $restPart }}
+                                                        </p>
+                                                        <span @click="open = false"
+                                                              class="text-danger"
+                                                              style="cursor: pointer;">
+                                                            بستن
                                                         </span>
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            <div class="flex items-center">
-                                                <div class="ltr:ml-[12px] rtl:mr-[12px]">
-                                                    <span class="block font-medium">
-                                                        @if(isset($report->report_file))
-                                                            <a href="{{asset('students/reportsDaily/'.$report->student_id).'/'.$report->report_file}}">مشاهده</a>
-                                                        @else
-                                                            <span
-                                                                class=" px-[8px] py-[3px] inline-block bg-warning-50 dark:bg-[#15203c] text-warning-700 rounded-sm font-medium text-xs">
-                                                                        فایلی وجود ندارد
-                                                            </span>
-
-                                                        @endif
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            <div class="flex flex-col gap-2">
-                                                <button
-                                                    type="button"
-                                                    wire:click="openCommentModal({{ $report->id }})"
-                                                    class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-primary-50 dark:bg-[#15203c] text-primary-500 hover:bg-primary-500 hover:text-white transition-all">
-                                                    <i class="material-symbols-outlined !text-[18px]">chat</i>
-                                                    <span class="text-xs font-medium">مشاهده / ثبت</span>
-                                                </button>
-                                                @if($report->advisor_comment)
-                                                    <div class="text-xs text-gray-600 dark:text-gray-300">
-                                                        {{ \Illuminate\Support\Str::limit($report->advisor_comment, 10) }}
                                                     </div>
-                                                @else
-                                                    <span class="text-xs text-gray-500 dark:text-gray-400">نظری ثبت نشده</span>
-                                                @endif
-                                                @if($report->student_reply)
-                                                    <span class="text-[11px] text-success-500 font-medium">پاسخ دانش‌آموز ثبت شده</span>
-                                                @endif
-                                            </div>
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            @can('edit_reports_for_academic_support')
-                                                <select
-                                                    wire:confirm="آیا از انتخاب خود برای تغییر وضعیت اطمینان دارید ؟"
-                                                    wire:change="changeStatus({{$report->id}},$event.target.value)"
-                                                    class="
-                                                     px-[8px] py-[3px] inline-block bg-{{$report->statusColor}} success-100 dark:bg-[#15203c] text-{{$report->statusColor}} rounded-sm font-medium text-xs
-                                                     inv-status">
-                                                    <option value="pending" {{$report->status=='pending' ? 'selected' :''}}>
-                                                        درانتظار تایید مشاور یا پشتیبان
-                                                    </option>
-                                                    <option
-                                                        value="completed" {{$report->status=='completed' ? 'selected' :''}}>
-                                                        تایید گزارش و درست بودن ان
-
-                                                    </option>
-                                                    <option
-                                                        value="rejected" {{$report->status=='rejected' ? 'selected' :''}}>
-                                                        رد گزارش
-
-                                                    </option>
-                                                </select>
-                                            @else
-                                                @if($report->status=='pending')
-                                                    <span
-                                                        class="px-[8px] py-[3px] inline-block bg-primary-50 dark:bg-[#15203c] text-primary-500 rounded-sm font-medium text-xs">
-                                                                    در انتظار تایید مشاور یا پشتیبان
-                                                    </span>
-                                                @elseif($report->status=='completed')
-                                                    <span
-                                                        class="px-[8px] py-[3px] inline-block bg-success-50 dark:bg-[#15203c] text-success-600 rounded-sm font-medium text-xs">
-                                                               توسط مشاور یا پشتیبان گزارش تایید  شده است
-                                                    </span>
-                                                @elseif($report->status=='rejected')
-                                                    <span
-                                                        class="px-[8px] py-[3px] inline-block bg-danger-50 dark:bg-[#15203c] text-danger-500 rounded-sm font-medium text-xs">
-                                                                     به صلاح دید مشاور یا پشتیبان  رد شده است
-                                                    </span>
-                                                @endif
-
-                                            @endcan
-
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            {{jalali($report->created_at)->format('%d %B %Y | H:i:s')}}
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            {{jalali($report->updated_at)->format('%d %B %Y | H:i:s')}}
-                                        </td>
-                                        <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                            @can('delete_reports_for_academic_support')
-
-                                                <button
-                                                    wire:confirm="آیا مطمئن هستید؟"
-                                                    wire:click="delete({{$report->id}})"
-                                                    type="button" class="text-danger-500 leading-none">
-                                                    <i class="material-symbols-outlined !text-md"> delete </i>
-                                                </button>
-
-                                            @else
-                                                <span
-                                                    class="px-[8px] py-[3px] inline-block bg-danger-50 dark:bg-[#15203c] text-danger-500 rounded-sm font-medium text-xs">
-                                                     <i class="material-symbols-outlined !text-md"> delete </i>
-                                                    عدم دسترسی حذف!!
-                                                </span>
-                                            @endcan
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-
-                                        <div class="text-center">
-                                            <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="loop"
-                                                       colors="primary:#121331,secondary:#08a88a"
-                                                       style="width:75px;height:75px"></lord-icon>
-                                            <h5 class="mt-2">متاسفیم! هیچ نتیجه ای یافت نشد</h5>
-
+                                                </div>
+                                            @endif
                                         </div>
                                     </td>
-                                @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                        <div
-                            class="px-[20px] md:px-[25px] pt-[12px] md:pt-[14px] sm:flex sm:items-center justify-between">
-                            {{ $reports->links('layouts.admin.pagination') }}
 
-                        </div>
-                    </div>
-                    <div class="mt-[15px] md:mt-[20px]"></div>
+                                    {{-- رضایت --}}
+                                    <td>
+                                        <span class="badge bg-secondary">
+                                            امتیاز: {{ $report->complacent ?? '--' }} / 10
+                                        </span>
+                                    </td>
 
-                </div>
-            </div>
-    </div>
-    @if($commentModalOpen)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-             wire:click.self="closeCommentModal">
-            <div
-                class="w-full max-w-2xl mx-4 bg-white dark:bg-[#0c1427] border border-gray-200 dark:border-[#172036] rounded-xl shadow-xl"
-                wire:keydown.escape="closeCommentModal">
-
-                <div
-                    class="add-new-popup z-[999] fixed transition-all inset-0 overflow-x-hidden overflow-y-auto lg:py-[20px] active"
-                    id="add-new-popup">
-                    <div class="popup-dialog flex transition-all max-w-[550px] min-h-full items-center mx-auto">
-                        <div class="trezo-card w-full bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md">
-                            <div
-                                class="trezo-card-header bg-gray-50 dark:bg-[#15203c] mb-[20px] md:mb-[25px] flex items-center justify-between -mx-[20px] md:-mx-[25px] -mt-[20px] md:-mt-[25px] p-[20px] md:p-[25px] rounded-t-md">
-                                <div class="trezo-card-title">
-                                    <h5 class="!mb-0">نظر مشاور برای {{ $commentStudentName ?: 'دانش‌آموز' }}</h5>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">برای هر گزارش تنها یک نظر
-                                        از سوی مشاور و یک پاسخ از سوی دانش‌آموز ثبت می‌شود.</p>
-
-                                </div>
-                                <div class="trezo-card-subtitle">
-                                    <button type="button" wire:click="closeCommentModal"
-                                            class="text-[23px] transition-all leading-none text-black dark:text-white hover:text-primary-500"
-                                            id="add-new-popup-toggle">
-                                        <i class="ri-close-fill"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="trezo-card-content pb-[20px] md:pb-[25px]">
-                                @if($advisorCommentReadonly)
-                                    <div class="space-y-2">
-                                        <div class="text-sm font-semibold text-gray-800 dark:text-gray-200">نظر ثبت شده
-                                            مشاور
-                                        </div>
-                                        <p class="py-[10px] px-[15px] inline-block bg-primary-500 text-white ltr:rounded-l-md rtl:rounded-l-md">
-                                            {{ $advisorCommentInput }}
-                                        </p>
-
-                                        <br>
-
-                                        @if($commentStudentReply)
-                                            <div class="space-y-2">
-                                                <div class="text-sm font-semibold text-success-500">پاسخ دانش‌آموز</div>
-                                                <br>
-                                                <p class="py-[10px] px-[15px] inline-block text-white ltr:rounded-l-md rtl:rounded-l-md" style="background-color: #0b9c0b">
-                                                    {{ $commentStudentReply }}
-                                                </p>
-
-                                            </div>
-
-                                        @endif
-                                    </div>
-                                @else
-                                    <div class="mb-[20px] md:mb-[25px] last:mb-0">
-                                        <label class="mb-[12px] font-medium block">
-                                            متن نظر مشاور
-                                        </label>
-
-                                        <textarea
-                                            wire:model.defer="advisorCommentInput"
-                                            class="h-[140px] rounded-md text-black dark:text-white border border-gray-200 dark:border-[#172036] bg-white dark:bg-[#0c1427] p-[17px] block w-full outline-0 transition-all placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-primary-500"
-                                            placeholder="بسیار عالی بود !"></textarea>
-                                        @error('advisorCommentInput')
-                                        <div class="text-xs font-medium text-orange-500">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                @endif
-
-                                <div
-                                    class="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-[#172036]  dark:bg-[#0a1120] rounded-b-xl">
-
-                                    @if(!$advisorCommentReadonly)
-                                        <button wire:click="saveAdvisorComment"
-                                                wire:loading.attr="disabled"
-                                                class="inline-block py-[10px] px-[30px] bg-primary-500 text-white transition-all hover:bg-primary-400 rounded-md border border-primary-500 hover:border-primary-400 ltr:mr-[11px] rtl:ml-[11px] mb-[15px]"
-                                                type="button">
-                                            <span wire:loading.remove wire:target="saveAdvisorComment">ثبت نظر</span>
-                                            <span wire:loading wire:target="saveAdvisorComment"
-                                                  class="flex items-center gap-2">
-                                                <svg class="animate-spin h-4 w-4 text-white"
-                                                     xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                     viewBox="0 0 24 24">
-                                                    <circle class="opacity-25" cx="12" cy="12" r="10"
-                                                            stroke="currentColor"
-                                                            stroke-width="4"></circle>
-                                                    <path class="opacity-75" fill="currentColor"
-                                                          d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                                                </svg>
-                                                در حال ثبت...
+                                    {{-- فایل --}}
+                                    <td>
+                                        @if(isset($report->report_file))
+                                            <a href="{{ asset('students/reportsDaily/'.$report->student_id).'/'.$report->report_file }}"
+                                               target="_blank">
+                                                مشاهده
+                                            </a>
+                                        @else
+                                            <span class="badge bg-warning text-dark">
+                                                فایلی وجود ندارد
                                             </span>
-                                        </button>
-                                    @endif
-                                </div>
-                            </div>
-                            <div
-                                class="trezo-card-footer flex items-center justify-between -mx-[20px] md:-mx-[25px] px-[20px] md:px-[25px] pt-[20px] md:pt-[25px] border-t border-gray-100 dark:border-[#172036]">
-                                <button wire:click="closeCommentModal"
-                                        class="inline-block py-[10px] px-[30px] bg-danger-500 text-white transition-all hover:bg-danger-400 rounded-md border border-danger-500 hover:border-danger-400"
-                                        type="button" id="add-new-popup-toggle">
-                                    بستن
-                                </button>
+                                        @endif
+                                    </td>
 
-                            </div>
-                        </div>
+                                    {{-- نظر مشاور (دکمه + خلاصه) --}}
+                                    <td>
+                                        <div class="d-flex flex-column gap-1">
+                                            <button
+                                                type="button"
+                                                wire:click="openCommentModal({{ $report->id }})"
+                                                class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center">
+                                                <i class="material-symbols-outlined me-1">chat</i>
+                                                مشاهده / ثبت
+                                            </button>
+
+                                            @if($report->advisor_comment)
+                                                <div class="small text-muted">
+                                                    {{ \Illuminate\Support\Str::limit($report->advisor_comment, 10) }}
+                                                </div>
+                                            @else
+                                                <span class="small text-muted">نظری ثبت نشده</span>
+                                            @endif
+
+                                            @if($report->student_reply)
+                                                <span class="small text-success fw-semibold">
+                                                    پاسخ دانش‌آموز ثبت شده
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </td>
+
+                                    {{-- وضعیت --}}
+                                    <td>
+                                        @can('edit_reports_for_academic_support')
+                                            <select
+                                                wire:confirm="آیا از انتخاب خود برای تغییر وضعیت اطمینان دارید ؟"
+                                                wire:change="changeStatus({{ $report->id }}, $event.target.value)"
+                                                class="form-select form-select-sm">
+                                                <option
+                                                    value="pending" {{ $report->status=='pending' ? 'selected' :'' }}>
+                                                    در انتظار تایید مشاور یا پشتیبان
+                                                </option>
+                                                <option
+                                                    value="completed" {{ $report->status=='completed' ? 'selected' :'' }}>
+                                                    تایید گزارش و درست بودن آن
+                                                </option>
+                                                <option
+                                                    value="rejected" {{ $report->status=='rejected' ? 'selected' :'' }}>
+                                                    رد گزارش
+                                                </option>
+                                            </select>
+                                        @else
+                                            @if($report->status=='pending')
+                                                <span class="badge bg-primary">
+                                                    در انتظار تایید مشاور یا پشتیبان
+                                                </span>
+                                            @elseif($report->status=='completed')
+                                                <span class="badge bg-success">
+                                                    توسط مشاور یا پشتیبان گزارش تایید شده است
+                                                </span>
+                                            @elseif($report->status=='rejected')
+                                                <span class="badge bg-danger">
+                                                    به صلاح دید مشاور یا پشتیبان رد شده است
+                                                </span>
+                                            @endif
+                                        @endcan
+                                    </td>
+
+                                    {{-- تاریخ ثبت --}}
+                                    <td>
+                                        {{ jalali($report->created_at)->format('%d %B %Y | H:i:s') }}
+                                    </td>
+
+                                    {{-- تاریخ تغییر وضعیت --}}
+                                    <td>
+                                        {{ jalali($report->updated_at)->format('%d %B %Y | H:i:s') }}
+                                    </td>
+
+                                    {{-- عملیات حذف --}}
+                                    <td>
+                                        <button
+                                            type="button"
+                                            wire:confirm="آیا مطمئن هستید؟"
+                                            wire:click="delete({{ $report->id }})"
+                                            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center">
+                                            <i class="material-symbols-outlined me-1">delete</i>
+                                            حذف
+                                        </button>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="16" class="text-center py-4">
+                                        <div>
+                                            <lord-icon src="https://cdn.lordicon.com/msoeawqm.json"
+                                                       trigger="loop"
+                                                       colors="primary:#121331,secondary:#08a88a"
+                                                       style="width:75px;height:75px"></lord-icon>
+                                            <h5 class="mt-2 mb-0">
+                                                متاسفیم! هیچ نتیجه‌ای یافت نشد
+                                            </h5>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
+                <div class="card-footer d-flex justify-content-center justify-content-md-between align-items-center">
+                    {{ $reports->links('layouts.admin.pagination') }}
+                </div>
 
             </div>
         </div>
+    </div>
+
+    {{-- مودال نظر مشاور (Bootstrap-style) --}}
+    @if($commentModalOpen)
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,.6);"
+             wire:click.self="closeCommentModal">
+            <div class="modal-dialog modal-lg modal-dialog-centered" wire:keydown.escape="closeCommentModal">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <div>
+                            <h5 class="modal-title">
+                                نظر مشاور برای {{ $commentStudentName ?: 'دانش‌آموز' }}
+                            </h5>
+                            <p class="small text-muted mb-0">
+                                برای هر گزارش تنها یک نظر از سوی مشاور و یک پاسخ از سوی دانش‌آموز ثبت می‌شود.
+                            </p>
+                        </div>
+                        <button type="button" class="btn-close"
+                                aria-label="Close"
+                                wire:click="closeCommentModal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        @if($advisorCommentReadonly)
+                            <div class="mb-3">
+                                <div class="fw-semibold mb-2">
+                                    نظر ثبت شده مشاور
+                                </div>
+                                <p class="p-2 rounded bg-primary text-white d-inline-block">
+                                    {{ $advisorCommentInput }}
+                                </p>
+                            </div>
+
+                            @if($commentStudentReply)
+                                <div class="mb-3">
+                                    <div class="fw-semibold text-success mb-2">
+                                        پاسخ دانش‌آموز
+                                    </div>
+                                    <p class="p-2 rounded text-white d-inline-block"
+                                       style="background-color:#0b9c0b;">
+                                        {{ $commentStudentReply }}
+                                    </p>
+                                </div>
+                            @endif
+                        @else
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    متن نظر مشاور
+                                </label>
+                                <textarea
+                                    wire:model.defer="advisorCommentInput"
+                                    class="form-control"
+                                    rows="4"
+                                    placeholder="بسیار عالی بود !"></textarea>
+                                @error('advisorCommentInput')
+                                <div class="form-text text-danger mt-1">
+                                    {{ $message }}
+                                </div>
+                                @enderror
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="modal-footer d-flex justify-content-between">
+                        <button type="button"
+                                class="btn btn-danger"
+                                wire:click="closeCommentModal">
+                            بستن
+                        </button>
+
+                        @if(!$advisorCommentReadonly)
+
+                            <button
+                                wire:click="saveAdvisorComment"
+                                wire:loading.attr="disabled"
+                                type="submit" class="btn btn-success d-flex align-items-center">
+
+                                <div  class="d-flex align-items-center">
+                                    <span  wire:loading.remove class="ms-1" wire:target="saveAdvisorComment">ثبت و ارسال</span>
+
+                                    <span wire:target="saveAdvisorComment" wire:loading class="spinner-border spinner-border-sm ms-2" role="status"
+                                          aria-hidden="true">
+
+                                    </span>
+                                </div>
+
+                            </button>
+
+                        @endif
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
     @endif
+
 </div>

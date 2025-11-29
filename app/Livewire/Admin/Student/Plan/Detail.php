@@ -63,30 +63,31 @@ class Detail extends Component
         }
 
         $validator = Validator::make($formData, [
-            'title' => 'required|string|max:50',
+            'title'    => 'required|string|max:50',
             'barnameh' => 'required|mimes:pdf,png,jpeg|max:61440', // 60MB
         ], [
-            '*.required' => 'فیلد ضروری است.',
-            '*.string' => 'فرمت اشتباه است !',
-            'barnameh.mimes' => 'فرمت های مجاز آپلود فایل : pdf,png,jpeg !',
-            'barnameh.max' => 'سایز فایل ارسالی حداکثر : 60MB',
+            '*.required'    => 'فیلد ضروری است.',
+            '*.string'      => 'فرمت اشتباه است !',
+            'barnameh.mimes'=> 'فرمت های مجاز آپلود فایل : pdf,png,jpeg !',
+            'barnameh.max'  => 'سایز فایل ارسالی حداکثر : 60MB',
         ]);
+
         $validator->validate();
         $this->resetValidation();
 
-        // 🔹 هش کردن آیدی دانش‌آموز برای امنیت
-        $hashedId = md5('student-' . $this->studentId);
+        // هش کردن آیدی دانش‌آموز
+        $hashedId  = md5('student-' . $this->studentId);
         $directory = "student/{$hashedId}/plan";
 
-        // 🔹 آپلود فایل
+        // آپلود فایل
         $path = FileHelper::uploadToPublicHtml($this->barnameh, $directory);
 
         // ثبت در دیتابیس
-       \App\Models\Barnameh::create([
-            'title' => $formData['title'],
-            'barnameh' => $path,
+        \App\Models\Barnameh::create([
+            'title'      => $formData['title'],
+            'barnameh'   => $path,
             'student_id' => $this->studentId,
-            'admin_id' => Auth::id(),
+            'admin_id'   => Auth::id(),
         ]);
 
         $student = Student::with('user.personalInformation')->find($this->studentId);
@@ -96,20 +97,25 @@ class Detail extends Component
             ?? $student->user->name
             ?? 'دانش آموز عزیز';
 
-
         NotificationService::sendToStudent(
             $this->studentId,
             'برنامه مشاوره ای جدید',
             "{$studentName}، برنامه تحصیلی شما با عنوان «{$formData['title']}» برای شما قرار گرفت."
         );
 
-        // حذف فایل موقت Livewire
+        // حذف فایل موقت Livewire (درصورت وجود)
         if ($this->barnameh?->getRealPath() && file_exists($this->barnameh->getRealPath())) {
             @unlink($this->barnameh->getRealPath());
         }
 
-        $this->dispatch('success', 'با موفقیت اضافه شد.');
+        // ریست کردن فیلدهای فرم بعد از ثبت
+        $this->reset(['title', 'barnameh']);
+
+        // اگر ورودی‌های دیگری هم داری که باید خالی شوند، همین‌جا اضافه‌شان کن
+
+        $this->dispatch('success', 'برنامه دانش آموز با موفقیت اضافه شد.');
     }
+
 
     public function delete(\App\Models\Barnameh $barnameh)
     {

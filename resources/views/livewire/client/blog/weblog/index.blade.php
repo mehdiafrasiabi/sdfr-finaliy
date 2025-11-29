@@ -20,7 +20,7 @@
 
             <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
-                <!-- Sidebar - در موبایل اول، در سایزهای بزرگتر در سمت چپ -->
+                <!-- Navbar - در موبایل اول، در سایزهای بزرگتر در سمت چپ -->
                 <aside class="md:col-span-4 lg:col-span-3 md:order-2 order-1">
                     <div class="space-y-8 md:sticky md:top-4">
                         <!-- Categories -->

@@ -219,7 +219,7 @@
 <div class="exam-container min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100 dark:from-slate-950 dark:via-blue-950 dark:to-slate-950 py-8">
     <div class="max-w-7xl mx-auto px-4">
 
-        <!-- ====== Header Section ====== -->
+        <!-- ====== Menu Section ====== -->
         <div class="mb-8 fade-in">
             <div class="flex items-center gap-3 mb-6">
                 <div class="flex items-center gap-1">
@@ -335,7 +335,7 @@
                                     @endif"
                              style="animation-delay: {{ ($i - 1) * 0.05 }}s">
 
-                            <!-- Question Header -->
+                            <!-- Question Menu -->
                             <div class="flex items-start justify-between gap-4 mb-6">
                                 <div class="flex items-start gap-4 flex-1">
                                     <div class="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-blue-400 to-blue-600 text-white font-bold text-sm flex-shrink-0 shadow-md">
@@ -393,7 +393,7 @@
                 </button>
             </div>
 
-            <!-- ====== Sidebar Progress ====== -->
+            <!-- ====== Navbar Progress ====== -->
             <div class="sticky top-24 h-fit">
                 <div class="glass-bg rounded-2xl p-6 border border-blue-200 dark:border-blue-900 shadow-lg">
                     <h3 class="font-bold text-lg text-foreground mb-6 flex items-center gap-2">

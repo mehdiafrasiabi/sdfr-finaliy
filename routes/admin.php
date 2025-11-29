@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\FileDownloadController;
-use App\Livewire\admin\Blog\Create as CreateBlog;
+use App\Livewire\Admin\Blog\Create as CreateBlog;
 use App\Livewire\Admin\Blog\Index as BlogIndex;
 use App\Livewire\Admin\Profile\Index as profileIndex;
 use App\Livewire\Admin\ReportMissing\Index as ReportMissingIndex;

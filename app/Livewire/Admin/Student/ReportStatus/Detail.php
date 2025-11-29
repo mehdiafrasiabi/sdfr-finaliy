@@ -69,6 +69,8 @@ class Detail extends Component
         if ($this->reportMonthly?->getRealPath() && file_exists($this->reportMonthly->getRealPath())) {
             @unlink($this->reportMonthly->getRealPath());
         }
+
+        $this->reset();
         $this->dispatch('success','با موفقیت اضافه شد .');
     }
 

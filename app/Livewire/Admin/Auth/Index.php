@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Auth;
 
 use App\Models\Admin;
+use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -10,6 +11,18 @@ use Livewire\Component;
 
 class Index extends Component
 {
+    use SEOTools;
+
+    public function mount()
+    {
+        $this->seoConfig();
+    }
+    public function seoConfig()
+    {
+        $this->seo()
+            ->setTitle('ورود ادمین')
+            ->setDescription('ورود ادمین ');
+    }
     public function submit($formData)
     {
         $validator = Validator::make($formData,

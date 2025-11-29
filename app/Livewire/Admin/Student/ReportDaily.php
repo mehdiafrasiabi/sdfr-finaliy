@@ -335,8 +335,8 @@ class ReportDaily extends Component
     {
         $timezone = config('app.timezone');
 
-        $start = Carbon::yesterday($timezone)->setTime(23, 59, 0);
-        $end = Carbon::tomorrow($timezone)->setTime(0, 1, 0);
+        $start = Carbon::today($timezone)->startOfDay();
+        $end = Carbon::today($timezone)->setTime(23, 59, 59);
 
 
         return [$start, $end];
@@ -388,6 +388,6 @@ class ReportDaily extends Component
             'studentsWithoutReports' => $this->studentsWithoutReports,
             'windowStart' => $windowStart,
             'windowEnd' => $windowEnd,
-            ])->layout('layouts.admin.app');
+        ])->layout('layouts.admin.app');
     }
 }

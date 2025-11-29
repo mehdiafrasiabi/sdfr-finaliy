@@ -38,7 +38,8 @@
 
                     <hr class="border-dashed">
                     <div class="live-preview">
-                        <form wire:submit="submit(Object.fromEntries(new FormData($event.target)))">
+                        <form  <form
+                            wire:submit="{{ $isEditing ? 'update(Object.fromEntries(new FormData($event.target)))' : 'submit(Object.fromEntries(new FormData($event.target)))' }}">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -177,7 +178,7 @@
                             <div class="col-lg-12">
                                 <div class="text-end">
                                     <button type="submit" class="btn btn-success">
-                                        <span wire:loading.remove>افزودن</span>
+                                        <span wire:loading.remove>{{ $isEditing ? 'بروزرسانی' : 'افزودن' }}</span>
                                         <span wire:loading="">
 
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
@@ -196,6 +197,12 @@
                                             </svg>
                                         </span>
                                     </button>
+                                    @if($isEditing)
+                                        <button type="button" class="btn btn-soft-secondary me-2" wire:click="cancelEdit"
+                                                wire:loading.attr="disabled">
+                                            انصراف
+                                        </button>
+                                    @endif
                                 </div>
                             </div>
                             <!--end col-->

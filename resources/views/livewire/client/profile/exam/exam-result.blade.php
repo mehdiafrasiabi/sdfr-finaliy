@@ -269,7 +269,7 @@
             </a>
         </div>
 <br>
-        <!-- ====== Header ====== -->
+        <!-- ====== Menu ====== -->
         <div class="mb-8">
             <div class="flex items-center gap-3 mb-6">
                 <div class="flex items-center gap-1">
@@ -559,7 +559,7 @@
 
                             <!-- Content -->
                             <div class="flex-1 p-4">
-                                <!-- Question Header -->
+                                <!-- Question Menu -->
                                 <div class="flex items-start justify-between gap-4 mb-3">
                                     <div class="flex items-center gap-3">
                                         <h3 class="font-bold text-lg text-slate-800 dark:text-slate-200">سوال {{ $q['number'] }}</h3>

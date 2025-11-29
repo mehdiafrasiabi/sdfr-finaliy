@@ -54,11 +54,10 @@ class Index extends Component
 
         // اگر جستجو فعال بود
         if ($this->search) {
-            $studentsQuery->whereHas('payment.order.user', function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%');
+            $studentsQuery->whereHas('user.personalInformation', function ($q) {
+                $q->where('name', 'like', '%' . $this->search . '%');
             });
         }
-
         $students = $studentsQuery->paginate(10);
 
         return view('livewire.admin.student.study-session.index',['students'=>$students])->layout('layouts.admin.app');

@@ -30,7 +30,7 @@ use App\Livewire\Client\Profile\Star;
 use App\Livewire\Client\Terms\Index as RuleIndex;
 use App\Livewire\Client\Product\Index as ProductIndex;
 use App\Livewire\Client\Cart\Index as CartIndex;
-use App\Livewire\Client\Payment\callback as PaymentCallback;
+use App\Livewire\Client\Payment\Callback as PaymentCallback;
 use App\Livewire\Client\Profile\Dashboard as ProfileDashboard;
 use App\Livewire\Client\Profile\Edit as ProfileEdit;
 use App\Livewire\Client\Profile\Financial as ProfileFinancial;

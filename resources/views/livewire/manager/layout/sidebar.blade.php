@@ -364,7 +364,7 @@
                     </li>
                 </ul>
             </div>
-            <!-- Sidebar -->
+            <!-- Navbar -->
         </div>
 
         <div class="sidebar-background"></div>

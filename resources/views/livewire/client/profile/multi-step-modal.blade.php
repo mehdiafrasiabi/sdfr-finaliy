@@ -1,6 +1,6 @@
 <div class="fixed inset-0 flex items-center justify-center z-50 bg-black/60">
     <div class="relative w-full max-w-sm my-20 overflow-hidden transition-all transform bg-background border border-border rounded-2xl shadow-2xl z-20 text-white">
-        <!-- Header -->
+        <!-- Menu -->
         <h3 class="text-2xl font-extrabold mb-6 text-center border-b border-gray-700 pb-3">
             فرم پیش جلسه مشاوره
         </h3>

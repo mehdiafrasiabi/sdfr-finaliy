@@ -391,7 +391,8 @@
                                                                 کنید
                                                             </li>
                                                         </ul>
-                                                    </div><!-- end alert:desc -->
+                                                    </div>
+                                                    <!-- end alert:desc -->
 
                                                     <!-- alert:actions -->
                                                     <div class="flex flex-wrap items-center gap-3 mt-5">
@@ -657,7 +658,7 @@
 
                                                         <div class="glass-box rounded-3xl p-6 md:p-8 space-y-6 animate-fade-in-up">
 
-                                                            <!-- Header -->
+                                                            <!-- Menu -->
 
                                                             <div class="text-center space-y-3 pb-6 border-b border-white/10">
 
