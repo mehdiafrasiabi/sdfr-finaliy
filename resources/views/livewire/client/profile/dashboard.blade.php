@@ -1752,9 +1752,7 @@
                     </div>
                     <!-- لایه تار با دکمه بزودی -->
 
-                    <div class="blur-overlay">
-                        <img src="/client/soon2.png" alt="بزودی">
-                    </div>
+
                 </div>
             </div>
 

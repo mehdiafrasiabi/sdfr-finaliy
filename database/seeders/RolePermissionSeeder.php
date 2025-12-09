@@ -154,6 +154,31 @@ class RolePermissionSeeder extends Seeder
             'publish_exams_for_academic_advisor',
 
             'upload weekly program',
+
+            // دسترسی‌های مدیریت بانک سوالات (Manager)
+
+            'manage_questions', // ساخت، ویرایش و حذف سوالات
+
+            'view_questions', // مشاهده سوالات
+
+
+
+            // دسترسی‌های مدیریت آزمون‌های تایپی (Manager)
+
+            'manage_typed_exams', // ساخت، ویرایش و حذف آزمون‌های تایپی
+
+            'view_typed_exams', // مشاهده آزمون‌های تایپی
+
+
+
+            // دسترسی‌های اختصاص و آمار آزمون (Admin)
+
+            'assign_typed_exams', // اختصاص آزمون به دانش‌آموز
+
+            'view_typed_exam_stats', // مشاهده آمار آزمون‌ها
+
+            'view_typed_exam_results', // مشاهده نتایج آزمون دانش‌آموزان
+
         ];
 
         //ایجاد دسترسی در دیتابیس
@@ -288,6 +313,17 @@ class RolePermissionSeeder extends Seeder
             'edit_report_cards_for_academic_support',
             'delete_report_cards_for_academic_support',
             'publish_report_cards_for_academic_support',
+            // دسترسی به آزمون‌های تایپی (فقط مشاهده و اختصاص)
+
+            'view_typed_exams',
+
+            'view_questions',
+
+            'assign_typed_exams',
+
+            'view_typed_exam_stats',
+
+            'view_typed_exam_results',
         ]);
 
         // نقش جدید مشاور تحصیلی
@@ -303,6 +339,18 @@ class RolePermissionSeeder extends Seeder
             'view_exams_for_academic_advisor',
             'create_exams_for_academic_advisor',
             'publish_exams_for_academic_advisor',
+
+            // دسترسی به آزمون‌های تایپی (فقط مشاهده و اختصاص)
+
+            'view_typed_exams',
+
+            'view_questions',
+
+            'assign_typed_exams',
+
+            'view_typed_exam_stats',
+
+            'view_typed_exam_results',
         ]);
 
         $superAdminUser = Admin::query()->firstOrCreate(

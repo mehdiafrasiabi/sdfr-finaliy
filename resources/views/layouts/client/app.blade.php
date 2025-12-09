@@ -3,6 +3,210 @@
 
 
 <head>
+    <style>
+        .bg-gray-300 {
+            background-color: oklch(0.872 0.01 258.338);
+        }
+        .text-gray-300 {
+            color: oklch(0.872 0.01 258.338);
+        }
+        .bg-gray-500 {
+            background-color: oklch(0.551 0.027 264.364);
+        }
+        .text-gray-500 {
+            color: oklch(0.551 0.027 264.364);
+        }
+        .bg-gray-400 {
+            background-color: #9ca3af;
+        }
+        .text-gray-400 {
+            color: #9ca3af;
+        }
+        .bg-gray-100 {
+            background-color: oklch(96.7% 0.003 264.542);
+        }
+        .text-gray-100 {
+            color: oklch(96.7% 0.003 264.542);
+        }
+        .bg-gray-200 {
+            background-color: oklch(92.8% 0.006 264.531);
+        }
+        .text-gray-200 {
+            color: oklch(92.8% 0.006 264.531);
+        }
+        .bg-gray-600 {
+            background-color: oklch(44.6% 0.03 256.802);
+        }
+        .text-gray-600 {
+            color: oklch(44.6% 0.03 256.802);
+        }
+        .bg-gray-700 {
+            background-color: oklch(37.3% 0.034 259.733);
+        }
+        .text-gray-700 {
+            color: oklch(37.3% 0.034 259.733);
+        }
+
+        .bg-green-500 {
+            background-color: #22c55e;
+        }
+        .text-green-500 {
+            color: #22c55e;
+        }
+        .text-green-100 {
+            color: oklch(0.962 0.044 156.743);
+        }
+        .bg-green-100 {
+            background-color: oklch(0.962 0.044 156.743);
+        }
+        .text-green-400 {
+            color: oklch(79.2% 0.209 151.711);
+        }
+        .bg-green-400 {
+            background-color: oklch(79.2% 0.209 151.711);
+        }
+
+        .bg-sky-500{
+            background-color: oklch(68.5% 0.169 237.323);
+        }
+        .text-sky-500{
+            background-color: oklch(68.5% 0.169 237.323);
+        }
+
+        .bg-red-100 {
+            background-color: oklch(93.6% 0.032 17.717);
+        }
+        .text-red-100 {
+            color: oklch(93.6% 0.032 17.717);
+        }
+        .bg-red-400 {
+            background-color: oklch(70.4% 0.191 22.216);
+        }
+        .text-red-400 {
+            color: oklch(70.4% 0.191 22.216);
+        }
+        .text-red-300 {
+            color: oklch(80.8% 0.114 19.571);
+        }
+        .text-red-500 {
+            color: oklch(63.7% 0.237 25.331);
+        }
+        .bg-red-600 {
+            background-color: oklch(57.7% 0.245 27.325);
+        }
+        .text-red-600 {
+            color: oklch(57.7% 0.245 27.325);
+        }
+
+        .bg-yellow-100 {
+            background-color: oklch(0.973 0.071 103.193);
+        }
+        .text-yellow-100 {
+            color: oklch(0.973 0.071 103.193);
+        }
+        .bg-yellow-600 {
+            background-color: oklch(0.681 0.162 75.834);
+        }
+        .text-yellow-600 {
+            color: oklch(0.681 0.162 75.834);
+        }
+
+
+        .bg-blue-100 {
+            background-color: oklch(93.2% 0.032 255.585);
+        }
+        .text-blue-100 {
+            color: oklch(93.2% 0.032 255.585);
+        }
+
+        .bg-blue-400 {
+            background-color:oklch(70.7% 0.165 254.624);
+        }
+        .text-blue-400 {
+            color: oklch(70.7% 0.165 254.624);
+        }
+
+
+        .bg-amber-300 {
+            background-color: oklch(87.9% 0.169 91.605);
+        }
+        .text-amber-300 {
+            color: oklch(87.9% 0.169 91.605);
+        }
+        .bg-amber-500 {
+            background-color: oklch(76.9% 0.188 70.08);
+        }
+        .text-amber-500 {
+            color: oklch(76.9% 0.188 70.08);
+        }
+
+
+
+        .bg-emerald-400 {
+            background-color: oklch(76.5% 0.177 163.223);
+        }
+        .text-emerald-400 {
+            color: oklch(76.5% 0.177 163.223);
+        }
+
+        .bg-sky-300 {
+            background-color: oklch(82.8% 0.111 230.318);
+        }
+        .text-sky-300 {
+            color: oklch(82.8% 0.111 230.318);
+        }
+        .bg-sky-500 {
+            background-color: oklch(68.5% 0.169 237.323);
+        }
+        .text-sky-500 {
+            color: oklch(68.5% 0.169 237.323);
+        }
+
+
+        .border-blue-500{
+            border-color: rgb(59 130 246);
+        }
+
+        .backdrop-blur-sm{
+            backdrop-filter: blur(4px);
+        }
+
+
+        .bg-black{
+            background-color: rgb(0 0 0);
+        }
+        .border-t-transparent{
+            border-top-color: transparent;
+
+        }
+
+        .bg-emerald-500{
+            background-color: oklch(69.6% 0.17 162.48);
+        }
+        .text-emerald-500{
+            color: oklch(69.6% 0.17 162.48);
+        }
+        .bg-lime-950{
+            background-color: oklch(27.4% 0.072 132.109);
+        }
+        .text-lime-950{
+            color: oklch(27.4% 0.072 132.109);
+        }
+        .bg-yellow-500{
+            background-color:oklch(79.5% 0.184 86.047);
+        }
+        .text-yellow-500{
+            color: oklch(79.5% 0.184 86.047);
+        }
+        .bg-yellow-600{
+            background-color:oklch(68.1% 0.162 75.834);
+        }
+        .text-yellow-600{
+            color:oklch(68.1% 0.162 75.834);
+        }
+
+    </style>
+
     @include('layouts.client.link')
     @include('layouts.client.pwa')
     <!-- برای iOS -->
@@ -99,10 +303,6 @@
     </div>
 
 
-
-
-
-
     <header class="bg-background/80 backdrop-blur-xl border-b border-border sticky top-0 z-30"
             x-data="{ offcanvasOpen: false }">
 
@@ -183,7 +383,7 @@
 
         try {
             deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
+            const {outcome} = await deferredPrompt.userChoice;
             console.log('✅ userChoice:', outcome);
 
             if (outcome === 'accepted') {

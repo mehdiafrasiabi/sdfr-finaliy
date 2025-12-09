@@ -4,9 +4,10 @@ use App\Livewire\Manager\AdminManage\Index as AdminManage;
 use App\Livewire\Manager\AssignStudents\Index as AssignStudents;
 use App\Livewire\Manager\Blog\Blog\Index;
 use App\Livewire\Manager\Blog\ExampleQuestion;
+
 use App\Livewire\Manager\Coupon\Index as CouponIndex;
 use App\Livewire\Manager\Dashboard\Analytics;
-
+use App\Livewire\Manager\Exam\QuestionManager;
 use App\Livewire\Manager\Advisors\Index as AdvisorIndex;
 use App\Livewire\Manager\Dashboard\Crm;
 use App\Livewire\Manager\Exam\ExamForm as ExamForm;
@@ -17,6 +18,9 @@ use App\Livewire\Manager\Map\City as MapCity;
 use App\Livewire\Manager\Payment\Index as PaymentIndex;
 use App\Livewire\Manager\Category\Index as CategoryIndex;
 use App\Livewire\Manager\Category\Feature as CategoryFeature;
+use App\Livewire\Manager\Questions\CkUpload as QuestionCkUpload;
+use App\Livewire\Manager\Questions\QuestionForm;
+use App\Livewire\Manager\Questions\QuestionList;
 use App\Livewire\Manager\ReceivedDocuments\ContactDocuments;
 use App\Livewire\Manager\ReceivedDocuments\ReportStudentStudy;
 use App\Livewire\Manager\Setting\ContactUs\Index as SettingContactUs;
@@ -28,6 +32,8 @@ use App\Livewire\Manager\Supports\Supporter as SupportIndex;
 use App\Livewire\Manager\Supports\SupporterStudent;
 use App\Livewire\Manager\Supports\SupporterStudentDetail;
 use App\Livewire\Manager\Task\TaskBoard;
+use App\Livewire\Manager\TypedExam\TypedExamList;
+use App\Livewire\Manager\TypedExam\TypedExamWizard;
 use App\Livewire\Manager\Users\Index as UserIndex;
 use App\Livewire\Manager\Users\Detail as UserDetail;
 use App\Livewire\Manager\Transaction\Index as TransactionIndex;
@@ -47,6 +53,15 @@ use App\Livewire\Manager\Advisors\AdvisorStudentDetail;
 use App\Livewire\Manager\Advisors\AdvisorStudents as AdvisorAssignStudents;
 
 use App\Livewire\Manager\Newsletter\Index as NewsletterIndex;
+
+
+use App\Livewire\Manager\Classification\Chapters;
+use App\Livewire\Manager\Classification\EducationLevels;
+use App\Livewire\Manager\Classification\Fields;
+use App\Livewire\Manager\Classification\Grades;
+use App\Livewire\Manager\Classification\Projects;
+use App\Livewire\Manager\Classification\Subjects;
+use App\Livewire\Manager\Classification\Topics;
 
 use Illuminate\Support\Facades\Route;
 
@@ -96,10 +111,14 @@ Route::name('manager.')->group(function () {
 
 // مسیر مدیریت آزمون‌ها
         Route::get('/exams', ExamIndex::class)->name('exam.index');
+        Route::get('/exams/questions', QuestionManager::class)->name('exam.questions');
+
+
         Route::get('/blog', Index::class)->name('blog.index');
         Route::get('blogs/{blog}/show', \App\Livewire\Manager\Blog\Blog\Show::class)->name('blog.show');
 
 // یک مسیر برای هر دو حالت ایجاد و ویرایش
+
         Route::get('/exams/form/{exam?}', ExamForm::class)->name('exam.form');
 
         Route::get('/tasks', TaskBoard::class)->name('task.board');
@@ -110,6 +129,44 @@ Route::name('manager.')->group(function () {
         Route::get('/advisors/students/{student}/detail', AdvisorStudentDetail::class)->name('advisors.students.detail');
 
         Route::get('/newsletter', NewsletterIndex::class)->name('newsletter');
+
+        // Question Bank Routes (بانک سوالات)
+
+        Route::get('/questions', QuestionList::class)->name('questions.index');
+
+        Route::get('/questions/form/{code?}', QuestionForm::class)->name('questions.form');
+
+        Route::post('/questions/ck-upload/{questionId?}', [QuestionCkUpload::class, 'upload'])->name('questions.ck-upload');
+
+
+
+        // Typed Exam Routes (آزمون‌های تایپی)
+
+        Route::get('/typed-exams', TypedExamList::class)->name('typed-exams.index');
+
+        Route::get('/typed-exams/form/{id?}', TypedExamWizard::class)->name('typed-exams.form');
+
+
+
+        // Classification Routes
+
+        Route::prefix('classification')->name('classification.')->group(function () {
+
+            Route::get('/education-levels', EducationLevels::class)->name('education-levels');
+
+            Route::get('/education-levels/{educationLevel}/grades', Grades::class)->name('grades');
+
+            Route::get('/fields', Fields::class)->name('fields');
+
+            Route::get('/education-levels/{educationLevel}/grades/{grade}/subjects', Subjects::class)->name('subjects');
+
+            Route::get('/subjects/{subject}/chapters', Chapters::class)->name('chapters');
+
+            Route::get('/chapters/{chapter}/topics', Topics::class)->name('topics');
+
+            Route::get('/projects', Projects::class)->name('projects');
+
+        });
 
     });
 

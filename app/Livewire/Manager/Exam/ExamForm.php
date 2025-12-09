@@ -12,8 +12,11 @@ class ExamForm extends Component
 {
     use WithFileUploads;
 
+    public string $grade = 'twelfth';
+    public string $major = 'math';
     public string $title = '';
     public string $level = 'medium';
+    public string $shuffle_mode = 'none';
     public string $number_of_questions = '';
     public $pdf_file;
     public $solution_pdf_file;
@@ -22,11 +25,38 @@ class ExamForm extends Component
     public $end_time;
     public $examKeys = [];
 
+    public array $gradeOptions = [
+        'tenth' => 'دهم',
+        'eleventh' => 'یازدهم',
+        'twelfth' => 'دوازدهم',
+    ];
+
+    public array $majorOptions = [
+        'tenth' => [
+            'math' => 'ریاضی',
+            'experimental' => 'تجربی',
+            'humanities' => 'انسانی',
+        ],
+        'eleventh' => [
+            'math' => 'ریاضی',
+            'experimental' => 'تجربی',
+            'humanities' => 'انسانی',
+        ],
+        'twelfth' => [
+            'math' => 'ریاضی',
+            'experimental' => 'تجربی',
+            'humanities' => 'انسانی',
+        ],
+    ];
+
     protected function rules()
     {
         return [
+            'grade' => 'required|in:tenth,eleventh,twelfth',
+            'major' => 'required|in:math,experimental,humanities',
             'title' => 'required|string|max:255',
             'level' => 'required|in:easy,medium,hard,comprehensive',
+            'shuffle_mode' => 'required|in:none,questions,options,both',
             'number_of_questions' => 'required|integer|min:1',
             'pdf_file' => 'required|file|mimes:pdf|max:10240',
             'solution_pdf_file' => 'nullable|file|mimes:pdf|max:10240',
@@ -50,7 +80,13 @@ class ExamForm extends Component
 
     public function mount()
     {
+        $this->major = array_key_first($this->majorOptions[$this->grade]) ?? 'math';
         $this->generateExamKeys();
+    }
+
+    public function updatedGrade(): void
+    {
+        $this->major = array_key_first($this->majorOptions[$this->grade]) ?? 'math';
     }
 
     public function updatedNumberOfQuestions()
@@ -86,8 +122,11 @@ class ExamForm extends Component
 
             // 🔹 ذخیره در دیتابیس
             $exam = Exam::create([
+                'grade' => $this->grade,
+                'major' => $this->major,
                 'title' => $this->title,
                 'level' => $this->level,
+                'shuffle_mode' => $this->shuffle_mode,
                 'number_of_questions' => $this->number_of_questions,
                 'duration_minutes' => $this->duration_minutes,
                 'pdf_path' => $questionPath,
@@ -114,11 +153,14 @@ class ExamForm extends Component
         });
 
         $this->dispatch('success', 'آزمون با موفقیت ایجاد شد.');
-        $this->reset(['title', 'level', 'number_of_questions', 'pdf_file', 'solution_pdf_file', 'duration_minutes', 'examKeys']);
+        $this->reset(['title', 'level', 'number_of_questions', 'pdf_file', 'solution_pdf_file', 'duration_minutes', 'examKeys', 'shuffle_mode']);
+        $this->grade = 'twelfth';
+        $this->major = array_key_first($this->majorOptions[$this->grade]) ?? 'math';
     }
 
     public function render()
     {
         return view('livewire.manager.exam.exam-form')->layout('layouts.manager.app');
     }
+
 }

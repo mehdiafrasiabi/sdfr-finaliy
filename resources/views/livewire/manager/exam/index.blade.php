@@ -16,6 +16,7 @@
 
                     <div class="col-md-6 text-end">
                         <a href="{{route('manager.exam.form')}}" class="btn btn-outline-primary text-end">اضافه کردن آزمون جدید</a>
+                        <a href="{{route('manager.exam.questions')}}" class="btn btn-outline-secondary text-end">آپلود سوال جدید</a>
 
                         <select wire:model.live="level" class="form-select w-auto d-inline-block">
                             <option value="">همه سطوح</option>
@@ -32,11 +33,15 @@
                         <thead>
                         <tr>
                             <th>#</th>
+                            <th>پایه</th>
+                            <th>رشته</th>
                             <th>عنوان</th>
                             <th>سطح</th>
                             <th>زمان شروع</th>
                             <th>زمان پایان</th>
                             <th>وضعیت</th>
+                            <th>تصادفی‌سازی</th>
+                            <th>خروجی PDF</th>
                             <th>عملیات</th>
                         </tr>
                         </thead>
@@ -44,6 +49,14 @@
                         @forelse ($exams as $exam)
                             <tr>
                                 <td>   {{ $loop->iteration }}</td>
+                                <td>{{ $exam->grade === 'tenth' ? 'دهم' : ($exam->grade === 'eleventh' ? 'یازدهم' : 'دوازدهم') }}</td>
+                                <td>
+                                    @switch($exam->major)
+                                        @case('math') ریاضی @break
+                                        @case('experimental') تجربی @break
+                                        @case('humanities') انسانی @break
+                                    @endswitch
+                                </td>
                                 <td>{{ $exam->title }}</td>
                                 <td>
                                     @if($exam->level == 'easy')
@@ -64,6 +77,17 @@
                                     @else
                                         <span class="badge bg-danger">غیرفعال</span>
                                     @endif
+                                </td>
+                                <td>
+                                    @switch($exam->shuffle_mode)
+                                        @case('questions') فقط سوالات @break
+                                        @case('options') فقط گزینه‌ها @break
+                                        @case('both') سوالات و گزینه‌ها @break
+                                        @default خیر
+                                    @endswitch
+                                </td>
+                                <td>
+                                    <a href="{{ asset($exam->pdf_path) }}" class="btn btn-sm btn-outline-secondary" target="_blank">دانلود سوالات</a>
                                 </td>
                                 <td>
                                     <button wire:click="deleteExam({{ $exam->id }})" wire:confirm="آیا از حذف این آزمون مطمئن هستید؟" class="btn btn-sm btn-danger">حذف</button>

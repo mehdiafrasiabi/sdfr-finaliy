@@ -104,7 +104,7 @@
                                                     </td>
 
                                                     <td class="p-5">
-                                                        <a wire:navigate href="{{route('client.profile.professionalTools.studySession')}}"
+                                                        <a href="{{route('client.profile.professionalTools.studySession')}}"
                                                            class="inline-flex items-center gap-x-1 text-cyan-400">
                                                             <span class="h-11 inline-flex items-center justify-center gap-3 bg-primary  rounded-full text-white px-4 mr-auto">مشاهده</span>
                                                         </a>

@@ -131,17 +131,34 @@
                 </a>
                 <ul class="menu-sub">
                     <li class="menu-item">
-                        <a class="menu-link" href="{{route('admin.student.exam.index')}}">
+                        <a class="menu-link" href="#">
                             <div>اختصاص آژمون</div>
                         </a>
                     </li>
                     <li class="menu-item">
-                        <a class="menu-link" href="{{route('admin.student.exam.students')}}">
+                        <a class="menu-link" href="#">
                             <div>برگزاری</div>
                         </a>
                     </li>
                 </ul>
             </li>
+
+            <li class="menu-item">
+                <a class="menu-link menu-toggle" href="javascript:void(0);">
+                    <i class="menu-icon  ti ti-align-box-left-bottom"></i>
+                    <div>طبقه بندی دروس</div>
+                </a>
+                <ul class="menu-sub">
+                    <li class="menu-item">
+                        <a class="menu-link"  href="{{route('admin.classification.dashboard')}}">
+                            <div>داشبورد</div>
+                        </a>
+                    </li>
+
+                </ul>
+            </li>
+
         </ul>
     </aside>
+
 </div>

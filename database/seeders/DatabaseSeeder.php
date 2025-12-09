@@ -29,11 +29,10 @@ class DatabaseSeeder extends Seeder
             PaymentMethodsTableSeeder::class,
             RolePermissionSeeder::class,
             DepartmentsTableSeeder::class,
-            ExamQuestionTableSeeder::class,
+
             BlogsTableSeeder::class,
             BlogImagesTableSeeder::class,
             BlogSeoItemsTableSeeder::class,
-            ExampleQuestionsTableSeeder::class,
             SdfrSchoolsTableSeeder::class,
             SdfrStudentsTableSeeder::class,
             StoriesTableSeeder::class,
@@ -43,11 +42,8 @@ class DatabaseSeeder extends Seeder
             PaymentsTableSeeder::class,
             StudentsTableSeeder::class,
             ReportsTableSeeder::class,
-            ExamsTableSeeder::class,
-            ExamKeysTableSeeder::class,
-            ExamStudentTableSeeder::class,
-            ExamAnalysesTableSeeder::class,
-            ExamAttemptsTableSeeder::class
+            SubjectSeeder::class,
+            TypedExamSeeder::class,
 
 
         ]);

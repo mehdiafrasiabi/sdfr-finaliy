@@ -6,8 +6,10 @@ use Illuminate\Support\Facades\File;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Drivers\Imagick\Driver as ImagickDriver;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
-
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\UploadedFile;
 trait UploadFile
 {
 
@@ -27,6 +29,30 @@ trait UploadFile
             ->save($path . '/' . pathinfo($photo->hashName(), PATHINFO_FILENAME) . '.webp');
 
 
+    }
+    protected function uploadImageInWebpFormatQuestion($photo, $id, $width, $height, $folder)
+    {
+        // برای questions از مسیر questions استفاده می‌کنیم
+        $path = public_path('questions/' . $id . '/' . $folder);
+
+        if (!file_exists($path)) {
+            mkdir($path, 0755, true);
+        }
+
+        $manager = new ImageManager(new Driver());
+
+        $image = $manager->read($photo->getRealPath());
+
+        // اگر width و height تعیین شده باشد
+        if ($width && $height) {
+            $image->scale($width, $height);
+        } else {
+            // محدود کردن سایز به 1200 پیکسل
+            $image->scaleDown(1200, 1200);
+        }
+
+        $image->toWebp(85)
+            ->save($path . '/' . pathinfo($photo->hashName(), PATHINFO_FILENAME) . '.webp');
     }
     protected function uploadImageInWebpFormatSdfrStudent($photo, $id, $width = null, $height = null, $folder = 'default')
     {
@@ -73,63 +99,68 @@ trait UploadFile
         return $filename;
     }
 
-protected function uploadImageInWebpFormatExamAnalisis($photo, $studentId, $width, $height, $folder)
-{
-    // اگر آرایه پاس شده بود اولین آیتم را بگیر
-    if (is_array($photo)) {
-        $photo = reset($photo);
+    protected function uploadImageInWebpFormatExamAnalisis($photo, $studentId, $width, $height, $folder)
+    {
+        // اگر آرایه پاس شده بود اولین آیتم را بگیر
+        if (is_array($photo)) {
+            $photo = reset($photo);
+        }
+
+        $isTemporary  = $photo instanceof TemporaryUploadedFile;
+        $isUploaded   = $photo instanceof UploadedFile;
+        $isStringPath = is_string($photo) && file_exists($photo);
+
+        if (! $isTemporary && ! $isUploaded && ! $isStringPath) {
+            Log::error('uploadImageInWebpFormatExamAnalisis: invalid $photo type', [
+                'type' => is_object($photo) ? get_class($photo) : gettype($photo),
+            ]);
+
+            return null;
+        }
+
+        // مسیر نسبی برای public (هرجور دوست داری این را تغییر بده)
+        // مثال: exam/students/{studentId}/{folder}
+        $relativeDir = "exam/students/{$studentId}/{$folder}";
+        $fullDir     = public_path($relativeDir);
+
+        if (! file_exists($fullDir)) {
+            mkdir($fullDir, 0755, true);
+        }
+
+        // ImageManager نسخه جدید (Intervention Image v3)
+        if (extension_loaded('imagick')) {
+            $manager = new ImageManager(new ImagickDriver());
+        } else {
+            $manager = new ImageManager(new Driver());
+        }
+
+        // مسیر منبع و نام اصلی فایل
+        if ($isTemporary || $isUploaded) {
+            $sourcePath   = $photo->getRealPath();
+            $originalName = method_exists($photo, 'getClientOriginalName')
+                ? $photo->getClientOriginalName()
+                : $photo->getFilename();
+        } else {
+            $sourcePath   = $photo;
+            $originalName = basename($photo);
+        }
+
+        // ساخت نام فایل امن
+        $base = pathinfo($originalName, PATHINFO_FILENAME);
+        $base = preg_replace('/[^A-Za-z0-9\-_]/', '-', $base);
+        $fileName = uniqid() . '-' . $base . '.webp';
+        $fullPath = $fullDir . '/' . $fileName;
+
+        // پردازش تصویر و ذخیره در فرمت webp
+        $image = $manager->read($sourcePath)
+            ->scaleDown($width, $height) // متد جدید معادل fit()
+            ->toWebp(85);
+
+        file_put_contents($fullPath, (string) $image);
+
+        // مسیر نسبی برای ذخیره در دیتابیس
+        return $relativeDir . '/' . $fileName;
     }
-
-    $isTemporary = $photo instanceof \Livewire\TemporaryUploadedFile;
-    $isUploaded = $photo instanceof \Illuminate\Http\UploadedFile;
-    $isStringPath = is_string($photo) && file_exists($photo);
-
-    if (! $isTemporary && ! $isUploaded && ! $isStringPath) {
-        \Log::error('uploadImageInWebpFormatExamAnalisis: invalid $photo type', [
-            'type' => is_object($photo) ? get_class($photo) : gettype($photo)
-        ]);
-        return null;
-    }
-
-    // مسیر نسبی و کامل برای ذخیره در public
-    $relativeDir = "exam/students/{$studentId}/{$folder}";
-    $fullDir = public_path($relativeDir);
-
-    if (! file_exists($fullDir)) {
-        mkdir($fullDir, 0755, true);
-    }
-
-    // ✅ نسخه جدید ImageManager (سازگار با Intervention Image v3)
-    if (extension_loaded('imagick')) {
-        $manager = new ImageManager(new ImagickDriver());
-    } else {
-        $manager = new ImageManager(new Driver());
-    }
-
-    // مسیر منبع و نام اصلی فایل
-    if ($isTemporary || $isUploaded) {
-        $sourcePath = $photo->getRealPath();
-        $originalName = method_exists($photo, 'getClientOriginalName') ? $photo->getClientOriginalName() : $photo->getFilename();
-    } else {
-        $sourcePath = $photo;
-        $originalName = basename($photo);
-    }
-
-    // ساخت نام فایل امن
-    $base = pathinfo($originalName, PATHINFO_FILENAME);
-    $base = preg_replace('/[^A-Za-z0-9\-_]/', '-', $base);
-    $fileName = uniqid() . '-' . $base . '.webp';
-    $fullPath = $fullDir . '/' . $fileName;
-
-    // پردازش تصویر و ذخیره در فرمت webp
-    $image = $manager->read($sourcePath)
-        ->scaleDown($width, $height) // متد جدید معادل fit()
-        ->toWebp(85);
-
-    file_put_contents($fullPath, (string) $image);
-
-    return $relativeDir . '/' . $fileName;
-}
 
 
 

@@ -9,6 +9,13 @@ use Livewire\Component;
 
 class PomodoroTimer extends Component
 {
+    protected $listeners = ['timerAborted' => 'stop'];
+
+    public $focusLength = 25;     // minutes
+    public $shortBreakLength = 5; // minutes
+    public $longBreakLength = 20; // minutes
+    public $autoStartNext = true;
+
     public $timeLeft;
     public $mode = 'focus';  // 'focus', 'shortBreak', 'longBreak'
     public $rounds = 0;      // تعداد دورهای مطالعه کامل شده
@@ -23,10 +30,10 @@ class PomodoroTimer extends Component
     public function setTimeByMode()
     {
         $this->timeLeft = match ($this->mode) {
-            'focus' => 25 * 60,
-            'shortBreak' => 5 * 60,
-            'longBreak' => 20 * 60,
-            default => 25 * 60,
+            'focus' => $this->focusLength * 60,
+            'shortBreak' => $this->shortBreakLength * 60,
+            'longBreak' => $this->longBreakLength * 60,
+            default => $this->focusLength * 60,
         };
     }
 
@@ -49,9 +56,24 @@ class PomodoroTimer extends Component
         $this->setTimeByMode();
     }
 
+    public function skipPhase()
+    {
+        $this->isRunning = false;
+
+        if ($this->mode === 'focus') {
+            $this->mode = $this->determineBreakAfterFocus();
+        } else {
+            $this->mode = 'focus';
+        }
+
+        $this->setTimeByMode();
+    }
+
     public function tick()
     {
-        if (!$this->isRunning) return;
+        if (!$this->isRunning) {
+            return;
+        }
 
         if ($this->timeLeft > 0) {
             $this->timeLeft--;
@@ -62,6 +84,7 @@ class PomodoroTimer extends Component
 
     protected function handleEnd()
     {
+        $completedMode = $this->mode;
         $studentId = Auth::user()->student->id ?? null;
         if (!$studentId) {
             // اگر دانش‌آموز لاگین نیست، تایمر رو متوقف کن
@@ -79,7 +102,7 @@ class PomodoroTimer extends Component
             'status' => 'completed',
         ]);
 
-        if ($this->mode === 'focus') {
+        if ($completedMode === 'focus') {
             $this->rounds++;
 
             if ($this->rounds % 4 === 0) {
@@ -95,16 +118,22 @@ class PomodoroTimer extends Component
 
         $this->setTimeByMode();
 
+        if ($completedMode === 'longBreak') {
+            $this->dispatchBrowserEvent('study-finished');
+        }
+
         $this->dispatchBrowserEvent('pomodoro-alarm');
+
+        $this->isRunning = $this->autoStartNext;
     }
 
     protected function timeDurationSeconds()
     {
         return match ($this->mode) {
-            'focus' => 25 * 60,
-            'shortBreak' => 5 * 60,
-            'longBreak' => 20 * 60,
-            default => 25 * 60,
+            'focus' => $this->focusLength * 60,
+            'shortBreak' => $this->shortBreakLength * 60,
+            'longBreak' => $this->longBreakLength * 60,
+            default => $this->focusLength * 60,
         };
     }
 
@@ -112,6 +141,12 @@ class PomodoroTimer extends Component
     {
         return $this->timeDurationSeconds() / 60;
     }
+
+    protected function determineBreakAfterFocus(): string
+    {
+        return (($this->rounds + 1) % 4 === 0) ? 'longBreak' : 'shortBreak';
+    }
+
     public function render()
     {
         return view('livewire.client.profile.professional-tools.pomodoro-timer')->layout('layouts.client.app');

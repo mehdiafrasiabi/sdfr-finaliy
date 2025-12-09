@@ -35,7 +35,8 @@
                     <li class="menu-title">
                         <span data-key="t-menu">منو</span></li>
                     <li class="nav-item">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.dashboard.analytics') ? 'active' : '' }}" href="#dashboard" data-bs-toggle="collapse" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.dashboard.analytics') ? 'active' : '' }}"
+                           href="#dashboard" data-bs-toggle="collapse" role="button"
                            aria-expanded="false" aria-controls="dashboard">
                             <i class="ri-dashboard-2-line"></i>
                             <span data-key="t-base-ui">پیشخوان</span>
@@ -59,7 +60,8 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.blog.exampleQuestion') ? 'active' : '' }}" href="#dashboard" data-bs-toggle="collapse" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.blog.exampleQuestion') ? 'active' : '' }}"
+                           href="#dashboard" data-bs-toggle="collapse" role="button"
                            aria-expanded="false" aria-controls="dashboard">
                             <i class="ri-dashboard-2-line"></i>
                             <span data-key="t-base-ui">بلاگ سایت</span>
@@ -104,7 +106,8 @@
                         </a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.order.index') ? 'active' : '' }}" href="#order" data-bs-toggle="collapse" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.order.index') ? 'active' : '' }}"
+                           href="#order" data-bs-toggle="collapse" role="button"
                            aria-expanded="false" aria-controls="order">
                             <i class=" ri-list-ordered"></i>
                             <span data-key="t-base-ui">سفارشات</span>
@@ -115,24 +118,29 @@
                                     <ul class="nav nav-sm flex-column">
 
                                         <li class="nav-item">
-                                            <a class="text-warning nav-link" data-key="t-basic" href="{{route('manager.order.index')}}?status=all"> کل
+                                            <a class="text-warning nav-link" data-key="t-basic"
+                                               href="{{route('manager.order.index')}}?status=all"> کل
 
                                                 سفارشات </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="text-secondary nav-link" data-key="t-basic" href="{{route('manager.order.index')}}?status=pending">
+                                            <a class="text-secondary nav-link" data-key="t-basic"
+                                               href="{{route('manager.order.index')}}?status=pending">
                                                 درانتظار </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="text-info nav-link"  data-key="t-basic"href="{{route('manager.order.index')}}?status=processing">
+                                            <a class="text-info nav-link" data-key="t-basic"
+                                               href="{{route('manager.order.index')}}?status=processing">
                                                 درحال پردازش </a>
                                         </li>
                                         <li class="nav-item ">
-                                            <a class="text-success nav-link" data-key="t-basic" href="{{route('manager.order.index')}}?status=completed">
+                                            <a class="text-success nav-link" data-key="t-basic"
+                                               href="{{route('manager.order.index')}}?status=completed">
                                                 کامل شده </a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="text-danger nav-link" data-key="t-basic" href="{{route('manager.order.index')}}?status=cancelled">
+                                            <a class="text-danger nav-link" data-key="t-basic"
+                                               href="{{route('manager.order.index')}}?status=cancelled">
                                                 لغوشده </a>
                                         </li>
                                     </ul>
@@ -142,7 +150,8 @@
 
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.transaction') ? 'active' : '' }}" href="#transaction" data-bs-toggle="collapse" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.transaction') ? 'active' : '' }}"
+                           href="#transaction" data-bs-toggle="collapse" role="button"
                            aria-expanded="false" aria-controls="transaction">
                             <i class=" ri-bank-card-2-line"></i>
                             <span data-key="t-base-ui">تراکنش ها</span>
@@ -153,14 +162,17 @@
                                     <ul class="nav nav-sm flex-column">
 
                                         <li class="nav-item">
-                                            <a href="{{route('manager.transaction')}}?status=all" class="nav-link text-info" data-key="t-basic">لیست تراکنش ها</a>
+                                            <a href="{{route('manager.transaction')}}?status=all"
+                                               class="nav-link text-info" data-key="t-basic">لیست تراکنش ها</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="{{route('manager.transaction')}}?status=completed" class="nav-link text-success"
+                                            <a href="{{route('manager.transaction')}}?status=completed"
+                                               class="nav-link text-success"
                                                data-key="t-basic">موفق</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="{{route('manager.transaction')}}?status=cancelled" class="nav-link text-danger"
+                                            <a href="{{route('manager.transaction')}}?status=cancelled"
+                                               class="nav-link text-danger"
                                                data-key="t-basic">نا موفق</a>
                                         </li>
                                     </ul>
@@ -171,7 +183,8 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.user') ? 'active' : '' }}" href="#sidebarUI" data-bs-toggle="collapse" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.user') ? 'active' : '' }}"
+                           href="#sidebarUI" data-bs-toggle="collapse" role="button"
                            aria-expanded="false" aria-controls="sidebarUI">
                             <i class="ri-user-6-line"></i>
                             <span data-key="t-base-ui">کاربران</span>
@@ -195,7 +208,8 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.student') ? 'active' : '' }}" href="#student" data-bs-toggle="collapse" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.student') ? 'active' : '' }}"
+                           href="#student" data-bs-toggle="collapse" role="button"
                            aria-expanded="false" aria-controls="student">
                             <i class=" ri-team-line"></i>
                             <span data-key="t-base-ui">دانش اموزان</span>
@@ -231,13 +245,70 @@
                         </div>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.exam.index') ? 'active' : '' }}" href="{{route('manager.exam.index')}}" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.exam.index') ? 'active' : '' }}"
+                           href="{{route('manager.exam.index')}}" role="button"
                            aria-expanded="false" aria-controls="sidebarDashboards">
                             <i class=" ri-archive-fill"></i> <span data-key="t-dashboards">آزمون ها </span>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.document') ? 'active' : '' }}" href="#document" data-bs-toggle="collapse" role="button"
+
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.classification.*') ? 'active' : '' }}"
+                           href="#classification" data-bs-toggle="collapse" role="button"
+
+                           aria-expanded="false" aria-controls="classification">
+
+                            <i class="ri-list-check-2"></i>
+
+                            <span data-key="t-base-ui">طبقه‌بندی دروس</span>
+
+                        </a>
+
+                        <div class="collapse menu-dropdown mega-dropdown-menu" id="classification">
+
+                            <div class="row">
+
+                                <div class="col-lg-4">
+
+                                    <ul class="nav nav-sm flex-column">
+
+                                        <li class="nav-item">
+
+                                            <a href="{{ route('manager.classification.education-levels') }}"
+                                               class="nav-link"
+
+                                               data-key="t-basic">دوره‌های تحصیلی</a>
+
+                                        </li>
+
+                                        <li class="nav-item">
+
+                                            <a href="{{ route('manager.classification.fields') }}" class="nav-link"
+
+                                               data-key="t-basic">رشته‌ها</a>
+
+                                        </li>
+
+                                        <li class="nav-item">
+
+                                            <a href="{{ route('manager.classification.projects') }}" class="nav-link"
+
+                                               data-key="t-basic">پروژه‌های طبقه‌بندی</a>
+
+                                        </li>
+
+                                    </ul>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.document') ? 'active' : '' }}"
+                           href="#document" data-bs-toggle="collapse" role="button"
                            aria-expanded="false" aria-controls="document">
                             <i class="  ri-file-line"></i>
                             <span data-key="t-base-ui">مستندات</span>
@@ -263,14 +334,16 @@
 
 
                     <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.story') ? 'active' : '' }}" href="{{route('manager.story')}}" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.story') ? 'active' : '' }}"
+                           href="{{route('manager.story')}}" role="button"
                            aria-expanded="false" aria-controls="sidebarDashboards">
                             <i class=" ri-youtube-line"></i> <span data-key="t-dashboards">استوری ها</span>
                         </a>
                     </li>
 
                     <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.map') ? 'active' : '' }}" href="#map" data-bs-toggle="collapse" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.map') ? 'active' : '' }}"
+                           href="#map" data-bs-toggle="collapse" role="button"
                            aria-expanded="false" aria-controls="map">
                             <i class="ri-map-pin-line"></i>
                             <span data-key="t-base-ui">مپ </span>
@@ -281,7 +354,8 @@
                                     <ul class="nav nav-sm flex-column">
 
                                         <li class="nav-item">
-                                            <a href="{{route('manager.map.country')}}" class="nav-link " data-key="t-basic">کشور ها</a>
+                                            <a href="{{route('manager.map.country')}}" class="nav-link "
+                                               data-key="t-basic">کشور ها</a>
                                         </li>
                                         <li class="nav-item">
                                             <a href="{{route('manager.map.state')}}" class="nav-link "
@@ -295,16 +369,24 @@
                                 </div>
                             </div>
                         </div>
-
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.paymentMethod') ? 'active' : '' }}" href="{{route('manager.paymentMethod')}}" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.education.structure') ? 'active' : '' }}"
+                           href="{{route('manager.education.structure')}}" role="button"
+                           aria-expanded="false" aria-controls="sidebarDashboards">
+                            <i class="ri-book-2-line"></i> <span data-key="t-dashboards">ساختار آموزشی</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.paymentMethod') ? 'active' : '' }}"
+                           href="{{route('manager.paymentMethod')}}" role="button"
                            aria-expanded="false" aria-controls="sidebarDashboards">
                             <i class=" ri-product-hunt-line"></i> <span data-key="t-dashboards">درگاه های پرداخت</span>
                         </a>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.ticket.index') ? 'active' : '' }}" href="#ticket" data-bs-toggle="collapse" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.ticket.index') ? 'active' : '' }}"
+                           href="#ticket" data-bs-toggle="collapse" role="button"
                            aria-expanded="false" aria-controls="ticket">
                             <i class=" ri-ticket-2-line"></i>
                             <span data-key="t-base-ui">تیکت و دپارتمان </span>
@@ -315,10 +397,12 @@
                                     <ul class="nav nav-sm flex-column">
 
                                         <li class="nav-item">
-                                            <a href="{{route('manager.department')}}" class="nav-link " data-key="t-basic">افزودن دپارتمان</a>
+                                            <a href="{{route('manager.department')}}" class="nav-link "
+                                               data-key="t-basic">افزودن دپارتمان</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="{{route('manager.ticket.index')}}" class="nav-link " data-key="t-basic">تیکت ها</a>
+                                            <a href="{{route('manager.ticket.index')}}" class="nav-link "
+                                               data-key="t-basic">تیکت ها</a>
                                         </li>
 
                                     </ul>
@@ -328,7 +412,8 @@
 
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.setting') ? 'active' : '' }}" href="#cotactUs" data-bs-toggle="collapse" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.setting') ? 'active' : '' }}"
+                           href="#cotactUs" data-bs-toggle="collapse" role="button"
                            aria-expanded="false" aria-controls="cotactUs">
                             <i class=" ri-settings-2-line"></i>
                             <span data-key="t-base-ui">تنظیمات </span>
@@ -340,15 +425,19 @@
 
 
                                         <li class="nav-item">
-                                            <a href="{{route('manager.setting.schoolSdfr')}}" class="nav-link " data-key="t-basic">حضور sdfr در هر مدرسه</a>
+                                            <a href="{{route('manager.setting.schoolSdfr')}}" class="nav-link "
+                                               data-key="t-basic">حضور sdfr در هر مدرسه</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="{{route('manager.setting.topStudent')}}" class="nav-link " data-key="t-basic">گوشه از لبخند ستارگان</a>
+                                            <a href="{{route('manager.setting.topStudent')}}" class="nav-link "
+                                               data-key="t-basic">گوشه از لبخند ستارگان</a>
                                         </li>
                                         <li class="nav-item ">
-                                            <a class="nav-link menu-link {{ request()->routeIs('manager.newsletter') ? 'active' : '' }}" href="{{route('manager.newsletter')}}" role="button"
+                                            <a class="nav-link menu-link {{ request()->routeIs('manager.newsletter') ? 'active' : '' }}"
+                                               href="{{route('manager.newsletter')}}" role="button"
                                                aria-expanded="false" aria-controls="sidebarDashboards">
-                                                <i class="ri-mail-send-line"></i> <span data-key="t-dashboards">خبرنامه</span>
+                                                <i class="ri-mail-send-line"></i> <span
+                                                    data-key="t-dashboards">خبرنامه</span>
                                             </a>
                                         </li>
                                         <li class="nav-item">

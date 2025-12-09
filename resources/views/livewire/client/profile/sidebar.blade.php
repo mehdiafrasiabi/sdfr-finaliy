@@ -50,11 +50,11 @@
                 <span class="font-semibold text-xs">
                     اطلاع رسانی
                        @if($unreadCount > 0)
-                        <span class="absolute" >
+                        <span class="absolute">
                                 <span
                                     class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                                 <span
-                                    class="relative inline-flex items-center justify-center rounded-full h-5 w-5 bg-primary text-primary-foreground font-bold text-xs" >
+                                    class="relative inline-flex items-center justify-center rounded-full h-5 w-5 bg-primary text-primary-foreground font-bold text-xs">
                                  {{ $unreadCount }}
                                 </span>
                       </span>
@@ -133,8 +133,8 @@
             </a>
         </li>
         <li>
-            <a wire:navigate href="{{route('client.profile.exam.list')}}"
-               class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.exam.list') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+            <a wire:navigate href="{{route('client.profile.typed-exam.list')}}"
+               class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.typed-exam.list') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                      class="feather feather-edit w-5 h-5">
@@ -143,6 +143,29 @@
                 </svg>
                 <span class="font-semibold text-xs">آزمون ها</span>
             </a>
+        </li>
+        <li>
+
+            <a wire:navigate href="{{route('client.profile.classification.projects')}}"
+
+               class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.classification') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+
+                     class="w-5 h-5">
+
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+
+                </svg>
+
+                <span class="font-semibold text-xs">طبقه‌بندی دروس</span>
+
+            </a>
+
         </li>
         <li>
             <a wire:navigate href="{{route('client.profile.reportStudentStudy')}}"

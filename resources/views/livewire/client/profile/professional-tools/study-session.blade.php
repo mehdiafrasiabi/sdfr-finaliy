@@ -141,9 +141,8 @@
                                 </div>
                             </div>
 
-                            <div class="relative  @if($sessions->isNotEmpty()) overflow-x-auto @endif">
+                            <div class="relative overflow-x-auto ">
                                 <table class="w-full text-sm text-right">
-                                    @if($sessions->isNotEmpty())
                                         <thead
                                             class="text-xs text-white uppercase bg-background border-b border-border">
                                         <tr>
@@ -193,17 +192,6 @@
                                         @endforeach
                                         </tbody>
 
-                                    @else
-                                        <div class="flex flex-col items-center justify-center space-y-12">
-                                            <img src="/client/assets/images/theme/empty.svg"
-                                                 class="w-full max-w-xs opacity-35" alt="..."/>
-                                            <div class="text-center space-y-3">
-                                                <h2 class="font-bold text-xl text-foreground">
-                                                    جلسه مشاوره برای شما وجود ندارد.
-                                                </h2>
-                                            </div>
-                                        </div>
-                                    @endif
                                 </table>
                             </div>
                             <div class="p-5 text-xs text-muted whitespace-nowrap text-white">

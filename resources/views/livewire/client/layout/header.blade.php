@@ -504,8 +504,8 @@
                             </a>
                         </li>
                         <li>
-                            <a wire:navigate href="{{route('client.profile.exam.list')}}"
-                               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full border border-border  {{ request()->routeIs('client.profile.exam.list') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+                            <a wire:navigate href="{{route('client.profile.typed-exam.list')}}"
+                               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full border border-border {{ request()->routeIs('client.profile.typed-exam.list') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                      fill="none"
                                      stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -515,6 +515,20 @@
                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                 </svg>
                                 <span class="font-semibold text-xs">ازمون ها</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a wire:navigate href="{{route('client.profile.classification.projects')}}"
+                               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full border border-border {{ request()->routeIs('client.profile.classification.projects') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     class="w-5 h-5">
+                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                                </svg>
+                                <span class="font-semibold text-xs">طبقه بندی</span>
                             </a>
                         </li>
                         <hr>
@@ -764,8 +778,8 @@
                             </a>
                         </li>
                         <li>
-                            <a  href="https://survey.porsline.ir/s/stlcBHD8"
-                                target="_blank"
+                            <a href="https://survey.porsline.ir/s/stlcBHD8"
+                               target="_blank"
                                class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

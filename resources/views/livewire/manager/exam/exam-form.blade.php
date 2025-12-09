@@ -9,11 +9,33 @@
             @endif
 
             <div class="row">
-                <div class="col-md-6 mb-3">
+                <div class="col-md-4 mb-3">
+                    <label for="grade" class="form-label">پایه</label>
+                    <select wire:model="grade" id="grade" class="form-select @error('grade') is-invalid @enderror">
+                        @foreach($this->gradeOptions as $value => $label)
+                            <option value="{{ $value }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    @error('grade') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label for="major" class="form-label">رشته مرتبط</label>
+                    <select wire:model="major" id="major" class="form-select @error('major') is-invalid @enderror">
+                        @foreach($this->majorOptions[$grade] as $value => $label)
+                            <option value="{{ $value }}">{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <small class="text-muted">لیست رشته‌ها بر اساس پایه انتخابی به‌روزرسانی می‌شود.</small>
+                    @error('major') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="col-md-4 mb-3">
                     <label for="title" class="form-label">عنوان آزمون</label>
                     <input type="text" wire:model.live="title" id="title" class="form-control @error('title') is-invalid @enderror">
                     @error('title') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
+            </div>
+
+            <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="level" class="form-label">سطح آزمون</label>
                     <select wire:model="level" id="level" class="form-select @error('level') is-invalid @enderror">
@@ -23,6 +45,16 @@
                         <option value="comprehensive">جامع</option>
                     </select>
                     @error('level') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label for="shuffle_mode" class="form-label">ترتیب سوالات/گزینه‌ها تصادفی باشد؟</label>
+                    <select wire:model="shuffle_mode" id="shuffle_mode" class="form-select @error('shuffle_mode') is-invalid @enderror">
+                        <option value="none">خیر</option>
+                        <option value="questions">بله، فقط سوالات</option>
+                        <option value="options">بله، فقط گزینه‌ها</option>
+                        <option value="both">بله، هر دو</option>
+                    </select>
+                    @error('shuffle_mode') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
             </div>
 
@@ -51,10 +83,29 @@
                     <input type="number" wire:model="duration_minutes" id="duration_minutes" class="form-control @error('duration_minutes') is-invalid @enderror" min="1">
                     @error('duration_minutes') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-                <div class="col-md-4 mb-3">
-                    <label for="number_of_questions" class="form-label">تعداد سوالات</label>
-                    <input type="number" wire:model.live="number_of_questions" id="number_of_questions" class="form-control @error('number_of_questions') is-invalid @enderror" min="1">
-                    @error('number_of_questions') <div class="invalid-feedback">{{ $message }}</div> @enderror
+            </div>
+
+            <div class="card my-3">
+                <div class="card-header">
+                    <h5 class="mb-0">انتخاب سوالات</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">ابتدا پایه و رشته را مشخص کنید، سپس سطح سوال و تعداد مورد نیاز را تعیین کنید تا بانک سوالات مناسب انتخاب شود.</p>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">پایه انتخاب‌شده</label>
+                            <div class="form-control bg-light" readonly>{{ $this->gradeOptions[$grade] ?? '' }}</div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">رشته انتخاب‌شده</label>
+                            <div class="form-control bg-light" readonly>{{ $this->majorOptions[$grade][$major] ?? '' }}</div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label for="number_of_questions" class="form-label">تعداد سوالات</label>
+                            <input type="number" wire:model.live="number_of_questions" id="number_of_questions" class="form-control @error('number_of_questions') is-invalid @enderror" min="1">
+                            @error('number_of_questions') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                    </div>
                 </div>
             </div>
 
