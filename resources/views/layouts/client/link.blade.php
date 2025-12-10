@@ -11,6 +11,9 @@
 <link href="/client/assets/css/custom-pagination2.css" rel="stylesheet" type="text/css" />
 <link href="/client/assets/js/story-player/styles.css" rel="stylesheet" type="text/css" />
 
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <style>
     #loadingOverlay {
         position: fixed;

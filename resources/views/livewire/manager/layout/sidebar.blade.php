@@ -370,13 +370,13 @@
                             </div>
                         </div>
                     </li>
-                    <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.education.structure') ? 'active' : '' }}"
-                           href="{{route('manager.education.structure')}}" role="button"
-                           aria-expanded="false" aria-controls="sidebarDashboards">
-                            <i class="ri-book-2-line"></i> <span data-key="t-dashboards">ساختار آموزشی</span>
-                        </a>
-                    </li>
+{{--                    <li class="nav-item ">--}}
+{{--                        <a class="nav-link menu-link {{ request()->routeIs('manager.education.structure') ? 'active' : '' }}"--}}
+{{--                           href="{{route('manager.education.structure')}}" role="button"--}}
+{{--                           aria-expanded="false" aria-controls="sidebarDashboards">--}}
+{{--                            <i class="ri-book-2-line"></i> <span data-key="t-dashboards">ساختار آموزشی</span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
                     <li class="nav-item ">
                         <a class="nav-link menu-link {{ request()->routeIs('manager.paymentMethod') ? 'active' : '' }}"
                            href="{{route('manager.paymentMethod')}}" role="button"

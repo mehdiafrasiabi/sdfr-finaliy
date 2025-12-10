@@ -44,6 +44,13 @@ use App\Livewire\Client\Shop\Index as ShopIndex;
 use App\Livewire\Client\Profile\Ticket\Index as ProfileTicketIndex;
 use App\Livewire\Client\Profile\Ticket\Show as ProfileTicketShow;
 use App\Livewire\Client\Profile\Ticket\Create as ProfileTicketCreate;
+
+use App\Livewire\Client\Profile\Consultation\SessionList as ConsultationSessionList;
+
+use App\Livewire\Client\Profile\Consultation\PreSessionWizard as ConsultationPreSessionWizard;
+
+use App\Livewire\Client\Profile\Consultation\WeeklyProgramView as ConsultationWeeklyProgramView;
+
 use Illuminate\Support\Facades\Route;
 
 Route::name('client.')->group(function () {
@@ -119,6 +126,18 @@ Route::name('client.')->group(function () {
             // Classification Routes
             Route::get('/classification', ProjectList::class)->name('classification.projects');
             Route::get('/{project}/classify/{grade}', Classify::class)->name('classification.classify');
+
+            // Consultation Routes (جلسات مشاوره)
+
+            Route::prefix('consultation')->name('consultation.')->group(function () {
+
+                Route::get('/sessions', ConsultationSessionList::class)->name('sessions');
+
+                Route::get('/session/{session}/pre-session', ConsultationPreSessionWizard::class)->name('pre-session');
+
+                Route::get('/weekly-program/{program}', ConsultationWeeklyProgramView::class)->name('weekly-program');
+
+            });
 
         });
 
