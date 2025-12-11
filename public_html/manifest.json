@@ -1,0 +1,75 @@
+{
+    "name": "SDFR",
+    "short_name": "SDFR",
+    "start_url": "/profile/dashboard",
+    "id": "/sdfr-pwa",
+    "display": "standalone",
+    "description": "SDFR",
+    "orientation": "portrait",
+    "background_color": "#000000",
+    "theme_color": "#2A69CF",
+    "scope": "/profile",
+
+    "icons": [{
+        "src": "/client/assets/logoPwa/logo48.png",
+        "sizes": "48x48",
+        "type": "image/png"
+    },
+        {
+            "src": "/client/assets/logoPwa/logo72.png",
+            "sizes": "72x72",
+            "type": "image/png"
+        },
+        {
+            "src": "/client/assets/logoPwa/logo96.png",
+            "sizes": "96x96",
+            "type": "image/png"
+        },
+        {
+            "src": "/client/assets/logoPwa/logo144.png",
+            "sizes": "144x144",
+            "type": "image/png"
+        },
+        {
+            "src": "/client/assets/logoPwa/logo120.png",
+            "sizes": "120x120",
+            "type": "image/png"
+        },
+        {
+            "src": "/client/assets/logoPwa/logo152.png",
+            "sizes": "152x152",
+            "type": "image/png"
+        },
+        {
+            "src": "/client/assets/logoPwa/logo168.png",
+            "sizes": "168x168",
+            "type": "image/png"
+        },
+        {
+            "src": "/client/assets/logoPwa/logo180.png",
+            "sizes": "180x180",
+            "type": "image/png"
+        },
+        {
+            "src": "/client/assets/logoPwa/logo192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/client/assets/logoPwa/logo256.png",
+            "sizes": "256x256",
+            "type": "image/png"
+        },
+        {
+            "src": "/client/assets/logoPwa/logo384.png",
+            "sizes": "384x384",
+            "type": "image/png"
+        },
+        {
+            "src": "/client/assets/logoPwa/logo512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }],
+    "categories": ["entertainment", "utilities"],
+    "prefer_related_applications": false
+}

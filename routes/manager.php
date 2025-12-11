@@ -4,7 +4,6 @@ use App\Livewire\Manager\AdminManage\Index as AdminManage;
 use App\Livewire\Manager\AssignStudents\Index as AssignStudents;
 use App\Livewire\Manager\Blog\Blog\Index;
 use App\Livewire\Manager\Blog\ExampleQuestion;
-
 use App\Livewire\Manager\Coupon\Index as CouponIndex;
 use App\Livewire\Manager\Dashboard\Analytics;
 use App\Livewire\Manager\Exam\QuestionManager;
@@ -47,14 +46,10 @@ use App\Livewire\Manager\Auth\Index as AuthIndex;
 use App\Livewire\Manager\Ticket\Department as DepartmentIndex;
 use App\Livewire\Manager\Ticket\Index as TicketIndex;
 use App\Livewire\Manager\Ticket\Show as TicketShow;
-
 use App\Livewire\Manager\Advisors\AdvisorStudent;
 use App\Livewire\Manager\Advisors\AdvisorStudentDetail;
 use App\Livewire\Manager\Advisors\AdvisorStudents as AdvisorAssignStudents;
-
 use App\Livewire\Manager\Newsletter\Index as NewsletterIndex;
-
-
 use App\Livewire\Manager\Classification\Chapters;
 use App\Livewire\Manager\Classification\EducationLevels;
 use App\Livewire\Manager\Classification\Fields;
@@ -62,7 +57,6 @@ use App\Livewire\Manager\Classification\Grades;
 use App\Livewire\Manager\Classification\Projects;
 use App\Livewire\Manager\Classification\Subjects;
 use App\Livewire\Manager\Classification\Topics;
-
 use Illuminate\Support\Facades\Route;
 
 

@@ -244,12 +244,30 @@
                             </div>
                         </div>
                     </li>
-                    <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.exam.index') ? 'active' : '' }}"
-                           href="{{route('manager.exam.index')}}" role="button"
-                           aria-expanded="false" aria-controls="sidebarDashboards">
-                            <i class=" ri-archive-fill"></i> <span data-key="t-dashboards">آزمون ها </span>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.typed-exams.index') ? 'active' : '' }} {{ request()->routeIs('manager.questions.index') ? 'active' : '' }}"
+                           href="#exams" data-bs-toggle="collapse" role="button"
+                           aria-expanded="false" aria-controls="exams">
+                            <i class=" ri-team-line"></i>
+                            <span data-key="t-base-ui">آزمون</span>
                         </a>
+                        <div class="collapse menu-dropdown mega-dropdown-menu" id="exams">
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <ul class="nav nav-sm flex-column">
+
+                                        <li class="nav-item">
+                                            <a href="{{ route('manager.typed-exams.index') }}" class="nav-link"
+                                               data-key="t-basic">ساخت آزمون</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{route('manager.questions.index')}}" class="nav-link"
+                                               data-key="t-basic">سوالات</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
                     </li>
                     <li class="nav-item">
 
@@ -455,7 +473,6 @@
             </div>
             <!-- Navbar -->
         </div>
-
         <div class="sidebar-background"></div>
     </div>
 </div>
