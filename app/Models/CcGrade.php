@@ -9,18 +9,36 @@ class CcGrade extends Model
 {
     use HasFactory;
 
-
-
     protected $guarded = [];
-
-
-
     protected $casts = [
-
         'is_active' => 'boolean',
-
     ];
+    // Field type constants
+    const FIELD_TYPE_NONE = 'A';       // بدون رشته
+    const FIELD_TYPE_MATH = 'B';       // ریاضی
+    const FIELD_TYPE_EXPERIMENTAL = 'C'; // تجربی
+    const FIELD_TYPE_HUMAN = 'D';      // انسانی
 
+    public static function getFieldTypes(): array
+    {
+        return [
+            self::FIELD_TYPE_NONE => 'بدون رشته',
+
+            self::FIELD_TYPE_MATH => 'ریاضی',
+
+            self::FIELD_TYPE_EXPERIMENTAL => 'تجربی',
+
+            self::FIELD_TYPE_HUMAN => 'انسانی',
+        ];
+    }
+
+    public function getFieldTypeLabelAttribute(): string
+
+    {
+
+        return self::getFieldTypes()[$this->field_type] ?? 'نامشخص';
+
+    }
 
 
     public function educationLevel()
@@ -31,7 +49,16 @@ class CcGrade extends Model
 
     }
 
+    public function field()
 
+    {
+        return $this->belongsTo(CcField::class, 'cc_field_id');
+    }
+    public function hasField(): bool
+    {
+        return $this->cc_field_id !== null;
+
+    }
 
     public function subjects()
 
@@ -40,7 +67,6 @@ class CcGrade extends Model
         return $this->hasMany(CcSubject::class);
 
     }
-
 
 
     public function scopeActive($query)
@@ -52,7 +78,6 @@ class CcGrade extends Model
     }
 
 
-
     public function scopeOrdered($query)
 
     {
@@ -60,7 +85,6 @@ class CcGrade extends Model
         return $query->orderBy('order');
 
     }
-
 
 
     public function getFullNameAttribute()

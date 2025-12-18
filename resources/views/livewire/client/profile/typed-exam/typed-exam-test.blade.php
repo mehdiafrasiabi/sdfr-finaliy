@@ -54,8 +54,7 @@
 }" x-init="init()" class="min-h-screen bg-background">
 
 
-
-<div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+    <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
         <!-- Top Info Card -->
 
@@ -308,45 +307,85 @@
 
                                 <!-- Question Body -->
                                 <div class="p-6">
-                                    <div class="prose text-white prose-sm dark:prose-invert max-w-none mb-5"
-                                         dir="{{ $question->direction ?? 'rtl' }}">
-                                        {!! $question->content?->body !!}
-                                    </div>
 
-                                    <!-- Options -->
-                                    <div class="space-y-3">
-                                        @foreach($options as $optIndex => $option)
+                                    <!-- Question Image -->
+
+                                    @if($question->content?->question_image_url)
+
+                                        <div class="mb-6 question-image-container">
+
+                                            <img src="{{ $question->content->question_image_url }}"
+
+                                                 alt="تصویر سوال {{ $index + 1 }}"
+
+                                                 class="w-full max-w-3xl mx-auto rounded-xl shadow-lg"
+
+                                                 loading="lazy">
+
+                                        </div>
+
+                                    @elseif($question->content?->body)
+
+                                        <!-- Fallback to text if no image -->
+
+                                        <div class="prose text-white prose-sm dark:prose-invert max-w-none mb-5"
+                                             dir="rtl">
+
+                                            {!! $question->content?->body !!}
+
+                                        </div>
+
+                                    @else
+
+                                        <div class="text-center py-8 text-muted">
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-2"
+                                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+
+                                            </svg>
+
+                                            <p>تصویر سوال موجود نیست</p>
+
+                                        </div>
+
+                                    @endif
+
+
+
+                                    <!-- Options - Simple numbered buttons -->
+
+                                    <div class="flex flex-wrap justify-center gap-4 mt-6">
+
+                                        @foreach([1, 2, 3, 4] as $optNum)
+
                                             @php
-                                                $isSelected  = $selected === $option->option_number;
-                                                $optionLabel = ['الف', 'ب', 'ج', 'د'][$optIndex] ?? ($optIndex + 1);
+
+                                                $isSelected = $selected === $optNum;
+
+                                                $optionLabel = ['۱', '۲', '۳', '۴'][$optNum - 1];
+
                                             @endphp
 
+
+
                                             <button
-                                                wire:click="selectAnswer({{ $question->id }}, {{ $option->option_number }})"
-                                                class="w-full text-right p-4 rounded-xl border-2 transition-all
-                                       {{ $isSelected ? 'border-primary bg-primary/10' : 'border-border bg-background hover:border-primary/50 hover:bg-primary/5' }}"
+
+                                                wire:click="selectAnswer({{ $question->id }}, {{ $optNum }})"
+
+                                                class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 transition-all flex items-center justify-center text-2xl sm:text-3xl font-bold
+
+                                                    {{ $isSelected
+
+                                                        ? 'border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-105'
+
+                                                        : 'border-border bg-background hover:border-primary/50 hover:bg-primary/10 text-foreground' }}"
+
                                             >
-                                                <div class="flex items-start gap-4">
-                                    <span class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm
-                                                 {{ $isSelected ? 'bg-primary text-primary-foreground' : 'bg-secondary text-foreground' }}">
-                                        {{ $optionLabel }}
-                                    </span>
 
-                                                    <div class="flex-1 prose prose-sm dark:prose-invert text-foreground"
-                                                         style="margin-right: 20px">
-                                                        {!! $option->content !!}
-                                                    </div>
-
-                                                    @if($isSelected)
-                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                             class="w-6 h-6 text-primary flex-shrink-0" fill="none"
-                                                             viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                  stroke-width="2"
-                                                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                        </svg>
-                                                    @endif
-                                                </div>
+                                                {{ $optionLabel }}
                                             </button>
                                         @endforeach
                                     </div>
@@ -626,6 +665,51 @@
             .prose table td {
                 border: 1px solid #e5e7eb;
                 padding: 0.5rem;
+            }
+
+            /* Question Image Responsive Styles */
+
+            .question-image-container img {
+
+                max-width: 100%;
+
+                height: auto;
+
+                object-fit: contain;
+
+            }
+
+
+            @media (max-width: 640px) {
+
+                .question-image-container img {
+
+                    max-height: 50vh;
+
+                }
+
+            }
+
+
+            @media (min-width: 641px) and (max-width: 1024px) {
+
+                .question-image-container img {
+
+                    max-height: 60vh;
+
+                }
+
+            }
+
+
+            @media (min-width: 1025px) {
+
+                .question-image-container img {
+
+                    max-height: 70vh;
+
+                }
+
             }
         </style>
 

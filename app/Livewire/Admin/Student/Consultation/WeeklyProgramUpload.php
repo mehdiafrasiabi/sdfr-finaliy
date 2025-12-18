@@ -11,6 +11,12 @@ use App\Models\AdvisingPreSession;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Models\EducationLevel;
+use App\Models\CcGrade;
+use App\Models\CcField;
+use App\Models\CcSubject;
+use App\Models\CcChapter;
+use App\Models\CcTopic;
 
 class WeeklyProgramUpload extends Component
 {
@@ -34,17 +40,27 @@ class WeeklyProgramUpload extends Component
     // Modal
     public bool $showPartModal = false;
     public ?int $editingPartId = null;
-
     public array $partForm = [
-        'lesson_id' => '',
+        'education_level_id' => '',
+        'cc_grade_id' => '',
+        'cc_field_id' => '',
+        'cc_subject_id' => '',
+        'cc_chapter_id' => '',
+        'cc_topic_id' => '',
         'lesson_name' => '',
         'description' => '',
         'duration_minutes' => 60,
         'test_count' => null,
         'part_type' => 'descriptive',
         'lesson_type' => 'specialized',
-        'grade' => '10',
+        'grade' => '',
     ];
+
+    public $grades = [];
+    public $fields = [];
+    public $subjects = [];
+    public $chapters = [];
+    public $topics = [];
 
     protected function messages()
     {
@@ -152,15 +168,146 @@ class WeeklyProgramUpload extends Component
     {
         $this->editingPartId = null;
         $this->partForm = [
-            'lesson_id' => '',
+            'education_level_id' => '',
+
+            'cc_grade_id' => '',
+
+            'cc_field_id' => '',
+
+            'cc_subject_id' => '',
+
+            'cc_chapter_id' => '',
+
+            'cc_topic_id' => '',
+
             'lesson_name' => '',
+
             'description' => '',
+
             'duration_minutes' => 60,
+
             'test_count' => null,
+
             'part_type' => 'descriptive',
+
             'lesson_type' => 'specialized',
-            'grade' => '10',
+
+            'grade' => '',
+
         ];
+        $this->grades = [];
+        $this->fields = [];
+        $this->subjects = [];
+        $this->chapters = [];
+        $this->topics = [];
+    }
+
+    public function updatedPartFormEducationLevelId($value): void
+    {
+        $this->partForm['cc_grade_id'] = '';
+        $this->partForm['cc_field_id'] = '';
+        $this->partForm['cc_subject_id'] = '';
+        $this->partForm['cc_chapter_id'] = '';
+        $this->partForm['cc_topic_id'] = '';
+        $this->subjects = [];
+        $this->chapters = [];
+        $this->topics = [];
+
+        if ($value) {
+            $this->grades = CcGrade::where('education_level_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+        } else {
+            $this->grades = [];
+        }
+        $this->fields = CcField::active()->ordered()->get();
+    }
+
+    public function updatedPartFormCcGradeId($value): void
+    {
+        $this->partForm['cc_subject_id'] = '';
+        $this->partForm['cc_chapter_id'] = '';
+        $this->partForm['cc_topic_id'] = '';
+        $this->chapters = [];
+        $this->topics = [];
+        if ($value) {
+            $grade = CcGrade::find($value);
+            if ($grade) {
+                $this->partForm['grade'] = $grade->grade_number;
+            }
+            // بررسی رشته‌های مربوط به این پایه
+            $fieldId = $this->partForm['cc_field_id'] ?: null;
+            $this->subjects = CcSubject::where('cc_grade_id', $value)
+                ->when($fieldId, fn($q) => $q->where('cc_field_id', $fieldId))
+                ->when(!$fieldId, fn($q) => $q->whereNull('cc_field_id'))
+                ->orderBy('order')
+                ->get();
+        } else {
+            $this->subjects = [];
+        }
+    }
+
+    public function updatedPartFormCcFieldId($value): void
+    {
+        $this->partForm['cc_subject_id'] = '';
+        $this->partForm['cc_chapter_id'] = '';
+        $this->partForm['cc_topic_id'] = '';
+        $this->chapters = [];
+        $this->topics = [];
+        if ($this->partForm['cc_grade_id']) {
+            $this->subjects = CcSubject::where('cc_grade_id', $this->partForm['cc_grade_id'])
+                ->when($value, fn($q) => $q->where('cc_field_id', $value))
+                ->when(!$value, fn($q) => $q->whereNull('cc_field_id'))
+                ->orderBy('order')
+                ->get();
+        }
+    }
+
+    public function updatedPartFormCcSubjectId($value): void
+    {
+        $this->partForm['cc_chapter_id'] = '';
+        $this->partForm['cc_topic_id'] = '';
+        $this->topics = [];
+
+        if ($value) {
+            $subject = CcSubject::find($value);
+            if ($subject) {
+                $this->partForm['lesson_name'] = $subject->name;
+                $this->partForm['lesson_type'] = $subject->type;
+            }
+            $this->chapters = CcChapter::where('cc_subject_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+        } else {
+            $this->chapters = [];
+        }
+    }
+
+    public function updatedPartFormCcChapterId($value): void
+    {
+        $this->partForm['cc_topic_id'] = '';
+        if ($value) {
+            $this->topics = CcTopic::where('cc_chapter_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+        } else {
+            $this->topics = [];
+        }
+    }
+
+    public function updatedPartFormCcTopicId($value): void
+    {
+        if ($value) {
+            $topic = CcTopic::with('chapter.subject')->find($value);
+            if ($topic) {
+                $chapter = $topic->chapter;
+                $subject = $chapter->subject;
+                $this->partForm['description'] = $subject->name . ' » ' . $chapter->name . ' » ' . $topic->name;
+            }
+        }
     }
 
     public function closePartModal(): void
@@ -169,34 +316,31 @@ class WeeklyProgramUpload extends Component
         $this->resetPartForm();
     }
 
-    public function selectLesson($lessonId): void
-    {
-        $lesson = Lesson::find($lessonId);
-
-        if (!$lesson) {
-            return;
-        }
-
-        $this->partForm['lesson_id'] = $lesson->id;
-        $this->partForm['lesson_name'] = $lesson->name;
-        $this->partForm['lesson_type'] = $lesson->type;
-        $this->partForm['grade'] = $lesson->grade;
-    }
-
     public function savePart(): void
     {
         $this->validate([
-            'partForm.lesson_name' => 'required|string|max:255',
+            'partForm.cc_subject_id' => 'required|exists:cc_subjects,id',
             'partForm.duration_minutes' => 'required|integer|min:1',
             'partForm.part_type' => 'required|in:test,descriptive,video',
-            'partForm.lesson_type' => 'required|in:general,specialized',
-        ], $this->messages());
+        ], [
+            'partForm.cc_subject_id.required' => 'انتخاب درس الزامی است.',
+            'partForm.duration_minutes.required' => 'مدت زمان الزامی است.',
+            'partForm.duration_minutes.min' => 'مدت زمان باید حداقل ۱ دقیقه باشد.',
+            'partForm.part_type.required' => 'نوع پارت الزامی است.',
+        ]);
+
+        $gradeValue = $this->partForm['grade'] !== '' && $this->partForm['grade'] !== null
+            ? (string) $this->partForm['grade']
+            : null;
+
 
         // اول خود برنامه را ذخیره/آپدیت کن
         $this->saveProgram();
-
         $partDate = Carbon::parse($this->start_date)->addDays($this->selectedDay);
-
+        // دریافت اطلاعات درس
+        $subject = CcSubject::find($this->partForm['cc_subject_id']);
+        $lessonName = $subject ? $subject->name : $this->partForm['lesson_name'];
+        $lessonType = $subject ? $subject->type : 'specialized';
         if ($this->editingPartId) {
             // ویرایش پارت موجود
             $part = ProgramPart::find($this->editingPartId);
@@ -204,32 +348,29 @@ class WeeklyProgramUpload extends Component
             if (!$part) {
                 return;
             }
-
             $part->update([
-                'lesson_id' => $this->partForm['lesson_id'] ?: null,
-                'lesson_name' => $this->partForm['lesson_name'],
+                'lesson_id' => null,
+                'lesson_name' => $lessonName,
                 'description' => $this->partForm['description'],
                 'duration_minutes' => $this->partForm['duration_minutes'],
                 'test_count' => $this->partForm['test_count'],
                 'part_type' => $this->partForm['part_type'],
-                'lesson_type' => $this->partForm['lesson_type'],
-                'grade' => $this->partForm['grade'],
+                'lesson_type' => $lessonType,
+                'grade' => $gradeValue,
             ]);
         } else {
             // چک حداکثر ۱۰ پارت
             $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
                 ->where('day_of_week', $this->selectedDay)
                 ->count();
-
             if ($existingCount >= 10) {
                 $this->dispatch('warning', 'حداکثر ۱۰ پارت برای هر روز مجاز است.');
                 return;
             }
-
             ProgramPart::create([
                 'weekly_program_id' => $this->weeklyProgramId,
-                'lesson_id' => $this->partForm['lesson_id'] ?: null,
-                'lesson_name' => $this->partForm['lesson_name'],
+                'lesson_id' => null,
+                'lesson_name' => $lessonName,
                 'part_date' => $partDate,
                 'day_of_week' => $this->selectedDay,
                 'part_order' => $existingCount + 1,
@@ -237,8 +378,8 @@ class WeeklyProgramUpload extends Component
                 'duration_minutes' => $this->partForm['duration_minutes'],
                 'test_count' => $this->partForm['test_count'],
                 'part_type' => $this->partForm['part_type'],
-                'lesson_type' => $this->partForm['lesson_type'],
-                'grade' => $this->partForm['grade'],
+                'lesson_type' => $lessonType,
+                'grade' => $gradeValue,
             ]);
         }
 
@@ -308,47 +449,53 @@ class WeeklyProgramUpload extends Component
 
     public function render()
     {
-        $student = Student::with(['user.personalInformation', 'advisor'])->find($this->studentId);
-        $lessons = Lesson::active()->get();
+        $student = Student::with(['user.personalInformation', 'advisor', 'supporter'])->find($this->studentId);
         $weeklyProgram = $this->weeklyProgramId
             ? WeeklyProgram::with('parts')->find($this->weeklyProgramId)
             : null;
-
-        // محاسبه روزهای هفته
+        // دوره‌های تحصیلی
+        $educationLevels = EducationLevel::active()->ordered()->get();
+        // محاسبه روزهای هفته با نام روز صحیح فارسی
         $weekDays = [];
-        $dayNames = ['شنبه', '۱شنبه', '۲شنبه', '۳شنبه', '۴شنبه', '۵شنبه', 'جمعه'];
+        $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
         $startDate = $this->start_date
             ? Carbon::parse($this->start_date)
             : Carbon::tomorrow();
-
         for ($i = 0; $i < 7; $i++) {
             $date = $startDate->copy()->addDays($i);
             $dayParts = $weeklyProgram
                 ? $weeklyProgram->parts()->where('day_of_week', $i)->orderBy('part_order')->get()
                 : collect();
 
+            // محاسبه روز هفته واقعی از تاریخ
+            $jalaliDate = jdate($date);
+            $dayOfWeek = $jalaliDate->getDayOfWeek(); // 0 = شنبه، 6 = جمعه
+            $dayName = $jalaliDayNames[$dayOfWeek];
             $weekDays[] = [
                 'index' => $i,
-                'name' => $dayNames[$i],
+                'name' => $dayName,
                 'date' => $date,
-                'jalali_date' => jdate($date)->format('m/d'),
+                'jalali_date' => $jalaliDate->format('Y/m/d'),
                 'parts' => $dayParts,
                 'total_hours' => round($dayParts->sum('duration_minutes') / 60, 1),
                 'total_tests' => $dayParts->sum('test_count') ?? 0,
             ];
         }
-
         $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
             ->with(['advisingSession', 'exams', 'assignments', 'qas', 'miscellaneous'])
             ->latest()
             ->get();
-
+        // نام مشاور و پشتیبان از دیتابیس student
+        $advisorName = $student->advisor?->name ?? '-';
+        $supporterName = $student->supporter?->name ?? '-';
         return view('livewire.admin.student.consultation.weekly-program-upload', [
             'student' => $student,
-            'lessons' => $lessons,
+            'educationLevels' => $educationLevels,
             'weeklyProgram' => $weeklyProgram,
             'weekDays' => $weekDays,
             'preSessions' => $preSessions,
+            'advisorName' => $advisorName,
+            'supporterName' => $supporterName,
         ])->layout('layouts.admin.app');
     }
 }

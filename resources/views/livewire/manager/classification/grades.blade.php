@@ -101,7 +101,21 @@
 
 
                             <div class="mb-3">
-
+                                <label for="cc_field_id" class="form-label">رشته پایه</label>
+                                <select wire:model="cc_field_id"
+                                        class="form-select @error('cc_field_id') is-invalid @enderror"
+                                        id="cc_field_id">
+                                    <option value="">بدون رشته (متوسطه اول)</option>
+                                    @foreach($fields as $field)
+                                        <option value="{{ $field->id }}">{{ $field->name }}</option>
+                                    @endforeach
+                                </select>
+                                @error('cc_field_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="text-muted">برای متوسطه اول خالی بگذارید</small>
+                            </div>
+                            <div class="mb-3">
                                 <label for="order" class="form-label">ترتیب نمایش</label>
 
                                 <input type="number" wire:model="order"
@@ -212,6 +226,7 @@
                                     <th>نام پایه</th>
 
                                     <th style="width: 100px;">شماره پایه</th>
+                                    <th style="width: 120px;">رشته</th>
 
                                     <th style="width: 100px;">ترتیب</th>
 
@@ -245,13 +260,26 @@
 
                                         </td>
 
+
                                         <td>
 
                                             <span
                                                 class="badge bg-primary-subtle text-primary">{{ $grade->grade_number }}</span>
 
                                         </td>
+                                        <td>
 
+                                            @if($grade->field)
+
+                                                <span class="badge bg-warning-subtle text-warning">{{ $grade->field->name }}</span>
+
+                                            @else
+
+                                                <span class="text-muted">-</span>
+
+                                            @endif
+
+                                        </td>
                                         <td>{{ $grade->order }}</td>
 
                                         <td>
@@ -318,7 +346,7 @@
 
                                     <tr>
 
-                                        <td colspan="7" class="text-center py-4">
+                                        <td colspan="8" class="text-center py-4">
 
                                             <div class="text-muted">
 

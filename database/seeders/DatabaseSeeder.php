@@ -43,9 +43,8 @@ class DatabaseSeeder extends Seeder
             StudentsTableSeeder::class,
             ReportsTableSeeder::class,
             SubjectSeeder::class,
-            TypedExamSeeder::class,
-
-
+            CcFieldSeeder::class,
+            ExamPeriodSeeder::class,
         ]);
 
 

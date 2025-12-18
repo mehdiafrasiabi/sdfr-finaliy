@@ -16,7 +16,7 @@ class ProgramPart extends Model
 
 
     protected $casts = [
-
+        'grade' => 'string',
         'part_date' => 'date',
 
     ];
@@ -136,49 +136,5 @@ class ProgramPart extends Model
 
     }
 
-
-    // رنگ بر اساس درس (برای UI)
-
-    public function getColorClassAttribute(): string
-
-    {
-
-        $colors = [
-
-            'شیمی' => 'from-green-100 to-green-200 text-green-800 border-green-300',
-
-            'فیزیک' => 'from-blue-100 to-blue-200 text-blue-800 border-blue-300',
-
-            'ریاضی' => 'from-purple-100 to-purple-200 text-purple-800 border-purple-300',
-
-            'هندسه' => 'from-orange-100 to-orange-200 text-orange-800 border-orange-300',
-
-            'زیست' => 'from-teal-100 to-teal-200 text-teal-800 border-teal-300',
-
-            'ادبیات' => 'from-red-100 to-red-200 text-red-800 border-red-300',
-
-            'عربی' => 'from-yellow-100 to-yellow-200 text-yellow-800 border-yellow-300',
-
-            'دین' => 'from-indigo-100 to-indigo-200 text-indigo-800 border-indigo-300',
-
-            'زبان' => 'from-pink-100 to-pink-200 text-pink-800 border-pink-300',
-
-        ];
-
-
-        foreach ($colors as $key => $class) {
-
-            if (str_contains($this->lesson_name, $key)) {
-
-                return $class;
-
-            }
-
-        }
-
-
-        return 'from-gray-100 to-gray-200 text-gray-800 border-gray-300';
-
-    }
 
 }

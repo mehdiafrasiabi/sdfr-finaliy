@@ -1,25 +1,38 @@
 <?php
 
+
 namespace App\Livewire\Manager\Questions;
 
 
+use App\Models\CcChapter;
+
+use App\Models\CcField;
+
+use App\Models\CcGrade;
+
+use App\Models\CcSubject;
+
+use App\Models\CcTopic;
+
+use App\Models\EducationLevel;
 
 use App\Models\Question;
 
 use App\Models\QuestionContent;
 
-use App\Models\QuestionOption;
-
-use App\Models\Subject;
-
 use App\Traits\UploadFile;
 
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Facades\File;
+
+use Intervention\Image\ImageManager;
+
+use Intervention\Image\Drivers\Gd\Driver;
+
 use Livewire\Component;
 
 use Livewire\WithFileUploads;
-
 
 
 class QuestionForm extends Component
@@ -29,77 +42,106 @@ class QuestionForm extends Component
     use WithFileUploads, UploadFile;
 
 
-
     // Question basic info
 
     public ?string $questionCode = null;
 
     public ?int $questionId = null;
 
-    public string $subject_id = '';
-
     public string $difficulty = 'medium';
 
-    public string $direction = 'rtl';
+    public int $correctOption = 1; // گزینه صحیح (1-4)
 
 
+    // Hierarchical filter
 
-    // Question content
+    public string $educationLevelId = '';
 
-    public string $body = '';
+    public string $gradeId = '';
 
-    public string $explanation = '';
+    public string $fieldId = '';
+
+    public string $subjectId = '';
+
+    public string $chapterId = '';
+
+    public string $topicId = '';
 
 
+    // Collections for dropdowns
 
-    // Options (4 options)
+    public $educationLevels = [];
 
-    public array $options = [
+    public $grades = [];
 
-        1 => ['content' => '', 'is_correct' => false],
+    public $fields = [];
 
-        2 => ['content' => '', 'is_correct' => false],
+    public $subjects = [];
 
-        3 => ['content' => '', 'is_correct' => false],
+    public $chapters = [];
 
-        4 => ['content' => '', 'is_correct' => false],
+    public $topics = [];
 
-    ];
 
+    // Image uploads
+
+    public $questionImage;
+
+    public $explanationImage;
+
+
+    // Existing images for edit mode
+
+    public ?string $existingQuestionImage = null;
+
+    public ?string $existingExplanationImage = null;
 
 
     public bool $isEditMode = false;
-
 
 
     protected function rules(): array
 
     {
 
-        return [
+        $rules = [
 
-            'subject_id' => 'required|exists:subjects,id',
+            'educationLevelId' => 'required|exists:education_levels,id',
+
+            'gradeId' => 'required|exists:cc_grades,id',
+
+            'subjectId' => 'required|exists:cc_subjects,id',
+
+            'chapterId' => 'required|exists:cc_chapters,id',
+
+            'topicId' => 'required|exists:cc_topics,id',
 
             'difficulty' => 'required|in:easy,medium,hard,special',
 
-            'direction' => 'required|in:rtl,ltr',
-
-            'body' => 'required|string|min:10',
-
-            'explanation' => 'nullable|string',
-
-            'options.1.content' => 'required|string',
-
-            'options.2.content' => 'required|string',
-
-            'options.3.content' => 'required|string',
-
-            'options.4.content' => 'required|string',
+            'correctOption' => 'required|integer|min:1|max:4',
 
         ];
 
-    }
 
+        // اگر در حالت ویرایش نیست یا عکس موجود ندارد، عکس سوال اجباری است
+
+        if (!$this->isEditMode || !$this->existingQuestionImage) {
+
+            $rules['questionImage'] = 'required|image|max:5120'; // max 5MB
+
+        } else {
+
+            $rules['questionImage'] = 'nullable|image|max:5120';
+
+        }
+
+
+        $rules['explanationImage'] = 'nullable|image|max:5120';
+
+
+        return $rules;
+
+    }
 
 
     protected function messages(): array
@@ -108,35 +150,45 @@ class QuestionForm extends Component
 
         return [
 
-            'subject_id.required' => 'انتخاب درس الزامی است.',
+            'educationLevelId.required' => 'انتخاب دوره تحصیلی الزامی است.',
 
-            'subject_id.exists' => 'درس انتخاب شده معتبر نیست.',
+            'gradeId.required' => 'انتخاب پایه الزامی است.',
+
+            'subjectId.required' => 'انتخاب درس الزامی است.',
+
+            'chapterId.required' => 'انتخاب فصل الزامی است.',
+
+            'topicId.required' => 'انتخاب مبحث الزامی است.',
 
             'difficulty.required' => 'انتخاب سطح سختی الزامی است.',
 
-            'direction.required' => 'انتخاب جهت نمایش الزامی است.',
+            'correctOption.required' => 'انتخاب گزینه صحیح الزامی است.',
 
-            'body.required' => 'متن سوال الزامی است.',
+            'correctOption.min' => 'گزینه صحیح باید بین ۱ تا ۴ باشد.',
 
-            'body.min' => 'متن سوال باید حداقل ۱۰ کاراکتر باشد.',
+            'correctOption.max' => 'گزینه صحیح باید بین ۱ تا ۴ باشد.',
 
-            'options.1.content.required' => 'گزینه ۱ الزامی است.',
+            'questionImage.required' => 'آپلود عکس سوال الزامی است.',
 
-            'options.2.content.required' => 'گزینه ۲ الزامی است.',
+            'questionImage.image' => 'فایل باید تصویر باشد.',
 
-            'options.3.content.required' => 'گزینه ۳ الزامی است.',
+            'questionImage.max' => 'حجم تصویر نباید بیشتر از ۵ مگابایت باشد.',
 
-            'options.4.content.required' => 'گزینه ۴ الزامی است.',
+            'explanationImage.image' => 'فایل باید تصویر باشد.',
+
+            'explanationImage.max' => 'حجم تصویر نباید بیشتر از ۵ مگابایت باشد.',
 
         ];
 
     }
 
 
-
     public function mount(?string $code = null): void
 
     {
+
+        $this->educationLevels = EducationLevel::where('is_active', true)->orderBy('order')->get();
+
 
         if ($code) {
 
@@ -147,17 +199,13 @@ class QuestionForm extends Component
     }
 
 
-
     protected function loadQuestion(string $code): void
 
     {
 
-        $question = Question::with(['content', 'options', 'subject'])
-
+        $question = Question::with(['content', 'topic.chapter.subject.grade.educationLevel'])
             ->where('code', $code)
-
             ->firstOrFail();
-
 
 
         $this->isEditMode = true;
@@ -166,67 +214,244 @@ class QuestionForm extends Component
 
         $this->questionCode = $question->code;
 
-        $this->subject_id = (string) $question->subject_id;
-
         $this->difficulty = $question->difficulty;
 
-        $this->direction = $question->direction;
-
-        $this->body = $question->content?->body ?? '';
-
-        $this->explanation = $question->content?->explanation ?? '';
+        $this->correctOption = $question->correct_option ?? 1;
 
 
+        // Load hierarchical data
 
-        foreach ($question->options as $option) {
+        if ($question->topic) {
 
-            $this->options[$option->option_number] = [
+            $topic = $question->topic;
 
-                'content' => $option->content,
+            $chapter = $topic->chapter;
 
-                'is_correct' => $option->is_correct,
+            $subject = $chapter->subject;
 
-            ];
+            $grade = $subject->grade;
+
+            $educationLevel = $grade->educationLevel;
+
+
+            $this->educationLevelId = (string)$educationLevel->id;
+
+            $this->updatedEducationLevelId($this->educationLevelId);
+
+
+            $this->gradeId = (string)$grade->id;
+
+            $this->updatedGradeId($this->gradeId);
+
+
+            if ($subject->cc_field_id) {
+
+                $this->fieldId = (string)$subject->cc_field_id;
+
+                $this->updatedFieldId($this->fieldId);
+
+            }
+
+
+            $this->subjectId = (string)$subject->id;
+
+            $this->updatedSubjectId($this->subjectId);
+
+
+            $this->chapterId = (string)$chapter->id;
+
+            $this->updatedChapterId($this->chapterId);
+
+
+            $this->topicId = (string)$topic->id;
+
+        }
+
+
+        // Load existing images
+
+        if ($question->content) {
+
+            $this->existingQuestionImage = $question->content->question_image_url;
+
+            $this->existingExplanationImage = $question->content->explanation_image_url;
 
         }
 
     }
 
 
+    // Cascade dropdowns
 
-    public function setCorrectOption(int $optionNumber): void
+    public function updatedEducationLevelId($value): void
 
     {
 
-        foreach ($this->options as $key => $option) {
+        $this->reset(['gradeId', 'fieldId', 'subjectId', 'chapterId', 'topicId']);
 
-            $this->options[$key]['is_correct'] = ($key === $optionNumber);
+        $this->grades = [];
+
+        $this->fields = [];
+
+        $this->subjects = [];
+
+        $this->chapters = [];
+
+        $this->topics = [];
+
+
+        if ($value) {
+
+            $this->grades = CcGrade::where('education_level_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
 
         }
 
     }
 
+
+    public function updatedGradeId($value): void
+
+    {
+
+        $this->reset(['fieldId', 'subjectId', 'chapterId', 'topicId']);
+
+        $this->fields = [];
+
+        $this->subjects = [];
+
+        $this->chapters = [];
+
+        $this->topics = [];
+
+
+        if ($value) {
+
+            $grade = CcGrade::find($value);
+
+
+            // اگر پایه ۱۰ یا بالاتر است، رشته‌ها را نمایش بده
+
+            if ($grade && $grade->grade_number >= 10) {
+
+                $this->fields = CcField::where('is_active', true)
+                    ->orderBy('order')
+                    ->get();
+
+            } else {
+
+                // برای پایه‌های زیر ۱۰، درس‌ها را مستقیماً نمایش بده
+
+                $this->subjects = CcSubject::where('cc_grade_id', $value)
+                    ->orderBy('order')
+                    ->get();
+
+            }
+
+        }
+
+    }
+
+
+    public function updatedFieldId($value): void
+
+    {
+
+        $this->reset(['subjectId', 'chapterId', 'topicId']);
+
+        $this->subjects = [];
+
+        $this->chapters = [];
+
+        $this->topics = [];
+
+
+        if ($value && $this->gradeId) {
+
+            $this->subjects = CcSubject::where('cc_grade_id', $this->gradeId)
+                ->where(function ($q) use ($value) {
+
+                    $q->where('cc_field_id', $value)
+                        ->orWhereNull('cc_field_id');
+
+                })
+                ->orderBy('order')
+                ->get();
+
+        }
+
+    }
+
+
+    public function updatedSubjectId($value): void
+
+    {
+
+        $this->reset(['chapterId', 'topicId']);
+
+        $this->chapters = [];
+
+        $this->topics = [];
+
+
+        if ($value) {
+
+            $this->chapters = CcChapter::where('cc_subject_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+        }
+
+    }
+
+
+    public function updatedChapterId($value): void
+
+    {
+
+        $this->reset(['topicId']);
+
+        $this->topics = [];
+
+
+        if ($value) {
+
+            $this->topics = CcTopic::where('cc_chapter_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+        }
+
+    }
+
+
+    public function removeQuestionImage(): void
+
+    {
+
+        $this->questionImage = null;
+
+    }
+
+
+    public function removeExplanationImage(): void
+
+    {
+
+        $this->explanationImage = null;
+
+    }
 
 
     public function save(): void
 
     {
+
         $this->validate();
-
-
-
-        // Check at least one correct option
-
-        $hasCorrectOption = collect($this->options)->contains('is_correct', true);
-
-        if (!$hasCorrectOption) {
-
-            $this->addError('options', 'لطفاً یک گزینه را به عنوان پاسخ صحیح انتخاب کنید.');
-
-            return;
-
-        }
-
 
 
         DB::transaction(function () {
@@ -244,9 +469,7 @@ class QuestionForm extends Component
         });
 
 
-
         $this->dispatch('success', $this->isEditMode ? 'سوال با موفقیت ویرایش شد.' : 'سوال با موفقیت ایجاد شد.');
-
 
 
         if (!$this->isEditMode) {
@@ -258,63 +481,64 @@ class QuestionForm extends Component
     }
 
 
-
     protected function createQuestion(): void
 
     {
 
         $code = Question::generateUniqueCode();
 
+        $folderHash = sha1($code . now()->timestamp . uniqid());
 
 
         $question = Question::create([
 
             'code' => $code,
 
-            'subject_id' => $this->subject_id,
+            'subject_id' => $this->subjectId,
+
+            'cc_topic_id' => $this->topicId,
 
             'difficulty' => $this->difficulty,
 
-            'direction' => $this->direction,
+            'correct_option' => $this->correctOption,
 
         ]);
 
+
+        // آپلود عکس‌ها
+
+        $questionImageName = $this->uploadQuestionImage($this->questionImage, $folderHash);
+
+        $explanationImageName = null;
+
+
+        if ($this->explanationImage) {
+
+            $explanationImageName = $this->uploadQuestionImage($this->explanationImage, $folderHash, 'explanation');
+
+        }
 
 
         QuestionContent::create([
 
             'question_id' => $question->id,
 
-            'body' => $this->body,
+            'question_image' => $questionImageName,
 
-            'explanation' => $this->explanation,
+            'folder_hash' => $folderHash,
+
+            'explanation_image' => $explanationImageName,
+
+            'body' => '', // برای سازگاری با migration قبلی
+
+            'explanation' => '',
 
         ]);
-
-
-
-        foreach ($this->options as $number => $option) {
-
-            QuestionOption::create([
-
-                'question_id' => $question->id,
-
-                'option_number' => $number,
-
-                'content' => $option['content'],
-
-                'is_correct' => $option['is_correct'],
-
-            ]);
-
-        }
-
 
 
         $this->questionCode = $code;
 
     }
-
 
 
     protected function updateQuestion(): void
@@ -324,61 +548,141 @@ class QuestionForm extends Component
         $question = Question::findOrFail($this->questionId);
 
 
-
         $question->update([
 
-            'subject_id' => $this->subject_id,
+            'subject_id' => $this->subjectId,
+
+            'cc_topic_id' => $this->topicId,
 
             'difficulty' => $this->difficulty,
 
-            'direction' => $this->direction,
+            'correct_option' => $this->correctOption,
 
         ]);
 
 
+        $content = $question->content;
 
-        $question->content()->updateOrCreate(
-
-            ['question_id' => $question->id],
-
-            [
-
-                'body' => $this->body,
-
-                'explanation' => $this->explanation,
-
-            ]
-
-        );
+        $folderHash = $content->folder_hash ?? sha1($question->code . now()->timestamp . uniqid());
 
 
+        $data = ['folder_hash' => $folderHash];
 
-        foreach ($this->options as $number => $option) {
 
-            QuestionOption::updateOrCreate(
+        // آپلود عکس جدید سوال اگر وجود دارد
 
-                [
+        if ($this->questionImage) {
 
-                    'question_id' => $question->id,
+            // حذف عکس قبلی
 
-                    'option_number' => $number,
+            if ($content && $content->question_image) {
 
-                ],
+                $oldPath = public_path("questions/{$content->folder_hash}/{$content->question_image}");
 
-                [
+                if (File::exists($oldPath)) {
 
-                    'content' => $option['content'],
+                    File::delete($oldPath);
 
-                    'is_correct' => $option['is_correct'],
+                }
 
-                ]
+            }
 
-            );
+            $data['question_image'] = $this->uploadQuestionImage($this->questionImage, $folderHash);
+
+        }
+
+
+        // آپلود عکس جدید پاسخ تشریحی اگر وجود دارد
+
+        if ($this->explanationImage) {
+
+            // حذف عکس قبلی
+
+            if ($content && $content->explanation_image) {
+
+                $oldPath = public_path("questions/{$content->folder_hash}/{$content->explanation_image}");
+
+                if (File::exists($oldPath)) {
+
+                    File::delete($oldPath);
+
+                }
+
+            }
+
+            $data['explanation_image'] = $this->uploadQuestionImage($this->explanationImage, $folderHash, 'explanation');
+
+        }
+
+
+        if ($content) {
+
+            $content->update($data);
+
+        } else {
+
+            $data['question_id'] = $question->id;
+
+            $data['body'] = '';
+
+            $data['explanation'] = '';
+
+            QuestionContent::create($data);
 
         }
 
     }
 
+
+    /**
+     * آپلود و تبدیل عکس به WebP
+     */
+
+    protected function uploadQuestionImage($photo, string $folderHash, string $type = 'question'): string
+
+    {
+
+        $path = public_path("questions/{$folderHash}");
+
+
+        if (!File::exists($path)) {
+
+            File::makeDirectory($path, 0755, true);
+
+        }
+
+
+        $manager = new ImageManager(new Driver());
+
+
+        // نام فایل hash شده
+
+        $filename = sha1($photo->getClientOriginalName() . now()->timestamp . uniqid()) . '.webp';
+
+
+        $image = $manager->read($photo->getRealPath());
+
+
+        // محدود کردن سایز به 1200 پیکسل برای کیفیت خوب در همه سایزها
+
+        $image->scaleDown(1200, 1200);
+
+
+        $image->toWebp(85)->save($path . '/' . $filename);
+
+
+        // حذف فایل temp
+
+        if (file_exists($photo->getRealPath())) {
+
+            unlink($photo->getRealPath());
+
+        }
+
+
+        return $filename;
+
+    }
 
 
     protected function resetForm(): void
@@ -387,39 +691,36 @@ class QuestionForm extends Component
 
         $this->reset([
 
-            'subject_id', 'difficulty', 'direction',
+            'difficulty', 'correctOption', 'questionCode', 'questionId',
 
-            'body', 'explanation', 'questionCode', 'questionId'
+            'educationLevelId', 'gradeId', 'fieldId', 'subjectId', 'chapterId', 'topicId',
+
+            'questionImage', 'explanationImage', 'existingQuestionImage', 'existingExplanationImage'
 
         ]);
 
         $this->difficulty = 'medium';
 
-        $this->direction = 'rtl';
+        $this->correctOption = 1;
 
-        $this->options = [
+        $this->grades = [];
 
-            1 => ['content' => '', 'is_correct' => false],
+        $this->fields = [];
 
-            2 => ['content' => '', 'is_correct' => false],
+        $this->subjects = [];
 
-            3 => ['content' => '', 'is_correct' => false],
+        $this->chapters = [];
 
-            4 => ['content' => '', 'is_correct' => false],
-
-        ];
+        $this->topics = [];
 
         $this->isEditMode = false;
 
     }
 
 
-
     public function render()
 
     {
-
-        $subjects = Subject::active()->orderBy('name')->get();
 
         $difficulties = [
 
@@ -433,19 +734,23 @@ class QuestionForm extends Component
 
         ];
 
-        $directions = [
 
-            'rtl' => 'از راست به چپ',
+        // بررسی نیاز به نمایش فیلد رشته
 
-            'ltr' => 'از چپ به راست',
+        $showFieldSelect = false;
 
-        ];
+        if ($this->gradeId) {
 
+            $grade = CcGrade::find($this->gradeId);
+
+            $showFieldSelect = $grade && $grade->grade_number >= 10;
+
+        }
 
 
         return view('livewire.manager.questions.question-form', compact(
 
-            'subjects', 'difficulties', 'directions'
+            'difficulties', 'showFieldSelect'
 
         ))->layout('layouts.manager.app');
 

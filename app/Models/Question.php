@@ -26,7 +26,6 @@ class Question extends Model
 
     protected $guarded = [];
 
-
     /**
      * درس مرتبط
      */
@@ -41,7 +40,20 @@ class Question extends Model
 
 
     /**
-     * محتوای سوال (متن و توضیحات)
+     * مبحث مرتبط
+     */
+
+    public function topic(): BelongsTo
+
+    {
+
+        return $this->belongsTo(CcTopic::class, 'cc_topic_id');
+
+    }
+
+
+    /**
+     * محتوای سوال (عکس و توضیحات)
      */
 
     public function content(): HasOne
@@ -67,17 +79,16 @@ class Question extends Model
 
 
     /**
-     * گزینه صحیح
+     * گزینه صحیح (1-4)
      */
 
-    public function correctOption(): HasOne
+    public function getCorrectOptionNumberAttribute(): ?int
 
     {
 
-        return $this->hasOne(QuestionOption::class)->where('is_correct', true);
+        return $this->correct_option;
 
     }
-
 
     /**
      * آزمون‌هایی که این سوال در آن‌ها هست

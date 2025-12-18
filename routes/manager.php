@@ -11,6 +11,7 @@ use App\Livewire\Manager\Advisors\Index as AdvisorIndex;
 use App\Livewire\Manager\Dashboard\Crm;
 use App\Livewire\Manager\Exam\ExamForm as ExamForm;
 use App\Livewire\Manager\Exam\Index as ExamIndex;
+use App\Livewire\Manager\ExamPeriods\ExamPeriodIndex;
 use App\Livewire\Manager\Map\Country as MapCountry;
 use App\Livewire\Manager\Map\State as MapState;
 use App\Livewire\Manager\Map\City as MapCity;
@@ -57,6 +58,7 @@ use App\Livewire\Manager\Classification\Grades;
 use App\Livewire\Manager\Classification\Projects;
 use App\Livewire\Manager\Classification\Subjects;
 use App\Livewire\Manager\Classification\Topics;
+use App\Livewire\Manager\Notification\Index as NotificationIndex;
 use Illuminate\Support\Facades\Route;
 
 
@@ -113,6 +115,10 @@ Route::name('manager.')->group(function () {
 
 // یک مسیر برای هر دو حالت ایجاد و ویرایش
 
+        // Notification Routes (اطلاع‌رسانی)
+
+        Route::get('/notification', NotificationIndex::class)->name('notification');
+
         Route::get('/exams/form/{exam?}', ExamForm::class)->name('exam.form');
 
         Route::get('/tasks', TaskBoard::class)->name('task.board');
@@ -131,16 +137,14 @@ Route::name('manager.')->group(function () {
         Route::get('/questions/form/{code?}', QuestionForm::class)->name('questions.form');
 
         Route::post('/questions/ck-upload/{questionId?}', [QuestionCkUpload::class, 'upload'])->name('questions.ck-upload');
-
-
-
+        
         // Typed Exam Routes (آزمون‌های تایپی)
 
         Route::get('/typed-exams', TypedExamList::class)->name('typed-exams.index');
 
         Route::get('/typed-exams/form/{id?}', TypedExamWizard::class)->name('typed-exams.form');
 
-
+        Route::get('/academic-year', ExamPeriodIndex::class)->name('academicYear');
 
         // Classification Routes
 

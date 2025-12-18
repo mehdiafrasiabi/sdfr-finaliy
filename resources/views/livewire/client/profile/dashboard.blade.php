@@ -29,10 +29,9 @@
                 overflow-y: auto;
                 border-radius: 24px;
                 background: linear-gradient(145deg, #1a1f35, #141829);
-                box-shadow:
-                    0 25px 60px rgba(0, 0, 0, 0.5),
-                    0 0 0 1px rgba(255, 255, 255, 0.08),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.08),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
                 transform: scale(0.95) translateY(20px);
                 opacity: 0;
                 transition: all 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -124,8 +123,12 @@
             }
 
             @keyframes shine {
-                0%, 100% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-                50% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+                0%, 100% {
+                    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+                }
+                50% {
+                    transform: translateX(100%) translateY(100%) rotate(45deg);
+                }
             }
 
             /* لیست ویژگی‌ها */
@@ -169,9 +172,8 @@
                 cursor: pointer;
                 overflow: hidden;
                 transition: all 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
-                box-shadow:
-                    0 12px 35px rgba(99, 102, 241, 0.4),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+                box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
             }
 
             .welcome-button::before {
@@ -189,16 +191,14 @@
 
             .welcome-button:hover {
                 transform: translateY(-2px) scale(1.02);
-                box-shadow:
-                    0 16px 45px rgba(99, 102, 241, 0.5),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+                box-shadow: 0 16px 45px rgba(99, 102, 241, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
             }
 
             .welcome-button:active {
                 transform: translateY(1px) scale(0.98);
-                box-shadow:
-                    0 8px 25px rgba(99, 102, 241, 0.3),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
             }
 
             /* بهبود Typography */
@@ -263,105 +263,6 @@
     @endpush
     <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
-        <div id="welcome-modal" class="welcome-modal-wrapper hidden opacity-0">
-            <div class="welcome-modal-card">
-                <!-- Confetti Effect -->
-                <div class="welcome-confetti">
-                    @for($i = 0; $i < 30; $i++)
-                        <span style="
-                            top: {{ rand(15, 85) }}%;
-                            left: {{ rand(10, 90) }}%;
-                            --tx: {{ rand(-80, 80) }};
-                            --ty: {{ rand(50, 140) }};
-                            --i: {{ $i }};
-                            background: {{ ['#8b5cf6', '#6366f1', '#ec4899', '#f59e0b'][rand(0, 3)] }};
-                        "></span>
-                    @endfor
-                </div>
-
-                <!-- Menu Section -->
-                <div class="welcome-header p-6 sm:p-8">
-                    <div class="flex items-start justify-between gap-4">
-                        <div class="flex-1 text-right">
-                            <div class="version-badge mb-3">
-                                <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
-                                </svg>
-                                <span>نسخه 1.0.0.1</span>
-                            </div>
-                            <h2 class="welcome-title text-3xl sm:text-4xl font-black leading-tight mb-2">
-                                SDFR آپدیت شد! 🎉
-                            </h2>
-
-                        </div>
-                        <div class="welcome-icon w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-fuchsia-500/20 border border-white/10 flex items-center justify-center flex-shrink-0">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 sm:w-10 sm:h-10 text-indigo-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Content Section -->
-                <div class="p-6 sm:p-8 space-y-6 text-right">
-                    <!-- مقدمه -->
-                    <p class="text-white text-base leading-relaxed">
-                        با افتخار به اطلاع می‌رسانیم که پنل دانش‌آموزان با موفقیت به‌روزرسانی شد. این ارتقا گامی مهم در جهت بهبود کیفیت خدمات آموزشی و ایجاد تجربه‌ای کارآمدتر است.
-                    </p>
-
-                    <!-- لیست ویژگی‌ها -->
-                    <div class="feature-list">
-                        <h3 class="text-white font-bold text-lg mb-3 flex items-center gap-2">
-                            <svg class="w-5 h-5 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
-                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                            </svg>
-                            ویژگی‌های جدید
-                        </h3>
-                        <ul class="text-primary text-sm space-y-2">
-                            <li>آپدیت بخش آزمون‌ها (کلید آزمون و نتایج)</li>
-                            <li>تحلیل آزمون‌ها توسط هوش مصنوعی SDFR</li>
-                            <li>بهبود بخش گزارش‌ها</li>
-                            <li>سیستم امتیاز‌دهی ستاره‌ای</li>
-                            <li>امکان ثبت نظر پس از مشاوره</li>
-                            <li>اطلاع‌رسانی هوشمند برنامه‌ها</li>
-                            <li>آپدیت ساعت مطالعه</li>
-                            <li>بهبود‌های امنیتی و رفع باگ‌ها</li>
-                        </ul>
-                    </div>
-
-                    <!-- پیام تشکر -->
-                    <div class="bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20 rounded-xl p-4">
-                        <p class="text-success text-sm leading-relaxed">
-                            از تلاش و همراهی تمامی دانش‌آموزان، اولیا و همکاران محترم که ما را در تحقق این بهبود یاری کردند، صمیمانه سپاسگزاریم.
-                            <br>
-                            <span class="text-indigo-300 font-semibold">آینده‌ای روشن و موفقیت‌آمیز برای شما آرزومندیم 🌟</span>
-                        </p>
-                    </div>
-
-                    <!-- بخش پشتیبانی -->
-                    <div class="border-t border-white/10 pt-5">
-                        <p class="text-yellow-500 text-sm mb-3">
-                            برای گزارش مشکلات، پیشنهادات و انتقادات(تلگرام):
-                        </p>
-                        <a href="https://t.me/SdfrWebApp" target="_blank" rel="noopener" class="telegram-link">
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
-                            </svg>
-                            <span>@SdfrWebApp</span>
-                        </a>
-                    </div>
-                    <br>
-                    <!-- دکمه -->
-                    <div class="flex justify-center pt-2">
-                        <button id="welcome-dismiss" type="button" class="welcome-button">
-                            متوجه شدم، بریم شروع کنیم! 🚀
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
 
         <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
 
@@ -376,9 +277,69 @@
 
         <div class="lg:col-span-9 md:col-span-8">
             <div class="space-y-10">
+                <!-- notification:alert:box -->
+
+                @if($student && $unreadNotificationsCount > 0)
+
+                    <a href="{{ route('client.profile.notification') }}"
+
+                       class="block bg-gray-800 dark:bg-gray-900 rounded-2xl p-4 transition-all hover:bg-gray-700 dark:hover:bg-gray-800 group">
+
+                        <div class="flex items-center justify-between">
+
+                            <div class="flex items-center gap-3">
+
+                                <div class="flex items-center justify-center w-10 h-10 bg-green-500 rounded-full">
+
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="2" stroke="currentColor" class="w-5 h-5 text-white">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+
+                                    </svg>
+
+                                </div>
+
+                                <div class="text-white">
+
+                                    <div class="font-bold text-sm flex items-center gap-2">
+
+                                        [مشاهده پیام ها]
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="2" stroke="currentColor"
+                                             class="w-4 h-4 group-hover:-translate-x-1 transition-transform">
+
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/>
+
+                                        </svg>
+
+                                    </div>
+
+                                    <div class="text-gray-300 text-xs mt-1">
+
+                                        شما <span
+                                            class="font-bold text-green-400">{{ $unreadNotificationsCount }}</span> پیام
+                                        خوانده نشده در بخش دریافتی دارید
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </a>
+
+                @endif
+
+                <!-- end notification:alert:box -->
+
 
                 <!-- statistics:items:wrapper -->
-                <div class="grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-5 mb-8" >
+                <div class="grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-5 mb-8">
                     <!-- statistics:item -->
 
                     <!-- end statistics:item -->
@@ -476,7 +437,7 @@
                 <!-- end statistics:wrapper -->
 
                 <!-- section:learning-courses -->
-                <div class="space-y-5" >
+                <div class="space-y-5">
                     <!-- section:title -->
                     <div class="flex items-center gap-3">
                         <div class="flex items-center gap-1">
@@ -676,1154 +637,11 @@
                 </div>
                 <!-- end section:learning-courses -->
 
-                <div class="grid lg:grid-cols-4 sm:grid-cols-2 grid-cols-1 gap-5 mb-8  blur-container">
-                    <div class="lg:col-span-2">
-                        <!-- Returning Customer Rate -->
-                        <div class="trezo-card bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md">
-                            <div class="trezo-card-header mb-[20px] md:mb-[25px] flex items-center justify-between">
-                                <div class="trezo-card-title">
-                                    <h5 class="font-black xs:text-2xl text-lg text-white">نمودار 1</h5>
-                                </div>
-                            </div>
-                            <div class="trezo-card-content">
-                                <div class="-mb-[15px] -mt-[5px] md:-mt-[22px] ltr:-ml-[10px] rtl:-mr-[10px]">
-                                    <div id="ecommerceReturningCustomerRateChart" class="" style="min-height: 334px;">
-                                        <div id="apexcharts2kbwt4uai"
-                                             class="apexcharts-canvas apexcharts2kbwt4uai apexcharts-theme-"
-                                             style="width: 353px; height: 319px;">
-                                            <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
-                                                 xmlns:xlink="http://www.w3.org/1999/xlink" class="apexcharts-svg"
-                                                 xmlns:data="ApexChartsNS" transform="translate(0, 0)" width="353"
-                                                 height="319">
-                                                <foreignObject x="0" y="0" width="353" height="319">
-                                                    <div
-                                                        class="apexcharts-legend apexcharts-align-center apx-legend-position-top"
-                                                        xmlns="http://www.w3.org/1999/xhtml"
-                                                        style="right: 0px; position: absolute; left: 0px; top: 4px; max-height: 159.5px;">
-                                                        <div class="apexcharts-legend-series" rel="1"
-                                                             seriesname="بارxپنجم" data:collapsed="false"
-                                                             style="margin: 0px 8px;"><span
-                                                                class="apexcharts-legend-marker" rel="1"
-                                                                data:collapsed="false"
-                                                                style="height: 14px; width: 14px; left: -2px; top: -0.5px;"><svg
-                                                                    xmlns="http://www.w3.org/2000/svg" version="1.1"
-                                                                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                                    width="100%" height="100%"><path d="M 0, 0
-           m -6, 0
-           a 6,6 0 1,0 12,0
-           a 6,6 0 1,0 -12,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9"
-                                                                                                     stroke-linecap="butt"
-                                                                                                     stroke-width="1"
-                                                                                                     stroke-dasharray="0"
-                                                                                                     cx="0" cy="0"
-                                                                                                     shape="circle"
-                                                                                                     class="apexcharts-legend-marker apexcharts-marker apexcharts-marker-circle"
-                                                                                                     style="transform: translate(50%, 50%);"></path></svg></span><span
-                                                                class="apexcharts-legend-text" rel="1" i="0"
-                                                                data:default-text="%D8%A8%D8%A7%D8%B1%20%D9%BE%D9%86%D8%AC%D9%85"
-                                                                data:collapsed="false"
-                                                                style="color: rgb(100, 116, 139); font-size: 12px; font-weight: 400; font-family: Helvetica, Arial, sans-serif;">بار پنجم</span>
-                                                        </div>
-                                                        <div class="apexcharts-legend-series" rel="2"
-                                                             seriesname="بارxچهارم" data:collapsed="false"
-                                                             style="margin: 0px 8px;"><span
-                                                                class="apexcharts-legend-marker" rel="2"
-                                                                data:collapsed="false"
-                                                                style="height: 14px; width: 14px; left: -2px; top: -0.5px;"><svg
-                                                                    xmlns="http://www.w3.org/2000/svg" version="1.1"
-                                                                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                                    width="100%" height="100%"><path d="M 0, 0
-           m -6, 0
-           a 6,6 0 1,0 12,0
-           a 6,6 0 1,0 -12,0" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9"
-                                                                                                     stroke-linecap="butt"
-                                                                                                     stroke-width="1"
-                                                                                                     stroke-dasharray="0"
-                                                                                                     cx="0" cy="0"
-                                                                                                     shape="circle"
-                                                                                                     class="apexcharts-legend-marker apexcharts-marker apexcharts-marker-circle"
-                                                                                                     style="transform: translate(50%, 50%);"></path></svg></span><span
-                                                                class="apexcharts-legend-text" rel="2" i="1"
-                                                                data:default-text="%D8%A8%D8%A7%D8%B1%20%DA%86%D9%87%D8%A7%D8%B1%D9%85"
-                                                                data:collapsed="false"
-                                                                style="color: rgb(100, 116, 139); font-size: 12px; font-weight: 400; font-family: Helvetica, Arial, sans-serif;">بار چهارم</span>
-                                                        </div>
-                                                    </div>
-                                                    <style type="text/css">
-                                                        .apexcharts-flip-y {
-                                                            transform: scaleY(-1) translateY(-100%);
-                                                            transform-origin: top;
-                                                            transform-box: fill-box;
-                                                        }
 
-                                                        .apexcharts-flip-x {
-                                                            transform: scaleX(-1);
-                                                            transform-origin: center;
-                                                            transform-box: fill-box;
-                                                        }
-
-                                                        .apexcharts-legend {
-                                                            display: flex;
-                                                            overflow: auto;
-                                                            padding: 0 10px;
-                                                        }
-
-                                                        .apexcharts-legend.apexcharts-legend-group-horizontal {
-                                                            flex-direction: column;
-                                                        }
-
-                                                        .apexcharts-legend-group {
-                                                            display: flex;
-                                                        }
-
-                                                        .apexcharts-legend-group-vertical {
-                                                            flex-direction: column-reverse;
-                                                        }
-
-                                                        .apexcharts-legend.apx-legend-position-bottom, .apexcharts-legend.apx-legend-position-top {
-                                                            flex-wrap: wrap
-                                                        }
-
-                                                        .apexcharts-legend.apx-legend-position-right, .apexcharts-legend.apx-legend-position-left {
-                                                            flex-direction: column;
-                                                            bottom: 0;
-                                                        }
-
-                                                        .apexcharts-legend.apx-legend-position-bottom.apexcharts-align-left, .apexcharts-legend.apx-legend-position-top.apexcharts-align-left, .apexcharts-legend.apx-legend-position-right, .apexcharts-legend.apx-legend-position-left {
-                                                            justify-content: flex-start;
-                                                            align-items: flex-start;
-                                                        }
-
-                                                        .apexcharts-legend.apx-legend-position-bottom.apexcharts-align-center, .apexcharts-legend.apx-legend-position-top.apexcharts-align-center {
-                                                            justify-content: center;
-                                                            align-items: center;
-                                                        }
-
-                                                        .apexcharts-legend.apx-legend-position-bottom.apexcharts-align-right, .apexcharts-legend.apx-legend-position-top.apexcharts-align-right {
-                                                            justify-content: flex-end;
-                                                            align-items: flex-end;
-                                                        }
-
-                                                        .apexcharts-legend-series {
-                                                            cursor: pointer;
-                                                            line-height: normal;
-                                                            display: flex;
-                                                            align-items: center;
-                                                        }
-
-                                                        .apexcharts-legend-text {
-                                                            position: relative;
-                                                            font-size: 14px;
-                                                        }
-
-                                                        .apexcharts-legend-text *, .apexcharts-legend-marker * {
-                                                            pointer-events: none;
-                                                        }
-
-                                                        .apexcharts-legend-marker {
-                                                            position: relative;
-                                                            display: flex;
-                                                            align-items: center;
-                                                            justify-content: center;
-                                                            cursor: pointer;
-                                                            margin-right: 1px;
-                                                        }
-
-                                                        .apexcharts-legend-series.apexcharts-no-click {
-                                                            cursor: auto;
-                                                        }
-
-                                                        .apexcharts-legend .apexcharts-hidden-zero-series, .apexcharts-legend .apexcharts-hidden-null-series {
-                                                            display: none !important;
-                                                        }
-
-                                                        .apexcharts-inactive-legend {
-                                                            opacity: 0.45;
-                                                        }
-
-                                                    </style>
-                                                </foreignObject>
-                                                <rect width="0" height="0" x="0" y="0" rx="0" ry="0" opacity="1"
-                                                      stroke-width="0" stroke="none" stroke-dasharray="0"
-                                                      fill="#fefefe"></rect>
-                                                <g class="apexcharts-datalabels-group"
-                                                   transform="translate(0, 0) scale(1)"></g>
-                                                <g class="apexcharts-datalabels-group"
-                                                   transform="translate(0, 0) scale(1)"></g>
-                                                <g class="apexcharts-yaxis" rel="0"
-                                                   transform="translate(20.2064266204834, 0)">
-                                                    <g class="apexcharts-yaxis-texts-g">
-                                                        <text x="20" y="50" text-anchor="end" dominant-baseline="auto"
-                                                              font-size="12px"
-                                                              font-family="Helvetica, Arial, sans-serif"
-                                                              font-weight="400" fill="#64748b"
-                                                              class="apexcharts-text apexcharts-yaxis-label "
-                                                              style="font-family: Helvetica, Arial, sans-serif;">
-                                                            <tspan>100%</tspan>
-                                                            <title>100%</title></text>
-                                                        <text x="20" y="96.35859138412476" text-anchor="end"
-                                                              dominant-baseline="auto" font-size="12px"
-                                                              font-family="Helvetica, Arial, sans-serif"
-                                                              font-weight="400" fill="#64748b"
-                                                              class="apexcharts-text apexcharts-yaxis-label "
-                                                              style="font-family: Helvetica, Arial, sans-serif;">
-                                                            <tspan>80%</tspan>
-                                                            <title>80%</title></text>
-                                                        <text x="20" y="142.71718276824953" text-anchor="end"
-                                                              dominant-baseline="auto" font-size="12px"
-                                                              font-family="Helvetica, Arial, sans-serif"
-                                                              font-weight="400" fill="#64748b"
-                                                              class="apexcharts-text apexcharts-yaxis-label "
-                                                              style="font-family: Helvetica, Arial, sans-serif;">
-                                                            <tspan>60%</tspan>
-                                                            <title>60%</title></text>
-                                                        <text x="20" y="189.0757741523743" text-anchor="end"
-                                                              dominant-baseline="auto" font-size="12px"
-                                                              font-family="Helvetica, Arial, sans-serif"
-                                                              font-weight="400" fill="#64748b"
-                                                              class="apexcharts-text apexcharts-yaxis-label "
-                                                              style="font-family: Helvetica, Arial, sans-serif;">
-                                                            <tspan>40%</tspan>
-                                                            <title>40%</title></text>
-                                                        <text x="20" y="235.43436553649906" text-anchor="end"
-                                                              dominant-baseline="auto" font-size="12px"
-                                                              font-family="Helvetica, Arial, sans-serif"
-                                                              font-weight="400" fill="#64748b"
-                                                              class="apexcharts-text apexcharts-yaxis-label "
-                                                              style="font-family: Helvetica, Arial, sans-serif;">
-                                                            <tspan>20%</tspan>
-                                                            <title>20%</title></text>
-                                                        <text x="20" y="281.7929569206238" text-anchor="end"
-                                                              dominant-baseline="auto" font-size="12px"
-                                                              font-family="Helvetica, Arial, sans-serif"
-                                                              font-weight="400" fill="#64748b"
-                                                              class="apexcharts-text apexcharts-yaxis-label "
-                                                              style="font-family: Helvetica, Arial, sans-serif;">
-                                                            <tspan>0%</tspan>
-                                                            <title>0%</title></text>
-                                                    </g>
-                                                </g>
-                                                <g class="apexcharts-inner apexcharts-graphical"
-                                                   transform="translate(50.2064266204834, 46)">
-                                                    <defs>
-                                                        <clipPath id="gridRectMask2kbwt4uai">
-                                                            <rect width="292.7935733795166" height="231.7929569206238"
-                                                                  x="0" y="0" rx="0" ry="0" opacity="1" stroke-width="0"
-                                                                  stroke="none" stroke-dasharray="0" fill="#fff"></rect>
-                                                        </clipPath>
-                                                        <clipPath id="gridRectBarMask2kbwt4uai">
-                                                            <rect width="298.7935733795166" height="237.7929569206238"
-                                                                  x="-3" y="-3" rx="0" ry="0" opacity="1"
-                                                                  stroke-width="0" stroke="none" stroke-dasharray="0"
-                                                                  fill="#fff"></rect>
-                                                        </clipPath>
-                                                        <clipPath id="gridRectMarkerMask2kbwt4uai">
-                                                            <rect width="302.7935733795166" height="241.7929569206238"
-                                                                  x="-5" y="-5" rx="0" ry="0" opacity="1"
-                                                                  stroke-width="0" stroke="none" stroke-dasharray="0"
-                                                                  fill="#fff"></rect>
-                                                        </clipPath>
-                                                        <clipPath id="forecastMask2kbwt4uai"></clipPath>
-                                                        <clipPath id="nonForecastMask2kbwt4uai"></clipPath>
-                                                    </defs>
-                                                    <line x1="0" y1="0" x2="0" y2="231.7929569206238" stroke="#b6b6b6"
-                                                          stroke-dasharray="3" stroke-linecap="butt"
-                                                          class="apexcharts-xcrosshairs" x="0" y="0" width="1"
-                                                          height="231.7929569206238" fill="#b1b9c4" filter="none"
-                                                          fill-opacity="0.9" stroke-width="1"></line>
-                                                    <g class="apexcharts-grid">
-                                                        <g class="apexcharts-gridlines-horizontal">
-                                                            <line x1="0" y1="46.35859138412476" x2="292.7935733795166"
-                                                                  y2="46.35859138412476" stroke="#eceef2"
-                                                                  stroke-dasharray="0" stroke-linecap="butt"
-                                                                  class="apexcharts-gridline"></line>
-                                                            <line x1="0" y1="92.71718276824951" x2="292.7935733795166"
-                                                                  y2="92.71718276824951" stroke="#eceef2"
-                                                                  stroke-dasharray="0" stroke-linecap="butt"
-                                                                  class="apexcharts-gridline"></line>
-                                                            <line x1="0" y1="139.07577415237427" x2="292.7935733795166"
-                                                                  y2="139.07577415237427" stroke="#eceef2"
-                                                                  stroke-dasharray="0" stroke-linecap="butt"
-                                                                  class="apexcharts-gridline"></line>
-                                                            <line x1="0" y1="185.43436553649903" x2="292.7935733795166"
-                                                                  y2="185.43436553649903" stroke="#eceef2"
-                                                                  stroke-dasharray="0" stroke-linecap="butt"
-                                                                  class="apexcharts-gridline"></line>
-                                                        </g>
-                                                        <g class="apexcharts-gridlines-vertical"></g>
-                                                        <line x1="0" y1="231.7929569206238" x2="292.7935733795166"
-                                                              y2="231.7929569206238" stroke="transparent"
-                                                              stroke-dasharray="0" stroke-linecap="butt"></line>
-                                                        <line x1="0" y1="1" x2="0" y2="231.7929569206238"
-                                                              stroke="transparent" stroke-dasharray="0"
-                                                              stroke-linecap="butt"></line>
-                                                    </g>
-                                                    <g class="apexcharts-grid-borders">
-                                                        <line x1="0" y1="0" x2="292.7935733795166" y2="0"
-                                                              stroke="#eceef2" stroke-dasharray="0"
-                                                              stroke-linecap="butt" class="apexcharts-gridline"></line>
-                                                        <line x1="0" y1="231.7929569206238" x2="292.7935733795166"
-                                                              y2="231.7929569206238" stroke="#eceef2"
-                                                              stroke-dasharray="0" stroke-linecap="butt"
-                                                              class="apexcharts-gridline"></line>
-                                                    </g>
-                                                    <g class="apexcharts-line-series apexcharts-plot-series">
-                                                        <g class="apexcharts-series" zIndex="0" seriesName="بارxپنجم"
-                                                           data:longestSeries="true" rel="1" data:realIndex="0">
-                                                            <path
-                                                                d="M 0 69.53788707618713C 11.386416742536756 69.53788707618713 21.146202521853976 178.48057682888032 32.53261926439073 178.48057682888032C 43.919036006927485 178.48057682888032 53.67882178624471 139.07577415237427 65.06523852878146 139.07577415237427C 76.45165527131822 139.07577415237427 86.21144105063544 162.25506984443666 97.5978577931722 162.25506984443666C 108.98427453570895 162.25506984443666 118.74406031502618 88.08132362983704 130.13047705756293 88.08132362983704C 141.5168938000997 88.08132362983704 151.2766795794169 111.26061932189943 162.66309632195367 111.26061932189943C 174.0495130644904 111.26061932189943 183.80929884380765 23.179295692062396 195.1957155863444 23.179295692062396C 206.58213232888116 23.179295692062396 216.34191810819837 185.43436553649903 227.72833485073514 185.43436553649903C 239.11475159327188 185.43436553649903 248.87453737258912 92.71718276824953 260.26095411512586 92.71718276824953C 271.6473708576626 92.71718276824953 281.40715663697983 108.94268975269318 292.7935733795166 108.94268975269318"
-                                                                fill="none" fill-opacity="1"
-                                                                stroke="rgba(96,93,255,0.85)" stroke-opacity="1"
-                                                                stroke-linecap="butt" stroke-width="2"
-                                                                stroke-dasharray="0" class="apexcharts-line" index="0"
-                                                                clip-path="url(#gridRectMask2kbwt4uai)"
-                                                                pathTo="M 0 69.53788707618713C 11.386416742536756 69.53788707618713 21.146202521853976 178.48057682888032 32.53261926439073 178.48057682888032C 43.919036006927485 178.48057682888032 53.67882178624471 139.07577415237427 65.06523852878146 139.07577415237427C 76.45165527131822 139.07577415237427 86.21144105063544 162.25506984443666 97.5978577931722 162.25506984443666C 108.98427453570895 162.25506984443666 118.74406031502618 88.08132362983704 130.13047705756293 88.08132362983704C 141.5168938000997 88.08132362983704 151.2766795794169 111.26061932189943 162.66309632195367 111.26061932189943C 174.0495130644904 111.26061932189943 183.80929884380765 23.179295692062396 195.1957155863444 23.179295692062396C 206.58213232888116 23.179295692062396 216.34191810819837 185.43436553649903 227.72833485073514 185.43436553649903C 239.11475159327188 185.43436553649903 248.87453737258912 92.71718276824953 260.26095411512586 92.71718276824953C 271.6473708576626 92.71718276824953 281.40715663697983 108.94268975269318 292.7935733795166 108.94268975269318"
-                                                                pathFrom="M 0 231.7929569206238 L 0 231.7929569206238 L 32.53261926439073 231.7929569206238 L 65.06523852878146 231.7929569206238 L 97.5978577931722 231.7929569206238 L 130.13047705756293 231.7929569206238 L 162.66309632195367 231.7929569206238 L 195.1957155863444 231.7929569206238 L 227.72833485073514 231.7929569206238 L 260.26095411512586 231.7929569206238 L 292.7935733795166 231.7929569206238"
-                                                                fill-rule="evenodd"></path>
-                                                            <g class="apexcharts-series-markers-wrap apexcharts-hidden-element-shown"
-                                                               data:realIndex="0">
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 0, 69.53788707618713
-           m -4, 0
-           a 4,4 0 1,0 8,0
-           a 4,4 0 1,0 -8,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0" cx="0"
-                                                                          cy="69.53788707618713" shape="circle"
-                                                                          class="apexcharts-marker no-pointer-events wa71z2mf2f"
-                                                                          rel="0" j="0" index="0"
-                                                                          default-marker-size="4"></path>
-                                                                    <path d="M 32.53261926439073, 178.48057682888032
-           m -4, 0
-           a 4,4 0 1,0 8,0
-           a 4,4 0 1,0 -8,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="32.53261926439073" cy="178.48057682888032"
-                                                                          shape="circle"
-                                                                          class="apexcharts-marker no-pointer-events wgqickh3y"
-                                                                          rel="1" j="1" index="0"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 65.06523852878146, 139.07577415237427
-           m -4, 0
-           a 4,4 0 1,0 8,0
-           a 4,4 0 1,0 -8,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="65.06523852878146" cy="139.07577415237427"
-                                                                          shape="circle"
-                                                                          class="apexcharts-marker no-pointer-events w4sbbys83"
-                                                                          rel="2" j="2" index="0"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 97.5978577931722, 162.25506984443666
-           m -4, 0
-           a 4,4 0 1,0 8,0
-           a 4,4 0 1,0 -8,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="97.5978577931722" cy="162.25506984443666"
-                                                                          shape="circle"
-                                                                          class="apexcharts-marker no-pointer-events whyibaks7"
-                                                                          rel="3" j="3" index="0"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 130.13047705756293, 88.08132362983704
-           m -4, 0
-           a 4,4 0 1,0 8,0
-           a 4,4 0 1,0 -8,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="130.13047705756293" cy="88.08132362983704"
-                                                                          shape="circle"
-                                                                          class="apexcharts-marker no-pointer-events wmfpfjhnx"
-                                                                          rel="4" j="4" index="0"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 162.66309632195367, 111.26061932189943
-           m -4, 0
-           a 4,4 0 1,0 8,0
-           a 4,4 0 1,0 -8,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="162.66309632195367"
-                                                                          cy="111.26061932189943" shape="circle"
-                                                                          class="apexcharts-marker no-pointer-events whakjnezs"
-                                                                          rel="5" j="5" index="0"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 195.1957155863444, 23.179295692062396
-           m -4, 0
-           a 4,4 0 1,0 8,0
-           a 4,4 0 1,0 -8,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="195.1957155863444" cy="23.179295692062396"
-                                                                          shape="circle"
-                                                                          class="apexcharts-marker no-pointer-events w68dvfccj"
-                                                                          rel="6" j="6" index="0"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 227.72833485073514, 185.43436553649903
-           m -4, 0
-           a 4,4 0 1,0 8,0
-           a 4,4 0 1,0 -8,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="227.72833485073514"
-                                                                          cy="185.43436553649903" shape="circle"
-                                                                          class="apexcharts-marker no-pointer-events w634muqq9"
-                                                                          rel="7" j="7" index="0"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 260.26095411512586, 92.71718276824953
-           m -4, 0
-           a 4,4 0 1,0 8,0
-           a 4,4 0 1,0 -8,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="260.26095411512586" cy="92.71718276824953"
-                                                                          shape="circle"
-                                                                          class="apexcharts-marker no-pointer-events wu27vq5mz"
-                                                                          rel="8" j="8" index="0"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 292.7935733795166, 108.94268975269318
-           m -4, 0
-           a 4,4 0 1,0 8,0
-           a 4,4 0 1,0 -8,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="292.7935733795166" cy="108.94268975269318"
-                                                                          shape="circle"
-                                                                          class="apexcharts-marker no-pointer-events wq2gx09v1l"
-                                                                          rel="9" j="9" index="0"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                            </g>
-                                                        </g>
-                                                        <g class="apexcharts-series" zIndex="1" seriesName="بارxچهارم"
-                                                           data:longestSeries="true" rel="2" data:realIndex="1">
-                                                            <path
-                                                                d="M 0 197.02401338253023C 11.386416742536756 197.02401338253023 21.146202521853976 97.35304190666201 32.53261926439073 97.35304190666201C 43.919036006927485 97.35304190666201 53.67882178624471 127.4861263063431 65.06523852878146 127.4861263063431C 76.45165527131822 127.4861263063431 86.21144105063544 143.71163329078675 97.5978577931722 143.71163329078675C 108.98427453570895 143.71163329078675 118.74406031502618 69.53788707618713 130.13047705756293 69.53788707618713C 141.5168938000997 69.53788707618713 151.2766795794169 115.8964784603119 162.66309632195367 115.8964784603119C 174.0495130644904 115.8964784603119 183.80929884380765 104.30683061428071 195.1957155863444 104.30683061428071C 206.58213232888116 104.30683061428071 216.34191810819837 92.71718276824953 227.72833485073514 92.71718276824953C 239.11475159327188 92.71718276824953 248.87453737258912 50.99445052253725 260.26095411512586 50.99445052253725C 271.6473708576626 50.99445052253725 281.40715663697983 139.07577415237427 292.7935733795166 139.07577415237427"
-                                                                fill="none" fill-opacity="1"
-                                                                stroke="rgba(173,99,246,0.85)" stroke-opacity="1"
-                                                                stroke-linecap="butt" stroke-width="2"
-                                                                stroke-dasharray="0" class="apexcharts-line" index="1"
-                                                                clip-path="url(#gridRectMask2kbwt4uai)"
-                                                                pathTo="M 0 197.02401338253023C 11.386416742536756 197.02401338253023 21.146202521853976 97.35304190666201 32.53261926439073 97.35304190666201C 43.919036006927485 97.35304190666201 53.67882178624471 127.4861263063431 65.06523852878146 127.4861263063431C 76.45165527131822 127.4861263063431 86.21144105063544 143.71163329078675 97.5978577931722 143.71163329078675C 108.98427453570895 143.71163329078675 118.74406031502618 69.53788707618713 130.13047705756293 69.53788707618713C 141.5168938000997 69.53788707618713 151.2766795794169 115.8964784603119 162.66309632195367 115.8964784603119C 174.0495130644904 115.8964784603119 183.80929884380765 104.30683061428071 195.1957155863444 104.30683061428071C 206.58213232888116 104.30683061428071 216.34191810819837 92.71718276824953 227.72833485073514 92.71718276824953C 239.11475159327188 92.71718276824953 248.87453737258912 50.99445052253725 260.26095411512586 50.99445052253725C 271.6473708576626 50.99445052253725 281.40715663697983 139.07577415237427 292.7935733795166 139.07577415237427"
-                                                                pathFrom="M 0 231.7929569206238 L 0 231.7929569206238 L 32.53261926439073 231.7929569206238 L 65.06523852878146 231.7929569206238 L 97.5978577931722 231.7929569206238 L 130.13047705756293 231.7929569206238 L 162.66309632195367 231.7929569206238 L 195.1957155863444 231.7929569206238 L 227.72833485073514 231.7929569206238 L 260.26095411512586 231.7929569206238 L 292.7935733795166 231.7929569206238"
-                                                                fill-rule="evenodd"></path>
-                                                            <g class="apexcharts-series-markers-wrap apexcharts-hidden-element-shown"
-                                                               data:realIndex="1">
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M -3.5555555555555554 193.46845782697469
-           L 3.5555555555555554 193.46845782697469
-           L 3.5555555555555554 200.57956893808577
-           L -3.5555555555555554 200.57956893808577
-           Z" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0" cx="0"
-                                                                          cy="197.02401338253023" shape="square"
-                                                                          class="apexcharts-marker no-pointer-events wp1pnyt25j"
-                                                                          rel="0" j="0" index="1"
-                                                                          default-marker-size="4"></path>
-                                                                    <path d="M 28.977063708835175 93.79748635110646
-           L 36.08817481994629 93.79748635110646
-           L 36.08817481994629 100.90859746221757
-           L 28.977063708835175 100.90859746221757
-           Z" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="32.53261926439073" cy="97.35304190666201"
-                                                                          shape="square"
-                                                                          class="apexcharts-marker no-pointer-events wk0pwcbs2f"
-                                                                          rel="1" j="1" index="1"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 61.50968297322591 123.93057075078754
-           L 68.62079408433702 123.93057075078754
-           L 68.62079408433702 131.04168186189864
-           L 61.50968297322591 131.04168186189864
-           Z" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="65.06523852878146" cy="127.4861263063431"
-                                                                          shape="square"
-                                                                          class="apexcharts-marker no-pointer-events wpafhxl1wj"
-                                                                          rel="2" j="2" index="1"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 94.04230223761664 140.1560777352312
-           L 101.15341334872775 140.1560777352312
-           L 101.15341334872775 147.2671888463423
-           L 94.04230223761664 147.2671888463423
-           Z" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="97.5978577931722" cy="143.71163329078675"
-                                                                          shape="square"
-                                                                          class="apexcharts-marker no-pointer-events wfvpnurwe"
-                                                                          rel="3" j="3" index="1"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 126.57492150200737 65.98233152063158
-           L 133.68603261311847 65.98233152063158
-           L 133.68603261311847 73.09344263174269
-           L 126.57492150200737 73.09344263174269
-           Z" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="130.13047705756293" cy="69.53788707618713"
-                                                                          shape="square"
-                                                                          class="apexcharts-marker no-pointer-events wpk0n8s45f"
-                                                                          rel="4" j="4" index="1"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 159.10754076639813 112.34092290475634
-           L 166.21865187750922 112.34092290475634
-           L 166.21865187750922 119.45203401586745
-           L 159.10754076639813 119.45203401586745
-           Z" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="162.66309632195367" cy="115.8964784603119"
-                                                                          shape="square"
-                                                                          class="apexcharts-marker no-pointer-events w4txog9j1"
-                                                                          rel="5" j="5" index="1"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 191.64016003078885 100.75127505872516
-           L 198.75127114189993 100.75127505872516
-           L 198.75127114189993 107.86238616983627
-           L 191.64016003078885 107.86238616983627
-           Z" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="195.1957155863444" cy="104.30683061428071"
-                                                                          shape="square"
-                                                                          class="apexcharts-marker no-pointer-events wd8mcjraw"
-                                                                          rel="6" j="6" index="1"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 224.1727792951796 89.16162721269397
-           L 231.28389040629068 89.16162721269397
-           L 231.28389040629068 96.27273832380509
-           L 224.1727792951796 96.27273832380509
-           Z" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="227.72833485073514" cy="92.71718276824953"
-                                                                          shape="square"
-                                                                          class="apexcharts-marker no-pointer-events wthddyw6u"
-                                                                          rel="7" j="7" index="1"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 256.7053985595703 47.43889496698169
-           L 263.8165096706814 47.43889496698169
-           L 263.8165096706814 54.55000607809281
-           L 256.7053985595703 54.55000607809281
-           Z" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="260.26095411512586" cy="50.99445052253725"
-                                                                          shape="square"
-                                                                          class="apexcharts-marker no-pointer-events wkrsoc0tk"
-                                                                          rel="8" j="8" index="1"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                                <g class="apexcharts-series-markers"
-                                                                   clip-path="url(#gridRectMarkerMask2kbwt4uai)">
-                                                                    <path d="M 289.23801782396106 135.52021859681872
-           L 296.34912893507214 135.52021859681872
-           L 296.34912893507214 142.6313297079298
-           L 289.23801782396106 142.6313297079298
-           Z" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9" stroke-linecap="butt"
-                                                                          stroke-width="0" stroke-dasharray="0"
-                                                                          cx="292.7935733795166" cy="139.07577415237427"
-                                                                          shape="square"
-                                                                          class="apexcharts-marker no-pointer-events w72dzhyo7"
-                                                                          rel="9" j="9" index="1"
-                                                                          default-marker-size="4"></path>
-                                                                </g>
-                                                            </g>
-                                                        </g>
-                                                        <g class="apexcharts-datalabels" data:realIndex="0"></g>
-                                                        <g class="apexcharts-datalabels" data:realIndex="1"></g>
-                                                    </g>
-                                                    <line x1="0" y1="0" x2="292.7935733795166" y2="0" stroke="#b6b6b6"
-                                                          stroke-dasharray="0" stroke-width="1" stroke-linecap="butt"
-                                                          class="apexcharts-ycrosshairs"></line>
-                                                    <line x1="0" y1="0" x2="292.7935733795166" y2="0" stroke="#b6b6b6"
-                                                          stroke-dasharray="0" stroke-width="0" stroke-linecap="butt"
-                                                          class="apexcharts-ycrosshairs-hidden"></line>
-                                                    <g class="apexcharts-xaxis" transform="translate(0, 0)">
-                                                        <g class="apexcharts-xaxis-texts-g"
-                                                           transform="translate(0, -4)">
-                                                            <text x="0" y="259.7929569206238" text-anchor="middle"
-                                                                  dominant-baseline="auto" font-size="12px"
-                                                                  font-family="Helvetica, Arial, sans-serif"
-                                                                  font-weight="400" fill="#8695aa"
-                                                                  class="apexcharts-text apexcharts-xaxis-label "
-                                                                  style="font-family: Helvetica, Arial, sans-serif;">
-                                                                <tspan>فروردین</tspan>
-                                                                <title>فروردین</title></text>
-                                                            <text x="32.53261926439073" y="259.7929569206238"
-                                                                  text-anchor="middle" dominant-baseline="auto"
-                                                                  font-size="12px"
-                                                                  font-family="Helvetica, Arial, sans-serif"
-                                                                  font-weight="400" fill="#8695aa"
-                                                                  class="apexcharts-text apexcharts-xaxis-label "
-                                                                  style="font-family: Helvetica, Arial, sans-serif;">
-                                                                <tspan></tspan>
-                                                                <title></title></text>
-                                                            <text x="65.06523852878146" y="259.7929569206238"
-                                                                  text-anchor="middle" dominant-baseline="auto"
-                                                                  font-size="12px"
-                                                                  font-family="Helvetica, Arial, sans-serif"
-                                                                  font-weight="400" fill="#8695aa"
-                                                                  class="apexcharts-text apexcharts-xaxis-label "
-                                                                  style="font-family: Helvetica, Arial, sans-serif;">
-                                                                <tspan>خرداد</tspan>
-                                                                <title>خرداد</title></text>
-                                                            <text x="97.59785779317221" y="259.7929569206238"
-                                                                  text-anchor="middle" dominant-baseline="auto"
-                                                                  font-size="12px"
-                                                                  font-family="Helvetica, Arial, sans-serif"
-                                                                  font-weight="400" fill="#8695aa"
-                                                                  class="apexcharts-text apexcharts-xaxis-label "
-                                                                  style="font-family: Helvetica, Arial, sans-serif;">
-                                                                <tspan>تیر</tspan>
-                                                                <title>تیر</title></text>
-                                                            <text x="130.13047705756293" y="259.7929569206238"
-                                                                  text-anchor="middle" dominant-baseline="auto"
-                                                                  font-size="12px"
-                                                                  font-family="Helvetica, Arial, sans-serif"
-                                                                  font-weight="400" fill="#8695aa"
-                                                                  class="apexcharts-text apexcharts-xaxis-label "
-                                                                  style="font-family: Helvetica, Arial, sans-serif;">
-                                                                <tspan>مرداد</tspan>
-                                                                <title>مرداد</title></text>
-                                                            <text x="162.66309632195367" y="259.7929569206238"
-                                                                  text-anchor="middle" dominant-baseline="auto"
-                                                                  font-size="12px"
-                                                                  font-family="Helvetica, Arial, sans-serif"
-                                                                  font-weight="400" fill="#8695aa"
-                                                                  class="apexcharts-text apexcharts-xaxis-label "
-                                                                  style="font-family: Helvetica, Arial, sans-serif;">
-                                                                <tspan>شهریور</tspan>
-                                                                <title>شهریور</title></text>
-                                                            <text x="195.19571558634442" y="259.7929569206238"
-                                                                  text-anchor="middle" dominant-baseline="auto"
-                                                                  font-size="12px"
-                                                                  font-family="Helvetica, Arial, sans-serif"
-                                                                  font-weight="400" fill="#8695aa"
-                                                                  class="apexcharts-text apexcharts-xaxis-label "
-                                                                  style="font-family: Helvetica, Arial, sans-serif;">
-                                                                <tspan></tspan>
-                                                                <title></title></text>
-                                                            <text x="227.72833485073517" y="259.7929569206238"
-                                                                  text-anchor="middle" dominant-baseline="auto"
-                                                                  font-size="12px"
-                                                                  font-family="Helvetica, Arial, sans-serif"
-                                                                  font-weight="400" fill="#8695aa"
-                                                                  class="apexcharts-text apexcharts-xaxis-label "
-                                                                  style="font-family: Helvetica, Arial, sans-serif;">
-                                                                <tspan>آبان</tspan>
-                                                                <title>آبان</title></text>
-                                                            <text x="260.2609541151259" y="259.7929569206238"
-                                                                  text-anchor="middle" dominant-baseline="auto"
-                                                                  font-size="12px"
-                                                                  font-family="Helvetica, Arial, sans-serif"
-                                                                  font-weight="400" fill="#8695aa"
-                                                                  class="apexcharts-text apexcharts-xaxis-label "
-                                                                  style="font-family: Helvetica, Arial, sans-serif;">
-                                                                <tspan>آذر</tspan>
-                                                                <title>آذر</title></text>
-                                                            <text x="292.79357337951666" y="259.7929569206238"
-                                                                  text-anchor="middle" dominant-baseline="auto"
-                                                                  font-size="12px"
-                                                                  font-family="Helvetica, Arial, sans-serif"
-                                                                  font-weight="400" fill="#8695aa"
-                                                                  class="apexcharts-text apexcharts-xaxis-label "
-                                                                  style="font-family: Helvetica, Arial, sans-serif;">
-                                                                <tspan>دی</tspan>
-                                                                <title>دی</title></text>
-                                                        </g>
-                                                    </g>
-                                                    <g class="apexcharts-yaxis-annotations"></g>
-                                                    <g class="apexcharts-xaxis-annotations"></g>
-                                                    <g class="apexcharts-point-annotations"></g>
-                                                </g>
-                                            </svg>
-                                            <div class="apexcharts-tooltip apexcharts-theme-light">
-                                                <div class="apexcharts-tooltip-title"
-                                                     style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;"></div>
-                                                <div
-                                                    class="apexcharts-tooltip-series-group apexcharts-tooltip-series-group-0"
-                                                    style="order: 1;"><span class="apexcharts-tooltip-marker"
-                                                                            style="background-color: rgb(96, 93, 255);"></span>
-                                                    <div class="apexcharts-tooltip-text"
-                                                         style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">
-                                                        <div class="apexcharts-tooltip-y-group"><span
-                                                                class="apexcharts-tooltip-text-y-label"></span><span
-                                                                class="apexcharts-tooltip-text-y-value"></span></div>
-                                                        <div class="apexcharts-tooltip-goals-group"><span
-                                                                class="apexcharts-tooltip-text-goals-label"></span><span
-                                                                class="apexcharts-tooltip-text-goals-value"></span>
-                                                        </div>
-                                                        <div class="apexcharts-tooltip-z-group"><span
-                                                                class="apexcharts-tooltip-text-z-label"></span><span
-                                                                class="apexcharts-tooltip-text-z-value"></span></div>
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="apexcharts-tooltip-series-group apexcharts-tooltip-series-group-1"
-                                                    style="order: 2;"><span class="apexcharts-tooltip-marker"
-                                                                            style="background-color: rgb(173, 99, 246);"></span>
-                                                    <div class="apexcharts-tooltip-text"
-                                                         style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">
-                                                        <div class="apexcharts-tooltip-y-group"><span
-                                                                class="apexcharts-tooltip-text-y-label"></span><span
-                                                                class="apexcharts-tooltip-text-y-value"></span></div>
-                                                        <div class="apexcharts-tooltip-goals-group"><span
-                                                                class="apexcharts-tooltip-text-goals-label"></span><span
-                                                                class="apexcharts-tooltip-text-goals-value"></span>
-                                                        </div>
-                                                        <div class="apexcharts-tooltip-z-group"><span
-                                                                class="apexcharts-tooltip-text-z-label"></span><span
-                                                                class="apexcharts-tooltip-text-z-value"></span></div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="apexcharts-xaxistooltip apexcharts-xaxistooltip-bottom apexcharts-theme-light">
-                                                <div class="apexcharts-xaxistooltip-text"
-                                                     style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;"></div>
-                                            </div>
-                                            <div
-                                                class="apexcharts-yaxistooltip apexcharts-yaxistooltip-0 apexcharts-yaxistooltip-left apexcharts-theme-light">
-                                                <div class="apexcharts-yaxistooltip-text"></div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="lg:col-span-2">
-                        <!-- Order Summary -->
-                        <div class="trezo-card bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md">
-                            <div class="trezo-card-header mb-[20px] md:mb-[25px] flex items-center justify-between">
-                                <div class="trezo-card-title">
-                                    <h5 class="font-black xs:text-2xl text-lg text-white">نمودار 2</h5>
-                                </div>
-
-                            </div>
-                            <div class="trezo-card-content">
-                                <div id="ecommerceOrderSummaryChart" class="" style="min-height: 323px;">
-                                    <div id="apexcharts8db0ssht"
-                                         class="apexcharts-canvas apexcharts8db0ssht apexcharts-theme-"
-                                         style="width: 343px; height: 323px;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1"
-                                             xmlns:xlink="http://www.w3.org/1999/xlink" class="apexcharts-svg"
-                                             xmlns:data="ApexChartsNS" transform="translate(0, 0)" width="343"
-                                             height="323">
-                                            <foreignObject x="0" y="0" width="343" height="323">
-                                                <div
-                                                    class="apexcharts-legend apexcharts-align-center apx-legend-position-top"
-                                                    xmlns="http://www.w3.org/1999/xhtml"
-                                                    style="right: 0px; position: absolute; left: 0px; top: 4px; max-height: 143.5px;">
-                                                    <div class="apexcharts-legend-series" rel="1" seriesname="تکمیلxشده"
-                                                         data:collapsed="false" style="margin: 0px 8px;"><span
-                                                            class="apexcharts-legend-marker" rel="1"
-                                                            data:collapsed="false"
-                                                            style="height: 14px; width: 14px; left: -2px; top: -0.5px;"><svg
-                                                                xmlns="http://www.w3.org/2000/svg" version="1.1"
-                                                                xmlns:xlink="http://www.w3.org/1999/xlink" width="100%"
-                                                                height="100%"><path d="M 0, 0
-           m -6, 0
-           a 6,6 0 1,0 12,0
-           a 6,6 0 1,0 -12,0" fill="#37d80a" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9"
-                                                                                    stroke-linecap="butt"
-                                                                                    stroke-width="1"
-                                                                                    stroke-dasharray="0" cx="0" cy="0"
-                                                                                    shape="circle"
-                                                                                    class="apexcharts-legend-marker apexcharts-marker apexcharts-marker-circle"
-                                                                                    style="transform: translate(50%, 50%);"></path></svg></span><span
-                                                            class="apexcharts-legend-text" rel="1" i="0"
-                                                            data:default-text="%D8%AA%DA%A9%D9%85%DB%8C%D9%84%20%D8%B4%D8%AF%D9%87"
-                                                            data:collapsed="false"
-                                                            style="color: rgb(100, 116, 139); font-size: 12px; font-weight: 400; font-family: Helvetica, Arial, sans-serif;">تکمیل شده</span>
-                                                    </div>
-                                                    <div class="apexcharts-legend-series" rel="2"
-                                                         seriesname="سفارشxجدید" data:collapsed="false"
-                                                         style="margin: 0px 8px;"><span class="apexcharts-legend-marker"
-                                                                                        rel="2" data:collapsed="false"
-                                                                                        style="height: 14px; width: 14px; left: -2px; top: -0.5px;"><svg
-                                                                xmlns="http://www.w3.org/2000/svg" version="1.1"
-                                                                xmlns:xlink="http://www.w3.org/1999/xlink" width="100%"
-                                                                height="100%"><path d="M 0, 0
-           m -6, 0
-           a 6,6 0 1,0 12,0
-           a 6,6 0 1,0 -12,0" fill="#605dff" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9"
-                                                                                    stroke-linecap="butt"
-                                                                                    stroke-width="1"
-                                                                                    stroke-dasharray="0" cx="0" cy="0"
-                                                                                    shape="circle"
-                                                                                    class="apexcharts-legend-marker apexcharts-marker apexcharts-marker-circle"
-                                                                                    style="transform: translate(50%, 50%);"></path></svg></span><span
-                                                            class="apexcharts-legend-text" rel="2" i="1"
-                                                            data:default-text="%D8%B3%D9%81%D8%A7%D8%B1%D8%B4%20%D8%AC%D8%AF%DB%8C%D8%AF"
-                                                            data:collapsed="false"
-                                                            style="color: rgb(100, 116, 139); font-size: 12px; font-weight: 400; font-family: Helvetica, Arial, sans-serif;">تایید نشده</span>
-                                                    </div>
-                                                    <div class="apexcharts-legend-series" rel="3" seriesname="درxانتظار"
-                                                         data:collapsed="false" style="margin: 0px 8px;"><span
-                                                            class="apexcharts-legend-marker" rel="3"
-                                                            data:collapsed="false"
-                                                            style="height: 14px; width: 14px; left: -2px; top: -0.5px;"><svg
-                                                                xmlns="http://www.w3.org/2000/svg" version="1.1"
-                                                                xmlns:xlink="http://www.w3.org/1999/xlink" width="100%"
-                                                                height="100%"><path d="M 0, 0
-           m -6, 0
-           a 6,6 0 1,0 12,0
-           a 6,6 0 1,0 -12,0" fill="#ad63f6" fill-opacity="1" stroke="#ffffff" stroke-opacity="0.9"
-                                                                                    stroke-linecap="butt"
-                                                                                    stroke-width="1"
-                                                                                    stroke-dasharray="0" cx="0" cy="0"
-                                                                                    shape="circle"
-                                                                                    class="apexcharts-legend-marker apexcharts-marker apexcharts-marker-circle"
-                                                                                    style="transform: translate(50%, 50%);"></path></svg></span><span
-                                                            class="apexcharts-legend-text" rel="3" i="2"
-                                                            data:default-text="%D8%AF%D8%B1%20%D8%A7%D9%86%D8%AA%D8%B8%D8%A7%D8%B1"
-                                                            data:collapsed="false"
-                                                            style="color: rgb(100, 116, 139); font-size: 12px; font-weight: 400; font-family: Helvetica, Arial, sans-serif;">در انتظار</span>
-                                                    </div>
-                                                </div>
-                                                <style type="text/css">
-                                                    .apexcharts-flip-y {
-                                                        transform: scaleY(-1) translateY(-100%);
-                                                        transform-origin: top;
-                                                        transform-box: fill-box;
-                                                    }
-
-                                                    .apexcharts-flip-x {
-                                                        transform: scaleX(-1);
-                                                        transform-origin: center;
-                                                        transform-box: fill-box;
-                                                    }
-
-                                                    .apexcharts-legend {
-                                                        display: flex;
-                                                        overflow: auto;
-                                                        padding: 0 10px;
-                                                    }
-
-                                                    .apexcharts-legend.apexcharts-legend-group-horizontal {
-                                                        flex-direction: column;
-                                                    }
-
-                                                    .apexcharts-legend-group {
-                                                        display: flex;
-                                                    }
-
-                                                    .apexcharts-legend-group-vertical {
-                                                        flex-direction: column-reverse;
-                                                    }
-
-                                                    .apexcharts-legend.apx-legend-position-bottom, .apexcharts-legend.apx-legend-position-top {
-                                                        flex-wrap: wrap
-                                                    }
-
-                                                    .apexcharts-legend.apx-legend-position-right, .apexcharts-legend.apx-legend-position-left {
-                                                        flex-direction: column;
-                                                        bottom: 0;
-                                                    }
-
-                                                    .apexcharts-legend.apx-legend-position-bottom.apexcharts-align-left, .apexcharts-legend.apx-legend-position-top.apexcharts-align-left, .apexcharts-legend.apx-legend-position-right, .apexcharts-legend.apx-legend-position-left {
-                                                        justify-content: flex-start;
-                                                        align-items: flex-start;
-                                                    }
-
-                                                    .apexcharts-legend.apx-legend-position-bottom.apexcharts-align-center, .apexcharts-legend.apx-legend-position-top.apexcharts-align-center {
-                                                        justify-content: center;
-                                                        align-items: center;
-                                                    }
-
-                                                    .apexcharts-legend.apx-legend-position-bottom.apexcharts-align-right, .apexcharts-legend.apx-legend-position-top.apexcharts-align-right {
-                                                        justify-content: flex-end;
-                                                        align-items: flex-end;
-                                                    }
-
-                                                    .apexcharts-legend-series {
-                                                        cursor: pointer;
-                                                        line-height: normal;
-                                                        display: flex;
-                                                        align-items: center;
-                                                    }
-
-                                                    .apexcharts-legend-text {
-                                                        position: relative;
-                                                        font-size: 14px;
-                                                    }
-
-                                                    .apexcharts-legend-text *, .apexcharts-legend-marker * {
-                                                        pointer-events: none;
-                                                    }
-
-                                                    .apexcharts-legend-marker {
-                                                        position: relative;
-                                                        display: flex;
-                                                        align-items: center;
-                                                        justify-content: center;
-                                                        cursor: pointer;
-                                                        margin-right: 1px;
-                                                    }
-
-                                                    .apexcharts-legend-series.apexcharts-no-click {
-                                                        cursor: auto;
-                                                    }
-
-                                                    .apexcharts-legend .apexcharts-hidden-zero-series, .apexcharts-legend .apexcharts-hidden-null-series {
-                                                        display: none !important;
-                                                    }
-
-                                                    .apexcharts-inactive-legend {
-                                                        opacity: 0.45;
-                                                    }
-
-                                                </style>
-                                            </foreignObject>
-                                            <g class="apexcharts-inner apexcharts-graphical"
-                                               transform="translate(0, 26)">
-                                                <defs>
-                                                    <clipPath id="gridRectMask8db0ssht">
-                                                        <rect width="343" height="271" x="0" y="0" rx="0" ry="0"
-                                                              opacity="1" stroke-width="0" stroke="none"
-                                                              stroke-dasharray="0" fill="#fff"></rect>
-                                                    </clipPath>
-                                                    <clipPath id="gridRectBarMask8db0ssht">
-                                                        <rect width="349" height="277" x="-3" y="-3" rx="0" ry="0"
-                                                              opacity="1" stroke-width="0" stroke="none"
-                                                              stroke-dasharray="0" fill="#fff"></rect>
-                                                    </clipPath>
-                                                    <clipPath id="gridRectMarkerMask8db0ssht">
-                                                        <rect width="343" height="271" x="0" y="0" rx="0" ry="0"
-                                                              opacity="1" stroke-width="0" stroke="none"
-                                                              stroke-dasharray="0" fill="#fff"></rect>
-                                                    </clipPath>
-                                                    <clipPath id="forecastMask8db0ssht"></clipPath>
-                                                    <clipPath id="nonForecastMask8db0ssht"></clipPath>
-                                                </defs>
-                                                <g class="apexcharts-pie">
-                                                    <g transform="translate(0, 0) scale(1)">
-                                                        <circle r="82.0268292682927" cx="171.5" cy="135.5"
-                                                                fill="transparent"></circle>
-                                                        <g class="apexcharts-slices">
-                                                            <g class="apexcharts-series apexcharts-pie-series"
-                                                               seriesName="تکمیلxشده" rel="1" data:realIndex="0">
-                                                                <path
-                                                                    d="M 171.5 9.304878048780466 A 126.19512195121953 126.19512195121953 0 1 1 97.32436840582302 237.5939982657556 L 123.28583946378497 201.86109887274114 A 82.0268292682927 82.0268292682927 0 1 0 171.5 53.4731707317073 L 171.5 9.304878048780466 z "
-                                                                    fill="rgba(55,216,10,1)" fill-opacity="1"
-                                                                    stroke="#ffffff" stroke-opacity="1"
-                                                                    stroke-linecap="butt" stroke-width="2"
-                                                                    stroke-dasharray="0"
-                                                                    class="apexcharts-pie-area apexcharts-donut-slice-0"
-                                                                    index="0" j="0" data:angle="216" data:startAngle="0"
-                                                                    data:strokeWidth="2" data:value="60"
-                                                                    data:pathOrig="M 171.5 9.304878048780466 A 126.19512195121953 126.19512195121953 0 1 1 97.32436840582302 237.5939982657556 L 123.28583946378497 201.86109887274114 A 82.0268292682927 82.0268292682927 0 1 0 171.5 53.4731707317073 L 171.5 9.304878048780466 z "></path>
-                                                            </g>
-                                                            <g class="apexcharts-series apexcharts-pie-series"
-                                                               seriesName="سفارشxجدید" rel="2" data:realIndex="1">
-                                                                <path
-                                                                    d="M 97.32436840582302 237.5939982657556 A 126.19512195121953 126.19512195121953 0 0 1 97.324368405823 33.40600173424443 L 123.28583946378495 69.13890112725888 A 82.0268292682927 82.0268292682927 0 0 0 123.28583946378497 201.86109887274114 L 97.32436840582302 237.5939982657556 z "
-                                                                    fill="rgba(96,93,255,1)" fill-opacity="1"
-                                                                    stroke="#ffffff" stroke-opacity="1"
-                                                                    stroke-linecap="butt" stroke-width="2"
-                                                                    stroke-dasharray="0"
-                                                                    class="apexcharts-pie-area apexcharts-donut-slice-1"
-                                                                    index="0" j="1" data:angle="108"
-                                                                    data:startAngle="216" data:strokeWidth="2"
-                                                                    data:value="30"
-                                                                    data:pathOrig="M 97.32436840582302 237.5939982657556 A 126.19512195121953 126.19512195121953 0 0 1 97.324368405823 33.40600173424443 L 123.28583946378495 69.13890112725888 A 82.0268292682927 82.0268292682927 0 0 0 123.28583946378497 201.86109887274114 L 97.32436840582302 237.5939982657556 z "></path>
-                                                            </g>
-                                                            <g class="apexcharts-series apexcharts-pie-series"
-                                                               seriesName="درxانتظار" rel="3" data:realIndex="2">
-                                                                <path
-                                                                    d="M 97.324368405823 33.40600173424443 A 126.19512195121953 126.19512195121953 0 0 1 171.47797479633175 9.30487997084208 L 171.48568361761565 53.473171981047344 A 82.0268292682927 82.0268292682927 0 0 0 123.28583946378495 69.13890112725888 L 97.324368405823 33.40600173424443 z "
-                                                                    fill="rgba(173,99,246,1)" fill-opacity="1"
-                                                                    stroke="#ffffff" stroke-opacity="1"
-                                                                    stroke-linecap="butt" stroke-width="2"
-                                                                    stroke-dasharray="0"
-                                                                    class="apexcharts-pie-area apexcharts-donut-slice-2"
-                                                                    index="0" j="2" data:angle="36"
-                                                                    data:startAngle="324" data:strokeWidth="2"
-                                                                    data:value="10"
-                                                                    data:pathOrig="M 97.324368405823 33.40600173424443 A 126.19512195121953 126.19512195121953 0 0 1 171.47797479633175 9.30487997084208 L 171.48568361761565 53.473171981047344 A 82.0268292682927 82.0268292682927 0 0 0 123.28583946378495 69.13890112725888 L 97.324368405823 33.40600173424443 z "></path>
-                                                            </g>
-                                                        </g>
-                                                    </g>
-                                                </g>
-                                                <line x1="0" y1="0" x2="343" y2="0" stroke="#b6b6b6"
-                                                      stroke-dasharray="0" stroke-width="1" stroke-linecap="butt"
-                                                      class="apexcharts-ycrosshairs"></line>
-                                                <line x1="0" y1="0" x2="343" y2="0" stroke="#b6b6b6"
-                                                      stroke-dasharray="0" stroke-width="0" stroke-linecap="butt"
-                                                      class="apexcharts-ycrosshairs-hidden"></line>
-                                            </g>
-                                            <g class="apexcharts-datalabels-group"
-                                               transform="translate(0, 0) scale(1)"></g>
-                                            <g class="apexcharts-datalabels-group"
-                                               transform="translate(0, 0) scale(1)"></g>
-                                        </svg>
-                                        <div class="apexcharts-tooltip apexcharts-theme-dark">
-                                            <div
-                                                class="apexcharts-tooltip-series-group apexcharts-tooltip-series-group-0"
-                                                style="order: 1;"><span class="apexcharts-tooltip-marker"
-                                                                        style="background-color: rgb(55, 216, 10);"></span>
-                                                <div class="apexcharts-tooltip-text"
-                                                     style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">
-                                                    <div class="apexcharts-tooltip-y-group"><span
-                                                            class="apexcharts-tooltip-text-y-label"></span><span
-                                                            class="apexcharts-tooltip-text-y-value"></span></div>
-                                                    <div class="apexcharts-tooltip-goals-group"><span
-                                                            class="apexcharts-tooltip-text-goals-label"></span><span
-                                                            class="apexcharts-tooltip-text-goals-value"></span></div>
-                                                    <div class="apexcharts-tooltip-z-group"><span
-                                                            class="apexcharts-tooltip-text-z-label"></span><span
-                                                            class="apexcharts-tooltip-text-z-value"></span></div>
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="apexcharts-tooltip-series-group apexcharts-tooltip-series-group-1"
-                                                style="order: 2;"><span class="apexcharts-tooltip-marker"
-                                                                        style="background-color: rgb(96, 93, 255);"></span>
-                                                <div class="apexcharts-tooltip-text"
-                                                     style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">
-                                                    <div class="apexcharts-tooltip-y-group"><span
-                                                            class="apexcharts-tooltip-text-y-label"></span><span
-                                                            class="apexcharts-tooltip-text-y-value"></span></div>
-                                                    <div class="apexcharts-tooltip-goals-group"><span
-                                                            class="apexcharts-tooltip-text-goals-label"></span><span
-                                                            class="apexcharts-tooltip-text-goals-value"></span></div>
-                                                    <div class="apexcharts-tooltip-z-group"><span
-                                                            class="apexcharts-tooltip-text-z-label"></span><span
-                                                            class="apexcharts-tooltip-text-z-value"></span></div>
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="apexcharts-tooltip-series-group apexcharts-tooltip-series-group-2"
-                                                style="order: 3;"><span class="apexcharts-tooltip-marker"
-                                                                        style="background-color: rgb(173, 99, 246);"></span>
-                                                <div class="apexcharts-tooltip-text"
-                                                     style="font-family: Helvetica, Arial, sans-serif; font-size: 12px;">
-                                                    <div class="apexcharts-tooltip-y-group"><span
-                                                            class="apexcharts-tooltip-text-y-label"></span><span
-                                                            class="apexcharts-tooltip-text-y-value"></span></div>
-                                                    <div class="apexcharts-tooltip-goals-group"><span
-                                                            class="apexcharts-tooltip-text-goals-label"></span><span
-                                                            class="apexcharts-tooltip-text-goals-value"></span></div>
-                                                    <div class="apexcharts-tooltip-z-group"><span
-                                                            class="apexcharts-tooltip-text-z-label"></span><span
-                                                            class="apexcharts-tooltip-text-z-value"></span></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- لایه تار با دکمه بزودی -->
-
-
-                </div>
             </div>
 
         </div>
     </div>
 
-        @push('script')
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const modal = document.getElementById('welcome-modal');
-                    if (!modal) return;
 
-                    const card = modal.querySelector('.welcome-modal-card');
-                    const dots = Array.from(modal.querySelectorAll('.welcome-confetti span'));
-                    const dismiss = document.getElementById('welcome-dismiss');
-                    const storageKey = 'clientDashboardWelcomeSeen_v1.0.0.1';
-
-                    const showModal = () => {
-                        modal.classList.remove('hidden');
-                        document.body.style.overflow = 'hidden'; // قفل کردن اسکرول صفحه
-
-                        requestAnimationFrame(() => {
-                            modal.classList.remove('opacity-0');
-                            card.classList.add('show');
-
-                            // انیمیشن confetti
-                            dots.forEach((dot, index) => {
-                                setTimeout(() => {
-                                    dot.classList.add('animate');
-                                }, index * 30);
-                            });
-                        });
-                    };
-
-                    const hideModal = () => {
-                        modal.classList.add('opacity-0');
-                        card.classList.remove('show');
-
-                        setTimeout(() => {
-                            modal.classList.add('hidden');
-                            document.body.style.overflow = ''; // بازگرداندن اسکرول
-                        }, 350);
-                    };
-
-                    // نمایش مودال اگر قبلاً ندیده
-                    if (!localStorage.getItem(storageKey)) {
-                        setTimeout(showModal, 500); // تاخیر کوتاه برای بارگذاری کامل صفحه
-                    }
-
-                    // بستن مودال
-                    dismiss?.addEventListener('click', () => {
-                        localStorage.setItem(storageKey, 'true');
-                        hideModal();
-                    });
-
-                    // بستن با کلیک روی backdrop
-                    modal.addEventListener('click', (e) => {
-                        if (e.target === modal) {
-                            localStorage.setItem(storageKey, 'true');
-                            hideModal();
-                        }
-                    });
-
-                    // بستن با ESC
-                    document.addEventListener('keydown', (e) => {
-                        if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-                            localStorage.setItem(storageKey, 'true');
-                            hideModal();
-                        }
-                    });
-                });
-            </script>
-        @endpush
 </div>

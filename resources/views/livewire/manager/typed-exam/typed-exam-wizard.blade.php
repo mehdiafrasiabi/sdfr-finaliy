@@ -131,29 +131,41 @@
                                     <label class="form-label">عنوان آزمون <span class="text-danger">*</span></label>
 
                                     <input type="text" wire:model="title" class="form-control"
+
                                            placeholder="عنوان آزمون را وارد کنید">
 
                                     @error('title')
-                                    <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+
+                                    @enderror
 
                                 </div>
 
 
-                                <!-- Academic Year -->
+                                <!-- Academic Year (Dynamic) -->
 
                                 <div class="col-md-3">
 
-                                    <label class="form-label">دوره زمانی (سال تحصیلی) <span class="text-danger">*</span></label>
+                                    <label class="form-label">دوره زمانی <span class="text-danger">*</span></label>
 
                                     <select wire:model="academic_year" class="form-select">
 
-                                        @foreach($academicYears as $value => $label)
+                                        <option value="">انتخاب کنید...</option>
 
-                                            <option value="{{ $value }}">{{ $label }}</option>
+                                        @foreach($examPeriods as $period)
+
+                                            <option value="{{ $period->value }}">{{ $period->name }}</option>
 
                                         @endforeach
 
                                     </select>
+
+                                    @error('academic_year')
+
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+
+                                    @enderror
 
                                 </div>
 
@@ -179,7 +191,7 @@
 
                                 <!-- Random Selection Toggle -->
 
-                                <div class="col-md-4">
+                                <div class="col-md-12">
 
                                     <label class="form-label">انتخاب تصادفی سوالات</label>
 
@@ -201,74 +213,8 @@
 
                                     </div>
 
-                                </div>
-
-
-                                <!-- Result Visibility -->
-
-                                <div class="col-md-4">
-
-                                    <label class="form-label">زمان نمایش کارنامه</label>
-
-                                    <select wire:model="result_visibility" class="form-select">
-
-                                        @foreach($resultVisibilities as $value => $label)
-
-                                            <option value="{{ $value }}">{{ $label }}</option>
-
-                                        @endforeach
-
-                                    </select>
-
-                                </div>
-
-
-                                <!-- Answer Key Visibility -->
-
-                                <div class="col-md-4">
-
-                                    <label class="form-label">زمان نمایش پاسخ‌نامه</label>
-
-                                    <select wire:model="answer_key_visibility" class="form-select">
-
-                                        @foreach($resultVisibilities as $value => $label)
-
-                                            <option value="{{ $value }}">{{ $label }}</option>
-
-                                        @endforeach
-
-                                    </select>
-
-                                </div>
-
-
-                                <!-- Randomization Type -->
-
-                                <div class="col-md-6">
-
-                                    <label class="form-label">ترتیب تصادفی سوالات/گزینه‌ها</label>
-
-                                    <select wire:model="randomization_type" class="form-select">
-
-                                        @foreach($randomizationTypes as $value => $label)
-
-                                            <option value="{{ $value }}">{{ $label }}</option>
-
-                                        @endforeach
-
-                                    </select>
-
-                                </div>
-
-
-                                <!-- Description -->
-
-                                <div class="col-12">
-
-                                    <label class="form-label">توضیحات آزمون</label>
-
-                                    <textarea wire:model="description" class="form-control" rows="3"
-                                              placeholder="توضیحات اختیاری..."></textarea>
+                                    <small class="text-muted">با فعال کردن این گزینه می‌توانید از بانک سوالات به صورت
+                                        تصادفی سوال انتخاب کنید</small>
 
                                 </div>
 
@@ -326,13 +272,13 @@
 
                                 @if($is_random_selection)
 
-                                    <div class="alert alert-info mb-0 py-2">
+                                    <button type="button" class="btn btn-info" wire:click="openRandomModal">
 
-                                        <i class="ti ti-info-circle me-1"></i>
+                                        <i class="ti ti-wand me-1"></i>
 
-                                        سوالات به صورت تصادفی انتخاب شده‌اند
+                                        انتخاب تصادفی سوالات
 
-                                    </div>
+                                    </button>
 
                                 @endif
 
@@ -343,7 +289,7 @@
                     </div>
 
 
-                    <!-- Filters -->
+                    <!-- Hierarchical Filters -->
 
                     <div class="card mb-4">
 
@@ -357,11 +303,83 @@
 
                             <div class="row g-3">
 
+                                <!-- Education Level -->
+
+                                <div class="col-md-2">
+
+                                    <label class="form-label">دوره تحصیلی</label>
+
+                                    <select wire:model.live="filterEducationLevel" class="form-select">
+
+                                        <option value="">همه</option>
+
+                                        @foreach($educationLevels as $level)
+
+                                            <option value="{{ $level->id }}">{{ $level->name }}</option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+
+                                <!-- Grade -->
+
+                                <div class="col-md-2">
+
+                                    <label class="form-label">پایه</label>
+
+                                    <select wire:model.live="filterGrade"
+                                            class="form-select" {{ empty($grades) ? 'disabled' : '' }}>
+
+                                        <option value="">همه</option>
+
+                                        @foreach($grades as $grade)
+
+                                            <option value="{{ $grade->id }}">{{ $grade->name }}</option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+
+                                <!-- Field (for grades >= 10) -->
+
+                                @if($showFieldFilter)
+
+                                    <div class="col-md-2">
+
+                                        <label class="form-label">رشته</label>
+
+                                        <select wire:model.live="filterField" class="form-select">
+
+                                            <option value="">همه</option>
+
+                                            @foreach($fields as $field)
+
+                                                <option value="{{ $field->id }}">{{ $field->name }}</option>
+
+                                            @endforeach
+
+                                        </select>
+
+                                    </div>
+
+                                @endif
+
+
+
+                                <!-- Subject -->
+
                                 <div class="col-md-2">
 
                                     <label class="form-label">درس</label>
 
-                                    <select wire:model.live="filterSubject" class="form-select">
+                                    <select wire:model.live="filterSubject"
+                                            class="form-select" {{ empty($subjects) ? 'disabled' : '' }}>
 
                                         <option value="">همه</option>
 
@@ -374,6 +392,53 @@
                                     </select>
 
                                 </div>
+
+
+                                <!-- Chapter -->
+
+                                <div class="col-md-2">
+
+                                    <label class="form-label">فصل</label>
+
+                                    <select wire:model.live="filterChapter"
+                                            class="form-select" {{ empty($chapters) ? 'disabled' : '' }}>
+
+                                        <option value="">همه</option>
+
+                                        @foreach($chapters as $chapter)
+
+                                            <option value="{{ $chapter->id }}">{{ $chapter->name }}</option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+
+                                <!-- Topic -->
+
+                                <div class="col-md-2">
+
+                                    <label class="form-label">مبحث</label>
+
+                                    <select wire:model.live="filterTopic"
+                                            class="form-select" {{ empty($topics) ? 'disabled' : '' }}>
+
+                                        <option value="">همه</option>
+
+                                        @foreach($topics as $topic)
+
+                                            <option value="{{ $topic->id }}">{{ $topic->name }}</option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+
+                                <!-- Difficulty -->
 
                                 <div class="col-md-2">
 
@@ -393,23 +458,21 @@
 
                                 </div>
 
+
+                                <!-- Code -->
+
                                 <div class="col-md-2">
 
                                     <label class="form-label">کد سوال</label>
 
                                     <input type="text" wire:model.live.debounce.300ms="filterCode" class="form-control"
+
                                            placeholder="کد...">
 
                                 </div>
 
-                                <div class="col-md-3">
 
-                                    <label class="form-label">کلید واژه</label>
-
-                                    <input type="text" wire:model.live.debounce.500ms="filterKeyword"
-                                           class="form-control" placeholder="جستجو...">
-
-                                </div>
+                                <!-- Sort Order -->
 
                                 <div class="col-md-2">
 
@@ -425,12 +488,15 @@
 
                                 </div>
 
-                                <div class="col-md-1 d-flex align-items-end">
+
+                                <div class="col-md-2 d-flex align-items-end">
 
                                     <button wire:click="clearFilters" class="btn btn-outline-secondary w-100">
 
                                         <i class="ti ti-x"></i>
+
                                         حذف فیلتر
+
                                     </button>
 
                                 </div>
@@ -467,45 +533,83 @@
 
                                             <div class="flex-grow-1">
 
-                                                <div class="d-flex gap-2 mb-2">
+                                                <div class="d-flex gap-2 mb-2 flex-wrap">
 
                                                     <span class="badge bg-primary">{{ $question->code }}</span>
 
-                                                    <span
-                                                        class="badge bg-secondary">{{ $question->subject?->name }}</span>
+                                                    @if($question->topic)
+
+                                                        <span
+                                                            class="badge bg-secondary">{{ $question->topic->name }}</span>
+
+                                                    @endif
 
                                                     <span
                                                         class="badge bg-info">{{ $questionDifficulties[$question->difficulty] ?? $question->difficulty }}</span>
 
+                                                    @if($question->correct_option)
+
+                                                        <span
+                                                            class="badge bg-success">گزینه {{ $question->correct_option }}</span>
+
+                                                    @endif
+
                                                 </div>
 
-                                                <div class="question-preview text-muted small"
-                                                     style="max-height: 60px; overflow: hidden;">
+                                                <!-- Question Image Preview -->
 
-                                                    {{ Str::limit(strip_tags($question->content?->body), 150) }}
+                                                @if($question->content && $question->content->question_image_url)
 
-                                                </div>
+                                                    <div class="question-preview mt-2">
+
+                                                        <img src="{{ $question->content->question_image_url }}"
+
+                                                             alt="تصویر سوال"
+
+                                                             class="img-fluid rounded"
+
+                                                             style="max-height: 100px; object-fit: contain;">
+
+                                                    </div>
+
+                                                @else
+
+                                                    <div class="text-muted small">
+
+                                                        <i class="ti ti-photo-off me-1"></i>
+
+                                                        تصویر سوال موجود نیست
+
+                                                    </div>
+
+                                                @endif
 
                                             </div>
 
-                                            <div>
+                                            <div class="ms-3">
 
                                                 @if($this->isQuestionSelected($question->id))
 
                                                     <button wire:click="removeQuestion({{ $question->id }})"
+
                                                             class="btn btn-outline-danger btn-sm">
 
-                                                        <i class="ri-subtract-line"></i>
+                                                        <i class="ti ti-minus"></i>
+
                                                         حذف
+
                                                     </button>
 
                                                 @else
 
                                                     <button wire:click="addQuestion({{ $question->id }})"
+
                                                             class="btn btn-outline-success btn-sm">
 
-                                                        <i class="ri-add-line"></i>
+                                                        <i class="ti ti-plus"></i>
+
                                                         اضافه کردن
+
                                                     </button>
 
                                                 @endif
@@ -601,7 +705,7 @@
 
                                         data-code="{{ $question['code'] }}"
 
-                                        data-subject="{{ $question['subject'] }}"
+                                        data-topic="{{ $question['topic'] ?? '' }}"
 
                                         data-difficulty="{{ $question['difficulty'] }}">
 
@@ -617,15 +721,16 @@
 
                                             <span class="badge bg-secondary">{{ $question['code'] }}</span>
 
-                                            <span class="text-muted ms-2">{{ $question['subject'] }}</span>
-
+                                            <span class="text-muted ms-2">{{ $question['topic'] ?? '-' }}</span>
 
                                         </div>
 
                                         <button wire:click="removeQuestion({{ $question['id'] }})"
+
                                                 class="btn btn-outline-danger btn-sm">
 
-                                            <i class=" ri-delete-bin-6-line"></i>
+                                            <i class="ti ti-trash"></i>
+
                                             حذف
 
                                         </button>
@@ -660,6 +765,7 @@
                             </button>
 
                             <button type="button" class="btn btn-success" wire:click="save"
+
                                     wire:loading.attr="disabled">
 
                                 <span wire:loading.remove wire:target="save">
@@ -698,7 +804,7 @@
 
             <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
 
-                <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
 
                     <div class="modal-content">
 
@@ -707,33 +813,188 @@
                             <h5 class="modal-title">انتخاب تصادفی سوالات</h5>
 
                             <button type="button" class="btn-close"
+
                                     wire:click="$set('showRandomModal', false)"></button>
 
                         </div>
 
                         <div class="modal-body">
 
-                            <div class="mb-3">
+                            <div class="row g-3">
 
-                                <label class="form-label">درجه سوالات</label>
+                                <!-- Education Level -->
 
-                                <select wire:model="randomDifficulty" class="form-select">
+                                <div class="col-md-4">
 
-                                    @foreach($questionDifficulties as $value => $label)
+                                    <label class="form-label">دوره تحصیلی</label>
 
-                                        <option value="{{ $value }}">{{ $label }}</option>
+                                    <select wire:model.live="randomEducationLevel" class="form-select">
 
-                                    @endforeach
+                                        <option value="">همه</option>
 
-                                </select>
+                                        @foreach($educationLevels as $level)
 
-                            </div>
+                                            <option value="{{ $level->id }}">{{ $level->name }}</option>
 
-                            <div class="mb-3">
+                                        @endforeach
 
-                                <label class="form-label">تعداد سوالات</label>
+                                    </select>
 
-                                <input type="number" wire:model="randomCount" class="form-control" min="1" max="100">
+                                </div>
+
+
+                                <!-- Grade -->
+
+                                <div class="col-md-4">
+
+                                    <label class="form-label">پایه</label>
+
+                                    <select wire:model.live="randomGrade"
+                                            class="form-select" {{ empty($randomGrades) ? 'disabled' : '' }}>
+
+                                        <option value="">همه</option>
+
+                                        @foreach($randomGrades as $grade)
+
+                                            <option value="{{ $grade->id }}">{{ $grade->name }}</option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+
+                                <!-- Field (for grades >= 10) -->
+
+                                @if($showRandomFieldFilter)
+
+                                    <div class="col-md-4">
+
+                                        <label class="form-label">رشته</label>
+
+                                        <select wire:model.live="randomField" class="form-select">
+
+                                            <option value="">همه</option>
+
+                                            @foreach($randomFields as $field)
+
+                                                <option value="{{ $field->id }}">{{ $field->name }}</option>
+
+                                            @endforeach
+
+                                        </select>
+
+                                    </div>
+
+                                @endif
+
+
+
+                                <!-- Subject -->
+
+                                <div class="col-md-4">
+
+                                    <label class="form-label">درس</label>
+
+                                    <select wire:model.live="randomSubject"
+                                            class="form-select" {{ empty($randomSubjects) ? 'disabled' : '' }}>
+
+                                        <option value="">همه</option>
+
+                                        @foreach($randomSubjects as $subject)
+
+                                            <option value="{{ $subject->id }}">{{ $subject->name }}</option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+
+                                <!-- Chapter -->
+
+                                <div class="col-md-4">
+
+                                    <label class="form-label">فصل</label>
+
+                                    <select wire:model.live="randomChapter"
+                                            class="form-select" {{ empty($randomChapters) ? 'disabled' : '' }}>
+
+                                        <option value="">همه</option>
+
+                                        @foreach($randomChapters as $chapter)
+
+                                            <option value="{{ $chapter->id }}">{{ $chapter->name }}</option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+
+                                <!-- Topic -->
+
+                                <div class="col-md-4">
+
+                                    <label class="form-label">مبحث</label>
+
+                                    <select wire:model.live="randomTopic"
+                                            class="form-select" {{ empty($randomTopics) ? 'disabled' : '' }}>
+
+                                        <option value="">همه</option>
+
+                                        @foreach($randomTopics as $topic)
+
+                                            <option value="{{ $topic->id }}">{{ $topic->name }}</option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+
+                                <div class="col-12">
+
+                                    <hr>
+
+                                </div>
+
+
+                                <!-- Difficulty -->
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label">درجه سختی سوالات</label>
+
+                                    <select wire:model="randomDifficulty" class="form-select">
+
+                                        <option value="">همه</option>
+
+                                        @foreach($questionDifficulties as $value => $label)
+
+                                            <option value="{{ $value }}">{{ $label }}</option>
+
+                                        @endforeach
+
+                                    </select>
+
+                                </div>
+
+
+                                <!-- Count -->
+
+                                <div class="col-md-6">
+
+                                    <label class="form-label">تعداد سوالات</label>
+
+                                    <input type="number" wire:model="randomCount" class="form-control" min="1"
+                                           max="100">
+
+                                </div>
 
                             </div>
 
@@ -741,11 +1002,23 @@
 
                         <div class="modal-footer">
 
+                            <button type="button" class="btn btn-outline-secondary" wire:click="clearRandomFilters">
+
+                                <i class="ti ti-x me-1"></i>
+
+                                پاک کردن فیلترها
+
+                            </button>
+
                             <button type="button" class="btn btn-secondary" wire:click="$set('showRandomModal', false)">
+
                                 انصراف
+
                             </button>
 
                             <button type="button" class="btn btn-primary" wire:click="selectRandomQuestions">
+
+                                <i class="ti ti-wand me-1"></i>
 
                                 انتخاب
 
@@ -769,27 +1042,39 @@
         <style>
 
             .wizard-step {
+
                 min-width: 120px;
+
             }
 
             .sortable-item {
+
                 transition: all 0.2s;
+
             }
 
             .sortable-item:hover {
+
                 background-color: #e9ecef !important;
+
             }
 
             .drag-handle {
+
                 cursor: move;
+
             }
 
             .sortable-ghost {
+
                 opacity: 0.4;
+
             }
 
             .sortable-chosen {
+
                 background-color: var(--bs-primary-bg-subtle) !important;
+
             }
 
         </style>
@@ -797,14 +1082,9 @@
     @endpush
 
 
-    @push('link')
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
-    @endpush
 
     @push('script')
 
-        <script src="/manager/assets/js/pages/select2.init.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
         <script>
@@ -847,7 +1127,7 @@
 
                                 code: el.dataset.code,
 
-                                subject: el.dataset.subject,
+                                topic: el.dataset.topic,
 
                                 difficulty: el.dataset.difficulty,
 
@@ -873,7 +1153,6 @@
                 }
 
             }
-
 
         </script>
 

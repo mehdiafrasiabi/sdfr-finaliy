@@ -46,8 +46,14 @@ class ExamAssignment extends Component
     public string $startTime = '08:00';
 
     public string $endTime = '18:00';
-    public int|string $durationMinutes = 60; // 👈 مدت آزمون (دقیقه)
+    public int|string $durationMinutes = 60;
 
+
+    // Visibility Settings
+
+    public string $resultVisibility = 'after_exam_end';
+
+    public string $answerKeyVisibility = 'after_exam_end';
     // Search
 
     public string $studentSearch = '';
@@ -66,7 +72,11 @@ class ExamAssignment extends Component
     public string $editStartTime = '';
 
     public string $editEndTime = '';
-    public int|string $editDurationMinutes = 60; // 👈 مدت آزمون در ویرایش
+    public int|string $editDurationMinutes = 60;
+
+    public string $editResultVisibility = 'after_exam_end';
+
+    public string $editAnswerKeyVisibility = 'after_exam_end';
 
     protected function rules(): array
 
@@ -75,16 +85,13 @@ class ExamAssignment extends Component
         return [
 
             'selectedStudents' => 'required|array|min:1',
-
             'startDate' => 'required|date',
-
             'endDate' => 'required|date|after_or_equal:startDate',
-
             'startTime' => 'required',
-
             'endTime' => 'required',
             'durationMinutes' => 'required|integer|min:1|max:1440',
-
+            'resultVisibility' => 'required|in:after_exam_end,immediately',
+            'answerKeyVisibility' => 'required|in:after_exam_end,immediately',
         ];
 
     }
@@ -110,9 +117,9 @@ class ExamAssignment extends Component
 
             'endTime.required' => 'ساعت پایان الزامی است.',
             'durationMinutes.required' => 'مدت آزمون الزامی است.',
-            'durationMinutes.integer'  => 'مدت آزمون باید به‌صورت عددی (دقیقه) وارد شود.',
-            'durationMinutes.min'      => 'مدت آزمون باید حداقل ۱ دقیقه باشد.',
-            'durationMinutes.max'      => 'مدت آزمون نمی‌تواند بیشتر از ۱۴۴۰ دقیقه باشد.',
+            'durationMinutes.integer' => 'مدت آزمون باید به‌صورت عددی (دقیقه) وارد شود.',
+            'durationMinutes.min' => 'مدت آزمون باید حداقل ۱ دقیقه باشد.',
+            'durationMinutes.max' => 'مدت آزمون نمی‌تواند بیشتر از ۱۴۴۰ دقیقه باشد.',
 
         ];
 
@@ -149,14 +156,15 @@ class ExamAssignment extends Component
     public function closeAssignModal(): void
     {
         $this->showAssignModal = false;
-        $this->reset(['selectedStudents', 'startTime', 'endTime', 'durationMinutes']);
+        $this->reset(['selectedStudents', 'startTime', 'endTime', 'durationMinutes', 'resultVisibility', 'answerKeyVisibility']);
         $this->startDate = now()->format('Y-m-d');
         $this->endDate = now()->addDays(7)->format('Y-m-d');
         $this->startTime = '08:00';
         $this->endTime = '18:00';
         $this->durationMinutes = 60;
+        $this->resultVisibility = 'after_exam_end';
+        $this->answerKeyVisibility = 'after_exam_end';
     }
-
 
 
     public function toggleStudent(int $studentId): void
@@ -206,14 +214,12 @@ class ExamAssignment extends Component
 
 
                 $assignment = TypedExamAssignment::create([
-
                     'typed_exam_id' => $this->examId,
-
                     'student_id' => $studentId,
-
                     'admin_id' => $admin->id,
-
                     'status' => 'pending',
+                    'result_visibility' => $this->resultVisibility,
+                    'answer_key_visibility' => $this->answerKeyVisibility,
 
                 ]);
 
@@ -249,8 +255,11 @@ class ExamAssignment extends Component
         $this->editEndDate = $assignment->time?->end_date?->format('Y-m-d') ?? '';
         $this->editStartTime = $assignment->time?->start_time ?? '';
         $this->editEndTime = $assignment->time?->end_time ?? '';
-        $this->editDurationMinutes = $assignment->time?->duration_minutes ?? 60; // 👈 این
+        $this->editDurationMinutes = $assignment->time?->duration_minutes ?? 60;
 
+        $this->editResultVisibility = $assignment->result_visibility ?? 'after_exam_end';
+
+        $this->editAnswerKeyVisibility = $assignment->answer_key_visibility ?? 'after_exam_end';
         $this->showEditModal = true;
     }
 
@@ -258,7 +267,7 @@ class ExamAssignment extends Component
     public function closeEditModal(): void
     {
         $this->showEditModal = false;
-        $this->reset(['editingAssignmentId', 'editStartDate', 'editEndDate', 'editStartTime', 'editEndTime', 'editDurationMinutes']);
+        $this->reset(['editingAssignmentId', 'editStartDate', 'editEndDate', 'editStartTime', 'editEndTime', 'editDurationMinutes', 'editResultVisibility', 'editAnswerKeyVisibility']);
     }
 
 
@@ -270,10 +279,19 @@ class ExamAssignment extends Component
             'editStartTime' => 'required',
             'editEndTime' => 'required',
             'editDurationMinutes' => 'required|integer|min:1|max:1440',
+            'editResultVisibility' => 'required|in:after_exam_end,immediately',
+
+            'editAnswerKeyVisibility' => 'required|in:after_exam_end,immediately',
+
         ]);
 
-        $assignment = TypedExamAssignment::findOrFail($this->editingAssignmentId);
 
+        $assignment = TypedExamAssignment::findOrFail($this->editingAssignmentId);
+        // Update visibility settings on assignment
+        $assignment->update([
+            'result_visibility' => $this->editResultVisibility,
+            'answer_key_visibility' => $this->editAnswerKeyVisibility,
+        ]);
         $assignment->time()->updateOrCreate(
             ['assignment_id' => $assignment->id],
             [
@@ -281,14 +299,12 @@ class ExamAssignment extends Component
                 'end_date' => $this->editEndDate,
                 'start_time' => $this->editStartTime,
                 'end_time' => $this->editEndTime,
-                'duration_minutes' => $this->editDurationMinutes, // 👈 اینجا ذخیره می‌شود
+                'duration_minutes' => $this->editDurationMinutes,
             ]
         );
-
         $this->closeEditModal();
-        $this->dispatch('success', 'زمان‌بندی با موفقیت به‌روزرسانی شد.');
+        $this->dispatch('success', 'تنظیمات با موفقیت به‌روزرسانی شد.');
     }
-
 
 
     public function deleteAssignment(int $assignmentId): void
@@ -316,9 +332,6 @@ class ExamAssignment extends Component
 
         $this->dispatch('success', 'اختصاص و آزمون‌های مرتبط با موفقیت حذف شد.');
     }
-
-
-
 
 
     public function render()
@@ -360,11 +373,15 @@ class ExamAssignment extends Component
             ->whereNull('deleted_at') // اگر soft delete داری
             ->pluck('student_id')
             ->toArray();
-
+        $visibilityOptions = [
+            'after_exam_end' => 'بعد از پایان آزمون',
+            'immediately' => 'بلافاصله پس از ثبت پاسخ',
+        ];
         return view('livewire.admin.typed-exam.exam-assignment', compact(
             'students',
             'assignments',
-            'assignedStudentIds'
+            'assignedStudentIds',
+            'visibilityOptions'
         ))->layout('layouts.admin.app');
     }
 

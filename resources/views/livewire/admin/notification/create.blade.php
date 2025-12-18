@@ -1,216 +1,381 @@
-<div class="row">
-    @push('link')
-        <style>
-            .wrap-text {
-                word-wrap: break-word;
-                white-space: normal;
-                overflow-wrap: break-word;
-                max-width: 500px; /* یا هر عرضی که می‌خوای */
-            }
-        </style>
-    @endpush
-        <div class="grid lg:grid-cols-5 gap-[25px] mb-[25px]">
-            <div class="lg:col-span-2">
-                <!-- Recent Customer Ratings -->
-                <div class="trezo-card bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md">
-                    <div class="trezo-card-header mb-[20px] md:mb-[25px] flex items-center justify-between">
-                        <div class="trezo-card-title">
-                            <h5 class="!mb-0"> اطلاع رسانی</h5>
-                        </div>
-                    </div>
-                    <div class="trezo-card-content ">
-                        <div class=" overflow-x-auto">
-                            <form wire:submit.prevent="send">
-                                <div class="mb-[20px] md:mb-[25px] last:mb-0">
-                                    <label class="mb-[12px] font-medium block">
-                                        عنوان اعلان :
-                                    </label>
-                                    <input type="text"
-                                           name="title"
-                                           wire:model="title"
-                                           class="h-[55px] rounded-md text-black dark:text-white border border-gray-200 dark:border-[#172036] bg-white dark:bg-[#0c1427] px-[17px] block w-full outline-0 transition-all placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-primary-500"
-                                           placeholder="اقساط مهر">
-                                    @error('title')
-                                    <div class="text-[12px] font-medium text-orange-500  "
-                                         style="margin-top: 7px">{{$message}}</div>
+<div class="row g-4">
 
-                                    @enderror
-                                </div>
-                                <div class="mb-[20px] md:mb-[25px] last:mb-0">
-                                    <label class="mb-[12px] font-medium block">
-                                        توضیحات:
-                                    </label>
-                                    <textarea
-                                        rows="4"
-                                        name="body"
-                                        wire:model="body"
-                                        class="h-[140px] rounded-md text-black dark:text-white border border-gray-200 dark:border-[#172036] bg-white dark:bg-[#0c1427] p-[17px] block w-full outline-0 transition-all placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:border-primary-500" placeholder="این باعث میشه حس کنم..."></textarea>
-                                    @error('body')
-                                    <div class="text-[12px] font-medium text-orange-500  "
-                                         style="margin-top: 7px">{{$message}}</div>
-                                    @enderror
-                                </div>
-                                <div class="mb-[20px] md:mb-[25px] last:mb-0">
-                                    <div class="col-sm-12">
-                                        <label class="form-label">ارسال به:</label>
-                                        <select
-                                            wire:model="studentId"
-                                            class="h-[55px] rounded-md border border-gray-200 dark:border-[#172036] bg-white dark:bg-[#0c1427] px-[13px] block w-full outline-0 cursor-pointer transition-all focus:border-primary-500">
-                                            <option value="">همه دانش‌آموزها</option>
-                                            @foreach($notifications as $notifStudent)
-                                                <option value="{{ $notifStudent->id }}">
-                                                    {{ $notifStudent->student?->personalInformation?->name ?? 'نامشخص' }}
-
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    @error('studentId')
-                                    <div class="text-[12px] font-medium text-orange-500  "
-                                         style="margin-top: 7px">{{$message}}</div>
-                                    @enderror
-                                </div>
-                                <a href="{{route('admin.student.index')}}"
-                                   class="inline-block py-[10px] px-[30px] bg-danger-500 text-white transition-all hover:bg-danger-400 rounded-md border border-danger-500 hover:border-danger-400 ltr:mr-[11px] rtl:ml-[11px] mb-[15px]"
-                                   type="button">
-                                    خروج
-                                </a>
-                                <button
-                                    type="submit"
-                                    class="inline-block py-[10px] px-[30px] bg-success-500 text-white transition-all hover:bg-success-400 rounded-md border border-success-500 hover:border-success-400 ltr:mr-[11px] rtl:ml-[11px] mb-[15px]">
-                                <span class="flex items-center justify-center gap-[5px]" wire:loading.remove>
-                              ثبت و ارسال
-                          </span>
-                                    <div wire:loading>
-                                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                             viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="40px" height="40px"
-                                             style="shape-rendering: auto; display: block; background: transparent;">
-                                            <g>
-                                                <path stroke="none" fill="#ffffff"
-                                                      d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
-                                                    <animateTransform values="0 50 51.5;360 50 51.5" keyTimes="0;1"
-                                                                      repeatCount="indefinite" dur="0.8130081300813008s"
-                                                                      type="rotate" attributeName="transform"/>
-                                                </path>
-                                                <g/>
-                                            </g>
-                                        </svg>
-                                    </div>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
-                    <div class="mt-[15px] md:mt-[20px]"></div>
-
-                </div>
+    <!-- فرم ارسال اعلان -->
+    <div class="col-12 col-lg-4">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex align-items-center justify-content-between">
+                <h5 class="mb-0">
+                    <i class="material-symbols-outlined align-middle ms-1">notifications</i>
+                    ارسال اعلان به دانش‌آموز
+                </h5>
             </div>
-        </div>
 
-        <div class="lg:col-span-2">
-            <!-- Recent Leads -->
-            <div class="trezo-card bg-white dark:bg-[#0c1427] p-[20px] md:p-[25px] rounded-md">
-                <div class="trezo-card-header mb-[20px] md:mb-[25px] flex items-center justify-between">
-                    <div class="trezo-card-title">
-                        <h5 class="!mb-0"> اطلاع رسانی   </h5>
+            <div class="card-body">
+                <form wire:submit.prevent="send">
+
+                    <!-- عنوان اعلان -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            عنوان اعلان:
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            wire:model="title"
+                            class="form-control @error('title') is-invalid @enderror"
+                            placeholder="عنوان پیام خود را وارد کنید"
+                        >
+
+                        @error('title')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
                     </div>
 
-                    <div class="trezo-card-subtitle sm:flex sm:items-center">
-                        <form class="relative sm:w-[240px] ltr:sm:mr-[20px] rtl:sm:ml-[20px] my-[13px] sm:my-0">
-                            <label
-                                class="leading-none absolute ltr:left-[13px] rtl:right-[13px] text-black dark:text-white mt-px top-1/2 -translate-y-1/2">
-                                <i class="material-symbols-outlined !text-[20px]"> search </i>
+                    <!-- توضیحات -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            توضیحات:
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <textarea
+                            rows="4"
+                            wire:model="body"
+                            class="form-control @error('body') is-invalid @enderror"
+                            placeholder="متن پیام خود را وارد کنید..."
+                        ></textarea>
+
+                        @error('body')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <!-- ارسال به -->
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            ارسال به:
+                            <span class="text-danger">*</span>
+                        </label>
+
+                        <select
+                            wire:model.live="sendType"
+                            class="form-select"
+                        >
+                            <option value="all">همه دانش‌آموزان من</option>
+                            <option value="single">انتخاب دانش‌آموز</option>
+                        </select>
+                    </div>
+
+                    <!-- انتخاب دانش‌آموز (فقط در حالت تکی) -->
+                    @if($sendType === 'single')
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                انتخاب دانش‌آموز:
+                                <span class="text-danger">*</span>
                             </label>
-                            <input type="text" placeholder="جستجو....."
-                                   wire:model.live.debounce.350ms="search"
-                                   class="bg-gray-50 border border-gray-50 h-[36px] text-xs rounded-md w-full block text-black pt-[11px] pb-[12px] ltr:pl-[38px] rtl:pr-[38px] ltr:pr-[13px] ltr:md:pr-[16px] rtl:pl-[13px] rtl:md:pl-[16px] placeholder:text-gray-500 outline-0 dark:bg-[#15203c] dark:text-white dark:border-[#15203c] dark:placeholder:text-gray-400">
-                        </form>
-                        <div class="trezo-card-dropdown relative">
-                            {{--                            <a href="{{ route('admin.blog.create') }}"--}}
-                            {{--                               class="text-white trezo-card-dropdown-btn inline-block bg-secondary-500 rounded-md border border-gray-100 py-[5px] md:py-[6.5px] px-[12px] md:px-[19px] transition-all hover:bg-secondary-400 dark:border-[#172036] dark:hover:bg-[#0a0e19]">--}}
-                            {{--                                افزودن بلاگ جدید--}}
-                            {{--                            </a>--}}
+
+                            <select
+                                wire:model="studentId"
+                                class="form-select @error('studentId') is-invalid @enderror"
+                            >
+                                <option value="">-- انتخاب کنید --</option>
+                                @foreach($students as $student)
+                                    <option value="{{ $student->id }}">
+                                        {{ $student->user?->personalInformation?->name ?? $student->user?->name ?? 'نامشخص' }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            @error('studentId')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
                         </div>
-                    </div>
-                </div>
-                <div class="trezo-card-content -mx-[20px] md:-mx-[25px]">
-                    <div class="table-responsive overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="text-black dark:text-white">
-                            <tr>
+                    @else
+                        <!-- نمایش لیست دانش‌آموزان -->
+                        <div class="mb-3">
+                            <label class="form-label text-body-secondary">
+                                دانش‌آموزان شما ({{ count($students) }} نفر):
+                            </label>
 
-                                <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                    #
-                                </th>
-                                <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                    دانش آموز
-                                </th>
-                                <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                    عنوان
-                                </th>
-                                <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                    متن
-                                </th>
-                                <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                    تاریخ ثبت
-                                </th>
-                                <th class="font-medium ltr:text-left rtl:text-right px-[20px] py-[11px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 bg-primary-50 dark:bg-[#15203c] whitespace-nowrap">
-                                    عملیات
-                                </th>
-
-
-                            </tr>
-                            </thead>
-                            <tbody class="text-black dark:text-white">
-                            @forelse($notifications as $notif)
-                                <tr>
-                                    <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                        {{$loop->iteration + $notifications->firstItem() - 1}}
-                                    </td>
-
-                                    <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                        @if($notif->student)
-                                            {{ $notif->student->personalInformation->name }}
-                                        @else
-                                            همه
-                                        @endif
-                                    </td>
-                                    <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                        <p class="wrap-text">
-                                            {{ $notif->title }}
-                                        </p>
-                                    </td>
-                                    <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                        <p class="wrap-text">{{ $notif->body }}</p>
-                                    </td>
-                                    <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                        {{jalali($notif->created_at)->format('%d %B %Y | H:i')}}
-                                    </td>
-                                    <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-                                        delete
-                                    </td>
-                                </tr>
-                            @empty
-                                <td class="ltr:text-left rtl:text-right whitespace-nowrap px-[20px] py-[15px] md:ltr:first:pl-[25px] md:rtl:first:pr-[25px] ltr:first:pr-0 rtl:first:pl-0 border-b border-gray-100 dark:border-[#172036]">
-
-                                    <div class="text-center">
-                                        <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="loop" colors="primary:#121331,secondary:#08a88a" style="width:75px;height:75px"></lord-icon>
-                                        <h5 class="mt-2">متاسفیم! هیچ نتیجه ای یافت نشد</h5>
-
+                            <div class="border rounded p-3" style="max-height:150px; overflow:auto;">
+                                @forelse($students as $student)
+                                    <div class="d-flex align-items-center gap-2 py-1 small">
+                                        <i class="material-symbols-outlined text-success"
+                                           style="font-size:16px;">person</i>
+                                        <span>{{ $student->user?->personalInformation?->name ?? $student->user?->name ?? 'نامشخص' }}</span>
                                     </div>
-                                </td>
-                            @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="px-[20px] md:px-[25px] pt-[12px] md:pt-[14px] sm:flex sm:items-center justify-between">
-                        {{ $notifications->links('layouts.admin.pagination') }}
+                                @empty
+                                    <div class="text-center text-body-secondary py-2">
+                                        هیچ دانش‌آموزی یافت نشد
+                                    </div>
+                                @endforelse
+                            </div>
+                        </div>
+                    @endif
 
-                    </div>
-                </div>
-                <div class="mt-[15px] md:mt-[20px]"></div>
+                    <!-- دکمه‌ها -->
+                    <div class="d-flex gap-2">
+                        <a href="{{ route('admin.student.index') }}" class="btn btn-outline-danger">
+                            خروج
+                        </a>
 
+                        <button type="submit" class="btn btn-success flex-grow-1">
+                            <span wire:loading.remove wire:target="send"
+                                  class="d-flex align-items-center justify-content-center gap-2">
+                                <i class="material-symbols-outlined">send</i>
+                                ثبت و ارسال
+                            </span>
+
+                            <span wire:loading wire:target="send"
+                                  class="d-flex align-items-center justify-content-center">
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </span>
+                        </button>
+                    </div>
+
+                </form>
             </div>
         </div>
+    </div>
 
+
+    <!-- جدول اعلان‌ها -->
+    <div class="col-12 col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                <h5 class="mb-0">
+                    <i class="material-symbols-outlined align-middle ms-1">list</i>
+                    لیست اعلان‌های ارسال شده
+                </h5>
+
+                <form class="position-relative" style="max-width:240px;">
+                    <span class="position-absolute top-50 translate-middle-y ms-2 text-body-secondary">
+                        <i class="material-symbols-outlined" style="font-size:20px;">search</i>
+                    </span>
+
+                    <input
+                        type="text"
+                        placeholder="جستجو..."
+                        wire:model.live.debounce.350ms="search"
+                        class="form-control form-control-sm ps-5"
+                    >
+                </form>
+            </div>
+
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                        <tr>
+                            <th class="text-nowrap">#</th>
+                            <th class="text-nowrap">دانش‌آموز</th>
+                            <th class="text-nowrap">عنوان</th>
+                            <th class="text-nowrap">وضعیت</th>
+                            <th class="text-nowrap">تاریخ ثبت</th>
+                            <th class="text-nowrap">زمان خواندن</th>
+                            <th class="text-nowrap">عملیات</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        @forelse($notifications as $notif)
+                            <tr>
+                                <td class="text-nowrap">
+                                    {{ $loop->iteration + $notifications->firstItem() - 1 }}
+                                </td>
+
+                                <td class="text-nowrap">
+                                    @if($notif->target_type === 'all_students')
+                                        <button
+                                            wire:click="showRecipients({{ $notif->id }})"
+                                            class="btn btn-sm btn-outline-primary rounded-pill d-inline-flex align-items-center gap-1"
+                                            type="button"
+                                        >
+                                            <i class="material-symbols-outlined" style="font-size:16px;">group</i>
+                                            همه دانش‌آموزان
+                                        </button>
+                                    @else
+                                        {{ $notif->student?->user?->personalInformation?->name ?? 'نامشخص' }}
+                                    @endif
+                                </td>
+
+                                <td>
+                                    <p class="wrap-text fw-semibold mb-1">{{ $notif->title }}</p>
+                                    <p class="wrap-text small text-body-secondary mb-0">{{ Str::limit($notif->body, 50) }}</p>
+                                </td>
+
+                                <td class="text-nowrap">
+                                    @php $recipient = $notif->recipients->first(); @endphp
+
+                                    @if($recipient && $recipient->is_read)
+                                        <span class="badge text-bg-success d-inline-flex align-items-center gap-1">
+                                            <i class="material-symbols-outlined"
+                                               style="font-size:16px;">check_circle</i>
+                                            خوانده شده
+                                        </span>
+                                    @else
+                                        <span class="badge text-bg-warning d-inline-flex align-items-center gap-1">
+                                            <i class="material-symbols-outlined" style="font-size:16px;">schedule</i>
+                                            خوانده نشده
+                                        </span>
+                                    @endif
+                                </td>
+
+                                <td class="text-nowrap">
+                                    <div>{{ jalali($notif->created_at)->format('%d %B %Y') }}</div>
+                                    <div class="small text-body-secondary">{{ $notif->created_at->format('H:i') }}</div>
+                                </td>
+
+                                <td class="text-nowrap">
+                                    @if($recipient && $recipient->is_read && $recipient->read_at)
+                                        <div>{{ jalali($recipient->read_at)->format('%d %B %Y') }}</div>
+                                        <div
+                                            class="small text-body-secondary">{{ $recipient->read_at->format('H:i') }}</div>
+                                    @else
+                                        <span class="text-body-secondary">-</span>
+                                    @endif
+                                </td>
+
+                                <td class="text-nowrap">
+                                    <button
+                                        wire:click="deleteNotification({{ $notif->id }})"
+                                        wire:confirm="آیا از حذف این اعلان مطمئن هستید؟"
+                                        class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1"
+                                        type="button"
+                                    >
+                                        <i class="material-symbols-outlined" style="font-size:16px;">delete</i>
+                                        حذف
+                                    </button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="7" class="text-center py-5">
+                                    <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="loop"
+                                               colors="primary:#121331,secondary:#08a88a"
+                                               style="width:75px;height:75px"></lord-icon>
+                                    <h5 class="mt-2 mb-0">هیچ اعلانی یافت نشد</h5>
+                                </td>
+                            </tr>
+                        @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="p-3">
+                    {{ $notifications->links('layouts.admin.pagination') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- مودال نمایش گیرندگان -->
+    @if($showRecipientsModal && $selectedNotification)
+        <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background: rgba(0,0,0,.5);"
+             wire:click.self="closeRecipientsModal">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="material-symbols-outlined align-middle ms-1">group</i>
+                            لیست گیرندگان - {{ $selectedNotification->title }}
+                        </h5>
+                        <button type="button" class="btn-close" aria-label="Close"
+                                wire:click="closeRecipientsModal"></button>
+                    </div>
+
+                    <div class="modal-body">
+
+                        <!-- آمار -->
+                        <div class="row g-3 mb-3">
+                            <div class="col-12 col-md-4">
+                                <div class="border rounded p-3 text-center bg-body-tertiary">
+                                    <div class="fs-3 fw-bold">{{ $recipientsList->count() }}</div>
+                                    <div class="small text-body-secondary">کل گیرندگان</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <div class="border rounded p-3 text-center bg-body-tertiary">
+                                    <div class="fs-3 fw-bold text-success">
+                                        {{ $recipientsList->filter(fn($n) => $n->recipients->first()?->is_read)->count() }}
+                                    </div>
+                                    <div class="small text-body-secondary">خوانده شده</div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-4">
+                                <div class="border rounded p-3 text-center bg-body-tertiary">
+                                    <div class="fs-3 fw-bold text-warning">
+                                        {{ $recipientsList->filter(fn($n) => !$n->recipients->first()?->is_read)->count() }}
+                                    </div>
+                                    <div class="small text-body-secondary">خوانده نشده</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- لیست -->
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead class="table-light position-sticky top-0">
+                                <tr>
+                                    <th class="text-nowrap">#</th>
+                                    <th class="text-nowrap">نام دانش‌آموز</th>
+                                    <th class="text-nowrap">وضعیت</th>
+                                    <th class="text-nowrap">زمان خواندن</th>
+                                </tr>
+                                </thead>
+
+                                <tbody>
+                                @foreach($recipientsList as $notif)
+                                    @php $recipient = $notif->recipients->first(); @endphp
+                                    <tr>
+                                        <td>{{ $loop->iteration }}</td>
+                                        <td>{{ $notif->student?->user?->personalInformation?->name ?? 'نامشخص' }}</td>
+                                        <td>
+                                            @if($recipient && $recipient->is_read)
+                                                <span
+                                                    class="badge text-bg-success d-inline-flex align-items-center gap-1">
+                                                    <i class="material-symbols-outlined"
+                                                       style="font-size:14px;">check</i>
+                                                    خوانده شده
+                                                </span>
+                                            @else
+                                                <span
+                                                    class="badge text-bg-secondary d-inline-flex align-items-center gap-1">
+                                                    <i class="material-symbols-outlined" style="font-size:14px;">schedule</i>
+                                                    خوانده نشده
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($recipient && $recipient->is_read && $recipient->read_at)
+                                                {{ jalali($recipient->read_at)->format('%d %B %Y - H:i') }}
+                                            @else
+                                                <span class="text-body-secondary">-</span>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+
+                            </table>
+                        </div>
+
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" wire:click="closeRecipientsModal">
+                            بستن
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    @endif
 
 </div>

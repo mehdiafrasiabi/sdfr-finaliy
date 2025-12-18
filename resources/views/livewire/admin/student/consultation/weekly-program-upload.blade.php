@@ -34,9 +34,18 @@
                             <div class="vr d-none d-md-block text-white opacity-50"></div>
 
                             <div class="text-center">
-                                <div class="text-light small mb-1">مشاور من</div>
+                                <div class="text-light small mb-1">مشاور</div>
+
                                 <div class="fw-bold text-black">
-                                    {{ $advisor_name ?? $student->advisor?->name ?? '---' }}
+
+                                    {{ $advisorName }}
+                                </div>
+                            </div>
+                            <div class="vr d-none d-md-block text-white opacity-50"></div>
+                            <div class="text-center">
+                                <div class="text-light small mb-1">پشتیبان</div>
+                                <div class="fw-bold text-black">
+                                    {{ $supporterName }}
                                 </div>
                             </div>
 
@@ -142,7 +151,7 @@
 
         {{-- تنظیمات برنامه هفتگی --}}
         <div class="card mb-4">
-            <h5 class="card-header">تنظیمات برنامه هفتگی</h5>
+            <h5 class="card-header">تاریخ شروع برنامه</h5>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-4">
@@ -150,22 +159,7 @@
                         <input type="date"
                                wire:model.live="start_date"
                                class="form-control">
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">نام مشاور</label>
-                        <input type="text"
-                               wire:model="advisor_name"
-                               class="form-control"
-                               placeholder="نام مشاور">
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">نام پشتیبان</label>
-                        <input type="text"
-                               wire:model="supporter_name"
-                               class="form-control"
-                               placeholder="نام پشتیبان">
+                        <small class="text-muted">روز و تاریخ به صورت خودکار محاسبه می‌شود</small>
                     </div>
                 </div>
             </div>
@@ -373,51 +367,173 @@
         </div>
     </div>
 
-    {{-- Modal اضافه کردن پارت --}}
     {{-- Modal اضافه کردن / ویرایش پارت --}}
+
     @if($showPartModal)
+
         <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
+
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+
                 <div class="modal-content">
 
+
                     <div class="modal-header">
+
                         <h5 class="modal-title">
+
                             {{ $editingPartId ? 'ویرایش پارت' : 'افزودن پارت جدید' }}
+
                         </h5>
+
                         <button type="button" class="btn-close" wire:click="closePartModal"></button>
+
                     </div>
+
 
                     <div class="modal-body">
 
-                        {{-- انتخاب درس --}}
-                        <div class="mb-3">
-                            <label class="form-label">انتخاب درس</label>
-                            <select
-                                wire:model.live="partForm.lesson_id"
-                                wire:change="selectLesson($event.target.value)"
-                                class="form-select"
-                            >
-                                <option value="">انتخاب کنید یا دستی وارد کنید</option>
-                                @foreach($lessons as $lesson)
-                                    <option value="{{ $lesson->id }}">
-                                        {{ $lesson->name }} ({{ $lesson->type_label }} {{ $lesson->grade_label }})
-                                    </option>
-                                @endforeach
-                            </select>
+
+                        {{-- انتخاب دوره تحصیلی --}}
+
+                        <div class="row g-3 mb-3">
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">دوره تحصیلی <span class="text-danger">*</span></label>
+
+                                <select
+
+                                    wire:model.live="partForm.education_level_id"
+
+                                    class="form-select @error('partForm.education_level_id') is-invalid @enderror"
+
+                                >
+
+                                    <option value="">انتخاب کنید</option>
+
+                                    @foreach($educationLevels as $level)
+
+                                        <option value="{{ $level->id }}">{{ $level->name }}</option>
+
+                                    @endforeach
+
+                                </select>
+
+                                @error('partForm.education_level_id')
+
+                                <div class="text-danger small">{{ $message }}</div>
+
+                                @enderror
+
+                            </div>
+
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">پایه تحصیلی <span class="text-danger">*</span></label>
+
+                                <select
+
+                                    wire:model.live="partForm.cc_grade_id"
+
+                                    class="form-select @error('partForm.cc_grade_id') is-invalid @enderror"
+
+                                    {{ empty($grades) ? 'disabled' : '' }}
+
+                                >
+
+                                    <option
+                                        value="">{{ empty($grades) ? 'ابتدا دوره را انتخاب کنید' : 'انتخاب کنید' }}</option>
+
+                                    @foreach($grades as $grade)
+
+                                        <option value="{{ $grade->id }}">{{ $grade->name }}</option>
+
+                                    @endforeach
+
+                                </select>
+
+                                @error('partForm.cc_grade_id')
+
+                                <div class="text-danger small">{{ $message }}</div>
+
+                                @enderror
+
+                            </div>
+
                         </div>
 
-                        {{-- نام درس --}}
-                        <div class="mb-3">
-                            <label class="form-label">نام درس</label>
-                            <input type="text"
-                                   wire:model="partForm.lesson_name"
-                                   class="form-control @error('partForm.lesson_name') is-invalid @enderror"
-                                   placeholder="مثال: ریاضی ۱">
-                            @error('partForm.lesson_name')
-                            <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
+                        {{-- رشته و درس --}}
+                        <div class="row g-3 mb-3">
+                            @if(count($fields) > 0 && $partForm['cc_grade_id'])
+                                <div class="col-md-4">
+                                    <label class="form-label">رشته</label>
+                                    <select
+                                        wire:model.live="partForm.cc_field_id"
+                                        class="form-select"
+                                    >
+                                        <option value="">بدون رشته</option>
+                                        @foreach($fields as $field)
+                                            <option value="{{ $field->id }}">{{ $field->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <small class="text-muted">برای متوسطه اول خالی بگذارید</small>
+                                </div>
+                            @endif
 
+                            <div class="{{ count($fields) > 0 && $partForm['cc_grade_id'] ? 'col-md-8' : 'col-12' }}">
+                                <label class="form-label">درس <span class="text-danger">*</span></label>
+                                <select
+                                    wire:model.live="partForm.cc_subject_id"
+                                    class="form-select @error('partForm.cc_subject_id') is-invalid @enderror"
+                                    {{ empty($subjects) ? 'disabled' : '' }}
+                                >
+                                    <option
+                                        value="">{{ empty($subjects) ? 'ابتدا پایه را انتخاب کنید' : 'انتخاب کنید' }}</option>
+                                    @foreach($subjects as $subject)
+                                        <option value="{{ $subject->id }}">
+                                            {{ $subject->name }} ({{ $subject->type === 'general' ? 'عمومی' : 'تخصصی' }}
+                                            )
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('partForm.cc_subject_id')
+                                <div class="text-danger small">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        {{-- فصل و مبحث --}}
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">فصل</label>
+                                <select
+                                    wire:model.live="partForm.cc_chapter_id"
+                                    class="form-select"
+                                    {{ empty($chapters) ? 'disabled' : '' }}
+                                >
+                                    <option
+                                        value="">{{ empty($chapters) ? 'ابتدا درس را انتخاب کنید' : 'انتخاب کنید' }}</option>
+                                    @foreach($chapters as $chapter)
+                                        <option value="{{ $chapter->id }}">{{ $chapter->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">مبحث</label>
+                                <select
+                                    wire:model.live="partForm.cc_topic_id"
+                                    class="form-select"
+                                    {{ empty($topics) ? 'disabled' : '' }}
+                                >
+                                    <option
+                                        value="">{{ empty($topics) ? 'ابتدا فصل را انتخاب کنید' : 'انتخاب کنید' }}</option>
+                                    @foreach($topics as $topic)
+                                        <option value="{{ $topic->id }}">{{ $topic->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         {{-- توضیحات --}}
                         <div class="mb-3">
                             <label class="form-label">توضیحات پارت</label>
@@ -425,13 +541,12 @@
                                 wire:model="partForm.description"
                                 rows="2"
                                 class="form-control"
-                                placeholder="مثال: حل تست آموزشی از فصل ۱"
+                                placeholder="مسیر انتخاب شده یا توضیحات دلخواه"
                             ></textarea>
                         </div>
-
                         <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">مدت زمان (دقیقه)</label>
+                            <div class="col-md-4">
+                                <label class="form-label">مدت زمان (دقیقه) <span class="text-danger">*</span></label>
                                 <input type="number"
                                        min="1"
                                        wire:model="partForm.duration_minutes"
@@ -440,40 +555,19 @@
                                 <div class="text-danger small">{{ $message }}</div>
                                 @enderror
                             </div>
-
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label">تعداد تست (اختیاری)</label>
                                 <input type="number"
                                        min="0"
                                        wire:model="partForm.test_count"
                                        class="form-control">
                             </div>
-                        </div>
-
-                        <div class="row g-3 mb-3">
                             <div class="col-md-4">
-                                <label class="form-label">نوع پارت</label>
+                                <label class="form-label">نوع پارت <span class="text-danger">*</span></label>
                                 <select wire:model="partForm.part_type" class="form-select">
                                     <option value="descriptive">تشریحی</option>
                                     <option value="test">تستی</option>
                                     <option value="video">ویدئو</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">نوع درس</label>
-                                <select wire:model="partForm.lesson_type" class="form-select">
-                                    <option value="specialized">تخصصی</option>
-                                    <option value="general">عمومی</option>
-                                </select>
-                            </div>
-
-                            <div class="col-md-4">
-                                <label class="form-label">پایه</label>
-                                <select wire:model="partForm.grade" class="form-select">
-                                    <option value="10">دهم</option>
-                                    <option value="11">یازدهم</option>
-                                    <option value="12">دوازدهم</option>
                                 </select>
                             </div>
                         </div>

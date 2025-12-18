@@ -85,18 +85,18 @@
                                 <span>
                                     مشاور:
                                     <span class="font-semibold text-white">
-                                        {{ $program->advisor_name ?? '-' }}
+                                  {{ $advisorName }}
                                     </span>
                                 </span>
                             </span>
-
-                            @if($program->supporter_name)
+                            @if($supporterName && $supporterName !== '-')
                                 <span class="flex items-center gap-1">
                                     <i class="fas fa-headset text-violet-200"></i>
                                     <span>
                                         پشتیبان:
                                         <span class="font-semibold text-white">
-                                            {{ $program->supporter_name }}
+
+                                            {{ $supporterName }}
                                         </span>
                                     </span>
                                 </span>
@@ -586,13 +586,21 @@
 
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                 @php
-                    $dayNames = ['شنبه', '۱شنبه', '۲شنبه', '۳شنبه', '۴شنبه', '۵شنبه', 'جمعه'];
+                    $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+
                 @endphp
 
                 @foreach($program->parts->sortBy(['day_of_week', 'part_order']) as $part)
+                    @php
+                        // محاسبه روز هفته واقعی از تاریخ part
+                        $partJalaliDate = jdate($part->part_date);
+                        $partDayOfWeek = $partJalaliDate->getDayOfWeek();
+                        $partDayName = $jalaliDayNames[$partDayOfWeek];
+                    @endphp
                     <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/70">
                         <td class="px-3 py-2 text-[11px] text-slate-600 dark:text-slate-300">
-                            {{ $dayNames[$part->day_of_week] }}
+                            {{ $partDayName }}
+                            <span class="block text-[10px] text-slate-400">{{ $partJalaliDate->format('m/d') }}</span>
                         </td>
                         <td class="px-3 py-2 text-[11px] font-medium text-slate-800 dark:text-slate-100">
                             {{ $part->lesson_name }}

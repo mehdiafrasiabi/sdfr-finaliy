@@ -41,6 +41,13 @@ class CcTopic extends Model
         return $this->hasMany(StudentClassification::class);
 
     }
+    public function questions()
+
+    {
+
+        return $this->hasMany(Question::class, 'cc_topic_id');
+
+    }
 
 
     public function scopeActive($query)

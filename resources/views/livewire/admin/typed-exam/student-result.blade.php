@@ -26,7 +26,8 @@
 
                         </div>
 
-                        <a href="{{ route('admin.typed-exams.assignment', ['examId' => $examId]) }}" class="btn btn-secondary">
+                        <a href="{{ route('admin.typed-exams.assignment', ['examId' => $examId]) }}"
+                           class="btn btn-secondary">
 
                             <i class="ti ti-arrow-right me-1"></i>
 
@@ -41,7 +42,6 @@
             </div>
 
         </div>
-
 
 
         <!-- Stats Summary -->
@@ -270,7 +270,8 @@
 
 
 
-                            <div class="question-box border rounded p-4 mb-4 {{ $isCorrect === true ? 'border-success' : ($isCorrect === false ? 'border-danger' : 'border-secondary') }}">
+                            <div
+                                class="question-box border rounded p-4 mb-4 {{ $isCorrect === true ? 'border-success' : ($isCorrect === false ? 'border-danger' : 'border-secondary') }}">
 
                                 <!-- Question Header -->
 
@@ -307,60 +308,58 @@
                                 </div>
 
 
+                                <!-- Question Body (Image or Text) -->
 
-                                <!-- Question Body -->
 
-                                <div class="question-body mb-3" dir="{{ $question->direction }}">
+                                <div class="question-body mb-3" dir="rtl">
 
-                                    {!! $question->content?->body !!}
+                                    @if($question->content?->question_image_url)
 
+                                        <img src="{{ $question->content->question_image_url }}"
+
+                                             alt="تصویر سوال {{ $index + 1 }}"
+
+                                             class="img-fluid rounded mb-3"
+
+                                             style="max-width: 100%; max-height: 400px; object-fit: contain;">
+
+                                    @elseif($question->content?->body)
+
+                                        {!! $question->content->body !!}
+                                    @else
+                                        <div class="text-muted text-center py-4">
+                                            <i class="ti ti-photo-off fs-1"></i>
+                                            <p class="mt-2">تصویر سوال موجود نیست</p>
+                                        </div>
+                                    @endif
                                 </div>
-
-
-
                                 <hr>
-
-
-
-                                <!-- Options -->
-
+                                <!-- Options (Simple numbered with correct/wrong indicators) -->
                                 <div class="options-list">
-
-                                    @foreach($question->options as $option)
-
+                                    @php
+                                        // Get correct option from question model
+                                        $correctOpt = $question->correct_option ?? $question->options->firstWhere('is_correct', true)?->option_number;
+                                    @endphp
+                                    @foreach([1, 2, 3, 4] as $optNum)
                                         @php
-
-                                            $isSelected = $selectedOption === $option->option_number;
-
-                                            $isCorrectOption = $option->is_correct;
-
-
-
+                                            $isSelected = $selectedOption === $optNum;
+                                            $isCorrectOption = $correctOpt === $optNum;
                                             $bgClass = '';
-
                                             if ($isCorrectOption) {
-
                                                 $bgClass = 'bg-success-subtle border border-success';
-
                                             } elseif ($isSelected && !$isCorrectOption) {
-
                                                 $bgClass = 'bg-danger-subtle border border-danger';
-
                                             }
-
                                         @endphp
+                                        <div
+                                            class="option-item d-flex align-items-center gap-2 mb-2 p-2 rounded {{ $bgClass }}">
+                                            <span
+                                                class="badge {{ $isCorrectOption ? 'bg-success' : ($isSelected ? 'bg-danger' : 'bg-secondary') }}"
+                                                style="width: 30px;">
 
-
-
-                                        <div class="option-item d-flex align-items-center gap-2 mb-2 p-2 rounded {{ $bgClass }}">
-
-                                            <span class="badge {{ $isCorrectOption ? 'bg-success' : ($isSelected ? 'bg-danger' : 'bg-secondary') }}">
-
-                                                {{ $option->option_number }}
-
+                                                {{ $optNum }}
                                             </span>
-
-                                            <div class="flex-grow-1">{!! $option->content !!}</div>
+                                            <div class="flex-grow-1">گزینه {{ $optNum }}</div>
 
                                             @if($isSelected)
 
@@ -381,10 +380,26 @@
                                 </div>
 
 
+                                <!-- Explanation (Image or Text) -->
 
-                                <!-- Explanation -->
 
-                                @if($question->content?->explanation)
+                                @if($question->content?->explanation_image_url)
+
+                                    <div class="explanation mt-3 p-3 bg-light rounded">
+
+                                        <strong class="d-block mb-2"><i class="ti ti-book me-1"></i> توضیح:</strong>
+
+                                        <img src="{{ $question->content->explanation_image_url }}"
+
+                                             alt="توضیح سوال {{ $index + 1 }}"
+
+                                             class="img-fluid rounded"
+
+                                             style="max-width: 100%; max-height: 300px; object-fit: contain;">
+
+                                    </div>
+
+                                @elseif($question->content?->explanation)
 
                                     <div class="explanation mt-3 p-3 bg-light rounded">
 
@@ -409,7 +424,6 @@
         </div>
 
     </div>
-
 
 
     @push('link')

@@ -1,16 +1,30 @@
 <?php
 
+
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Model;
+
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+
 use Illuminate\Database\Eloquent\Relations\HasMany;
+
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class TypedExam extends Model
-{
-    protected $guarded = [];
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+
+class TypedExam extends Model
+
+{
+
+    use SoftDeletes;
+
+
+    protected $guarded = [];
 
 
     protected $casts = [
@@ -22,11 +36,34 @@ class TypedExam extends Model
     ];
 
 
+    /**
+     * رشته مرتبط
+     */
+
+    public function field(): BelongsTo
+
+    {
+
+        return $this->belongsTo(CcField::class, 'cc_field_id');
+
+    }
+
 
     /**
+     * مبحث مرتبط
+     */
 
+    public function topic(): BelongsTo
+
+    {
+
+        return $this->belongsTo(CcTopic::class, 'cc_topic_id');
+
+    }
+
+
+    /**
      * تنظیمات آزمون
-
      */
 
     public function settings(): HasOne
@@ -38,11 +75,8 @@ class TypedExam extends Model
     }
 
 
-
     /**
-
      * سوالات آزمون
-
      */
 
     public function questions(): BelongsToMany
@@ -50,21 +84,15 @@ class TypedExam extends Model
     {
 
         return $this->belongsToMany(Question::class, 'typed_exam_questions')
-
             ->withPivot('order')
-
             ->withTimestamps()
-
             ->orderBy('typed_exam_questions.order');
 
     }
 
 
-
     /**
-
      * تنظیمات انتخاب تصادفی
-
      */
 
     public function randomConfigs(): HasMany
@@ -76,11 +104,8 @@ class TypedExam extends Model
     }
 
 
-
     /**
-
      * اختصاص‌ها به دانش‌آموزان
-
      */
 
     public function assignments(): HasMany
@@ -92,11 +117,8 @@ class TypedExam extends Model
     }
 
 
-
     /**
-
      * تلاش‌های آزمون
-
      */
 
     public function attempts(): HasMany
@@ -108,11 +130,8 @@ class TypedExam extends Model
     }
 
 
-
     /**
-
      * آزمون‌های منتشر شده
-
      */
 
     public function scopePublished($query)
@@ -124,11 +143,8 @@ class TypedExam extends Model
     }
 
 
-
     /**
-
      * تعداد سوالات آزمون
-
      */
 
     public function getQuestionsCountAttribute(): int
@@ -140,27 +156,8 @@ class TypedExam extends Model
     }
 
 
-
     /**
-
-     * گرفتن توضیحات
-
-     */
-
-    public function getDescriptionAttribute(): ?string
-
-    {
-
-        return $this->settings?->description;
-
-    }
-
-
-
-    /**
-
      * ترجمه درجه سختی
-
      */
 
     public function getDifficultyLabelAttribute(): string
@@ -182,4 +179,5 @@ class TypedExam extends Model
         return $labels[$this->difficulty] ?? $this->difficulty;
 
     }
+
 }

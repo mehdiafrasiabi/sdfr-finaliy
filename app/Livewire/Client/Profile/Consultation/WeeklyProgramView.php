@@ -54,31 +54,34 @@ class WeeklyProgramView extends Component
 
 
 
-        // محاسبه روزهای هفته
+        // محاسبه روزهای هفته با نام روز صحیح فارسی
+
+
 
         $weekDays = [];
 
-        $dayNames = ['شنبه', '۱شنبه', '۲شنبه', '۳شنبه', '۴شنبه', '۵شنبه', 'جمعه'];
+
+
+        $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+
+
+
+
 
 
 
         for ($i = 0; $i < 7; $i++) {
-
             $date = Carbon::parse($program->start_date)->addDays($i);
-
             $dayParts = $program->parts()->where('day_of_week', $i)->orderBy('part_order')->get();
-
-
-
+            // محاسبه روز هفته واقعی از تاریخ
+            $jalaliDate = jdate($date);
+            $dayOfWeek = $jalaliDate->getDayOfWeek(); // 0 = شنبه، 6 = جمعه
+            $dayName = $jalaliDayNames[$dayOfWeek];
             $weekDays[] = [
-
                 'index' => $i,
-
-                'name' => $dayNames[$i],
-
+                'name' => $dayName,
                 'date' => $date,
-
-                'jalali_date' => jdate($date)->format('m/d'),
+                'jalali_date' => $jalaliDate->format('Y/m/d'),
 
                 'parts' => $dayParts,
 
@@ -122,32 +125,24 @@ class WeeklyProgramView extends Component
 
         ];
 
-
-
         // آمار نمودارها
-
         $chartStats = [
-
             'partType' => $program->getPartTypeStats(),
-
             'lessonType' => $program->getLessonTypeStats(),
-
             'grade' => $program->getGradeStats(),
-
         ];
 
-
-
+        // نام مشاور و پشتیبان از دانش‌آموز
+        $student = $program->student;
+        $advisorName = $student?->advisor?->name ?? $program->advisor_name ?? '-';
+        $supporterName = $student?->supporter?->name ?? $program->supporter_name ?? '-';
         return view('livewire.client.profile.consultation.weekly-program-view', [
-
             'program' => $program,
-
             'weekDays' => $weekDays,
-
             'stats' => $stats,
-
             'chartStats' => $chartStats,
-
+            'advisorName' => $advisorName,
+            'supporterName' => $supporterName,
         ])->layout('layouts.client.app');
 
     }

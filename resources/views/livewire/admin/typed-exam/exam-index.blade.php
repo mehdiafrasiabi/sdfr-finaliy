@@ -88,6 +88,7 @@
 
                                             <span class="badge bg-secondary">{{ $exam->assignments_count }} اختصاص</span>
 
+                                            <span class="badge bg-success">{{ $exam->completed_count }} تکمیل شده</span>
                                         </div>
 
                                         <p class="text-muted small mb-0">

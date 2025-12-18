@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8"/>
+    <title>ورود ادمین</title>
     <meta content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
           name="viewport"/>
     <meta content="" name="description"/>

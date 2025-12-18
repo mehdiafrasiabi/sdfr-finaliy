@@ -17,7 +17,7 @@ return new class extends Migration
 
             $table->foreignId('question_id')->constrained()->cascadeOnDelete();
 
-            $table->longText('body'); // متن سوال (CKEditor HTML)
+            $table->longText('body')->nullable(); // متن سوال (CKEditor HTML)
 
             $table->longText('explanation')->nullable(); // توضیح تشریحی جواب
 

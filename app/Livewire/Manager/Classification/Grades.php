@@ -4,13 +4,10 @@ namespace App\Livewire\Manager\Classification;
 
 
 use App\Models\CcGrade;
-
+use App\Models\CcField;
 use App\Models\EducationLevel;
-
 use Artesaos\SEOTools\Traits\SEOTools;
-
 use Livewire\Component;
-
 use Livewire\WithPagination;
 
 
@@ -34,8 +31,7 @@ class Grades extends Component
     public $is_active = true;
 
     public $editingId = null;
-
-
+    public $cc_field_id = null;
     protected $queryString = ['search'];
 
 
@@ -66,11 +62,9 @@ class Grades extends Component
         return [
 
             'name' => 'required|string|max:100',
-
             'grade_number' => 'required|integer|min:1|max:12',
-
+            'cc_field_id' => 'nullable|exists:cc_fields,id',
             'order' => 'nullable|integer|min:0',
-
             'is_active' => 'boolean',
 
         ];
@@ -117,15 +111,11 @@ class Grades extends Component
         $data = [
 
             'education_level_id' => $this->educationLevel->id,
-
             'name' => $this->name,
-
             'grade_number' => $this->grade_number,
-
             'order' => $this->order ?? 0,
-
             'is_active' => $this->is_active,
-
+            'cc_field_id' => $this->cc_field_id ?: null,
         ];
 
 
@@ -164,7 +154,7 @@ class Grades extends Component
         $this->grade_number = $grade->grade_number;
 
         $this->order = $grade->order;
-
+        $this->cc_field_id = $grade->cc_field_id;
         $this->is_active = $grade->is_active;
 
     }
@@ -197,7 +187,7 @@ class Grades extends Component
 
     {
 
-        $this->reset(['name', 'grade_number', 'order', 'is_active', 'editingId']);
+        $this->reset(['name', 'grade_number', 'order', 'is_active', 'editingId', 'cc_field_id']);
 
         $this->is_active = true;
 
@@ -216,21 +206,18 @@ class Grades extends Component
     public function render()
 
     {
-
         $grades = CcGrade::query()
+            ->with('field')
             ->where('education_level_id', $this->educationLevel->id)
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->orderBy('order')
             ->paginate(10);
-
-
+        $fields = CcField::active()->ordered()->get();
         return view('livewire.manager.classification.grades', [
-
             'grades' => $grades,
-
+            'fields' => $fields,
         ])->layout('layouts.manager.app');
 
     }
 
 }
-

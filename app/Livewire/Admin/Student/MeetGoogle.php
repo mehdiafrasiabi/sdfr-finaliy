@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Student;
 use App\Models\MeetLinkGoogle;
 use App\Models\Student;
 use App\Models\User;
+use App\Notifications\AdvisorSessionHeld;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -66,7 +67,22 @@ class MeetGoogle extends Component
         $meet->is_active = ! $meet->is_active;
         $meet->save();
         $this->dispatch('success', 'وضعیت با موفقیت به‌روزرسانی شد.');
+
+        if ($meet->is_active) {
+            $student = Student::with('user.personalInformation')->find($this->studentId);
+
+            if ($student && $student->user) {
+                $mobile = $student->user->personalInformation->mobile ?? $student->user->mobile;
+                $name = $student->user->personalInformation->name ?? $student->user->name ?? $this->studentName;
+
+                if ($mobile && $name) {
+                    $date = jalali(now())->format('%Y/%m/%d');
+                    $student->user->notify(new AdvisorSessionHeld($mobile, $name, $date));
+                }
+            }
+        }
     }
+
     public function render()
     {
         $meets = MeetLinkGoogle::query()

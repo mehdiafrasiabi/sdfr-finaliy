@@ -4,15 +4,25 @@
 namespace App\Livewire\Manager\TypedExam;
 
 
-use App\Models\Question;
+use App\Models\CcChapter;
 
-use App\Models\Subject;
+use App\Models\CcField;
+
+use App\Models\CcGrade;
+
+use App\Models\CcSubject;
+
+use App\Models\CcTopic;
+
+use App\Models\EducationLevel;
+
+use App\Models\ExamPeriod;
+
+use App\Models\Question;
 
 use App\Models\TypedExam;
 
 use App\Models\TypedExamRandomConfig;
-
-use App\Models\TypedExamSetting;
 
 use Illuminate\Support\Facades\DB;
 
@@ -39,19 +49,11 @@ class TypedExamWizard extends Component
 
     public string $title = '';
 
-    public string $academic_year = '1404-1405';
+    public string $academic_year = '';
 
     public string $difficulty = 'medium';
 
     public bool $is_random_selection = false;
-
-    public string $result_visibility = 'after_exam_end';
-
-    public string $answer_key_visibility = 'after_exam_end';
-
-    public string $randomization_type = 'none';
-
-    public string $description = '';
 
 
     // Random selection modal
@@ -63,17 +65,68 @@ class TypedExamWizard extends Component
     public int $randomCount = 10;
 
 
-    // Step 2: Question Selection
+    // Random selection hierarchical filters
+
+    public string $randomEducationLevel = '';
+
+    public string $randomGrade = '';
+
+    public string $randomField = '';
+
+    public string $randomSubject = '';
+
+    public string $randomChapter = '';
+
+    public string $randomTopic = '';
+
+
+    // Random filter data
+
+    public $randomGrades = [];
+
+    public $randomFields = [];
+
+    public $randomSubjects = [];
+
+    public $randomChapters = [];
+
+    public $randomTopics = [];
+
+
+    // Step 2: Question Selection - Hierarchical Filters
+
+    public string $filterEducationLevel = '';
+
+    public string $filterGrade = '';
+
+    public string $filterField = '';
 
     public string $filterSubject = '';
 
-    public string $filterDifficulty = '';
+    public string $filterChapter = '';
 
-    public string $filterKeyword = '';
+    public string $filterTopic = '';
+
+    public string $filterDifficulty = '';
 
     public string $filterCode = '';
 
     public string $sortOrder = 'desc';
+
+
+    // Filter Data
+
+    public $educationLevels = [];
+
+    public $grades = [];
+
+    public $fields = [];
+
+    public $subjects = [];
+
+    public $chapters = [];
+
+    public $topics = [];
 
 
     // Selected questions IDs
@@ -97,12 +150,6 @@ class TypedExamWizard extends Component
             'academic_year' => 'required|string',
 
             'difficulty' => 'required|in:easy,medium,hard,comprehensive',
-
-            'result_visibility' => 'required|in:after_exam_end,immediately',
-
-            'answer_key_visibility' => 'required|in:after_exam_end,immediately',
-
-            'randomization_type' => 'required|in:none,questions_only,options_only,both',
 
         ];
 
@@ -132,6 +179,20 @@ class TypedExamWizard extends Component
 
     {
 
+        $this->educationLevels = EducationLevel::where('is_active', true)->orderBy('order')->get();
+
+
+        // Set default academic year from first active exam period
+
+        $defaultPeriod = ExamPeriod::active()->ordered()->first();
+
+        if ($defaultPeriod) {
+
+            $this->academic_year = $defaultPeriod->value;
+
+        }
+
+
         if ($id) {
 
             $this->loadExam($id);
@@ -145,7 +206,7 @@ class TypedExamWizard extends Component
 
     {
 
-        $exam = TypedExam::with(['settings', 'questions', 'randomConfigs'])->findOrFail($id);
+        $exam = TypedExam::with(['questions', 'randomConfigs'])->findOrFail($id);
 
 
         $this->isEditMode = true;
@@ -159,19 +220,6 @@ class TypedExamWizard extends Component
         $this->difficulty = $exam->difficulty;
 
         $this->is_random_selection = $exam->is_random_selection;
-
-
-        if ($exam->settings) {
-
-            $this->result_visibility = $exam->settings->result_visibility;
-
-            $this->answer_key_visibility = $exam->settings->answer_key_visibility;
-
-            $this->randomization_type = $exam->settings->randomization_type;
-
-            $this->description = $exam->settings->description ?? '';
-
-        }
 
 
         // Load selected questions
@@ -189,13 +237,326 @@ class TypedExamWizard extends Component
 
                 'code' => $q->code,
 
-                'subject' => $q->subject?->name,
+                'topic' => $q->topic?->name,
 
                 'difficulty' => $q->difficulty,
 
             ];
 
         })->toArray();
+
+    }
+
+
+    // Main filter cascade methods
+
+    public function updatedFilterEducationLevel($value): void
+
+    {
+
+        $this->reset(['filterGrade', 'filterField', 'filterSubject', 'filterChapter', 'filterTopic']);
+
+        $this->grades = [];
+
+        $this->fields = [];
+
+        $this->subjects = [];
+
+        $this->chapters = [];
+
+        $this->topics = [];
+
+        $this->resetPage();
+
+
+        if ($value) {
+
+            $this->grades = CcGrade::where('education_level_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+        }
+
+    }
+
+
+    public function updatedFilterGrade($value): void
+
+    {
+
+        $this->reset(['filterField', 'filterSubject', 'filterChapter', 'filterTopic']);
+
+        $this->fields = [];
+
+        $this->subjects = [];
+
+        $this->chapters = [];
+
+        $this->topics = [];
+
+        $this->resetPage();
+
+
+        if ($value) {
+
+            $grade = CcGrade::find($value);
+
+            if ($grade && $grade->grade_number >= 10) {
+
+                $this->fields = CcField::where('is_active', true)->orderBy('order')->get();
+
+            } else {
+
+                $this->subjects = CcSubject::where('cc_grade_id', $value)->orderBy('order')->get();
+
+            }
+
+        }
+
+    }
+
+
+    public function updatedFilterField($value): void
+
+    {
+
+        $this->reset(['filterSubject', 'filterChapter', 'filterTopic']);
+
+        $this->subjects = [];
+
+        $this->chapters = [];
+
+        $this->topics = [];
+
+        $this->resetPage();
+
+
+        if ($value && $this->filterGrade) {
+
+            $this->subjects = CcSubject::where('cc_grade_id', $this->filterGrade)
+                ->where(function ($q) use ($value) {
+
+                    $q->where('cc_field_id', $value)->orWhereNull('cc_field_id');
+
+                })
+                ->orderBy('order')
+                ->get();
+
+        }
+
+    }
+
+
+    public function updatedFilterSubject($value): void
+
+    {
+
+        $this->reset(['filterChapter', 'filterTopic']);
+
+        $this->chapters = [];
+
+        $this->topics = [];
+
+        $this->resetPage();
+
+
+        if ($value) {
+
+            $this->chapters = CcChapter::where('cc_subject_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+        }
+
+    }
+
+
+    public function updatedFilterChapter($value): void
+
+    {
+
+        $this->reset(['filterTopic']);
+
+        $this->topics = [];
+
+        $this->resetPage();
+
+
+        if ($value) {
+
+            $this->topics = CcTopic::where('cc_chapter_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+        }
+
+    }
+
+
+    public function updatedFilterTopic(): void
+
+    {
+
+        $this->resetPage();
+
+    }
+
+
+    public function updatedFilterDifficulty(): void
+
+    {
+
+        $this->resetPage();
+
+    }
+
+
+    public function updatedFilterCode(): void
+
+    {
+
+        $this->resetPage();
+
+    }
+
+
+    // Random modal filter cascade methods
+
+    public function updatedRandomEducationLevel($value): void
+
+    {
+
+        $this->reset(['randomGrade', 'randomField', 'randomSubject', 'randomChapter', 'randomTopic']);
+
+        $this->randomGrades = [];
+
+        $this->randomFields = [];
+
+        $this->randomSubjects = [];
+
+        $this->randomChapters = [];
+
+        $this->randomTopics = [];
+
+
+        if ($value) {
+
+            $this->randomGrades = CcGrade::where('education_level_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+        }
+
+    }
+
+
+    public function updatedRandomGrade($value): void
+
+    {
+
+        $this->reset(['randomField', 'randomSubject', 'randomChapter', 'randomTopic']);
+
+        $this->randomFields = [];
+
+        $this->randomSubjects = [];
+
+        $this->randomChapters = [];
+
+        $this->randomTopics = [];
+
+
+        if ($value) {
+
+            $grade = CcGrade::find($value);
+
+            if ($grade && $grade->grade_number >= 10) {
+
+                $this->randomFields = CcField::where('is_active', true)->orderBy('order')->get();
+
+            } else {
+
+                $this->randomSubjects = CcSubject::where('cc_grade_id', $value)->orderBy('order')->get();
+
+            }
+
+        }
+
+    }
+
+
+    public function updatedRandomField($value): void
+
+    {
+
+        $this->reset(['randomSubject', 'randomChapter', 'randomTopic']);
+
+        $this->randomSubjects = [];
+
+        $this->randomChapters = [];
+
+        $this->randomTopics = [];
+
+
+        if ($value && $this->randomGrade) {
+
+            $this->randomSubjects = CcSubject::where('cc_grade_id', $this->randomGrade)
+                ->where(function ($q) use ($value) {
+
+                    $q->where('cc_field_id', $value)->orWhereNull('cc_field_id');
+
+                })
+                ->orderBy('order')
+                ->get();
+
+        }
+
+    }
+
+
+    public function updatedRandomSubject($value): void
+
+    {
+
+        $this->reset(['randomChapter', 'randomTopic']);
+
+        $this->randomChapters = [];
+
+        $this->randomTopics = [];
+
+
+        if ($value) {
+
+            $this->randomChapters = CcChapter::where('cc_subject_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+        }
+
+    }
+
+
+    public function updatedRandomChapter($value): void
+
+    {
+
+        $this->reset(['randomTopic']);
+
+        $this->randomTopics = [];
+
+
+        if ($value) {
+
+            $this->randomTopics = CcTopic::where('cc_chapter_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+        }
 
     }
 
@@ -283,12 +644,71 @@ class TypedExamWizard extends Component
     }
 
 
+    public function openRandomModal(): void
+
+    {
+
+        $this->showRandomModal = true;
+
+    }
+
+
     public function selectRandomQuestions(): void
 
     {
 
-        $questions = Question::where('difficulty', $this->randomDifficulty)
-            ->whereNotIn('id', $this->selectedQuestions)
+        $query = Question::query();
+
+
+        // Apply hierarchical filters
+
+        if ($this->randomTopic) {
+
+            $query->where('cc_topic_id', $this->randomTopic);
+
+        } elseif ($this->randomChapter) {
+
+            $query->whereHas('topic', function ($q) {
+
+                $q->where('cc_chapter_id', $this->randomChapter);
+
+            });
+
+        } elseif ($this->randomSubject) {
+
+            $query->whereHas('topic.chapter', function ($q) {
+
+                $q->where('cc_subject_id', $this->randomSubject);
+
+            });
+
+        } elseif ($this->randomGrade) {
+
+            $query->whereHas('topic.chapter.subject', function ($q) {
+
+                $q->where('cc_grade_id', $this->randomGrade);
+
+            });
+
+        } elseif ($this->randomEducationLevel) {
+
+            $query->whereHas('topic.chapter.subject.grade', function ($q) {
+
+                $q->where('education_level_id', $this->randomEducationLevel);
+
+            });
+
+        }
+
+
+        if ($this->randomDifficulty) {
+
+            $query->where('difficulty', $this->randomDifficulty);
+
+        }
+
+
+        $questions = $query->whereNotIn('id', $this->selectedQuestions)
             ->inRandomOrder()
             ->limit($this->randomCount)
             ->pluck('id')
@@ -342,7 +762,7 @@ class TypedExamWizard extends Component
 
     {
 
-        $questions = Question::with('subject')
+        $questions = Question::with('topic')
             ->whereIn('id', $this->selectedQuestions)
             ->get();
 
@@ -362,7 +782,7 @@ class TypedExamWizard extends Component
 
                 'code' => $question->code,
 
-                'subject' => $question->subject?->name,
+                'topic' => $question->topic?->name,
 
                 'difficulty' => $question->difficulty,
 
@@ -428,27 +848,6 @@ class TypedExamWizard extends Component
             );
 
 
-            // Update settings
-
-            TypedExamSetting::updateOrCreate(
-
-                ['typed_exam_id' => $exam->id],
-
-                [
-
-                    'result_visibility' => $this->result_visibility,
-
-                    'answer_key_visibility' => $this->answer_key_visibility,
-
-                    'randomization_type' => $this->randomization_type,
-
-                    'description' => $this->description,
-
-                ]
-
-            );
-
-
             // Sync questions with order
 
             $syncData = [];
@@ -471,6 +870,12 @@ class TypedExamWizard extends Component
                     ['typed_exam_id' => $exam->id],
 
                     [
+
+                        'cc_topic_id' => $this->randomTopic ?: null,
+
+                        'cc_chapter_id' => $this->randomChapter ?: null,
+
+                        'cc_subject_id' => $this->randomSubject ?: null,
 
                         'difficulty' => $this->randomDifficulty,
 
@@ -499,7 +904,23 @@ class TypedExamWizard extends Component
 
     {
 
-        $this->reset(['filterSubject', 'filterDifficulty', 'filterKeyword', 'filterCode', 'sortOrder']);
+        $this->reset([
+
+            'filterEducationLevel', 'filterGrade', 'filterField', 'filterSubject',
+
+            'filterChapter', 'filterTopic', 'filterDifficulty', 'filterCode', 'sortOrder'
+
+        ]);
+
+        $this->grades = [];
+
+        $this->fields = [];
+
+        $this->subjects = [];
+
+        $this->chapters = [];
+
+        $this->topics = [];
 
         $this->sortOrder = 'desc';
 
@@ -508,20 +929,40 @@ class TypedExamWizard extends Component
     }
 
 
+    public function clearRandomFilters(): void
+
+    {
+
+        $this->reset([
+
+            'randomEducationLevel', 'randomGrade', 'randomField', 'randomSubject',
+
+            'randomChapter', 'randomTopic', 'randomDifficulty'
+
+        ]);
+
+        $this->randomGrades = [];
+
+        $this->randomFields = [];
+
+        $this->randomSubjects = [];
+
+        $this->randomChapters = [];
+
+        $this->randomTopics = [];
+
+        $this->randomDifficulty = 'medium';
+
+    }
+
+
     public function render()
 
     {
 
-        $subjects = Subject::active()->orderBy('name')->get();
+        // Get exam periods from database
 
-
-        $academicYears = [
-
-            '1404-1405' => '۱۴۰۴-۱۴۰۵',
-
-            '1405-1406' => '۱۴۰۵-۱۴۰۶',
-
-        ];
+        $examPeriods = ExamPeriod::active()->ordered()->get();
 
 
         $examDifficulties = [
@@ -550,52 +991,85 @@ class TypedExamWizard extends Component
         ];
 
 
-        $resultVisibilities = [
+        // Check if field select should be shown for main filters
 
-            'after_exam_end' => 'بعد از زمان پایان آزمون',
+        $showFieldFilter = false;
 
-            'immediately' => 'به محض پایان آزمون توسط کاربر',
+        if ($this->filterGrade) {
 
-        ];
+            $grade = CcGrade::find($this->filterGrade);
 
+            $showFieldFilter = $grade && $grade->grade_number >= 10;
 
-        $randomizationTypes = [
-
-            'none' => 'خیر',
-
-            'questions_only' => 'بله، فقط سوالات',
-
-            'options_only' => 'بله، فقط گزینه‌ها',
-
-            'both' => 'بله، هم سوالات و هم گزینه‌ها',
-
-        ];
+        }
 
 
-        // For step 2: Question list
+        // Check if field select should be shown for random filters
+
+        $showRandomFieldFilter = false;
+
+        if ($this->randomGrade) {
+
+            $grade = CcGrade::find($this->randomGrade);
+
+            $showRandomFieldFilter = $grade && $grade->grade_number >= 10;
+
+        }
+
+
+        // For step 2: Question list with hierarchical filters
 
         $questions = null;
 
         if ($this->currentStep === 2) {
 
-            $query = Question::with(['subject', 'content', 'options']);
+            $query = Question::with(['content', 'topic.chapter.subject.grade.educationLevel']);
 
 
-            if ($this->filterSubject) {
+            // Apply hierarchical filters
 
-                $query->where('subject_id', $this->filterSubject);
+            if ($this->filterTopic) {
+
+                $query->where('cc_topic_id', $this->filterTopic);
+
+            } elseif ($this->filterChapter) {
+
+                $query->whereHas('topic', function ($q) {
+
+                    $q->where('cc_chapter_id', $this->filterChapter);
+
+                });
+
+            } elseif ($this->filterSubject) {
+
+                $query->whereHas('topic.chapter', function ($q) {
+
+                    $q->where('cc_subject_id', $this->filterSubject);
+
+                });
+
+            } elseif ($this->filterGrade) {
+
+                $query->whereHas('topic.chapter.subject', function ($q) {
+
+                    $q->where('cc_grade_id', $this->filterGrade);
+
+                });
+
+            } elseif ($this->filterEducationLevel) {
+
+                $query->whereHas('topic.chapter.subject.grade', function ($q) {
+
+                    $q->where('education_level_id', $this->filterEducationLevel);
+
+                });
 
             }
+
 
             if ($this->filterDifficulty) {
 
                 $query->where('difficulty', $this->filterDifficulty);
-
-            }
-
-            if ($this->filterKeyword) {
-
-                $query->searchKeyword($this->filterKeyword);
 
             }
 
@@ -615,17 +1089,15 @@ class TypedExamWizard extends Component
 
         return view('livewire.manager.typed-exam.typed-exam-wizard', compact(
 
-            'subjects',
-
-            'academicYears',
+            'examPeriods',
 
             'examDifficulties',
 
             'questionDifficulties',
 
-            'resultVisibilities',
+            'showFieldFilter',
 
-            'randomizationTypes',
+            'showRandomFieldFilter',
 
             'questions'
 

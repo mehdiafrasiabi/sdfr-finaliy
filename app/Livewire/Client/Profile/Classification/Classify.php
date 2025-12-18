@@ -187,11 +187,33 @@ class Classify extends Component
         }
 
 
-        // Set first tag as active
+        // Set the tag matching selectedGrade as active, otherwise use first tag
 
         if (!empty($this->availableTags)) {
 
-            $this->activeTag = $this->availableTags[0]['id'];
+            // Find tag matching the selected grade
+
+            $matchingTag = collect($this->availableTags)->first(function($tag) {
+
+                return (int)$tag['grade'] === $this->selectedGrade;
+
+            });
+
+
+
+            if ($matchingTag) {
+
+                $this->activeTag = $matchingTag['id'];
+
+            } else {
+
+                // Fallback to first tag if no match found
+
+                $this->activeTag = $this->availableTags[0]['id'];
+
+            }
+
+
 
             $this->loadSubjects();
 

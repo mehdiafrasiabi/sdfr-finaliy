@@ -37,7 +37,6 @@
         </div>
 
 
-
         <!-- Row 1: Average & Top Students -->
 
         <div class="row mb-4">
@@ -143,7 +142,6 @@
         </div>
 
 
-
         <!-- Row 2: Charts -->
 
         <div class="row mb-4">
@@ -195,7 +193,6 @@
         </div>
 
 
-
         <!-- Row 3: Per-Question Stats -->
 
         <div class="row">
@@ -242,27 +239,65 @@
 
                                             </div>
 
+                                            <!-- Question Body (Image or Text) -->
+
                                             <div class="question-body mb-3">
 
-                                                {!! $qs['body'] !!}
+                                                @if(!empty($qs['question_image_url']))
+
+                                                    <img src="{{ $qs['question_image_url'] }}"
+
+                                                         alt="تصویر سوال {{ $index + 1 }}"
+
+                                                         class="img-fluid rounded"
+
+                                                         style="max-width: 100%; max-height: 250px; object-fit: contain;">
+
+                                                @elseif(!empty($qs['body']))
+
+                                                    {!! $qs['body'] !!}
+
+                                                @else
+
+                                                    <div class="text-muted text-center py-3">
+
+                                                        <i class="ti ti-photo-off"></i>
+
+                                                        <small>تصویر موجود نیست</small>
+
+                                                    </div>
+
+                                                @endif
 
                                             </div>
 
+
                                             <hr>
 
-                                            <!-- Options -->
 
-                                            @foreach($qs['options'] as $opt)
+                                            <!-- Options (Simple numbered) -->
 
-                                                <div class="option-item p-2 mb-1 rounded {{ $opt['is_correct'] ? 'bg-success-subtle border border-success' : 'bg-light' }}">
+
+                                            @foreach([1, 2, 3, 4] as $optNum)
+
+                                                @php $isCorrect = ($qs['correct_option'] ?? null) === $optNum; @endphp
+
+                                                <div
+                                                    class="option-item p-2 mb-1 rounded {{ $isCorrect ? 'bg-success-subtle border border-success' : 'bg-light' }}">
+
 
                                                     <div class="d-flex align-items-center gap-2">
 
-                                                        <span class="badge {{ $opt['is_correct'] ? 'bg-success' : 'bg-secondary' }}">{{ $opt['number'] }}</span>
 
-                                                        <div class="flex-grow-1">{!! Str::limit(strip_tags($opt['content']), 100) !!}</div>
+                                                        <span
+                                                            class="badge {{ $isCorrect ? 'bg-success' : 'bg-secondary' }}"
+                                                            style="width: 25px;">{{ $optNum }}</span>
 
-                                                        @if($opt['is_correct'])
+
+                                                        <div class="flex-grow-1">گزینه {{ $optNum }}</div>
+
+
+                                                        @if($isCorrect)
 
                                                             <i class="ti ti-check text-success"></i>
 
@@ -363,14 +398,13 @@
     </div>
 
 
-
     @push('script')
 
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         <script>
 
-            document.addEventListener('DOMContentLoaded', function() {
+            document.addEventListener('DOMContentLoaded', function () {
 
                 // Score Distribution Bar Chart
 
@@ -400,14 +434,13 @@
 
                         responsive: true,
 
-                        plugins: { legend: { display: false } },
+                        plugins: {legend: {display: false}},
 
-                        scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+                        scales: {y: {beginAtZero: true, ticks: {stepSize: 1}}}
 
                     }
 
                 });
-
 
 
                 // Answer Stats Donut Chart
@@ -432,10 +465,9 @@
 
                     },
 
-                    options: { responsive: true }
+                    options: {responsive: true}
 
                 });
-
 
 
                 // Per-Question Donut Charts
@@ -478,7 +510,10 @@
 
                             },
 
-                            options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } } } }
+                            options: {
+                                responsive: true,
+                                plugins: {legend: {position: 'bottom', labels: {font: {size: 10}}}}
+                            }
 
                         });
 

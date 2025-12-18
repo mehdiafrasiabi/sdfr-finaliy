@@ -13,10 +13,11 @@ class CustomSmsChannel
         $postData = [
             'username' => '989940682693',
             'password' => '4BYMC',
-            'text' => $data['code'],
+            'text' => $data['text'] ?? $data['code'] ?? '',
             'to' => $data['mobile'],
-            'bodyId' => 254707,
+            'bodyId' => $data['bodyId'] ?? 254707,
         ];
+
 
         $post_data = http_build_query($postData);
         $handle = curl_init('https://rest.payamak-panel.com/api/SendSMS/BaseServiceNumber');

@@ -154,7 +154,7 @@
                         امتحانات
                     </h3>
                     <p class="mb-5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                        تمام امتحاناتی که در هفته گذشته داشته‌اید را ثبت کنید.
+                        تمام امتحاناتی که در هفته پیش رو را  دارید ، ثبت کنید.
                     </p>
 
                     @if($canEdit)
@@ -240,13 +240,15 @@
                                 <div
                                     class="flex items-center justify-between rounded-xl bg-blue-50 px-3 py-2.5 text-xs sm:text-sm text-slate-800 dark:bg-slate-800/80 dark:text-slate-50">
                                     <div class="space-x-1 space-x-reverse">
-                                        <span class="font-medium">{{ $exam['subject'] }}</span>
-                                        <span class="text-slate-500 dark:text-slate-300">
-                                            - {{ $exam['part_count'] }} پارت
+                                        <span class="text-muted">امتحان ({{ jalali($exam['exam_date'])->format('Y/m/d') }}) :</span>
+                                        <span class="font-medium">{{ $exam['subject'] }}
+
+                                            <span class="text-slate-500 dark:text-slate-300">
+ ({{ $exam['part_count'] }} پارت)
                                         </span>
-                                        <span class="text-slate-500 dark:text-slate-300">
-                                            - {{ jalali($exam['exam_date'])->format('Y/m/d') }}
                                         </span>
+
+
                                     </div>
 
                                     @if($canEdit)
@@ -254,7 +256,7 @@
                                             wire:click="deleteExam({{ $exam['id'] }})"
                                             class="text-red-500 transition hover:text-red-600"
                                         >
-                                            <i class="material-symbols-outlined text-base">delete</i>
+                                            <i class="material-symbols-outlined text-base">حذف</i>
                                         </button>
                                     @endif
                                 </div>
@@ -273,7 +275,7 @@
                         پرسش و پاسخ کلاسی
                     </h3>
                     <p class="mb-5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                        پرسش و پاسخ‌های کلاسی هفته گذشته را ثبت کنید.
+                        پرسش و پاسخ‌های کلاسی هفته پیش رو را ثبت کنید.
                     </p>
 
                     @if($canEdit)
@@ -358,13 +360,14 @@
                                 <div
                                     class="flex items-center justify-between rounded-xl bg-emerald-50 px-3 py-2.5 text-xs sm:text-sm text-slate-800 dark:bg-slate-800/80 dark:text-slate-50">
                                     <div class="space-x-1 space-x-reverse">
-                                        <span class="font-medium">{{ $qa['subject'] }}</span>
-                                        <span class="text-slate-500 dark:text-slate-300">
-                                            - {{ $qa['part_count'] }} پارت
+                                        <span class="text-muted">پرسش و پاسخ کلاسی ({{ jalali($qa['qa_date'])->format('Y/m/d') }}) :</span>
+                                        <span class="font-medium">{{ $qa['subject'] }}
+                                         <span class="text-slate-500 dark:text-slate-300">
+                                          (پارت{{ $qa['part_count'] }})
                                         </span>
-                                        <span class="text-slate-500 dark:text-slate-300">
-                                            - {{ jalali($qa['qa_date'])->format('Y/m/d') }}
                                         </span>
+
+
                                     </div>
 
                                     @if($canEdit)
@@ -372,7 +375,8 @@
                                             wire:click="deleteQa({{ $qa['id'] }})"
                                             class="text-red-500 transition hover:text-red-600"
                                         >
-                                            <i class="material-symbols-outlined text-base">delete</i>
+                                             <i class="material-symbols-outlined text-base">حذف</i>
+
                                         </button>
                                     @endif
                                 </div>
@@ -391,7 +395,7 @@
                         تکالیف
                     </h3>
                     <p class="mb-5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                        تکالیف هفته گذشته را ثبت کنید.
+                        تکالیف هفته پیش رو را ثبت کنید.
                     </p>
 
                     @if($canEdit)
@@ -476,21 +480,22 @@
                                 <div
                                     class="flex items-center justify-between rounded-xl bg-violet-50 px-3 py-2.5 text-xs sm:text-sm text-slate-800 dark:bg-slate-800/80 dark:text-slate-50">
                                     <div class="space-x-1 space-x-reverse">
-                                        <span class="font-medium">{{ $assignment['subject'] }}</span>
-                                        <span class="text-slate-500 dark:text-slate-300">
-                                            - {{ $assignment['part_count'] }} پارت
+                                        <span class="text-muted">پرسش و پاسخ کلاسی ({{ jalali($assignment['due_date'])->format('Y/m/d') }}) :</span>
+                                        <span class="font-medium">{{ $assignment['subject'] }}
+                                         <span class="text-slate-500 dark:text-slate-300">
+                                          (پارت{{ $assignment['part_count'] }})
                                         </span>
-                                        <span class="text-slate-500 dark:text-slate-300">
-                                            - {{ jalali($assignment['due_date'])->format('Y/m/d') }}
                                         </span>
+
                                     </div>
+
 
                                     @if($canEdit)
                                         <button
                                             wire:click="deleteAssignment({{ $assignment['id'] }})"
                                             class="text-red-500 transition hover:text-red-600"
                                         >
-                                            <i class="material-symbols-outlined text-base">delete</i>
+                                             <i class="material-symbols-outlined text-base">حذف</i>
                                         </button>
                                     @endif
                                 </div>
@@ -555,7 +560,7 @@
                             </h4>
                             @forelse($exams as $exam)
                                 <div
-                                    class="border-b border-dashed border-slate-200 py-1 text-xs sm:text-sm last:border-b-0 dark:border-slate-700">
+                                    class="border-b border-dashed border-slate-200 py-1 text-xs sm:text-sm last:border-b-0 dark:border-slate-700 text-white">
                                     {{ $exam['subject'] }}
                                     –
                                     {{ $exam['part_count'] }} پارت
@@ -577,7 +582,7 @@
                             </h4>
                             @forelse($qas as $qa)
                                 <div
-                                    class="border-b border-dashed border-slate-200 py-1 text-xs sm:text-sm last:border-b-0 dark:border-slate-700">
+                                    class="border-b border-dashed border-slate-200 py-1 text-xs sm:text-sm last:border-b-0 dark:border-slate-70 text-white">
                                     {{ $qa['subject'] }}
                                     –
                                     {{ $qa['part_count'] }} پارت
@@ -593,7 +598,7 @@
 
                         {{-- تکالیف --}}
                         <div
-                            class="rounded-xl border border-slate-200 bg-slate-50/80 p-3 sm:p-4 dark:border-slate-700 dark:bg-slate-900/80">
+                            class="rounded-xl border border-slate-200 bg-slate-50/80 p-3 sm:p-4 dark:border-slate-700 dark:bg-slate-900/80 text-white">
                             <h4 class="mb-3 text-xs sm:text-sm font-bold text-violet-700 dark:text-violet-300">
                                 تکالیف ({{ count($assignments) }} مورد)
                             </h4>

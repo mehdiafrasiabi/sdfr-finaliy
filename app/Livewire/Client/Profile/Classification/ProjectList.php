@@ -158,31 +158,38 @@ class ProjectList extends Component
 
 
     public function render()
-
     {
-
-        $projects = ClassificationProject::query()
-            ->active()
-            ->current()
+        // پروژه‌های فعال در حال اجرا
+        $activeProjects = ClassificationProject::query()
+            ->where('is_active', true)
+            ->where('start_at', '<=', now())
+            ->where('end_at', '>=', now())
             ->latest()
             ->get();
-
-
+        // پروژه‌های در انتظار (هنوز شروع نشده)
+        $upcomingProjects = ClassificationProject::query()
+            ->where('is_active', true)
+            ->where('start_at', '>', now())
+            ->latest()
+            ->get();
+        // پروژه‌های تمام شده یا غیرفعال
+        $endedProjects = ClassificationProject::query()
+            ->where(function ($q) {
+                $q->where('is_active', false)
+                    ->orWhere('end_at', '<', now());
+            })
+            ->latest()
+            ->get();
         // Get submission status for each project
-
         $submissions = StudentClassificationSubmission::where('user_id', auth()->id())
             ->pluck('is_completed', 'classification_project_id')
             ->toArray();
-
-
         return view('livewire.client.profile.classification.project-list', [
-
-            'projects' => $projects,
-
+            'activeProjects' => $activeProjects,
+            'upcomingProjects' => $upcomingProjects,
+            'endedProjects' => $endedProjects,
             'submissions' => $submissions,
-
         ])->layout('layouts.client.app');
-
     }
 
 }

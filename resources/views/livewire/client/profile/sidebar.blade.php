@@ -92,8 +92,8 @@
         </li>
 
         <li>
-            <a wire:navigate href="{{route('client.profile.meetGoogle')}}"
-               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.meetGoogle') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+            <a wire:navigate href="{{route('client.profile.consultation.sessions')}}"
+               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.consultation.sessions') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                      class="w-5 h-5">
                     <path d="M8 21H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
