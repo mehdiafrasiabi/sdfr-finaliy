@@ -15,13 +15,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 use Illuminate\Database\Eloquent\Relations\HasOne;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class AdvisingPreSession extends Model
 
 {
-
+    use SoftDeletes;
     protected $guarded = [];
 
 

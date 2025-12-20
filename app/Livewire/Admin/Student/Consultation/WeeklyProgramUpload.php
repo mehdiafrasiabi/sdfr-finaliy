@@ -151,6 +151,12 @@ class WeeklyProgramUpload extends Component
         $this->selectedDay = $part->day_of_week;
 
         $this->partForm = [
+            'education_level_id' => $part->education_level_id,
+            'cc_grade_id' => $part->cc_grade_id,
+            'cc_field_id' => $part->cc_field_id,
+            'cc_subject_id' => $part->cc_subject_id,
+            'cc_chapter_id' => $part->cc_chapter_id,
+            'cc_topic_id' => $part->cc_topic_id,
             'lesson_id' => $part->lesson_id,
             'lesson_name' => $part->lesson_name,
             'description' => $part->description,
@@ -160,6 +166,48 @@ class WeeklyProgramUpload extends Component
             'lesson_type' => $part->lesson_type,
             'grade' => $part->grade,
         ];
+
+
+        // بارگذاری لیست‌ها برای ویرایش
+
+        if ($part->education_level_id) {
+
+            $this->grades = CcGrade::where('education_level_id', $part->education_level_id)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+        }
+
+        $this->fields = CcField::active()->ordered()->get();
+
+        if ($part->cc_grade_id) {
+
+            $this->subjects = CcSubject::where('cc_grade_id', $part->cc_grade_id)
+                ->when($part->cc_field_id, fn($q) => $q->where('cc_field_id', $part->cc_field_id))
+                ->when(!$part->cc_field_id, fn($q) => $q->whereNull('cc_field_id'))
+                ->orderBy('order')
+                ->get();
+
+        }
+
+        if ($part->cc_subject_id) {
+
+            $this->chapters = CcChapter::where('cc_subject_id', $part->cc_subject_id)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+        }
+
+        if ($part->cc_chapter_id) {
+
+            $this->topics = CcTopic::where('cc_chapter_id', $part->cc_chapter_id)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+
+        }
 
         $this->showPartModal = true;
     }
@@ -330,10 +378,15 @@ class WeeklyProgramUpload extends Component
         ]);
 
         $gradeValue = $this->partForm['grade'] !== '' && $this->partForm['grade'] !== null
-            ? (string) $this->partForm['grade']
+            ? (string)$this->partForm['grade']
             : null;
 
 
+        // محاسبه grade_label
+
+        $grade = CcGrade::find($this->partForm['cc_grade_id']);
+
+        $gradeLabel = $grade ? $grade->name : null;
         // اول خود برنامه را ذخیره/آپدیت کن
         $this->saveProgram();
         $partDate = Carbon::parse($this->start_date)->addDays($this->selectedDay);
@@ -344,7 +397,6 @@ class WeeklyProgramUpload extends Component
         if ($this->editingPartId) {
             // ویرایش پارت موجود
             $part = ProgramPart::find($this->editingPartId);
-
             if (!$part) {
                 return;
             }
@@ -357,6 +409,13 @@ class WeeklyProgramUpload extends Component
                 'part_type' => $this->partForm['part_type'],
                 'lesson_type' => $lessonType,
                 'grade' => $gradeValue,
+                'education_level_id' => $this->partForm['education_level_id'] ?: null,
+                'cc_grade_id' => $this->partForm['cc_grade_id'] ?: null,
+                'cc_field_id' => $this->partForm['cc_field_id'] ?: null,
+                'cc_subject_id' => $this->partForm['cc_subject_id'] ?: null,
+                'cc_chapter_id' => $this->partForm['cc_chapter_id'] ?: null,
+                'cc_topic_id' => $this->partForm['cc_topic_id'] ?: null,
+                'grade_label' => $gradeLabel,
             ]);
         } else {
             // چک حداکثر ۱۰ پارت
@@ -367,6 +426,21 @@ class WeeklyProgramUpload extends Component
                 $this->dispatch('warning', 'حداکثر ۱۰ پارت برای هر روز مجاز است.');
                 return;
             }
+
+            // چک ترتیب پلن‌ها - نباید جای خالی قبل از پلن فعلی وجود داشته باشد
+            $existingOrders = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $this->selectedDay)
+                ->pluck('part_order')
+                ->sort()
+                ->values()
+                ->toArray();
+            for ($i = 1; $i <= $existingCount; $i++) {
+                if (!in_array($i, $existingOrders)) {
+                    $this->dispatch('warning', "ابتدا باید پلن {$i} را پر کنید. نمی‌توانید با پلن خالی، پلن بعدی را پر کنید.");
+                    return;
+                }
+            }
+
             ProgramPart::create([
                 'weekly_program_id' => $this->weeklyProgramId,
                 'lesson_id' => null,
@@ -380,6 +454,13 @@ class WeeklyProgramUpload extends Component
                 'part_type' => $this->partForm['part_type'],
                 'lesson_type' => $lessonType,
                 'grade' => $gradeValue,
+                'education_level_id' => $this->partForm['education_level_id'] ?: null,
+                'cc_grade_id' => $this->partForm['cc_grade_id'] ?: null,
+                'cc_field_id' => $this->partForm['cc_field_id'] ?: null,
+                'cc_subject_id' => $this->partForm['cc_subject_id'] ?: null,
+                'cc_chapter_id' => $this->partForm['cc_chapter_id'] ?: null,
+                'cc_topic_id' => $this->partForm['cc_topic_id'] ?: null,
+                'grade_label' => $gradeLabel,
             ]);
         }
 

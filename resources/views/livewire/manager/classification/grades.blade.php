@@ -271,7 +271,8 @@
 
                                             @if($grade->field)
 
-                                                <span class="badge bg-warning-subtle text-warning">{{ $grade->field->name }}</span>
+                                                <span
+                                                    class="badge bg-warning-subtle text-warning">{{ $grade->field->name }}</span>
 
                                             @else
 

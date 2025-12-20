@@ -12,12 +12,16 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 use Carbon\Carbon;
 
 
 class AdvisingSession extends Model
 
 {
+
+    use SoftDeletes;
 
     protected $guarded = [];
 

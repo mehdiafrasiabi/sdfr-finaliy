@@ -55,7 +55,8 @@
                                             <!-- inactive icon -->
                                             <span x-show="activeTab !== 'tabOne'">
                                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                                             viewBox="0 0 24 24" stroke-width="1.5"
+                                                             stroke="currentColor"
                                                              class="w-5 h-5">
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                   d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5">
@@ -79,70 +80,166 @@
                             <div>
                                 <!-- tabs:contents:tabOne -->
                                 <div x-show="activeTab === 'tabOne'">
-                                    <div class="relative @if($plans->isNotEmpty()) overflow-x-auto @endif">
-                                        <table class="w-full text-sm text-right">
-                                            @if($plans->isNotEmpty())
-                                                <thead
-                                                    class="text-xs text-muted uppercase bg-background border-b border-border">
-                                                <tr>
-                                                    <th class="whitespace-nowrap p-5">ردیف</th>
-                                                    <th class="whitespace-nowrap p-5">عنوان</th>
-                                                    <th class="whitespace-nowrap p-5">تاریخ بارگذاری</th>
-                                                    <th class="whitespace-nowrap p-5"></th>
-                                                </tr>
-                                                </thead>
+                                    @if($weeklyPrograms->count() > 0)
+
+                                        <div class="mt-8">
+                                            <div class="grid gap-4 md:grid-cols-2">
+
+                                                @foreach($weeklyPrograms as $program)
+
+                                                    <a
+
+                                                        href="{{ route('client.profile.consultation.weekly-program', $program->id) }}"
+
+                                                        class="group block rounded-xl border border-border bg-background hover:bg-secondary
+
+                                                               px-4 py-4 transition-all hover:shadow-lg"
+
+                                                    >
+
+                                                        <div class="flex items-start justify-between gap-4">
+
+                                                            <div class="flex-1">
+
+                                                                <div class="flex items-center gap-2 mb-2">
+
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                         viewBox="0 0 20 20" fill="currentColor"
+                                                                         class="w-5 h-5 text-cyan-400">
+
+                                                                        <path fill-rule="evenodd"
+                                                                              d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z"
+                                                                              clip-rule="evenodd"/>
+
+                                                                    </svg>
+
+                                                                    <div class="font-bold text-foreground">
+
+                                                                        برنامه
+                                                                        هفته {{ jdate($program->start_date)->format('d %B Y') }}
+
+                                                                    </div>
+
+                                                                </div>
 
 
-                                                    <tbody>
-                                                    @foreach($plans as $plan)
-                                                    <tr class="odd:bg-secondary even:bg-background">
-                                                        <td class="p-5">
-                                                            <div class="font-black text-sm text-foreground">{{$loop->iteration + $plans->firstItem() - 1}}</div>
-                                                        </td>
-                                                        <td class="p-5">
-                                                            <div class="flex items-center gap-2">
-                                                                <span class="font-bold text-white">{{$plan->title}}</span>
+                                                                <div class="text-xs text-muted mb-3">
+
+                                                                    تا {{ jdate($program->end_date)->format('d %B Y') }}
+
+                                                                </div>
+
+
+                                                                <div class="flex flex-wrap gap-2">
+
+                                                                    <div
+                                                                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-blue-500/10 text-blue-400 text-xs">
+
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                             viewBox="0 0 16 16" fill="currentColor"
+                                                                             class="w-4 h-4">
+
+                                                                            <path fill-rule="evenodd"
+                                                                                  d="M1 8a7 7 0 1 1 14 0A7 7 0 0 1 1 8Zm7.75-4.25a.75.75 0 0 0-1.5 0V8c0 .414.336.75.75.75h3.25a.75.75 0 0 0 0-1.5H8.75V3.75Z"
+                                                                                  clip-rule="evenodd"/>
+
+                                                                        </svg>
+
+                                                                        <span class="font-semibold">{{ $program->total_hours }} ساعت</span>
+
+                                                                    </div>
+
+
+                                                                    <div
+                                                                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-green-500/10 text-green-400 text-xs">
+
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                             viewBox="0 0 16 16" fill="currentColor"
+                                                                             class="w-4 h-4">
+
+                                                                            <path
+                                                                                d="M8.5 4.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10.9 12.006c.11.542-.348.994-.9.994H2c-.553 0-1.01-.452-.902-.994a5.002 5.002 0 0 1 9.803 0ZM14.002 12h-1.59a2.556 2.556 0 0 0-.04-.29 6.476 6.476 0 0 0-1.167-2.603 3.002 3.002 0 0 1 3.633 1.911c.18.522-.283.982-.836.982ZM12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
+
+                                                                        </svg>
+
+                                                                        <span class="font-semibold">{{ $program->total_parts }} پارت</span>
+
+                                                                    </div>
+
+
+                                                                    <div
+                                                                        class="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-purple-500/10 text-purple-400 text-xs">
+
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                             viewBox="0 0 16 16" fill="currentColor"
+                                                                             class="w-4 h-4">
+
+                                                                            <path fill-rule="evenodd"
+                                                                                  d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14Zm3.844-8.791a.75.75 0 0 0-1.188-.918l-3.7 4.79-1.649-1.833a.75.75 0 1 0-1.114 1.004l2.25 2.5a.75.75 0 0 0 1.15-.043l4.25-5.5Z"
+                                                                                  clip-rule="evenodd"/>
+
+                                                                        </svg>
+
+                                                                        <span class="font-semibold">{{ $program->total_tests }} تست</span>
+
+                                                                    </div>
+
+                                                                </div>
+
+
+                                                                @if($program->advisingSession)
+
+                                                                    <div class="mt-3 pt-3 border-t border-border">
+
+                                                                        <div class="text-xs text-muted">
+
+                                                                            جلسه: {{ $program->advisingSession->title }}
+
+                                                                        </div>
+
+                                                                        <div class="text-xs text-muted mt-1">
+
+                                                                            تاریخ
+                                                                            جلسه: {{ jalali($program->advisingSession->activation_date)->format('%d %B %Y') }}
+
+                                                                        </div>
+
+                                                                    </div>
+
+                                                                @endif
+
                                                             </div>
-                                                        </td>
-                                                        <td class="p-5">
-                                                            <div class="text-xs text-muted whitespace-nowrap">
-                                                                {{jalali($plan->created_at)->format('%d %B %Y | H:i')}}
-                                                            </div>
-                                                        </td>
-                                                        <td class="p-5 font-bold">
-                                                            <a href="{{ \App\Helpers\FileHelper::publicUrl($plan->barnameh) }}"
 
-                                                               target="_blank"
-                                                               download
-                                                               wire:click="markAsViewed({{ $plan->id }})"
-                                                               class="inline-flex items-center gap-x-1 text-cyan-400 ">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                                                                    <path fill-rule="evenodd" d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z" clip-rule="evenodd"></path>
+
+                                                            <div class="flex-shrink-0">
+
+                                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                                     viewBox="0 0 20 20" fill="currentColor"
+                                                                     class="w-5 h-5 text-muted group-hover:text-cyan-400 transition-colors">
+
+                                                                    <path fill-rule="evenodd"
+                                                                          d="M8.22 5.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L11.94 10 8.22 6.28a.75.75 0 0 1 0-1.06Z"
+                                                                          clip-rule="evenodd"/>
+
                                                                 </svg>
-                                                                <span class="whitespace-nowrap font-semibold text-xs">مشاهده</span>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                    @endforeach
-                                                    </tbody>
 
-                                            @else
-                                                <div class="flex flex-col items-center justify-center space-y-12">
-                                                    <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="..." />
-                                                    <div class="text-center space-y-3">
-                                                        <h2 class="font-bold text-xl text-foreground">
-                                                           برنامه مشاوره ای برای شما وجود ندارد.
-                                                        </h2>
-                                                    </div>
-                                                </div>
-                                        @endif
+                                                            </div>
 
-                                        </table>
+                                                        </div>
 
-                                    </div>
+                                                    </a>
+
+                                                @endforeach
+
+                                            </div>
+
+                                        </div>
+
+                                    @endif
                                     <div class="p-5 text-xs text-muted whitespace-nowrap text-white">
-                                        {{$plans->links('layouts.client.pagination')}}
+                                        {{$weeklyPrograms->links('layouts.client.pagination')}}
                                     </div>
+
 
                                 </div>
                                 <!-- end tabs:contents:tabOne -->

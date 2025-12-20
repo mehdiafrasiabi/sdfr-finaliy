@@ -6,11 +6,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 
 class ProgramPart extends Model
 
 {
+    use SoftDeletes;
+
 
     protected $guarded = [];
 
@@ -137,4 +140,74 @@ class ProgramPart extends Model
     }
 
 
+    public function educationLevel(): BelongsTo
+
+
+    {
+
+
+        return $this->belongsTo(EducationLevel::class);
+
+
+    }
+
+
+    public function ccGrade(): BelongsTo
+
+
+    {
+
+
+        return $this->belongsTo(CcGrade::class);
+
+
+    }
+
+
+    public function ccField(): BelongsTo
+
+
+    {
+
+
+        return $this->belongsTo(CcField::class);
+
+
+    }
+
+
+    public function ccSubject(): BelongsTo
+
+
+    {
+
+
+        return $this->belongsTo(CcSubject::class);
+
+
+    }
+
+
+    public function ccChapter(): BelongsTo
+
+
+    {
+
+
+        return $this->belongsTo(CcChapter::class);
+
+
+    }
+
+
+    public function ccTopic(): BelongsTo
+
+
+    {
+
+
+        return $this->belongsTo(CcTopic::class);
+
+
+    }
 }

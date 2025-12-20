@@ -1,9 +1,7 @@
 <?php
 
 
-
 namespace App\Livewire\Client\Profile\Consultation;
-
 
 
 use App\Models\WeeklyProgram;
@@ -15,13 +13,11 @@ use Livewire\Component;
 use Carbon\Carbon;
 
 
-
 class WeeklyProgramView extends Component
 
 {
 
     public $programId;
-
 
 
     public function mount(WeeklyProgram $program)
@@ -33,41 +29,29 @@ class WeeklyProgramView extends Component
     }
 
 
-
     public function render()
 
     {
 
         $program = WeeklyProgram::with(['parts.lesson', 'student.user.personalInformation', 'advisor'])
-
             ->find($this->programId);
-
 
 
         if (!$program) {
 
             return redirect()->route('client.profile.consultation.sessions')
-
                 ->with('error', 'برنامه یافت نشد.');
 
         }
 
 
-
         // محاسبه روزهای هفته با نام روز صحیح فارسی
-
 
 
         $weekDays = [];
 
 
-
         $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
-
-
-
-
-
 
 
         for ($i = 0; $i < 7; $i++) {
@@ -92,7 +76,6 @@ class WeeklyProgramView extends Component
             ];
 
         }
-
 
 
         // آمار برنامه

@@ -54,6 +54,7 @@ class CcGrade extends Model
     {
         return $this->belongsTo(CcField::class, 'cc_field_id');
     }
+
     public function hasField(): bool
     {
         return $this->cc_field_id !== null;

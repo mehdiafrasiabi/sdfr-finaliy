@@ -91,7 +91,6 @@ Route::name('client.')->group(function () {
             //Profile
             Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
             Route::get('/star',Star::class)->name('star');
-            Route::get('/meetGoogle',ProfileMeetGoogle::class)->name('meetGoogle');
             Route::get('/reportStudentStudy',ProfileReportStudentStudy::class)->name('reportStudentStudy');
             Route::get('/edit',ProfileEdit::class)->name('edit');
             Route::get('/financial',ProfileFinancial::class)->name('financial');

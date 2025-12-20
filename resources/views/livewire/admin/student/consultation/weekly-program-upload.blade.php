@@ -113,40 +113,293 @@
 
         {{-- پیش‌جلسه‌های ثبت شده --}}
         @if($preSessions->count() > 0)
-            <div class="card mb-4">
-                <h5 class="card-header">پیش‌جلسه‌های ثبت شده توسط دانش‌آموز</h5>
-                <div class="card-datatable table-responsive pt-0">
-                    <table class="table table-striped mb-0">
-                        <thead class="table-light">
-                        <tr>
-                            <th>عنوان جلسه</th>
-                            <th>امتحانات</th>
-                            <th>پرسش و پاسخ</th>
-                            <th>تکالیف</th>
-                            <th>وضعیت</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($preSessions as $preSession)
-                            <tr>
-                                <td>{{ $preSession->title }}</td>
-                                <td>{{ $preSession->exams->count() }} مورد</td>
-                                <td>{{ $preSession->qas->count() }} مورد</td>
-                                <td>{{ $preSession->assignments->count() }} مورد</td>
-                                <td>
-                                    <span class="badge rounded-pill text-xs
-                                        {{ $preSession->status === 'completed'
-                                            ? 'bg-label-success'
-                                            : 'bg-label-warning' }}">
-                                        {{ $preSession->status_label }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
+            @foreach($preSessions as $preSession)
+
+                <div class="card mb-4">
+
+                    <div class="card-header d-flex justify-content-between align-items-center">
+
+                        <div>
+
+                            <h5 class="mb-1">پیش‌جلسه: {{ $preSession->title }}</h5>
+
+                            <small class="text-muted">اطلاعات ثبت شده توسط دانش‌آموز</small>
+
+                        </div>
+
+                        <span class="badge rounded-pill
+
+                            {{ $preSession->status === 'completed'
+
+                                ? 'bg-label-success'
+
+                                : 'bg-label-warning' }}">
+
+                            {{ $preSession->status_label }}
+
+                        </span>
+
+                    </div>
+
+
+                    <div class="card-body">
+
+                        <div class="row g-4">
+
+                            {{-- امتحانات --}}
+
+                            <div class="col-lg-6">
+
+                                <div class="border rounded-3 p-3 h-100">
+
+                                    <h6 class="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
+
+                                        <i class="material-symbols-outlined">quiz</i>
+
+                                        امتحانات
+
+                                        <span
+                                            class="badge bg-label-primary rounded-pill">{{ $preSession->exams->count() }}</span>
+
+                                    </h6>
+
+                                    @if($preSession->exams->count() > 0)
+
+                                        <div class="table-responsive">
+
+                                            <table class="table table-sm mb-0">
+
+                                                <thead>
+
+                                                <tr>
+
+                                                    <th>درس</th>
+
+                                                    <th>تعداد پارت</th>
+
+                                                    <th>تاریخ آزمون</th>
+
+                                                </tr>
+
+                                                </thead>
+
+                                                <tbody>
+
+                                                @foreach($preSession->exams as $exam)
+
+                                                    <tr>
+
+                                                        <td class="fw-medium">{{ $exam->subject }}</td>
+
+                                                        <td>{{ $exam->part_count }} پارت</td>
+
+                                                        <td>{{ jalali($exam->exam_date)->format('%d %B %Y') }}</td>
+
+                                                    </tr>
+
+                                                @endforeach
+
+                                                </tbody>
+
+                                            </table>
+
+                                        </div>
+
+                                    @else
+
+                                        <p class="text-muted small mb-0">هیچ امتحانی ثبت نشده است</p>
+
+                                    @endif
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- پرسش و پاسخ کلاسی --}}
+
+                            <div class="col-lg-6">
+
+                                <div class="border rounded-3 p-3 h-100">
+
+                                    <h6 class="fw-bold text-info mb-3 d-flex align-items-center gap-2">
+
+                                        <i class="material-symbols-outlined">forum</i>
+
+                                        پرسش و پاسخ کلاسی
+
+                                        <span
+                                            class="badge bg-label-info rounded-pill">{{ $preSession->qas->count() }}</span>
+
+                                    </h6>
+
+                                    @if($preSession->qas->count() > 0)
+
+                                        <div class="table-responsive">
+
+                                            <table class="table table-sm mb-0">
+
+                                                <thead>
+
+                                                <tr>
+
+                                                    <th>درس</th>
+
+                                                    <th>تعداد پارت</th>
+
+                                                    <th>زمان هر پارت</th>
+
+                                                    <th>تاریخ</th>
+
+                                                </tr>
+
+                                                </thead>
+
+                                                <tbody>
+
+                                                @foreach($preSession->qas as $qa)
+
+                                                    <tr>
+
+                                                        <td class="fw-medium">{{ $qa->subject }}</td>
+
+                                                        <td>{{ $qa->part_count }} پارت</td>
+
+                                                        <td>{{ $qa->time_per_part }} دقیقه</td>
+
+                                                        <td>{{ jalali($qa->qa_date)->format('%d %B %Y') }}</td>
+
+                                                    </tr>
+
+                                                @endforeach
+
+                                                </tbody>
+
+                                            </table>
+
+                                        </div>
+
+                                    @else
+
+                                        <p class="text-muted small mb-0">هیچ پرسش و پاسخ کلاسی ثبت نشده است</p>
+
+                                    @endif
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- تکالیف --}}
+
+                            <div class="col-lg-6">
+
+                                <div class="border rounded-3 p-3 h-100">
+
+                                    <h6 class="fw-bold text-warning mb-3 d-flex align-items-center gap-2">
+
+                                        <i class="material-symbols-outlined">assignment</i>
+
+                                        تکالیف
+
+                                        <span
+                                            class="badge bg-label-warning rounded-pill">{{ $preSession->assignments->count() }}</span>
+
+                                    </h6>
+
+                                    @if($preSession->assignments->count() > 0)
+
+                                        <div class="table-responsive">
+
+                                            <table class="table table-sm mb-0">
+
+                                                <thead>
+
+                                                <tr>
+
+                                                    <th>درس</th>
+
+                                                    <th>تعداد پارت</th>
+
+                                                    <th>مهلت انجام</th>
+
+                                                </tr>
+
+                                                </thead>
+
+                                                <tbody>
+
+                                                @foreach($preSession->assignments as $assignment)
+
+                                                    <tr>
+
+                                                        <td class="fw-medium">{{ $assignment->subject }}</td>
+
+                                                        <td>{{ $assignment->part_count }} پارت</td>
+
+                                                        <td>{{ jalali($assignment->due_date)->format('%d %B %Y') }}</td>
+
+                                                    </tr>
+
+                                                @endforeach
+
+                                                </tbody>
+
+                                            </table>
+
+                                        </div>
+
+                                    @else
+
+                                        <p class="text-muted small mb-0">هیچ تکلیفی ثبت نشده است</p>
+
+                                    @endif
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- متفرقه --}}
+
+                            <div class="col-lg-6">
+
+                                <div class="border rounded-3 p-3 h-100">
+
+                                    <h6 class="fw-bold text-success mb-3 d-flex align-items-center gap-2">
+
+                                        <i class="material-symbols-outlined">notes</i>
+
+                                        متفرقه
+
+                                    </h6>
+
+                                    @if($preSession->miscellaneous)
+
+                                        <div class="bg-light rounded-3 p-3">
+
+                                            <p class="mb-0"
+                                               style="white-space: pre-line;">{{ $preSession->miscellaneous->description }}</p>
+
+                                        </div>
+
+                                    @else
+
+                                        <p class="text-muted small mb-0">اطلاعات متفرقه ثبت نشده است</p>
+
+                                    @endif
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
                 </div>
-            </div>
+
+            @endforeach
         @endif
 
         {{-- تنظیمات برنامه هفتگی --}}
