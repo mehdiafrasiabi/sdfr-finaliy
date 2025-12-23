@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class ProgramPart extends Model
 
@@ -24,7 +24,13 @@ class ProgramPart extends Model
 
     ];
 
+    public function studyPartSessions(): HasMany
 
+    {
+
+        return $this->hasMany(StudyPartSession::class);
+
+    }
     const PART_TYPE_TEST = 'test';
 
     const PART_TYPE_DESCRIPTIVE = 'descriptive';

@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('daily_report_parts', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('daily_report_id')->constrained()->onDelete('cascade');
+            $table->foreignId('program_part_id')->constrained()->onDelete('cascade');
+            $table->boolean('is_read')->default(false);
+            $table->integer('tests_done')->default(0);
+            $table->boolean('is_compensatory')->default(false);
+            $table->timestamps();
+            $table->unique(['daily_report_id', 'program_part_id']);
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('daily_report_parts');
+    }
+};

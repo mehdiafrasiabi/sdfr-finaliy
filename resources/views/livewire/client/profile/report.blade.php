@@ -1,1238 +1,1341 @@
-
 <div>
+
     @push('link')
+
         <style>
 
-            .glass-box {
+            .part-box {
 
-                background: rgba(255, 255, 255, 0.05);
+                transition: all 0.2s ease;
 
-                backdrop-filter: blur(20px);
+                cursor: pointer;
 
-                -webkit-backdrop-filter: blur(20px);
-
-                border: 1px solid rgba(255, 255, 255, 0.1);
-
-                box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+                border: 2px solid transparent;
 
             }
 
+            .part-box:hover {
 
+                transform: translateY(-2px);
 
-            .dark .glass-box {
-
-                background: rgba(0, 0, 0, 0.3);
-
-                border: 1px solid rgba(255, 255, 255, 0.08);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
             }
 
+            .part-box.selected {
 
+                border-color: #10b981;
 
-            .progress-ring {
-
-                transition: stroke-dashoffset 0.8s ease-in-out;
-
-            }
-
-
-
-            @keyframes fadeInUp {
-
-                from {
-
-                    opacity: 0;
-
-                    transform: translateY(30px);
-
-                }
-
-                to {
-
-                    opacity: 1;
-
-                    transform: translateY(0);
-
-                }
+                background: rgba(16, 185, 129, 0.1);
 
             }
 
+            .part-box.selected .part-icon {
 
-
-            .animate-fade-in-up {
-
-                animation: fadeInUp 0.6s ease-out forwards;
+                color: #10b981;
 
             }
 
-
-
-            .analysis-card {
+            .day-card {
 
                 transition: all 0.3s ease;
 
             }
 
+            .day-card:hover {
 
-
-            .analysis-card:hover {
-
-                transform: translateY(-5px);
-
-                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+                transform: translateY(-3px);
 
             }
 
-            .rating-control {
+            .day-card.locked {
 
-                position: relative;
+                opacity: 0.6;
 
-                width: 44px;
+            }
 
-                height: 44px;
+            .day-card.submitted {
 
-                border-radius: 9999px;
+                border-color: #10b981;
 
-                display: flex;
+            }
 
-                align-items: center;
+            .day-card.today {
 
-                justify-content: center;
+                border-color: #3b82f6;
 
-                color: rgba(255, 255, 255, 0.2);
+                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 
-                background: rgba(255, 255, 255, 0.04);
+            }
 
-                border: 1px solid rgba(255, 255, 255, 0.08);
+            .rating-btn {
 
                 transition: all 0.2s ease;
 
             }
 
+            .rating-btn:hover {
 
-
-            .rating-control:hover {
-
-                transform: translateY(-2px);
-
-                color: rgba(250, 204, 21, 0.75);
+                transform: scale(1.05);
 
             }
 
+            .rating-btn.active {
 
-
-            .rating-control.active {
-
-                color: #facc15;
-
-                background: rgba(250, 204, 21, 0.08);
-
-                border-color: rgba(250, 204, 21, 0.4);
-
-            }
-
-
-
-            .rating-control .star-icon,
-
-            .rating-display .star-icon {
-
-                width: 22px;
-
-                height: 22px;
-
-                fill: currentColor;
-
-            }
-
-
-
-            .rating-control .star-index {
-
-                position: absolute;
-
-                bottom: 4px;
-
-                left: 50%;
-
-                transform: translateX(-50%);
-
-                font-size: 10px;
-
-                font-weight: 600;
-
-                color: rgba(255, 255, 255, 0.8);
-
-            }
-
-
-
-            .rating-display {
-
-                display: flex;
-
-                flex-direction: column;
-
-                gap: 0.25rem;
-
-            }
-
-
-
-            .rating-display .stars-row {
-
-                display: flex;
-
-                gap: 0.2rem;
-
-            }
-
-
-
-            .rating-display .star-icon {
-
-                color: rgba(255, 255, 255, 0.2);
-
-            }
-
-
-
-            .rating-display .star-icon.filled {
-
-                color: #facc15;
+                transform: scale(1.1);
 
             }
 
         </style>
+
     @endpush
-        <div class="max-w-7xl space-y-14 px-4 mx-auto"
-             x-data="{ showAnalysis: @js($showAnalysisBox) }"
-             @analysis-ready.window="showAnalysis = true;
-         setTimeout(() => {
-             document.getElementById('analysisBoxStart')?.scrollIntoView({ behavior: 'smooth' });
-         }, 100)"
-        >
-            <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
-                <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
 
-                    <!-- end user:info -->
 
-                    <!-- user:menus -->
-                    <livewire:client.profile.sidebar/>
-                    <!-- end user:menus -->
-                </div>
+    <div class="max-w-7xl space-y-6 px-4 mx-auto">
 
-                <div class="lg:col-span-9 md:col-span-8">
-                    <div class="space-y-10">
-                        <div class="space-y-5">
-                            <!-- section:title -->
-                            <div class="flex items-center gap-3">
-                                <div class="flex items-center gap-1">
-                                    <div class="w-1 h-1 bg-foreground rounded-full"></div>
-                                    <div class="w-2 h-2 bg-foreground rounded-full"></div>
-                                </div>
-                                <div class="font-black text-foreground">گزارش های من</div>
-                            </div>
-                            <!-- end section:title -->
+        <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
-                            <!-- tabs container -->
-                            <div class="space-y-5" x-data="{ activeTab: 'tabOne'}">
-                                <!-- tabs:list-container -->
-                                <div class="relative overflow-x-auto">
-                                    <!-- tabs:list -->
-                                    <ul
-                                        class="inline-flex gap-2 bg-secondary border border-border rounded-full p-1">
-                                        <!-- tabs:list:item -->
-                                        <li>
-                                            <button type="button"
-                                                    class="flex items-center gap-x-2 relative rounded-full py-2 px-4"
-                                                    x-bind:class="activeTab === 'tabOne' ? 'text-foreground bg-background' : 'text-muted'"
-                                                    x-on:click="activeTab = 'tabOne'">
-                                                <!-- active icon -->
-                                                <span x-show="activeTab === 'tabOne'">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                             fill="currentColor" class="w-5 h-5">
-                                                            <path
-                                                                d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z">
-                                                            </path>
-                                                            <path
-                                                                d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z">
-                                                            </path>
-                                                            <path
-                                                                d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z">
-                                                            </path>
-                                                        </svg>
-                                                    </span><!-- end active icon -->
+            <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
 
-                                                <!-- inactive icon -->
-                                                <span x-show="activeTab !== 'tabOne'">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                             viewBox="0 0 24 24" stroke-width="1.5"
-                                                             stroke="currentColor"
-                                                             class="w-5 h-5">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                  d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5">
-                                                            </path>
-                                                        </svg>
-                                                    </span><!-- end inactive icon -->
+                <livewire:client.profile.sidebar/>
 
-                                                <span class="font-semibold text-sm">ارسال گزارش</span>
-                                            </button>
-                                        </li><!-- end tabs:list:item -->
+            </div>
 
-                                        <!-- tabs:list:item -->
-                                        <li>
-                                            <button type="button"
-                                                    class="flex items-center gap-x-2 relative rounded-full py-2 px-4"
-                                                    x-bind:class="activeTab === 'tabTwo' ? 'text-foreground bg-background' : 'text-muted'"
-                                                    x-on:click="activeTab = 'tabTwo'">
-                                                <!-- active icon -->
-                                                <span x-show="activeTab === 'tabTwo'">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                             fill="currentColor" class="w-5 h-5">
-                                                            <path fill-rule="evenodd"
-                                                                  d="M5.625 1.5c-1.036 0-1.875.84-1.875 1.875v17.25c0 1.035.84 1.875 1.875 1.875h12.75c1.035 0 1.875-.84 1.875-1.875V12.75A3.75 3.75 0 0 0 16.5 9h-1.875a1.875 1.875 0 0 1-1.875-1.875V5.25A3.75 3.75 0 0 0 9 1.5H5.625ZM7.5 15a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7.5 15Zm.75 2.25a.75.75 0 0 0 0 1.5H12a.75.75 0 0 0 0-1.5H8.25Z"
-                                                                  clip-rule="evenodd"></path>
-                                                            <path
-                                                                d="M12.971 1.816A5.23 5.23 0 0 1 14.25 5.25v1.875c0 .207.168.375.375.375H16.5a5.23 5.23 0 0 1 3.434 1.279 9.768 9.768 0 0 0-6.963-6.963Z">
-                                                            </path>
-                                                        </svg>
-                                                    </span><!-- end active icon -->
 
-                                                <!-- inactive icon -->
-                                                <span x-show="activeTab !== 'tabTwo'">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                             viewBox="0 0 24 24" stroke-width="1.5"
-                                                             stroke="currentColor"
-                                                             class="w-5 h-5">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                  d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z">
-                                                            </path>
-                                                        </svg>
-                                                    </span><!-- end inactive icon -->
+            <div class="lg:col-span-9 md:col-span-8">
 
-                                                <span class="font-semibold text-sm">گزارش های ارسال شده</span>
-                                            </button>
-                                        </li><!-- end tabs:list:item -->
-                                    </ul>
-                                    <!-- end tabs:list -->
-                                </div>
-                                <!-- end tabs:list-container -->
+                <div class="space-y-6">
 
-                                <!-- tabs:contents -->
-                                <div>
-                                    <!-- tabs:contents:tabOne -->
-                                    <div class="space-y-5" x-show="activeTab === 'tabOne'">
-                                        <div x-show="!@json($showAnalysisBox)"
+                    <!-- Section Title -->
 
-                                             x-transition:enter="transition ease-out duration-500"
+                    <div class="flex items-center gap-3">
 
-                                             x-transition:enter-start="opacity-0 -translate-y-4"
+                        <div class="flex items-center gap-1">
 
-                                             x-transition:enter-end="opacity-100 translate-y-0"
+                            <div class="w-1 h-1 bg-foreground rounded-full"></div>
 
-                                             x-transition:leave="transition ease-in duration-300"
+                            <div class="w-2 h-2 bg-foreground rounded-full"></div>
 
-                                             x-transition:leave-start="opacity-100 translate-y-0"
+                        </div>
 
-                                             x-transition:leave-end="opacity-0 -translate-y-4"
+                        <div class="font-black text-foreground">گزارش های روزانه</div>
 
-                                             class="space-y-5">
+                    </div>
 
-                                            <div class="flex items-center gap-3">
 
-                                                <div class="flex items-center gap-1">
+                    <!-- Tabs -->
 
-                                                    <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                    <div class="space-y-5" x-data="{ activeTab: 'submit' }">
 
-                                                    <div class="w-2 h-2 bg-foreground rounded-full"></div>
+                        <!-- Tab List -->
 
-                                                </div>
+                        <div class="relative overflow-x-auto">
 
-                                                <div class="font-black text-foreground">گزارش</div>
+                            <ul class="inline-flex gap-2 bg-secondary border border-border rounded-full p-1">
 
-                                            </div>
-                                            <div
-                                                class="flex items-start gap-3 relative bg-zinc-50 dark:bg-zinc-900 border border-border rounded-xl p-5"
-                                                x-show="open" x-data="{ open: true }">
-                                                <!-- alert:icon -->
-                                                <span class="text-yellow-500">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                         fill="currentColor" class="w-5 h-5">
-                                                        <path fill-rule="evenodd"
-                                                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                                                              clip-rule="evenodd"></path>
-                                                    </svg>
-                                                </span><!-- alert:icon -->
+                                <li>
 
-                                                <!-- alert:content -->
-                                                <div class="flex flex-col items-start">
-                                                    <!-- alert:title -->
-                                                    <div class="font-bold text-sm text-yellow-500 mb-2">
-                                                        توجه :&zwnj;
-                                                    </div><!-- end alert:title -->
+                                    <button type="button"
 
-                                                    <!-- alert:desc -->
-                                                    <div class="font-semibold text-xs text-zinc-400">
-                                                        <ul>
-                                                            <li>1- لطفا اطلاعات خود را با دقت وارد کنید.</li>
-                                                            <li>2- تمام فیلد های ستاره دار
-                                                                <sup class="text-red-500 text-xs font-bold">*</sup>
-                                                                باید پر شود.
-                                                            </li>
-                                                            <li>3- سعی کنید گزارش را هرشب ارسال کنید تا امتیاز بیشتری دریافت
-                                                                کنبد.
-                                                            </li>
-                                                            <li>4- چناچه از گزارش عقب ماندید در تاریخ گزارش تاریخ مربوطه را وارد
-                                                                کنید.
-                                                            </li>
-                                                            <li>گزارش های شما پس از ارسال، توسط پشتیبان شما مشاهده خواهد شد که
-                                                                در قسمت "گزارش های ارسال شده" میتوانید وضعیت گزارش خود را مشاهده
-                                                                کنید
-                                                            </li>
-                                                        </ul>
-                                                    </div>
-                                                    <!-- end alert:desc -->
+                                            class="flex items-center gap-x-2 relative rounded-full py-2 px-4"
 
-                                                    <!-- alert:actions -->
-                                                    <div class="flex flex-wrap items-center gap-3 mt-5">
-                                                        <button type="button"
-                                                                class="flex items-center gap-x-1 text-zinc-400 underline-offset-1 hover:underline"
-                                                                x-on:click="open = false">
-                                                            <span class="font-bold text-xs">فهمیدم</span>
-                                                        </button>
-                                                    </div><!-- end alert:actions -->
-                                                </div><!-- end alert:content -->
-                                            </div>
+                                            :class="activeTab === 'submit' ? 'text-foreground bg-background' : 'text-muted'"
 
-                                                <div x-show="!showAnalysis" x-transition.duration.500ms>
-                                                    @if(!$showAnalysisBox && empty($analysisData))
-                                                    <form wire:submit.prevent="submit"
-                                                          class="space-y-5">
-                                                        <div class="grid sm:grid-cols-2 gap-5">
-                                                            <div class="space-y-3">
-                                                                <label for="required_parts" class="font-medium text-xs text-muted">
+                                            @click="activeTab = 'submit'">
 
-                                                                    تعداد پارت موظفی امروز :</label>
-                                                                <sup class="text-red-500">*</sup>
-                                                                <select type="text" id="required_parts" name="required_parts"
-                                                                        wire:model="required_parts"
-                                                                        class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
-                                                                    @for($i=0;$i<=10;$i++)
-                                                                        <option value="{{ $i }}">{{ $i }}</option>
-                                                                    @endfor
-                                                                </select>
-                                                                @error('required_parts')
-                                                                <div class="font-medium text-xs text-muted text-red-500">
-                                                                    {{$message}}
-                                                                </div>
-                                                                @enderror
-                                                            </div>
-                                                            <div class="space-y-1">
-                                                                <label for="done_parts"
-                                                                       class="font-medium text-xs text-muted">تعداد پارت انجام شده
-                                                                    :</label>
-                                                                <sup class="text-red-500">*</sup>
-                                                                <select type="text" id="done_parts" name="done_parts"
-                                                                        wire:model="done_parts"
-                                                                        class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
-                                                                    @for($i=0;$i<=10;$i++)
-                                                                        <option value="{{ $i }}">{{ $i }}</option>
-                                                                    @endfor
-                                                                </select>
-                                                                @error('done_parts')
-                                                                <div class="font-medium text-xs text-muted text-red-500">
-                                                                    {{$message}}
-                                                                </div>
-                                                                @enderror
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
 
-                                                            </div>
-                                                            <div class="space-y-1">
-                                                                <label for="required_tests"
-                                                                       class="font-medium text-xs text-muted">تعداد کل تست‌های موظفی
-                                                                    :</label>
-                                                                <input type="tel" id="required_tests" dir="ltr" name="required_tests"
-                                                                       min="0"
-                                                                       maxlength="4"
-                                                                       wire:model="required_tests"
-                                                                       class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
-                                                                @error('required_tests')
-                                                                <div class="font-medium text-xs text-muted text-red-500">
-                                                                    {{$message}}
-                                                                </div>
-                                                                @enderror
-                                                            </div>
-                                                            <div class="space-y-1">
-                                                                <label for="done_tests"
-                                                                       class="font-medium text-xs text-muted">تعداد تست های زده شده
-                                                                    :</label>
-                                                                <input type="tel" id="done_tests" dir="ltr" name="done_tests" min="0"
-                                                                       maxlength="4"
-                                                                       wire:model="done_tests"
-                                                                       class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
-                                                                @error('done_tests')
-                                                                <div class="font-medium text-xs text-muted text-red-500">
-                                                                    {{$message}}
-                                                                </div>
-                                                                @enderror
-                                                            </div>
-                                                            <div class="space-y-1">
-                                                                <label for="phone_study_hours"
-                                                                       class="font-medium text-xs text-muted">ساعات درگیر با گوشی (درسی)
-                                                                    :</label>
-                                                                <sup class="text-red-500">*</sup>
-                                                                <input type="tel" id="phone_study_hours" dir="ltr"
-                                                                       name="phone_study_hours" min="0" max="24"
-                                                                       maxlength="2"
-                                                                       wire:model="phone_study_hours"
-                                                                       class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
-                                                                @error('phone_study_hours')
-                                                                <div class="font-medium text-xs text-muted text-red-500">
-                                                                    {{$message}}
-                                                                </div>
-                                                                @enderror
-                                                            </div>
-                                                            <div class="space-y-1">
-                                                                <label for="phone_nonstudy_hours"
-                                                                       class="font-medium text-xs text-muted">ساعات درگیر با گوشی (غیر
-                                                                    درسی) :</label>
-                                                                <sup class="text-red-500">*</sup>
-                                                                <input type="tel" id="phone_nonstudy_hours" dir="ltr"
-                                                                       name="phone_nonstudy_hours" min="0" max="24"
-                                                                       maxlength="2"
-                                                                       wire:model="phone_nonstudy_hours"
-                                                                       class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
-                                                                @error('phone_nonstudy_hours')
-                                                                <div class="font-medium text-xs text-muted text-red-500">
-                                                                    {{$message}}
-                                                                </div>
-                                                                @enderror
-                                                            </div>
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M12 4.5v15m7.5-7.5h-15"/>
 
-                                                        </div>
-                                                        <div class="grid sm:grid-cols-4 gap-5">
-                                                            <div class="space-y-1">
-                                                                <label for="name" class="font-medium text-xs text-muted">
-                                                                    توضیحات
-                                                                </label>
-                                                                <textarea type="text" rows="5" wire:model="description"
-                                                                          class="form-textarea w-full !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"></textarea>
+                                        </svg>
 
-                                                                @error('description')
-                                                                <div class="font-medium text-xs text-muted text-red-500">
-                                                                    {{$message}}
-                                                                </div>
-                                                                @enderror
-                                                            </div>
-                                                        </div>
-                                                        <div class="grid sm:grid-cols-2 gap-5">
-                                                            <div class="space-y-1">
-                                                                <label for="complacent"
-                                                                       class="block font-semibold text-xs text-foreground">حس من نسبت به
-                                                                    گزارش امروز:
-                                                                    <sup class="text-red-500">*</sup>
+                                        <span class="font-semibold text-sm">ارسال گزارش</span>
 
-                                                                </label>
+                                    </button>
 
-                                                                <div class="flex flex-wrap gap-2" dir="ltr">
-                                                                    @for($i = 1; $i <= 10; $i++)
-                                                                        <button type="button"
-                                                                                wire:key="complacent-{{ $i }}"
-                                                                                wire:click="$set('complacent', {{ $i }})"
-                                                                                class="rating-control {{ (int) $complacent >= $i ? 'active' : '' }}"
-                                                                                aria-label="امتیاز {{ $i }} از ۱۰">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                                                 class="star-icon"
-                                                                                 fill="currentColor">
-                                                                                <path
-                                                                                    d="M11.48 3.499a.562.562 0 0 1 1.04 0l1.82 4.408a.563.563 0 0 0 .475.345l4.769.347c.499.036.701.663.321.988l-3.62 3.102a.563.563 0 0 0-.182.557l1.106 4.659a.562.562 0 0 1-.84.61l-4.1-2.486a.563.563 0 0 0-.586 0l-4.1 2.486a.562.562 0 0 1-.84-.61l1.106-4.66a.562.562 0 0 0-.182-.556L2.595 9.587a.563.563 0 0 1 .321-.988l4.768-.347a.563.563 0 0 0 .475-.345l1.321-3.199Z" />
-                                                                            </svg>
-                                                                            <span class="star-index">{{ $i }}</span>
-                                                                        </button>
-                                                                    @endfor
-                                                                </div>
+                                </li>
 
-                                                                <input type="hidden" wire:model="complacent">
+                                <li>
 
-                                                                <div class="text-xs text-muted">
-                                                                    امتیاز انتخاب شده: {{ $complacent ? $complacent : '---' }} / 10
-                                                                </div>
+                                    <button type="button"
 
-                                                                @error('complacent')
-                                                                <div class="font-medium text-xs text-muted text-red-500">
-                                                                    {{$message}}
-                                                                </div>
-                                                                @enderror
+                                            class="flex items-center gap-x-2 relative rounded-full py-2 px-4"
 
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex items-center gap-3">
-                                                            <div class="flex items-center gap-1">
-                                                                <div class="w-1 h-1 bg-foreground rounded-full"></div>
-                                                                <div class="w-2 h-2 bg-foreground rounded-full"></div>
-                                                            </div>
-                                                            <div class="font-black text-foreground">آپلود فایل(اختیاری)</div>
-                                                        </div>
-                                                        <div class="grid sm:grid-cols-2 gap-5">
-                                                            <div class="space-y-1">
-                                                                <label
-                                                                    class="inline-flex items-center gap-x-1 border rounded-full text-muted py-2.5 px-5 cursor-pointer hover:text-foreground"
-                                                                    for="customFile" x-data="{ files: null }">
-                                                                    <input type="file" class="sr-only" id="customFile"
-                                                                           wire:model="report_file" accept="image/*"
-                                                                           x-on:change="files = Object.values($event.target.files)">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"
-                                                                         fill="currentColor" class="size-4">
-                                                                        <path fill-rule="evenodd"
-                                                                              d="M11.914 4.086a2 2 0 0 0-2.828 0l-5 5a2 2 0 1 0 2.828 2.828l.556-.555a.75.75 0 0 1 1.06 1.06l-.555.556a3.5 3.5 0 0 1-4.95-4.95l5-5a3.5 3.5 0 0 1 4.95 4.95l-1.972 1.972a2.125 2.125 0 0 1-3.006-3.005L9.97 4.97a.75.75 0 1 1 1.06 1.06L9.058 8.003a.625.625 0 0 0 .884.883l1.972-1.972a2 2 0 0 0 0-2.828Z"
-                                                                              clip-rule="evenodd"></path>
-                                                                    </svg>
-                                                                    <span class="font-semibold text-xs"
-                                                                          x-text="files ? files.map(file => file.name).join(', ') : 'بارگذاری ..'"></span>
-                                                                </label>
-                                                            </div>
-                                                        </div>
+                                            :class="activeTab === 'history' ? 'text-foreground bg-background' : 'text-muted'"
 
-                                                        <div class="flex justify-end gap-5">
-                                                            <button type="submit"
-                                                                    class="h-11 inline-flex items-center justify-center bg-primary rounded-full text-white px-8 mr-auto">
-                                                                <span class="font-semibold text-sm" wire:loading.remove>ثبت</span>
-                                                                <div wire:loading>
-                                                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                                                         xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                                         viewBox="0 0 100 100" preserveAspectRatio="xMidYMid"
-                                                                         width="40px" height="40px"
-                                                                         style="shape-rendering: auto; display: block; background: transparent;">
-                                                                        <g>
-                                                                            <path stroke="none" fill="#ffffff"
-                                                                                  d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
-                                                                                <animateTransform values="0 50 51.5;360 50 51.5"
-                                                                                                  keyTimes="0;1"
-                                                                                                  repeatCount="indefinite"
-                                                                                                  dur="0.8130081300813008s"
-                                                                                                  type="rotate"
-                                                                                                  attributeName="transform"/>
-                                                                            </path>
-                                                                            <g/>
-                                                                        </g>
-                                                                    </svg>
-                                                                </div>
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                    @endif
-                                                </div>
+                                            @click="activeTab = 'history'">
 
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+
+                                        </svg>
+
+                                        <span class="font-semibold text-sm">گزارش های ارسال شده</span>
+
+                                    </button>
+
+                                </li>
+
+                            </ul>
+
+                        </div>
+
+
+                        <!-- Tab Content: Submit Report -->
+
+                        <div x-show="activeTab === 'submit'" class="space-y-6">
+
+                            @if($currentSession && $currentProgram)
+
+                                <!-- Session Info -->
+
+                                <div
+                                    class="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 border border-primary/20 rounded-2xl p-5">
+
+                                    <div class="flex flex-wrap items-center justify-between gap-4">
+
+                                        <div>
+
+                                            <h3 class="font-bold text-foreground">جلسه مشاوره فعال</h3>
+
+                                            <p class="text-sm text-muted mt-1">
+
+                                                تاریخ: {{ jdate($currentSession->activation_date)->format('d F Y') }}
+
+                                            </p>
 
                                         </div>
 
-                                        <!-- End Form Section -->
+                                        <div class="text-left">
 
+                                            <span
+                                                class="inline-flex items-center gap-2 bg-green-500/20 text-green-600 dark:text-green-400 rounded-full px-3 py-1 text-sm font-medium">
 
-                                        <!-- Analysis Box Section -->
+                                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
 
+                                                برگزار شده
 
+                                            </span>
 
-                                            <div x-show="showAnalysis" x-transition.duration.700ms>
-                                                @if($showAnalysisBox && !empty($analysisData))
-                                                    <div
-                                                        id="analysisBoxStart"
-                                                        x-show="@json($showAnalysisBox)"
+                                        </div>
 
-                                                         x-transition:enter="transition ease-out duration-700 transform"
+                                    </div>
 
-                                                         x-transition:enter-start="opacity-0 translate-y-full"
+                                </div>
 
-                                                         x-transition:enter-end="opacity-100 translate-y-0"
 
-                                                         x-transition:leave="transition ease-in duration-500 transform"
 
-                                                         x-transition:leave-start="opacity-100 translate-y-0"
+                                <!-- Week Days Grid -->
 
-                                                         x-transition:leave-end="opacity-0 translate-y-full"
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 
-                                                         class="relative">
+                                    @foreach($weekDays as $dayIndex => $day)
 
+                                        <div class="day-card bg-background border border-border rounded-2xl p-4
 
-                                                        <!-- Main Analysis Container -->
+                                            {{ $day['is_submitted'] ? 'submitted border-green-500/50' : '' }}
 
-                                                        <div class="glass-box rounded-3xl p-6 md:p-8 space-y-6 animate-fade-in-up">
+                                            {{ $day['can_submit'] ? 'today border-blue-500' : '' }}
 
-                                                            <!-- Menu -->
+                                            {{ $day['is_locked'] ? 'locked' : '' }}"
 
-                                                            <div class="text-center space-y-3 pb-6 border-b border-white/10">
+                                             wire:key="day-{{ $dayIndex }}">
 
-                                                                <div class="text-5xl">{{ $analysisData['overall']['icon'] }}</div>
 
-                                                                <h2 class="text-2xl font-black text-foreground">تحلیل گزارش امروز
-                                                                    تو</h2>
+                                            <!-- Day Header -->
 
-                                                                <p class="text-sm text-muted">بریم ببینیم امروز چطور بودی!</p>
+                                            <div class="flex items-center justify-between mb-3">
 
-                                                            </div>
+                                                <div>
 
+                                                    <h4 class="font-bold text-foreground">{{ $day['name'] }}</h4>
 
-                                                            <!-- Analysis Cards Grid -->
+                                                    <p class="text-xs text-muted">{{ $day['jalali_short'] }}</p>
 
-                                                            <div class="grid md:grid-cols-2 gap-4">
+                                                </div>
 
-                                                                <!-- Parts Card -->
+                                                @if($day['is_submitted'])
 
-                                                                <div class="analysis-card glass-box rounded-2xl p-5 space-y-3 mb-2">
+                                                    <span class="text-green-500">
 
-                                                                    <div class="flex items-center justify-between">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                             fill="currentColor" class="w-6 h-6">
 
-                                                                        <div class="flex items-center gap-2">
+                                                            <path fill-rule="evenodd"
+                                                                  d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                                                                  clip-rule="evenodd"/>
 
-                                                            <span
-                                                                class="text-2xl">{{ $analysisData['parts']['icon'] }}</span>
-
-                                                                            <h3 class="font-bold text-foreground">پارت‌ها</h3>
-
-                                                                        </div>
-
-                                                                        <div
-                                                                            class="text-sm font-bold text-{{ $analysisData['parts']['color'] }}">
-
-                                                                            {{ $analysisData['parts']['percentage'] }}%
-
-                                                                        </div>
-
-                                                                    </div>
-
-                                                                    <div class="flex items-center gap-3">
-
-                                                                        <div
-                                                                            class="flex-1 bg-secondary rounded-full h-2 overflow-hidden">
-
-                                                                            <div
-                                                                                class="h-full bg-{{ $analysisData['parts']['color'] }} rounded-full transition-all duration-1000"
-
-                                                                                style="width: {{ $analysisData['parts']['percentage'] }}%"></div>
-
-                                                                        </div>
-
-                                                                    </div>
-
-                                                                    <div class="text-center text-lg font-bold text-foreground">
-
-                                                                        {{ $analysisData['parts']['done'] }}
-                                                                        / {{ $analysisData['parts']['required'] }}
-
-                                                                    </div>
-
-                                                                    <p class="text-sm text-muted leading-relaxed">
-
-                                                                        {{ $analysisData['parts']['message'] }}
-
-                                                                    </p>
-
-                                                                </div>
-
-
-                                                                <!-- Tests Card -->
-
-                                                                @if($analysisData['tests']['message'])
-
-                                                                    <div class="analysis-card glass-box rounded-2xl p-5 space-y-3 mb-2">
-
-                                                                        <div class="flex items-center justify-between">
-
-                                                                            <div class="flex items-center gap-2">
-
-                                                                <span
-                                                                    class="text-2xl">{{ $analysisData['tests']['icon'] }}</span>
-
-                                                                                <h3 class="font-bold text-foreground">تست‌ها</h3>
-
-                                                                            </div>
-
-                                                                            <div
-                                                                                class="text-sm font-bold text-{{ $analysisData['tests']['color'] }}">
-
-                                                                                {{ $analysisData['tests']['percentage'] }}%
-
-                                                                            </div>
-
-                                                                        </div>
-
-                                                                        <div class="flex items-center gap-3">
-
-                                                                            <div
-                                                                                class="flex-1 bg-secondary rounded-full h-2 overflow-hidden">
-
-                                                                                <div
-                                                                                    class="h-full bg-{{ $analysisData['tests']['color'] }} rounded-full transition-all duration-1000"
-
-                                                                                    style="width: {{ $analysisData['tests']['percentage'] }}%"></div>
-
-                                                                            </div>
-
-                                                                        </div>
-
-                                                                        <div class="text-center text-lg font-bold text-foreground">
-
-                                                                            {{ $analysisData['tests']['done'] }}
-                                                                            / {{ $analysisData['tests']['required'] }}
-
-                                                                        </div>
-
-                                                                        <p class="text-sm text-muted leading-relaxed">
-
-                                                                            {{ $analysisData['tests']['message'] }}
-
-                                                                        </p>
-
-                                                                    </div>
-
-                                                                @endif
-
-
-
-                                                                <!-- Phone Usage Card -->
-
-                                                                <div class="analysis-card glass-box rounded-2xl p-5 space-y-3 mb-2">
-
-                                                                    <div class="flex items-center justify-between">
-
-                                                                        <div class="flex items-center gap-2">
-
-                                                            <span
-                                                                class="text-2xl">{{ $analysisData['phone']['icon'] }}</span>
-
-                                                                            <h3 class="font-bold text-foreground">استفاده از گوشی</h3>
-
-                                                                        </div>
-
-                                                                        <div
-                                                                            class="text-sm font-bold text-{{ $analysisData['phone']['color'] }}">
-
-                                                                            {{ $analysisData['phone']['total_hours'] }} ساعت
-
-                                                                        </div>
-
-                                                                    </div>
-
-                                                                    <div class="grid grid-cols-2 gap-2 text-xs">
-
-                                                                        <div class="bg-secondary rounded-lg p-2 text-center">
-
-                                                                            <div
-                                                                                class="text-primary font-bold">{{ $analysisData['phone']['study_hours'] }}
-                                                                                ساعت
-                                                                            </div>
-
-                                                                            <div class="text-muted">درسی</div>
-
-                                                                        </div>
-
-                                                                        <div class="bg-secondary rounded-lg p-2 text-center">
-
-                                                                            <div
-                                                                                class="text-warning font-bold">{{ $analysisData['phone']['nonstudy_hours'] }}
-                                                                                ساعت
-                                                                            </div>
-
-                                                                            <div class="text-muted">غیردرسی</div>
-
-                                                                        </div>
-
-                                                                    </div>
-
-                                                                    <p class="text-sm text-muted leading-relaxed">
-
-                                                                        {{ $analysisData['phone']['message'] }}
-
-                                                                    </p>
-
-                                                                </div>
-
-
-                                                                <!-- Feeling & Description Card -->
-
-                                                                <div class="analysis-card glass-box rounded-2xl p-5 space-y-3 mb-2">
-
-                                                                    <div class="flex items-center gap-2">
-
-                                                        <span
-                                                            class="text-2xl">{{ $analysisData['feeling']['icon'] }}</span>
-
-                                                                        <div>
-                                                                            <h3 class="font-bold text-foreground">حس و حال تو</h3>
-                                                                            <p class="text-[11px] text-muted">امتیاز تو: {{ $analysisData['feeling']['score'] }} / 10</p>
-                                                                        </div>
-
-                                                                    </div>
-
-                                                                    <p class="text-sm text-muted leading-relaxed">
-
-                                                                        {{ $analysisData['feeling']['message'] }}
-
-                                                                    </p>
-
-                                                                    <div class="pt-2 border-t border-white/10">
-
-                                                                        <div class="flex items-center gap-2 mb-2">
-
-                                                            <span
-                                                                class="text-xl">{{ $analysisData['description']['icon'] }}</span>
-
-                                                                            <h4 class="font-semibold text-foreground text-sm">
-                                                                                توضیحات</h4>
-
-                                                                        </div>
-
-                                                                        <p class="text-xs text-muted leading-relaxed">
-
-                                                                            {{ $analysisData['description']['message'] }}
-
-                                                                        </p>
-
-                                                                    </div>
-
-                                                                </div>
-
-                                                            </div>
-
-
-                                                            <!-- Overall Result -->
-
-                                                            <div
-                                                                class="glass-box rounded-2xl p-6 space-y-4 bg-gradient-to-br mb-2 from-{{ $analysisData['overall']['color'] }}/10 to-transparent border-{{ $analysisData['overall']['color'] }}/20">
-
-                                                                <div class="flex items-center justify-center gap-3">
-
-                                                                    <span class="text-4xl">{{ $analysisData['overall']['icon'] }}</span>
-
-                                                                    <h3 class="text-xl font-black text-foreground">نتیجه کلی</h3>
-
-                                                                </div>
-
-                                                                <p class="text-center text-foreground font-semibold leading-relaxed text-lg">
-
-                                                                    {{ $analysisData['overall']['message'] }}
-
-                                                                </p>
-
-                                                                <div class="flex justify-center">
-
-                                                                    <div
-                                                                        class="bg-{{ $analysisData['overall']['color'] }}/20 rounded-full px-6 py-2">
-
-                                                    <span
-                                                        class="text-{{ $analysisData['overall']['color'] }} font-bold">
-
-                                                        امتیاز کلی: {{ $analysisData['overall']['score'] }}%
+                                                        </svg>
 
                                                     </span>
 
-                                                                    </div>
+                                                @elseif($day['is_locked'])
 
-                                                                </div>
+                                                    <span class="text-red-500">
 
-                                                            </div>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                             fill="currentColor" class="w-6 h-6">
 
+                                                            <path fill-rule="evenodd"
+                                                                  d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"
+                                                                  clip-rule="evenodd"/>
 
-                                                            <!-- Back Button -->
+                                                        </svg>
 
-                                                            <div class="flex justify-center pt-4">
+                                                    </span>
 
-                                                                <a
-                                                                    wire:navigate
-                                                                    href="{{route('client.profile.report')}}"
-                                                                    wire:click="closeAnalysisBox"
+                                                @elseif($day['can_submit'])
 
-                                                                        type="button"
+                                                    <span class="text-blue-500 animate-pulse">
 
-                                                                        class="inline-flex items-center gap-2 bg-primary hover:bg-primary/80 text-white font-bold rounded-full px-8 py-3 transition-all duration-300 transform hover:scale-105">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                             fill="currentColor" class="w-6 h-6">
 
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                                         viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                                                         class="w-5 h-5">
+                                                            <path fill-rule="evenodd"
+                                                                  d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z"
+                                                                  clip-rule="evenodd"/>
 
-                                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                                              d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3"/>
+                                                        </svg>
 
-                                                                    </svg>
+                                                    </span>
 
-                                                                    <span>بازگشت </span>
-
-                                                                </a>
-
-                                                            </div>
-
-                                                        </div>
-
-                                                    </div>
                                                 @endif
+
                                             </div>
 
 
+                                            <!-- Parts Info -->
 
-                                        <!-- End Analysis Box Section -->
+                                            <div class="space-y-2 mb-4">
 
+                                                <div class="flex items-center justify-between text-sm">
+
+                                                    <span class="text-muted">تعداد پارت:</span>
+
+                                                    <span
+                                                        class="font-medium text-foreground">{{ count($day['parts']) }}</span>
+
+                                                </div>
+
+                                                <div class="flex items-center justify-between text-sm">
+
+                                                    <span class="text-muted">تعداد تست:</span>
+
+                                                    <span
+                                                        class="font-medium text-foreground">{{ $day['total_tests'] }}</span>
+
+                                                </div>
+
+                                            </div>
+
+
+                                            <!-- Action Button -->
+
+                                            @if($day['can_submit'])
+
+                                                <button type="button"
+
+                                                        wire:click="openReportModal({{ $dayIndex }})"
+
+                                                        class="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-2.5 font-semibold text-sm transition-all">
+
+                                                    ثبت گزارش
+
+                                                </button>
+
+                                            @elseif($day['is_submitted'])
+
+                                                <div
+                                                    class="text-center text-green-600 dark:text-green-400 text-sm font-medium py-2">
+
+                                                    گزارش ثبت شده
+
+                                                </div>
+
+                                            @elseif($day['is_locked'])
+
+                                                <div class="text-center text-red-500 text-sm font-medium py-2">
+
+                                                    مهلت تمام شده
+
+                                                </div>
+
+                                            @else
+
+                                                <div class="text-center text-muted text-sm py-2">
+
+                                                    در انتظار
+
+                                                </div>
+
+                                            @endif
+
+                                        </div>
+
+                                    @endforeach
+
+                                </div>
+
+
+
+                                <!-- Compensatory Section -->
+
+                                @if(count($missedParts) > 0)
+
+                                    <div
+                                        class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5">
+
+                                        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+
+                                            <div>
+
+                                                <h3 class="font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
+
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                         fill="currentColor" class="w-5 h-5">
+
+                                                        <path fill-rule="evenodd"
+                                                              d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z"
+                                                              clip-rule="evenodd"/>
+
+                                                    </svg>
+
+                                                    پارت های جبرانی
+
+                                                </h3>
+
+                                                <p class="text-sm text-amber-700 dark:text-amber-300 mt-1">
+
+                                                    {{ count($missedParts) }} پارت از دست رفته دارید
+
+                                                </p>
+
+                                            </div>
+
+                                            <button type="button"
+
+                                                    wire:click="openCompensatoryModal"
+
+                                                    class="bg-amber-500 hover:bg-amber-600 text-white rounded-xl px-4 py-2 font-semibold text-sm transition-all">
+
+                                                ثبت پارت جبرانی
+
+                                            </button>
+
+                                        </div>
 
                                     </div>
 
-                                    <!-- end tabs:contents:tabOne -->
-                                    <!-- end tabs:contents:tabOne -->
+                                @endif
 
-                                    <!-- tabs:contents:tabTwo -->
-                                    <div x-show="activeTab === 'tabTwo'">
-                                        <div class="relative   @if($reports->isNotEmpty()) container overflow-x-auto @endif">
-                                            <table wire:poll.visible class="w-full text-sm text-right">
-                                                @if($reports->isNotEmpty())
-                                                    <thead
-                                                        class="text-xs text-muted uppercase bg-background border-b border-border">
-                                                    <tr>
-                                                        <th class="whitespace-nowrap p-5">ردیف</th>
-                                                        <th class="whitespace-nowrap p-5">پارت های موظفی</th>
-                                                        <th class="whitespace-nowrap p-5">پارت های انجام شده</th>
-                                                        <th class="whitespace-nowrap p-5">دروسی که انجام نشده</th>
-                                                        <th class="whitespace-nowrap p-5">تست های موظفی</th>
-                                                        <th class="whitespace-nowrap p-5">تست های زده شده</th>
-                                                        <th class="whitespace-nowrap p-5">ساعات درگیر با گوشی (درسی)</th>
-                                                        <th class="whitespace-nowrap p-5">ساعات درگیر با گوشی (غیر درسی)</th>
-                                                        <th class="whitespace-nowrap p-5">توضیحات</th>
-                                                        <th class="whitespace-nowrap p-5">رضایت</th>
-                                                        >
-                                                        <th class="whitespace-nowrap p-5">نظر مشاور</th>
-                                                        <th class="whitespace-nowrap p-5">وضعیت</th>
-                                                        <th class="whitespace-nowrap p-5">فایل</th>
-                                                        <th class="whitespace-nowrap p-5">تاریخ ثبت</th>
-                                                    </tr>
-                                                    </thead>
+                            @else
+
+                                <!-- No Session -->
+
+                                <div class="flex flex-col items-center justify-center py-12 space-y-4">
+
+                                    <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35"
+                                         alt="empty"/>
+
+                                    <div class="text-center space-y-2">
+
+                                        <h2 class="font-bold text-xl text-foreground">جلسه مشاوره برگزار شده‌ای وجود
+                                            ندارد</h2>
+
+                                        <p class="text-muted text-sm">پس از برگزاری جلسه مشاوره، برنامه هفتگی در اینجا
+                                            نمایش داده می‌شود.</p>
+
+                                    </div>
+
+                                </div>
+
+                            @endif
+
+                        </div>
 
 
-                                                    <tbody>
-                                                    @foreach($reports as $report)
-                                                        <tr class="odd:bg-secondary even:bg-background whitespace-nowrap">
-                                                            <td class="p-5">
-                                                                <div
-                                                                    class="font-black text-xs text-foreground">{{$loop->iteration + $reports->firstItem() - 1}}</div>
-                                                            </td>
-                                                            <td class="p-5">
-                                                                <div class="flex items-center gap-2">
-                                                            <span
-                                                                class="  text-foreground ">{{ $report->required_parts ?? '---' }}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-5">
-                                                                <div class="flex items-center gap-2">
-                                                            <span
-                                                                class=" text-xs text-white ">{{ $report->done_parts ?? '---' }}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-5">
-                                                                <div class="flex items-center gap-2">
-                                                            <span
-                                                                class=" text-xs text-white ">{{ $report->missed_subjects ?? '---' }}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-5">
-                                                                <div class="flex items-center gap-2">
-                                                            <span
-                                                                class=" text-xs text-white ">{{ $report->required_tests ?? '---' }}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-5">
-                                                                <div class="flex items-center gap-2">
-                                                            <span
-                                                                class=" text-sm text-white ">{{ $report->done_tests ?? '---' }}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-5">
-                                                                <div class="flex items-center gap-2">
-                                                            <span
-                                                                class=" text-sm text-white ">{{ $report->phone_study_hours ?? '---' }}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-5">
-                                                                <div class="flex items-center gap-2">
-                                                            <span
-                                                                class=" text-sm text-white ">{{ $report->phone_nonstudy_hours ?? '---' }}</span>
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-5">
-                                                                <div class="flex items-center gap-2">
-                                                     <span class=" text-sm text-foreground ">
-                                                         {{ \Illuminate\Support\Str::limit($report->description, 50) }}
-                                                     </span>
-                                                                </div>
-                                                            </td>
+                        <!-- Tab Content: Report History -->
 
-                                                            <td class="p-5">
+                        <div x-show="activeTab === 'history'" class="space-y-4">
 
-                                                                    @php $rating = (int) ($report->complacent ?? 0); @endphp
-                                                                    <div class="rating-display text-muted">
-                                                                        <div class="stars-row" dir="ltr">
-                                                                            @for($i = 1; $i <= 10; $i++)
-                                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                                                     class="star-icon {{ $rating >= $i ? 'filled' : '' }}"
-                                                                                     fill="currentColor">
-                                                                                    <path
-                                                                                        d="M11.48 3.499a.562.562 0 0 1 1.04 0l1.82 4.408a.563.563 0 0 0 .475.345l4.769.347c.499.036.701.663.321.988l-3.62 3.102a.563.563 0 0 0-.182.557l1.106 4.659a.562.562 0 0 1-.84.61l-4.1-2.486a.563.563 0 0 0-.586 0l-4.1 2.486a.562.562 0 0 1-.84-.61l1.106-4.66a.562.562 0 0 0-.182-.556L2.595 9.587a.563.563 0 0 1 .321-.988l4.768-.347a.563.563 0 0 0 .475-.345l1.321-3.199Z" />
-                                                                                </svg>
-                                                                            @endfor
-                                                                        </div>
-                                                                        <span class="text-xs">{{ $rating ?: '--' }} / 10</span>
-                                                                    </div>
-                                                            </td>
-                                                            <td class="p-5">
-                                                                <div class="space-y-2 text-xs text-muted">
-                                                                    @if($report->advisor_comment)
-                                                                        <button type="button"
-                                                                                wire:click="openReplyModal({{ $report->id }})"
-                                                                                class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
-                                                                            مشاهده نظر و پاسخ
-                                                                        </button>
-                                                                    @else
-                                                                        <span>منتظر نظر مشاور</span>
-                                                                    @endif
-                                                                </div>
-                                                            </td>
+                            @if($reports->isNotEmpty())
+
+                                <div class="overflow-x-auto">
+
+                                    <table class="w-full text-sm text-right">
+
+                                        <thead class="text-xs text-muted uppercase bg-secondary border-b border-border">
+
+                                        <tr>
+
+                                            <th class="whitespace-nowrap p-4">ردیف</th>
+
+                                            <th class="whitespace-nowrap p-4">تاریخ</th>
+
+                                            <th class="whitespace-nowrap p-4">روز</th>
+
+                                            <th class="whitespace-nowrap p-4">پارت خوانده</th>
+
+                                            <th class="whitespace-nowrap p-4">تست زده</th>
+
+                                            <th class="whitespace-nowrap p-4">گوشی (غیردرسی)</th>
+
+                                            <th class="whitespace-nowrap p-4">امتیاز</th>
+
+                                            <th class="whitespace-nowrap p-4">وضعیت</th>
+
+                                            <th class="whitespace-nowrap p-4">نظر مشاور</th>
+
+                                        </tr>
+
+                                        </thead>
+
+                                        <tbody>
+
+                                        @foreach($reports as $report)
+
+                                            <tr class="odd:bg-secondary even:bg-background whitespace-nowrap"
+                                                wire:key="report-{{ $report->id }}">
+
+                                                <td class="p-4 font-medium text-foreground">
+
+                                                    {{ $loop->iteration + $reports->firstItem() - 1 }}
+
+                                                </td>
+
+                                                <td class="p-4 text-foreground">
+
+                                                    {{ jdate($report->report_date)->format('Y/m/d') }}
+
+                                                    @if($report->is_compensatory)
+
+                                                        <span
+                                                            class="inline-block bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs px-2 py-0.5 rounded-full mr-1">جبرانی</span>
+
+                                                    @endif
+
+                                                </td>
+
+                                                <td class="p-4 text-foreground">{{ $report->day_name }}</td>
+
+                                                <td class="p-4">
+
+                                                    <span class="text-green-600">{{ $report->read_parts_count }}</span>
+
+                                                    <span class="text-muted">/</span>
+
+                                                    <span class="text-foreground">{{ $report->total_parts }}</span>
+
+                                                </td>
+
+                                                <td class="p-4 text-foreground">{{ $report->total_tests }}</td>
+
+                                                <td class="p-4 text-foreground">{{ $report->phone_hours }} ساعت</td>
+
+                                                <td class="p-4">
+
+                                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium
+
+                                                            {{ $report->rating >= 4 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
+
+                                                            {{ $report->rating == 3 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
+
+                                                            {{ $report->rating <= 2 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
+
+                                                            {{ $this->getRatingLabel($report->rating) }}
+
+                                                        </span>
+
+                                                </td>
+
+                                                <td class="p-4">
+
+                                                    @if($report->status === 'approved')
+
+                                                        <span
+                                                            class="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
+
+                                                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+
+                                                                تایید شده
+
+                                                            </span>
+
+                                                    @elseif($report->status === 'rejected')
+
+                                                        <span class="inline-flex items-center gap-1 text-red-500">
+
+                                                                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
+
+                                                                رد شده
+
+                                                            </span>
+
+                                                    @else
+
+                                                        <span class="inline-flex items-center gap-1 text-amber-500">
+
+                                                                <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
+
+                                                                در انتظار
+
+                                                            </span>
+
+                                                    @endif
+
+                                                </td>
+
+                                                <td class="p-4">
+
+                                                    @if($report->advisor_comment)
+
+                                                        <button type="button"
+
+                                                                wire:click="openReplyModal({{ $report->id }})"
+
+                                                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-white hover:bg-primary/80 transition-all text-xs">
+
+                                                            مشاهده
+
+                                                        </button>
+
+                                                    @else
+
+                                                        <span class="text-muted text-xs">منتظر نظر</span>
+
+                                                    @endif
+
+                                                </td>
+
+                                            </tr>
+
+                                        @endforeach
+
+                                        </tbody>
+
+                                    </table>
+
+                                </div>
+
+                                <div class="p-4">
+
+                                    {{ $reports->links('layouts.client.pagination') }}
+
+                                </div>
+
+                            @else
+
+                                <div class="flex flex-col items-center justify-center py-12 space-y-4">
+
+                                    <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35"
+                                         alt="empty"/>
+
+                                    <div class="text-center space-y-2">
+
+                                        <h2 class="font-bold text-xl text-foreground">گزارشی ثبت نشده است</h2>
+
+                                        <p class="text-muted text-sm">گزارش های ارسال شده شما در اینجا نمایش داده
+                                            می‌شود.</p>
+
+                                    </div>
+
+                                </div>
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
 
 
-                                                            <td class="p-5">
-                                                                <div class="text-xs text-muted whitespace-nowrap">
-                                                                    @if($report->status === 'completed')
-                                                                        <div
-                                                                            class="flex-shrink-0 rounded-full bg-green-500/20 p-1">
-                                                                            <div
-                                                                                class="h-1.5 w-1.5 rounded-full bg-green-500"></div>
-                                                                        </div>
-                                                                        <span class="font-bold text-green-500">تایید شده</span>
-                                                                    @elseif($report->status === 'pending')
-                                                                        <div
-                                                                            class="flex-shrink-0 rounded-full bg-yellow-500/20 p-1">
-                                                                            <div
-                                                                                class="h-1.5 w-1.5 rounded-full bg-yellow-500"></div>
-                                                                        </div>
-                                                                        <span class="font-bold text-yellow-500">در انتظار</span>
-                                                                    @else
-                                                                        <div
-                                                                            class="flex-shrink-0 rounded-full bg-red-500-500/20 p-1">
-                                                                            <div
-                                                                                class="h-1.5 w-1.5 rounded-full bg-red-500"></div>
-                                                                        </div>
-                                                                        <span class="font-bold text-red-500">رد شده</span>
-                                                                    @endif
+    <!-- Report Modal -->
 
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-5">
-                                                                <div class="text-xs text-muted whitespace-nowrap">
-                                                                    @if(isset($report->report_file))
-                                                                        <a href="{{asset('students/reportsDaily/'.auth()->id()).'/'.$report->report_file}}">مشاهده</a>
-                                                                    @else
-                                                                        وجود ندارد
-                                                                    @endif
-                                                                </div>
-                                                            </td>
-                                                            <td class="p-5">
-                                                                <div class="text-xs text-muted whitespace-nowrap">
-                                                                    {{jalali($report->created_at)->format('%d %B %Y | H:i')}}
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
-                                                    </tbody>
+    @if($showReportModal && isset($weekDays[$selectedDayIndex]))
 
-                                                @else
-                                                    <div class="flex flex-col items-center justify-center space-y-12">
-                                                        <img src="/client/assets/images/theme/empty.svg"
-                                                             class="w-full max-w-xs opacity-35"
-                                                             alt="..."/>
-                                                        <div class="text-center space-y-3">
-                                                            <h2 class="font-bold text-xl text-foreground">
-                                                                برنامه مشاوره ای برای شما وجود ندارد.
-                                                            </h2>
-                                                        </div>
-                                                    </div>
+        @php $selectedDay = $weekDays[$selectedDayIndex]; @endphp
+
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+
+             wire:click.self="closeReportModal">
+
+            <div
+                class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-background border border-border rounded-2xl shadow-2xl"
+
+                wire:keydown.escape.window="closeReportModal">
+
+
+                <!-- Modal Header -->
+
+                <div class="sticky top-0 z-10 bg-background border-b border-border px-6 py-4">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <h3 class="text-lg font-bold text-foreground">ثبت گزارش روزانه</h3>
+
+                            <p class="text-sm text-muted">{{ $selectedDay['name'] }}
+                                - {{ $selectedDay['jalali_short'] }}</p>
+
+                        </div>
+
+                        <button type="button" wire:click="closeReportModal"
+                                class="text-muted hover:text-foreground transition-all">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                 stroke="currentColor" class="w-6 h-6">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="px-6 py-5 space-y-6">
+
+                    <!-- Parts Selection -->
+
+                    <div class="space-y-3">
+
+                        <label class="font-semibold text-foreground">پارت های خوانده شده را انتخاب کنید:</label>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                            @foreach($selectedDay['parts'] as $part)
+
+                                <div wire:click="togglePart({{ $part->id }})"
+
+                                     wire:key="part-select-{{ $part->id }}"
+
+                                     class="part-box p-4 bg-secondary rounded-xl {{ in_array($part->id, $selectedParts) ? 'selected' : '' }}">
+
+                                    <div class="flex items-start gap-3">
+
+                                        <div
+                                            class="part-icon mt-1 {{ in_array($part->id, $selectedParts) ? 'text-green-500' : 'text-muted' }}">
+
+                                            @if(in_array($part->id, $selectedParts))
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                     fill="currentColor" class="w-5 h-5">
+
+                                                    <path fill-rule="evenodd"
+                                                          d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                                                          clip-rule="evenodd"/>
+
+                                                </svg>
+
+                                            @else
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+
+                                                </svg>
+
+                                            @endif
+
+                                        </div>
+
+                                        <div class="flex-1 min-w-0">
+
+                                            <h4 class="font-medium text-foreground text-sm truncate">{{ $part->lesson_name }}</h4>
+
+                                            <div class="flex flex-wrap gap-2 mt-1">
+
+                                                @if($part->ccSubject)
+
+                                                    <span class="text-xs text-muted">{{ $part->ccSubject->name }}</span>
+
                                                 @endif
 
-                                            </table>
+                                                @if($part->ccTopic)
+
+                                                    <span class="text-xs text-primary">{{ $part->ccTopic->name }}</span>
+
+                                                @endif
+
+                                            </div>
+
+                                            <div class="flex items-center gap-2 mt-2 text-xs text-muted">
+
+                                                <span>{{ $part->duration_minutes }} دقیقه</span>
+
+                                                @if($part->test_count)
+
+                                                    <span>|</span>
+
+                                                    <span>{{ $part->test_count }} تست</span>
+
+                                                @endif
+
+                                            </div>
 
                                         </div>
-                                        <div class="p-5 text-xs text-muted whitespace-nowrap text-white">
-                                            {{$reports->links('layouts.client.pagination')}}
-                                        </div>
+
                                     </div>
-                                    <!-- end tabs:contents:tabTwo -->
-                                </div><!-- end tabs:contents -->
-                            </div>
-                            <!-- end tabs container -->
+
+
+                                    <!-- Test Input (if part has tests and is selected) -->
+
+                                    @if($part->test_count && in_array($part->id, $selectedParts))
+
+                                        <div class="mt-3 pt-3 border-t border-border" wire:click.stop>
+
+                                            <label class="text-xs text-muted block mb-1">تعداد تست زده شده:</label>
+
+                                            <input type="tel"
+
+                                                   wire:model="testsDone.{{ $part->id }}"
+
+                                                   min="0"
+
+                                                   max="{{ $part->test_count }}"
+
+                                                   class="w-full h-9 rounded-lg border border-border bg-background text-foreground text-sm px-3"
+
+                                                   placeholder="از {{ $part->test_count }} تست">
+
+                                        </div>
+
+                                    @endif
+
+                                </div>
+
+                            @endforeach
+
                         </div>
+
+                        <p class="text-sm text-muted">
+
+                            انتخاب شده: <span class="font-medium text-green-600">{{ count($selectedParts) }}</span>
+
+                            از <span class="font-medium">{{ count($selectedDay['parts']) }}</span> پارت
+
+                        </p>
+
                     </div>
+
+
+                    <!-- Phone Hours -->
+
+                    <div class="space-y-2">
+
+                        <label class="font-semibold text-foreground">ساعت استفاده از گوشی (غیر درسی):</label>
+
+                        <input type="number"
+
+                               wire:model="phoneHours"
+
+                               min="0"
+
+                               max="24"
+
+                               class="w-full h-11 rounded-xl border border-border bg-secondary text-foreground px-4"
+
+                               placeholder="از 24 ساعت">
+
+                        @error('phoneHours')
+
+                        <p class="text-red-500 text-xs">{{ $message }}</p>
+
+                        @enderror
+
+                    </div>
+
+
+                    <!-- Description -->
+
+                    <div class="space-y-2">
+
+                        <label class="font-semibold text-foreground">توضیحات (اختیاری):</label>
+
+                        <textarea wire:model="description"
+
+                                  rows="3"
+
+                                  class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 resize-none"
+
+                                  placeholder="توضیحات خود را بنویسید..."></textarea>
+
+                        @error('description')
+
+                        <p class="text-red-500 text-xs">{{ $message }}</p>
+
+                        @enderror
+
+                    </div>
+
+
+                    <!-- Rating -->
+
+                    <div class="space-y-3">
+
+                        <label class="font-semibold text-foreground">امتیاز روز:</label>
+
+                        <div class="flex flex-wrap gap-2">
+
+                            @foreach(\App\Models\DailyReport::RATINGS as $value => $label)
+
+                                <button type="button"
+
+                                        wire:click="$set('rating', {{ $value }})"
+
+                                        class="rating-btn px-4 py-2 rounded-xl text-sm font-medium transition-all
+
+                                            {{ $rating == $value ? 'active ring-2 ring-primary ring-offset-2' : '' }}
+
+                                            {{ $value >= 4 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
+
+                                            {{ $value == 3 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
+
+                                            {{ $value <= 2 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
+
+                                    {{ $label }}
+
+                                </button>
+
+                            @endforeach
+
+                        </div>
+
+                        @error('rating')
+
+                        <p class="text-red-500 text-xs">{{ $message }}</p>
+
+                        @enderror
+
+                    </div>
+
                 </div>
+
+
+                <!-- Modal Footer -->
+
+                <div
+                    class="sticky bottom-0 bg-secondary border-t border-border px-6 py-4 flex items-center justify-end gap-3">
+
+                    <button type="button"
+
+                            wire:click="closeReportModal"
+
+                            class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-background transition-all">
+
+                        انصراف
+
+                    </button>
+
+                    <button type="button"
+
+                            wire:click="submitReport"
+
+                            wire:loading.attr="disabled"
+
+                            class="px-5 py-2.5 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all disabled:opacity-50">
+
+                        <span wire:loading.remove wire:target="submitReport">ثبت گزارش</span>
+
+                        <span wire:loading wire:target="submitReport" class="flex items-center gap-2">
+
+                            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 24 24">
+
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+
+                                <path class="opacity-75" fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+
+                            </svg>
+
+                            در حال ثبت...
+
+                        </span>
+
+                    </button>
+
+                </div>
+
             </div>
-            @if($replyModalOpen)
-                <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-                     wire:click.self="closeReplyModal">
-                    <div class="w-full max-w-xl mx-4 bg-background border border-border rounded-2xl shadow-2xl"
-                         wire:keydown.escape.window="closeReplyModal">
-                        <div class="flex items-center justify-between px-6 py-4 border-b border-border">
-                            <div>
-                                <h3 class="text-base font-bold text-foreground">پاسخ به نظر مشاور</h3>
-                                <p class="text-xs text-muted mt-1">امکان ثبت تنها یک پاسخ برای هر گزارش وجود دارد.</p>
-                            </div>
-                            <button type="button" wire:click="closeReplyModal"
-                                    class="text-muted hover:text-foreground transition-all">
-                                <i class="material-symbols-outlined !text-[22px]">✕</i>
-                            </button>
-                        </div>
-                        <div class="px-6 py-5 space-y-4">
-                            <div class="space-y-2">
-                                <div class="text-xs text-muted text-primary font-bold">نظر مشاور</div>
-                                <p class="text-sm leading-6 text-foreground bg-secondary border border-border rounded-xl p-4">{{ $advisorCommentPreview }}</p>
-                            </div>
-                            @if($studentReplyPreview)
-                                <br>
-                                <div class="space-y-2">
-                                    <div class="text-xs text-muted text-success font-bold">پاسخ شما</div>
-                                    <p class="text-sm leading-6 text-foreground bg-secondary border border-border rounded-xl p-4">{{ $studentReplyPreview }}</p>
-                                </div>
-                            @else
-                                <div class="space-y-2">
-                                    <label for="student_reply_input" class="text-sm font-medium text-foreground">پاسخ
-                                        شما</label>
-                                    <textarea id="student_reply_input" rows="4" wire:model.defer="studentReplyInput"
-                                              class="w-full rounded-xl border border-border bg-secondary text-sm text-foreground px-4 py-3 focus:outline-none focus:ring-2 focus:ring-primary/40"></textarea>
-                                    @error('studentReplyInput')
-                                    <div class="text-xs font-medium text-red-500">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            @endif
 
-                        </div>
-                        <div
-                            class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl">
-
-                            @if($studentReplyPreview)
-                                <button type="button" wire:click="closeReplyModal"
-                                        class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
-                                    بستن
-                                </button>
-
-                            @else
-                                <button type="button" wire:click="saveStudentReply" wire:loading.attr="disabled"
-                                        class="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
-                                    <span wire:loading.remove wire:target="saveStudentReply">ثبت پاسخ</span>
-                                    <span wire:loading wire:target="saveStudentReply" class="flex items-center gap-2">
-                        <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                             viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
-                        </svg>
-                        در حال ارسال...
-                    </span>
-                                </button>
-                            @endif
-
-                        </div>
-                    </div>
-                </div>
-            @endif
         </div>
+
+    @endif
+
+
+
+    <!-- Compensatory Modal -->
+
+    @if($showCompensatoryModal)
+
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+
+             wire:click.self="closeCompensatoryModal">
+
+            <div
+                class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-background border border-border rounded-2xl shadow-2xl"
+
+                wire:keydown.escape.window="closeCompensatoryModal">
+
+
+                <!-- Modal Header -->
+
+                <div class="sticky top-0 z-10 bg-background border-b border-border px-6 py-4">
+
+                    <div class="flex items-center justify-between">
+
+                        <div>
+
+                            <h3 class="text-lg font-bold text-foreground">ثبت پارت جبرانی</h3>
+
+                            <p class="text-sm text-muted">پارت های از دست رفته را که خوانده‌اید انتخاب کنید</p>
+
+                        </div>
+
+                        <button type="button" wire:click="closeCompensatoryModal"
+                                class="text-muted hover:text-foreground transition-all">
+
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                 stroke="currentColor" class="w-6 h-6">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="px-6 py-5 space-y-4">
+
+                    @foreach($missedParts as $index => $missed)
+
+                        <div wire:click="toggleCompensatoryPart({{ $missed['part']->id }})"
+
+                             wire:key="comp-part-{{ $missed['part']->id }}"
+
+                             class="part-box p-4 bg-secondary rounded-xl {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'selected' : '' }}">
+
+                            <div class="flex items-start gap-3">
+
+                                <div
+                                    class="part-icon mt-1 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'text-green-500' : 'text-muted' }}">
+
+                                    @if(in_array($missed['part']->id, $selectedCompensatoryParts))
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                             class="w-5 h-5">
+
+                                            <path fill-rule="evenodd"
+                                                  d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                                                  clip-rule="evenodd"/>
+
+                                        </svg>
+
+                                    @else
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+
+                                        </svg>
+
+                                    @endif
+
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+
+                                    <div class="flex items-center gap-2 mb-1">
+
+                                        <span
+                                            class="text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full">
+
+                                            {{ $missed['day_name'] }} - {{ $missed['jalali_date'] }}
+
+                                        </span>
+
+                                    </div>
+
+                                    <h4 class="font-medium text-foreground text-sm">{{ $missed['part']->lesson_name }}</h4>
+
+                                    @if($missed['part']->ccSubject || $missed['part']->ccTopic)
+
+                                        <p class="text-xs text-muted mt-1">
+
+                                            {{ $missed['part']->ccSubject->name ?? '' }}
+
+                                            @if($missed['part']->ccTopic)
+
+                                                - {{ $missed['part']->ccTopic->name }}
+
+                                            @endif
+
+                                        </p>
+
+                                    @endif
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Test Input -->
+
+                            @if($missed['part']->test_count && in_array($missed['part']->id, $selectedCompensatoryParts))
+
+                                <div class="mt-3 pt-3 border-t border-border" wire:click.stop>
+
+                                    <label class="text-xs text-muted block mb-1">تعداد تست زده شده:</label>
+
+                                    <input type="number"
+
+                                           wire:model="compensatoryTestsDone.{{ $missed['part']->id }}"
+
+                                           min="0"
+
+                                           max="{{ $missed['part']->test_count }}"
+
+                                           class="w-full h-9 rounded-lg border border-border bg-background text-foreground text-sm px-3"
+
+                                           placeholder="از {{ $missed['part']->test_count }} تست">
+
+                                </div>
+
+                            @endif
+
+                        </div>
+
+                    @endforeach
+
+                </div>
+
+
+                <!-- Modal Footer -->
+
+                <div
+                    class="sticky bottom-0 bg-secondary border-t border-border px-6 py-4 flex items-center justify-between">
+
+                    <p class="text-sm text-muted">
+
+                        انتخاب شده: <span
+                            class="font-medium text-green-600">{{ count($selectedCompensatoryParts) }}</span>
+
+                        از <span class="font-medium">{{ count($missedParts) }}</span> پارت
+
+                    </p>
+
+                    <div class="flex items-center gap-3">
+
+                        <button type="button"
+
+                                wire:click="closeCompensatoryModal"
+
+                                class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-background transition-all">
+
+                            انصراف
+
+                        </button>
+
+                        <button type="button"
+
+                                wire:click="submitCompensatory"
+
+                                wire:loading.attr="disabled"
+
+                                class="px-5 py-2.5 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-all disabled:opacity-50">
+
+                            <span wire:loading.remove wire:target="submitCompensatory">ثبت جبرانی</span>
+
+                            <span wire:loading wire:target="submitCompensatory">در حال ثبت...</span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    @endif
+
+
+
+    <!-- Reply Modal -->
+
+    @if($replyModalOpen)
+
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+
+             wire:click.self="closeReplyModal">
+
+            <div class="w-full max-w-xl bg-background border border-border rounded-2xl shadow-2xl"
+
+                 wire:keydown.escape.window="closeReplyModal">
+
+
+                <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+
+                    <div>
+
+                        <h3 class="text-base font-bold text-foreground">نظر مشاور</h3>
+
+                        <p class="text-xs text-muted mt-1">امکان ثبت تنها یک پاسخ برای هر گزارش وجود دارد.</p>
+
+                    </div>
+
+                    <button type="button" wire:click="closeReplyModal"
+                            class="text-muted hover:text-foreground transition-all">
+
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                             stroke="currentColor" class="w-6 h-6">
+
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+
+                        </svg>
+
+                    </button>
+
+                </div>
+
+
+                <div class="px-6 py-5 space-y-4">
+
+                    <div class="space-y-2">
+
+                        <div class="text-xs text-primary font-bold">نظر مشاور</div>
+
+                        <p class="text-sm leading-6 text-foreground bg-secondary border border-border rounded-xl p-4">
+
+                            {{ $advisorCommentPreview }}
+
+                        </p>
+
+                    </div>
+
+
+                    @if($studentReplyPreview)
+
+                        <div class="space-y-2">
+
+                            <div class="text-xs text-green-600 font-bold">پاسخ شما</div>
+
+                            <p class="text-sm leading-6 text-foreground bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
+
+                                {{ $studentReplyPreview }}
+
+                            </p>
+
+                        </div>
+
+                    @else
+
+                        <div class="space-y-2">
+
+                            <label class="text-sm font-medium text-foreground">پاسخ شما</label>
+
+                            <textarea wire:model="studentReplyInput"
+
+                                      rows="4"
+
+                                      class="w-full rounded-xl border border-border bg-secondary text-sm text-foreground px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"
+
+                                      placeholder="پاسخ خود را بنویسید..."></textarea>
+
+                            @error('studentReplyInput')
+
+                            <p class="text-xs font-medium text-red-500">{{ $message }}</p>
+
+                            @enderror
+
+                        </div>
+
+                    @endif
+
+                </div>
+
+
+                <div
+                    class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl">
+
+                    @if($studentReplyPreview)
+
+                        <button type="button"
+
+                                wire:click="closeReplyModal"
+
+                                class="px-5 py-2.5 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
+
+                            بستن
+
+                        </button>
+
+                    @else
+
+                        <button type="button"
+
+                                wire:click="saveStudentReply"
+
+                                wire:loading.attr="disabled"
+
+                                class="px-5 py-2.5 rounded-full bg-primary text-white hover:bg-primary/80 transition-all disabled:opacity-50">
+
+                            <span wire:loading.remove wire:target="saveStudentReply">ثبت پاسخ</span>
+
+                            <span wire:loading wire:target="saveStudentReply" class="flex items-center gap-2">
+
+                                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                     viewBox="0 0 24 24">
+
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+
+                                    <path class="opacity-75" fill="currentColor"
+                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+
+                                </svg>
+
+                                در حال ارسال...
+
+                            </span>
+
+                        </button>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+        </div>
+
+    @endif
+
 </div>

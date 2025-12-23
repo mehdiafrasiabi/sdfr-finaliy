@@ -185,6 +185,7 @@
 
                                         </div>
 
+
                                     </div>
 
 
@@ -195,7 +196,7 @@
                                         <div
                                             class="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-1">
 
-                                            <h3 class="font-bold text-foreground">{{ $notif->title }}</h3>
+
 
                                             <div class="flex items-center gap-2">
 
@@ -213,24 +214,7 @@
                                                 @endif
 
                                             </div>
-
-                                        </div>
-
-
-                                        <!-- محتوای پیام -->
-
-                                        <div class="bg-muted/30 dark:bg-muted/10 rounded-lg p-4 mb-4">
-
-                                            <p class="text-sm text-muted leading-relaxed whitespace-pre-line">{{ $notif->body }}</p>
-
-                                        </div>
-
-
-                                        <!-- دکمه‌ها -->
-
-                                        <div class="flex items-center justify-between">
-
-                                            <div class="flex items-center gap-2">
+                                            <div class="">
 
                                                 @if($recipient->is_read)
 
@@ -273,6 +257,23 @@
                                                 @endif
 
                                             </div>
+                                        </div>
+
+
+                                        <!-- محتوای پیام -->
+
+                                        <div class="bg-muted/30 dark:bg-muted/10 rounded-lg p-4 mb-4">
+
+                                            <p class="text-sm text-muted leading-relaxed whitespace-pre-line">{{ $notif->body }}</p>
+
+                                        </div>
+
+
+                                        <!-- دکمه‌ها -->
+
+                                        <div class="flex items-center justify-between">
+
+
 
 
                                             @if($recipient->is_read && $recipient->read_at)

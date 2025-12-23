@@ -523,7 +523,7 @@ class Classify extends Component
         $this->dispatch('success', 'طبقه‌بندی شما با موفقیت ثبت شد!');
 
 
-        return redirect()->route('client.classification.projects');
+        return redirect()->route('client.profile.classification.projects');
 
     }
 

@@ -1,11 +1,61 @@
 <div>
     <div class="container-xxl flex-grow-1 container-p-y">
         @push('link')
+            <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
+
             <style>
+
                 [x-cloak] {
                     display: none !important;
                 }
 
+                /* Select2 RTL Support */
+                .select2-container {
+                    width: 100% !important;
+                }
+
+                .select2-container--default .select2-selection--single {
+                    height: 38px;
+                    border: 1px solid #d9dee3;
+                    border-radius: 0.375rem;
+                }
+
+                .select2-container--default .select2-selection--single .select2-selection__rendered {
+                    line-height: 36px;
+                    padding-right: 12px;
+                    padding-left: 30px;
+                }
+
+                .select2-container--default .select2-selection--single .select2-selection__arrow {
+                    height: 36px;
+                    left: 1px;
+                    right: auto;
+                }
+
+                /* Gradients */
+                .bg-gradient-primary {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                }
+
+                .bg-gradient-info {
+                    background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+                }
+
+                /* Modal Animation */
+                .modal.show .modal-dialog {
+                    animation: modalSlideDown 0.3s ease-out;
+                }
+
+                @keyframes modalSlideDown {
+                    from {
+                        transform: translateY(-50px);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+                }
             </style>
         @endpush
         {{-- هدر صفحه --}}
@@ -403,24 +453,41 @@
         @endif
 
         {{-- تنظیمات برنامه هفتگی --}}
-        <div class="card mb-4">
-            <h5 class="card-header">تاریخ شروع برنامه</h5>
+        <div class="card mb-5 border-0 shadow-sm">
+
+            <div class="card-header bg-gradient-primary text-white d-flex align-items-center gap-2">
+
+                <i class="material-symbols-outlined">calendar_month</i>
+
+                <h5 class="mb-0">تاریخ شروع برنامه</h5>
+
+            </div>
+
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-4">
-                        <label class="form-label">تاریخ شروع هفته</label>
+                        <label class="form-label fw-medium d-flex align-items-center gap-2">
+                            <i class="material-symbols-outlined text-primary" style="font-size: 20px;">event</i>
+                            تاریخ شروع هفته
+                        </label>
                         <input type="date"
                                wire:model.live="start_date"
                                class="form-control">
-                        <small class="text-muted">روز و تاریخ به صورت خودکار محاسبه می‌شود</small>
+                        <div class="form-text d-flex align-items-center gap-1 mt-2">
+                            <i class="material-symbols-outlined text-info" style="font-size: 16px;">info</i>
+                            <span>روز و تاریخ هر روز هفته به صورت خودکار محاسبه می‌شود</span>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
         {{-- جدول برنامه هفتگی --}}
-        <div class="card mb-4">
-            <h5 class="card-header">برنامه هفتگی</h5>
+        <div class="card mb-4 border-0 shadow-sm">
+            <div class="card-header bg-gradient-primary text-white d-flex align-items-center gap-2">
+                <i class="material-symbols-outlined">view_week</i>
+                <h5 class="mb-0">برنامه هفتگی</h5>
+            </div>
             <div class="card-datatable table-responsive pt-0">
                 <table class="table table-bordered align-middle mb-0" style="min-width: 1000px;">
                     <thead>
@@ -520,11 +587,11 @@
 
         {{-- آمار و نمودارها --}}
         @if($weeklyProgram && $weeklyProgram->parts->count() > 0)
-            <div class="card mb-4">
-                <h5 class="card-header d-flex align-items-center gap-2">
-                    <i class="material-symbols-outlined text-primary">analytics</i>
-                    <span>خلاصه اطلاعات جزئی برنامه</span>
-                </h5>
+            <div class="card mb-4 border-0 shadow-sm">
+                <div class="card-header bg-gradient-info text-white d-flex align-items-center gap-2">
+                    <i class="material-symbols-outlined">analytics</i>
+                    <h5 class="mb-0 text-white">خلاصه اطلاعات جزئی برنامه</h5>
+                </div>
 
                 <div class="card-body">
                     <div class="row g-3 mb-4">
@@ -623,23 +690,16 @@
     {{-- Modal اضافه کردن / ویرایش پارت --}}
 
     @if($showPartModal)
-
-        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5);">
-
+        <div class="modal fade show d-block" tabindex="-1"
+             style="background: rgba(0,0,0,0.6); backdrop-filter: blur(3px);">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-
-                <div class="modal-content">
-
-
-                    <div class="modal-header">
-
-                        <h5 class="modal-title">
-
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header bg-gradient-primary text-white">
+                        <h5 class="modal-title d-flex align-items-center gap-2">
+                            <i class="material-symbols-outlined">{{ $editingPartId ? 'edit' : 'add_circle' }}</i>
                             {{ $editingPartId ? 'ویرایش پارت' : 'افزودن پارت جدید' }}
-
                         </h5>
-
-                        <button type="button" class="btn-close" wire:click="closePartModal"></button>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closePartModal"></button>
 
                     </div>
 
@@ -652,8 +712,12 @@
                         <div class="row g-3 mb-3">
 
                             <div class="col-md-6">
-
-                                <label class="form-label">دوره تحصیلی <span class="text-danger">*</span></label>
+                                <label class="form-label fw-medium d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined text-primary"
+                                       style="font-size: 20px;">school</i>
+                                    دوره تحصیلی
+                                    <span class="text-danger">*</span>
+                                </label>
 
                                 <select
 
@@ -683,8 +747,12 @@
 
 
                             <div class="col-md-6">
-
-                                <label class="form-label">پایه تحصیلی <span class="text-danger">*</span></label>
+                                <label class="form-label fw-medium d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined text-success"
+                                       style="font-size: 20px;">stairs</i>
+                                    پایه تحصیلی
+                                    <span class="text-danger">*</span>
+                                </label>
 
                                 <select
 
@@ -700,9 +768,12 @@
                                         value="">{{ empty($grades) ? 'ابتدا دوره را انتخاب کنید' : 'انتخاب کنید' }}</option>
 
                                     @foreach($grades as $grade)
-
-                                        <option value="{{ $grade->id }}">{{ $grade->name }}</option>
-
+                                        <option value="{{ $grade->id }}">
+                                            {{ $grade->name }}
+                                            @if($grade->field)
+                                                ({{ $grade->field->name }})
+                                            @endif
+                                        </option>
                                     @endforeach
 
                                 </select>
@@ -736,7 +807,11 @@
                             @endif
 
                             <div class="{{ count($fields) > 0 && $partForm['cc_grade_id'] ? 'col-md-8' : 'col-12' }}">
-                                <label class="form-label">درس <span class="text-danger">*</span></label>
+                                <label class="form-label fw-medium d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined text-warning" style="font-size: 20px;">book</i>
+                                    درس
+                                    <span class="text-danger">*</span>
+                                </label>
                                 <select
                                     wire:model.live="partForm.cc_subject_id"
                                     class="form-select @error('partForm.cc_subject_id') is-invalid @enderror"
@@ -759,7 +834,10 @@
                         {{-- فصل و مبحث --}}
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">فصل</label>
+                                <label class="form-label fw-medium d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined text-info" style="font-size: 20px;">bookmark</i>
+                                    فصل
+                                </label>
                                 <select
                                     wire:model.live="partForm.cc_chapter_id"
                                     class="form-select"
@@ -773,7 +851,10 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">مبحث</label>
+                                <label class="form-label fw-medium d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined text-purple" style="font-size: 20px;">topic</i>
+                                    مبحث
+                                </label>
                                 <select
                                     wire:model.live="partForm.cc_topic_id"
                                     class="form-select"
@@ -789,7 +870,11 @@
                         </div>
                         {{-- توضیحات --}}
                         <div class="mb-3">
-                            <label class="form-label">توضیحات پارت</label>
+                            <label class="form-label fw-medium d-flex align-items-center gap-2">
+                                <i class="material-symbols-outlined text-secondary"
+                                   style="font-size: 20px;">description</i>
+                                توضیحات پارت
+                            </label>
                             <textarea
                                 wire:model="partForm.description"
                                 rows="2"
@@ -799,7 +884,25 @@
                         </div>
                         <div class="row g-3 mb-3">
                             <div class="col-md-4">
-                                <label class="form-label">مدت زمان (دقیقه) <span class="text-danger">*</span></label>
+                                <label class="form-label fw-medium d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined text-danger"
+                                       style="font-size: 20px;">category</i>
+                                    نوع پارت
+                                    <span class="text-danger">*</span>
+                                </label>
+                                <select wire:model.live="partForm.part_type" class="form-select">
+                                    <option value="descriptive">تشریحی</option>
+                                    <option value="test">تستی</option>
+                                    <option value="video">ویدئو</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-medium d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined text-primary"
+                                       style="font-size: 20px;">schedule</i>
+                                    مدت زمان (دقیقه)
+                                    <span class="text-danger">*</span>
+                                </label>
                                 <input type="number"
                                        min="1"
                                        wire:model="partForm.duration_minutes"
@@ -808,21 +911,24 @@
                                 <div class="text-danger small">{{ $message }}</div>
                                 @enderror
                             </div>
-                            <div class="col-md-4">
-                                <label class="form-label">تعداد تست (اختیاری)</label>
-                                <input type="number"
-                                       min="0"
-                                       wire:model="partForm.test_count"
-                                       class="form-control">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">نوع پارت <span class="text-danger">*</span></label>
-                                <select wire:model="partForm.part_type" class="form-select">
-                                    <option value="descriptive">تشریحی</option>
-                                    <option value="test">تستی</option>
-                                    <option value="video">ویدئو</option>
-                                </select>
-                            </div>
+                            @if($partForm['part_type'] === 'test')
+                                <div class="col-md-4">
+                                    <label class="form-label fw-medium d-flex align-items-center gap-2">
+                                        <i class="material-symbols-outlined text-warning"
+                                           style="font-size: 20px;">quiz</i>
+                                        تعداد تست
+                                        <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="number"
+                                           min="1"
+                                           wire:model="partForm.test_count"
+                                           class="form-control @error('partForm.test_count') is-invalid @enderror"
+                                           placeholder="تعداد تست را وارد کنید">
+                                    @error('partForm.test_count')
+                                    <div class="text-danger small">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            @endif
                         </div>
 
                     </div>
@@ -854,5 +960,60 @@
         </div>
     @endif
 
+    @push('scripts')
 
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+        <script>
+            function initSelect2() {
+                // حذف Select2 های قبلی
+                if ($('.modal select.select2-hidden-accessible').length) {
+                    $('.modal select.select2-hidden-accessible').select2('destroy');
+                }
+                // Initialize Select2 برای تمام select های داخل مودال
+                $('.modal select').each(function () {
+                    if (!$(this).hasClass('select2-hidden-accessible')) {
+                        $(this).select2({
+                            dir: "rtl",
+                            language: "fa",
+                            placeholder: $(this).find('option:first').text(),
+                            allowClear: false,
+                            dropdownParent: $('.modal-content'),
+                            width: '100%'
+                        });
+                        // وقتی Select2 تغییر کرد، Livewire را آپدیت کن
+                        $(this).on('select2:select', function (e) {
+                            let wireModel = $(this).attr('wire:model.live') || $(this).attr('wire:model');
+                            if (wireModel) {
+                            @this.set(wireModel, $(this).val())
+                                ;
+                            }
+                        });
+                    }
+                });
+            }
+
+            // وقتی مودال باز شد
+            Livewire.on('modal-opened', () => {
+                setTimeout(() => {
+                    initSelect2();
+                }, 100);
+            });
+            // بعد از آپدیت Livewire
+            document.addEventListener('livewire:update', () => {
+                setTimeout(() => {
+                    if ($('.modal.show').length) {
+                        initSelect2();
+                    }
+                }, 100);
+            });
+            // اولین بار که صفحه لود میشه
+            $(document).ready(function () {
+                // اگر مودال باز هست
+                if ($('.modal.show').length) {
+                    initSelect2();
+                }
+            });
+        </script>
+    @endpush
 </div>

@@ -27,7 +27,13 @@ class WeeklyProgram extends Model
 
     ];
 
+    public function studyPartSessions(): HasMany
 
+    {
+
+        return $this->hasMany(StudyPartSession::class);
+
+    }
     public function student(): BelongsTo
 
     {

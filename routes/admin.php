@@ -14,6 +14,7 @@ use App\Livewire\Admin\Notification\Create as NotificationCreate;
 use App\Livewire\Admin\ReportStudentStudy\Index as ReportStudentStudy;
 use App\Livewire\Admin\SendToSuperAdmin\Index as SendToSuperAdminContactDocumentation;
 
+use App\Livewire\Admin\Student\DailyReportManagement;
 use App\Livewire\Admin\Student\MeetGoogle;
 use App\Livewire\Admin\Student\Plan\Detail as StudentPlanDetail;
 use App\Livewire\Admin\Student\Plan\Index as StudentPlanIndex;
@@ -90,7 +91,7 @@ Route::name('admin.')->group(function () {
         Route::get('/todo', TodoIndex::class)->name('todo');
 
         Route::get('/report-not-send', ReportMissingIndex::class)->name('reportMissing');
-
+        Route::get('/daily-reports', DailyReportManagement::class);
         // Typed Exam Routes (آزمون‌های تایپی)
 
         Route::get('/typed-exams', \App\Livewire\Admin\TypedExam\ExamIndex::class)->name('typed-exams.index');

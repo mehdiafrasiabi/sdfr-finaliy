@@ -16,9 +16,9 @@ use App\Livewire\Client\Profile\Classification\Classify;
 use App\Livewire\Client\Profile\Classification\ProjectList;
 use App\Livewire\Client\Home\Index as HomeIndex;
 
+use App\Livewire\Client\Profile\DailyReportClient;
 use App\Livewire\Client\Profile\Installment\Installment as ProfileInstallment;
 use App\Livewire\Client\Profile\Installment\InstallmentDetail as ProfileInstallmentDetail;
-use App\Livewire\Client\Profile\MeetGoogle as ProfileMeetGoogle;
 use App\Livewire\Client\Profile\Notification as ProfileNotification ;
 use App\Livewire\Client\Profile\ProfessionalTools\Index as ProfessionalToolsIndex;
 use App\Livewire\Client\Profile\ProfessionalTools\PomodoroTimer as ProfessionalToolsPomodoroTimer;
@@ -121,7 +121,7 @@ Route::name('client.')->group(function () {
             Route::get('/exam/result/{attemptId}', TypedExamResult::class)->name('typed-exam.result');
 
 
-
+            Route::get('/daily-report', DailyReportClient::class);
             // Classification Routes
             Route::get('/classification', ProjectList::class)->name('classification.projects');
             Route::get('/{project}/classify/{grade}', Classify::class)->name('classification.classify');

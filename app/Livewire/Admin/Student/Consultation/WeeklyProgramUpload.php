@@ -137,6 +137,7 @@ class WeeklyProgramUpload extends Component
         $this->selectedDay = $dayIndex;
         $this->resetPartForm();
         $this->showPartModal = true;
+        $this->dispatch('modal-opened');
     }
 
     public function editPart(int $partId): void
@@ -174,6 +175,7 @@ class WeeklyProgramUpload extends Component
 
             $this->grades = CcGrade::where('education_level_id', $part->education_level_id)
                 ->where('is_active', true)
+                ->with('field')
                 ->orderBy('order')
                 ->get();
 
@@ -210,6 +212,7 @@ class WeeklyProgramUpload extends Component
         }
 
         $this->showPartModal = true;
+        $this->dispatch('modal-opened');
     }
 
     public function resetPartForm(): void
@@ -264,6 +267,7 @@ class WeeklyProgramUpload extends Component
         if ($value) {
             $this->grades = CcGrade::where('education_level_id', $value)
                 ->where('is_active', true)
+                ->with('field')
                 ->orderBy('order')
                 ->get();
         } else {
@@ -563,6 +567,7 @@ class WeeklyProgramUpload extends Component
             ];
         }
         $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
             ->with(['advisingSession', 'exams', 'assignments', 'qas', 'miscellaneous'])
             ->latest()
             ->get();

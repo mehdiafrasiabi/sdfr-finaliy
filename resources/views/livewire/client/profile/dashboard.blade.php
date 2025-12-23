@@ -403,19 +403,8 @@
                     </div>
                     <!-- statistics:item -->
                     <div class="flex items-center gap-3 bg-secondary rounded-2xl cursor-default p-3">
-                                    <span
-                                        class="flex items-center justify-center w-12 h-12 bg-background rounded-full ">
-                                        <img src="/client/assets/images/icon/medal.png" class="w-5 h-5">
-                                    </span>
-                        <div class="flex flex-col items-start text-right space-y-1">
-                            <span class="font-bold text-xs text-muted line-clamp-1">سطح آموزشی</span>
-                            <span
-                                class="font-bold text-sm text-foreground line-clamp-1">سطح : {{$student->star ?? '--'}} </span>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-3 bg-secondary rounded-2xl cursor-default p-3">
-                                    <span
-                                        class="flex items-center justify-center w-12 h-12 bg-background rounded-full text-yellow-500">
+                                   <span
+                                       class="flex items-center justify-center w-12 h-12 bg-background rounded-full text-yellow-500">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
                                              class="w-5 h-5">
                                             <path fill-rule="evenodd"
@@ -424,8 +413,23 @@
                                         </svg>
                                     </span>
                         <div class="flex flex-col items-start text-right space-y-1">
+                            <span class="font-bold text-xs text-muted line-clamp-1">سطح آموزشی</span>
+                            <span
+                                class="font-bold text-sm text-foreground line-clamp-1">بزودی ...</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3 bg-secondary rounded-2xl cursor-default p-3">
+
+                         <span
+                             class="flex items-center justify-center w-12 h-12 bg-background rounded-full text-yellow-500">
+                                       <span
+                                           class="flex items-center justify-center w-12 h-12 bg-background rounded-full text-yellow-500">
+                                           <img src="/client/assets/images/coin.png" alt="coin" class="w-5 h-5">
+                                    </span>
+                                    </span>
+                        <div class="flex flex-col items-start text-right space-y-1">
                             <span class="font-bold text-xs text-muted line-clamp-1">سکه</span>
-                            <span class="font-bold text-sm text-foreground line-clamp-1">بزودی 🔥</span>
+                            <span class="font-bold text-sm text-foreground line-clamp-1">بزودی ...</span>
                         </div>
                     </div>
                     <!-- end statistics:item -->
