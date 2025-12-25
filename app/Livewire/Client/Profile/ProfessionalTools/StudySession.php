@@ -19,7 +19,7 @@ use App\Models\WeeklyProgram;
 use App\Models\ProgramPart;
 
 use Carbon\Carbon;
-
+use App\Models\WeeklyProgramRestDay;
 
 class StudySession extends Component
 
@@ -66,7 +66,7 @@ class StudySession extends Component
     // وضعیت‌های کامل شده
 
     public $completedParts = [];
-
+    public $restDays = []; // روزهای استراحت
     public $endsAt = null;       // زمان پایان تایمر
     public $pausedSeconds = 0;   // مجموع ثانیه‌های pause شده
 
@@ -138,7 +138,11 @@ class StudySession extends Component
                 ->orderBy('part_order')
                 ->get();
 
+            // بارگذاری روزهای استراحت
 
+            $this->restDays = WeeklyProgramRestDay::where('weekly_program_id', $this->weeklyProgram->id)
+                ->pluck('day_index')
+                ->toArray();
             // بارگذاری پارت‌های کامل شده
 
             $this->loadCompletedParts();
@@ -218,7 +222,7 @@ class StudySession extends Component
         }
 
         $this->currentPartId = $partId;
-        $this->targetSeconds = (int) $part->duration_minutes * 60;
+        $this->targetSeconds = (int)$part->duration_minutes * 60;
 
         $nowTs = now()->timestamp;
 
@@ -237,7 +241,6 @@ class StudySession extends Component
     }
 
 
-
     public function pausePart()
     {
         if (!$this->isRunning || !$this->endsAtTs) return;
@@ -251,7 +254,6 @@ class StudySession extends Component
 
         $this->dispatch('success', 'تایمر متوقف شد.');
     }
-
 
 
     public function resumePart()
@@ -269,7 +271,6 @@ class StudySession extends Component
         $this->isRunning = true;
         $this->dispatch('success', 'ادامه مطالعه.');
     }
-
 
 
     public function tick()
@@ -461,6 +462,45 @@ class StudySession extends Component
         return $parts
             ->groupBy(fn($p) => Carbon::parse($p->part_date)->toDateString())
             ->sortKeys();
+    }
+
+    /**
+     * Get all 8 days of the program with rest day info
+     */
+
+    public function getProgramDays(): array
+    {
+        if (!$this->weeklyProgram) {
+            return [];
+        }
+        $days = [];
+        $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+        $startDate = $this->weeklyProgram->start_date;
+        for ($i = 0; $i < 8; $i++) {
+            $date = Carbon::parse($startDate)->addDays($i);
+            $jalaliDate = jdate($date);
+            $dayOfWeek = $jalaliDate->getDayOfWeek();
+            $isRestDay = in_array($i, $this->restDays);
+            $dayParts = collect($this->programParts)->filter(fn($p) => $p->day_of_week === $i);
+            $days[] = [
+                'index' => $i,
+                'date' => $date->toDateString(),
+                'name' => $jalaliDayNames[$dayOfWeek],
+                'jalali_date' => $jalaliDate->format('Y/m/d'),
+                'jalali_short' => $jalaliDate->format('d F'),
+                'is_rest_day' => $isRestDay,
+                'parts' => $dayParts,
+                'parts_count' => $dayParts->count(),
+            ];
+        }
+        return $days;
+    }
+    /**
+     * Check if a date is a rest day
+     */
+    public function isRestDay(int $dayIndex): bool
+    {
+        return in_array($dayIndex, $this->restDays);
     }
 
     public function cancelPart()

@@ -8,6 +8,7 @@ use App\Models\WeeklyProgram;
 use App\Models\ProgramPart;
 use App\Models\Lesson;
 use App\Models\AdvisingPreSession;
+use App\Models\WeeklyProgramRestDay;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -25,12 +26,13 @@ class WeeklyProgramUpload extends Component
     public $studentId;
     public $sessionId;
     public $weeklyProgramId;
-
     // اطلاعات برنامه
     public $start_date;
-    public $advisor_name;
-    public $supporter_name;
 
+    // Rest day confirmation
+    public bool $showRestDayConfirmModal = false;
+    public ?int $restDayToToggle = null;
+    public int $partsCountForRestDay = 0;
     // آرایه‌ی پارت‌ها برای ۷ روز
     public $parts = [];
 
@@ -89,21 +91,26 @@ class WeeklyProgramUpload extends Component
         if ($existingProgram) {
             $this->weeklyProgramId = $existingProgram->id;
             $this->start_date = $existingProgram->start_date->format('Y-m-d');
-            $this->advisor_name = $existingProgram->advisor_name;
-            $this->supporter_name = $existingProgram->supporter_name;
-
             $this->loadExistingParts();
-        } else {
-            // تاریخ پیش‌فرض: فردا
-            $this->start_date = Carbon::tomorrow()->format('Y-m-d');
 
-            // نام مشاور از ادمین فعلی
-            $admin = auth()->user();
-            $this->advisor_name = $admin->name ?? '';
+        } else {
+
+            // تاریخ شروع از تاریخ جلسه مشاوره گرفته میشه - نه فردا
+
+            if ($session && $session->activation_date) {
+
+                $this->start_date = Carbon::parse($session->activation_date)->format('Y-m-d');
+
+            } else {
+
+                $this->start_date = Carbon::tomorrow()->format('Y-m-d');
+
+            }
         }
 
-        // اطمینان از وجود آرایه برای هر ۷ روز
-        for ($i = 0; $i < 7; $i++) {
+        // اطمینان از وجود آرایه برای هر ۸ روز
+
+        for ($i = 0; $i < 8; $i++) {
             if (!isset($this->parts[$i])) {
                 $this->parts[$i] = [];
             }
@@ -123,7 +130,7 @@ class WeeklyProgramUpload extends Component
 
         $this->parts = [];
 
-        for ($i = 0; $i < 7; $i++) {
+        for ($i = 0; $i < 8; $i++) {
             $this->parts[$i] = $program->parts()
                 ->where('day_of_week', $i)
                 ->orderBy('part_order')
@@ -495,7 +502,7 @@ class WeeklyProgramUpload extends Component
         ], $this->messages());
 
         $startDate = Carbon::parse($this->start_date);
-        $endDate = $startDate->copy()->addDays(6);
+        $endDate = $startDate->copy()->addDays(7); // 8 days total
 
         if ($this->weeklyProgramId) {
             $program = WeeklyProgram::find($this->weeklyProgramId);
@@ -507,8 +514,6 @@ class WeeklyProgramUpload extends Component
             $program->update([
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'advisor_name' => $this->advisor_name,
-                'supporter_name' => $this->supporter_name,
             ]);
         } else {
             $program = WeeklyProgram::create([
@@ -517,8 +522,6 @@ class WeeklyProgramUpload extends Component
                 'advising_session_id' => $this->sessionId,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-                'advisor_name' => $this->advisor_name,
-                'supporter_name' => $this->supporter_name,
                 'is_active' => true,
             ]);
 
@@ -530,6 +533,137 @@ class WeeklyProgramUpload extends Component
     {
         $this->saveProgram();
         $this->dispatch('success', 'برنامه هفتگی با موفقیت ذخیره شد.');
+    }
+
+    /**
+     * Toggle rest day - show confirmation if parts exist
+     */
+
+    public function toggleRestDay(int $dayIndex): void
+
+    {
+
+        if (!$this->weeklyProgramId) {
+
+            $this->saveProgram();
+
+        }
+
+
+        $weeklyProgram = WeeklyProgram::find($this->weeklyProgramId);
+
+        if (!$weeklyProgram) {
+
+            return;
+
+        }
+
+
+        // Check if already a rest day
+
+        $isCurrentlyRestDay = $weeklyProgram->isRestDay($dayIndex);
+
+
+        if ($isCurrentlyRestDay) {
+
+            // Remove rest day
+
+            WeeklyProgramRestDay::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_index', $dayIndex)
+                ->delete();
+
+            $this->dispatch('success', 'روز استراحت برداشته شد.');
+
+            return;
+
+        }
+
+
+        // Check if parts exist for this day
+
+        $partsCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('day_of_week', $dayIndex)
+            ->count();
+
+
+        if ($partsCount > 0) {
+
+            // Show confirmation modal
+
+            $this->restDayToToggle = $dayIndex;
+
+            $this->partsCountForRestDay = $partsCount;
+
+            $this->showRestDayConfirmModal = true;
+
+        } else {
+
+            // No parts, directly add rest day
+            $this->restDayToToggle = $dayIndex;
+            $this->confirmRestDay();
+
+        }
+
+    }
+
+
+    /**
+     * Confirm setting day as rest day (delete parts and set rest)
+     */
+
+    public function confirmRestDay(): void
+
+    {
+
+        $dayIndex = $this->restDayToToggle ?? $this->selectedDay;
+        if (!$this->weeklyProgramId) {
+
+            $this->saveProgram();
+
+        }
+
+
+        // Delete all parts for this day
+
+        ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('day_of_week', $dayIndex)
+            ->delete();
+
+
+        // Add rest day
+
+        WeeklyProgramRestDay::updateOrCreate([
+
+            'weekly_program_id' => $this->weeklyProgramId,
+
+            'day_index' => $dayIndex,
+
+        ]);
+
+
+        $this->loadExistingParts();
+
+        $this->closeRestDayConfirmModal();
+
+        $this->dispatch('success', 'روز استراحت با موفقیت ثبت شد.');
+
+    }
+
+
+    /**
+     * Close rest day confirmation modal
+     */
+
+    public function closeRestDayConfirmModal(): void
+
+    {
+
+        $this->showRestDayConfirmModal = false;
+
+        $this->restDayToToggle = null;
+
+        $this->partsCountForRestDay = 0;
+
     }
 
     public function render()
@@ -546,7 +680,7 @@ class WeeklyProgramUpload extends Component
         $startDate = $this->start_date
             ? Carbon::parse($this->start_date)
             : Carbon::tomorrow();
-        for ($i = 0; $i < 7; $i++) {
+        for ($i = 0; $i < 8; $i++) {
             $date = $startDate->copy()->addDays($i);
             $dayParts = $weeklyProgram
                 ? $weeklyProgram->parts()->where('day_of_week', $i)->orderBy('part_order')->get()
@@ -556,6 +690,8 @@ class WeeklyProgramUpload extends Component
             $jalaliDate = jdate($date);
             $dayOfWeek = $jalaliDate->getDayOfWeek(); // 0 = شنبه، 6 = جمعه
             $dayName = $jalaliDayNames[$dayOfWeek];
+            // Check if this day is a rest day
+            $isRestDay = $weeklyProgram ? $weeklyProgram->isRestDay($i) : false;
             $weekDays[] = [
                 'index' => $i,
                 'name' => $dayName,
@@ -564,6 +700,7 @@ class WeeklyProgramUpload extends Component
                 'parts' => $dayParts,
                 'total_hours' => round($dayParts->sum('duration_minutes') / 60, 1),
                 'total_tests' => $dayParts->sum('test_count') ?? 0,
+                'is_rest_day' => $isRestDay,
             ];
         }
         $preSessions = AdvisingPreSession::where('student_id', $this->studentId)

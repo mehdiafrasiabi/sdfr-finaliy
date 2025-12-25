@@ -1,6 +1,31 @@
 <div class="container-fluid">
 
+    <!-- Students On Rest Day Alert -->
 
+
+    @if(count($studentsOnRestDay) > 0)
+
+        <div class="alert alert-success d-flex align-items-start gap-3 mb-4" role="alert">
+
+
+            <i class="material-symbols-outlined">spa</i>
+
+
+            <div>
+
+
+                <h6 class="alert-heading mb-1">دانش‌آموزان با روز استراحت (نیازی به گزارش ندارند)</h6>
+
+
+                <p class="mb-0 small">{{ implode('، ', $studentsOnRestDay) }}</p>
+
+
+            </div>
+
+
+        </div>
+
+    @endif
     <!-- Header -->
 
     <div class="mb-4">
@@ -22,34 +47,124 @@
 
     <div class="row mb-4">
 
-        <div class="col-lg-4 col-md-6 mb-3">
+        <div class="col-lg-3 col-md-6 mb-3">
+
 
             <div class="card shadow-sm h-100">
 
+
                 <div class="card-body d-flex align-items-center gap-3">
+
 
                     <div class="rounded-circle bg-primary bg-opacity-10 p-3">
 
+
                         <i class="material-symbols-outlined text-primary" style="font-size: 28px;">pending_actions</i>
 
+
                     </div>
+
 
                     <div>
 
+
                         <h6 class="text-muted mb-1">گزارش های در انتظار</h6>
+
 
                         <h3 class="mb-0 text-primary">{{ $reports->total() }}</h3>
 
+
                     </div>
+
 
                 </div>
 
+
             </div>
+
 
         </div>
 
 
-        <div class="col-lg-4 col-md-6 mb-3">
+        <div class="col-lg-3 col-md-6 mb-3">
+
+
+            <div class="card shadow-sm h-100">
+
+
+                <div class="card-body d-flex align-items-center gap-3">
+
+
+                    <div class="rounded-circle bg-warning bg-opacity-10 p-3">
+
+
+                        <i class="material-symbols-outlined text-warning" style="font-size: 28px;">person_off</i>
+
+
+                    </div>
+
+
+                    <div>
+
+
+                        <h6 class="text-muted mb-1">بدون گزارش</h6>
+
+
+                        <h3 class="mb-0 text-warning">{{ count($studentsWithoutReports) }}</h3>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+        <div class="col-lg-3 col-md-6 mb-3">
+
+
+            <div class="card shadow-sm h-100">
+
+
+                <div class="card-body d-flex align-items-center gap-3">
+
+
+                    <div class="rounded-circle bg-success bg-opacity-10 p-3">
+
+
+                        <i class="material-symbols-outlined text-success" style="font-size: 28px;">spa</i>
+
+
+                    </div>
+
+
+                    <div>
+
+
+                        <h6 class="text-muted mb-1">روز استراحت</h6>
+
+
+                        <h3 class="mb-0 text-success">{{ count($studentsOnRestDay) }}</h3>
+
+
+                    </div>
+
+
+                </div>
+
+
+            </div>
+
+
+        </div>
+
+
+        <div class="col-lg-3 col-md-6 mb-3">
 
             <div class="card shadow-sm h-100">
 

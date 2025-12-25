@@ -428,9 +428,14 @@
                 <thead>
                 <tr class="bg-slate-50 text-[11px] text-slate-600 dark:bg-slate-800 dark:text-slate-200">
                     @foreach($weekDays as $day)
-                        <th class="border-l border-slate-100 px-3 py-3 last:border-l-0 dark:border-slate-700">
-                            <div class="font-semibold text-slate-800 dark:text-slate-50">
+                        <th class="border-l border-slate-100 px-3 py-3 last:border-l-0 dark:border-slate-700 {{ $day['is_rest_day'] ? 'bg-emerald-50 dark:bg-emerald-900/20' : '' }}">
+
+                            <div class="font-semibold {{ $day['is_rest_day'] ? 'text-emerald-700 dark:text-emerald-400' : 'text-slate-800 dark:text-slate-50' }}">
                                 {{ $day['name'] }}
+                                @if($day['is_rest_day'])
+                                    <span class="block text-[9px] mt-1 px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/50 text-emerald-600 dark:text-emerald-300 inline-block">استراحت</span>
+
+                                @endif
                             </div>
                             <div class="mt-1 text-[11px] text-slate-500 dark:text-slate-300">
                                 {{ $day['jalali_date'] }}
@@ -445,8 +450,27 @@
                     @foreach($weekDays as $day)
                         <td
                             class="min-w-[110px] border-l border-slate-100 px-2 py-3 align-top last:border-l-0
-                                   dark:border-slate-700"
+                               dark:border-slate-700 {{ $day['is_rest_day'] ? 'bg-emerald-50/50 dark:bg-emerald-900/10' : '' }}"
+
                         >
+
+                            @if($day['is_rest_day'])
+
+                                <div class="text-center py-6">
+
+                                    <div class="text-3xl mb-2">🌿</div>
+
+                                    <div class="text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-1">روز استراحت</div>
+
+                                    <p class="text-[11px] text-emerald-600/80 dark:text-emerald-400/70">
+
+                                        بدون برنامه مطالعاتی
+
+                                    </p>
+
+                                </div>
+
+                            @else
                             <div class="space-y-2">
                                 @forelse($day['parts'] as $part)
                                     <div
@@ -549,6 +573,7 @@
                                         </span>
                                     </div>
                                 </div>
+                            @endif
                             @endif
                         </td>
                     @endforeach

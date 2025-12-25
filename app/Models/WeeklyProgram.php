@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
+
 class WeeklyProgram extends Model
 {
 
     use SoftDeletes;
+
     protected $guarded = [];
 
 
@@ -34,6 +36,7 @@ class WeeklyProgram extends Model
         return $this->hasMany(StudyPartSession::class);
 
     }
+
     public function student(): BelongsTo
 
     {
@@ -62,18 +65,33 @@ class WeeklyProgram extends Model
 
 
     public function parts(): HasMany
+    {
+        return $this->hasMany(ProgramPart::class);
+    }
 
+    public function restDays(): HasMany
     {
 
-        return $this->hasMany(ProgramPart::class);
+        return $this->hasMany(WeeklyProgramRestDay::class);
 
     }
 
 
+    /**
+     * Check if a specific day is a rest day
+     */
+
+    public function isRestDay(int $dayIndex): bool
+
+    {
+
+        return $this->restDays()->where('day_index', $dayIndex)->exists();
+
+    }
+
     // پارت‌های یک روز خاص
 
     public function partsForDay($dayOfWeek): HasMany
-
     {
 
         return $this->parts()->where('day_of_week', $dayOfWeek)->orderBy('part_order');
@@ -248,34 +266,47 @@ class WeeklyProgram extends Model
 
     // آرایه روزهای هفته با تاریخ شمسی
 
+    // آرایه روزهای هفته با تاریخ شمسی (8 روز)
+
     public function getWeekDays(): array
 
     {
 
         $days = [];
 
-        $dayNames = ['شنبه', '۱شنبه', '۲شنبه', '۳شنبه', '۴شنبه', '۵شنبه', 'جمعه'];
+        $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
 
 
-        for ($i = 0; $i < 7; $i++) {
+        for ($i = 0; $i < 8; $i++) {
 
             $date = Carbon::parse($this->start_date)->addDays($i);
 
+            $jalaliDate = jdate($date);
+
+            $actualDayOfWeek = $jalaliDate->getDayOfWeek(); // 0=شنبه تا 6=جمعه
+
+
             $days[] = [
 
-                'day_of_week' => $i,
+                'day_index' => $i, // اندیس روز در برنامه (0-7)
 
-                'name' => $dayNames[$i],
+                'day_of_week' => $actualDayOfWeek, // روز واقعی هفته شمسی
+
+                'name' => $dayNames[$actualDayOfWeek],
 
                 'date' => $date,
 
-                'jalali_date' => jdate($date)->format('m/d'),
+                'jalali_date' => $jalaliDate->format('Y/m/d'),
+
+                'jalali_short' => $jalaliDate->format('d F'),
 
                 'parts' => $this->parts()->where('day_of_week', $i)->orderBy('part_order')->get(),
 
                 'total_hours' => $this->getDailyHours($i),
 
                 'total_tests' => $this->getDailyTests($i),
+
+                'is_rest_day' => $this->isRestDay($i),
 
             ];
 

@@ -90,8 +90,9 @@ class AdvisingSession extends Model
     // محاسبه فعال بودن خودکار
     public function shouldBeActive(): bool
     {
-        $sessionDateTime = Carbon::parse($this->activation_date)
-            ->setTimeFromTimeString($this->session_time ?? '00:00:00');
+        // session_time is cast to datetime, so we need to format it properly
+        $timeString = $this->session_time ? $this->session_time->format('H:i:s') : '00:00:00';
+        $sessionDateTime = Carbon::parse($this->activation_date)->setTimeFromTimeString($timeString);
         return Carbon::now()->gte($sessionDateTime) && $this->status !== self::STATUS_COMPLETED;
     }
 
@@ -153,8 +154,9 @@ class AdvisingSession extends Model
     // بررسی امکان پر کردن پیش‌جلسه
     public function canFillPreSession(): bool
     {
-        $sessionDateTime = Carbon::parse($this->activation_date)
-            ->setTimeFromTimeString($this->session_time ?? '00:00:00');
+        $timeString = $this->session_time ? $this->session_time->format('H:i:s') : '00:00:00';
+
+        $sessionDateTime = Carbon::parse($this->activation_date)->setTimeFromTimeString($timeString);
 
         return Carbon::now()->lt($sessionDateTime);
     }

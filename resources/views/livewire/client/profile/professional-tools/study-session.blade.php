@@ -311,120 +311,262 @@
                     </section>
 
                     {{-- لیست برنامه --}}
-                    @if($showProgram && count($programParts) > 0)
+                    @if($showProgram)
+
+                        @php
+
+                            $programDays = $this->getProgramDays();
+
+                        @endphp
+
+
 
                         <div class="mt-5 space-y-7">
 
-                            @php
-                                $grouped = $this->groupedProgramParts();
-                                $jalaliDayNames = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنج‌شنبه','جمعه'];
-                            @endphp
+                            @foreach($programDays as $day)
 
-                            @forelse($grouped as $date => $parts)
+                                {{-- فیلتر بر اساس dayFilter --}}
+
                                 @php
-                                    $j = jdate($date);
-                                    $dayName = $jalaliDayNames[$j->getDayOfWeek()];
+
+                                    $showDay = true;
+
+                                    if ($dayFilter === 'today') {
+
+                                        $showDay = $day['date'] === now()->toDateString();
+
+                                    } elseif ($dayFilter === 'upcoming') {
+
+                                        $showDay = \Carbon\Carbon::parse($day['date'])->gte(now()->startOfDay());
+
+                                    }
+
                                 @endphp
 
-                                {{-- هدر روز --}}
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <span class="w-2 h-2 rounded-full bg-primary"></span>
-                                        <span class="font-black text-sm text-foreground">{{ $dayName }}</span>
-                                        <span class="text-xs text-muted">{{ $j->format('Y/m/d') }}</span>
+
+
+                                @if($showDay)
+
+                                    {{-- هدر روز --}}
+
+                                    <div class="flex items-center justify-between">
+
+                                        <div class="flex items-center gap-2">
+
+                                            <span
+                                                class="w-2 h-2 rounded-full {{ $day['is_rest_day'] ? 'bg-emerald-500' : 'bg-primary' }}"></span>
+
+                                            <span
+                                                class="font-black text-sm {{ $day['is_rest_day'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground' }}">
+
+                                                {{ $day['name'] }}
+
+                                            </span>
+
+                                            <span class="text-xs text-muted">{{ $day['jalali_date'] }}</span>
+
+                                            @if($day['is_rest_day'])
+
+                                                <span
+                                                    class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+
+                                                    روز استراحت
+
+                                                </span>
+
+                                            @endif
+
+                                        </div>
+
+
+                                        <div class="text-[11px] text-muted">
+
+                                            @if($day['is_rest_day'])
+
+                                                <span class="text-emerald-600 dark:text-emerald-400">استراحت</span>
+
+                                            @else
+
+                                                {{ $day['parts_count'] }} پارت
+
+                                            @endif
+
+                                        </div>
+
                                     </div>
 
-                                    <div class="text-[11px] text-muted">
-                                        {{ $parts->count() }} پارت
-                                    </div>
-                                </div>
 
-                                {{-- جدول ردیفی (مرتب، بدون کارت‌های شلوغ) --}}
-                                <div class="overflow-x-auto rounded-2xl border border-border bg-background">
-                                    <table class="w-full text-xs sm:text-[13px]">
-                                        <thead>
-                                        <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-200">
-                                            <th class="px-3 py-3 text-right">درس</th>
-                                            <th class="px-3 py-3 text-center">مدت</th>
-                                            <th class="px-3 py-3 text-center">نوع</th>
-                                            <th class="px-3 py-3 text-center">تست</th>
-                                            <th class="px-3 py-3 text-left">عملیات</th>
-                                        </tr>
-                                        </thead>
 
-                                        <tbody class="divide-y divide-border">
-                                        @foreach($parts->sortBy('part_order') as $part)
-                                            <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
-                                                <td class="px-3 py-3 text-foreground">
-                                                    <div class="font-semibold">
-                                                        {{ $part->lesson_name }}
-                                                    </div>
-                                                    @if($part->description)
-                                                        <div class="text-[11px] text-muted mt-1">
-                                                            {{ $part->description }}
-                                                        </div>
-                                                    @endif
-                                                </td>
+                                    @if($day['is_rest_day'])
 
-                                                <td class="px-3 py-3 text-center text-foreground">
-                                                    {{ floor($part->duration_minutes / 60) }}
-                                                    س {{ $part->duration_minutes % 60 }}د
-                                                </td>
+                                        {{-- نمایش روز استراحت --}}
 
-                                                <td class="px-3 py-3 text-center">
-                                                    <span class="px-2 py-1 rounded-full text-[10px]
-                                                        bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
-                                                        {{ $part->part_type_label }}
-                                                    </span>
-                                                    <span class="ms-1 px-2 py-1 rounded-full text-[10px]
-                                                        bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
-                                                        {{ $part->lesson_type_label }}
-                                                    </span>
-                                                </td>
+                                        <div
+                                            class="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-8 text-center">
 
-                                                <td class="px-3 py-3 text-center text-foreground">
-                                                    {{ $part->test_count ?? '-' }}
-                                                </td>
+                                            <div class="text-4xl mb-3">🌿</div>
 
-                                                <td class="px-3 py-3 text-left">
-                                                    @if($this->isPartCompleted($part->id))
-                                                        <span
-                                                            class="text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">
-                                                            ✅ تکمیل شده
-                                                        </span>
-                                                    @elseif($currentPartId == $part->id)
-                                                        <span
-                                                            class="text-blue-600 dark:text-blue-400 font-bold text-[11px]">
-                                                            🎯 در حال مطالعه...
-                                                        </span>
-                                                    @else
-                                                        <button wire:click="startPart({{ $part->id }})"
-                                                                wire:loading.attr="disabled"
-                                                                wire:target="startPart({{ $part->id }})"
-                                                                class="px-4 h-9 rounded-xl bg-primary hover:bg-primary/90 text-white text-[11px] font-semibold transition
-               disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
-                                                            {{ $currentPartId ? 'disabled' : '' }}>
-                                                            <span wire:loading.remove
-                                                                  wire:target="startPart({{ $part->id }})">شروع</span>
-                                                            <span wire:loading wire:target="startPart({{ $part->id }})"
-                                                                  class="spinner"></span>
-                                                        </button>
+                                            <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-1">روز
+                                                استراحت</h4>
 
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
+                                            <p class="text-sm text-emerald-600/80 dark:text-emerald-400/70">
 
-                                <div class="day-divider"></div>
+                                                امروز نیازی به مطالعه نیست. استراحت کن و انرژی بگیر!
 
-                            @empty
-                                <div class="text-center text-sm text-muted py-10">
-                                    نتیجه‌ای برای این فیلتر پیدا نشد.
-                                </div>
-                            @endforelse
+                                            </p>
+
+                                        </div>
+
+                                    @elseif($day['parts_count'] > 0)
+
+                                        {{-- جدول ردیفی (مرتب، بدون کارت‌های شلوغ) --}}
+
+                                        <div class="overflow-x-auto rounded-2xl border border-border bg-background">
+
+                                            <table class="w-full text-xs sm:text-[13px]">
+
+                                                <thead>
+
+                                                <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-200">
+
+                                                    <th class="px-3 py-3 text-right">درس</th>
+
+                                                    <th class="px-3 py-3 text-center">مدت</th>
+
+                                                    <th class="px-3 py-3 text-center">نوع</th>
+
+                                                    <th class="px-3 py-3 text-center">تست</th>
+
+                                                    <th class="px-3 py-3 text-left">عملیات</th>
+
+                                                </tr>
+
+                                                </thead>
+
+
+                                                <tbody class="divide-y divide-border">
+
+                                                @foreach($day['parts']->sortBy('part_order') as $part)
+
+                                                    <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+
+                                                        <td class="px-3 py-3 text-foreground">
+
+                                                            <div class="font-semibold">
+
+                                                                {{ $part->lesson_name }}
+
+                                                            </div>
+
+                                                            @if($part->description)
+
+                                                                <div class="text-[11px] text-muted mt-1">
+
+                                                                    {{ $part->description }}
+
+                                                                </div>
+
+                                                            @endif
+
+                                                        </td>
+
+
+                                                        <td class="px-3 py-3 text-center text-foreground">
+
+                                                            {{ floor($part->duration_minutes / 60) }}
+
+                                                            س {{ $part->duration_minutes % 60 }}د
+
+                                                        </td>
+
+
+                                                        <td class="px-3 py-3 text-center">
+
+                                                            <span class="px-2 py-1 rounded-full text-[10px]
+
+                                                                bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+
+                                                                {{ $part->part_type_label }}
+
+                                                            </span>
+
+                                                            <span class="ms-1 px-2 py-1 rounded-full text-[10px]
+
+                                                                bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+
+                                                                {{ $part->lesson_type_label }}
+
+                                                            </span>
+
+                                                        </td>
+
+
+                                                        <td class="px-3 py-3 text-center text-foreground">
+
+                                                            {{ $part->test_count ?? '-' }}
+
+                                                        </td>
+
+
+                                                        <td class="px-3 py-3 text-left">
+
+                                                            @if($this->isPartCompleted($part->id))
+
+                                                                <span
+                                                                    class="text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">
+
+                                                                    ✅ تکمیل شده
+
+                                                                </span>
+
+                                                            @elseif($currentPartId == $part->id)
+
+                                                                <span
+                                                                    class="text-blue-600 dark:text-blue-400 font-bold text-[11px]">
+
+                                                                    🎯 در حال مطالعه...
+
+                                                                </span>
+
+                                                            @else
+
+                                                                <button wire:click="startPart({{ $part->id }})"
+
+                                                                        wire:loading.attr="disabled"
+
+                                                                        wire:target="startPart({{ $part->id }})"
+
+                                                                        class="px-4 h-9 rounded-xl bg-primary hover:bg-primary/90 text-white text-[11px] font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
+
+                                                                    {{ $currentPartId ? 'disabled' : '' }}>
+
+                                                                    <span wire:loading.remove
+                                                                          wire:target="startPart({{ $part->id }})">شروع</span>
+
+                                                                    <span wire:loading
+                                                                          wire:target="startPart({{ $part->id }})"
+                                                                          class="spinner"></span>
+
+                                                                </button>
+
+                                                            @endif
+
+                                                        </td>
+
+                                                    </tr>
+                                                @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        <div
+                                            class="rounded-2xl border border-border bg-slate-50/50 dark:bg-slate-900/20 p-6 text-center">
+                                            <p class="text-sm text-muted">برنامه‌ای برای این روز تنظیم نشده است.</p>
+                                        </div>
+                                    @endif
+                                    <div class="day-divider"></div>
+                                @endif
+                            @endforeach
                         </div>
                     @endif
 

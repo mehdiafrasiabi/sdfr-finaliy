@@ -26,6 +26,7 @@ use Livewire\WithPagination;
 
 use Morilog\Jalali\Jalalian;
 
+use App\Models\WeeklyProgramRestDay;
 
 class Report extends Component
 
@@ -59,13 +60,24 @@ class Report extends Component
 
 
     // Compensatory data
-
     public array $missedParts = [];
 
     public array $selectedCompensatoryParts = [];
 
     public array $compensatoryTestsDone = [];
 
+    public int $compensatoryStep = 1; // 1 = انتخاب پارت، 2 = ثبت جزئیات
+
+    public int $compensatoryPhoneHours = 0;
+
+    public string $compensatoryDescription = '';
+
+    public int $compensatoryRating = 3;
+
+
+    // Rest days
+
+    public array $restDays = [];
 
     // Reply modal data
 
@@ -146,46 +158,46 @@ class Report extends Component
 
         $this->weekDays = [];
 
-        // نام روزهای هفته شمسی - اندیس بر اساس getDayOfWeek جلالی
-
-        // 0 = شنبه, 1 = یکشنبه, 2 = دوشنبه, 3 = سه‌شنبه, 4 = چهارشنبه, 5 = پنج‌شنبه, 6 = جمعه
+        // نام روزهای هفته شمسی
 
         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
 
         $student = Auth::user()->student;
 
 
+        // Load rest days
 
-        for ($i = 0; $i < 7; $i++) {
+        $this->restDays = WeeklyProgramRestDay::where('weekly_program_id', $this->currentProgram->id)
+            ->pluck('day_index')
+            ->toArray();
+
+
+        for ($i = 0; $i < 8; $i++) {
 
             $date = Carbon::parse($this->currentProgram->start_date)->addDays($i);
 
+            $jalaliDate = jdate($date);
+
+            $actualDayOfWeek = $jalaliDate->getDayOfWeek();
 
 
-            // روز واقعی هفته شمسی را از تاریخ بدست می‌آوریم
+            // پارت‌ها را بر اساس اندیس روز در برنامه فیلتر می‌کنیم
 
-            $actualDayOfWeek = jdate($date)->getDayOfWeek();
+            $parts = $this->currentProgram->parts()->where('day_of_week', $i)->orderBy('part_order')->get();
 
 
+            // Check if this is a rest day
 
-            // پارت‌ها را بر اساس روز واقعی هفته فیلتر می‌کنیم
-
-            $parts = $this->currentProgram->parts()->where('day_of_week', $actualDayOfWeek)->orderBy('part_order')->get();
-
+            $isRestDay = in_array($i, $this->restDays);
 
 
             // Check if report already submitted
 
             $existingReport = DailyReport::where('student_id', $student->id)
-
                 ->where('weekly_program_id', $this->currentProgram->id)
-
                 ->whereDate('report_date', $date)
-
                 ->where('is_compensatory', false)
-
                 ->first();
-
 
 
             $isToday = $date->isToday();
@@ -195,29 +207,42 @@ class Report extends Component
             $isFuture = $date->isFuture();
 
 
-
-            $actualDayOfWeek = jdate($date)->getDayOfWeek();  // روز واقعی از تاریخ
             $this->weekDays[$i] = [
-                'day_of_week' => $actualDayOfWeek,  // روز واقعی هفته شمسی
-                'day_index' => $i,  // اندیس روز در برنامه
-                'name' => $dayNames[$actualDayOfWeek],  // نام صحیح
+
+                'day_of_week' => $actualDayOfWeek,
+
+                'day_index' => $i,
+
+                'name' => $dayNames[$actualDayOfWeek],
+
                 'date' => $date,
-                'jalali_date' => jdate($date)->format('Y/m/d'),
-                'jalali_short' => jdate($date)->format('d F'),
+
+                'jalali_date' => $jalaliDate->format('Y/m/d'),
+
+                'jalali_short' => $jalaliDate->format('d F'),
+
                 'parts' => $parts,
+
                 'total_tests' => $parts->sum('test_count'),
+
                 'report' => $existingReport,
-                'can_submit' => $isToday && !$existingReport,
-                'is_locked' => $isPast && !$existingReport,
+
+                'can_submit' => $isToday && !$existingReport && !$isRestDay,
+
+                'is_locked' => $isPast && !$existingReport && !$isRestDay,
+
                 'is_future' => $isFuture,
+
                 'is_submitted' => (bool)$existingReport,
+
+                'is_rest_day' => $isRestDay,
+
             ];
 
         }
 
 
         $this->loadMissedParts();
-
     }
 
 
@@ -231,6 +256,15 @@ class Report extends Component
 
 
         foreach ($this->weekDays as $dayIndex => $day) {
+
+            // Skip rest days - they don't have missed parts
+
+            if ($day['is_rest_day']) {
+
+                continue;
+
+            }
+
 
             if ($day['is_locked'] && !$day['is_submitted']) {
 
@@ -286,7 +320,6 @@ class Report extends Component
             }
 
         }
-
     }
 
 
@@ -486,7 +519,6 @@ class Report extends Component
 
 
     public function openCompensatoryModal()
-
     {
 
         if (empty($this->missedParts)) {
@@ -501,6 +533,14 @@ class Report extends Component
         $this->selectedCompensatoryParts = [];
 
         $this->compensatoryTestsDone = [];
+
+        $this->compensatoryStep = 1;
+
+        $this->compensatoryPhoneHours = 0;
+
+        $this->compensatoryDescription = '';
+
+        $this->compensatoryRating = 3;
 
 
         foreach ($this->missedParts as $missed) {
@@ -525,8 +565,41 @@ class Report extends Component
 
         $this->compensatoryTestsDone = [];
 
+        $this->compensatoryStep = 1;
+
+        $this->compensatoryPhoneHours = 0;
+
+        $this->compensatoryDescription = '';
+
+        $this->compensatoryRating = 3;
+
         $this->resetErrorBag();
 
+    }
+
+
+    public function goToCompensatoryStep2()
+
+    {
+
+        if (empty($this->selectedCompensatoryParts)) {
+
+            $this->dispatch('warning', 'لطفاً حداقل یک پارت را انتخاب کنید.');
+
+            return;
+
+        }
+
+        $this->compensatoryStep = 2;
+
+    }
+
+
+    public function goToCompensatoryStep1()
+
+    {
+
+        $this->compensatoryStep = 1;
     }
 
 
@@ -548,7 +621,6 @@ class Report extends Component
 
 
     public function submitCompensatory()
-
     {
 
         if (empty($this->selectedCompensatoryParts)) {
@@ -558,6 +630,25 @@ class Report extends Component
             return;
 
         }
+
+
+        $this->validate([
+
+            'compensatoryPhoneHours' => 'required|integer|min:0|max:24',
+
+            'compensatoryRating' => 'required|integer|min:1|max:5',
+
+            'compensatoryDescription' => 'nullable|string|max:1000',
+
+        ], [
+
+            'compensatoryPhoneHours.required' => 'ساعت استفاده از گوشی الزامی است.',
+
+            'compensatoryPhoneHours.max' => 'ساعت استفاده از گوشی نمی‌تواند بیشتر از 24 باشد.',
+
+            'compensatoryRating.required' => 'امتیاز الزامی است.',
+
+        ]);
 
 
         $student = Auth::user()->student;
@@ -581,11 +672,11 @@ class Report extends Component
 
             'day_of_week' => jdate($today)->getDayOfWeek(),
 
-            'phone_hours' => 0,
+            'phone_hours' => $this->compensatoryPhoneHours,
 
-            'description' => 'گزارش جبرانی',
+            'description' => $this->compensatoryDescription ?: 'گزارش جبرانی',
 
-            'rating' => 3,
+            'rating' => $this->compensatoryRating,
 
             'is_compensatory' => true,
 
@@ -732,10 +823,12 @@ class Report extends Component
         $this->dispatch('success', 'پاسخ شما ثبت شد.');
         $this->closeReplyModal();
     }
+
     public function getRatingLabel(int $rating): string
     {
         return DailyReport::RATINGS[$rating] ?? 'نامشخص';
     }
+
     public function render()
     {
         $studentId = Auth::user()->student->id ?? null;

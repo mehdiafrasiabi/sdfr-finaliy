@@ -5,13 +5,10 @@ namespace App\Livewire\Client\Profile\Consultation;
 
 
 use App\Models\WeeklyProgram;
-
 use App\Models\Student;
-
 use Livewire\Component;
-
 use Carbon\Carbon;
-
+use App\Models\WeeklyProgramRestDay;
 
 class WeeklyProgramView extends Component
 
@@ -45,34 +42,31 @@ class WeeklyProgramView extends Component
         }
 
 
-        // محاسبه روزهای هفته با نام روز صحیح فارسی
-
+        // محاسبه روزهای هفته با نام روز صحیح فارسی (8 روز)
 
         $weekDays = [];
-
-
         $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
-
-
-        for ($i = 0; $i < 7; $i++) {
+        // بارگذاری روزهای استراحت
+        $restDays = $program->restDays()->pluck('day_index')->toArray();
+        for ($i = 0; $i < 8; $i++) {
             $date = Carbon::parse($program->start_date)->addDays($i);
             $dayParts = $program->parts()->where('day_of_week', $i)->orderBy('part_order')->get();
             // محاسبه روز هفته واقعی از تاریخ
             $jalaliDate = jdate($date);
             $dayOfWeek = $jalaliDate->getDayOfWeek(); // 0 = شنبه، 6 = جمعه
             $dayName = $jalaliDayNames[$dayOfWeek];
+            // Check if this day is a rest day
+            $isRestDay = in_array($i, $restDays);
             $weekDays[] = [
                 'index' => $i,
                 'name' => $dayName,
                 'date' => $date,
                 'jalali_date' => $jalaliDate->format('Y/m/d'),
-
+                'jalali_short' => $jalaliDate->format('d F'),
                 'parts' => $dayParts,
-
                 'total_hours' => round($dayParts->sum('duration_minutes') / 60, 1),
-
                 'total_tests' => $dayParts->sum('test_count') ?? 0,
-
+                'is_rest_day' => $isRestDay,
             ];
 
         }
@@ -117,8 +111,9 @@ class WeeklyProgramView extends Component
 
         // نام مشاور و پشتیبان از دانش‌آموز
         $student = $program->student;
-        $advisorName = $student?->advisor?->name ?? $program->advisor_name ?? '-';
-        $supporterName = $student?->supporter?->name ?? $program->supporter_name ?? '-';
+        $advisorName = $student?->advisor?->name ?? '-';
+
+        $supporterName = $student?->supporter?->name ?? '-';
         return view('livewire.client.profile.consultation.weekly-program-view', [
             'program' => $program,
             'weekDays' => $weekDays,

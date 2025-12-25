@@ -5,23 +5,19 @@ namespace App\Livewire\Admin\Student;
 
 
 use App\Models\DailyReport;
-
+use App\Services\NotificationService;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
+use Livewire\Component;
+use Livewire\WithPagination;
+use Morilog\Jalali\Jalalian;
 use App\Models\DailyReportPart;
 
 use App\Models\Student;
 
-use App\Services\NotificationService;
+use App\Models\WeeklyProgram;
 
-use Carbon\Carbon;
-
-use Illuminate\Support\Facades\Validator;
-
-use Livewire\Component;
-
-use Livewire\WithPagination;
-
-use Morilog\Jalali\Jalalian;
-
+use App\Models\WeeklyProgramRestDay;
 
 class ReportDaily extends Component
 
@@ -40,7 +36,7 @@ class ReportDaily extends Component
     // Comment Modal
 
     public bool $commentModalOpen = false;
-
+    public $studentsOnRestDay = [];
     public ?int $commentReportId = null;
 
     public string $advisorCommentInput = '';
@@ -127,16 +123,85 @@ class ReportDaily extends Component
             ->toArray();
 
 
-        $this->studentsWithoutReports = $allStudents
-            ->whereNotIn('id', $studentsWithReports)
-            ->map(function ($student) {
+        // Separate students on rest day from those without reports
 
-                return $student->user->name ?? null;
+        $studentsOnRestDay = [];
 
-            })
-            ->filter()
-            ->values()
-            ->toArray();
+        $studentsWithoutReportsFiltered = [];
+
+
+        foreach ($allStudents->whereNotIn('id', $studentsWithReports) as $student) {
+
+            $studentName = $student->user->name ?? null;
+
+            if (!$studentName) continue;
+
+
+            // Check if student has an active weekly program where yesterday is a rest day
+
+            $isRestDay = $this->isStudentRestDay($student->id, $yesterday);
+
+
+            if ($isRestDay) {
+
+                $studentsOnRestDay[] = $studentName;
+
+            } else {
+
+                $studentsWithoutReportsFiltered[] = $studentName;
+
+            }
+
+        }
+
+
+        $this->studentsWithoutReports = $studentsWithoutReportsFiltered;
+
+        $this->studentsOnRestDay = $studentsOnRestDay;
+
+
+    }
+
+
+    protected function isStudentRestDay(int $studentId, Carbon $date): bool
+
+    {
+
+        // Find the student's active weekly program that covers this date
+
+        $program = WeeklyProgram::where('student_id', $studentId)
+            ->where('start_date', '<=', $date)
+            ->whereRaw('DATE_ADD(start_date, INTERVAL 7 DAY) >= ?', [$date])
+            ->latest('start_date')
+            ->first();
+
+
+        if (!$program) {
+
+            return false;
+
+        }
+
+
+        // Calculate which day index this date falls on (0-7)
+
+        $startDate = Carbon::parse($program->start_date);
+
+        $dayIndex = $startDate->diffInDays($date);
+
+
+        if ($dayIndex < 0 || $dayIndex > 7) {
+
+            return false;
+
+        }
+
+
+        // Check if this day is marked as a rest day
+
+        return WeeklyProgramRestDay::where('weekly_program_id', $program->id)
+            ->where('day_index', $dayIndex)
+            ->exists();
 
     }
 
@@ -685,7 +750,7 @@ class ReportDaily extends Component
             'yesterdayDayName' => $this->getYesterdayDayName(),
 
             'studentsWithoutReports' => $this->studentsWithoutReports,
-
+            'studentsOnRestDay' => $this->studentsOnRestDay,
         ])->layout('layouts.admin.app');
 
     }

@@ -235,14 +235,15 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 
                                     @foreach($weekDays as $dayIndex => $day)
-
                                         <div class="day-card bg-background border border-border rounded-2xl p-4
 
                                             {{ $day['is_submitted'] ? 'submitted border-green-500/50' : '' }}
 
                                             {{ $day['can_submit'] ? 'today border-blue-500' : '' }}
 
-                                            {{ $day['is_locked'] ? 'locked' : '' }}"
+                                            {{ $day['is_locked'] ? 'locked' : '' }}
+
+                                            {{ $day['is_rest_day'] ? 'border-emerald-500/50 bg-emerald-50/30 dark:bg-emerald-900/10' : '' }}"
 
                                              wire:key="day-{{ $dayIndex }}">
 
@@ -253,13 +254,28 @@
 
                                                 <div>
 
-                                                    <h4 class="font-bold text-foreground">{{ $day['name'] }}</h4>
+                                                    <h4 class="font-bold {{ $day['is_rest_day'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground' }}">{{ $day['name'] }}</h4>
 
-                                                    <p class="text-xs text-muted">{{ $day['jalali_short'] }}</p>
+                                                    <p class="text-xs text-muted">{{ $day['jalali_date'] }}</p>
 
                                                 </div>
 
-                                                @if($day['is_submitted'])
+                                                @if($day['is_rest_day'])
+
+                                                    <span class="text-emerald-500">
+
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                             viewBox="0 0 24 24" stroke-width="1.5"
+                                                             stroke="currentColor" class="w-6 h-6">
+
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                  d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+
+                                                        </svg>
+
+                                                    </span>
+
+                                                @elseif($day['is_submitted'])
 
                                                     <span class="text-green-500">
 
@@ -309,69 +325,90 @@
                                             </div>
 
 
-                                            <!-- Parts Info -->
+                                            @if($day['is_rest_day'])
 
-                                            <div class="space-y-2 mb-4">
+                                                <!-- Rest Day Content -->
 
-                                                <div class="flex items-center justify-between text-sm">
+                                                <div class="text-center py-4">
 
-                                                    <span class="text-muted">تعداد پارت:</span>
+                                                    <div class="text-2xl mb-2">🌿</div>
 
-                                                    <span
-                                                        class="font-medium text-foreground">{{ count($day['parts']) }}</span>
+                                                    <p class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+                                                        روز استراحت</p>
 
-                                                </div>
-
-                                                <div class="flex items-center justify-between text-sm">
-
-                                                    <span class="text-muted">تعداد تست:</span>
-
-                                                    <span
-                                                        class="font-medium text-foreground">{{ $day['total_tests'] }}</span>
-
-                                                </div>
-
-                                            </div>
-
-
-                                            <!-- Action Button -->
-
-                                            @if($day['can_submit'])
-
-                                                <button type="button"
-
-                                                        wire:click="openReportModal({{ $dayIndex }})"
-
-                                                        class="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-2.5 font-semibold text-sm transition-all">
-
-                                                    ثبت گزارش
-
-                                                </button>
-
-                                            @elseif($day['is_submitted'])
-
-                                                <div
-                                                    class="text-center text-green-600 dark:text-green-400 text-sm font-medium py-2">
-
-                                                    گزارش ثبت شده
-
-                                                </div>
-
-                                            @elseif($day['is_locked'])
-
-                                                <div class="text-center text-red-500 text-sm font-medium py-2">
-
-                                                    مهلت تمام شده
+                                                    <p class="text-xs text-emerald-600/70 dark:text-emerald-400/70 mt-1">
+                                                        نیازی به ارسال گزارش نیست</p>
 
                                                 </div>
 
                                             @else
 
-                                                <div class="text-center text-muted text-sm py-2">
+                                                <!-- Parts Info -->
 
-                                                    در انتظار
+                                                <div class="space-y-2 mb-4">
+
+                                                    <div class="flex items-center justify-between text-sm">
+
+                                                        <span class="text-muted">تعداد پارت:</span>
+
+                                                        <span
+                                                            class="font-medium text-foreground">{{ count($day['parts']) }}</span>
+
+                                                    </div>
+
+                                                    <div class="flex items-center justify-between text-sm">
+
+                                                        <span class="text-muted">تعداد تست:</span>
+
+                                                        <span
+                                                            class="font-medium text-foreground">{{ $day['total_tests'] }}</span>
+
+                                                    </div>
 
                                                 </div>
+
+
+
+                                                <!-- Action Button -->
+
+                                                @if($day['can_submit'])
+
+                                                    <button type="button"
+
+                                                            wire:click="openReportModal({{ $dayIndex }})"
+
+                                                            class="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-2.5 font-semibold text-sm transition-all">
+
+                                                        ثبت گزارش
+
+                                                    </button>
+
+                                                @elseif($day['is_submitted'])
+
+                                                    <div
+                                                        class="text-center text-green-600 dark:text-green-400 text-sm font-medium py-2">
+
+                                                        گزارش ثبت شده
+
+                                                    </div>
+
+                                                @elseif($day['is_locked'])
+
+                                                    <div class="text-center text-red-500 text-sm font-medium py-2">
+
+                                                        مهلت تمام شده
+
+                                                    </div>
+
+                                                @else
+
+                                                    <div class="text-center text-muted text-sm py-2">
+
+                                                        در انتظار
+
+                                                    </div>
+
+                                                @endif
 
                                             @endif
 
@@ -984,7 +1021,7 @@
 
 
 
-    <!-- Compensatory Modal -->
+    <!-- Compensatory Modal - Multi-Step -->
 
     @if($showCompensatoryModal)
 
@@ -1008,11 +1045,24 @@
 
                             <h3 class="text-lg font-bold text-foreground">ثبت پارت جبرانی</h3>
 
-                            <p class="text-sm text-muted">پارت های از دست رفته را که خوانده‌اید انتخاب کنید</p>
+                            <p class="text-sm text-muted">
+
+                                @if($compensatoryStep === 1)
+
+                                    مرحله ۱: پارت های خوانده شده را انتخاب کنید
+
+                                @else
+
+                                    مرحله ۲: جزئیات گزارش را وارد کنید
+
+                                @endif
+
+                            </p>
 
                         </div>
 
                         <button type="button" wire:click="closeCompensatoryModal"
+
                                 class="text-muted hover:text-foreground transition-all">
 
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -1026,112 +1076,253 @@
 
                     </div>
 
+
+                    <!-- Step Indicator -->
+
+                    <div class="flex items-center gap-2 mt-4">
+
+                        <div
+                            class="flex-1 h-2 rounded-full {{ $compensatoryStep >= 1 ? 'bg-amber-500' : 'bg-border' }}"></div>
+
+                        <div
+                            class="flex-1 h-2 rounded-full {{ $compensatoryStep >= 2 ? 'bg-amber-500' : 'bg-border' }}"></div>
+
+                    </div>
+
                 </div>
 
 
                 <div class="px-6 py-5 space-y-4">
 
-                    @foreach($missedParts as $index => $missed)
+                    @if($compensatoryStep === 1)
 
-                        <div wire:click="toggleCompensatoryPart({{ $missed['part']->id }})"
+                        <!-- Step 1: Select Parts -->
 
-                             wire:key="comp-part-{{ $missed['part']->id }}"
+                        @foreach($missedParts as $index => $missed)
 
-                             class="part-box p-4 bg-secondary rounded-xl {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'selected' : '' }}">
+                            <div wire:click="toggleCompensatoryPart({{ $missed['part']->id }})"
 
-                            <div class="flex items-start gap-3">
+                                 wire:key="comp-part-{{ $missed['part']->id }}"
 
-                                <div
-                                    class="part-icon mt-1 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'text-green-500' : 'text-muted' }}">
+                                 class="part-box p-4 bg-secondary rounded-xl {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'selected' : '' }}">
 
-                                    @if(in_array($missed['part']->id, $selectedCompensatoryParts))
+                                <div class="flex items-start gap-3">
 
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                             class="w-5 h-5">
+                                    <div
+                                        class="part-icon mt-1 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'text-green-500' : 'text-muted' }}">
 
-                                            <path fill-rule="evenodd"
-                                                  d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
-                                                  clip-rule="evenodd"/>
+                                        @if(in_array($missed['part']->id, $selectedCompensatoryParts))
 
-                                        </svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                 fill="currentColor" class="w-5 h-5">
 
-                                    @else
+                                                <path fill-rule="evenodd"
+                                                      d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                                                      clip-rule="evenodd"/>
 
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                            </svg>
 
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                  d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                        @else
 
-                                        </svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
 
-                                    @endif
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
 
-                                </div>
+                                            </svg>
 
-                                <div class="flex-1 min-w-0">
-
-                                    <div class="flex items-center gap-2 mb-1">
-
-                                        <span
-                                            class="text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full">
-
-                                            {{ $missed['day_name'] }} - {{ $missed['jalali_date'] }}
-
-                                        </span>
+                                        @endif
 
                                     </div>
 
-                                    <h4 class="font-medium text-foreground text-sm">{{ $missed['part']->lesson_name }}</h4>
+                                    <div class="flex-1 min-w-0">
 
-                                    @if($missed['part']->ccSubject || $missed['part']->ccTopic)
+                                        <div class="flex items-center gap-2 mb-1">
 
-                                        <p class="text-xs text-muted mt-1">
+                                            <span
+                                                class="text-xs bg-amber-500/20 text-amber-600 dark:text-amber-400 px-2 py-0.5 rounded-full">
 
-                                            {{ $missed['part']->ccSubject->name ?? '' }}
+                                                {{ $missed['day_name'] }} - {{ $missed['jalali_date'] }}
 
-                                            @if($missed['part']->ccTopic)
+                                            </span>
 
-                                                - {{ $missed['part']->ccTopic->name }}
+                                        </div>
 
-                                            @endif
+                                        <h4 class="font-medium text-foreground text-sm">{{ $missed['part']->lesson_name }}</h4>
 
-                                        </p>
+                                        @if($missed['part']->ccSubject || $missed['part']->ccTopic)
 
-                                    @endif
+                                            <p class="text-xs text-muted mt-1">
+
+                                                {{ $missed['part']->ccSubject->name ?? '' }}
+
+                                                @if($missed['part']->ccTopic)
+
+                                                    - {{ $missed['part']->ccTopic->name }}
+
+                                                @endif
+
+                                            </p>
+
+                                        @endif
+
+                                    </div>
 
                                 </div>
 
                             </div>
 
+                        @endforeach
 
-                            <!-- Test Input -->
+                    @else
 
-                            @if($missed['part']->test_count && in_array($missed['part']->id, $selectedCompensatoryParts))
+                        <!-- Step 2: Enter Details -->
 
-                                <div class="mt-3 pt-3 border-t border-border" wire:click.stop>
+                        <!-- Selected Parts Summary -->
 
-                                    <label class="text-xs text-muted block mb-1">تعداد تست زده شده:</label>
+                        <div
+                            class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4">
 
-                                    <input type="number"
+                            <h4 class="font-semibold text-amber-800 dark:text-amber-200 mb-2">پارت‌های انتخاب شده:</h4>
 
-                                           wire:model="compensatoryTestsDone.{{ $missed['part']->id }}"
+                            <div class="space-y-2">
 
-                                           min="0"
+                                @foreach($missedParts as $missed)
 
-                                           max="{{ $missed['part']->test_count }}"
+                                    @if(in_array($missed['part']->id, $selectedCompensatoryParts))
 
-                                           class="w-full h-9 rounded-lg border border-border bg-background text-foreground text-sm px-3"
+                                        <div class="flex items-center justify-between text-sm">
 
-                                           placeholder="از {{ $missed['part']->test_count }} تست">
+                                            <span class="text-foreground">{{ $missed['part']->lesson_name }}</span>
 
-                                </div>
+                                            @if($missed['part']->test_count)
 
-                            @endif
+                                                <div class="flex items-center gap-2" wire:click.stop>
+
+                                                    <label class="text-xs text-muted">تست زده:</label>
+
+                                                    <input type="number"
+
+                                                           wire:model="compensatoryTestsDone.{{ $missed['part']->id }}"
+
+                                                           min="0"
+
+                                                           max="{{ $missed['part']->test_count }}"
+
+                                                           class="w-20 h-8 rounded-lg border border-border bg-background text-foreground text-sm px-2 text-center"
+
+                                                           placeholder="{{ $missed['part']->test_count }}">
+
+                                                </div>
+
+                                            @endif
+
+                                        </div>
+
+                                    @endif
+
+                                @endforeach
+
+                            </div>
 
                         </div>
 
-                    @endforeach
+
+
+                        <!-- Phone Hours -->
+
+                        <div class="space-y-2">
+
+                            <label class="font-semibold text-foreground">ساعت استفاده از گوشی (غیر درسی):</label>
+
+                            <input type="number"
+
+                                   wire:model="compensatoryPhoneHours"
+
+                                   min="0"
+
+                                   max="24"
+
+                                   class="w-full h-11 rounded-xl border border-border bg-secondary text-foreground px-4"
+
+                                   placeholder="از 24 ساعت">
+
+                            @error('compensatoryPhoneHours')
+
+                            <p class="text-red-500 text-xs">{{ $message }}</p>
+
+                            @enderror
+
+                        </div>
+
+
+
+                        <!-- Description -->
+
+                        <div class="space-y-2">
+
+                            <label class="font-semibold text-foreground">توضیحات (اختیاری):</label>
+
+                            <textarea wire:model="compensatoryDescription"
+
+                                      rows="3"
+
+                                      class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 resize-none"
+
+                                      placeholder="توضیحات خود را بنویسید..."></textarea>
+
+                            @error('compensatoryDescription')
+
+                            <p class="text-red-500 text-xs">{{ $message }}</p>
+
+                            @enderror
+
+                        </div>
+
+
+
+                        <!-- Rating -->
+
+                        <div class="space-y-3">
+
+                            <label class="font-semibold text-foreground">امتیاز روز:</label>
+
+                            <div class="flex flex-wrap gap-2">
+
+                                @foreach(\App\Models\DailyReport::RATINGS as $value => $label)
+
+                                    <button type="button"
+
+                                            wire:click="$set('compensatoryRating', {{ $value }})"
+
+                                            class="rating-btn px-4 py-2 rounded-xl text-sm font-medium transition-all
+
+                                                {{ $compensatoryRating == $value ? 'active ring-2 ring-amber-500 ring-offset-2' : '' }}
+
+                                                {{ $value >= 4 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
+
+                                                {{ $value == 3 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
+
+                                                {{ $value <= 2 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
+
+                                        {{ $label }}
+
+                                    </button>
+
+                                @endforeach
+
+                            </div>
+
+                            @error('compensatoryRating')
+
+                            <p class="text-red-500 text-xs">{{ $message }}</p>
+
+                            @enderror
+
+                        </div>
+
+                    @endif
 
                 </div>
 
@@ -1152,29 +1343,55 @@
 
                     <div class="flex items-center gap-3">
 
-                        <button type="button"
+                        @if($compensatoryStep === 1)
 
-                                wire:click="closeCompensatoryModal"
+                            <button type="button"
 
-                                class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-background transition-all">
+                                    wire:click="closeCompensatoryModal"
 
-                            انصراف
+                                    class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-background transition-all">
 
-                        </button>
+                                انصراف
 
-                        <button type="button"
+                            </button>
 
-                                wire:click="submitCompensatory"
+                            <button type="button"
 
-                                wire:loading.attr="disabled"
+                                    wire:click="goToCompensatoryStep2"
 
-                                class="px-5 py-2.5 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-all disabled:opacity-50">
+                                    class="px-5 py-2.5 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-all">
 
-                            <span wire:loading.remove wire:target="submitCompensatory">ثبت جبرانی</span>
+                                مرحله بعد
 
-                            <span wire:loading wire:target="submitCompensatory">در حال ثبت...</span>
+                            </button>
 
-                        </button>
+                        @else
+
+                            <button type="button"
+
+                                    wire:click="goToCompensatoryStep1"
+
+                                    class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-background transition-all">
+
+                                مرحله قبل
+
+                            </button>
+
+                            <button type="button"
+
+                                    wire:click="submitCompensatory"
+
+                                    wire:loading.attr="disabled"
+
+                                    class="px-5 py-2.5 rounded-xl bg-amber-500 text-white hover:bg-amber-600 transition-all disabled:opacity-50">
+
+                                <span wire:loading.remove wire:target="submitCompensatory">ثبت گزارش جبرانی</span>
+
+                                <span wire:loading wire:target="submitCompensatory">در حال ثبت...</span>
+
+                            </button>
+
+                        @endif
 
                     </div>
 
@@ -1183,7 +1400,6 @@
             </div>
 
         </div>
-
     @endif
 
 

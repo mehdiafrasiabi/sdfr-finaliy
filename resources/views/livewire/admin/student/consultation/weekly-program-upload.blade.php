@@ -452,36 +452,6 @@
             @endforeach
         @endif
 
-        {{-- تنظیمات برنامه هفتگی --}}
-        <div class="card mb-5 border-0 shadow-sm">
-
-            <div class="card-header bg-gradient-primary text-white d-flex align-items-center gap-2">
-
-                <i class="material-symbols-outlined">calendar_month</i>
-
-                <h5 class="mb-0">تاریخ شروع برنامه</h5>
-
-            </div>
-
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label fw-medium d-flex align-items-center gap-2">
-                            <i class="material-symbols-outlined text-primary" style="font-size: 20px;">event</i>
-                            تاریخ شروع هفته
-                        </label>
-                        <input type="date"
-                               wire:model.live="start_date"
-                               class="form-control">
-                        <div class="form-text d-flex align-items-center gap-1 mt-2">
-                            <i class="material-symbols-outlined text-info" style="font-size: 16px;">info</i>
-                            <span>روز و تاریخ هر روز هفته به صورت خودکار محاسبه می‌شود</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         {{-- جدول برنامه هفتگی --}}
         <div class="card mb-4 border-0 shadow-sm">
             <div class="card-header bg-gradient-primary text-white d-flex align-items-center gap-2">
@@ -494,6 +464,7 @@
                     <tr style="background: linear-gradient(90deg, #42a5f5, #1e88e5); color: #fff;">
                         <th class="text-center fw-bold" style="width: 80px;">روز</th>
                         <th class="text-center fw-bold" style="width: 120px;">تاریخ</th>
+                        <th class="text-center fw-bold" style="width: 80px;">استراحت</th>
                         <th class="text-center fw-bold" style="width: 110px;">ساعت</th>
                         @for($i = 1; $i <= 10; $i++)
                             <th class="text-center fw-bold">پلن {{ $i }}</th>
@@ -503,80 +474,211 @@
                     </thead>
                     <tbody>
                     @foreach($weekDays as $day)
-                        <tr>
+                        <tr class="{{ $day['is_rest_day'] ? 'table-success bg-success bg-opacity-10' : '' }}">
+
                             {{-- روز --}}
+
                             <td class="text-center">
-                                <span class="badge bg-primary rounded-pill px-3 py-2 fw-bold">
+
+                                <span
+                                    class="badge {{ $day['is_rest_day'] ? 'bg-success' : 'bg-primary' }} rounded-pill px-3 py-2 fw-bold">
+
                                     {{ $day['name'] }}
+
                                 </span>
+
                             </td>
+
 
                             {{-- تاریخ --}}
+
                             <td class="text-center">
+
                                 <span class="fw-medium text-muted">
+
                                     {{ $day['jalali_date'] }}
+
                                 </span>
+
                             </td>
+
+
+                            {{-- استراحت --}}
+
+                            <td class="text-center">
+
+                                <div class="form-check form-switch d-flex justify-content-center">
+
+                                    <input type="checkbox"
+
+                                           class="form-check-input"
+
+                                           wire:click="toggleRestDay({{ $day['index'] }})"
+
+                                           {{ $day['is_rest_day'] ? 'checked' : '' }}
+
+                                           style="cursor: pointer;">
+
+                                </div>
+
+                                @if($day['is_rest_day'])
+
+                                    <small class="text-success d-block mt-1">روز استراحت</small>
+
+                                @endif
+
+                            </td>
+
 
                             {{-- ساعت کل --}}
+
                             <td class="text-center">
-                                <span class="fw-bold">
-                                    {{ $day['total_hours'] }}
-                                </span>
-                                <small class="text-muted d-block">ساعت</small>
+
+                                @if($day['is_rest_day'])
+
+                                    <span class="text-success fw-bold">-</span>
+
+                                @else
+
+                                    <span class="fw-bold">{{ $day['total_hours'] }}</span>
+
+                                    <small class="text-muted d-block">ساعت</small>
+
+                                @endif
+
                             </td>
 
+
                             {{-- پلن‌ها --}}
+
                             @for($i = 0; $i < 10; $i++)
+
                                 <td>
-                                    @if(isset($day['parts'][$i]))
-                                        @php $part = $day['parts'][$i]; @endphp
+
+                                    @if($day['is_rest_day'])
+
+                                        {{-- Rest day - show green placeholder --}}
+
                                         <div
+                                            class="rounded-3 border border-success border-opacity-25 d-flex align-items-center justify-content-center bg-success bg-opacity-10"
+
+                                            style="height: 96px;">
+
+                                            @if($i === 0)
+
+                                                <div class="text-center">
+
+                                                    <i class="material-symbols-outlined text-success"
+                                                       style="font-size: 32px;">self_improvement</i>
+
+                                                    <div class="small text-success fw-medium">استراحت</div>
+
+                                                </div>
+
+                                            @endif
+
+                                        </div>
+
+                                    @elseif(isset($day['parts'][$i]))
+
+                                        @php $part = $day['parts'][$i]; @endphp
+
+                                        <div
+
                                             class="rounded-3 p-3 border cursor-pointer {{ $part->color_class }}"
+
                                             wire:click="editPart({{ $part->id }})"
+
                                         >
+
                                             <div class="d-flex justify-content-between align-items-center mb-2">
+
                                                 <span class="fw-bold small">{{ $part->lesson_name }}</span>
+
                                                 <span class="badge bg-white text-dark border border-light text-xs">
+
                                                     {{ $part->lesson_type_label }} {{ $part->grade_label }}
+
                                                 </span>
+
                                             </div>
+
 
                                             <p class="small mb-2 text-muted">
+
                                                 {{ Str::limit($part->description, 50) }}
+
                                             </p>
 
+
                                             <div class="d-flex flex-wrap gap-2 small text-muted">
+
                                                 <span class="d-flex align-items-center gap-1">
+
                                                     <i class="material-symbols-outlined" style="font-size: 14px;">schedule</i>
+
                                                     {{ $part->duration_minutes }} دقیقه
+
                                                 </span>
 
+
                                                 @if($part->test_count)
+
                                                     <span class="d-flex align-items-center gap-1">
+
                                                         <i class="material-symbols-outlined" style="font-size: 14px;">quiz</i>
+
                                                         {{ $part->test_count }} تست
+
                                                     </span>
+
                                                 @endif
+
                                             </div>
+
                                         </div>
+
                                     @else
+
                                         <div
+
                                             class="rounded-3 border border-dashed border-secondary border-opacity-25 d-flex align-items-center justify-content-center"
+
                                             style="height: 96px; cursor: pointer;"
+
                                             wire:click="openPartModal({{ $day['index'] }})"
+
                                         >
+
                                             <i class="material-symbols-outlined text-muted">add</i>
+
                                         </div>
+
                                     @endif
+
                                 </td>
+
                             @endfor
 
+
+
                             {{-- تست روز --}}
+
                             <td class="text-center">
-                                <span class="badge bg-label-warning fw-bold">
-                                    {{ $day['total_tests'] }}
-                                </span>
+
+                                @if($day['is_rest_day'])
+
+                                    <span class="badge bg-label-success fw-bold">-</span>
+
+                                @else
+
+                                    <span class="badge bg-label-warning fw-bold">
+
+                                        {{ $day['total_tests'] }}
+
+                                    </span>
+
+                                @endif
                             </td>
                         </tr>
                     @endforeach
@@ -959,6 +1061,79 @@
             </div>
         </div>
     @endif
+    {{-- Rest Day Confirmation Modal --}}
+
+    @if($showRestDayConfirmModal)
+
+        <div class="modal fade show d-block" tabindex="-1"
+
+             style="background: rgba(0,0,0,0.6); backdrop-filter: blur(3px);">
+
+            <div class="modal-dialog modal-dialog-centered">
+
+                <div class="modal-content shadow-lg border-0">
+
+                    <div class="modal-header bg-warning text-white">
+
+                        <h5 class="modal-title d-flex align-items-center gap-2">
+
+                            <i class="material-symbols-outlined">warning</i>
+
+                            تایید روز استراحت
+
+                        </h5>
+
+                        <button type="button" class="btn-close btn-close-white"
+                                wire:click="closeRestDayConfirmModal"></button>
+
+                    </div>
+
+
+                    <div class="modal-body text-center py-4">
+
+                        <div class="mb-3">
+
+                            <i class="material-symbols-outlined text-warning"
+                               style="font-size: 64px;">self_improvement</i>
+
+                        </div>
+
+                        <h5 class="mb-3">آیا مطمئن هستید؟</h5>
+
+                        <p class="text-muted">
+
+                            این روز <strong class="text-danger">{{ $partsCountForRestDay }}</strong> پارت دارد.
+
+                            <br>
+
+                            با تایید، تمام پارت‌های این روز حذف شده و روز به عنوان <span class="text-success fw-bold">استراحت</span>
+                            ثبت می‌شود.
+
+                        </p>
+
+                    </div>
+
+
+                    <div class="modal-footer justify-content-center gap-2">
+
+                        <button type="button"
+
+                                class="btn btn-secondary"
+                                wire:click="closeRestDayConfirmModal">
+                            انصراف
+                        </button>
+                        <button type="button"
+                                class="btn btn-success"
+                                wire:click="confirmRestDay">
+                            <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
+                            تایید و ثبت استراحت
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
 
     @push('scripts')
 
