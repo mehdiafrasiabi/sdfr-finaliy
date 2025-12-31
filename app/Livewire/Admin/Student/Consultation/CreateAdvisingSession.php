@@ -13,6 +13,7 @@ use App\Models\AdvisingSession;
 use App\Models\AdvisingPreSession;
 
 
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Validator;
 
 
@@ -23,6 +24,7 @@ use Livewire\WithPagination;
 
 
 use Carbon\Carbon;
+use Morilog\Jalali\Jalalian;
 
 
 class CreateAdvisingSession extends Component
@@ -156,10 +158,65 @@ class CreateAdvisingSession extends Component
             'status' => 'pending',
         ]);
 
+        // ارسال نوتیفیکیشن به دانش‌آموز
+
+        $this->sendSessionCreatedNotification($session);
+
+
         $this->reset(['title', 'description', 'activation_date', 'session_time', 'skyroom_link', 'editingSessionId']);
+
         $this->location_type = 'online';
 
+
         $this->dispatch('success', 'جلسه مشاوره و پیش‌جلسه با موفقیت ایجاد شد.');
+
+    }
+
+
+    /**
+     * ارسال نوتیفیکیشن هنگام ایجاد جلسه مشاوره
+     */
+
+    protected function sendSessionCreatedNotification(AdvisingSession $session): void
+
+    {
+
+        $student = Student::with('user')->find($this->studentId);
+
+        if (!$student || !$student->user) {
+
+            return;
+
+        }
+
+
+        $studentName = $student->user->name ?? 'دانش آموز';
+
+        $jalaliDate = Jalalian::fromDateTime($session->activation_date)->format('Y/m/d');
+
+        $sessionTime = Carbon::parse($session->session_time)->format('H:i');
+
+
+        if ($session->location_type === 'online') {
+
+            $message = "{$studentName} عزیز\nجلسه مشاوره شما در تاریخ {$jalaliDate} و در ساعت {$sessionTime} به آدرس ({$session->skyroom_link}) برگزار خواهد شد.\nبا تشکر";
+
+        } else {
+
+            $message = "{$studentName} عزیز\nجلسه مشاوره شما در تاریخ {$jalaliDate} و در ساعت {$sessionTime} برگزار خواهد شد.\nبا تشکر";
+
+        }
+
+
+        NotificationService::sendToStudent(
+
+            $this->studentId,
+
+            'جلسه مشاوره جدید',
+
+            $message
+
+        );
     }
 
 
@@ -231,10 +288,53 @@ class CreateAdvisingSession extends Component
             'skyroom_link' => $this->location_type === 'online' ? $this->skyroom_link : null,
         ]);
 
+        // ارسال نوتیفیکیشن تغییر جلسه به دانش‌آموز
+
+        $this->sendSessionUpdatedNotification();
+
+
         $this->reset(['title', 'description', 'activation_date', 'session_time', 'skyroom_link', 'editingSessionId']);
+
         $this->location_type = 'online';
 
+
         $this->dispatch('success', 'جلسه مشاوره با موفقیت ویرایش شد.');
+
+    }
+
+
+    /**
+     * ارسال نوتیفیکیشن هنگام ویرایش جلسه مشاوره
+     */
+
+    protected function sendSessionUpdatedNotification(): void
+
+    {
+
+        $student = Student::with('user')->find($this->studentId);
+
+        if (!$student || !$student->user) {
+
+            return;
+
+        }
+
+
+        $studentName = $student->user->name ?? 'دانش آموز';
+
+
+        $message = "{$studentName} عزیز\nجلسه مشاوره شما تغییر یافت. برای اطلاعات بیشتر به بخش اتاق مشاوره مراجعه کنید.\nبا تشکر";
+
+
+        NotificationService::sendToStudent(
+
+            $this->studentId,
+
+            'تغییر جلسه مشاوره',
+
+            $message
+
+        );
     }
 
 

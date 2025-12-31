@@ -49,16 +49,6 @@
                 </svg>
                 <span class="font-semibold text-xs">
                     اطلاع رسانی
-                       @if($unreadCount > 0)
-                        <span class="absolute">
-                                <span
-                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                                <span
-                                    class="relative inline-flex items-center justify-center rounded-full h-5 w-5 bg-primary text-primary-foreground font-bold text-xs">
-                                 {{ $unreadCount }}
-                                </span>
-                      </span>
-                    @endif
                 </span>
             </a>
         </li>
@@ -79,19 +69,6 @@
         </li>
 
         <li>
-            <a wire:navigate href="{{route('client.profile.plan')}}"
-               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.plan') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="feather feather-book-open w-5 h-5">
-                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                </svg>
-                <span class="font-semibold text-xs">برنامه های مطالعاتی </span>
-            </a>
-        </li>
-
-        <li>
             <a wire:navigate href="{{route('client.profile.consultation.sessions')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.consultation.sessions') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
@@ -107,6 +84,31 @@
                 <span class="font-semibold text-xs">اتاق مشاوره</span>
             </a>
         </li>
+
+        <li>
+            <a wire:navigate href="{{route('client.profile.plan')}}"
+               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.plan') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     class="feather feather-book-open w-5 h-5">
+                    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                    <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                </svg>
+                <span class="font-semibold text-xs">برنامه های مطالعاتی </span>
+            </a>
+        </li>
+        <li>
+            <a wire:navigate href="{{route('client.profile.studySession')}}"
+               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.studySession') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
+                    <path fill-rule="evenodd"
+                          d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z"
+                          clip-rule="evenodd"></path>
+                </svg>
+                <span class="font-semibold text-xs">ثبت ساعت مطالعه</span>
+            </a>
+        </li>
+
         <li>
             <a wire:navigate href="{{route('client.profile.report')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.report') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
@@ -144,29 +146,7 @@
                 <span class="font-semibold text-xs">آزمون ها</span>
             </a>
         </li>
-        <li>
 
-            <a wire:navigate href="{{route('client.profile.classification.projects')}}"
-
-               class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.classification') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-
-                     class="w-5 h-5">
-
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-
-                </svg>
-
-                <span class="font-semibold text-xs">طبقه‌بندی دروس</span>
-
-            </a>
-
-        </li>
         <li>
             <a wire:navigate href="{{route('client.profile.reportStudentStudy')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.reportStudentStudy') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
@@ -180,6 +160,18 @@
                     <polyline points="10 9 9 9 8 9"></polyline>
                 </svg>
                 <span class="font-semibold text-xs">کارنامه وضعیت ماهانه </span>
+            </a>
+        </li>
+        <li>
+            <a wire:navigate href="{{route('client.profile.classification.projects')}}"
+               class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.classification') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                     class="w-5 h-5">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <span class="font-semibold text-xs">طبقه‌بندی دروس</span>
             </a>
         </li>
         <li>

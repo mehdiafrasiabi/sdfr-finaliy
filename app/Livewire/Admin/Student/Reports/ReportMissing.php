@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Admin\ReportMissing;
+namespace App\Livewire\Admin\Student\Reports;
 
 use App\Models\Report;
 use App\Models\Student;
@@ -13,7 +13,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Morilog\Jalali\Jalalian;
 
-class Index extends Component
+class ReportMissing extends Component
 {
     use WithPagination;
     use SEOTools;
@@ -429,7 +429,7 @@ class Index extends Component
                 ]
             );
 
-            return view('livewire.admin.report-missing.index', [
+            return view('livewire.admin.student.reports.report-missing', [
                 'studentOptions' => $studentOptions,
                 'missingDays'    => $emptyPaginator,
             ])->layout('layouts.admin.app');
@@ -438,7 +438,7 @@ class Index extends Component
         // بعد از ثبت فیلترها:
         $missingDays = $this->buildMissingDaysPaginator();
 
-        return view('livewire.admin.report-missing.index', [
+        return view('livewire.admin.student.reports.report-missing', [
             'studentOptions' => $studentOptions,
             'missingDays'    => $missingDays,
         ])->layout('layouts.admin.app');

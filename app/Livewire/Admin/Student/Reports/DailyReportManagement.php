@@ -1,17 +1,17 @@
 <?php
 
 
-namespace App\Livewire\Admin\Student;
+namespace App\Livewire\Admin\Student\Reports;
 
 use App\Exports\DailyReportsExport;
 use App\Models\DailyReport;
-use App\Models\Student;
 use App\Models\ReportComment;
+use App\Models\Student;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Carbon\Carbon;
-use Morilog\Jalali\Jalalian;
 use Maatwebsite\Excel\Facades\Excel;
+use Morilog\Jalali\Jalalian;
 
 class DailyReportManagement extends Component
 
@@ -475,7 +475,7 @@ class DailyReportManagement extends Component
         $yesterdayJalali = Jalalian::fromCarbon($yesterday)->format('Y/m/d');
 
 
-        return view('livewire.admin.student.daily-report-management', [
+        return view('livewire.admin.student.reports.daily-report-management', [
 
             'reports' => $reports,
 

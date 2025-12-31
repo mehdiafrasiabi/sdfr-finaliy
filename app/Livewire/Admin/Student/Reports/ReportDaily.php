@@ -1,23 +1,18 @@
 <?php
 
 
-namespace App\Livewire\Admin\Student;
+namespace App\Livewire\Admin\Student\Reports;
 
 
 use App\Models\DailyReport;
+use App\Models\Student;
+use App\Models\WeeklyProgram;
+use App\Models\WeeklyProgramRestDay;
 use App\Services\NotificationService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Morilog\Jalali\Jalalian;
-use App\Models\DailyReportPart;
-
-use App\Models\Student;
-
-use App\Models\WeeklyProgram;
-
-use App\Models\WeeklyProgramRestDay;
 
 class ReportDaily extends Component
 
@@ -322,22 +317,36 @@ class ReportDaily extends Component
             ->get();
 
 
-        $statusLabel = $action === 'approved' ? 'تایید' : 'رد';
-
-
         foreach ($reports as $report) {
 
-            $studentName = $report->student?->user?->name ?? 'دانش آموز عزیز';
+
+            $studentName = $report->student?->user?->name ?? 'دانش آموز';
+
+            $reportDate = jdate($report->report_date)->format('Y/m/d');
+
+
+            if ($action === 'approved') {
+
+                $message = "{$studentName} عزیز\nگزارش مطالعه شما در تاریخ {$reportDate} تایید شد. به همین روند ادامه بده!\nبا تشکر";
+
+                $title = 'تایید گزارش روزانه';
+
+            } else {
+
+                $message = "{$studentName} عزیز\nگزارش مطالعه شما در تاریخ {$reportDate} رد شد. لطفاً گزارش را بررسی و اصلاح کنید.\nبا تشکر";
+
+                $title = 'رد گزارش روزانه';
+
+            }
 
 
             NotificationService::sendToStudent(
 
                 $report->student_id,
 
-                'وضعیت گزارش روزانه',
+                $title,
 
-                "{$studentName}، گزارش شما {$statusLabel} گردید."
-
+                $message
             );
 
         }
@@ -394,18 +403,33 @@ class ReportDaily extends Component
 
         if (in_array($value, ['approved', 'rejected'])) {
 
-            $studentName = $report->student?->user?->name ?? 'دانش آموز عزیز';
+            $studentName = $report->student?->user?->name ?? 'دانش آموز';
 
-            $statusLabel = $value === 'approved' ? 'تایید' : 'رد';
+            $reportDate = jdate($report->report_date)->format('Y/m/d');
+
+
+            if ($value === 'approved') {
+
+                $message = "{$studentName} عزیز\nگزارش مطالعه شما در تاریخ {$reportDate} تایید شد. به همین روند ادامه بده!\nبا تشکر";
+
+                $title = 'تایید گزارش روزانه';
+
+            } else {
+
+                $message = "{$studentName} عزیز\nگزارش مطالعه شما در تاریخ {$reportDate} رد شد. لطفاً گزارش را بررسی و اصلاح کنید.\nبا تشکر";
+
+                $title = 'رد گزارش روزانه';
+
+            }
 
 
             NotificationService::sendToStudent(
 
                 $report->student_id,
 
-                'وضعیت گزارش روزانه',
+                $title,
 
-                "{$studentName}، گزارش شما {$statusLabel} گردید."
+                $message
 
             );
 
@@ -741,7 +765,7 @@ class ReportDaily extends Component
         $this->loadStudentsWithoutReports();
 
 
-        return view('livewire.admin.student.report-daily', [
+        return view('livewire.admin.student.reports.report-daily', [
 
             'reports' => $reports,
 

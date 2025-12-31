@@ -93,43 +93,9 @@
 
 
                                                 <tbody>
-                                                <tr class="odd:bg-secondary even:bg-background">
-                                                    <td class="p-5">
-                                                        <div class="font-black text-sm text-foreground">1</div>
-                                                    </td>
-                                                    <td class="p-5">
-                                                        <div class="flex items-center gap-2">
-                                                            <span class="font-bold text-white">ثبت ساعت مطالعه</span>
-                                                        </div>
-                                                    </td>
-
-                                                    <td class="p-5">
-                                                        <a href="{{route('client.profile.professionalTools.studySession')}}"
-                                                           class="inline-flex items-center gap-x-1 text-cyan-400">
-                                                            <span class="h-11 inline-flex items-center justify-center gap-3 bg-primary  rounded-full text-white px-4 mr-auto">مشاهده</span>
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                                <tr class="odd:bg-secondary even:bg-background">
-                                                    <td class="p-5">
-                                                        <div class="font-black text-sm text-foreground">3</div>
-                                                    </td>
-                                                    <td class="p-5">
-                                                        <div class="flex items-center gap-2">
-                                                            <span class="font-bold text-white">چک لیست ستاره دار</span>
-                                                        </div>
-                                                    </td>
-
-                                                    <td class="p-5">
-                                                        <a href="#"
-                                                           class="inline-flex items-center gap-x-1 text-cyan-400">
-                                                            <span style="background-color: #6f0000" class="h-11 inline-flex items-center justify-center gap-3 rounded-full text-white px-4 mr-auto">به زودی!</span>
-                                                        </a>
-                                                    </td>
-                                                </tr>
                                                     <tr class="odd:bg-secondary even:bg-background">
                                                         <td class="p-5">
-                                                            <div class="font-black text-sm text-foreground">2</div>
+                                                            <div class="font-black text-sm text-foreground">1</div>
                                                         </td>
                                                         <td class="p-5">
                                                             <div class="flex items-center gap-2">
@@ -138,9 +104,9 @@
                                                         </td>
 
                                                         <td class="p-5">
-                                                            <a href="#"
+                                                            <a href="{{route('client.profile.professionalTools.pomodoro')}}"
                                                                class="inline-flex items-center gap-x-1 text-cyan-400">
-                                                                <span style="background-color: #6f0000" class="h-11 inline-flex items-center justify-center gap-3 rounded-full text-white px-4 mr-auto">به زودی!</span>
+                                                                <span class="h-11 inline-flex items-center bg-primary justify-center gap-3 rounded-full text-white px-4 mr-auto">شروع</span>
                                                             </a>
                                                         </td>
                                                     </tr>

@@ -92,24 +92,16 @@ class WeeklyProgramUpload extends Component
             $this->weeklyProgramId = $existingProgram->id;
             $this->start_date = $existingProgram->start_date->format('Y-m-d');
             $this->loadExistingParts();
-
         } else {
-
             // تاریخ شروع از تاریخ جلسه مشاوره گرفته میشه - نه فردا
-
             if ($session && $session->activation_date) {
-
                 $this->start_date = Carbon::parse($session->activation_date)->format('Y-m-d');
-
             } else {
-
                 $this->start_date = Carbon::tomorrow()->format('Y-m-d');
-
             }
         }
 
         // اطمینان از وجود آرایه برای هر ۸ روز
-
         for ($i = 0; $i < 8; $i++) {
             if (!isset($this->parts[$i])) {
                 $this->parts[$i] = [];
@@ -175,47 +167,37 @@ class WeeklyProgramUpload extends Component
             'grade' => $part->grade,
         ];
 
-
         // بارگذاری لیست‌ها برای ویرایش
-
         if ($part->education_level_id) {
-
             $this->grades = CcGrade::where('education_level_id', $part->education_level_id)
                 ->where('is_active', true)
                 ->with('field')
                 ->orderBy('order')
                 ->get();
-
         }
 
         $this->fields = CcField::active()->ordered()->get();
 
         if ($part->cc_grade_id) {
-
             $this->subjects = CcSubject::where('cc_grade_id', $part->cc_grade_id)
                 ->when($part->cc_field_id, fn($q) => $q->where('cc_field_id', $part->cc_field_id))
                 ->when(!$part->cc_field_id, fn($q) => $q->whereNull('cc_field_id'))
                 ->orderBy('order')
                 ->get();
-
         }
 
         if ($part->cc_subject_id) {
-
             $this->chapters = CcChapter::where('cc_subject_id', $part->cc_subject_id)
                 ->where('is_active', true)
                 ->orderBy('order')
                 ->get();
-
         }
 
         if ($part->cc_chapter_id) {
-
             $this->topics = CcTopic::where('cc_chapter_id', $part->cc_chapter_id)
                 ->where('is_active', true)
                 ->orderBy('order')
                 ->get();
-
         }
 
         $this->showPartModal = true;
@@ -227,31 +209,18 @@ class WeeklyProgramUpload extends Component
         $this->editingPartId = null;
         $this->partForm = [
             'education_level_id' => '',
-
             'cc_grade_id' => '',
-
             'cc_field_id' => '',
-
             'cc_subject_id' => '',
-
             'cc_chapter_id' => '',
-
             'cc_topic_id' => '',
-
             'lesson_name' => '',
-
             'description' => '',
-
             'duration_minutes' => 60,
-
             'test_count' => null,
-
             'part_type' => 'descriptive',
-
             'lesson_type' => 'specialized',
-
             'grade' => '',
-
         ];
         $this->grades = [];
         $this->fields = [];
@@ -281,6 +250,9 @@ class WeeklyProgramUpload extends Component
             $this->grades = [];
         }
         $this->fields = CcField::active()->ordered()->get();
+
+        // Reset Select2 values
+        $this->dispatch('select2-reset', ids: ['grade-select', 'field-select', 'subject-select', 'chapter-select', 'topic-select']);
     }
 
     public function updatedPartFormCcGradeId($value): void
@@ -290,6 +262,7 @@ class WeeklyProgramUpload extends Component
         $this->partForm['cc_topic_id'] = '';
         $this->chapters = [];
         $this->topics = [];
+
         if ($value) {
             $grade = CcGrade::find($value);
             if ($grade) {
@@ -305,6 +278,9 @@ class WeeklyProgramUpload extends Component
         } else {
             $this->subjects = [];
         }
+
+        // Reset Select2 values
+        $this->dispatch('select2-reset', ids: ['subject-select', 'chapter-select', 'topic-select']);
     }
 
     public function updatedPartFormCcFieldId($value): void
@@ -314,6 +290,7 @@ class WeeklyProgramUpload extends Component
         $this->partForm['cc_topic_id'] = '';
         $this->chapters = [];
         $this->topics = [];
+
         if ($this->partForm['cc_grade_id']) {
             $this->subjects = CcSubject::where('cc_grade_id', $this->partForm['cc_grade_id'])
                 ->when($value, fn($q) => $q->where('cc_field_id', $value))
@@ -321,6 +298,9 @@ class WeeklyProgramUpload extends Component
                 ->orderBy('order')
                 ->get();
         }
+
+        // Reset Select2 values
+        $this->dispatch('select2-reset', ids: ['subject-select', 'chapter-select', 'topic-select']);
     }
 
     public function updatedPartFormCcSubjectId($value): void
@@ -342,11 +322,15 @@ class WeeklyProgramUpload extends Component
         } else {
             $this->chapters = [];
         }
+
+        // Reset Select2 values
+        $this->dispatch('select2-reset', ids: ['chapter-select', 'topic-select']);
     }
 
     public function updatedPartFormCcChapterId($value): void
     {
         $this->partForm['cc_topic_id'] = '';
+
         if ($value) {
             $this->topics = CcTopic::where('cc_chapter_id', $value)
                 ->where('is_active', true)
@@ -355,6 +339,9 @@ class WeeklyProgramUpload extends Component
         } else {
             $this->topics = [];
         }
+
+        // Reset Select2 value
+        $this->dispatch('select2-reset', ids: ['topic-select']);
     }
 
     public function updatedPartFormCcTopicId($value): void
@@ -373,6 +360,7 @@ class WeeklyProgramUpload extends Component
     {
         $this->showPartModal = false;
         $this->resetPartForm();
+        $this->dispatch('modal-closed');
     }
 
     public function savePart(): void
@@ -392,19 +380,19 @@ class WeeklyProgramUpload extends Component
             ? (string)$this->partForm['grade']
             : null;
 
-
         // محاسبه grade_label
-
         $grade = CcGrade::find($this->partForm['cc_grade_id']);
-
         $gradeLabel = $grade ? $grade->name : null;
+
         // اول خود برنامه را ذخیره/آپدیت کن
         $this->saveProgram();
         $partDate = Carbon::parse($this->start_date)->addDays($this->selectedDay);
+
         // دریافت اطلاعات درس
         $subject = CcSubject::find($this->partForm['cc_subject_id']);
         $lessonName = $subject ? $subject->name : $this->partForm['lesson_name'];
         $lessonType = $subject ? $subject->type : 'specialized';
+
         if ($this->editingPartId) {
             // ویرایش پارت موجود
             $part = ProgramPart::find($this->editingPartId);
@@ -538,36 +526,23 @@ class WeeklyProgramUpload extends Component
     /**
      * Toggle rest day - show confirmation if parts exist
      */
-
     public function toggleRestDay(int $dayIndex): void
-
     {
-
         if (!$this->weeklyProgramId) {
-
             $this->saveProgram();
-
         }
-
 
         $weeklyProgram = WeeklyProgram::find($this->weeklyProgramId);
 
         if (!$weeklyProgram) {
-
             return;
-
         }
 
-
         // Check if already a rest day
-
         $isCurrentlyRestDay = $weeklyProgram->isRestDay($dayIndex);
 
-
         if ($isCurrentlyRestDay) {
-
             // Remove rest day
-
             WeeklyProgramRestDay::where('weekly_program_id', $this->weeklyProgramId)
                 ->where('day_index', $dayIndex)
                 ->delete();
@@ -575,95 +550,59 @@ class WeeklyProgramUpload extends Component
             $this->dispatch('success', 'روز استراحت برداشته شد.');
 
             return;
-
         }
 
-
         // Check if parts exist for this day
-
         $partsCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
             ->where('day_of_week', $dayIndex)
             ->count();
 
-
         if ($partsCount > 0) {
-
             // Show confirmation modal
-
             $this->restDayToToggle = $dayIndex;
-
             $this->partsCountForRestDay = $partsCount;
-
             $this->showRestDayConfirmModal = true;
-
         } else {
-
             // No parts, directly add rest day
             $this->restDayToToggle = $dayIndex;
             $this->confirmRestDay();
-
         }
-
     }
-
 
     /**
      * Confirm setting day as rest day (delete parts and set rest)
      */
-
     public function confirmRestDay(): void
-
     {
-
         $dayIndex = $this->restDayToToggle ?? $this->selectedDay;
         if (!$this->weeklyProgramId) {
-
             $this->saveProgram();
-
         }
 
-
         // Delete all parts for this day
-
         ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
             ->where('day_of_week', $dayIndex)
             ->delete();
 
-
         // Add rest day
-
         WeeklyProgramRestDay::updateOrCreate([
-
             'weekly_program_id' => $this->weeklyProgramId,
-
             'day_index' => $dayIndex,
-
         ]);
 
-
         $this->loadExistingParts();
-
         $this->closeRestDayConfirmModal();
-
         $this->dispatch('success', 'روز استراحت با موفقیت ثبت شد.');
-
     }
-
 
     /**
      * Close rest day confirmation modal
      */
-
     public function closeRestDayConfirmModal(): void
-
     {
-
         $this->showRestDayConfirmModal = false;
-
         $this->restDayToToggle = null;
-
         $this->partsCountForRestDay = 0;
-
     }
 
     public function render()
@@ -672,14 +611,17 @@ class WeeklyProgramUpload extends Component
         $weeklyProgram = $this->weeklyProgramId
             ? WeeklyProgram::with('parts')->find($this->weeklyProgramId)
             : null;
+
         // دوره‌های تحصیلی
         $educationLevels = EducationLevel::active()->ordered()->get();
+
         // محاسبه روزهای هفته با نام روز صحیح فارسی
         $weekDays = [];
         $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
         $startDate = $this->start_date
             ? Carbon::parse($this->start_date)
             : Carbon::tomorrow();
+
         for ($i = 0; $i < 8; $i++) {
             $date = $startDate->copy()->addDays($i);
             $dayParts = $weeklyProgram
@@ -690,8 +632,10 @@ class WeeklyProgramUpload extends Component
             $jalaliDate = jdate($date);
             $dayOfWeek = $jalaliDate->getDayOfWeek(); // 0 = شنبه، 6 = جمعه
             $dayName = $jalaliDayNames[$dayOfWeek];
+
             // Check if this day is a rest day
             $isRestDay = $weeklyProgram ? $weeklyProgram->isRestDay($i) : false;
+
             $weekDays[] = [
                 'index' => $i,
                 'name' => $dayName,
@@ -703,14 +647,17 @@ class WeeklyProgramUpload extends Component
                 'is_rest_day' => $isRestDay,
             ];
         }
+
         $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
             ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
             ->with(['advisingSession', 'exams', 'assignments', 'qas', 'miscellaneous'])
             ->latest()
             ->get();
+
         // نام مشاور و پشتیبان از دیتابیس student
         $advisorName = $student->advisor?->name ?? '-';
         $supporterName = $student->supporter?->name ?? '-';
+
         return view('livewire.admin.student.consultation.weekly-program-upload', [
             'student' => $student,
             'educationLevels' => $educationLevels,

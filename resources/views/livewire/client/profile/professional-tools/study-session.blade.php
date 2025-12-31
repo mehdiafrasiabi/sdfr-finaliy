@@ -11,39 +11,40 @@
                 display: none !important;
             }
 
+            /* Digital clock */
             .digital-clock {
-                font-family: 'Digital', 'Courier New', monospace;
-                font-size: 56px;
+                font-family: 'Digital', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+                font-size: clamp(40px, 6vw, 56px);
                 letter-spacing: 2px;
-                color: #ff9c00;
-                text-shadow: 0 0 10px rgba(255, 156, 0, 0.45);
                 line-height: 1;
+                color: #f59e0b; /* amber-500 */
+                text-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
             }
 
+            /* Timer shell (keep gradient but softer) */
             .timer-shell {
-                background: linear-gradient(135deg, #0b1220 0%, #111827 100%);
+                background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(2, 6, 23, 0.95) 100%);
                 border: 1px solid rgba(148, 163, 184, 0.18);
+                min-height: 230px;
             }
 
             .dark .timer-shell {
-                background: linear-gradient(135deg, #0b1020 0%, #0b1220 100%);
+                background: linear-gradient(135deg, rgba(2, 6, 23, 0.92) 0%, rgba(15, 23, 42, 0.92) 100%);
                 border-color: rgba(148, 163, 184, 0.20);
             }
 
+            /* Soft surface (cards) */
             .soft-surface {
                 background: rgba(255, 255, 255, 0.92);
                 border: 1px solid rgba(15, 23, 42, 0.08);
             }
 
             .dark .soft-surface {
-                background: rgba(2, 6, 23, 0.6);
+                background: rgba(2, 6, 23, 0.55);
                 border-color: rgba(148, 163, 184, 0.16);
             }
 
-            .day-divider {
-                border-top: 1px dashed rgba(148, 163, 184, 0.35);
-            }
-
+            /* sticky wrapper */
             .sticky-safe {
                 position: sticky;
                 top: 12px;
@@ -51,20 +52,26 @@
             }
 
             .sticky-safe .timer-shell {
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+                box-shadow: 0 18px 40px rgba(0, 0, 0, .14);
             }
 
             .dark .sticky-safe .timer-shell {
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+                box-shadow: 0 18px 40px rgba(0, 0, 0, .40);
             }
 
+            /* divider */
+            .day-divider {
+                border-top: 1px dashed rgba(148, 163, 184, 0.35);
+            }
+
+            /* spinner */
             .spinner {
                 width: 14px;
                 height: 14px;
-                border: 2px solid rgba(255, 255, 255, 0.35);
-                border-top-color: rgba(255, 255, 255, 0.95);
+                border: 2px solid rgba(255, 255, 255, .35);
+                border-top-color: rgba(255, 255, 255, .95);
                 border-radius: 999px;
-                animation: spin 0.7s linear infinite;
+                animation: spin .7s linear infinite;
             }
 
             @keyframes spin {
@@ -73,54 +80,43 @@
                 }
             }
 
-            /* رنگ نوار پیشرفت (با کلاس) */
+            /* progress */
             .progress-ok {
-                background: rgba(255, 255, 255, 0.70);
+                background: rgba(226, 232, 240, 0.85);
+            }
+
+            /* slate-200 */
+            .dark .progress-ok {
+                background: rgba(148, 163, 184, 0.45);
             }
 
             .progress-warn {
-                background: rgba(251, 191, 36, 0.85);
+                background: rgba(251, 191, 36, 0.90);
             }
 
             /* amber */
             .progress-danger {
-                background: rgba(248, 113, 113, 0.90);
+                background: rgba(248, 113, 113, 0.95);
             }
 
             /* red */
 
-            /* جلوگیری از تغییر ارتفاع تایمر */
-            .timer-shell {
-                min-height: 230px; /* ثابت نگه داشتن ارتفاع (برای موبایل/دسکتاپ) */
-            }
-
-            /* روی موبایل اگر فونت بزرگه، کمی انعطاف */
-            @media (max-width: 640px) {
-                .timer-shell {
-                    min-height: 250px;
-                }
-
-                .digital-clock {
-                    font-size: 48px;
-                }
-            }
-
-            /* وضعیت زنده بودن بدون تغییر ارتفاع */
+            /* Live dot */
             .live-dot {
                 width: 8px;
                 height: 8px;
                 border-radius: 999px;
-                background: rgba(255, 255, 255, 0.55);
-                box-shadow: 0 0 10px rgba(255, 255, 255, 0.25);
+                background: rgba(148, 163, 184, 0.55);
+                box-shadow: 0 0 10px rgba(148, 163, 184, 0.25);
             }
 
             .live-dot.on {
-                background: rgba(52, 211, 153, 0.9);
+                background: rgba(52, 211, 153, 0.95);
                 box-shadow: 0 0 14px rgba(52, 211, 153, 0.45);
             }
-
         </style>
     @endpush
+
 
     <div class="max-w-7xl mx-auto px-4 py-6">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
@@ -132,16 +128,20 @@
                  x-data="{ permissionModal: @entangle('showPermissionModal'), finishModal: @entangle('showFinishModal') }">
 
                 {{-- Header --}}
-                <div class="flex items-center gap-3 mb-6">
-                    <div class="flex items-center gap-1">
-                        <div class="w-1 h-1 bg-foreground rounded-full"></div>
-                        <div class="w-2 h-2 bg-foreground rounded-full"></div>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 mb-6">
+                    <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-1 opacity-70">
+                            <div class="w-1.5 h-1.5 bg-foreground/70 rounded-full"></div>
+                            <div class="w-2.5 h-2.5 bg-foreground rounded-full"></div>
+                        </div>
+                        <div class="font-black text-foreground text-sm sm:text-base">
+                            ثبت ساعت مطالعه بر اساس برنامه
+                        </div>
                     </div>
-                    <div class="font-black text-foreground">ثبت ساعت مطالعه بر اساس برنامه</div>
 
                     <a wire:navigate href="{{ route('client.profile.professionalTools.index') }}"
-                       class="inline-flex items-center justify-center gap-x-1.5 h-10 bg-background border border-border rounded-full text-muted transition-colors hover:text-foreground px-6 ms-auto">
-                        <span class="font-semibold text-xs">بازگشت</span>
+                       class="inline-flex items-center justify-center gap-x-1.5 h-10 rounded-full border border-border bg-background/60 backdrop-blur px-5 sm:px-6 text-xs font-semibold text-muted hover:text-foreground hover:bg-background transition ms-auto w-full sm:w-auto">
+                        <span>بازگشت</span>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                              stroke-width="1.5" stroke="currentColor" class="size-5">
                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -150,34 +150,26 @@
                     </a>
                 </div>
 
+
                 @if($weeklyProgram)
 
                     {{-- تایمر ثابت + sticky برای موبایل و دسکتاپ --}}
                     <div class="sticky-safe" wire:key="timer-fixed" wire:poll.visible.1000ms="tick">
-                        <section class="timer-shell rounded-2xl p-5 sm:p-6 text-white">
-                            @php
-                                $progress = 0;
-                                if ($currentPartId && $targetSeconds > 0) {
-                                    $progress = (int) round((($targetSeconds - $remainingSeconds) / $targetSeconds) * 100);
-                                    $progress = max(0, min(100, $progress));
-                                }
+                        <section class="timer-shell rounded-3xl p-4 sm:p-6 text-white relative overflow-hidden">
+                            <!-- subtle glow -->
+                            <div
+                                class="pointer-events-none absolute -top-20 -left-20 w-72 h-72 rounded-full bg-amber-500/10 blur-3xl"></div>
+                            <div
+                                class="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl"></div>
 
-                                $progressClass = 'progress-ok';
-                                if ($progress >= 80) $progressClass = 'progress-danger';
-                                elseif ($progress >= 55) $progressClass = 'progress-warn';
-
-                                $currentPart = $currentPartId ? collect($programParts)->firstWhere('id', $currentPartId) : null;
-                            @endphp
-
-                            <div class="flex flex-col gap-4">
-
-                                <div class="flex items-start justify-between gap-3">
+                            <div class="flex flex-col gap-4 relative">
+                                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                     <div class="space-y-1">
-                                        <div class="text-sm text-slate-200 font-bold">
+                                        <div class="text-sm text-slate-100 font-extrabold tracking-tight">
                                             تایمر مطالعه
                                         </div>
 
-                                        <div class="text-[11px] text-slate-300 leading-5">
+                                        <div class="text-[11px] text-slate-200/90 leading-5">
                                             @if($currentPartId)
                                                 <span class="text-white font-semibold">پارت:</span>
                                                 <span
@@ -185,38 +177,37 @@
                                                 <span class="mx-2 text-slate-400">•</span>
                                                 <span
                                                     class="{{ $isRunning ? 'text-emerald-200' : 'text-orange-200' }} font-semibold">
-                                {{ $isRunning ? 'در حال اجرا' : 'متوقف' }}
-                            </span>
+              {{ $isRunning ? 'در حال اجرا' : 'متوقف' }}
+            </span>
                                             @else
                                                 هیچ پارت فعالی انتخاب نشده — از لیست پایین یک پارت را شروع کن.
                                             @endif
                                         </div>
 
-                                        {{-- وضعیت زنده بدون تغییر ارتفاع --}}
-                                        <div class="mt-1 inline-flex items-center gap-2 text-[10px] text-slate-300">
+                                        <div class="mt-1 inline-flex items-center gap-2 text-[10px] text-slate-200/80">
                                             <span
                                                 class="live-dot {{ ($currentPartId && $isRunning) ? 'on' : '' }}"></span>
                                             <span>{{ ($currentPartId && $isRunning) ? 'زنده' : 'آماده' }}</span>
                                         </div>
                                     </div>
 
-                                    <div class="flex items-center gap-2">
+                                    <div class="flex flex-wrap items-center gap-2 justify-end">
                                         @if($currentPartId && $isRunning)
                                             <button wire:click="pausePart"
-                                                    class="px-4 h-9 rounded-full bg-orange-500 hover:bg-orange-600 disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-xs transition inline-flex items-center gap-2">
-                                                <span>توقف</span>
+                                                    class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300/50 disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-xs transition inline-flex items-center gap-2">
+                                                توقف
                                             </button>
                                         @elseif($currentPartId && !$isRunning && $pausedAtTs)
                                             <button wire:click="resumePart"
-                                                    class="px-4 h-9 rounded-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-xs transition inline-flex items-center gap-2">
-                                                <span>ادامه</span>
+                                                    class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-xs transition inline-flex items-center gap-2">
+                                                ادامه
                                             </button>
                                         @endif
 
                                         @if($currentPartId)
                                             <button wire:click="cancelPart"
-                                                    class="px-4 h-9 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-xs transition inline-flex items-center gap-2">
-                                                <span>لغو</span>
+                                                    class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-60 disabled:cursor-not-allowed font-semibold text-xs transition inline-flex items-center gap-2">
+                                                لغو
                                             </button>
                                         @endif
                                     </div>
@@ -226,40 +217,39 @@
                                     <div class="digital-clock">
                                         {{ $this->formatClock($currentPartId ? $remainingSeconds : 0) }}
                                     </div>
-                                    <div class="mt-1 text-[11px] text-slate-300">
+                                    <div class="mt-1 text-[11px] text-slate-200/80">
                                         {{ $currentPartId ? 'زمان باقی‌مانده' : 'برای شروع، روی دکمه شروع یکی از پارت‌ها بزنید' }}
                                     </div>
                                 </div>
 
                                 <div class="space-y-2">
-                                    <div class="flex items-center justify-between text-[11px] text-slate-300">
+                                    <div class="flex items-center justify-between text-[11px] text-slate-200/80">
                                         <span>پیشرفت</span>
-                                        <span class="text-slate-200 font-semibold">
-                        {{ $currentPartId ? $progress.'%' : '0%' }}
-                    </span>
+                                        <span class="text-slate-100 font-semibold">
+          {{ $currentPartId ? $progress.'%' : '0%' }}
+        </span>
                                     </div>
 
-                                    <div class="h-2 w-full rounded-full bg-white/10 overflow-hidden">
-                                        <div class="h-2 rounded-full {{ $progressClass }} transition-all duration-300"
+                                    <div class="h-2.5 w-full rounded-full bg-white/10 overflow-hidden">
+                                        <div class="h-2.5 rounded-full transition-all duration-300"
                                              style="width: {{ $currentPartId ? $progress : 0 }}%"></div>
                                     </div>
 
-                                    <div class="flex items-center justify-between text-[10px] text-slate-300">
-                    <span>
-                        مصرف‌شده:
-                        <span class="text-slate-100 font-semibold">
-                            {{ $currentPartId ? $this->formatClock($targetSeconds - $remainingSeconds) : '00:00:00' }}
-                        </span>
-                    </span>
+                                    <div class="flex items-center justify-between text-[10px] text-slate-200/80">
+        <span>
+          مصرف‌شده:
+          <span class="text-slate-100 font-semibold">
+            {{ $currentPartId ? $this->formatClock($targetSeconds - $remainingSeconds) : '00:00:00' }}
+          </span>
+        </span>
                                         <span>
-                        کل:
-                        <span class="text-slate-100 font-semibold">
-                            {{ $currentPartId ? $this->formatClock($targetSeconds) : '00:00:00' }}
-                        </span>
-                    </span>
+          کل:
+          <span class="text-slate-100 font-semibold">
+            {{ $currentPartId ? $this->formatClock($targetSeconds) : '00:00:00' }}
+          </span>
+        </span>
                                     </div>
                                 </div>
-
                             </div>
                         </section>
                     </div>
@@ -272,43 +262,43 @@
                     <div class="h-3 sm:h-4"></div>
 
                     {{-- ابزارها: نمایش/مخفی + فیلتر --}}
-                    <section class="mt-5 soft-surface rounded-2xl p-4">
-                        <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <section class="mt-5 soft-surface rounded-3xl p-4 sm:p-5">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                             <div>
-                                <div class="font-bold text-foreground">برنامه مطالعاتی من</div>
+                                <div class="font-black text-foreground">برنامه مطالعاتی من</div>
                                 <div class="text-xs text-muted mt-1">
                                     بر اساس آخرین جلسه مشاوره برگزار شده
                                 </div>
                             </div>
 
                             <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-                                {{-- فیلتر --}}
-                                <div class="inline-flex rounded-full border border-border bg-background p-1">
+                                <div
+                                    class="inline-flex rounded-full border border-border bg-background/70 backdrop-blur p-1 overflow-x-auto">
                                     <button wire:click="$set('dayFilter','all')"
-                                            class="px-4 h-9 rounded-full text-xs font-semibold transition
-                                            {{ $dayFilter==='all' ? 'bg-primary text-white' : 'text-muted hover:text-foreground' }}">
+                                            class="px-4 h-9 rounded-full text-xs font-semibold transition whitespace-nowrap
+          {{ $dayFilter==='all' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
                                         همه
                                     </button>
                                     <button wire:click="$set('dayFilter','today')"
-                                            class="px-4 h-9 rounded-full text-xs font-semibold transition
-                                            {{ $dayFilter==='today' ? 'bg-primary text-white' : 'text-muted hover:text-foreground' }}">
+                                            class="px-4 h-9 rounded-full text-xs font-semibold transition whitespace-nowrap
+          {{ $dayFilter==='today' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
                                         امروز
                                     </button>
                                     <button wire:click="$set('dayFilter','upcoming')"
-                                            class="px-4 h-9 rounded-full text-xs font-semibold transition
-                                            {{ $dayFilter==='upcoming' ? 'bg-primary text-white' : 'text-muted hover:text-foreground' }}">
+                                            class="px-4 h-9 rounded-full text-xs font-semibold transition whitespace-nowrap
+          {{ $dayFilter==='upcoming' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
                                         از امروز به بعد
                                     </button>
                                 </div>
 
-                                {{-- نمایش/مخفی --}}
                                 <button wire:click="toggleProgram"
-                                        class="px-5 h-10 rounded-full bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition">
+                                        class="px-5 h-10 rounded-full bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition w-full sm:w-auto">
                                     {{ $showProgram ? 'مخفی کردن برنامه' : 'نمایش برنامه' }}
                                 </button>
                             </div>
                         </div>
                     </section>
+
 
                     {{-- لیست برنامه --}}
                     @if($showProgram)
@@ -421,13 +411,12 @@
 
                                         {{-- جدول ردیفی (مرتب، بدون کارت‌های شلوغ) --}}
 
-                                        <div class="overflow-x-auto rounded-2xl border border-border bg-background">
+                                        <div
+                                            class="overflow-x-auto rounded-3xl border border-border bg-background shadow-sm">
+                                            <table class="w-full min-w-[720px] text-xs sm:text-[13px]">
+                                                <thead class="sticky top-0 z-10">
 
-                                            <table class="w-full text-xs sm:text-[13px]">
-
-                                                <thead>
-
-                                                <tr class="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-200">
+                                                <tr class="bg-slate-50/90 dark:bg-slate-800/70 backdrop-blur text-slate-700 dark:text-slate-200">
 
                                                     <th class="px-3 py-3 text-right">درس</th>
 
@@ -475,7 +464,7 @@
 
                                                             {{ floor($part->duration_minutes / 60) }}
 
-                                                            س {{ $part->duration_minutes % 60 }}د
+                                                            ساعت {{ $part->duration_minutes % 60 }}دقیقه
 
                                                         </td>
 
@@ -531,22 +520,16 @@
                                                             @else
 
                                                                 <button wire:click="startPart({{ $part->id }})"
-
                                                                         wire:loading.attr="disabled"
-
                                                                         wire:target="startPart({{ $part->id }})"
-
-                                                                        class="px-4 h-9 rounded-xl bg-primary hover:bg-primary/90 text-white text-[11px] font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
-
+                                                                        class="px-4 h-9 rounded-full bg-primary hover:bg-primary/90 text-white text-[11px] font-semibold transition
+         disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
                                                                     {{ $currentPartId ? 'disabled' : '' }}>
-
                                                                     <span wire:loading.remove
                                                                           wire:target="startPart({{ $part->id }})">شروع</span>
-
                                                                     <span wire:loading
                                                                           wire:target="startPart({{ $part->id }})"
                                                                           class="spinner"></span>
-
                                                                 </button>
 
                                                             @endif

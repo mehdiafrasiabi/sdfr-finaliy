@@ -1,6 +1,7 @@
 <!-- Required meta tags -->
 <meta charset="UTF-8"/>
-<meta content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+      name="viewport"/>
 <meta content="" name="description"/>
 <!-- Favicon -->
 <link href="/admin/assets/img/favicon/favicon.ico" rel="icon" type="image/x-icon"/>
@@ -49,7 +50,22 @@
 />
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
-
+<!-- Vendors CSS -->
+<link href="/admin/assets/vendor/libs/node-waves/node-waves.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/typeahead-js/typeahead.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/select2/select2.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/tagify/tagify.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/bootstrap-select/bootstrap-select.css" rel="stylesheet"/>
+<link href="/admin/assets/vendor/libs/typeahead-js/typeahead.css" rel="stylesheet"/>
+<!-- Page CSS -->
+<!-- Helpers -->
+<script src="/admin/assets/vendor/js/helpers.js"></script>
+<!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+<!--? Template customizer: To hide customizer set displayCustomizer value false in config.js.  -->
+<script src="/admin/assets/vendor/js/template-customizer.js"></script>
+<!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
+<script src="/admin/assets/js/config.js"></script>
 
 @stack('link')
 

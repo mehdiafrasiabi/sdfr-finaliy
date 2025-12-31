@@ -24,6 +24,8 @@ use Livewire\WithPagination;
 
 use Maatwebsite\Excel\Facades\Excel;
 
+use Morilog\Jalali\Jalalian;
+
 
 class Detail extends Component
 
@@ -44,6 +46,18 @@ class Detail extends Component
     public ?int $selectedSessionId = null;
 
     public array $sessions = [];
+
+
+    // Month Filter (multi-select tags)
+
+    public array $selectedMonths = [];
+
+    public array $monthOptions = [];
+
+
+    // Status Filter
+
+    public string $statusFilter = 'all'; // all, approved, rejected, not_sent
 
 
     // Stats
@@ -77,6 +91,15 @@ class Detail extends Component
     public array $selectedReportData = [];
 
 
+    // Excel Export Modal
+
+    public bool $exportModalOpen = false;
+
+    public string $exportStartDate = '';
+
+    public string $exportEndDate = '';
+
+
     protected $paginationTheme = 'bootstrap';
 
 
@@ -92,9 +115,47 @@ class Detail extends Component
 
         $this->seo()->setTitle('گزارش‌های ' . $this->studentName);
 
+
+        $this->monthOptions = $this->buildMonthOptions();
+
         $this->loadSessions();
 
         $this->markStudentRepliesAsSeen();
+
+    }
+
+
+    protected function buildMonthOptions(): array
+
+    {
+
+        return [
+
+            '01' => 'فروردین',
+
+            '02' => 'اردیبهشت',
+
+            '03' => 'خرداد',
+
+            '04' => 'تیر',
+
+            '05' => 'مرداد',
+
+            '06' => 'شهریور',
+
+            '07' => 'مهر',
+
+            '08' => 'آبان',
+
+            '09' => 'آذر',
+
+            '10' => 'دی',
+
+            '11' => 'بهمن',
+
+            '12' => 'اسفند',
+
+        ];
 
     }
 
@@ -115,19 +176,42 @@ class Detail extends Component
 
                     'label' => jdate($session->activation_date)->format('Y/m/d') . ' - ' . ($session->title ?? 'جلسه مشاوره'),
 
+                    'activation_date' => $session->activation_date,
+
                 ];
 
             })
             ->toArray();
 
+    }
 
-        // Select first session by default
 
-        if (!empty($this->sessions) && !$this->selectedSessionId) {
+    public function toggleMonth($month)
 
-            $this->selectedSessionId = $this->sessions[0]['id'];
+    {
+
+        if (in_array($month, $this->selectedMonths)) {
+
+            $this->selectedMonths = array_values(array_diff($this->selectedMonths, [$month]));
+
+        } else {
+
+            $this->selectedMonths[] = $month;
 
         }
+
+        $this->resetPage();
+
+    }
+
+
+    public function clearMonths()
+
+    {
+
+        $this->selectedMonths = [];
+
+        $this->resetPage();
 
     }
 
@@ -136,9 +220,22 @@ class Detail extends Component
 
     {
 
+        // Clear month filter when session changes
+
+        $this->selectedMonths = [];
+
         $this->resetPage();
 
         $this->loadStats();
+
+    }
+
+
+    public function updatedStatusFilter()
+
+    {
+
+        $this->resetPage();
 
     }
 
@@ -147,30 +244,9 @@ class Detail extends Component
 
     {
 
-        if (!$this->selectedSessionId) {
+        // Load stats based on current filters
 
-            $this->stats = [];
-
-            return;
-
-        }
-
-
-        $weeklyProgram = WeeklyProgram::where('advising_session_id', $this->selectedSessionId)->first();
-
-        if (!$weeklyProgram) {
-
-            $this->stats = [];
-
-            return;
-
-        }
-
-
-        $reports = DailyReport::where('student_id', $this->studentId)
-            ->where('weekly_program_id', $weeklyProgram->id)
-            ->with('reportParts.programPart')
-            ->get();
+        $reports = $this->getFilteredReportsQuery()->get();
 
 
         $totalReports = $reports->count();
@@ -249,6 +325,256 @@ class Detail extends Component
     }
 
 
+    protected function getFilteredReportsQuery()
+
+    {
+
+        $query = DailyReport::with(['student.user', 'reportParts.programPart'])
+            ->where('student_id', $this->studentId);
+
+
+        // Filter by session
+
+        if ($this->selectedSessionId) {
+
+            $weeklyProgram = WeeklyProgram::where('advising_session_id', $this->selectedSessionId)->first();
+
+            if ($weeklyProgram) {
+
+                $query->where('weekly_program_id', $weeklyProgram->id);
+
+            }
+
+        }
+
+
+        // Filter by months (Jalali)
+
+        if (!empty($this->selectedMonths)) {
+
+            $query->where(function ($q) {
+
+                foreach ($this->selectedMonths as $month) {
+
+                    $q->orWhereRaw("MONTH(report_date) = ?", [(int)$month]);
+
+                }
+
+            });
+
+
+            // Actually we need to filter by Jalali month, let's do it differently
+
+            $query = DailyReport::with(['student.user', 'reportParts.programPart'])
+                ->where('student_id', $this->studentId);
+
+
+            if ($this->selectedSessionId) {
+
+                $weeklyProgram = WeeklyProgram::where('advising_session_id', $this->selectedSessionId)->first();
+
+                if ($weeklyProgram) {
+
+                    $query->where('weekly_program_id', $weeklyProgram->id);
+
+                }
+
+            }
+
+        }
+
+
+        // Filter by status
+
+        if ($this->statusFilter !== 'all') {
+
+            if ($this->statusFilter === 'not_sent') {
+
+                // This will be handled differently - show days without reports
+
+            } else {
+
+                $query->where('status', $this->statusFilter);
+
+            }
+
+        }
+
+
+        return $query;
+
+    }
+
+
+    protected function getReportsWithFilters()
+
+    {
+
+        $query = DailyReport::with(['student.user', 'reportParts.programPart'])
+            ->where('student_id', $this->studentId);
+
+
+        // Filter by session
+
+        if ($this->selectedSessionId) {
+
+            $weeklyProgram = WeeklyProgram::where('advising_session_id', $this->selectedSessionId)->first();
+
+            if ($weeklyProgram) {
+
+                $query->where('weekly_program_id', $weeklyProgram->id);
+
+            } else {
+
+                return collect([]);
+
+            }
+
+        }
+
+
+        // Get all reports first
+
+        $reports = $query->orderBy('report_date', 'desc')->get();
+
+
+        // Filter by Jalali months
+
+        if (!empty($this->selectedMonths)) {
+
+            $reports = $reports->filter(function ($report) {
+
+                $jalaliMonth = jdate($report->report_date)->format('m');
+
+                return in_array($jalaliMonth, $this->selectedMonths);
+
+            });
+
+        }
+
+
+        // Filter by status
+
+        if ($this->statusFilter !== 'all' && $this->statusFilter !== 'not_sent') {
+
+            $reports = $reports->where('status', $this->statusFilter);
+
+        }
+
+
+        return $reports;
+
+    }
+
+
+    protected function getNotSentDays()
+
+    {
+
+        if (!$this->selectedSessionId) {
+
+            return collect([]);
+
+        }
+
+
+        $session = AdvisingSession::find($this->selectedSessionId);
+
+        if (!$session) {
+
+            return collect([]);
+
+        }
+
+
+        $weeklyProgram = WeeklyProgram::where('advising_session_id', $this->selectedSessionId)->first();
+
+        if (!$weeklyProgram) {
+
+            return collect([]);
+
+        }
+
+
+        // Get the 8-day period for this session
+
+        $startDate = $session->activation_date;
+
+        $endDate = $session->activation_date->copy()->addDays(7);
+
+
+        // Don't include future dates
+
+        $today = now()->endOfDay();
+
+        if ($endDate->gt($today)) {
+
+            $endDate = $today;
+
+        }
+
+
+        // Get existing report dates
+
+        $existingReportDates = DailyReport::where('student_id', $this->studentId)
+            ->where('weekly_program_id', $weeklyProgram->id)
+            ->pluck('report_date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->toArray();
+
+
+        // Generate missing days
+
+        $missingDays = collect([]);
+
+        $period = \Carbon\CarbonPeriod::create($startDate, '1 day', $endDate);
+
+
+        $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+
+
+        foreach ($period as $day) {
+
+            $dayString = $day->format('Y-m-d');
+
+            if (!in_array($dayString, $existingReportDates)) {
+
+                $jalaliDate = jdate($day);
+
+                $jalaliMonth = $jalaliDate->format('m');
+
+
+                // Filter by selected months if any
+
+                if (!empty($this->selectedMonths) && !in_array($jalaliMonth, $this->selectedMonths)) {
+
+                    continue;
+
+                }
+
+
+                $missingDays->push([
+
+                    'date' => $day,
+
+                    'jalali_date' => $jalaliDate->format('Y/m/d'),
+
+                    'day_name' => $dayNames[$day->dayOfWeek == 0 ? 6 : $day->dayOfWeek - 1] ?? '-',
+
+                    'status' => 'not_sent',
+
+                ]);
+
+            }
+
+        }
+
+
+        return $missingDays->sortByDesc('date');
+
+    }
+
+
     public function changeStatus($reportId, $value)
 
     {
@@ -278,19 +604,6 @@ class Detail extends Component
         $this->resetValidation();
 
         $this->dispatch('success', 'وضعیت با موفقیت تغییر کرد.');
-
-        $this->loadStats();
-
-    }
-
-
-    public function delete($reportId)
-
-    {
-
-        DailyReport::where('id', $reportId)->delete();
-
-        $this->dispatch('success', 'گزارش با موفقیت حذف شد.');
 
         $this->loadStats();
 
@@ -538,24 +851,76 @@ class Detail extends Component
     }
 
 
+    public function openExportModal()
+
+    {
+
+        $this->exportStartDate = '';
+
+        $this->exportEndDate = '';
+
+        $this->exportModalOpen = true;
+
+    }
+
+
+    public function closeExportModal()
+
+    {
+
+        $this->exportModalOpen = false;
+
+        $this->exportStartDate = '';
+
+        $this->exportEndDate = '';
+
+    }
+
+
     public function exportExcel()
 
     {
 
-        if (!$this->selectedSessionId) {
+        $this->validate([
 
-            $this->dispatch('warning', 'لطفاً یک جلسه مشاوره را انتخاب کنید.');
+            'exportStartDate' => 'required|string',
+
+            'exportEndDate' => 'required|string',
+
+        ], [
+
+            'exportStartDate.required' => 'تاریخ شروع را وارد کنید.',
+
+            'exportEndDate.required' => 'تاریخ پایان را وارد کنید.',
+
+        ]);
+
+
+        // Convert Jalali dates to Gregorian
+
+        try {
+
+            $startParts = explode('/', $this->exportStartDate);
+
+            $endParts = explode('/', $this->exportEndDate);
+
+
+            $startDate = Jalalian::fromFormat('Y/m/d', $this->exportStartDate)->toCarbon()->startOfDay();
+
+            $endDate = Jalalian::fromFormat('Y/m/d', $this->exportEndDate)->toCarbon()->endOfDay();
+
+        } catch (\Exception $e) {
+
+            $this->dispatch('warning', 'فرمت تاریخ صحیح نیست. مثال: 1404/09/10');
 
             return;
 
         }
 
 
-        $weeklyProgram = WeeklyProgram::where('advising_session_id', $this->selectedSessionId)->first();
+        if ($startDate->gt($endDate)) {
 
-        if (!$weeklyProgram) {
-
-            $this->dispatch('warning', 'برنامه‌ای برای این جلسه یافت نشد.');
+            $this->dispatch('warning', 'تاریخ شروع نباید بعد از تاریخ پایان باشد.');
 
             return;
 
@@ -565,9 +930,12 @@ class Detail extends Component
         $fileName = 'daily_reports_' . str_replace(' ', '_', $this->studentName) . '_' . now()->format('Ymd_His') . '.xlsx';
 
 
+        $this->closeExportModal();
+
+
         return Excel::download(
 
-            new DailyReportExport($this->studentId, $weeklyProgram->id),
+            new DailyReportExport($this->studentId, null, $startDate, $endDate),
 
             $fileName
 
@@ -583,8 +951,8 @@ class Detail extends Component
         DailyReport::query()
             ->where('student_id', $this->studentId)
             ->whereNotNull('student_reply')
-            ->whereNull('student_reply_seen_at')
-            ->update(['student_reply_seen_at' => now()]);
+            ->whereNull('student_replied_at')
+            ->update(['student_replied_at' => now()]);
 
     }
 
@@ -601,6 +969,8 @@ class Detail extends Component
 
             'rejected' => 'danger',
 
+            'not_sent' => 'warning',
+
             default => 'secondary',
 
         };
@@ -614,37 +984,122 @@ class Detail extends Component
 
         $reports = collect([]);
 
-
-        if ($this->selectedSessionId) {
-
-            $weeklyProgram = WeeklyProgram::where('advising_session_id', $this->selectedSessionId)->first();
+        $notSentDays = collect([]);
 
 
-            if ($weeklyProgram) {
+        // Get filtered reports
 
-                $reports = DailyReport::with([
-
-                    'student.user',
-
-                    'reportParts.programPart',
-
-                ])
-                    ->where('student_id', $this->studentId)
-                    ->where('weekly_program_id', $weeklyProgram->id)
-                    ->latest()
-                    ->paginate(10);
+        $filteredReports = $this->getReportsWithFilters();
 
 
-                $this->loadStats();
+        // Get not sent days if needed
 
-            }
+        if ($this->statusFilter === 'all' || $this->statusFilter === 'not_sent') {
+
+            $notSentDays = $this->getNotSentDays();
 
         }
 
 
+        // Combine based on filter
+
+        if ($this->statusFilter === 'not_sent') {
+
+            // Only show not sent days
+
+            $allItems = $notSentDays;
+
+        } elseif ($this->statusFilter === 'all') {
+
+            // Combine reports with not sent days
+
+            $reportItems = $filteredReports->map(function ($report) {
+
+                return [
+
+                    'type' => 'report',
+
+                    'data' => $report,
+
+                    'date' => $report->report_date,
+
+                ];
+
+            });
+
+
+            $notSentItems = $notSentDays->map(function ($day) {
+
+                return [
+
+                    'type' => 'not_sent',
+
+                    'data' => $day,
+
+                    'date' => $day['date'],
+
+                ];
+
+            });
+
+
+            $allItems = $reportItems->concat($notSentItems)->sortByDesc('date');
+
+        } else {
+
+            // Only show filtered reports
+
+            $allItems = $filteredReports->map(function ($report) {
+
+                return [
+
+                    'type' => 'report',
+
+                    'data' => $report,
+
+                    'date' => $report->report_date,
+
+                ];
+
+            })->sortByDesc('date');
+
+        }
+
+
+        // Manual pagination
+
+        $page = request()->get('page', 1);
+
+        $perPage = 10;
+
+        $total = $allItems->count();
+
+        $items = $allItems->forPage($page, $perPage)->values();
+
+
+        $paginatedReports = new \Illuminate\Pagination\LengthAwarePaginator(
+
+            $items,
+
+            $total,
+
+            $perPage,
+
+            $page,
+
+            ['path' => request()->url(), 'pageName' => 'page']
+
+        );
+
+
+        $this->loadStats();
+
+
         return view('livewire.admin.student.report-daily-activities.detail', [
 
-            'reports' => $reports,
+            'reports' => $paginatedReports,
+
+            'notSentDays' => $notSentDays,
 
         ])->layout('layouts.admin.app');
 

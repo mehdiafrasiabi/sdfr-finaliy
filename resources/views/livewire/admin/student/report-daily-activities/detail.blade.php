@@ -21,40 +21,17 @@
 
             <div class="d-flex flex-wrap gap-2 justify-content-md-end">
 
-                <!-- Session Selector -->
-
-                <select wire:model.live="selectedSessionId" class="form-select" style="max-width: 300px;">
-
-                    <option value="">انتخاب جلسه مشاوره</option>
-
-                    @foreach($sessions as $session)
-
-                        <option value="{{ $session['id'] }}">{{ $session['label'] }}</option>
-
-                    @endforeach
-
-                </select>
-
-
                 <!-- Export Button -->
 
-                @if($selectedSessionId)
+                <button wire:click="openExportModal"
 
-                    <button wire:click="exportExcel"
+                        class="btn btn-success d-inline-flex align-items-center gap-1">
 
-                            wire:loading.attr="disabled"
+                    <i class="material-symbols-outlined" style="font-size: 20px;">download</i>
 
-                            class="btn btn-success d-inline-flex align-items-center gap-1">
+                    خروجی اکسل
 
-                        <i class="material-symbols-outlined" style="font-size: 20px;">download</i>
-
-                        <span wire:loading.remove wire:target="exportExcel">خروجی اکسل</span>
-
-                        <span wire:loading wire:target="exportExcel">در حال آماده‌سازی...</span>
-
-                    </button>
-
-                @endif
+                </button>
 
             </div>
 
@@ -63,7 +40,141 @@
     </div>
 
 
-    @if($selectedSessionId && !empty($stats))
+    <!-- Filters Section -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-header bg-light">
+
+            <h6 class="mb-0 d-flex align-items-center gap-2">
+
+                <i class="material-symbols-outlined text-primary">filter_alt</i>
+
+                فیلترها
+
+            </h6>
+
+        </div>
+
+        <div class="card-body">
+
+            <div class="row g-3">
+
+                <!-- Session Filter -->
+
+                <div class="col-md-4">
+
+                    <label class="form-label fw-semibold">
+
+                        <i class="material-symbols-outlined align-middle" style="font-size: 18px;">event</i>
+
+                        جلسه مشاوره
+
+                    </label>
+
+                    <select wire:model.live="selectedSessionId" class="form-select">
+
+                        <option value="">همه جلسات</option>
+
+                        @foreach($sessions as $session)
+
+                            <option value="{{ $session['id'] }}">{{ $session['label'] }}</option>
+
+                        @endforeach
+
+                    </select>
+
+                    <small class="text-muted">جلسات برگزار شده</small>
+
+                </div>
+
+
+                <!-- Status Filter -->
+
+                <div class="col-md-4">
+
+                    <label class="form-label fw-semibold">
+
+                        <i class="material-symbols-outlined align-middle" style="font-size: 18px;">check_circle</i>
+
+                        وضعیت گزارش
+
+                    </label>
+
+                    <select wire:model.live="statusFilter" class="form-select">
+
+                        <option value="all">همه وضعیت‌ها</option>
+
+                        <option value="approved">تایید شده</option>
+
+                        <option value="rejected">رد شده</option>
+
+                        <option value="pending">در انتظار بررسی</option>
+
+                        <option value="not_sent">ارسال نشده</option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- Month Filter Tags -->
+
+                <div class="col-md-4">
+
+                    <label class="form-label fw-semibold d-flex justify-content-between align-items-center">
+
+                        <span>
+
+                            <i class="material-symbols-outlined align-middle"
+                               style="font-size: 18px;">calendar_month</i>
+
+                            فیلتر ماه
+
+                        </span>
+
+                        @if(count($selectedMonths) > 0)
+
+                            <button wire:click="clearMonths" class="btn btn-sm btn-outline-secondary py-0 px-2">
+
+                                پاک کردن
+
+                            </button>
+
+                        @endif
+
+                    </label>
+
+                    <div class="d-flex flex-wrap gap-1">
+
+                        @foreach($monthOptions as $key => $name)
+
+                            <button type="button"
+
+                                    wire:click="toggleMonth('{{ $key }}')"
+
+                                    class="btn btn-sm {{ in_array($key, $selectedMonths) ? 'btn-primary' : 'btn-outline-secondary' }}">
+
+                                {{ $name }}
+
+                            </button>
+
+                        @endforeach
+
+                    </div>
+
+                    <small class="text-muted mt-1 d-block">می‌توانید چند ماه را انتخاب کنید</small>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    @if(!empty($stats))
 
         <!-- Stats Cards -->
 
@@ -120,6 +231,7 @@
                                 <h6 class="text-muted mb-1">پارت‌ها</h6>
 
                                 <h2 class="mb-0 text-success">{{ $stats['read_parts'] ?? 0 }}<small
+
                                         class="text-muted fs-6">/{{ $stats['total_parts'] ?? 0 }}</small></h2>
 
                             </div>
@@ -133,6 +245,7 @@
                                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
 
                                     <path class="circle" stroke="#28a745" stroke-width="3" stroke-linecap="round"
+
                                           fill="none"
 
                                           stroke-dasharray="{{ $stats['read_percentage'] ?? 0 }}, 100"
@@ -140,7 +253,9 @@
                                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
 
                                     <text x="18" y="22" class="percentage" fill="#28a745" font-size="10"
+
                                           text-anchor="middle">{{ $stats['read_percentage'] ?? 0 }}%
+
                                     </text>
 
                                 </svg>
@@ -179,6 +294,7 @@
                                 <h6 class="text-muted mb-1">تست‌ها</h6>
 
                                 <h2 class="mb-0 text-info">{{ $stats['done_tests'] ?? 0 }}<small
+
                                         class="text-muted fs-6">/{{ $stats['total_tests'] ?? 0 }}</small></h2>
 
                             </div>
@@ -192,6 +308,7 @@
                                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
 
                                     <path class="circle" stroke="#17a2b8" stroke-width="3" stroke-linecap="round"
+
                                           fill="none"
 
                                           stroke-dasharray="{{ $stats['test_percentage'] ?? 0 }}, 100"
@@ -199,7 +316,9 @@
                                           d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
 
                                     <text x="18" y="22" class="percentage" fill="#17a2b8" font-size="10"
+
                                           text-anchor="middle">{{ $stats['test_percentage'] ?? 0 }}%
+
                                     </text>
 
                                 </svg>
@@ -238,6 +357,7 @@
                                 <h6 class="text-muted mb-1">گوشی (غیردرسی)</h6>
 
                                 <h2 class="mb-0 text-warning">{{ $stats['total_phone_hours'] ?? 0 }}<small
+
                                         class="text-muted fs-6"> ساعت</small></h2>
 
                             </div>
@@ -272,9 +392,25 @@
 
     <div class="card shadow-sm">
 
-        <div class="card-header">
+        <div class="card-header d-flex justify-content-between align-items-center">
 
             <h5 class="mb-0">لیست گزارش‌ها</h5>
+
+            @if(count($selectedMonths) > 0)
+
+                <div class="d-flex gap-1 flex-wrap">
+
+                    <span class="text-muted">ماه‌های انتخاب شده:</span>
+
+                    @foreach($selectedMonths as $month)
+
+                        <span class="badge bg-primary">{{ $monthOptions[$month] ?? $month }}</span>
+
+                    @endforeach
+
+                </div>
+
+            @endif
 
         </div>
 
@@ -318,151 +454,189 @@
 
                     <tbody>
 
-                    @if($reports instanceof \Illuminate\Pagination\LengthAwarePaginator)
+                    @if($reports->count() > 0)
 
-                        @forelse($reports as $report)
+                        @foreach($reports as $index => $item)
 
-                            @php
+                            @if(isset($item['type']) && $item['type'] === 'not_sent')
 
-                                $readParts = $report->reportParts->where('is_read', true)->count();
+                                {{-- Not Sent Day Row --}}
 
-                                $totalParts = $report->reportParts->count();
+                                @php $day = $item['data']; @endphp
 
-                                $totalTests = $report->reportParts->sum(fn($p) => $p->programPart?->test_count ?? 0);
+                                <tr wire:key="not-sent-{{ $day['jalali_date'] }}" class="table-warning">
 
-                                $doneTests = $report->reportParts->sum('tests_done');
+                                    <td>{{ $loop->iteration + $reports->firstItem() - 1 }}</td>
 
-                                $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+                                    <td>{{ $day['jalali_date'] }}</td>
 
-                            @endphp
+                                    <td>{{ $day['day_name'] }}</td>
 
-                            <tr wire:key="report-{{ $report->id }}">
+                                    <td colspan="5" class="text-center text-muted">
 
-                                <td>{{ $loop->iteration + $reports->firstItem() - 1 }}</td>
+                                        <i class="material-symbols-outlined align-middle" style="font-size: 18px;">warning</i>
 
+                                        گزارشی ارسال نشده
 
-                                <td>{{ jdate($report->report_date)->format('Y/m/d') }}</td>
+                                    </td>
 
+                                    <td>
 
-                                <td>{{ $dayNames[$report->day_of_week] ?? '-' }}</td>
+                                        <span class="badge bg-warning text-dark">ارسال نشده</span>
 
+                                    </td>
 
-                                <td>
+                                    <td>-</td>
 
-                                    <span class="text-success fw-medium">{{ $readParts }}</span>
+                                    <td>-</td>
 
-                                    <span class="text-muted">/</span>
+                                </tr>
 
-                                    <span>{{ $totalParts }}</span>
+                            @elseif(isset($item['type']) && $item['type'] === 'report')
 
-                                    @if($totalParts - $readParts > 0)
+                                {{-- Report Row --}}
 
-                                        <span class="badge bg-danger ms-1">{{ $totalParts - $readParts }} نخوانده</span>
+                                @php
 
-                                    @endif
+                                    $report = $item['data'];
 
-                                </td>
+                                    $readParts = $report->reportParts->where('is_read', true)->count();
 
+                                    $totalParts = $report->reportParts->count();
 
-                                <td>
+                                    $totalTests = $report->reportParts->sum(fn($p) => $p->programPart?->test_count ?? 0);
 
-                                    <span class="text-success fw-medium">{{ $doneTests }}</span>
+                                    $doneTests = $report->reportParts->sum('tests_done');
 
-                                    <span class="text-muted">/</span>
+                                    $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
 
-                                    <span>{{ $totalTests }}</span>
+                                @endphp
 
-                                </td>
+                                <tr wire:key="report-{{ $report->id }}">
 
+                                    <td>{{ $loop->iteration + $reports->firstItem() - 1 }}</td>
 
-                                <td>{{ $report->phone_hours }} ساعت</td>
+                                    <td>{{ jdate($report->report_date)->format('Y/m/d') }}</td>
 
+                                    <td>{{ $dayNames[$report->day_of_week] ?? '-' }}</td>
 
-                                <td>
+                                    <td>
 
-                                    @php
+                                        <span class="text-success fw-medium">{{ $readParts }}</span>
 
-                                        $ratingColors = [5 => 'success', 4 => 'success', 3 => 'info', 2 => 'warning', 1 => 'danger'];
+                                        <span class="text-muted">/</span>
 
-                                    @endphp
+                                        <span>{{ $totalParts }}</span>
 
-                                    <span class="badge bg-{{ $ratingColors[$report->rating] ?? 'secondary' }}">
+                                        @if($totalParts - $readParts > 0)
+
+                                            <span
+                                                class="badge bg-danger ms-1">{{ $totalParts - $readParts }} نخوانده</span>
+
+                                        @endif
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="text-success fw-medium">{{ $doneTests }}</span>
+
+                                        <span class="text-muted">/</span>
+
+                                        <span>{{ $totalTests }}</span>
+
+                                    </td>
+
+                                    <td>{{ $report->phone_hours }} ساعت</td>
+
+                                    <td>
+
+                                        @php
+
+                                            $ratingColors = [5 => 'success', 4 => 'success', 3 => 'info', 2 => 'warning', 1 => 'danger'];
+
+                                        @endphp
+
+                                        <span class="badge bg-{{ $ratingColors[$report->rating] ?? 'secondary' }}">
 
                                             {{ \App\Models\DailyReport::RATINGS[$report->rating] ?? 'نامشخص' }}
 
                                         </span>
 
-                                </td>
+                                    </td>
 
+                                    <td>
 
-                                <td>
+                                        @if($report->is_compensatory)
 
-                                    @if($report->is_compensatory)
-
-                                        <span class="badge bg-warning text-dark">جبرانی</span>
-
-                                    @else
-
-                                        <span class="badge bg-light text-dark">عادی</span>
-
-                                    @endif
-
-                                </td>
-
-
-                                <td>
-
-                                    <select wire:change="changeStatus({{ $report->id }}, $event.target.value)"
-
-                                            wire:confirm="آیا از تغییر وضعیت اطمینان دارید؟"
-
-                                            class="form-select form-select-sm" style="min-width: 120px;">
-
-                                        <option value="pending" {{ $report->status == 'pending' ? 'selected' : '' }}>در
-                                            انتظار
-                                        </option>
-
-                                        <option value="approved" {{ $report->status == 'approved' ? 'selected' : '' }}>
-                                            تایید
-                                        </option>
-
-                                        <option value="rejected" {{ $report->status == 'rejected' ? 'selected' : '' }}>
-                                            رد
-                                        </option>
-
-                                    </select>
-
-                                </td>
-
-
-                                <td>
-
-                                    <button type="button"
-
-                                            wire:click="openCommentModal({{ $report->id }})"
-
-                                            class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
-
-                                        <i class="material-symbols-outlined" style="font-size: 16px;">chat</i>
-
-                                        @if($report->advisor_comment)
-
-                                            مشاهده
+                                            <span class="badge bg-warning text-dark">جبرانی</span>
 
                                         @else
 
-                                            ثبت
+                                            <span class="badge bg-light text-dark">عادی</span>
 
                                         @endif
 
-                                    </button>
+                                    </td>
 
-                                </td>
+                                    <td>
 
+                                        <select wire:change="changeStatus({{ $report->id }}, $event.target.value)"
 
-                                <td>
+                                                wire:confirm="آیا از تغییر وضعیت اطمینان دارید؟"
 
-                                    <div class="d-flex gap-1">
+                                                class="form-select form-select-sm" style="min-width: 120px;">
+
+                                            <option
+                                                value="pending" {{ $report->status == 'pending' ? 'selected' : '' }}>
+
+                                                در انتظار
+
+                                            </option>
+
+                                            <option
+                                                value="approved" {{ $report->status == 'approved' ? 'selected' : '' }}>
+
+                                                تایید
+
+                                            </option>
+
+                                            <option
+                                                value="rejected" {{ $report->status == 'rejected' ? 'selected' : '' }}>
+
+                                                رد
+
+                                            </option>
+
+                                        </select>
+
+                                    </td>
+
+                                    <td>
+
+                                        <button type="button"
+
+                                                wire:click="openCommentModal({{ $report->id }})"
+
+                                                class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
+
+                                            <i class="material-symbols-outlined" style="font-size: 16px;">chat</i>
+
+                                            @if($report->advisor_comment)
+
+                                                مشاهده
+
+                                            @else
+
+                                                ثبت
+
+                                            @endif
+
+                                        </button>
+
+                                    </td>
+
+                                    <td>
 
                                         <button type="button"
 
@@ -476,49 +650,175 @@
 
                                         </button>
 
+                                    </td>
+
+                                </tr>
+
+                            @else
+
+                                {{-- Fallback for old format --}}
+
+                                @php
+
+                                    $report = $item;
+
+                                    $readParts = $report->reportParts->where('is_read', true)->count();
+
+                                    $totalParts = $report->reportParts->count();
+
+                                    $totalTests = $report->reportParts->sum(fn($p) => $p->programPart?->test_count ?? 0);
+
+                                    $doneTests = $report->reportParts->sum('tests_done');
+
+                                    $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+
+                                @endphp
+
+                                <tr wire:key="report-{{ $report->id }}">
+
+                                    <td>{{ $loop->iteration + $reports->firstItem() - 1 }}</td>
+
+                                    <td>{{ jdate($report->report_date)->format('Y/m/d') }}</td>
+
+                                    <td>{{ $dayNames[$report->day_of_week] ?? '-' }}</td>
+
+                                    <td>
+
+                                        <span class="text-success fw-medium">{{ $readParts }}</span>
+
+                                        <span class="text-muted">/</span>
+
+                                        <span>{{ $totalParts }}</span>
+
+                                        @if($totalParts - $readParts > 0)
+
+                                            <span
+                                                class="badge bg-danger ms-1">{{ $totalParts - $readParts }} نخوانده</span>
+
+                                        @endif
+
+                                    </td>
+
+                                    <td>
+
+                                        <span class="text-success fw-medium">{{ $doneTests }}</span>
+
+                                        <span class="text-muted">/</span>
+
+                                        <span>{{ $totalTests }}</span>
+
+                                    </td>
+
+                                    <td>{{ $report->phone_hours }} ساعت</td>
+
+                                    <td>
+
+                                        @php
+
+                                            $ratingColors = [5 => 'success', 4 => 'success', 3 => 'info', 2 => 'warning', 1 => 'danger'];
+
+                                        @endphp
+
+                                        <span class="badge bg-{{ $ratingColors[$report->rating] ?? 'secondary' }}">
+
+                                            {{ \App\Models\DailyReport::RATINGS[$report->rating] ?? 'نامشخص' }}
+
+                                        </span>
+
+                                    </td>
+
+                                    <td>
+
+                                        @if($report->is_compensatory)
+
+                                            <span class="badge bg-warning text-dark">جبرانی</span>
+
+                                        @else
+
+                                            <span class="badge bg-light text-dark">عادی</span>
+
+                                        @endif
+
+                                    </td>
+
+                                    <td>
+
+                                        <select wire:change="changeStatus({{ $report->id }}, $event.target.value)"
+
+                                                wire:confirm="آیا از تغییر وضعیت اطمینان دارید؟"
+
+                                                class="form-select form-select-sm" style="min-width: 120px;">
+
+                                            <option
+                                                value="pending" {{ $report->status == 'pending' ? 'selected' : '' }}>
+
+                                                در انتظار
+
+                                            </option>
+
+                                            <option
+                                                value="approved" {{ $report->status == 'approved' ? 'selected' : '' }}>
+
+                                                تایید
+
+                                            </option>
+
+                                            <option
+                                                value="rejected" {{ $report->status == 'rejected' ? 'selected' : '' }}>
+
+                                                رد
+
+                                            </option>
+
+                                        </select>
+
+                                    </td>
+
+                                    <td>
+
                                         <button type="button"
 
-                                                wire:click="delete({{ $report->id }})"
+                                                wire:click="openCommentModal({{ $report->id }})"
 
-                                                wire:confirm="آیا از حذف گزارش اطمینان دارید؟"
+                                                class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
 
-                                                class="btn btn-sm btn-outline-danger"
+                                            <i class="material-symbols-outlined" style="font-size: 16px;">chat</i>
 
-                                                title="حذف">
+                                            @if($report->advisor_comment)
 
-                                            <i class="material-symbols-outlined" style="font-size: 16px;">delete</i>
+                                                مشاهده
+
+                                            @else
+
+                                                ثبت
+
+                                            @endif
 
                                         </button>
 
-                                    </div>
+                                    </td>
 
-                                </td>
+                                    <td>
 
-                            </tr>
+                                        <button type="button"
 
-                        @empty
+                                                wire:click="openDetailModal({{ $report->id }})"
 
-                            <tr>
+                                                class="btn btn-sm btn-outline-info"
 
-                                <td colspan="11" class="text-center py-5">
+                                                title="جزئیات">
 
-                                    <lord-icon src="https://cdn.lordicon.com/msoeawqm.json"
+                                            <i class="material-symbols-outlined" style="font-size: 16px;">visibility</i>
 
-                                               trigger="loop"
+                                        </button>
 
-                                               colors="primary:#121331,secondary:#08a88a"
+                                    </td>
 
-                                               style="width:75px;height:75px"></lord-icon>
+                                </tr>
 
-                                    <h5 class="mt-3 mb-1">گزارشی یافت نشد</h5>
+                            @endif
 
-                                    <p class="text-muted mb-0">برای این جلسه مشاوره گزارشی ثبت نشده است.</p>
-
-                                </td>
-
-                            </tr>
-
-                        @endforelse
+                        @endforeach
 
                     @else
 
@@ -526,12 +826,17 @@
 
                             <td colspan="11" class="text-center py-5">
 
-                                <i class="material-symbols-outlined text-muted" style="font-size: 48px;">event_note</i>
+                                <lord-icon src="https://cdn.lordicon.com/msoeawqm.json"
 
-                                <h5 class="mt-3 mb-1">یک جلسه مشاوره را انتخاب کنید</h5>
+                                           trigger="loop"
 
-                                <p class="text-muted mb-0">برای مشاهده گزارش‌ها، ابتدا یک جلسه مشاوره را از لیست بالا
-                                    انتخاب کنید.</p>
+                                           colors="primary:#121331,secondary:#08a88a"
+
+                                           style="width:75px;height:75px"></lord-icon>
+
+                                <h5 class="mt-3 mb-1">گزارشی یافت نشد</h5>
+
+                                <p class="text-muted mb-0">برای فیلترهای انتخاب شده گزارشی وجود ندارد.</p>
 
                             </td>
 
@@ -548,7 +853,7 @@
         </div>
 
 
-        @if($reports instanceof \Illuminate\Pagination\LengthAwarePaginator && $reports->hasPages())
+        @if($reports->hasPages())
 
             <div class="card-footer d-flex justify-content-center">
 
@@ -580,6 +885,7 @@
                             <h5 class="modal-title">نظر مشاور برای {{ $commentStudentName ?: 'دانش‌آموز' }}</h5>
 
                             <p class="small text-muted mb-0">برای هر گزارش تنها یک نظر از سوی مشاور و یک پاسخ از سوی
+
                                 دانش‌آموز ثبت می‌شود.</p>
 
                         </div>
@@ -610,6 +916,7 @@
                                     <div class="fw-semibold text-success mb-2">پاسخ دانش‌آموز</div>
 
                                     <p class="p-3 rounded text-white d-inline-block mb-0"
+
                                        style="background-color:#0b9c0b;">{{ $commentStudentReply }}</p>
 
                                 </div>
@@ -661,6 +968,7 @@
                                 <span wire:loading.remove wire:target="saveAdvisorComment">ثبت نظر</span>
 
                                 <span wire:loading wire:target="saveAdvisorComment"
+
                                       class="spinner-border spinner-border-sm"></span>
 
                             </button>
@@ -688,6 +996,7 @@
              wire:click.self="closeDetailModal">
 
             <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable"
+
                  wire:keydown.escape="closeDetailModal">
 
                 <div class="modal-content">
@@ -707,6 +1016,7 @@
                             <p class="small text-muted mb-0">
 
                                 {{ $selectedReportData['day_name'] ?? '' }}
+
                                 - {{ $selectedReportData['report_date'] ?? '' }}
 
                                 @if($selectedReportData['is_compensatory'] ?? false)
@@ -769,6 +1079,7 @@
                                     <div class="card-body text-center py-3">
 
                                         <h3 class="text-info mb-1">{{ $selectedReportData['done_tests'] ?? 0 }}
+
                                             /{{ $selectedReportData['total_tests'] ?? 0 }}</h3>
 
                                         <small class="text-muted">تست زده شده</small>
@@ -866,6 +1177,7 @@
                                 <div class="col-md-6">
 
                                     <div
+
                                         class="card border {{ $part['is_read'] ? 'border-success' : 'border-danger' }} h-100">
 
                                         <div class="card-body py-3">
@@ -899,6 +1211,7 @@
                                                         @if($part['test_count'] > 0)
 
                                                             <span
+
                                                                 class="badge {{ $part['tests_done'] >= $part['test_count'] ? 'bg-success' : 'bg-warning text-dark' }}">
 
                                                                 تست: {{ $part['tests_done'] }}/{{ $part['test_count'] }}
@@ -924,6 +1237,7 @@
                                                         <span class="badge bg-success rounded-pill p-2">
 
                                                             <i class="material-symbols-outlined"
+
                                                                style="font-size: 20px;">check</i>
 
                                                         </span>
@@ -933,6 +1247,7 @@
                                                         <span class="badge bg-danger rounded-pill p-2">
 
                                                             <i class="material-symbols-outlined"
+
                                                                style="font-size: 20px;">close</i>
 
                                                         </span>
@@ -971,23 +1286,154 @@
     @endif
 
 
-    <style>
 
-        .circular-chart {
+    <!-- Export Modal -->
 
-            display: block;
+    @if($exportModalOpen)
 
-            margin: 0 auto;
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,.6);"
 
-            max-width: 100%;
+             wire:click.self="closeExportModal">
 
-            max-height: 100%;
+            <div class="modal-dialog modal-dialog-centered" wire:keydown.escape="closeExportModal">
 
-        }
+                <div class="modal-content">
 
-    </style>
+                    <div class="modal-header">
+
+                        <h5 class="modal-title d-flex align-items-center gap-2">
+
+                            <i class="material-symbols-outlined text-success">download</i>
+
+                            خروجی اکسل
+
+                        </h5>
+
+                        <button type="button" class="btn-close" wire:click="closeExportModal"></button>
+
+                    </div>
+
+
+                    <div class="modal-body">
+
+                        <p class="text-muted mb-3">
+
+                            بازه تاریخی مورد نظر خود را انتخاب کنید. خروجی شامل تمام گزارش‌ها (تایید شده، رد شده و ارسال
+                            نشده) خواهد بود.
+
+                        </p>
+
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">تاریخ شروع</label>
+
+                                <input type="text"
+
+                                       wire:model="exportStartDate"
+
+                                       class="form-control"
+
+                                       placeholder="1404/09/10"
+
+                                       dir="ltr">
+
+                                @error('exportStartDate')
+
+                                <div class="form-text text-danger">{{ $message }}</div>
+
+                                @enderror
+
+                            </div>
+
+                            <div class="col-md-6">
+
+                                <label class="form-label">تاریخ پایان</label>
+
+                                <input type="text"
+
+                                       wire:model="exportEndDate"
+
+                                       class="form-control"
+
+                                       placeholder="1404/10/30"
+
+                                       dir="ltr">
+
+                                @error('exportEndDate')
+
+                                <div class="form-text text-danger">{{ $message }}</div>
+
+                                @enderror
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="alert alert-info mt-3 mb-0">
+
+                            <i class="material-symbols-outlined align-middle me-1">info</i>
+
+                            فرمت تاریخ: سال/ماه/روز شمسی (مثال: 1404/09/10)
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="modal-footer">
+
+                        <button type="button" class="btn btn-secondary" wire:click="closeExportModal">انصراف</button>
+
+                        <button type="button"
+
+                                wire:click="exportExcel"
+
+                                wire:loading.attr="disabled"
+
+                                class="btn btn-success d-flex align-items-center gap-2">
+
+                            <i class="material-symbols-outlined" style="font-size: 20px;">download</i>
+
+                            <span wire:loading.remove wire:target="exportExcel">دانلود اکسل</span>
+
+                            <span wire:loading wire:target="exportExcel"
+
+                                  class="spinner-border spinner-border-sm"></span>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    @endif
+
+
+@push('link')
+        <style>
+
+            .circular-chart {
+
+                display: block;
+
+                margin: 0 auto;
+
+                max-width: 100%;
+
+                max-height: 100%;
+
+            }
+
+        </style>
+@endpush
 
 
 </div>
-
-

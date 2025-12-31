@@ -12,6 +12,7 @@ use App\Models\TypedExamAssignment;
 
 use App\Models\TypedExamAssignmentTime;
 
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\DB;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 use Livewire\WithPagination;
+use Morilog\Jalali\Jalalian;
 
 
 class ExamAssignment extends Component
@@ -194,11 +196,17 @@ class ExamAssignment extends Component
         $admin = Auth::guard('admin')->user();
 
 
-        DB::transaction(function () use ($admin) {
+        $assignedStudentIds = [];
+
+
+        DB::transaction(function () use ($admin, &$assignedStudentIds) {
+
 
             foreach ($this->selectedStudents as $studentId) {
 
+
                 // Check if already assigned
+
 
                 $exists = TypedExamAssignment::where('typed_exam_id', $this->examId)
                     ->where('student_id', $studentId)
@@ -208,41 +216,126 @@ class ExamAssignment extends Component
 
                 if ($exists) {
 
+
                     continue;
+
 
                 }
 
 
                 $assignment = TypedExamAssignment::create([
+
                     'typed_exam_id' => $this->examId,
+
                     'student_id' => $studentId,
+
                     'admin_id' => $admin->id,
+
                     'status' => 'pending',
+
                     'result_visibility' => $this->resultVisibility,
+
                     'answer_key_visibility' => $this->answerKeyVisibility,
+
 
                 ]);
 
 
                 TypedExamAssignmentTime::create([
+
                     'assignment_id' => $assignment->id,
+
                     'start_date' => $this->startDate,
+
                     'end_date' => $this->endDate,
+
                     'start_time' => $this->startTime,
+
                     'end_time' => $this->endTime,
+
                     'duration_minutes' => $this->durationMinutes,
+
                 ]);
+
+
+                $assignedStudentIds[] = $studentId;
 
 
             }
 
+
         });
+
+
+        // ارسال نوتیفیکیشن به دانش‌آموزان
+
+        $this->sendExamAssignedNotifications($assignedStudentIds);
 
 
         $this->closeAssignModal();
 
+
         $this->dispatch('success', 'آزمون با موفقیت به دانش‌آموزان اختصاص یافت.');
 
+
+    }
+
+
+    /**
+     * ارسال نوتیفیکیشن اختصاص آزمون به دانش‌آموزان
+     */
+
+    protected function sendExamAssignedNotifications(array $studentIds): void
+
+    {
+
+        if (empty($studentIds)) {
+
+            return;
+
+        }
+
+
+        $students = Student::with('user')->whereIn('id', $studentIds)->get();
+
+        $examTitle = $this->exam->title ?? 'آزمون';
+
+        $startDateJalali = Jalalian::fromDateTime($this->startDate)->format('Y/m/d');
+
+        $endDateJalali = Jalalian::fromDateTime($this->endDate)->format('Y/m/d');
+
+        $durationMinutes = $this->durationMinutes;
+
+
+        foreach ($students as $student) {
+
+            $studentName = $student->user->name ?? 'دانش آموز';
+
+
+            $message = "{$studentName} عزیز\nآزمون «{$examTitle}» برای شما اختصاص یافت.\n";
+
+            $message .= "تاریخ شروع: {$startDateJalali}\n";
+
+            $message .= "تاریخ پایان: {$endDateJalali}\n";
+
+            $message .= "ساعت مجاز: {$this->startTime} تا {$this->endTime}\n";
+
+            $message .= "مدت زمان آزمون: {$durationMinutes} دقیقه\n";
+
+            $message .= "با تشکر";
+
+
+            NotificationService::sendToStudent(
+
+                $student->id,
+
+                'اختصاص آزمون جدید',
+
+                $message
+
+            );
+
+        }
     }
 
 

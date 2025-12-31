@@ -16,14 +16,11 @@ use App\Livewire\Client\Profile\Classification\Classify;
 use App\Livewire\Client\Profile\Classification\ProjectList;
 use App\Livewire\Client\Home\Index as HomeIndex;
 
-use App\Livewire\Client\Profile\DailyReportClient;
 use App\Livewire\Client\Profile\Installment\Installment as ProfileInstallment;
 use App\Livewire\Client\Profile\Installment\InstallmentDetail as ProfileInstallmentDetail;
 use App\Livewire\Client\Profile\Notification as ProfileNotification ;
 use App\Livewire\Client\Profile\ProfessionalTools\Index as ProfessionalToolsIndex;
 use App\Livewire\Client\Profile\ProfessionalTools\PomodoroTimer as ProfessionalToolsPomodoroTimer;
-use App\Livewire\Client\Profile\ProfessionalTools\StarredChecklist\Index as ProfessionalToolsStarredChecklistIndex;
-use App\Livewire\Client\Profile\ProfessionalTools\StarredChecklist\TopicStar as TopicStar;
 use App\Livewire\Client\Profile\ProfessionalTools\StudySession;
 use App\Livewire\Client\Profile\ReportStudentStudy as ProfileReportStudentStudy;
 use App\Livewire\Client\Profile\Star;
@@ -101,9 +98,7 @@ Route::name('client.')->group(function () {
             Route::get('/report',ProfileReport::class)->name('report');
             Route::get('/ProfessionalTools',ProfessionalToolsIndex::class)->name('professionalTools.index');
             Route::get('/ProfessionalTools/pomodoro',ProfessionalToolsPomodoroTimer::class)->name('professionalTools.pomodoro');
-            Route::get('/ProfessionalTools/studySession',StudySession::class)->name('professionalTools.studySession');
-            Route::get('/ProfessionalTools/starredChecklist',ProfessionalToolsStarredChecklistIndex::class)->name('professionalTools.starredChecklist');
-            Route::get('/ProfessionalTools/starredChecklist/detail',TopicStar::class)->name('professionalTools.TopicStar');
+            Route::get('/studySession',StudySession::class)->name('studySession');
 //          Ticketing Route
             Route::get('/ticket',ProfileTicketIndex::class)->name('ticket');
             Route::get('/ticket/{ticket}/show',ProfileTicketShow::class)->name('ticket.show');
@@ -121,7 +116,6 @@ Route::name('client.')->group(function () {
             Route::get('/exam/result/{attemptId}', TypedExamResult::class)->name('typed-exam.result');
 
 
-            Route::get('/daily-report', DailyReportClient::class);
             // Classification Routes
             Route::get('/classification', ProjectList::class)->name('classification.projects');
             Route::get('/{project}/classify/{grade}', Classify::class)->name('classification.classify');

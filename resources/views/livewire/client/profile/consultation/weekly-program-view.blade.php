@@ -58,7 +58,7 @@
                                ring-2 ring-white/40 shadow-md backdrop-blur-sm"
                     >
                         <span class="text-xl font-extrabold tracking-[0.3em] text-white">
-                            SDFR
+                           <img src="/client/assets/images/favicon.svg" class="w-10 h-10" alt=" لوگو SDFR" srcset="">
                         </span>
                     </div>
 
@@ -220,201 +220,7 @@
         </div>
     </section>
 
-    {{-- نمودارها (همان SVG ولی کارت‌استایل شده شبیه دمو) --}}
-    <section class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3">
-        {{-- نوع پارت --}}
-        <div
-            class="rounded-2xl border border-slate-100/80 bg-white/95 p-4 shadow-sm
-                   dark:border-slate-800 dark:bg-slate-900/95"
-        >
-            <h3 class="mb-3 text-center text-sm font-semibold text-slate-800 dark:text-slate-100">
-                توزیع نوع پارت
-            </h3>
 
-            <div class="flex items-center justify-center">
-                <div class="relative h-32 w-32 sm:h-36 sm:w-36">
-                    @php
-                        $total = $stats['testParts'] + $stats['descriptiveParts'] + $stats['videoParts'];
-                        $testPercent = $total > 0 ? ($stats['testParts'] / $total) * 100 : 0;
-                        $descPercent = $total > 0 ? ($stats['descriptiveParts'] / $total) * 100 : 0;
-                        $videoPercent = $total > 0 ? ($stats['videoParts'] / $total) * 100 : 0;
-                    @endphp
-
-                    <svg viewBox="0 0 36 36" class="h-full w-full">
-                        <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e5e7eb" stroke-width="3"/>
-                        @if($total > 0)
-                            <circle
-                                cx="18" cy="18" r="15.9155"
-                                fill="none"
-                                stroke="#3B82F6"
-                                stroke-width="3"
-                                stroke-dasharray="{{ $testPercent }} {{ 100 - $testPercent }}"
-                                stroke-dashoffset="25"
-                                class="origin-center -rotate-90 transform"
-                            />
-                            <circle
-                                cx="18" cy="18" r="15.9155"
-                                fill="none"
-                                stroke="#10B981"
-                                stroke-width="3"
-                                stroke-dasharray="{{ $descPercent }} {{ 100 - $descPercent }}"
-                                stroke-dashoffset="{{ 25 - $testPercent }}"
-                                class="origin-center -rotate-90 transform"
-                            />
-                            <circle
-                                cx="18" cy="18" r="15.9155"
-                                fill="none"
-                                stroke="#8B5CF6"
-                                stroke-width="3"
-                                stroke-dasharray="{{ $videoPercent }} {{ 100 - $videoPercent }}"
-                                stroke-dashoffset="{{ 25 - $testPercent - $descPercent }}"
-                                class="origin-center -rotate-90 transform"
-                            />
-                        @endif
-                    </svg>
-                </div>
-            </div>
-
-            <div class="mt-3 flex flex-wrap justify-center gap-3 text-[11px] text-slate-600 dark:text-slate-300">
-                <span class="flex items-center gap-1">
-                    <span class="h-2 w-2 rounded-full bg-sky-500"></span>
-                    تستی ({{ $stats['testParts'] }})
-                </span>
-                <span class="flex items-center gap-1">
-                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                    تشریحی ({{ $stats['descriptiveParts'] }})
-                </span>
-                <span class="flex items-center gap-1">
-                    <span class="h-2 w-2 rounded-full bg-violet-500"></span>
-                    ویدیویی ({{ $stats['videoParts'] }})
-                </span>
-            </div>
-        </div>
-
-        {{-- نوع درس --}}
-        <div
-            class="rounded-2xl border border-slate-100/80 bg-white/95 p-4 shadow-sm
-                   dark:border-slate-800 dark:bg-slate-900/95"
-        >
-            <h3 class="mb-3 text-center text-sm font-semibold text-slate-800 dark:text-slate-100">
-                توزیع نوع درس
-            </h3>
-
-            <div class="flex items-center justify-center">
-                <div class="relative h-32 w-32 sm:h-36 sm:w-36">
-                    @php
-                        $totalLesson = $stats['generalParts'] + $stats['specializedParts'];
-                        $generalPercent = $totalLesson > 0 ? ($stats['generalParts'] / $totalLesson) * 100 : 0;
-                        $specPercent = $totalLesson > 0 ? ($stats['specializedParts'] / $totalLesson) * 100 : 0;
-                    @endphp
-
-                    <svg viewBox="0 0 36 36" class="h-full w-full">
-                        <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e5e7eb" stroke-width="3"/>
-                        @if($totalLesson > 0)
-                            <circle
-                                cx="18" cy="18" r="15.9155"
-                                fill="none"
-                                stroke="#F59E0B"
-                                stroke-width="3"
-                                stroke-dasharray="{{ $generalPercent }} {{ 100 - $generalPercent }}"
-                                stroke-dashoffset="25"
-                                class="origin-center -rotate-90 transform"
-                            />
-                            <circle
-                                cx="18" cy="18" r="15.9155"
-                                fill="none"
-                                stroke="#EC4899"
-                                stroke-width="3"
-                                stroke-dasharray="{{ $specPercent }} {{ 100 - $specPercent }}"
-                                stroke-dashoffset="{{ 25 - $generalPercent }}"
-                                class="origin-center -rotate-90 transform"
-                            />
-                        @endif
-                    </svg>
-                </div>
-            </div>
-
-            <div class="mt-3 flex flex-wrap justify-center gap-3 text-[11px] text-slate-600 dark:text-slate-300">
-                <span class="flex items-center gap-1">
-                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
-                    عمومی ({{ $stats['generalParts'] }})
-                </span>
-                <span class="flex items-center gap-1">
-                    <span class="h-2 w-2 rounded-full bg-pink-500"></span>
-                    تخصصی ({{ $stats['specializedParts'] }})
-                </span>
-            </div>
-        </div>
-
-        {{-- پایه تحصیلی --}}
-        <div
-            class="rounded-2xl border border-slate-100/80 bg-white/95 p-4 shadow-sm
-                   dark:border-slate-800 dark:bg-slate-900/95"
-        >
-            <h3 class="mb-3 text-center text-sm font-semibold text-slate-800 dark:text-slate-100">
-                توزیع پایه تحصیلی
-            </h3>
-
-            <div class="flex items-center justify-center">
-                <div class="relative h-32 w-32 sm:h-36 sm:w-36">
-                    @php
-                        $totalGrade = $stats['grade10Parts'] + $stats['grade11Parts'] + $stats['grade12Parts'];
-                        $g10Percent = $totalGrade > 0 ? ($stats['grade10Parts'] / $totalGrade) * 100 : 0;
-                        $g11Percent = $totalGrade > 0 ? ($stats['grade11Parts'] / $totalGrade) * 100 : 0;
-                        $g12Percent = $totalGrade > 0 ? ($stats['grade12Parts'] / $totalGrade) * 100 : 0;
-                    @endphp
-
-                    <svg viewBox="0 0 36 36" class="h-full w-full">
-                        <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e5e7eb" stroke-width="3"/>
-                        @if($totalGrade > 0)
-                            <circle
-                                cx="18" cy="18" r="15.9155"
-                                fill="none"
-                                stroke="#06B6D4"
-                                stroke-width="3"
-                                stroke-dasharray="{{ $g10Percent }} {{ 100 - $g10Percent }}"
-                                stroke-dashoffset="25"
-                                class="origin-center -rotate-90 transform"
-                            />
-                            <circle
-                                cx="18" cy="18" r="15.9155"
-                                fill="none"
-                                stroke="#84CC16"
-                                stroke-width="3"
-                                stroke-dasharray="{{ $g11Percent }} {{ 100 - $g11Percent }}"
-                                stroke-dashoffset="{{ 25 - $g10Percent }}"
-                                class="origin-center -rotate-90 transform"
-                            />
-                            <circle
-                                cx="18" cy="18" r="15.9155"
-                                fill="none"
-                                stroke="#EF4444"
-                                stroke-width="3"
-                                stroke-dasharray="{{ $g12Percent }} {{ 100 - $g12Percent }}"
-                                stroke-dashoffset="{{ 25 - $g10Percent - $g11Percent }}"
-                                class="origin-center -rotate-90 transform"
-                            />
-                        @endif
-                    </svg>
-                </div>
-            </div>
-
-            <div class="mt-3 flex flex-wrap justify-center gap-3 text-[11px] text-slate-600 dark:text-slate-300">
-                <span class="flex items-center gap-1">
-                    <span class="h-2 w-2 rounded-full bg-cyan-500"></span>
-                    دهم ({{ $stats['grade10Parts'] }})
-                </span>
-                <span class="flex items-center gap-1">
-                    <span class="h-2 w-2 rounded-full bg-lime-500"></span>
-                    یازدهم ({{ $stats['grade11Parts'] }})
-                </span>
-                <span class="flex items-center gap-1">
-                    <span class="h-2 w-2 rounded-full bg-rose-500"></span>
-                    دوازدهم ({{ $stats['grade12Parts'] }})
-                </span>
-            </div>
-        </div>
-    </section>
 
     {{-- جدول برنامه هفتگی (تب جدول) --}}
     <section
@@ -456,7 +262,7 @@
 
                             @if($day['is_rest_day'])
 
-                                <div class="text-center py-6">
+                                <div class="text-center py-20">
 
                                     <div class="text-3xl mb-2">🌿</div>
 
@@ -493,7 +299,7 @@
                                         >
                                             <span class="flex items-center gap-1">
                                                 <i class="fas fa-clock text-[10px]"></i>
-                                                {{ $part->duration_minutes }} د
+                                                {{ $part->duration_minutes }} دقیقه
                                             </span>
 
                                             @if($part->test_count)
@@ -541,7 +347,14 @@
                                                 class="rounded-full bg-slate-100 px-2 py-0.5 text-[10px]
                                                        text-slate-600 dark:bg-slate-800 dark:text-slate-200"
                                             >
-                                                پایه {{ $part->grade }}
+                                                پایه
+                                                @if($part->grade==10 )
+                                                    دهم
+                                                @elseif($part->grade==11 )
+                                                    یازدهم
+                                                @elseif($part->grade==12)
+                                                    دوازدهم
+                                                @endif
                                             </span>
                                         </div>
                                     </div>
@@ -601,7 +414,7 @@
                     <th class="px-3 py-2 text-right">روز</th>
                     <th class="px-3 py-2 text-right">درس</th>
                     <th class="px-3 py-2 text-right">توضیحات</th>
-                    <th class="px-3 py-2 text-center">مدت (دقیقه)</th>
+                    <th class="px-3 py-2 text-center">مدت</th>
                     <th class="px-3 py-2 text-center">تست</th>
                     <th class="px-3 py-2 text-center">نوع پارت</th>
                     <th class="px-3 py-2 text-center">نوع درس</th>
@@ -634,7 +447,7 @@
                             {{ $part->description ?? '-' }}
                         </td>
                         <td class="px-3 py-2 text-center text-[11px] text-slate-700 dark:text-slate-100">
-                            {{ $part->duration_minutes }}
+                            {{ $part->duration_minutes }} دقیقه
                         </td>
                         <td class="px-3 py-2 text-center text-[11px] text-slate-700 dark:text-slate-100">
                             {{ $part->test_count ?? '-' }}
@@ -681,7 +494,13 @@
                             @endif
                         </td>
                         <td class="px-3 py-2 text-center text-[11px] text-slate-700 dark:text-slate-100">
-                            {{ $part->grade }}
+                          @if($part->grade==10 )
+                              دهم
+                            @elseif($part->grade==11 )
+                              یازدهم
+                            @elseif($part->grade==12)
+                              دوازدهم
+                          @endif
                         </td>
                     </tr>
                 @endforeach
@@ -689,4 +508,200 @@
             </table>
         </div>
     </section>
+
+        {{-- نمودارها (همان SVG ولی کارت‌استایل شده شبیه دمو) --}}
+        <section class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+            {{-- نوع پارت --}}
+            <div
+                class="rounded-2xl border border-slate-100/80 bg-white/95 p-4 shadow-sm
+                   dark:border-slate-800 dark:bg-slate-900/95"
+            >
+                <h3 class="mb-3 text-center text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    توزیع نوع پارت
+                </h3>
+
+                <div class="flex items-center justify-center">
+                    <div class="relative h-32 w-32 sm:h-36 sm:w-36">
+                        @php
+                            $total = $stats['testParts'] + $stats['descriptiveParts'] + $stats['videoParts'];
+                            $testPercent = $total > 0 ? ($stats['testParts'] / $total) * 100 : 0;
+                            $descPercent = $total > 0 ? ($stats['descriptiveParts'] / $total) * 100 : 0;
+                            $videoPercent = $total > 0 ? ($stats['videoParts'] / $total) * 100 : 0;
+                        @endphp
+
+                        <svg viewBox="0 0 36 36" class="h-full w-full">
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e5e7eb" stroke-width="3"/>
+                            @if($total > 0)
+                                <circle
+                                    cx="18" cy="18" r="15.9155"
+                                    fill="none"
+                                    stroke="#3B82F6"
+                                    stroke-width="3"
+                                    stroke-dasharray="{{ $testPercent }} {{ 100 - $testPercent }}"
+                                    stroke-dashoffset="25"
+                                    class="origin-center -rotate-90 transform"
+                                />
+                                <circle
+                                    cx="18" cy="18" r="15.9155"
+                                    fill="none"
+                                    stroke="#10B981"
+                                    stroke-width="3"
+                                    stroke-dasharray="{{ $descPercent }} {{ 100 - $descPercent }}"
+                                    stroke-dashoffset="{{ 25 - $testPercent }}"
+                                    class="origin-center -rotate-90 transform"
+                                />
+                                <circle
+                                    cx="18" cy="18" r="15.9155"
+                                    fill="none"
+                                    stroke="#8B5CF6"
+                                    stroke-width="3"
+                                    stroke-dasharray="{{ $videoPercent }} {{ 100 - $videoPercent }}"
+                                    stroke-dashoffset="{{ 25 - $testPercent - $descPercent }}"
+                                    class="origin-center -rotate-90 transform"
+                                />
+                            @endif
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="mt-3 flex flex-wrap justify-center gap-3 text-[11px] text-slate-600 dark:text-slate-300">
+                <span class="flex items-center gap-1">
+                    <span class="h-2 w-2 rounded-full bg-sky-500"></span>
+                    تستی ({{ $stats['testParts'] }})
+                </span>
+                    <span class="flex items-center gap-1">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
+                    تشریحی ({{ $stats['descriptiveParts'] }})
+                </span>
+                    <span class="flex items-center gap-1">
+                    <span class="h-2 w-2 rounded-full bg-violet-500"></span>
+                    ویدیویی ({{ $stats['videoParts'] }})
+                </span>
+                </div>
+            </div>
+
+            {{-- نوع درس --}}
+            <div
+                class="rounded-2xl border border-slate-100/80 bg-white/95 p-4 shadow-sm
+                   dark:border-slate-800 dark:bg-slate-900/95"
+            >
+                <h3 class="mb-3 text-center text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    توزیع نوع درس
+                </h3>
+
+                <div class="flex items-center justify-center">
+                    <div class="relative h-32 w-32 sm:h-36 sm:w-36">
+                        @php
+                            $totalLesson = $stats['generalParts'] + $stats['specializedParts'];
+                            $generalPercent = $totalLesson > 0 ? ($stats['generalParts'] / $totalLesson) * 100 : 0;
+                            $specPercent = $totalLesson > 0 ? ($stats['specializedParts'] / $totalLesson) * 100 : 0;
+                        @endphp
+
+                        <svg viewBox="0 0 36 36" class="h-full w-full">
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e5e7eb" stroke-width="3"/>
+                            @if($totalLesson > 0)
+                                <circle
+                                    cx="18" cy="18" r="15.9155"
+                                    fill="none"
+                                    stroke="#F59E0B"
+                                    stroke-width="3"
+                                    stroke-dasharray="{{ $generalPercent }} {{ 100 - $generalPercent }}"
+                                    stroke-dashoffset="25"
+                                    class="origin-center -rotate-90 transform"
+                                />
+                                <circle
+                                    cx="18" cy="18" r="15.9155"
+                                    fill="none"
+                                    stroke="#EC4899"
+                                    stroke-width="3"
+                                    stroke-dasharray="{{ $specPercent }} {{ 100 - $specPercent }}"
+                                    stroke-dashoffset="{{ 25 - $generalPercent }}"
+                                    class="origin-center -rotate-90 transform"
+                                />
+                            @endif
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="mt-3 flex flex-wrap justify-center gap-3 text-[11px] text-slate-600 dark:text-slate-300">
+                <span class="flex items-center gap-1">
+                    <span class="h-2 w-2 rounded-full bg-amber-500"></span>
+                    عمومی ({{ $stats['generalParts'] }})
+                </span>
+                    <span class="flex items-center gap-1">
+                    <span class="h-2 w-2 rounded-full bg-pink-500"></span>
+                    تخصصی ({{ $stats['specializedParts'] }})
+                </span>
+                </div>
+            </div>
+
+            {{-- پایه تحصیلی --}}
+            <div
+                class="rounded-2xl border border-slate-100/80 bg-white/95 p-4 shadow-sm
+                   dark:border-slate-800 dark:bg-slate-900/95"
+            >
+                <h3 class="mb-3 text-center text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    توزیع پایه تحصیلی
+                </h3>
+
+                <div class="flex items-center justify-center">
+                    <div class="relative h-32 w-32 sm:h-36 sm:w-36">
+                        @php
+                            $totalGrade = $stats['grade10Parts'] + $stats['grade11Parts'] + $stats['grade12Parts'];
+                            $g10Percent = $totalGrade > 0 ? ($stats['grade10Parts'] / $totalGrade) * 100 : 0;
+                            $g11Percent = $totalGrade > 0 ? ($stats['grade11Parts'] / $totalGrade) * 100 : 0;
+                            $g12Percent = $totalGrade > 0 ? ($stats['grade12Parts'] / $totalGrade) * 100 : 0;
+                        @endphp
+
+                        <svg viewBox="0 0 36 36" class="h-full w-full">
+                            <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e5e7eb" stroke-width="3"/>
+                            @if($totalGrade > 0)
+                                <circle
+                                    cx="18" cy="18" r="15.9155"
+                                    fill="none"
+                                    stroke="#06B6D4"
+                                    stroke-width="3"
+                                    stroke-dasharray="{{ $g10Percent }} {{ 100 - $g10Percent }}"
+                                    stroke-dashoffset="25"
+                                    class="origin-center -rotate-90 transform"
+                                />
+                                <circle
+                                    cx="18" cy="18" r="15.9155"
+                                    fill="none"
+                                    stroke="#84CC16"
+                                    stroke-width="3"
+                                    stroke-dasharray="{{ $g11Percent }} {{ 100 - $g11Percent }}"
+                                    stroke-dashoffset="{{ 25 - $g10Percent }}"
+                                    class="origin-center -rotate-90 transform"
+                                />
+                                <circle
+                                    cx="18" cy="18" r="15.9155"
+                                    fill="none"
+                                    stroke="#EF4444"
+                                    stroke-width="3"
+                                    stroke-dasharray="{{ $g12Percent }} {{ 100 - $g12Percent }}"
+                                    stroke-dashoffset="{{ 25 - $g10Percent - $g11Percent }}"
+                                    class="origin-center -rotate-90 transform"
+                                />
+                            @endif
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="mt-3 flex flex-wrap justify-center gap-3 text-[11px] text-slate-600 dark:text-slate-300">
+                <span class="flex items-center gap-1">
+                    <span class="h-2 w-2 rounded-full bg-cyan-500"></span>
+                    دهم ({{ $stats['grade10Parts'] }})
+                </span>
+                    <span class="flex items-center gap-1">
+                    <span class="h-2 w-2 rounded-full bg-lime-500"></span>
+                    یازدهم ({{ $stats['grade11Parts'] }})
+                </span>
+                    <span class="flex items-center gap-1">
+                    <span class="h-2 w-2 rounded-full bg-rose-500"></span>
+                    دوازدهم ({{ $stats['grade12Parts'] }})
+                </span>
+                </div>
+            </div>
+        </section>
 </div>

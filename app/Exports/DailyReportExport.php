@@ -6,6 +6,12 @@ namespace App\Exports;
 
 use App\Models\DailyReport;
 
+use App\Models\WeeklyProgram;
+
+use Carbon\Carbon;
+
+use Carbon\CarbonPeriod;
+
 use Maatwebsite\Excel\Concerns\FromCollection;
 
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -23,18 +29,39 @@ class DailyReportExport implements FromCollection, WithHeadings, WithMapping, Wi
 
     protected int $studentId;
 
-    protected int $weeklyProgramId;
+    protected ?int $weeklyProgramId;
+
+    protected ?Carbon $startDate;
+
+    protected ?Carbon $endDate;
 
     protected array $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
 
+    protected array $existingReportDates = [];
 
-    public function __construct(int $studentId, int $weeklyProgramId)
+    protected int $row = 0;
 
+
+    public function __construct(
+
+        int     $studentId,
+
+        ?int    $weeklyProgramId = null,
+
+        ?Carbon $startDate = null,
+
+        ?Carbon $endDate = null
+
+    )
     {
 
         $this->studentId = $studentId;
 
         $this->weeklyProgramId = $weeklyProgramId;
+
+        $this->startDate = $startDate;
+
+        $this->endDate = $endDate;
 
     }
 
@@ -43,11 +70,95 @@ class DailyReportExport implements FromCollection, WithHeadings, WithMapping, Wi
 
     {
 
-        return DailyReport::with(['reportParts.programPart', 'student.user'])
-            ->where('student_id', $this->studentId)
-            ->where('weekly_program_id', $this->weeklyProgramId)
-            ->orderBy('report_date')
-            ->get();
+        $query = DailyReport::with(['reportParts.programPart', 'student.user'])
+            ->where('student_id', $this->studentId);
+
+
+        if ($this->weeklyProgramId) {
+
+            $query->where('weekly_program_id', $this->weeklyProgramId);
+
+        }
+
+
+        if ($this->startDate && $this->endDate) {
+
+            $query->whereBetween('report_date', [$this->startDate, $this->endDate]);
+
+        }
+
+
+        $reports = $query->orderBy('report_date')->get();
+
+
+        // Get existing report dates
+
+        $this->existingReportDates = $reports->pluck('report_date')
+            ->map(fn($date) => $date->format('Y-m-d'))
+            ->toArray();
+
+
+        // If we have date range, we need to add "not sent" days
+
+        if ($this->startDate && $this->endDate) {
+
+            $period = CarbonPeriod::create($this->startDate, '1 day', $this->endDate);
+
+            $missingDays = collect([]);
+
+
+            foreach ($period as $day) {
+
+                if ($day->gt(now())) {
+
+                    continue;
+
+                }
+
+
+                $dayString = $day->format('Y-m-d');
+
+                if (!in_array($dayString, $this->existingReportDates)) {
+
+                    // Create a pseudo-report object for missing days
+
+                    $missingDays->push((object)[
+
+                        'is_missing' => true,
+
+                        'report_date' => $day,
+
+                        'day_of_week' => $day->dayOfWeek == 0 ? 6 : $day->dayOfWeek - 1,
+
+                        'phone_hours' => 0,
+
+                        'rating' => null,
+
+                        'is_compensatory' => false,
+
+                        'status' => 'not_sent',
+
+                        'description' => '',
+
+                        'reportParts' => collect([]),
+
+                    ]);
+
+                }
+
+            }
+
+
+            // Merge and sort
+
+            $allItems = $reports->concat($missingDays)->sortBy(fn($item) => $item->report_date);
+
+            return $allItems->values();
+
+        }
+
+
+        return $reports;
 
     }
 
@@ -72,9 +183,9 @@ class DailyReportExport implements FromCollection, WithHeadings, WithMapping, Wi
 
             'تست نزده',
 
-            'گوشی (غیردرسی)',
+            'ساعت گوشی (غیردرسی)',
 
-            'امتیاز',
+            'امتیاز روز',
 
             'نوع گزارش',
 
@@ -91,9 +202,50 @@ class DailyReportExport implements FromCollection, WithHeadings, WithMapping, Wi
 
     {
 
-        static $row = 0;
+        $this->row++;
 
-        $row++;
+
+        $isMissing = $report->is_missing ?? false;
+
+
+        if ($isMissing) {
+
+            $jalaliDate = jdate($report->report_date);
+
+            $dayOfWeek = $report->report_date->dayOfWeek;
+
+            $dayName = $this->dayNames[$dayOfWeek == 0 ? 6 : $dayOfWeek - 1] ?? '-';
+
+
+            return [
+
+                $this->row,
+
+                $jalaliDate->format('Y/m/d'),
+
+                $dayName,
+
+                '-',
+
+                '-',
+
+                '-',
+
+                '-',
+
+                '-',
+
+                '-',
+
+                '-',
+
+                'ارسال نشده',
+
+                '',
+
+            ];
+
+        }
 
 
         $readParts = $report->reportParts->where('is_read', true)->count();
@@ -114,7 +266,7 @@ class DailyReportExport implements FromCollection, WithHeadings, WithMapping, Wi
 
         $statusLabels = [
 
-            'pending' => 'در انتظار',
+            'pending' => 'در انتظار بررسی',
 
             'approved' => 'تایید شده',
 
@@ -125,7 +277,7 @@ class DailyReportExport implements FromCollection, WithHeadings, WithMapping, Wi
 
         return [
 
-            $row,
+            $this->row,
 
             jdate($report->report_date)->format('Y/m/d'),
 

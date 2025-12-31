@@ -45,6 +45,7 @@ class DatabaseSeeder extends Seeder
             SubjectSeeder::class,
             CcFieldSeeder::class,
             ExamPeriodSeeder::class,
+            AcademicAdvisorPermissionSeeder::class,
         ]);
 
 
