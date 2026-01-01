@@ -1,32 +1,81 @@
 @php
-    $formattedStories = $stories->map(function($item) {
+
+    $userId = auth()->id();
+
+    $formattedStories = $stories->map(function($item) use ($userId) {
+
+        $isLiked = $userId ? $item->likes->contains('user_id', $userId) : false;
+
         return [
-            'type' => 'video',
+
+            'id' => $item->id,
+
+            'type' => $item->type,
+
             'user' => $item->title,
+
             'avatar' => "/stories/thumbnail/{$item->thumbnail}",
-            'url' => "/stories/story/{$item->story}",
-            'duration' => null,
-            'link' => 'https://sdfr.me',
+
+            'url' => $item->type === 'video' ? $item->story : "/stories/story/{$item->story}",
+
+            'duration' => $item->type === 'image' ? 5000 : null,
+
+            'link' => $item->widget_link,
+
+            'linkTitle' => $item->widget_title,
+
+            'likesCount' => $item->likes_count,
+
+            'isLiked' => $isLiked,
+
         ];
+
     });
+
 @endphp
 
+
 <div>
-    <section class="py-4">
-        <h2 class="sr-only">استوری های SDFR</h2>
-        <div class="container">
-            <div id="stories-container" role="region" aria-labelledby="stories-title">
-                <h3 id="stories-title" class="sr-only">استوری های SDFR</h3>
+
+    @if($stories->count() > 0)
+
+        <section class="py-4">
+
+            <h2 class="sr-only">استوری های SDFR</h2>
+
+            <div class="container">
+
+                <div id="stories-container" role="region" aria-labelledby="stories-title">
+
+                    <h3 id="stories-title" class="sr-only">استوری های SDFR</h3>
+
+                </div>
+
             </div>
-        </div>
-    </section>
 
-    @push('script')
-        <script>
-            const stories = @json($formattedStories);
-            console.log("Generated stories:", stories); // تست خروجی
+        </section>
 
-            new StoryPlayer('stories-container', stories);
-        </script>
-    @endpush
+
+
+        @push('script')
+
+            <script>
+                const stories = @json($formattedStories);
+                const isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
+                const loginUrl = '{{ route("client.auth.login") }}';
+
+                const storyPlayer = new StoryPlayer('stories-container', stories, {
+                    isLoggedIn,
+                    loginUrl,
+                    onLike: function (storyId) {
+                    @this.call('toggleLike', storyId)
+                        ;
+                    }
+                });
+            </script>
+
+        @endpush
+
+    @endif
+
 </div>

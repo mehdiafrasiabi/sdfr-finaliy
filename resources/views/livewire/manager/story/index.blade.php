@@ -1,281 +1,306 @@
 <div>
-    <div>
-        <div class="col-xxl-6">
-            @if (session()->has('success'))
-                <div class="bg-green text-green p-2 rounded mb-4">
-                    {{ session('success') }}
-                </div>
-            @endif
-            <div class="card">
-                <div class="card-header align-items-center d-flex">
-                    <h4 class="card-title mb-0 flex-grow-1">مدیرت استوری های وبسایت</h4>
 
-                </div><!-- end card header -->
+    <div class="row">
+
+        <div class="col-12">
+
+            <div class="page-title-box d-sm-flex align-items-center justify-content-between">
+
+                <h4 class="mb-sm-0">استوری ها</h4>
+
+                <div class="page-title-right">
+
+                    <ol class="breadcrumb m-0">
+
+                        <li class="breadcrumb-item"><a href="{{ route('manager.dashboard.crm') }}">پنل مدیریت</a></li>
+
+                        <li class="breadcrumb-item active">استوری ها</li>
+
+                    </ol>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="row">
+
+        <div class="col-lg-12">
+
+            <div class="card">
+
+                <div class="card-header d-flex align-items-center justify-content-between">
+
+                    <div class="d-flex align-items-center gap-3">
+
+                        <span>وضعیت نمایش استوری ها:</span>
+
+                        <div class="form-check form-switch">
+
+                            <input class="form-check-input" type="checkbox" role="switch"
+
+                                   wire:click="toggleStoriesDisplay"
+
+                                {{ $storiesDisplayEnabled ? 'checked' : '' }}>
+
+                            <label class="form-check-label">{{ $storiesDisplayEnabled ? 'فعال' : 'غیرفعال' }}</label>
+
+                        </div>
+
+                    </div>
+
+                    <a href="{{ route('manager.story.create') }}" class="btn btn-primary">
+
+                        <i class="ri-add-line me-1"></i>
+
+                        افزودن استوری
+
+                    </a>
+
+                </div>
 
                 <div class="card-body">
-                    <p class="text-muted">
-                        در این قسمت میتوانید استوری های وبسایت را اپلود و حذف نمایید.
-                    </p>
-                    <div class="live-preview">
-                        <form wire:submit="submit(Object.fromEntries(new FormData($event.target)))">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label for="title" class="form-label">نام استوری نمایشی:</label>
-                                        <sup style="color: red">*</sup>
 
-                                        <input type="text" wire:model="title" name="title" class="form-control"
-                                               placeholder="مثلا:کنکور خفن" id="title">
-                                        @error('title') <span class="text-danger text-sm">{{ $message }}</span> @enderror
-                                    </div>
-                                </div>
-                                <div class="field-wrapper  mb-4" x-data="{isUploading:false,progress:0 }"
-                                     x-on:livewire-upload-start="isUploading=true"
-                                     x-on:livewire-upload-finish="isUploading=false"
-                                     x-on:livewire-upload-error="isUploading=false"
-                                     x-on:livewire-upload-progress="progress=$event.detail.progress">
+                    <div class="row g-3 mb-4">
 
-                                    <label for="thumbnail" class="form-label">بک گراند ویدیو :</label>
-                                    <input type="file" class="form-control" id="thumbnail" wire:model="thumbnail" name="thumbnail"
-                                           placeholder="">
+                        <div class="col-md-6">
 
-                                    <div x-show="isUploading" class="progress mt-3 ltr">
-                                        <div class="progress-bar progress-bar-striped  bg-danger progress-bar-animated"
-                                             role="progressbar" x-bind:style="`width:${progress}%`" aria-valuenow="10"
-                                             aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
+                            <div class="d-flex align-items-center gap-2">
 
-                                </div>
-                                @error('thumbnail') <span class="text-danger text-sm">{{ $message }}</span> @enderror
+                                <i class="ri-filter-3-line"></i>
 
-                                <div class="field-wrapper mb-4" x-data="{isUploading:false,progress:0 }"
-                                     x-on:livewire-upload-start="isUploading=true"
-                                     x-on:livewire-upload-finish="isUploading=false"
-                                     x-on:livewire-upload-error="isUploading=false"
-                                     x-on:livewire-upload-progress="progress=$event.detail.progress"
-                                >
-                                    <label for="story" class="form-label">استوری :</label>
-                                    <input type="file" class="form-control" id="story" wire:model="story" name="story"
-                                           placeholder="">
+                                <span class="text-muted">مرتب سازی بر اساس:</span>
 
-                                    <div x-show="isUploading" class="progress mt-3 ltr">
-                                        <div class="progress-bar progress-bar-striped  bg-danger progress-bar-animated"
-                                             role="progressbar" x-bind:style="`width:${progress}%`" aria-valuenow="10"
-                                             aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
+                                <div class="btn-group" role="group">
 
-                                </div>
-                                @error('story') <span class="text-danger text-sm">{{ $message }}</span> @enderror
+                                    <button type="button" wire:click="$set('filter', 'all')"
 
-                                <!--end col-->
+                                            class="btn btn-sm {{ $filter === 'all' ? 'btn-primary' : 'btn-outline-primary' }}">
 
+                                        همه
 
-                                <div class="col-lg-12">
-                                    <div class="text-end">
-                                        <button type="submit" class="btn btn-success">
-                                            <span wire:loading.remove>افزودن</span>
-                                            <span wire:loading="">
+                                    </button>
 
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
-                                                 preserveAspectRatio="xMidYMid" width="30" height="30"
-                                                 style="shape-rendering: auto; display: block; background: transparent;"
-                                                 xmlns:xlink="http://www.w3.org/1999/xlink"><g><circle
-                                                        stroke-linecap="round" fill="none"
-                                                        stroke-dasharray="50.26548245743669 50.26548245743669"
-                                                        stroke="#ffffff"
-                                                        stroke-width="8" r="32" cy="50" cx="50">
-                                              <animateTransform values="0 50 50;360 50 50" keyTimes="0;1"
-                                                                dur="0.6097560975609756s" repeatCount="indefinite"
-                                                                type="rotate"
-                                                                attributeName="transform"></animateTransform>
-                                            </circle><g></g></g><!-- [ldio] generated by https://loading.io -->
-                                            </svg>
-                                        </span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <!--end col-->
-                            </div>
-                            <!--end row-->
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0">لیست کشور های تحت مجموعه </h5>
-                    </div>
-                    <div class="card-body">
-                        <div id="alternative-pagination_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                            <div class="row g-4 mb-3">
-                                <div class="col-sm">
-                                    <div class="d-flex justify-content-sm-end">
+                                    <button type="button" wire:click="$set('filter', 'published')"
 
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="table-responsive table-card mb-4">
-                                    <table id="alternative-pagination"
-                                           class="table nowrap dt-responsive align-middle table-hover table-bordered dataTable no-footer dtr-inline"
-                                           style="width: 100%;" aria-describedby="alternative-pagination_info">
-                                        <thead>
-                                        <tr>
-                                            <th tabindex="0"
-                                                aria-controls="alternative-pagination" rowspan="1" colspan="1"
-                                                style="width: 110.722px;" aria-sort="ascending"
-                                                aria-label="شماره SR: activate to sort column descending">ردیف
-                                            </th>
-                                            <th tabindex="0" aria-controls="alternative-pagination"
-                                                rowspan="1" colspan="1" style="width: 183.661px;"
-                                                aria-label="عنوان: activate to sort column ascending">عنوان
+                                            class="btn btn-sm {{ $filter === 'published' ? 'btn-success' : 'btn-outline-success' }}">
 
-                                            </th>
+                                        منتشر شده
 
-                                            <th tabindex="0" aria-controls="alternative-pagination"
-                                                rowspan="1" colspan="1" style="width: 183.661px;"
-                                                aria-label="تصویر بند انگشتی: activate to sort column ascending">تصویر بند انگشتی
+                                    </button>
 
-                                            </th>
-                                            <th tabindex="0" aria-controls="alternative-pagination"
-                                                rowspan="1" colspan="1" style="width: 183.661px;"
-                                                aria-label="استوری: activate to sort column ascending">استوری
+                                    <button type="button" wire:click="$set('filter', 'expired')"
 
-                                            </th>
-                                            <th tabindex="0" aria-controls="alternative-pagination"
-                                                rowspan="1" colspan="1" style="width: 148.661px;"
-                                                aria-label="اقدام: activate to sort column ascending">اقدام
-                                            </th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
+                                            class="btn btn-sm {{ $filter === 'expired' ? 'btn-danger' : 'btn-outline-danger' }}">
 
-                                        @forelse($stories as $story)
-                                            <tr class="odd">
-                                                <td class="dtr-control " tabindex="0">
-                                                    {{ $loop->iteration }}
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex align-items-center fw-medium">
-                                                        <a href="javascript:void(0);"
-                                                           class="currency_name">{{ $story->title }}</a>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <button wire:click="showMedia('image', '/stories/thumbnail/{{$story->thumbnail}}')" class="btn btn-secondary">
-                                                        نمایش عکس
-                                                    </button>
-                                                </td>
-                                                <td>
-                                                    <div class="d-flex align-items-center fw-medium">
-                                                        <button wire:click="showMedia('video', '/stories/story/{{$story->story}}')" class="btn btn-primary">
-                                                            نمایش ویدیو
-                                                        </button>
+                                        منقضی
 
-                                                    </div>
-                                                </td>
+                                    </button>
 
-                                                <td>
-                                                    <label> انتخاب به عنوان استوری :</label>
-                                                    <input wire:confirm="آیا مطمئن هستید؟"
-                                                           wire:change="changeStatus({{$story->id}})"
-                                                           {{$story->status?'checked': ''}}
-                                                           class="form-check-input" type="checkbox" id="form-check-default">
-                                                    <br>
-                                                    <button
-                                                        wire:confirm="آیا از انتخاب خود برای حدف ارز اطمینان دارید؟"
-
-                                                        wire:click="delete({{$story->id}})"
-                                                        class="btn btn-sm btn-soft-danger">
-                                                        <i class=" ri-delete-bin-6-line"></i>
-                                                        حذف
-                                                    </button>
-                                                </td>
-                                            </tr>
-
-                                        @empty
-                                            <tr class="noresult" style="display: block;">
-                                                <div class="text-center">
-                                                    <lord-icon src="https://cdn.lordicon.com/msoeawqm.json"
-                                                               trigger="loop"
-                                                               colors="primary:#121331,secondary:#08a88a"
-                                                               style="width:75px;height:75px"></lord-icon>
-                                                    <h5 class="mt-2">متاسفم! هیچ نتیجه ای یافت نشد</h5>
-
-                                                </div>
-                                            </tr>
-                                        @endforelse
-
-                                        </tbody>
-
-                                    </table>
-                                    {{$stories->links('layouts.manager.pagination')}}
-
-                                    <div class="noresult" style="display: none">
-                                        <div class="text-center">
-                                            <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="loop"
-                                                       colors="primary:#121331,secondary:#08a88a"
-                                                       style="width:75px;height:75px"></lord-icon>
-                                            <h5 class="mt-2">متاسفم! هیچ نتیجه ای یافت نشد</h5>
-                                            <p class="text-muted mb-0">ما همه دپارتمان را جستجو کرده ایم، هیچ
-                                                دپارتمان برای
-                                                جستجوی شما پیدا نکردیم.</p>
-                                        </div>
-                                    </div>
                                 </div>
 
                             </div>
 
-                            <div class="row">
-
-                                <div wire:ignore.self class="modal fade" id="selfieModal" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header bg-light p-3">
-                                                <h5 class="modal-title">مشاهده مدیا</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="بستن"></button>
-                                            </div>
-                                            <div class="modal-body text-center">
-                                                @if($mediaType === 'image')
-                                                    <img src="{{ $selectedMedia }}" alt="Image" class="img-fluid rounded shadow" style="max-height: 500px;">
-                                                @elseif($mediaType === 'video')
-                                                    <video controls style="max-height: 500px; width: 100%;" autoplay muted>
-                                                        <source src="{{ $selectedMedia }}" type="video/mp4">
-                                                        مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
-                                                    </video>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
+
                     </div>
+
+
+                    <div class="table-responsive">
+
+                        <table class="table table-hover table-bordered align-middle">
+
+                            <thead class="table-light">
+
+                            <tr>
+
+                                <th style="width: 50px;"><i class="ri-settings-3-line"></i></th>
+
+                                <th>عنوان</th>
+
+                                <th>کاربر</th>
+
+                                <th>وضعیت</th>
+
+                                <th>تاریخ انقضا</th>
+
+                                <th>تاریخ</th>
+
+                            </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                            @forelse($stories as $story)
+
+                                <tr>
+
+                                    <td class="text-center">
+
+                                        <div class="dropdown">
+
+                                            <button class="btn btn-sm btn-light" type="button"
+                                                    data-bs-toggle="dropdown">
+
+                                                <i class="ri-more-2-fill"></i>
+
+                                            </button>
+
+                                            <ul class="dropdown-menu">
+
+                                                <li>
+
+                                                    <a class="dropdown-item"
+                                                       href="{{ route('manager.story.edit', $story) }}">
+
+                                                        <i class="ri-edit-line me-2"></i>ویرایش
+
+                                                    </a>
+
+                                                </li>
+
+                                                <li>
+
+                                                    <button class="dropdown-item"
+
+                                                            wire:click="changeStatus({{ $story->id }})"
+
+                                                            wire:confirm="آیا مطمئن هستید؟">
+
+                                                        <i class="ri-toggle-line me-2"></i>
+
+                                                        {{ $story->status ? 'غیرفعال کردن' : 'فعال کردن' }}
+
+                                                    </button>
+
+                                                </li>
+
+                                                <li>
+                                                    <hr class="dropdown-divider">
+                                                </li>
+
+                                                <li>
+
+                                                    <button class="dropdown-item text-danger"
+
+                                                            wire:click="delete({{ $story->id }})"
+
+                                                            wire:confirm="آیا از حذف این استوری اطمینان دارید؟">
+
+                                                        <i class="ri-delete-bin-line me-2"></i>حذف
+
+                                                    </button>
+
+                                                </li>
+
+                                            </ul>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>
+
+                                        <div class="d-flex align-items-center gap-3">
+
+                                            <div class="position-relative">
+
+                                                <img src="/stories/thumbnail/{{ $story->thumbnail }}"
+
+                                                     alt="{{ $story->title }}"
+
+                                                     class="rounded-circle"
+
+                                                     style="width: 50px; height: 50px; object-fit: cover; border: 3px solid {{ $story->status && !$story->is_expired ? '#198754' : '#dc3545' }};">
+
+                                            </div>
+
+                                            <span class="fw-medium">{{ $story->title }}</span>
+
+                                        </div>
+
+                                    </td>
+
+                                    <td>{{ $story->user?->name ?? 'مدیر' }}</td>
+
+                                    <td>
+
+                                        @if($story->is_expired)
+
+                                            <span class="badge bg-danger">منقضی شده</span>
+
+                                        @elseif($story->status)
+
+                                            <span class="badge bg-success">منتشر شده</span>
+
+                                        @else
+
+                                            <span class="badge bg-warning">غیرفعال</span>
+
+                                        @endif
+
+                                    </td>
+
+                                    <td>
+
+                                        @if($story->expires_at)
+
+                                            {{ jalali($story->expires_at)->format('%d %B %Y') }}
+
+                                        @else
+
+                                            <span class="text-muted">-</span>
+
+                                        @endif
+
+                                    </td>
+
+                                    <td>{{ jalali($story->created_at)->format('%d %B %Y') }}</td>
+
+                                </tr>
+
+                            @empty
+
+                                <tr>
+
+                                    <td colspan="6" class="text-center py-5">
+
+                                        <lord-icon src="https://cdn.lordicon.com/msoeawqm.json"
+
+                                                   trigger="loop"
+
+                                                   colors="primary:#121331,secondary:#08a88a"
+
+                                                   style="width:75px;height:75px"></lord-icon>
+
+                                        <h5 class="mt-2">هیچ استوری یافت نشد</h5>
+
+                                    </td>
+
+                                </tr>
+
+                            @endforelse
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+
+                    {{ $stories->links('layouts.manager.pagination') }}
+
                 </div>
-            </div><!--end col-->
+
+            </div>
+
         </div>
+
     </div>
-    @push('script')
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="/admin/assets/libs/prismjs/prism.js"></script>
-        <script src="/admin/assets/libs/list.js/list.min.js"></script>
-        <script src="/admin/assets/libs/list.pagination.js/list.pagination.min.js"></script>
-        <script src="/admin/assets/js/pages/listjs.init.js"></script>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                Livewire.on('open-selfie-modal', () => {
-                    new bootstrap.Modal(document.getElementById('selfieModal')).show();
-                });
-
-                Livewire.on('open-national-modal', () => {
-                    new bootstrap.Modal(document.getElementById('nationalCardModal')).show();
-                });
-            });
-        </script>
-
-    @endpush
 </div>

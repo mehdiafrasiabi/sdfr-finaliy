@@ -27,6 +27,8 @@ use App\Livewire\Manager\Setting\ContactUs\Index as SettingContactUs;
 use App\Livewire\Manager\Setting\Home\TopStudent as SettingHomeTopStudent;
 use App\Livewire\Manager\Setting\Home\SchoolSdfr as SettingHomeSchoolSdfr;
 use App\Livewire\Manager\Story\Index as StoryIndex;
+use App\Livewire\Manager\Story\Create as StoryCreate;
+use App\Livewire\Manager\Story\Edit as StoryEdit;
 use App\Livewire\Manager\Student\Index as StudentIndex;
 use App\Livewire\Manager\Supports\Supporter as SupportIndex;
 use App\Livewire\Manager\Supports\SupporterStudent;
@@ -78,6 +80,8 @@ Route::name('manager.')->group(function () {
         Route::get('/category', CategoryIndex::class)->name('category.index');
         Route::get('/category/{category}/features', CategoryFeature::class)->name('category.features');
         Route::get('/story', StoryIndex::class)->name('story');
+        Route::get('/story/create', StoryCreate::class)->name('story.create');
+        Route::get('/story/{story}/edit', StoryEdit::class)->name('story.edit');
         Route::get('/user', UserIndex::class)->name('user');
         Route::get('/user/{id}', UserDetail::class)->name('user.detail');
         Route::get('/transaction', TransactionIndex::class)->name('transaction');
@@ -137,7 +141,7 @@ Route::name('manager.')->group(function () {
         Route::get('/questions/form/{code?}', QuestionForm::class)->name('questions.form');
 
         Route::post('/questions/ck-upload/{questionId?}', [QuestionCkUpload::class, 'upload'])->name('questions.ck-upload');
-        
+
         // Typed Exam Routes (آزمون‌های تایپی)
 
         Route::get('/typed-exams', TypedExamList::class)->name('typed-exams.index');

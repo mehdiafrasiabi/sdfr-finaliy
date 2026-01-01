@@ -14,7 +14,7 @@
             <livewire:client.home.features.index lazy/>
             <!-- end features -->
 
-            <livewire:client.home.collaboration.index />
+{{--            <livewire:client.home.collaboration.index lazy/>--}}
 
             <!-- section:latest-courses -->
             <livewire:client.home.latest-course.index />
@@ -27,7 +27,7 @@
         <!-- feedback -->
         <!-- end feedback -->
         <div class="max-w-7xl space-y-14 px-4 mx-auto">
-            <livewire:client.home.top-student.index/>
+{{--            <livewire:client.home.top-student.index lazy/>--}}
 
         </div>
         <livewire:client.home.feedback.index/>

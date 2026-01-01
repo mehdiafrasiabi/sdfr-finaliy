@@ -9,6 +9,7 @@ class Index extends Component
 {
 
     public $schoolSdfr = [];
+
     public function mount()
     {
         $this->schoolSdfr = SdfrSchool::query()->where('status','=',true)->get();

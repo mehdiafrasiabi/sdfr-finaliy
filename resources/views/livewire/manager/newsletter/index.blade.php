@@ -26,10 +26,26 @@
                         </li>
 
                         <li class="nav-item">
-                            <button class="nav-link {{ $tab === 'phone' ? 'active' : '' }}"
+                            <button class="nav-link {{ $tab === 'student' ? 'active' : '' }}"
                                     type="button"
-                                    wire:click="setTab('phone')">
-                                شماره موبایل
+                                    wire:click="setTab('student')">
+                                شماره دانش آموز
+                            </button>
+                        </li>
+
+                        <li class="nav-item">
+                            <button class="nav-link {{ $tab === 'father' ? 'active' : '' }}"
+                                    type="button"
+                                    wire:click="setTab('father')">
+                                شماره پدر
+                            </button>
+                        </li>
+
+                        <li class="nav-item">
+                            <button class="nav-link {{ $tab === 'mother' ? 'active' : '' }}"
+                                    type="button"
+                                    wire:click="setTab('mother')">
+                                شماره مادر
                             </button>
                         </li>
 
@@ -46,7 +62,7 @@
                     <div class="tab-content pt-3">
                         <div class="tab-pane fade {{ $tab === 'all' ? 'show active' : '' }}">
 
-                        <div class="table-responsive table-card">
+                            <div class="table-responsive table-card">
                                 <table class="table table-striped align-middle mb-0">
                                     <thead>
                                     <tr>
@@ -67,7 +83,9 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-center text-muted">موردی برای نمایش وجود ندارد.</td>
+                                            <td colspan="5" class="text-center text-muted">موردی برای نمایش وجود
+                                                ندارد.
+                                            </td>
                                         </tr>
                                     @endforelse
                                     </tbody>
@@ -76,28 +94,59 @@
 
                         </div>
 
-                        <div class="tab-pane fade {{ $tab === 'phone' ? 'show active' : '' }}">
+                        <div class="tab-pane fade {{ $tab === 'student' ? 'show active' : '' }}">
 
-                        <div class="table-responsive table-card">
+                            <div class="table-responsive table-card">
                                 <table class="table table-striped align-middle mb-0">
                                     <thead>
                                     <tr>
                                         <th style="width: 60px">#</th>
 
-                                        <th>شماره موبایل</th>
+                                        <th>شماره موبایل دانش آموزان</th>
                                         <th>تاریخ</th>
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    @forelse($mobileContacts as $user)
-                                        <tr wire:key="mobile-{{ $user->id }}">
+                                    @forelse($studentContacts as $user)
+                                        <tr wire:key="student-{{ $user->id }}">
                                             <td>{{ $loop->iteration }}</td>
                                             <td>{{ $user->mobile ?? '---' }}</td>
                                             <td>{{ jalali($user->created_at)->format('%d %B %Y | H:i') }}</td>
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="3" class="text-center text-muted">شماره موبایلی ثبت نشده است.</td>
+                                            <td colspan="3" class="text-center text-muted">شماره موبایلی ثبت نشده است.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade {{ $tab === 'father' ? 'show active' : '' }}">
+
+                            <div class="table-responsive table-card">
+                                <table class="table table-striped align-middle mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 60px">#</th>
+
+                                        <th>نام دانش آموز</th>
+                                        <th>شماره پدر</th>
+                                        <th>تاریخ</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse($fatherContacts as $user)
+                                        <tr wire:key="father-{{ $user->id }}">
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $user->name ?? '---' }}</td>
+                                            <td>{{ $user->personalInformation?->father_mobile ?? '---' }}</td>
+                                            <td>{{ jalali($user->created_at)->format('%d %B %Y | H:i') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">شماره پدری ثبت نشده است.</td>
                                         </tr>
                                     @endforelse
                                     </tbody>
@@ -105,9 +154,40 @@
                             </div>
                         </div>
 
+                        <div class="tab-pane fade {{ $tab === 'mother' ? 'show active' : '' }}">
+
+                            <div class="table-responsive table-card">
+                                <table class="table table-striped align-middle mb-0">
+                                    <thead>
+                                    <tr>
+                                        <th style="width: 60px">#</th>
+
+                                        <th>نام دانش آموز</th>
+                                        <th>شماره مادر</th>
+                                        <th>تاریخ</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @forelse($motherContacts as $user)
+                                        <tr wire:key="mother-{{ $user->id }}">
+                                            <td>{{ $loop->iteration }}</td>
+                                            <td>{{ $user->name ?? '---' }}</td>
+                                            <td>{{ $user->personalInformation?->mother_mobile ?? '---' }}</td>
+                                            <td>{{ jalali($user->created_at)->format('%d %B %Y | H:i') }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">شماره مادری ثبت نشده است.
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                         <div class="tab-pane fade {{ $tab === 'email' ? 'show active' : '' }}">
 
-                        <div class="table-responsive table-card">
+                            <div class="table-responsive table-card">
                                 <table class="table table-striped align-middle mb-0">
                                     <thead>
                                     <tr>
@@ -153,17 +233,41 @@
                             <input class="form-check-input" type="radio" name="exportType" id="exportEmail"
                                    value="email" wire:model="exportType">
                             <label class="form-check-label" for="exportEmail">
-                                 ایمیل‌
+                                ایمیل‌
                             </label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" name="exportType" id="exportMobile"
-                                   value="mobile" wire:model="exportType">
+                                   value="student" wire:model="exportType">
                             <label class="form-check-label" for="exportMobile">
-                                 شماره موبایل‌
+                                شماره دانش آموزان‌
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exportType" id="exportFather"
+                                   value="father" wire:model="exportType">
+                            <label class="form-check-label" for="exportFather">
+                                شماره پدر‌
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exportType" id="exportMother"
+                                   value="mother" wire:model="exportType">
+                            <label class="form-check-label" for="exportMother">
+                                شماره مادر‌
+                            </label>
+                        </div>
+
+                        <div class="form-check mt-3">
+                            <input class="form-check-input" type="checkbox" name="includeStudentName"
+                                   id="includeStudentName"
+                                   wire:model="includeStudentName" {{ $exportType === 'email' ? 'disabled' : '' }}>
+                            <label class="form-check-label" for="includeStudentName">
+                                + نام دانش آموز
                             </label>
                         </div>
                     </div>
+
                     <div class="modal-footer">
                         <button type="button" class="btn btn-light" data-bs-dismiss="modal">بستن</button>
                         <button type="submit" class="btn btn-success" data-bs-dismiss="modal">دانلود</button>

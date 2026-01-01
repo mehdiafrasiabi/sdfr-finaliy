@@ -1,25 +1,17 @@
 <?php
 
 
-namespace App\Livewire\Client\Profile\ProfessionalTools;
+namespace App\Livewire\Client\Profile;
 
-
-use Artesaos\SEOTools\Traits\SEOTools;
-
-use Livewire\Attributes\On;
-
-use Livewire\Component;
-
-use App\Models\StudyPartSession;
 
 use App\Models\AdvisingSession;
-
-use App\Models\WeeklyProgram;
-
 use App\Models\ProgramPart;
-
-use Carbon\Carbon;
+use App\Models\StudyPartSession;
+use App\Models\WeeklyProgram;
 use App\Models\WeeklyProgramRestDay;
+use Artesaos\SEOTools\Traits\SEOTools;
+use Carbon\Carbon;
+use Livewire\Component;
 
 class StudySession extends Component
 
@@ -514,7 +506,7 @@ class StudySession extends Component
 
     {
 
-        return view('livewire.client.profile.professional-tools.study-session')->layout('layouts.client.app');
+        return view('livewire.client.profile.study-session')->layout('layouts.client.app');
 
     }
 

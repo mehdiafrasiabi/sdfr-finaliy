@@ -3,33 +3,30 @@
 <script src="/client/assets/js/dependencies/plyr.min.js"></script>
 <script src="/client/assets/js/app.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<script type="text/javascript">
-    ["keydown","touchmove","touchstart","mouseover"].forEach(function(v){window.addEventListener(v,function(){if(!window.isGoftinoAdded){window.isGoftinoAdded=1;var i="hjF21Y",d=document,g=d.createElement("script"),s="https://www.goftino.com/widget/"+i,l=localStorage.getItem("goftino_"+i);g.type="text/javascript",g.async=!0,g.src=l?s+"?o="+l:s;d.getElementsByTagName("head")[0].appendChild(g);}})});
-</script>
 <script src="/client/assets/js/story-player/story-player.js"></script>
 
 <script>
-    window.addEventListener('success', function(event) {
+    window.addEventListener('success', function (event) {
         Toastify({
-            text:event.detail,
+            text: event.detail,
             duration: 3000,
             style: {
                 background: "linear-gradient(to right, #00b09b, #96c93d)",
             }
         }).showToast();
     });
-    window.addEventListener('warning', function(event) {
+    window.addEventListener('warning', function (event) {
         Toastify({
-            text:event.detail,
+            text: event.detail,
             duration: 3000,
             style: {
                 background: "linear-gradient(to right, #d61212, #ff0000)",
             }
         }).showToast();
     });
-    window.addEventListener('add-to-cart', function() {
+    window.addEventListener('add-to-cart', function () {
         Toastify({
-            text:'با موفقیت به سبد خرید شما اضافه شد ',
+            text: 'با موفقیت به سبد خرید شما اضافه شد ',
             duration: 4000,
             style: {
                 background: "linear-gradient(to right, #00b09b, #96c93d)",
@@ -65,6 +62,7 @@
 
         }, 3000); // Simulate 3 seconds of loading time
     });
+
     function checkInternetSpeed() {
         const imageAddr = "/client/loading.png";
         let startTime, endTime;
@@ -93,6 +91,7 @@
         startTime = new Date().getTime();
         download.src = imageAddr + "?t=" + startTime;
     }
+
     window.onload = checkInternetSpeed;
 </script>
 

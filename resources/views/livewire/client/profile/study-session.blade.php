@@ -223,17 +223,7 @@
                                 </div>
 
                                 <div class="space-y-2">
-                                    <div class="flex items-center justify-between text-[11px] text-slate-200/80">
-                                        <span>پیشرفت</span>
-                                        <span class="text-slate-100 font-semibold">
-          {{ $currentPartId ? $progress.'%' : '0%' }}
-        </span>
-                                    </div>
 
-                                    <div class="h-2.5 w-full rounded-full bg-white/10 overflow-hidden">
-                                        <div class="h-2.5 rounded-full transition-all duration-300"
-                                             style="width: {{ $currentPartId ? $progress : 0 }}%"></div>
-                                    </div>
 
                                     <div class="flex items-center justify-between text-[10px] text-slate-200/80">
         <span>

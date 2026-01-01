@@ -1,4 +1,3 @@
-
 <div class="max-w-7xl space-y-14 px-4 mx-auto">
     <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
         <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
@@ -129,15 +128,16 @@
                                                    wire:model="email"
 
                                                    class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
-                                          @error('email')
+                                            @error('email')
                                             <div class="font-medium text-xs text-red-500">
-                                               {{$message}}
+                                                {{$message}}
                                             </div>
                                             @enderror
                                         </div>
                                         <div class="space-y-1">
                                             <label for="subject"
-                                                   class="block font-semibold text-xs text-foreground">تصویر پروفایل:</label>
+                                                   class="block font-semibold text-xs text-foreground">تصویر
+                                                پروفایل:</label>
                                             <label
                                                 class="inline-flex items-center gap-x-1 border rounded-full text-muted py-2.5 px-5 cursor-pointer hover:text-foreground"
                                                 for="customFile" x-data="{ files: null }">
@@ -149,7 +149,7 @@
                                                      fill="currentColor" class="size-4">
                                                     <path fill-rule="evenodd"
                                                           d="M11.914 4.086a2 2 0 0 0-2.828 0l-5 5a2 2 0 1 0 2.828 2.828l.556-.555a.75.75 0 0 1 1.06 1.06l-.555.556a3.5 3.5 0 0 1-4.95-4.95l5-5a3.5 3.5 0 0 1 4.95 4.95l-1.972 1.972a2.125 2.125 0 0 1-3.006-3.005L9.97 4.97a.75.75 0 1 1 1.06 1.06L9.058 8.003a.625.625 0 0 0 .884.883l1.972-1.972a2 2 0 0 0 0-2.828Z"
-                                                          clip-rule="evenodd" />
+                                                          clip-rule="evenodd"/>
                                                 </svg>
                                                 <span class="font-semibold text-xs"
                                                       x-text="files ? files.map(file => file.name).join(', ') : 'بارگذاری ..'"></span>
@@ -170,18 +170,22 @@
                                         <button type="submit"
                                                 class="h-11 inline-flex items-center justify-center gap-3 bg-primary rounded-full text-white px-4 mr-auto">
 
-                                               <span class="font-semibold text-sm" wire:loading.remove>بروزرسانی</span>
+                                            <span class="font-semibold text-sm" wire:loading.remove>بروزرسانی</span>
 
 
                                             <div wire:loading>
-                                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                     viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="40px" height="40px"
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     xmlns:xlink="http://www.w3.org/1999/xlink"
+                                                     viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="40px"
+                                                     height="40px"
                                                      style="shape-rendering: auto; display: block; background: transparent;">
                                                     <g>
                                                         <path stroke="none" fill="#ffffff"
                                                               d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
-                                                            <animateTransform values="0 50 51.5;360 50 51.5" keyTimes="0;1"
-                                                                              repeatCount="indefinite" dur="0.8130081300813008s"
+                                                            <animateTransform values="0 50 51.5;360 50 51.5"
+                                                                              keyTimes="0;1"
+                                                                              repeatCount="indefinite"
+                                                                              dur="0.8130081300813008s"
                                                                               type="rotate" attributeName="transform"/>
                                                         </path>
                                                         <g/>
@@ -195,91 +199,444 @@
                             <!-- end tabs:contents:tabOne -->
 
 
-                            <!-- tabs:contents:tabTwo -->
+                            <!-- tabs:contents:tabThree - رمز عبور -->
+
                             <div class="space-y-5" x-show="activeTab === 'tabThree'">
+
                                 <div class="flex items-center gap-3">
+
                                     <div class="flex items-center gap-1">
+
                                         <div class="w-1 h-1 bg-foreground rounded-full"></div>
+
                                         <div class="w-2 h-2 bg-foreground rounded-full"></div>
+
                                     </div>
+
                                     <div class="font-black text-foreground">رمز عبور</div>
+
                                 </div>
+
+
+                                <!-- پیام موفقیت -->
+
+                                @if (session()->has('password_success'))
+
+                                    <div class="bg-success text-white px-4 py-2 rounded-full">
+
+                                        {{ session('password_success') }}
+
+                                    </div>
+
+                                @endif
+
+
+
                                 <!-- alert -->
+
                                 <div
+
                                     class="flex items-start gap-3 relative bg-zinc-50 dark:bg-zinc-900 border border-border rounded-xl p-5"
+
                                     x-show="open" x-data="{ open: true }">
-                                    <!-- alert:icon -->
+
                                     <span class="text-yellow-500">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                         fill="currentColor" class="w-5 h-5">
-                                                        <path fill-rule="evenodd"
-                                                              d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                                                              clip-rule="evenodd"></path>
-                                                    </svg>
-                                                </span><!-- alert:icon -->
 
-                                    <!-- alert:content -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+
+                                             fill="currentColor" class="w-5 h-5">
+
+                                            <path fill-rule="evenodd"
+
+                                                  d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
+
+                                                  clip-rule="evenodd"></path>
+
+                                        </svg>
+
+                                    </span>
+
                                     <div class="flex flex-col items-start">
-                                        <!-- alert:title -->
-                                        <div class="font-bold text-sm text-yellow-500 mb-2">
-                                            توجه :‌
-                                        </div><!-- end alert:title -->
 
-                                        <!-- alert:desc -->
+                                        <div class="font-bold text-sm text-yellow-500 mb-2">توجه :</div>
+
                                         <div class="font-semibold text-xs text-zinc-400">
+
                                             <ul>
+
                                                 <li>حداقل یک حرف کوچک استفاده کنید</li>
+
                                                 <li>حداقل یک حرف بزرگ استفاده کنید</li>
+
                                                 <li>پسورد حداقل باید ۸ کاراکتر باشد</li>
+
                                                 <li>حداقل از یک عدد استفاده کنید</li>
+
                                             </ul>
-                                        </div><!-- end alert:desc -->
 
-                                        <!-- alert:actions -->
+                                        </div>
+
                                         <div class="flex flex-wrap items-center gap-3 mt-5">
+
                                             <button type="button"
+
                                                     class="flex items-center gap-x-1 text-zinc-400 underline-offset-1 hover:underline"
+
                                                     x-on:click="open = false">
+
                                                 <span class="font-bold text-xs">فهمیدم</span>
+
                                             </button>
-                                        </div><!-- end alert:actions -->
-                                    </div><!-- end alert:content -->
-                                </div><!-- end alert -->
 
-                                <form action="#" class="space-y-5">
-                                    <div class="flex flex-col gap-5">
-                                        <div class="space-y-1 sm:w-1/2">
-                                            <label for="password"
-                                                   class="block font-medium text-xs text-muted">پسورد
-                                                فعلی</label>
-                                            <input type="text" dir="ltr" id="password"
-                                                   class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
                                         </div>
-                                        <div class="space-y-1 sm:w-1/2">
-                                            <label for="password_new"
-                                                   class="block font-medium text-xs text-muted">پسورد
-                                                جدید</label>
-                                            <input type="text" dir="ltr" id="password_new"
-                                                   class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
-                                        </div>
+
                                     </div>
-                                    <div class="flex justify-end gap-5">
-                                        <button type="submit"
-                                                class="h-11 inline-flex items-center justify-center gap-3 bg-primary rounded-full text-white px-4 mr-auto">
-                                            <span class="font-semibold text-sm">بروزرسانی</span>
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                                 fill="currentColor" class="w-5 h-5">
-                                                <path fill-rule="evenodd"
-                                                      d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.989a.75.75 0 0 0-.75.75v4.242a.75.75 0 0 0 1.5 0v-2.43l.31.31a7 7 0 0 0 11.712-3.138.75.75 0 0 0-1.449-.39Zm1.23-3.723a.75.75 0 0 0 .219-.53V2.929a.75.75 0 0 0-1.5 0V5.36l-.31-.31A7 7 0 0 0 3.239 8.188a.75.75 0 1 0 1.448.389A5.5 5.5 0 0 1 13.89 6.11l.311.31h-2.432a.75.75 0 0 0 0 1.5h4.243a.75.75 0 0 0 .53-.219Z"
-                                                      clip-rule="evenodd"></path>
-                                            </svg>
+
+                                </div>
+
+
+                                <!-- فرم تغییر رمز با رمز فعلی -->
+
+                                <div x-show="!$wire.showForgotPassword" class="space-y-5">
+
+                                    <form wire:submit.prevent="changePassword" class="space-y-5">
+
+                                        <div class="grid sm:grid-cols-2 gap-5">
+
+                                            <div class="space-y-1">
+
+                                                <label for="current_password"
+
+                                                       class="block font-medium text-xs text-muted">رمز فعلی</label>
+
+                                                <input type="password" dir="ltr" id="current_password"
+
+                                                       wire:model="current_password"
+
+                                                       class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
+
+                                                @error('current_password')
+
+                                                <div class="font-medium text-xs text-red-500">{{ $message }}</div>
+
+                                                @enderror
+
+                                            </div>
+
+                                            <div class="space-y-1">
+
+                                                <label for="new_password"
+
+                                                       class="block font-medium text-xs text-muted">رمز جدید</label>
+
+                                                <input type="password" dir="ltr" id="new_password"
+
+                                                       wire:model="new_password"
+
+                                                       class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
+
+                                                @error('new_password')
+
+                                                <div class="font-medium text-xs text-red-500">{{ $message }}</div>
+
+                                                @enderror
+
+                                            </div>
+
+                                            <div class="space-y-1">
+
+                                                <label for="new_password_confirmation"
+
+                                                       class="block font-medium text-xs text-muted">تکرار رمز
+                                                    جدید</label>
+
+                                                <input type="password" dir="ltr" id="new_password_confirmation"
+
+                                                       wire:model="new_password_confirmation"
+
+                                                       class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
+
+                                                @error('new_password_confirmation')
+
+                                                <div class="font-medium text-xs text-red-500">{{ $message }}</div>
+
+                                                @enderror
+
+                                            </div>
+
+                                        </div>
+
+                                        <div class="flex items-center justify-between gap-5">
+
+                                            <button type="button" wire:click="toggleForgotPassword"
+
+                                                    class="text-primary text-sm font-medium hover:underline">
+
+                                                رمز عبور را فراموش کرده‌ام
+
+                                            </button>
+
+                                            <button type="submit"
+
+                                                    class="h-11 inline-flex items-center justify-center gap-3 bg-primary rounded-full text-white px-4">
+
+                                                <span class="font-semibold text-sm" wire:loading.remove
+                                                      wire:target="changePassword">تغییر رمز</span>
+
+                                                <div wire:loading wire:target="changePassword">
+
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
+                                                         preserveAspectRatio="xMidYMid" width="30px" height="30px">
+
+                                                        <g>
+                                                            <path stroke="none" fill="#ffffff"
+                                                                  d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
+
+                                                                <animateTransform values="0 50 51.5;360 50 51.5"
+                                                                                  keyTimes="0;1"
+                                                                                  repeatCount="indefinite" dur="0.8s"
+                                                                                  type="rotate"
+                                                                                  attributeName="transform"/>
+
+                                                            </path>
+                                                        </g>
+
+                                                    </svg>
+
+                                                </div>
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+
+                                                     fill="currentColor" class="w-5 h-5" wire:loading.remove
+                                                     wire:target="changePassword">
+
+                                                    <path fill-rule="evenodd"
+
+                                                          d="M15.312 11.424a5.5 5.5 0 0 1-9.201 2.466l-.312-.311h2.433a.75.75 0 0 0 0-1.5H3.989a.75.75 0 0 0-.75.75v4.242a.75.75 0 0 0 1.5 0v-2.43l.31.31a7 7 0 0 0 11.712-3.138.75.75 0 0 0-1.449-.39Zm1.23-3.723a.75.75 0 0 0 .219-.53V2.929a.75.75 0 0 0-1.5 0V5.36l-.31-.31A7 7 0 0 0 3.239 8.188a.75.75 0 1 0 1.448.389A5.5 5.5 0 0 1 13.89 6.11l.311.31h-2.432a.75.75 0 0 0 0 1.5h4.243a.75.75 0 0 0 .53-.219Z"
+
+                                                          clip-rule="evenodd"></path>
+
+                                                </svg>
+
+                                            </button>
+
+                                        </div>
+
+                                    </form>
+
+                                </div>
+
+
+                                <!-- فرم فراموشی رمز عبور با OTP -->
+
+                                <div x-show="$wire.showForgotPassword" class="space-y-5">
+
+                                    <div class="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                             class="w-5 h-5 text-blue-500">
+
+                                            <path fill-rule="evenodd"
+                                                  d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z"
+                                                  clip-rule="evenodd"/>
+
+                                        </svg>
+
+                                        <span class="text-sm text-blue-700 dark:text-blue-300">کد تایید به شماره موبایل شما ارسال خواهد شد</span>
+
+                                    </div>
+
+
+                                    @if (session()->has('otp_sent'))
+
+                                        <div class="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm">
+
+                                            {{ session('otp_sent') }}
+
+                                        </div>
+
+                                    @endif
+
+
+
+                                    @if (session()->has('otp_verified'))
+
+                                        <div class="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm">
+
+                                            {{ session('otp_verified') }}
+
+                                        </div>
+
+                                    @endif
+
+
+                                    <div class="grid sm:grid-cols-2 gap-5">
+
+                                        <!-- ارسال کد تایید -->
+
+                                        <div class="space-y-1">
+
+                                            <label class="block font-medium text-xs text-muted">کد تایید</label>
+
+                                            <div class="flex gap-2">
+
+                                                <input type="text" dir="ltr" wire:model="otp_code"
+
+                                                       placeholder="کد ۶ رقمی"
+
+                                                       @if($otp_verified) disabled @endif
+
+                                                       class="form-input flex-1 h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5 @if($otp_verified) opacity-50 @endif"/>
+
+                                                @if(!$otp_verified)
+
+                                                    <button type="button" wire:click="sendOtp"
+
+                                                            class="h-11 px-4 bg-secondary border border-border rounded-xl text-white text-sm font-medium hover:bg-primary hover:text-white transition-colors">
+
+                                                        <span wire:loading.remove wire:target="sendOtp">ارسال کد</span>
+
+                                                        <span wire:loading wire:target="sendOtp">در حال ارسال...</span>
+
+                                                    </button>
+
+                                                @endif
+
+                                            </div>
+
+                                            @error('otp_code')
+
+                                            <div class="font-medium text-xs text-red-500">{{ $message }}</div>
+
+                                            @enderror
+
+                                        </div>
+
+
+                                        <!-- دکمه تایید کد -->
+
+                                        @if(!$otp_verified)
+
+                                            <div class="space-y-1 flex items-end">
+
+                                                <button type="button" wire:click="verifyOtp"
+
+                                                        class="h-11 px-6 bg-primary text-white rounded-xl text-sm font-medium">
+
+                                                    <span wire:loading.remove wire:target="verifyOtp">تایید کد</span>
+
+                                                    <span wire:loading wire:target="verifyOtp">در حال بررسی...</span>
+
+                                                </button>
+
+                                            </div>
+
+                                        @endif
+
+
+
+                                        <!-- رمز جدید (فقط بعد از تایید کد) -->
+
+                                        @if($otp_verified)
+
+                                            <div class="space-y-1">
+
+                                                <label for="forgot_new_password"
+
+                                                       class="block font-medium text-xs text-muted">رمز جدید</label>
+
+                                                <input type="password" dir="ltr" id="forgot_new_password"
+
+                                                       wire:model="forgot_new_password"
+
+                                                       class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
+
+                                                @error('forgot_new_password')
+
+                                                <div class="font-medium text-xs text-red-500">{{ $message }}</div>
+
+                                                @enderror
+
+                                            </div>
+
+                                            <div class="space-y-1">
+
+                                                <label for="forgot_new_password_confirmation"
+
+                                                       class="block font-medium text-xs text-muted">تکرار رمز
+                                                    جدید</label>
+
+                                                <input type="password" dir="ltr" id="forgot_new_password_confirmation"
+
+                                                       wire:model="forgot_new_password_confirmation"
+
+                                                       class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
+
+                                                @error('forgot_new_password_confirmation')
+
+                                                <div class="font-medium text-xs text-red-500">{{ $message }}</div>
+
+                                                @enderror
+
+                                            </div>
+
+                                        @endif
+
+                                    </div>
+
+
+                                    <div class="flex items-center justify-between gap-5">
+
+                                        <button type="button" wire:click="toggleForgotPassword"
+
+                                                class="text-muted text-sm font-medium hover:underline">
+
+                                            بازگشت به تغییر رمز با رمز فعلی
+
                                         </button>
-                                    </div>
-                                </form>
-                            </div>
-                            <!-- end tabs:contents:tabTwo -->
 
-                            <!-- tabs:contents:tabTwo -->
+                                        @if($otp_verified)
+
+                                            <button type="button" wire:click="changePasswordWithOtp"
+
+                                                    class="h-11 inline-flex items-center justify-center gap-3 bg-primary rounded-full text-white px-4">
+
+                                                <span class="font-semibold text-sm" wire:loading.remove
+                                                      wire:target="changePasswordWithOtp">تغییر رمز</span>
+
+                                                <div wire:loading wire:target="changePasswordWithOtp">
+
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
+                                                         preserveAspectRatio="xMidYMid" width="30px" height="30px">
+
+                                                        <g>
+                                                            <path stroke="none" fill="#ffffff"
+                                                                  d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
+
+                                                                <animateTransform values="0 50 51.5;360 50 51.5"
+                                                                                  keyTimes="0;1"
+                                                                                  repeatCount="indefinite" dur="0.8s"
+                                                                                  type="rotate"
+                                                                                  attributeName="transform"/>
+
+                                                            </path>
+                                                        </g>
+
+                                                    </svg>
+
+                                                </div>
+
+                                            </button>
+
+                                        @endif
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <!-- end tabs:contents:tabThree -->
                             <!-- end tabs:contents:tabTwo -->
                         </div><!-- end tabs:contents -->
                     </div><!-- end tabs container -->

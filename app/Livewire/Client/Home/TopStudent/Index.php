@@ -8,6 +8,7 @@ use Livewire\Component;
 class Index extends Component
 {
     public $topStudent = [];
+
     public function mount()
     {
         $this->topStudent = SdfrStudent::query()->where('status','=',true)->get();
