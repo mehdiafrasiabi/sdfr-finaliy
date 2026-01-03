@@ -63,6 +63,8 @@ use App\Livewire\Manager\Classification\Topics;
 use App\Livewire\Manager\Notification\Index as NotificationIndex;
 use Illuminate\Support\Facades\Route;
 
+use App\Livewire\Manager\Setting\General as SettingGeneral;
+
 
 Route::name('manager.')->group(function () {
 
@@ -105,6 +107,7 @@ Route::name('manager.')->group(function () {
         Route::get('/department', DepartmentIndex::class)->name('department');
         Route::get('/blog/example-question', ExampleQuestion::class)->name('blog.exampleQuestion');
 
+        Route::get('/setting/general', SettingGeneral::class)->name('setting.general');
         Route::get('/setting/contactUs', SettingContactUs::class)->name('setting.contactUs');
         Route::get('/setting/sdfrStudent', SettingHomeTopStudent::class)->name('setting.topStudent');
         Route::get('/setting/sdfrSchool', SettingHomeSchoolSdfr::class)->name('setting.schoolSdfr');

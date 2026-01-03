@@ -96,3 +96,14 @@
 </script>
 
 @stack('script')
+@php
+
+    $generalSettings = \App\Models\GeneralSetting::first();
+
+@endphp
+
+@if($generalSettings && $generalSettings->footer_scripts)
+
+    {!! $generalSettings->footer_scripts !!}
+
+@endif

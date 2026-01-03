@@ -51,3 +51,14 @@
 
 
 @stack('link')
+@php
+
+    $generalSettings = \App\Models\GeneralSetting::first();
+
+@endphp
+
+@if($generalSettings && $generalSettings->head_scripts)
+
+    {!! $generalSettings->head_scripts !!}
+
+@endif

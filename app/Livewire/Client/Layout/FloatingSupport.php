@@ -1,11 +1,15 @@
 <?php
 
+
 namespace App\Livewire\Client\Layout;
 
+
 use App\Models\GeneralSetting;
+
 use Livewire\Component;
 
-class Footer extends Component
+
+class FloatingSupport extends Component
 
 {
 
@@ -16,12 +20,11 @@ class Footer extends Component
         $settings = GeneralSetting::first();
 
 
-
-        return view('livewire.client.layout.footer', [
+        return view('livewire.client.layout.floating-support', [
 
             'settings' => $settings
 
-        ])->layout('layouts.client.app');
+        ]);
 
     }
 

@@ -388,13 +388,13 @@
                             </div>
                         </div>
                     </li>
-{{--                    <li class="nav-item ">--}}
-{{--                        <a class="nav-link menu-link {{ request()->routeIs('manager.education.structure') ? 'active' : '' }}"--}}
-{{--                           href="{{route('manager.education.structure')}}" role="button"--}}
-{{--                           aria-expanded="false" aria-controls="sidebarDashboards">--}}
-{{--                            <i class="ri-book-2-line"></i> <span data-key="t-dashboards">ساختار آموزشی</span>--}}
-{{--                        </a>--}}
-{{--                    </li>--}}
+                    {{--                    <li class="nav-item ">--}}
+                    {{--                        <a class="nav-link menu-link {{ request()->routeIs('manager.education.structure') ? 'active' : '' }}"--}}
+                    {{--                           href="{{route('manager.education.structure')}}" role="button"--}}
+                    {{--                           aria-expanded="false" aria-controls="sidebarDashboards">--}}
+                    {{--                            <i class="ri-book-2-line"></i> <span data-key="t-dashboards">ساختار آموزشی</span>--}}
+                    {{--                        </a>--}}
+                    {{--                    </li>--}}
                     <li class="nav-item ">
                         <a class="nav-link menu-link {{ request()->routeIs('manager.paymentMethod') ? 'active' : '' }}"
                            href="{{route('manager.paymentMethod')}}" role="button"
@@ -431,17 +431,29 @@
                     </li>
                     <li class="nav-item ">
                         <a class="nav-link menu-link {{ request()->routeIs('manager.setting') ? 'active' : '' }}"
-                           href="#cotactUs" data-bs-toggle="collapse" role="button"
-                           aria-expanded="false" aria-controls="cotactUs">
+                           href="#setting" data-bs-toggle="collapse" role="button"
+                           aria-expanded="false" aria-controls="setting">
                             <i class=" ri-settings-2-line"></i>
                             <span data-key="t-base-ui">تنظیمات </span>
                         </a>
-                        <div class="collapse menu-dropdown mega-dropdown-menu" id="cotactUs">
+                        <div class="collapse menu-dropdown mega-dropdown-menu" id="setting">
                             <div class="row">
                                 <div class="col-lg-4">
                                     <ul class="nav nav-sm flex-column">
 
 
+                                        <li class="nav-item">
+                                            <a href="{{route('manager.setting.general')}}" class="nav-link "
+                                               data-key="t-basic">تنطیمات کلی</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{route('manager.newsletter')}}" class="nav-link "
+                                               data-key="t-basic">خبرنامه</a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="{{route('manager.setting.contactUs')}}" class="nav-link "
+                                               data-key="t-basic">ارتباط با ما </a>
+                                        </li>
                                         <li class="nav-item">
                                             <a href="{{route('manager.setting.schoolSdfr')}}" class="nav-link "
                                                data-key="t-basic">حضور sdfr در هر مدرسه</a>
@@ -450,18 +462,7 @@
                                             <a href="{{route('manager.setting.topStudent')}}" class="nav-link "
                                                data-key="t-basic">گوشه از لبخند ستارگان</a>
                                         </li>
-                                        <li class="nav-item ">
-                                            <a class="nav-link menu-link {{ request()->routeIs('manager.newsletter') ? 'active' : '' }}"
-                                               href="{{route('manager.newsletter')}}" role="button"
-                                               aria-expanded="false" aria-controls="sidebarDashboards">
-                                                <i class="ri-mail-send-line"></i> <span
-                                                    data-key="t-dashboards">خبرنامه</span>
-                                            </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="{{route('manager.setting.contactUs')}}" class="nav-link "
-                                               data-key="t-basic">ارتباط با ما </a>
-                                        </li>
+
 
                                     </ul>
                                 </div>

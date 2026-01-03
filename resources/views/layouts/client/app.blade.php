@@ -368,6 +368,10 @@
     <!-- footer -->
     <livewire:client.layout.footer/>
     <!-- end footer -->
+
+    <!-- Floating Support Button -->
+    <livewire:client.layout.floating-support/>
+
 </div>
 <script>
     const banner = document.getElementById('pwaBanner');

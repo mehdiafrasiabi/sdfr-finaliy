@@ -36,22 +36,37 @@
                                 </span>
                             <div class="flex flex-col font-black space-y-2">
                                 <span class="text-sm text-primary">شماره تلفن</span>
-                                <span class="text-foreground">051-35092160</span>
+                                <span class="text-foreground">{{ $settings->support_phone ?? '051-35092160' }}</span>
+
                             </div>
+
                         </div>
+
                         <div class="flex items-center gap-5">
+
                                 <span
+
                                     class="flex items-center justify-center w-12 h-12 bg-secondary rounded-full text-muted">
+
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+
                                          class="w-5 h-5">
+
                                         <path fill-rule="evenodd"
+
                                               d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z"
+
                                               clip-rule="evenodd"></path>
+
                                     </svg>
+
                                 </span>
+
                             <div class="flex flex-col font-black space-y-2">
+
                                 <span class="text-sm text-primary">ساعات کاری</span>
-                                <span class="text-foreground">۰۹:۰۰ - ۱۷:۰۰</span>
+
+                                <span class="text-foreground">{{ $settings->support_hours ?? '۰۹:۰۰ - ۱۷:۰۰' }}</span>
                             </div>
                         </div>
                     </div>
@@ -68,9 +83,10 @@
                             <div class="font-black text-foreground">دربــــاره</div>
                         </div>
                         <p class="font-semibold text-sm text-muted">
-                            SDFR، اولین سامانه هوشمند مشاوره و آنالیز دقیق تحصیلی در ایران!
-                            با صرفه جویی در وقت و هزینه، پشتیبانی تحصیلی روزانه و ابزار های حرفه ای و هوشمند آموزشی حس
-                            پیشرفت در آزمون های تشریحی و تستی را تجربه کنید!
+                            {{ $settings->site_description ??
+ 'SDFR، اولین سامانه هوشمند مشاوره و آنالیز دقیق تحصیلی
+ در ایران! با صرفه جویی در وقت و هزینه، پشتیبانی تحصیلی
+ روزانه و ابزار های حرفه ای و هوشمند آموزشی حس پیشرفت در آزمون های تشریحی و تستی را تجربه کنید!' }}
                         </p>
                     </div>
                 </div>
@@ -114,12 +130,25 @@
                                     </div>
                                     <div class="font-black text-foreground">نشان های اعتماد</div>
                                 </div>
-                                <div class="text-sm text-muted">
-                                    <a referrerpolicy='origin' target='_blank'
-                                       href='https://trustseal.enamad.ir/?id=631278&Code=tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'><img
-                                            referrerpolicy='origin'
-                                            src='https://trustseal.enamad.ir/logo.aspx?id=631278&Code=tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'
-                                            alt='' style='cursor:pointer' code='tekNO0LdZ1opr25Z3ektQ3PXsJAlL7go'></a>
+                                <div class="text-sm text-muted flex flex-wrap gap-3">
+
+                                    @if($settings?->enamad_script)
+
+                                        {!! $settings->enamad_script !!}
+
+                                    @endif
+
+                                    @if($settings?->samandehi_script)
+
+                                        {!! $settings->samandehi_script !!}
+
+                                    @endif
+
+                                    @if($settings?->etehaddiye_script)
+
+                                        {!! $settings->etehaddiye_script !!}
+
+                                    @endif
                                 </div>
                             </div>
                             <div class="space-y-5">
@@ -131,42 +160,113 @@
                                     <div class="font-black text-foreground">شبکه های اجتماعی</div>
                                 </div>
                                 <ul class="flex flex-wrap items-center gap-5">
-                                    <li>
-                                        <a href="https://instagram.com/sdfr.me"
-                                           class="flex items-center justify-center w-12 h-12 bg-secondary rounded-full text-foreground transition-colors hover:text-primary">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                 stroke-linejoin="round" class="w-5 h-5">
-                                                <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
-                                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-                                                <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
-                                            </svg>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="https://t.me/Atghiaeee"
-                                           class="flex items-center justify-center w-12 h-12 bg-secondary rounded-full text-foreground transition-colors hover:text-primary">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                 stroke-linejoin="round" class="w-5 h-5">
-                                                <path d="m22 2-7 20-4-9-9-4Z"></path>
-                                                <path d="M22 2 11 13"></path>
-                                            </svg>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a href="#"
-                                           class="flex items-center justify-center w-12 h-12 bg-secondary rounded-full text-foreground transition-colors hover:text-primary">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                 stroke-linejoin="round" class="w-5 h-5">
-                                                <path
-                                                    d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17">
-                                                </path>
-                                                <path d="m10 15 5-3-5-3z"></path>
-                                            </svg>
-                                        </a>
-                                    </li>
+                                    @if($settings?->instagram)
+
+                                        <li>
+
+                                            <a href="{{ $settings->instagram }}"
+
+                                               class="flex items-center justify-center w-12 h-12 bg-secondary rounded-full text-foreground transition-colors hover:text-primary">
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+
+                                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+
+                                                     stroke-linejoin="round" class="w-5 h-5">
+
+                                                    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"></rect>
+
+                                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+
+                                                    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"></line>
+
+                                                </svg>
+
+                                            </a>
+
+                                        </li>
+
+                                    @endif
+
+                                    @if($settings?->telegram)
+
+                                        <li>
+
+                                            <a href="{{ $settings->telegram }}"
+
+                                               class="flex items-center justify-center w-12 h-12 bg-secondary rounded-full text-foreground transition-colors hover:text-primary">
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+
+                                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+
+                                                     stroke-linejoin="round" class="w-5 h-5">
+
+                                                    <path d="m22 2-7 20-4-9-9-4Z"></path>
+
+                                                    <path d="M22 2 11 13"></path>
+
+                                                </svg>
+
+                                            </a>
+
+                                        </li>
+
+                                    @endif
+
+                                    @if($settings?->youtube)
+
+                                        <li>
+
+                                            <a href="{{ $settings->youtube }}"
+
+                                               class="flex items-center justify-center w-12 h-12 bg-secondary rounded-full text-foreground transition-colors hover:text-primary">
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+
+                                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+
+                                                     stroke-linejoin="round" class="w-5 h-5">
+
+                                                    <path
+
+                                                        d="M2.5 17a24.12 24.12 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.56 49.56 0 0 1 16.2 0A2 2 0 0 1 21.5 7a24.12 24.12 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.55 49.55 0 0 1-16.2 0A2 2 0 0 1 2.5 17">
+
+                                                    </path>
+
+                                                    <path d="m10 15 5-3-5-3z"></path>
+
+                                                </svg>
+
+                                            </a>
+
+                                        </li>
+
+                                    @endif
+
+                                    @if($settings?->aparat)
+
+                                        <li>
+
+                                            <a href="{{ $settings->aparat }}"
+
+                                               class="flex items-center justify-center w-12 h-12 bg-secondary rounded-full text-foreground transition-colors hover:text-primary">
+
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                     fill="currentColor"
+
+                                                     class="w-5 h-5">
+
+                                                    <path
+                                                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
+
+                                                </svg>
+
+                                            </a>
+
+                                        </li>
+
+                                    @endif
                                 </ul>
                             </div>
                         </div>
