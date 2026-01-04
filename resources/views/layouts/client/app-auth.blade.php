@@ -139,9 +139,7 @@
 </head>
 
 <body class="dark">
-<div class="bg-wrapper">
-    <div class="bg-circle bg-circle-1"></div>
-    <div class="bg-circle bg-circle-2"></div>
+<div class="">
     <div class="bg-content">
         {{$slot}}
     </div>

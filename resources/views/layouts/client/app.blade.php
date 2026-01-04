@@ -305,7 +305,7 @@
          class="hidden w-full flex-wrap md:flex-nowrap justify-center md:justify-between items-center md:py-4 py-2 gap-2 bg-green-700 z-20 relative">
 
         <!-- متن سمت راست -->
-        <p class="font-black xs:text-2xl text-lg text-white text-center md:text-right">
+        <p class="font-black xs:text-2xl text-lg text-white text-center md:text-center">
             📱 همین حالا SDFR رو روی موبایلت داشته باش
         </p>
 
