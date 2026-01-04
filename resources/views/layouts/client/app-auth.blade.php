@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="/client/assets/css/fonts.css" />
     <link rel="stylesheet" href="/client/assets/css/app.css" />
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @stack('link')
     <title>ورود و ثبت نام</title>
     <style>

@@ -1,347 +1,878 @@
-<div class="min-h-screen flex items-center justify-center bg-background p-5">
-    <div class="w-full max-w-sm space-y-5">
-        <div class="bg-gradient-to-b from-secondary to-background rounded-3xl space-y-5 px-5 pb-5">
-            <div class="bg-background rounded-b-3xl space-y-2 p-5 " style="    text-align: center;">
-                <a href="{{route('client.home')}}" class="inline-flex items-center gap-2 text-primary">
+<div class="min-h-screen flex flex-col lg:flex-row bg-background p-5">
 
-                    <img src="/client/assets/images/theme/intro/header.png" style="width: 100px;">
+    @push('link')
 
-                </a>
+        <style>
+
+            .auth-bg {
+
+                background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)),
+                url('/client/test.JPG') center/cover no-repeat;
+
+            }
+
+
+            .shadow-soft {
+
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+
+            }
+
+
+            .dark .shadow-soft-dark {
+
+                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+
+            }
+
+
+            .input-icon {
+
+                left: 12px;
+                bottom: 6px;
+
+            }
+
+
+            .password-toggle {
+
+                left: 12px;
+                bottom: 6px;
+
+            }
+
+
+            .loading-spinner {
+
+                border: 2px solid transparent;
+
+                border-top-color: currentColor;
+
+                border-radius: 50%;
+
+                width: 16px;
+
+                height: 16px;
+
+                animation: spin 0.8s linear infinite;
+
+            }
+
+
+            @keyframes spin {
+
+                to {
+                    transform: rotate(360deg);
+                }
+
+            }
+
+
+            .countdown-circle {
+
+                width: 60px;
+
+                height: 60px;
+
+                border-radius: 50%;
+
+                background: hsl(var(--secondary));
+
+                display: flex;
+
+                align-items: center;
+
+                justify-content: center;
+
+                font-weight: bold;
+
+                font-size: 18px;
+
+                color: hsl(var(--primary));
+
+                border: 3px solid hsl(var(--primary));
+
+            }
+
+
+            .fade-in {
+
+                animation: fadeIn 0.3s ease-in-out;
+
+            }
+
+
+            @keyframes fadeIn {
+
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+
+            }
+
+
+            .requirement-item {
+
+                display: flex;
+
+                align-items: center;
+
+                gap: 8px;
+
+                font-size: 12px;
+
+                margin-bottom: 4px;
+
+            }
+
+
+            .requirement-circle {
+
+                width: 8px;
+
+                height: 8px;
+
+                border-radius: 50%;
+
+                transition: background-color 0.3s ease;
+
+            }
+
+
+            .requirement-circle.valid {
+
+                background-color: #10b981;
+
+            }
+
+
+            .requirement-circle.invalid {
+
+                background-color: #ef4444;
+
+            }
+
+        </style>
+
+    @endpush
+
+
+
+    <!-- Image section -->
+
+    <div class="lg:w-1/2 auth-bg relative hidden lg:flex items-center justify-center p-12">
+
+        <div class="absolute inset-0 bg-black/30 dark:bg-black/50"></div>
+
+        <div class="relative z-10 text-white text-center max-w-md">
+
+
+            <h2 class="font-black sm:text-5xl text-3xl text-foreground mb-5">مجموعه SDFR همواره برای پیشرفت دانش آموزان
+                خود تلاش میکند!</h2>
+
+            {{--            <p class="text-lg mb-6"></p>--}}
+
+        </div>
+
+    </div>
+
+
+    <!-- Recovery form section -->
+
+    <div class="lg:w-1/2 flex items-center justify-center p-6">
+
+        <div class="w-full max-w-md">
+
+            <!-- Mobile logo -->
+
+            <div class="flex items-center justify-center mb-8 lg:hidden">
+
+
             </div>
 
-            <!-- auth:verification:form -->
-            @if ($step === 1)
-            <div class="space-y-3">
-                <div class="flex items-center gap-3">
-                    <div class="flex items-center gap-1">
-                        <div class="w-1 h-1 bg-foreground rounded-full"></div>
-                        <div class="w-2 h-2 bg-foreground rounded-full"></div>
+
+            <div
+                class="bg-gradient-to-b from-secondary to-background space-y-5 px-5 pb-5 rounded-3xl shadow-soft dark:shadow-soft-dark  border border-border">
+
+                <div class="bg-background rounded-b-3xl space-y-2 p-5 " style="    text-align: center;">
+                    <a href="https://sdfr.me" class="inline-flex items-center gap-2 text-primary">
+
+                        <img src="/client/assets/images/theme/intro/header.png" style="width: 100px;">
+
+                    </a>
+                </div>
+
+                <!-- Error message -->
+
+                @if($errorMessage)
+
+                    <div
+                        class="mb-4 p-3 bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-700 rounded-xl text-red-600 dark:text-red-400 text-sm">
+
+                        {{ $errorMessage }}
+
                     </div>
-                    <div class="font-black text-foreground">بازنشانی گذرواژه</div>
-                </div>
-                <div class="text-sm text-muted space-y-3">
-                    <p>درود 👋</p>
-                    <p>لطفا شماره موبایل متصل به حساب کاربری را وارد کنید</p>
-                </div>
 
-                <!-- form:field:wrapper -->
-                <div class="text-sm text-muted space-y-3">
-
-                    <p>نام کاربری :</p>
-                </div>
-                <div class="flex items-center relative">
-                    <input type="tel" dir="rtl"
-                           wire:model="mobile"
-                           placeholder="بطور مثال:09121234567"
-                           maxlength="11"
-                           name="phone"
-                           class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground placeholder:text-right px-5"/>
-
-
-                </div>
-                @error('mobile')
-                <div style="margin-top: 6px;color: red;font-size: 10px">{{ $message }}</div>
-                @enderror
-                <div style="" class="font-medium text-xs text-right text-muted">
-
-                        <span class="text-right transition-colors">
-                        </span>
-
-                </div>
-                <!-- end form:field:wrapper -->
-                @if ($successMessage)
-                    <div class="bg-success text-white p-4 rounded">{{ $successMessage }}</div>
                 @endif
-                <!-- form:submit button -->
-                <button type="submit"
-                        wire:click="sendCode"
-                        class="flex items-center justify-center gap-1 w-full h-10 bg-primary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4 mt-20">
-                    <div wire:loading.remove>
-                        <span class="font-semibold text-sm">برو بریم</span>
+
+
+
+                <!-- Step 1: Request recovery code -->
+
+                @if($step === 1)
+
+                    <div>
+
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="flex items-center gap-1">
+                                <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                                <div class="w-2 h-2 bg-foreground rounded-full"></div>
+                            </div>
+                            <div class="font-black text-foreground">بازیابی رمز عبور</div>
+                        </div>
+
+
+                        <form wire:submit.prevent="sendCode" class="space-y-5">
+
+                            <!-- Mobile -->
+
+                            <div>
+
+                                <label for="mobile" class="block text-sm font-medium text-foreground mb-2">شماره
+                                    موبایل</label>
+
+                                <div class="relative">
+
+                                    <input type="tel" id="mobile"
+
+                                           wire:model.live="mobile"
+
+                                           maxlength="11"
+                                           dir="rtl"
+
+                                           class="w-full ps-4 pe-10 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-secondary text-foreground placeholder:text-muted @error('mobile') border-red-500 @enderror"
+
+                                           placeholder="09123456789">
+
+                                    <div class="absolute input-icon top-1/2 transform -translate-y-1/2 text-muted">
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+
+                                        </svg>
+
+                                    </div>
+
+                                </div>
+
+                                @error('mobile')
+
+                                <p class="mt-2 text-xs text-red-500">{{ $message }}</p>
+
+                                @enderror
+
+                                <p class="mt-3 text-xs text-muted">کد بازیابی به این شماره ارسال خواهد شد</p>
+
+                            </div>
+
+
+                            <!-- Submit button -->
+
+                            <div>
+
+                                <button type="submit"
+
+                                        class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50"
+
+                                        wire:loading.attr="disabled"
+
+                                        wire:target="sendCode">
+
+                                    <span wire:loading.remove wire:target="sendCode">ارسال کد بازیابی</span>
+
+                                    <span wire:loading wire:target="sendCode" class="flex items-center gap-2">
+
+                                    <span class="loading-spinner"></span>
+
+                                    در حال ارسال...
+
+                                </span>
+
+                                    <svg wire:loading.remove wire:target="sendCode" xmlns="http://www.w3.org/2000/svg"
+                                         class="h-5 w-5 ms-2" viewBox="0 0 20 20" fill="currentColor">
+
+                                        <path
+                                            d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                        </form>
 
                     </div>
-                    <div wire:loading>
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                             viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="40px" height="40px"
-                             style="shape-rendering: auto; display: block; background: transparent;">
-                            <g>
-                                <path stroke="none" fill="#ffffff"
-                                      d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
-                                    <animateTransform values="0 50 51.5;360 50 51.5" keyTimes="0;1"
-                                                      repeatCount="indefinite" dur="0.8130081300813008s"
-                                                      type="rotate" attributeName="transform"/>
-                                </path>
-                                <g/>
-                            </g>
-                        </svg>
-                    </div>
-                </button>
-                <hr class="border-dashed">
-                <!-- end form:submit button -->
-                <div class="font-medium text-xs text-center text-muted">
 
-                    <a href="{{route('client.auth.otp')}}" class=" rounded-full text-white transition-colors hover:text-white h-8 w-full">
-                        ورود از طریق رمز یکبار مصرف
-                    </a>
+                @endif
 
-                </div>
-                <div class="font-medium text-xs text-center text-muted">
-                    حساب کاربری نداری؟همین حالا
-                    <a href="{{route('client.auth.signup')}}" class="text-foreground transition-colors hover:text-primary text-green-500">
-                        ثبت نام
-                    </a> کن.
 
-                </div>
-                <div class="font-medium text-xs text-center text-muted">
 
-                    <a href="{{route('client.auth.forgotPassword')}}"
-                       class="text-foreground transition-colors hover:text-primary text-red-500 ">
-                        فراموشی رمز عبور
-                    </a>
+                <!-- Step 2: Verify code -->
 
-                </div>
-            </div>
-            @elseif ($step === 2)
-                <div class="space-y-3">
-                        <div class="flex items-center gap-3">
+                @if($step === 2)
+
+                    <div x-data="countdownTimer()" x-init="startCountdown(90)">
+
+                        <div class="flex items-center gap-3 mb-5">
                             <div class="flex items-center gap-1">
                                 <div class="w-1 h-1 bg-foreground rounded-full"></div>
                                 <div class="w-2 h-2 bg-foreground rounded-full"></div>
                             </div>
                             <div class="font-black text-foreground">اعتبار سنجی</div>
                         </div>
-                        <div class="text-sm text-muted space-y-3">
-                            <p>کاربر عزیز 👋</p>
-                            <p>کد اعتبار سنجی برای شما ارسال گردید.</p>
-                        </div>
+                        <div class="text-center mb-8">
 
-                        <!-- form:field:wrapper -->
-                        <div class="text-sm text-muted space-y-3">
+                            <p class="text-muted">کد ارسال شده به <span class="font-medium text-foreground"
+                                                                        dir="ltr">{{ $mobile }}</span> را وارد کنید</p>
 
-                            <p>کد :</p>
-                        </div>
-                        <div class="flex items-center relative">
-                            <input type="tel" dir="rtl"
-                                   wire:model="code"
-                                   placeholder="بطور مثال:09121234567"
-                                   maxlength="11"
-                                   name="code"
-                                   class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground placeholder:text-right px-5"/>
-
+                            <button type="button" wire:click="backToMobileStep"
+                                    class="text-xs text-primary hover:underline mt-1">تغییر شماره
+                            </button>
 
                         </div>
-                        @error('code')
-                        <div style="margin-top: 6px;color: red;font-size: 10px">{{ $message }}</div>
-                        @enderror
-                        <div style="" class="font-medium text-xs text-right text-muted">
 
-                        <span class="text-right transition-colors">
-                        </span>
 
-                        </div>
-                        <!-- end form:field:wrapper -->
-                    @if ($successMessage)
-                        <div class="bg-success text-white p-4 rounded">{{ $successMessage }}</div>
-                    @endif
-                        <!-- form:submit button -->
-                        <button type="submit"
-                                wire:click="verifyCode"
-                                class="flex items-center justify-center gap-1 w-full h-10 bg-primary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4 mt-20">
-                            <div wire:loading.remove>
-                                <span class="font-semibold text-sm">اعتبارسنجی</span>
+                        <form wire:submit.prevent="verifyCode" class="space-y-5">
+
+                            <!-- Code input -->
+
+                            <div>
+
+                                <label for="code" class="block text-sm font-medium text-foreground mb-2">کد
+                                    تایید</label>
+
+                                <div class="relative">
+
+                                    <input type="tel" id="code"
+
+                                           wire:model.live="code"
+
+                                           maxlength="6"
+
+                                           class="w-full ps-4 pe-10 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-secondary text-foreground placeholder:text-muted text-center text-lg tracking-widest @error('code') border-red-500 @enderror"
+
+                                           placeholder="------">
+
+                                    <div class="absolute input-icon top-1/2 transform -translate-y-1/2 text-muted">
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+
+                                        </svg>
+
+                                    </div>
+
+                                </div>
+
+                                @error('code')
+
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+
+                                @enderror
 
                             </div>
-                            <div wire:loading>
-                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                     viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="40px" height="40px"
-                                     style="shape-rendering: auto; display: block; background: transparent;">
-                                    <g>
-                                        <path stroke="none" fill="#ffffff"
-                                              d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
-                                            <animateTransform values="0 50 51.5;360 50 51.5" keyTimes="0;1"
-                                                              repeatCount="indefinite" dur="0.8130081300813008s"
-                                                              type="rotate" attributeName="transform"/>
-                                        </path>
-                                        <g/>
-                                    </g>
+
+
+                            <!-- Countdown Timer -->
+
+                            <div class="text-center">
+
+                                <template x-if="countdown > 0">
+
+                                    <div class="flex flex-col items-center gap-2">
+
+                                        <p class="text-sm text-muted">ارسال مجدد کد تا</p>
+
+                                        <div class="countdown-circle">
+
+                                            <span x-text="countdown"></span>
+
+                                        </div>
+
+                                        <p class="text-xs text-muted">ثانیه</p>
+
+                                    </div>
+
+                                </template>
+
+                                <template x-if="countdown <= 0">
+
+                                    <button type="button"
+
+                                            wire:click="resendCode"
+
+                                            @click="startCountdown(90)"
+
+                                            class="text-primary hover:text-primary/80 font-medium text-sm transition-colors disabled:opacity-50"
+
+                                            wire:loading.attr="disabled"
+
+                                            wire:target="resendCode">
+
+                                        <span wire:loading.remove wire:target="resendCode">ارسال مجدد کد</span>
+
+                                        <span wire:loading wire:target="resendCode"
+                                              class="flex items-center gap-2 justify-center">
+
+                                        <span class="loading-spinner"></span>
+
+                                        در حال ارسال...
+
+                                    </span>
+
+                                    </button>
+
+                                </template>
+
+                            </div>
+
+
+                            <!-- Verify button -->
+
+                            <div>
+
+                                <button type="submit"
+
+                                        class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50"
+
+                                        wire:loading.attr="disabled"
+
+                                        wire:target="verifyCode">
+
+                                    <span wire:loading.remove wire:target="verifyCode">تایید کد</span>
+
+                                    <span wire:loading wire:target="verifyCode" class="flex items-center gap-2">
+
+                                    <span class="loading-spinner"></span>
+
+                                    در حال بررسی...
+
+                                </span>
+
+                                    <svg wire:loading.remove wire:target="verifyCode" xmlns="http://www.w3.org/2000/svg"
+                                         class="h-5 w-5 ms-2" viewBox="0 0 20 20" fill="currentColor">
+
+                                        <path fill-rule="evenodd"
+                                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                              clip-rule="evenodd"/>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                @endif
+
+
+
+                <!-- Step 3: Set new password -->
+
+                @if($step === 3)
+
+                    <div x-data="{ showPassword: false, showConfirmPassword: false }">
+
+                        <div class="flex items-center gap-3 mb-5">
+                            <div class="flex items-center gap-1">
+                                <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                                <div class="w-2 h-2 bg-foreground rounded-full"></div>
+                            </div>
+                            <div class="font-black text-foreground">وارد کردن رمزعبور جدید</div>
+                        </div>
+
+                        <form wire:submit.prevent="resetPassword" class="space-y-5">
+
+                            <!-- New password -->
+
+                            <div>
+
+                                <label for="password" class="block text-sm font-medium text-foreground mb-2">رمز عبور
+                                    جدید</label>
+
+                                <div class="relative">
+
+                                    <input :type="showPassword ? 'text' : 'password'" id="password"
+
+                                           wire:model.live="password"
+
+                                           class="w-full ps-10 pe-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-secondary text-foreground placeholder:text-muted @error('password') border-red-500 @enderror"
+
+                                           placeholder="رمز عبور جدید">
+
+                                    <button type="button" @click="showPassword = !showPassword"
+                                            class="absolute password-toggle top-1/2 transform -translate-y-1/2 text-muted hover:text-foreground">
+
+                                        <svg x-show="!showPassword" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5"
+                                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+
+                                        </svg>
+
+                                        <svg x-show="showPassword" style="display: none;"
+                                             xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+
+                                        </svg>
+
+                                    </button>
+
+                                </div>
+
+                                @error('password')
+
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+
+                                @enderror
+
+
+
+                                <!-- Password Requirements -->
+
+                                <div class="mt-3 p-3 bg-secondary rounded-lg">
+
+                                    <p class="text-xs font-medium text-muted mb-2">رمز عبور باید شامل موارد زیر
+                                        باشد:</p>
+
+                                    <div class="requirement-item">
+
+                                        <span
+                                            class="requirement-circle {{ $passwordStrength['length'] ? 'valid' : 'invalid' }}"></span>
+
+                                        <span class="text-foreground">حداقل ۸ کاراکتر</span>
+
+                                    </div>
+
+                                    <div class="requirement-item">
+
+                                        <span
+                                            class="requirement-circle {{ $passwordStrength['letter'] ? 'valid' : 'invalid' }}"></span>
+
+                                        <span class="text-foreground">حداقل یک حرف انگلیسی (بزرگ یا کوچک)</span>
+
+                                    </div>
+
+                                    <div class="requirement-item">
+
+                                        <span
+                                            class="requirement-circle {{ $passwordStrength['number'] ? 'valid' : 'invalid' }}"></span>
+
+                                        <span class="text-foreground">حداقل یک عدد</span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Confirm password -->
+
+                            <div>
+
+                                <label for="password_confirmation"
+                                       class="block text-sm font-medium text-foreground mb-2">تکرار رمز عبور
+                                    جدید</label>
+
+                                <div class="relative">
+
+                                    <input :type="showConfirmPassword ? 'text' : 'password'" id="password_confirmation"
+
+                                           wire:model="passwordConfirmation"
+
+                                           class="w-full ps-10 pe-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-secondary text-foreground placeholder:text-muted @error('password_confirmation') border-red-500 @enderror"
+
+                                           placeholder="تکرار رمز عبور جدید">
+
+                                    <button type="button" @click="showConfirmPassword = !showConfirmPassword"
+                                            class="absolute password-toggle top-1/2 transform -translate-y-1/2 text-muted hover:text-foreground">
+
+                                        <svg x-show="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg"
+                                             class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+
+                                        </svg>
+
+                                        <svg x-show="showConfirmPassword" style="display: none;"
+                                             xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                             viewBox="0 0 24 24" stroke="currentColor">
+
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>
+
+                                        </svg>
+
+                                    </button>
+
+                                </div>
+
+                                @error('password_confirmation')
+
+                                <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
+
+                                @enderror
+
+                            </div>
+
+
+                            <!-- Submit button -->
+
+                            <div>
+
+                                <button type="submit"
+
+                                        class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50"
+
+                                        wire:loading.attr="disabled"
+
+                                        wire:target="resetPassword">
+
+                                    <span wire:loading.remove wire:target="resetPassword">ثبت رمز جدید</span>
+
+                                    <span wire:loading wire:target="resetPassword" class="flex items-center gap-2">
+
+                                    <span class="loading-spinner"></span>
+
+                                    در حال ثبت...
+
+                                </span>
+
+                                    <svg wire:loading.remove wire:target="resetPassword"
+                                         xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ms-2" viewBox="0 0 20 20"
+                                         fill="currentColor">
+
+                                        <path fill-rule="evenodd"
+                                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                                              clip-rule="evenodd"/>
+
+                                    </svg>
+
+                                </button>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                @endif
+
+
+
+                <!-- Step 4: Success -->
+
+                @if($step === 4)
+
+                    <div class="text-center">
+
+                        <div
+                            class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100 dark:bg-green-900/30 mb-6">
+
+                            <svg class="h-8 w-8 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24"
+                                 stroke="currentColor">
+
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M5 13l4 4L19 7"/>
+
+                            </svg>
+
+                        </div>
+
+                        <h2 class="text-2xl font-bold text-foreground mb-2">رمز عبور با موفقیت تغییر کرد!</h2>
+
+                        <p class="text-muted mb-6">اکنون می‌توانید با رمز عبور جدید وارد حساب کاربری خود شوید</p>
+
+
+                        <button type="button"
+
+                                wire:click="loginAndRedirect"
+
+                                class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary transition-all disabled:opacity-50"
+
+                                wire:loading.attr="disabled"
+
+                                wire:target="loginAndRedirect">
+
+                            <span wire:loading.remove wire:target="loginAndRedirect">ورود به حساب کاربری</span>
+
+                            <span wire:loading wire:target="loginAndRedirect" class="flex items-center gap-2">
+
+                            <span class="loading-spinner"></span>
+
+                            در حال ورود...
+
+                        </span>
+
+                            <svg wire:loading.remove wire:target="loginAndRedirect" xmlns="http://www.w3.org/2000/svg"
+                                 class="h-5 w-5 ms-2" viewBox="0 0 20 20" fill="currentColor">
+
+                                <path fill-rule="evenodd"
+                                      d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z"
+                                      clip-rule="evenodd"/>
+
+                            </svg>
+
+                        </button>
+
+                    </div>
+
+                @endif
+
+
+
+                <!-- Return to login link -->
+
+                @if($step !== 4)
+
+                    <div class="mt-6 text-center">
+
+                        <p class="text-sm text-muted">
+
+                            <a href="{{ route('client.auth.login') }}"
+                               class="font-medium text-primary hover:underline flex items-center justify-center">
+
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 me-1" fill="none"
+                                     viewBox="0 0 24 24" stroke="currentColor">
+
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+
                                 </svg>
-                            </div>
-                        </button>
-                        <hr class="border-dashed">
-                        <!-- end form:submit button -->
-                    </div>
-            @elseif ($step === 3)
-                <div class="space-y-3">
-                    <div class="flex items-center gap-3">
-                        <div class="flex items-center gap-1">
-                            <div class="w-1 h-1 bg-foreground rounded-full"></div>
-                            <div class="w-2 h-2 bg-foreground rounded-full"></div>
-                        </div>
-                        <div class="font-black text-foreground">تغییر رمز عبور</div>
-                    </div>
-                    <div class="text-sm text-muted space-y-3">
-                        <p>کاربر عزیز 👋</p>
-                        <p>لطفا برای حساب کاربری خود رمز ایمن وارد کنید.</p>
-                    </div>
 
-                    <!-- form:field:wrapper -->
-                    <div class="text-sm text-muted space-y-3">
+                                بازگشت به صفحه ورود
 
-                        <p>رمز عبور جدید :</p>
-                    </div>
-                    <div class="flex items-center relative form-group">
+                            </a>
 
-                        <input type="password"
-                               wire:model="password"
-                               dir="rtl"
-                               id="password"
-                               class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground placeholder:text-right px-5"/>
-                        <button type="button" onclick="togglePassword()" style="
-                        position: absolute;
-                        top: 50%;
-                        right: 308px;
-                        transform: translateY(-50%);
-                        background: none;
-                        border: none;
-                        cursor: pointer; ">
-                            <!-- چشم باز -->
-                            <svg id="eye-open" xmlns="http://www.w3.org/2000/svg"
-                                 class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
-                                <path
-                                    d="M10 3C5.5 3 1.7 6.1.4 10c1.3 3.9 5.1 7 9.6 7s8.3-3.1 9.6-7c-1.3-3.9-5.1-7-9.6-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
-                                <path d="M10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
-                            </svg>
-
-                            <!-- چشم بسته -->
-                            <svg  hidden id="eye-closed"  class="w-5 h-5" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                <title>eye-disabled-glyph</title>
-                                <path
-                                    d="M409.84,132.33l95.91-95.91A21.33,21.33,0,1,0,475.58,6.25L6.25,475.58a21.33,21.33,0,1,0,30.17,30.17L140.77,401.4A275.84,275.84,0,0,0,256,426.67c107.6,0,204.85-61.78,253.81-161.25a21.33,21.33,0,0,0,0-18.83A291,291,0,0,0,409.84,132.33ZM256,362.67a105.78,105.78,0,0,1-58.7-17.8l31.21-31.21A63.29,63.29,0,0,0,256,320a64.07,64.07,0,0,0,64-64,63.28,63.28,0,0,0-6.34-27.49l31.21-31.21A106.45,106.45,0,0,1,256,362.67ZM2.19,265.42a21.33,21.33,0,0,1,0-18.83C51.15,147.11,148.4,85.33,256,85.33a277,277,0,0,1,70.4,9.22l-55.88,55.88A105.9,105.9,0,0,0,150.44,270.52L67.88,353.08A295.2,295.2,0,0,1,2.19,265.42Z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    @error('password')
-                    <div style="margin-top: 6px;color: red;font-size: 10px">{{ $message }}</div>
-                    @enderror
-                    <div class="text-sm text-muted space-y-3">
-
-                        <p>تکرار رمز عبور جدید :</p>
-                    </div>
-                    <div class="flex items-center relative form-group">
-
-                        <input type="password"
-                               wire:model="password_confirmation"
-                               dir="rtl"
-                               id="password2"
-                               class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground placeholder:text-right px-5"/>
-                        <button type="button" onclick="togglePassword2()" style="
-                        position: absolute;
-                        top: 50%;
-                        right: 308px;
-                        transform: translateY(-50%);
-                        background: none;
-                        border: none;
-                        cursor: pointer; " class="text-white">
-                            <!-- چشم باز -->
-                            <svg id="eye-open" xmlns="http://www.w3.org/2000/svg"
-                                 class="w-5 h-5 text-white" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
-                                <path
-                                    d="M10 3C5.5 3 1.7 6.1.4 10c1.3 3.9 5.1 7 9.6 7s8.3-3.1 9.6-7c-1.3-3.9-5.1-7-9.6-7zm0 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
-                                <path d="M10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/>
-                            </svg>
-
-                            <!-- چشم بسته -->
-                            <svg  hidden id="eye-closed"  class="w-5 h-5 text-white" width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                                <title>eye-disabled-glyph</title>
-                                <path
-                                    d="M409.84,132.33l95.91-95.91A21.33,21.33,0,1,0,475.58,6.25L6.25,475.58a21.33,21.33,0,1,0,30.17,30.17L140.77,401.4A275.84,275.84,0,0,0,256,426.67c107.6,0,204.85-61.78,253.81-161.25a21.33,21.33,0,0,0,0-18.83A291,291,0,0,0,409.84,132.33ZM256,362.67a105.78,105.78,0,0,1-58.7-17.8l31.21-31.21A63.29,63.29,0,0,0,256,320a64.07,64.07,0,0,0,64-64,63.28,63.28,0,0,0-6.34-27.49l31.21-31.21A106.45,106.45,0,0,1,256,362.67ZM2.19,265.42a21.33,21.33,0,0,1,0-18.83C51.15,147.11,148.4,85.33,256,85.33a277,277,0,0,1,70.4,9.22l-55.88,55.88A105.9,105.9,0,0,0,150.44,270.52L67.88,353.08A295.2,295.2,0,0,1,2.19,265.42Z"/>
-                            </svg>
-                        </button>
-                    </div>
-                    @error('password_confirmation')
-                    <div style="margin-top: 6px;color: red;font-size: 10px">{{ $message }}</div>
-                    @enderror
-                    <div style="" class="font-medium text-xs text-right text-muted">
-
-                        <span class="text-right transition-colors">
-                        </span>
+                        </p>
 
                     </div>
-                    <!-- end form:field:wrapper -->
-                    @if ($successMessage)
-                        <div class="bg-success text-white p-4 rounded">{{ $successMessage }}</div>
-                    @endif
-                    <!-- form:submit button -->
-                    <button type="submit"
-                            wire:click="resetPassword"
-                            class="flex items-center justify-center gap-1 w-full h-10 bg-primary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4 mt-20">
-                        <div wire:loading.remove>
-                            <span class="font-semibold text-sm">تغییر رمز عبور</span>
 
-                        </div>
-                        <div wire:loading>
-                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                 viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="40px" height="40px"
-                                 style="shape-rendering: auto; display: block; background: transparent;">
-                                <g>
-                                    <path stroke="none" fill="#ffffff"
-                                          d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
-                                        <animateTransform values="0 50 51.5;360 50 51.5" keyTimes="0;1"
-                                                          repeatCount="indefinite" dur="0.8130081300813008s"
-                                                          type="rotate" attributeName="transform"/>
-                                    </path>
-                                    <g/>
-                                </g>
-                            </svg>
-                        </div>
-                    </button>
-                    <hr class="border-dashed">
-                    <!-- end form:submit button -->
-                </div>
-            @endif
-        </div>
-        <div class="bg-secondary rounded-xl space-y-5 p-5">
-            <div class="font-medium text-xs text-center text-muted">
-                ورود شما به معنای پذیرش <a href="{{route('client.terms')}}"
-                                           class="text-foreground transition-colors hover:text-primary hover:underline">شرایط</a>
-                و
-                <a href="{{route('client.terms')}}" class="text-foreground transition-colors hover:text-primary hover:underline">قوانین
-                    حریم خصوصی</a> است.
+                @endif
+
             </div>
+
+
+            <!-- Terms footer -->
+
+            <!-- Terms footer -->
+
+            <div class="bg-secondary rounded-xl space-y-5 p-5 mt-3">
+                <div class="font-medium text-xs text-center text-muted">
+                    ورود شما به معنای پذیرش <a href="https://sdfr.me/terms"
+                                               class="text-foreground transition-colors hover:text-primary hover:underline">شرایط</a>
+                    و
+                    <a href="https://sdfr.me/terms"
+                       class="text-foreground transition-colors hover:text-primary hover:underline">قوانین
+                        حریم خصوصی</a> است.
+                </div>
+            </div>
+
         </div>
+
     </div>
+
+
     @push('script')
+
         <script>
-            function togglePassword() {
-                const input = document.getElementById("password");
-                const eyeOpen = document.getElementById("eye-open");
-                const eyeClosed = document.getElementById("eye-closed");
 
-                if (input.type === "password") {
-                    input.type = "text";
-                    eyeOpen.style.display = "none";
-                    eyeClosed.style.display = "inline";
-                } else {
-                    input.type = "password";
-                    eyeOpen.style.display = "inline";
-                    eyeClosed.style.display = "none";
-                }
-            }
-            function togglePassword2() {
-                const input = document.getElementById("password2");
-                const eyeOpen = document.getElementById("eye-open");
-                const eyeClosed = document.getElementById("eye-closed");
+            function countdownTimer() {
 
-                if (input.type === "password") {
-                    input.type = "text";
-                    eyeOpen.style.display = "none";
-                    eyeClosed.style.display = "inline";
-                } else {
-                    input.type = "password";
-                    eyeOpen.style.display = "inline";
-                    eyeClosed.style.display = "none";
+                return {
+
+                    countdown: 0,
+
+                    timer: null,
+
+
+                    startCountdown(seconds) {
+
+                        // Clear any existing timer
+
+                        if (this.timer) {
+
+                            clearInterval(this.timer);
+
+                        }
+
+
+                        this.countdown = seconds;
+
+
+                        this.timer = setInterval(() => {
+
+                            if (this.countdown > 0) {
+
+                                this.countdown--;
+
+                            } else {
+
+                                clearInterval(this.timer);
+
+                            }
+
+                        }, 1000);
+
+                    }
+
                 }
+
             }
+
+
+            // Listen for Livewire events to start countdown
+
+            document.addEventListener('livewire:init', () => {
+
+                Livewire.on('start-countdown', (event) => {
+
+                    // The countdown will be started by Alpine.js
+
+                });
+
+            });
+
         </script>
+
     @endpush
+
 </div>
