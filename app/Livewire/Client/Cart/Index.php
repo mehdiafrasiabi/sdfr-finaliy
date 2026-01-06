@@ -32,6 +32,11 @@ class Index extends Component
     public $showDiscountCode = false;
     public $latestProducts;
     public $cart = 0;
+    public $useWallet = false;
+
+    public $walletBalance = 0;
+
+    public $walletDeduction = 0;
 
     public $selectedCartItemId = null;
     public $count = 0;
@@ -53,6 +58,7 @@ class Index extends Component
         return view('layouts.client.placeholder.cart');
 
     }
+
     #[On('add-to-cart')]
     public function mount()
     {
@@ -63,14 +69,13 @@ class Index extends Component
 
         if (auth()->check()) {
             $this->cart = Cart::query()->where('user_id', auth()->id())->count();
+            $this->walletBalance = Auth::user()->wallet_balance;
+
         }
-
         $this->seoConfig();
-
         $invoice = Session::get('invoiceFromCart', []);
         $this->totalOriginalPrice = $invoice['totalOriginalPrice'] ?? 0;
-
-        $this->totalAmountForPayment($this->totalOriginalPrice, $this->discountCodeAmount);
+        $this->recalculateTotal();
     }
 
     public function totalAmountForPayment($totalOriginalPrice, $discountCodeAmount): void
@@ -95,6 +100,7 @@ class Index extends Component
         $this->dispatch('remove-from-cart', $this->cart);
         $this->dispatch('success', 'آیتم با موفقیت از سبد خرید حذف شد.');
     }
+
     public function seoConfig()
     {
         $this->seo()->setTitle('سبد خرید');
@@ -152,7 +158,7 @@ class Index extends Component
             : $coupon->value;
 
         $this->discountCodeAmount = $discount;
-        $this->totalAmountForPayment($this->totalOriginalPrice, $discount);
+        $this->recalculateTotal();
         $this->showDiscountCode = true;
 
         // ثبت استفاده
@@ -180,8 +186,8 @@ class Index extends Component
 
         $this->cart = $this->cartItems->count();
         $this->totalOriginalPrice = $this->cartItems->sum(fn($item) => $item->product->price);
-        $this->totalAmountForPayment($this->totalOriginalPrice, $this->discountCodeAmount);
-
+        $this->walletBalance = Auth::user()?->wallet_balance ?? 0;
+        $this->recalculateTotal();
         Session::put('invoiceFromCart', [
             'totalProductCount' => $this->cart,
             'totalOriginalPrice' => $this->totalOriginalPrice,
@@ -221,7 +227,6 @@ class Index extends Component
     }
 
 
-
     public function goToOrderInfo()
     {
         session()->put('checkout', [
@@ -229,9 +234,45 @@ class Index extends Component
             'totalOriginalPrice' => $this->totalOriginalPrice,
             'discountAmount' => $this->discountCodeAmount,
             'cartItems' => $this->cartItems->pluck('id')->toArray(),
+            'useWallet' => $this->useWallet,
+            'walletDeduction' => $this->walletDeduction,
         ]);
 
         return redirect()->route('client.checkout.cart.info');
+    }
+
+    public function recalculateTotal(): void
+
+    {
+
+        $subtotal = $this->totalOriginalPrice - $this->discountCodeAmount;
+
+
+        if ($this->useWallet && $this->walletBalance > 0) {
+
+            $this->walletDeduction = min($this->walletBalance, $subtotal);
+
+            $this->totalAmount = max(0, $subtotal - $this->walletDeduction);
+
+        } else {
+
+            $this->walletDeduction = 0;
+
+            $this->totalAmount = max(0, $subtotal);
+
+        }
+
+    }
+
+
+    public function toggleWallet(): void
+
+    {
+
+        $this->useWallet = !$this->useWallet;
+
+        $this->recalculateTotal();
+
     }
 
     public function render()

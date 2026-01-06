@@ -43,6 +43,9 @@ use App\Livewire\Client\Profile\TypedExam\TypedExamTest;
 use App\Livewire\Client\Shop\Index as ShopIndex;
 use App\Livewire\Client\Terms\Index as RuleIndex;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Client\Profile\Wallet as ProfileWallet;
+
+
 
 Route::name('client.')->group(function () {
     Route::get('/download/{token}', [FileDownloadController::class, 'download'])
@@ -96,6 +99,8 @@ Route::name('client.')->group(function () {
             Route::get('/ticket',ProfileTicketIndex::class)->name('ticket');
             Route::get('/ticket/{ticket}/show',ProfileTicketShow::class)->name('ticket.show');
             Route::get('/ticket-create',ProfileTicketCreate::class)->name('ticket.create');
+
+            Route::get('/wallet',ProfileWallet::class)->name('wallet');
 
 
             Route::get('/notification',ProfileNotification::class)->name('notification');

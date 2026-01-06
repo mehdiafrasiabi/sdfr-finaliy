@@ -57,8 +57,8 @@ class Info extends Component
 
     function convertPersianToEnglish($string)
     {
-        $persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
-        $english = ['0','1','2','3','4','5','6','7','8','9'];
+        $persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        $english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
         return str_replace($persian, $english, $string);
     }
 
@@ -68,61 +68,61 @@ class Info extends Component
         $birthDate = \Morilog\Jalali\Jalalian::fromFormat('Y/m/d', $birthDateRaw)->toCarbon();
 
         $validator = Validator::make($formData, [
-            'name'         => 'required|string|max:35',
-            'address'      => 'required|string|max:200',
+            'name' => 'required|string|max:35',
+            'address' => 'required|string|max:200',
             'placeOfBirth' => 'required|string|max:35',
-            'fName'        => 'required|string|max:35',
-            'codeMell'     => 'required|numeric|digits:10',
-            'birth_date'   => 'required',
-            'province'     => 'required|exists:states,id',
-            'city'         => 'required|exists:cities,id',
-            'fMobile'      => ['required','regex:/^09\d{9}$/'],
-            'mMobile'      => ['required','regex:/^09\d{9}$/'],
-            'grade'        => 'required|in:10,11,12',
-            'field'        => 'required|in:math,experimental,human',
-            'photo'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'fName' => 'required|string|max:35',
+            'codeMell' => 'required|numeric|digits:10',
+            'birth_date' => 'required',
+            'province' => 'required|exists:states,id',
+            'city' => 'required|exists:cities,id',
+            'fMobile' => ['required', 'regex:/^09\d{9}$/'],
+            'mMobile' => ['required', 'regex:/^09\d{9}$/'],
+            'grade' => 'required|in:10,11,12',
+            'field' => 'required|in:math,experimental,human',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
-            'name.required'         => 'وارد کردن نام الزامی است.',
-            'address.required'      => 'وارد کردن آدرس الزامی است.',
+            'name.required' => 'وارد کردن نام الزامی است.',
+            'address.required' => 'وارد کردن آدرس الزامی است.',
             'placeOfBirth.required' => 'محل تولد الزامی است.',
-            'fName.required'        => 'نام پدر الزامی است.',
-            'codeMell.required'     => 'کد ملی الزامی است.',
-            'codeMell.numeric'      => 'کد ملی باید عددی باشد.',
-            'codeMell.digits'       => 'کد ملی باید دقیقاً ۱۰ رقم باشد.',
-            'birth_date.required'   => 'تاریخ تولد الزامی است.',
-            'province.required'     => 'استان الزامی است.',
-            'province.exists'       => 'استان انتخابی معتبر نیست.',
-            'city.required'         => 'شهر الزامی است.',
-            'city.exists'           => 'شهر انتخابی معتبر نیست.',
-            'fMobile.required'      => 'شماره موبایل پدر الزامی است.',
-            'fMobile.regex'         => 'شماره موبایل پدر نامعتبر است.',
-            'mMobile.required'      => 'شماره موبایل مادر الزامی است.',
-            'mMobile.regex'         => 'شماره موبایل مادر نامعتبر است.',
-            'grade.required'        => 'انتخاب پایه الزامی است.',
-            'grade.in'              => 'پایه انتخابی معتبر نیست.',
-            'field.required'        => 'انتخاب رشته الزامی است.',
-            'field.in'              => 'رشته انتخابی معتبر نیست.',
-            'photo.image'           => 'فایل باید تصویر باشد.',
-            'photo.mimes'           => 'فرمت تصویر باید jpg, jpeg, png یا webp باشد.',
-            'photo.max'             => 'حجم تصویر نباید بیش از ۲ مگابایت باشد.',
+            'fName.required' => 'نام پدر الزامی است.',
+            'codeMell.required' => 'کد ملی الزامی است.',
+            'codeMell.numeric' => 'کد ملی باید عددی باشد.',
+            'codeMell.digits' => 'کد ملی باید دقیقاً ۱۰ رقم باشد.',
+            'birth_date.required' => 'تاریخ تولد الزامی است.',
+            'province.required' => 'استان الزامی است.',
+            'province.exists' => 'استان انتخابی معتبر نیست.',
+            'city.required' => 'شهر الزامی است.',
+            'city.exists' => 'شهر انتخابی معتبر نیست.',
+            'fMobile.required' => 'شماره موبایل پدر الزامی است.',
+            'fMobile.regex' => 'شماره موبایل پدر نامعتبر است.',
+            'mMobile.required' => 'شماره موبایل مادر الزامی است.',
+            'mMobile.regex' => 'شماره موبایل مادر نامعتبر است.',
+            'grade.required' => 'انتخاب پایه الزامی است.',
+            'grade.in' => 'پایه انتخابی معتبر نیست.',
+            'field.required' => 'انتخاب رشته الزامی است.',
+            'field.in' => 'رشته انتخابی معتبر نیست.',
+            'photo.image' => 'فایل باید تصویر باشد.',
+            'photo.mimes' => 'فرمت تصویر باید jpg, jpeg, png یا webp باشد.',
+            'photo.max' => 'حجم تصویر نباید بیش از ۲ مگابایت باشد.',
         ]);
         $validator->validate();
 
         // ذخیره اطلاعات هویتی
         $personalInfo = \App\Models\PersonalInformation::query()->create([
-            'name'          => $formData['name'],
-            'address'       => $formData['address'],
-            'place_of_birth'=> $formData['placeOfBirth'],
-            'father_name'   => $formData['fName'],
-            'code_mell'     => $formData['codeMell'],
+            'name' => $formData['name'],
+            'address' => $formData['address'],
+            'place_of_birth' => $formData['placeOfBirth'],
+            'father_name' => $formData['fName'],
+            'code_mell' => $formData['codeMell'],
             'father_mobile' => $formData['fMobile'],
             'mother_mobile' => $formData['mMobile'],
-            'birth_date'    => $birthDate,
-            'grade'         => $formData['grade'], // پایه
-            'field'         => $formData['field'], // رشته
-            'state_id'      => $formData['province'],
-            'city_id'       => $formData['city'],
-            'user_id'       => Auth::id(),
+            'birth_date' => $birthDate,
+            'grade' => $formData['grade'], // پایه
+            'field' => $formData['field'], // رشته
+            'state_id' => $formData['province'],
+            'city_id' => $formData['city'],
+            'user_id' => Auth::id(),
         ]);
 
         // ادامه فرآیند سفارش مثل قبل
@@ -130,54 +130,173 @@ class Info extends Component
         $totalAmount = $checkout['totalAmount'] ?? 0;
         $cartItemIds = $checkout['cartItems'] ?? [];
 
+        $useWallet = $checkout['useWallet'] ?? false;
+
+        $walletDeduction = $checkout['walletDeduction'] ?? 0;
+
+
         $user = auth()->user();
+
         $orderNumber = 'REF-' . \Illuminate\Support\Str::uuid()->toString();
 
+
         DB::beginTransaction();
+
         try {
+
+            $paidWithWallet = ($totalAmount == 0 && $useWallet && $walletDeduction > 0);
+
+
             $order = Order::query()->create([
-                'amount'           => $totalAmount,
-                'order_number'     => $orderNumber,
-                'user_id'          => $user->id,
-                'payment_method_id'=> 1
+
+                'amount' => $checkout['totalOriginalPrice'] ?? 0,
+
+                'order_number' => $orderNumber,
+
+                'user_id' => $user->id,
+
+                'payment_method_id' => 1,
+
+                'paid_with_wallet' => $paidWithWallet,
+
+                'wallet_amount' => $walletDeduction,
+
+                'status' => $paidWithWallet ? 'completed' : 'pending',
+
             ]);
+
 
             $cartItems = Cart::query()
                 ->with('product')
                 ->whereIn('id', $cartItemIds)
                 ->get();
 
+
             foreach ($cartItems as $item) {
+
                 OrderItem::query()->create([
-                    'price'      => $item->product->price,
-                    'order_id'   => $order->id,
+
+                    'price' => $item->product->price,
+
+                    'order_id' => $order->id,
+
                     'product_id' => $item->product_id,
+
                 ]);
+
             }
 
-            Payment::query()->create([
-                'order_id'               => $order->id,
-                'user_id'                => $user->id,
-                'amount'                 => $totalAmount,
-                'order_number'           => $orderNumber,
-                'personal_information_id'=> $personalInfo->id
+
+            $payment = Payment::query()->create([
+
+                'order_id' => $order->id,
+
+                'user_id' => $user->id,
+
+                'amount' => $checkout['totalOriginalPrice'] ?? 0,
+
+                'order_number' => $orderNumber,
+
+                'personal_information_id' => $personalInfo->id,
+
+                'status' => $paidWithWallet ? 'completed' : 'pending',
+
             ]);
 
+
+            // If paying fully with wallet
+
+            if ($paidWithWallet) {
+
+                $wallet = $user->getOrCreateWallet();
+
+                $wallet->withdraw($walletDeduction, 'خرید سفارش: ' . $orderNumber, 'purchase');
+
+
+                // Create student record if needed
+
+                $this->createStudentRecord($user, $payment);
+
+
+                DB::commit();
+
+                Cart::query()->whereIn('id', $cartItemIds)->delete();
+
+
+                session([
+
+                    'paymentSuccess' => true,
+
+                    'paymentData' => [
+
+                        'orderNumber' => $orderNumber,
+
+                        'amount' => $walletDeduction,
+
+                        'date' => now(),
+
+                        'paymentMethod' => 'کیف پول',
+
+                    ]
+
+                ]);
+
+
+                return redirect()->route('client.payment.callback');
+
+            }
+
+
+            // If using wallet partially with gateway payment
+
+            if ($useWallet && $walletDeduction > 0) {
+
+                session(['pending_wallet_deduction' => $walletDeduction, 'pending_order_number' => $orderNumber]);
+
+            }
+
+
             DB::commit();
+
             Cart::query()->whereIn('id', $cartItemIds)->delete();
+
             return $paymentGateway->request($totalAmount, $orderNumber);
 
+
         } catch (\Throwable $e) {
+
             DB::rollBack();
+
             report($e);
+
             session()->flash('error', 'در فرآیند ثبت سفارش خطایی رخ داد.');
+
             return;
+
+        }
+
+    }
+
+
+    private function createStudentRecord($user, $payment)
+
+    {
+
+        if (!$user->student) {
+
+            \App\Models\Student::create([
+
+                'user_id' => $user->id,
+
+                'payment_id' => $payment->id,
+
+            ]);
         }
     }
 
     public function render()
     {
-        $checkout = Session::get('checkout', ['totalAmount','totalOriginalPrice','discountAmount']);
+        $checkout = Session::get('checkout', ['totalAmount', 'totalOriginalPrice', 'discountAmount']);
         return view('livewire.client.cart.info', [
             'checkout' => $checkout
         ])->layout('layouts.client.app');

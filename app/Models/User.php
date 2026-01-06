@@ -160,4 +160,51 @@ class User extends Authenticatable
     {
         return $this->hasMany(CommentLike::class);
     }
+    public function wallet()
+
+    {
+
+        return $this->hasOne(Wallet::class);
+
+    }
+
+
+
+    public function walletTransactions()
+
+    {
+
+        return $this->hasMany(WalletTransaction::class);
+
+    }
+
+
+
+    public function giftCodeUsages()
+
+    {
+
+        return $this->hasMany(GiftCodeUsage::class);
+
+    }
+
+
+
+    public function getOrCreateWallet()
+
+    {
+
+        return $this->wallet ?? $this->wallet()->create(['balance' => 0]);
+
+    }
+
+
+
+    public function getWalletBalanceAttribute()
+
+    {
+
+        return $this->wallet?->balance ?? 0;
+
+    }
 }

@@ -62,6 +62,8 @@ use App\Livewire\Manager\Classification\Subjects;
 use App\Livewire\Manager\Classification\Topics;
 use App\Livewire\Manager\Notification\Index as NotificationIndex;
 use Illuminate\Support\Facades\Route;
+use App\Livewire\Manager\GiftCode\Index as GiftCodeIndex;
+
 
 use App\Livewire\Manager\Setting\General as SettingGeneral;
 use App\Livewire\Manager\Comment\Index as CommentIndex;
@@ -75,6 +77,9 @@ Route::name('manager.')->group(function () {
         Route::get('/logout', [AuthIndex::class, 'logout'])->name('logout');
         Route::get('/dashboard/crm', Crm::class)->name('dashboard.crm');
         Route::get('/dashboard/analytics', Analytics::class)->name('dashboard.analytics');
+        Route::get('/gift-code', GiftCodeIndex::class)->name('giftcode');
+
+
         Route::get('/paymentMethod', PaymentIndex::class)->name('paymentMethod');
         Route::get('/coupon', CouponIndex::class)->name('coupon');
         Route::get('/map/country', MapCountry::class)->name('map.country');

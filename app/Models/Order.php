@@ -38,4 +38,46 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    protected $casts = [
+
+        'paid_with_wallet' => 'boolean',
+
+    ];
+
+
+
+    public function getPaymentMethodTextAttribute()
+
+    {
+
+        if ($this->paid_with_wallet) {
+
+            return 'کیف پول';
+
+        }
+
+        return $this->paymentMethod?->name ?? 'درگاه پرداخت';
+
+    }
+
+
+
+    public function getStatusPaymentColorAttribute()
+
+    {
+
+        return match ($this->payment?->status) {
+
+            'completed' => 'success',
+
+            'pending' => 'warning',
+
+            'cancelled' => 'danger',
+
+            default => 'secondary',
+
+        };
+
+    }
+
 }
