@@ -1,4 +1,3 @@
-<!-- Skeleton Loader -->
 <div class="relative bg-secondary rounded-3xl my animate-pulse">
     <!-- عنوان -->
     <div

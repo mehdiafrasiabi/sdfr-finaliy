@@ -10,8 +10,15 @@ class Index extends Component
 {
 //    public function placeholder()
 //    {
-//        return view('Layouts.client.placeholders.first-page.blog-skeleton');
+//        return view('Layouts.client.placeholder.first-page.blog-skeleton');
 //    }
+    public function placeholder()
+
+    {
+
+        return view('layouts.client.placeholder.home.home-blog');
+
+    }
     public function render()
     {
         $blogs = Blog::query()

@@ -139,7 +139,7 @@ export default class Store<T> implements IStore {
   }
 
   /**
-   * Get choices that can be searched (excluding placeholders)
+   * Get choices that can be searched (excluding placeholder)
    */
   get searchableChoices(): ChoiceFull[] {
     return this.choices.filter((choice) => !choice.disabled && !choice.placeholder);

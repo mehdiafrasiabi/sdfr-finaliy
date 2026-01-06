@@ -46,6 +46,13 @@ class Index extends Component
         $this->selectedCartItemId = $cartItemId;
     }
 
+    public function placeholder()
+
+    {
+
+        return view('layouts.client.placeholder.cart');
+
+    }
     #[On('add-to-cart')]
     public function mount()
     {

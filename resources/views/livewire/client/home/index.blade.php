@@ -3,7 +3,7 @@
         <!-- container -->
         <div class="max-w-7xl space-y-14 px-4 mx-auto">
             <!-- story -->
-            <livewire:client.home.story.index/>
+            <livewire:client.home.story.index />
             <!-- end story -->
 
             <!-- intro -->
@@ -17,7 +17,7 @@
 {{--            <livewire:client.home.collaboration.index lazy/>--}}
 
             <!-- section:latest-courses -->
-            <livewire:client.home.latest-course.index />
+            <livewire:client.home.latest-course.index/>
             <!-- end section:latest-courses -->
 
 
@@ -30,10 +30,10 @@
 {{--            <livewire:client.home.top-student.index lazy/>--}}
 
         </div>
-        <livewire:client.home.feedback.index/>
+        <livewire:client.home.feedback.index lazy/>
 
         <!-- blog -->
-        <livewire:client.home.blog.index />
+        <livewire:client.home.blog.index lazy/>
 
 
         <!-- end blog -->

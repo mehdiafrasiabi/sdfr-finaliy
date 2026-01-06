@@ -20,7 +20,13 @@ class Index extends Component
         $this->seo()
             ->setTitle('مقالات سایت');
     }
+    public function placeholder()
 
+    {
+
+        return view('layouts.client.placeholder.blog-weblog');
+
+    }
     public function loadMore()
     {
         $this->perPage += 6;

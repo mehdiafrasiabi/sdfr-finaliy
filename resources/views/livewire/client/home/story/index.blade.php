@@ -1,41 +1,39 @@
-@php
-
-    $userId = auth()->id();
-
-    $formattedStories = $stories->map(function($item) use ($userId) {
-
-        $isLiked = $userId ? $item->likes->contains('user_id', $userId) : false;
-
-        return [
-
-            'id' => $item->id,
-
-            'type' => $item->type,
-
-            'user' => $item->title,
-
-            'avatar' => "/stories/thumbnail/{$item->thumbnail}",
-
-            'url' => $item->type === 'video' ? $item->story : "/stories/story/{$item->story}",
-
-            'duration' => $item->type === 'image' ? 5000 : null,
-
-            'link' => $item->widget_link,
-
-            'linkTitle' => $item->widget_title,
-
-            'likesCount' => $item->likes_count,
-
-            'isLiked' => $isLiked,
-
-        ];
-
-    });
-
-@endphp
-
-
 <div>
+    @php
+
+        $userId = auth()->id();
+
+        $formattedStories = $stories->map(function($item) use ($userId) {
+
+            $isLiked = $userId ? $item->likes->contains('user_id', $userId) : false;
+
+            return [
+
+                'id' => $item->id,
+
+                'type' => $item->type,
+
+                'user' => $item->title,
+
+                'avatar' => "/stories/thumbnail/{$item->thumbnail}",
+
+                'url' => $item->type === 'video' ? $item->story : "/stories/story/{$item->story}",
+
+                'duration' => $item->type === 'image' ? 5000 : null,
+
+                'link' => $item->widget_link,
+
+                'linkTitle' => $item->widget_title,
+
+                'likesCount' => $item->likes_count,
+
+                'isLiked' => $isLiked,
+
+            ];
+
+        });
+
+    @endphp
 
     @if($stories->count() > 0)
 

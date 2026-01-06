@@ -66,13 +66,7 @@
                                     </a>
                                 </li>
 
-                                <li class="group">
-                                    <a href="{{route('client.blog.ExamQuestion')}}" wire:navigate
-                                       class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
-                                        <span class="font-semibold text-sm">نمونه سوالات امتحانی</span>
 
-                                    </a>
-                                </li>
                                 <li class="group">
                                     <a href="{{route('client.course')}}" wire:navigate
                                        class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
@@ -334,28 +328,6 @@
                                           stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
                                 </svg>
                                 <span class="font-semibold text-xs">مقالات</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{route('client.blog.ExamQuestion')}}" wire:navigate
-                               class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                     class="w-5 h-5"
-                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M16 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V20C20 20.5304 19.7893 21.0391 19.4142 21.4142C19.0391 21.7893 18.5304 22 18 22H6C5.46957 22 4.96086 21.7893 4.58579 21.4142C4.21071 21.0391 4 20.5304 4 20V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                    <path
-                                        d="M15 2H9C8.44772 2 8 2.44772 8 3V5C8 5.55229 8.44772 6 9 6H15C15.5523 6 16 5.55229 16 5V3C16 2.44772 15.5523 2 15 2Z"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                    <line x1="15" y1="13" x2="9" y2="13" stroke="currentColor" stroke-width="2"
-                                          stroke-linecap="round"></line>
-                                    <line x1="15" y1="17" x2="9" y2="17" stroke="currentColor" stroke-width="2"
-                                          stroke-linecap="round"></line>
-                                </svg>
-                                <span class="font-semibold text-xs">نمونه سوال امتحانی</span>
                             </a>
                         </li>
                         <hr class="border-dashed">
@@ -680,28 +652,6 @@
                                           stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
                                 </svg>
                                 <span class="font-semibold text-xs">مقالات</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="{{route('client.blog.ExamQuestion')}}" wire:navigate
-                               class="w-full flex items-center gap-x-2 relative text-muted transition-all hover:text-foreground py-2">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                     class="w-5 h-5"
-                                     xmlns="http://www.w3.org/2000/svg">
-                                    <path
-                                        d="M16 4H18C18.5304 4 19.0391 4.21071 19.4142 4.58579C19.7893 4.96086 20 5.46957 20 6V20C20 20.5304 19.7893 21.0391 19.4142 21.4142C19.0391 21.7893 18.5304 22 18 22H6C5.46957 22 4.96086 21.7893 4.58579 21.4142C4.21071 21.0391 4 20.5304 4 20V6C4 5.46957 4.21071 4.96086 4.58579 4.58579C4.96086 4.21071 5.46957 4 6 4H8"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                    <path
-                                        d="M15 2H9C8.44772 2 8 2.44772 8 3V5C8 5.55229 8.44772 6 9 6H15C15.5523 6 16 5.55229 16 5V3C16 2.44772 15.5523 2 15 2Z"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                    <line x1="15" y1="13" x2="9" y2="13" stroke="currentColor" stroke-width="2"
-                                          stroke-linecap="round"></line>
-                                    <line x1="15" y1="17" x2="9" y2="17" stroke="currentColor" stroke-width="2"
-                                          stroke-linecap="round"></line>
-                                </svg>
-                                <span class="font-semibold text-xs">نمونه سوال امتحانی</span>
                             </a>
                         </li>
                         <li>

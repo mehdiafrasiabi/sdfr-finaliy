@@ -41,7 +41,13 @@ class Index extends Component
 
     }
 
+    public function placeholder()
 
+    {
+
+        return view('layouts.client.placeholder.home.home-story');
+
+    }
     public function toggleLike($storyId)
 
     {
@@ -111,7 +117,7 @@ class Index extends Component
 
     {
 
-        return view('livewire.client.home.story.index');
+        return view('livewire.client.home.story.index')->layout('layouts.client.app');
 
     }
 

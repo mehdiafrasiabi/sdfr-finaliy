@@ -35,6 +35,13 @@ class Index extends Component
 
     }
 
+//    public function placeholder()
+//
+//    {
+//
+//        return view('layouts.client.placeholder.home.home-story');
+//
+//    }
 
     public function seoConfig()
 

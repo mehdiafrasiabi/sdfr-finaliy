@@ -1,4 +1,3 @@
-<!-- Skeleton Loader for Articles -->
 <div>
     <div class="grid sm:grid-cols-2 grid-cols-1 gap-x-5 gap-y-8">
         <!-- کارت ۱ -->

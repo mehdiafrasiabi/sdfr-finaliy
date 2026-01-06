@@ -8,7 +8,7 @@ class Index extends Component
 {
     public function placeholder()
     {
-        return view('Layouts.client.placeholders.first-page.intro-skeleton');
+        return view('Layouts.client.placeholder.first-page.intro-skeleton');
     }
     public function render()
     {

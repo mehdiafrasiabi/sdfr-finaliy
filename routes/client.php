@@ -61,7 +61,6 @@ Route::name('client.')->group(function () {
     Route::get('/blog/all',WeblogIndex::class)->name('blog');
     Route::get('/blog/{blog_code}/{slug}', Show::class)->name('blog.show');
     Route::get('/course',CourseIndex::class)->name('course');
-    Route::get('/blog/exam-question',ExamQuestionIndex::class)->name('blog.ExamQuestion');
 
 
 

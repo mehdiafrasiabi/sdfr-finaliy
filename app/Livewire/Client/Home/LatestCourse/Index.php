@@ -17,6 +17,13 @@ class Index extends Component
             ->get();
         $this->latestProducts = $latestProducts;
     }
+    public function placeholder()
+
+    {
+
+        return view('layouts.client.placeholder.home.home-latest-course');
+
+    }
     public function render()
     {
         return view('livewire.client.home.latest-course.index')->layout('layouts.client.app');

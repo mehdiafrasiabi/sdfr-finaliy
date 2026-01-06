@@ -17,7 +17,13 @@ class Index extends Component
     {
         $this->seoConfig();
     }
+    public function placeholder()
 
+    {
+
+        return view('layouts.client.placeholder.contact-us');
+
+    }
     public function seoConfig()
     {
         $this->seo()

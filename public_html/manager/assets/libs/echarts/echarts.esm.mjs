@@ -61370,7 +61370,7 @@ var candlestickLayout = {
           x: pmin[0],
           y: pmin[1],
           width:  candleWidth ,
-          height:  pmax[1] - pmin[1] 
+          height:  pmax[1] - pmin[1]
         };
       }
       function subPixelOptimizePoint(point) {
@@ -79487,7 +79487,7 @@ var ScrollableLegendView = /** @class */function (_super) {
       // can not be obtained from `containerGroup.getBoundingRect()`.
       containerGroup.__rectSize = clipShape[wh];
     } else {
-      // Do not remove or ignore controller. Keep them set as placeholders.
+      // Do not remove or ignore controller. Keep them set as placeholder.
       controllerGroup.eachChild(function (child) {
         child.attr({
           invisible: true,
