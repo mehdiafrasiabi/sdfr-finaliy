@@ -148,12 +148,16 @@ class User extends Authenticatable
     /**
      * آیا کاربر دانش‌آموز است؟
      */
-
     public function isStudent(): bool
-
     {
-
         return $this->student !== null;
-
+    }
+    public function productComments()
+    {
+        return $this->hasMany(ProductComment::class);
+    }
+    public function commentLikes()
+    {
+        return $this->hasMany(CommentLike::class);
     }
 }

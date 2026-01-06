@@ -6,7 +6,6 @@ use App\Livewire\Client\Auth\ForgotPassword as ForgotPassword;
 use App\Livewire\Client\Auth\Login as authLogin;
 use App\Livewire\Client\Auth\LoginOtp;
 use App\Livewire\Client\Auth\Signup as authSignup;
-use App\Livewire\Client\Blog\ExamQuestion\Index as ExamQuestionIndex;
 use App\Livewire\Client\Blog\Weblog\Index as WeblogIndex;
 use App\Livewire\Client\Blog\Weblog\Show;
 use App\Livewire\Client\Cart\Index as CartIndex;

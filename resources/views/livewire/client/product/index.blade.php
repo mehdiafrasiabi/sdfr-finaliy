@@ -176,11 +176,21 @@
                             <!-- end tabs:contents -->
                         </div>
                         <!-- end tabs container -->
+                        <!-- Comments Section -->
+
+
+
+                        <!-- end comments section -->
                     </div>
                 </div>
             </div>
-        </div>
 
+            <div class="bg-background rounded-3xl p-5 mt-8">
+
+                @livewire('client.product.comment.comment-section', ['productId' => $product->id])
+
+            </div>
+        </div>
         <div class="md:w-4/12 w-full md:sticky md:top-24 space-y-8">
             <!-- course:registering -->
             <div class="bg-gradient-to-b from-secondary to-background rounded-2xl px-5 pb-5">
@@ -212,7 +222,7 @@
                             </div>
                         @elseif(!$inCart)
                             <a  wire:click="addToCart" style="cursor: pointer"
-                                    class="w-full h-11 inline-flex items-center justify-center gap-1 bg-primary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
+                                class="w-full h-11 inline-flex items-center justify-center gap-1 bg-primary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
                                 <span class="font-semibold text-sm" wire:loading.remove>خرید این محصول</span>
                                 <svg wire:loading.remove xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                      fill="currentColor"
@@ -274,5 +284,6 @@
             </div>
             <!-- end course:registering -->
         </div>
+
     </div>
 </div>

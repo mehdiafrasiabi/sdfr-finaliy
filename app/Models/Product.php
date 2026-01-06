@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 
 
-
 class Product extends Model
 {
     //
-    use HasFactory, softDeletes ,UploadFile;
+    use HasFactory, softDeletes, UploadFile;
 
     protected $guarded = [];
+
     public function submit($formData, $productId, $photos, $coverIndex)
     {
         DB::transaction(function () use ($formData, $productId, $photos, $coverIndex) {
@@ -28,6 +28,7 @@ class Product extends Model
             $this->saveImages($photos, $product->id);
         });
     }
+
     public function submitToProduct($formData, $productId)
     {
 
@@ -50,6 +51,7 @@ class Product extends Model
             ]
         );
     }
+
     public function submitToSeoItem($formData, $productId)
     {
         SeoItem::query()->updateOrCreate(
@@ -64,6 +66,7 @@ class Product extends Model
         );
 
     }
+
     public function submitToProductImage($photos, $productId, $coverIndex)
     {
         ProductImage::query()->where('product_id', $productId)->update(['is_cover' => false]);
@@ -82,6 +85,7 @@ class Product extends Model
         }
 
     }
+
     public function saveImages($photos, $productId)
     {
         foreach ($photos as $photo) {
@@ -90,6 +94,7 @@ class Product extends Model
 
         }
     }
+
     public function generateProductCode()
     {
         do {
@@ -99,6 +104,7 @@ class Product extends Model
         } while ($checkCode);
         return $randomCode;
     }
+
     public function removeOldPhoto($productImage, $productId)
     {
 
@@ -117,6 +123,7 @@ class Product extends Model
 
 
     }
+
     public function submitProductContent($formData, $productId)
     {
         Product::query()->where('id', $productId)->update([
@@ -144,6 +151,7 @@ class Product extends Model
     {
         return $this->belongsTo(SeoItem::class, 'id', 'ref_id');
     }
+
     public function features()
     {
         return $this->hasMany(ProductFeature::class);
@@ -157,5 +165,13 @@ class Product extends Model
     public function students()
     {
         return $this->hasMany(Student::class);
+    }
+    public function comments()
+    {
+        return $this->hasMany(ProductComment::class);
+    }
+    public function publishedComments()
+    {
+        return $this->hasMany(ProductComment::class)->where('status', 'published');
     }
 }

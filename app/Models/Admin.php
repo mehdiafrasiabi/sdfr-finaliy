@@ -29,10 +29,12 @@ class Admin extends Authenticatable
     {
         return $this->hasMany(Student::class);
     }
+
     public function user()
     {
         return $this->belongsTo(User::class); // اگر admin → user_id دارد
     }
+
     public function supportedStudents()
     {
         return $this->hasMany(Student::class, 'supporter_id');
@@ -41,6 +43,10 @@ class Admin extends Authenticatable
     public function advisedStudents()
     {
         return $this->hasMany(Student::class, 'advisor_id');
+    }
+    public function commentReplies()
+    {
+        return $this->hasMany(CommentReply::class);
     }
 }
 

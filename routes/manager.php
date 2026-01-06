@@ -64,6 +64,7 @@ use App\Livewire\Manager\Notification\Index as NotificationIndex;
 use Illuminate\Support\Facades\Route;
 
 use App\Livewire\Manager\Setting\General as SettingGeneral;
+use App\Livewire\Manager\Comment\Index as CommentIndex;
 
 
 Route::name('manager.')->group(function () {
@@ -115,7 +116,9 @@ Route::name('manager.')->group(function () {
 // مسیر مدیریت آزمون‌ها
         Route::get('/exams', ExamIndex::class)->name('exam.index');
         Route::get('/exams/questions', QuestionManager::class)->name('exam.questions');
+// Comment Management (مدیریت دیدگاه‌ها)
 
+        Route::get('/comments', CommentIndex::class)->name('comment.index');
 
         Route::get('/blog', Index::class)->name('blog.index');
         Route::get('blogs/{blog}/show', \App\Livewire\Manager\Blog\Blog\Show::class)->name('blog.show');
@@ -134,45 +137,24 @@ Route::name('manager.')->group(function () {
         Route::get('/advisors', AdvisorIndex::class)->name('advisors');
         Route::get('/advisors/{advisor}/students', AdvisorStudent::class)->name('advisors.students');
         Route::get('/advisors/students/{student}/detail', AdvisorStudentDetail::class)->name('advisors.students.detail');
-
         Route::get('/newsletter', NewsletterIndex::class)->name('newsletter');
-
         // Question Bank Routes (بانک سوالات)
-
         Route::get('/questions', QuestionList::class)->name('questions.index');
-
         Route::get('/questions/form/{code?}', QuestionForm::class)->name('questions.form');
-
         Route::post('/questions/ck-upload/{questionId?}', [QuestionCkUpload::class, 'upload'])->name('questions.ck-upload');
-
         // Typed Exam Routes (آزمون‌های تایپی)
-
         Route::get('/typed-exams', TypedExamList::class)->name('typed-exams.index');
-
         Route::get('/typed-exams/form/{id?}', TypedExamWizard::class)->name('typed-exams.form');
-
         Route::get('/academic-year', ExamPeriodIndex::class)->name('academicYear');
-
         // Classification Routes
-
         Route::prefix('classification')->name('classification.')->group(function () {
-
             Route::get('/education-levels', EducationLevels::class)->name('education-levels');
-
             Route::get('/education-levels/{educationLevel}/grades', Grades::class)->name('grades');
-
             Route::get('/fields', Fields::class)->name('fields');
-
             Route::get('/education-levels/{educationLevel}/grades/{grade}/subjects', Subjects::class)->name('subjects');
-
             Route::get('/subjects/{subject}/chapters', Chapters::class)->name('chapters');
-
             Route::get('/chapters/{chapter}/topics', Topics::class)->name('topics');
-
             Route::get('/projects', Projects::class)->name('projects');
-
         });
-
     });
-
 });
