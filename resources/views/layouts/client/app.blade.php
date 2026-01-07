@@ -372,6 +372,10 @@
     <!-- Floating Support Button -->
     <livewire:client.layout.floating-support/>
 
+    <!-- Mobile Bottom Navigation - Fixed at bottom -->
+
+    <livewire:client.layout.mobile-bottom-nav/>
+
 </div>
 <script>
     const banner = document.getElementById('pwaBanner');
