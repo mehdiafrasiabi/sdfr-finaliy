@@ -2,7 +2,6 @@
     <div class="container-xxl flex-grow-1 container-p-y bg-body text-body" dir="rtl">
 
         @push('link')
-            <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet"/>
 
             <style>
                 [x-cloak] {
@@ -1042,19 +1041,15 @@
     @endif
 
     @push('script')
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script>
             document.addEventListener('livewire:init', () => {
-                // تنظیمات Select2
                 const select2Config = {
                     dir: "rtl",
                     language: "fa",
                     allowClear: true,
-                    width: '100%',
-                    dropdownParent: null // بعداً ست می‌شه
+                    width: '100%'
                 };
 
-                // مپ کردن ID ها به نام property های Livewire
                 const selectMappings = {
                     'education-level-select': 'partForm.education_level_id',
                     'grade-select': 'partForm.cc_grade_id',
@@ -1064,159 +1059,100 @@
                     'topic-select': 'partForm.cc_topic_id'
                 };
 
-                // تابع اصلی برای Initialize کردن Select2
-                function initSelect2() {
-                    const $modalContent = $('.modal-content');
-                    if (!$modalContent.length) return;
-
-                    Object.keys(selectMappings).forEach(selectId => {
-                        const $el = $('#' + selectId);
-                        if (!$el.length) return;
-
-                        // اگر قبلاً Select2 شده، destroy کن
-                        if ($el.hasClass('select2-hidden-accessible')) {
-                            $el.off('change select2:select select2:clear').select2('destroy');
-                        }
-
-                        // Initialize Select2
-                        $el.select2({
-                            ...select2Config,
-                            dropdownParent: $modalContent,
-                            placeholder: $el.find('option:first').text()
-                        });
-
-                        // Event listener برای تغییر مقدار
-                        $el.on('change', function () {
-                            const value = $(this).val() || '';
-                            const wireProperty = selectMappings[selectId];
-                        @this.set(wireProperty, value)
-                            ;
-                        });
-                    });
+                function destroySelect2(selectId) {
+                    const $el = $('#' + selectId);
+                    if ($el.length && $el.hasClass('select2-hidden-accessible')) {
+                        $el.off('change').select2('destroy');
+                    }
                 }
 
-                // تابع برای آپدیت options یک select
-                function updateSelectOptions(selectId, options, selectedValue) {
+                function initSingleSelect2(selectId) {
                     const $el = $('#' + selectId);
                     if (!$el.length) return;
 
-                    // Destroy اگر وجود داشت
-                    if ($el.hasClass('select2-hidden-accessible')) {
-                        $el.select2('destroy');
-                    }
+                    const $modal = $el.closest('.modal-content');
+                    if (!$modal.length) return;
 
-                    // پاک کردن options قبلی
-                    $el.empty();
+                    destroySelect2(selectId);
 
-                    // اضافه کردن options جدید
-                    options.forEach(opt => {
-                        $el.append(new Option(opt.text, opt.value, false, opt.value == selectedValue));
-                    });
-
-                    // Re-initialize
-                    $el.prop('disabled', options.length <= 1);
-
-                    const $modalContent = $('.modal-content');
                     $el.select2({
                         ...select2Config,
-                        dropdownParent: $modalContent,
+                        dropdownParent: $modal,
                         placeholder: $el.find('option:first').text()
                     });
 
-                    // Event listener
                     $el.on('change', function () {
-                        const value = $(this).val() || '';
-                        const wireProperty = selectMappings[selectId];
-                    @this.set(wireProperty, value)
-                        ;
+                        const val = $(this).val() || '';
+                        const prop = selectMappings[selectId];
+                        if (prop) {
+                        @this.set(prop, val)
+                            ;
+                        }
                     });
                 }
 
-                // وقتی مودال باز شد
-                Livewire.on('modal-opened', () => {
-                    setTimeout(initSelect2, 200);
-                });
+                function initAllSelect2() {
+                    Object.keys(selectMappings).forEach(id => initSingleSelect2(id));
+                }
 
-                // وقتی مودال بسته شد
-                Livewire.on('modal-closed', () => {
-                    Object.keys(selectMappings).forEach(selectId => {
-                        const $el = $('#' + selectId);
-                        if ($el.length && $el.hasClass('select2-hidden-accessible')) {
-                            $el.off('change select2:select select2:clear').select2('destroy');
+                function destroyAllSelect2() {
+                    Object.keys(selectMappings).forEach(id => destroySelect2(id));
+                }
+
+                function rebuildSelect2(selectId, options, selectedValue, disabled) {
+                    const $el = $('#' + selectId);
+                    if (!$el.length) return;
+
+                    const $modal = $el.closest('.modal-content');
+                    if (!$modal.length) return;
+
+                    destroySelect2(selectId);
+
+                    $el.empty();
+                    options.forEach(opt => {
+                        $el.append(new Option(opt.text, String(opt.value), false, String(opt.value) === String(selectedValue)));
+                    });
+
+                    $el.prop('disabled', !!disabled);
+
+                    $el.select2({
+                        ...select2Config,
+                        dropdownParent: $modal,
+                        placeholder: options.length > 0 ? options[0].text : ''
+                    });
+
+                    if (selectedValue) {
+                        $el.val(String(selectedValue)).trigger('change.select2');
+                    }
+
+                    $el.on('change', function () {
+                        const val = $(this).val() || '';
+                        const prop = selectMappings[selectId];
+                        if (prop) {
+                        @this.set(prop, val)
+                            ;
                         }
                     });
+                }
+
+                // Modal opened - initialize all selects
+                Livewire.on('modal-opened', () => {
+                    setTimeout(initAllSelect2, 250);
                 });
 
-                // ریست کردن select ها
-                Livewire.on('select2-reset', (data) => {
-                    if (data.ids && Array.isArray(data.ids)) {
-                        data.ids.forEach(id => {
-                            const $el = $('#' + id);
-                            if ($el.length && $el.hasClass('select2-hidden-accessible')) {
-                                $el.val('').trigger('change.select2');
-                            }
-                        });
-                    }
+                // Modal closed - destroy all selects
+                Livewire.on('modal-closed', () => {
+                    destroyAllSelect2();
                 });
 
-                // بعد از آپدیت Livewire - بازسازی Select2 ها با options جدید
-                Livewire.hook('morph.updated', ({el, component}) => {
-                    // فقط وقتی مودال باز هست
-                    if (!document.querySelector('.modal.show, .modal.d-block')) return;
+                // Cascading select update from PHP
+                Livewire.on('select2-update', (params) => {
+                    const data = Array.isArray(params) ? params[0] : params;
+                    if (!data || !data.id) return;
 
                     setTimeout(() => {
-                        // آپدیت grades select
-                        const grades = @this.get('grades') || [];
-                        const gradeOptions = [{
-                            value: '',
-                            text: grades.length ? 'انتخاب کنید' : 'ابتدا دوره را انتخاب کنید'
-                        }];
-                        grades.forEach(g => {
-                            let text = g.name;
-                            if (g.field) text += ` (${g.field.name})`;
-                            gradeOptions.push({value: g.id, text: text});
-                        });
-                        updateSelectOptions('grade-select', gradeOptions, @this.get('partForm.cc_grade_id'));
-
-                        // آپدیت fields select
-                        const fields = @this.get('fields') || [];
-                        if ($('#field-select').length) {
-                            const fieldOptions = [{value: '', text: 'بدون رشته'}];
-                            fields.forEach(f => fieldOptions.push({value: f.id, text: f.name}));
-                            updateSelectOptions('field-select', fieldOptions, @this.get('partForm.cc_field_id'));
-                        }
-
-                        // آپدیت subjects select
-                        const subjects = @this.get('subjects') || [];
-                        const subjectOptions = [{
-                            value: '',
-                            text: subjects.length ? 'انتخاب کنید' : 'ابتدا پایه را انتخاب کنید'
-                        }];
-                        subjects.forEach(s => {
-                            const type = s.type === 'general' ? 'عمومی' : 'تخصصی';
-                            subjectOptions.push({value: s.id, text: `${s.name} (${type})`});
-                        });
-                        updateSelectOptions('subject-select', subjectOptions, @this.get('partForm.cc_subject_id'));
-
-                        // آپدیت chapters select
-                        const chapters = @this.get('chapters') || [];
-                        const chapterOptions = [{
-                            value: '',
-                            text: chapters.length ? 'انتخاب کنید' : 'ابتدا درس را انتخاب کنید'
-                        }];
-                        chapters.forEach(c => chapterOptions.push({value: c.id, text: c.name}));
-                        updateSelectOptions('chapter-select', chapterOptions, @this.get('partForm.cc_chapter_id'));
-
-                        // آپدیت topics select
-                        const topics = @this.get('topics') || [];
-                        const topicOptions = [{
-                            value: '',
-                            text: topics.length ? 'انتخاب کنید' : 'ابتدا فصل را انتخاب کنید'
-                        }];
-                        topics.forEach(t => topicOptions.push({value: t.id, text: t.name}));
-                        updateSelectOptions('topic-select', topicOptions, @this.get('partForm.cc_topic_id'));
-
-                    }, 100);
+                        rebuildSelect2(data.id, data.options || [], data.selected || '', data.disabled || false);
+                    }, 50);
                 });
             });
         </script>

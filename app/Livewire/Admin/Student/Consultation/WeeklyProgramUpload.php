@@ -251,8 +251,7 @@ class WeeklyProgramUpload extends Component
         }
         $this->fields = CcField::active()->ordered()->get();
 
-        // Reset Select2 values
-        $this->dispatch('select2-reset', ids: ['grade-select', 'field-select', 'subject-select', 'chapter-select', 'topic-select']);
+        $this->dispatchSelectUpdates(['grades', 'fields', 'subjects', 'chapters', 'topics']);
     }
 
     public function updatedPartFormCcGradeId($value): void
@@ -268,7 +267,6 @@ class WeeklyProgramUpload extends Component
             if ($grade) {
                 $this->partForm['grade'] = $grade->grade_number;
             }
-            // بررسی رشته‌های مربوط به این پایه
             $fieldId = $this->partForm['cc_field_id'] ?: null;
             $this->subjects = CcSubject::where('cc_grade_id', $value)
                 ->when($fieldId, fn($q) => $q->where('cc_field_id', $fieldId))
@@ -279,8 +277,7 @@ class WeeklyProgramUpload extends Component
             $this->subjects = [];
         }
 
-        // Reset Select2 values
-        $this->dispatch('select2-reset', ids: ['subject-select', 'chapter-select', 'topic-select']);
+        $this->dispatchSelectUpdates(['subjects', 'chapters', 'topics']);
     }
 
     public function updatedPartFormCcFieldId($value): void
@@ -299,8 +296,7 @@ class WeeklyProgramUpload extends Component
                 ->get();
         }
 
-        // Reset Select2 values
-        $this->dispatch('select2-reset', ids: ['subject-select', 'chapter-select', 'topic-select']);
+        $this->dispatchSelectUpdates(['subjects', 'chapters', 'topics']);
     }
 
     public function updatedPartFormCcSubjectId($value): void
@@ -323,8 +319,7 @@ class WeeklyProgramUpload extends Component
             $this->chapters = [];
         }
 
-        // Reset Select2 values
-        $this->dispatch('select2-reset', ids: ['chapter-select', 'topic-select']);
+        $this->dispatchSelectUpdates(['chapters', 'topics']);
     }
 
     public function updatedPartFormCcChapterId($value): void
@@ -340,8 +335,7 @@ class WeeklyProgramUpload extends Component
             $this->topics = [];
         }
 
-        // Reset Select2 value
-        $this->dispatch('select2-reset', ids: ['topic-select']);
+        $this->dispatchSelectUpdates(['topics']);
     }
 
     public function updatedPartFormCcTopicId($value): void
@@ -353,6 +347,88 @@ class WeeklyProgramUpload extends Component
                 $subject = $chapter->subject;
                 $this->partForm['description'] = $subject->name . ' » ' . $chapter->name . ' » ' . $topic->name;
             }
+        }
+    }
+
+    /**
+     * Dispatch select2 update events with formatted options data
+     */
+    protected function dispatchSelectUpdates(array $keys): void
+    {
+        $mapping = [
+            'grades' => [
+                'id' => 'grade-select',
+                'items' => $this->grades,
+                'selected' => $this->partForm['cc_grade_id'],
+                'emptyText' => 'ابتدا دوره را انتخاب کنید',
+                'format' => function ($item) {
+                    $text = $item->name ?? $item['name'];
+                    $field = is_object($item) ? $item->field : ($item['field'] ?? null);
+                    if ($field) {
+                        $fieldName = is_object($field) ? $field->name : ($field['name'] ?? '');
+                        $text .= " ({$fieldName})";
+                    }
+                    return $text;
+                },
+            ],
+            'fields' => [
+                'id' => 'field-select',
+                'items' => $this->fields,
+                'selected' => $this->partForm['cc_field_id'],
+                'emptyText' => 'بدون رشته',
+                'format' => fn($item) => is_object($item) ? $item->name : ($item['name'] ?? ''),
+            ],
+            'subjects' => [
+                'id' => 'subject-select',
+                'items' => $this->subjects,
+                'selected' => $this->partForm['cc_subject_id'],
+                'emptyText' => 'ابتدا پایه را انتخاب کنید',
+                'format' => function ($item) {
+                    $name = is_object($item) ? $item->name : ($item['name'] ?? '');
+                    $type = is_object($item) ? $item->type : ($item['type'] ?? 'specialized');
+                    $typeLabel = $type === 'general' ? 'عمومی' : 'تخصصی';
+                    return "{$name} ({$typeLabel})";
+                },
+            ],
+            'chapters' => [
+                'id' => 'chapter-select',
+                'items' => $this->chapters,
+                'selected' => $this->partForm['cc_chapter_id'],
+                'emptyText' => 'ابتدا درس را انتخاب کنید',
+                'format' => fn($item) => is_object($item) ? $item->name : ($item['name'] ?? ''),
+            ],
+            'topics' => [
+                'id' => 'topic-select',
+                'items' => $this->topics,
+                'selected' => $this->partForm['cc_topic_id'],
+                'emptyText' => 'ابتدا فصل را انتخاب کنید',
+                'format' => fn($item) => is_object($item) ? $item->name : ($item['name'] ?? ''),
+            ],
+        ];
+
+        foreach ($keys as $key) {
+            if (!isset($mapping[$key])) continue;
+
+            $config = $mapping[$key];
+            $items = $config['items'];
+            $options = [];
+
+            // First empty option
+            $placeholder = count($items) > 0 ? 'انتخاب کنید' : $config['emptyText'];
+            $options[] = ['value' => '', 'text' => $placeholder];
+
+            foreach ($items as $item) {
+                $id = is_object($item) ? $item->id : ($item['id'] ?? '');
+                $text = ($config['format'])($item);
+                $options[] = ['value' => $id, 'text' => $text];
+            }
+
+            $this->dispatch('select2-update', [
+                'id' => $config['id'],
+                'options' => $options,
+                'selected' => $config['selected'] ?? '',
+                'disabled' => count($items) === 0,
+            ]);
         }
     }
 
