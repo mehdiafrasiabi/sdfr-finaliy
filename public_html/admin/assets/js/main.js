@@ -1,746 +1,847 @@
-/**
- * Main
- */
+const initAppToggler = () => {
+	
+	const appTogglers = document.querySelectorAll(".app-toggler");
+	const appMenubars = document.getElementById("appMenubar");
 
-'use strict';
+	appTogglers.forEach(toggler => {
+		toggler.addEventListener("click", () => {
+			toggler.classList.toggle("active");
 
-function _scrollToActive(animate = false, duration = 500) {
-    const layoutMenu = document.querySelector('.layout-menu');
+			if (window.innerWidth >= 1480) {
+				const currentValue = document.documentElement.getAttribute("data-app-sidebar");
+				document.documentElement.setAttribute(
+					"data-app-sidebar",
+					currentValue === "full" ? "mini" : "full"
+				);
+			} else {
+				if (appMenubars) {
+					appMenubars.classList.toggle("open");
+				}
+			}
+		});
+	});
 
-    if (!layoutMenu) return
+	if (appMenubars) {
+		appMenubars.addEventListener("mouseenter", () => {
+			if (document.documentElement.getAttribute("data-app-sidebar") === "mini") {
+				document.documentElement.setAttribute("data-app-sidebar", "mini-hover");
+			}
+		});
 
-    let activeEl = layoutMenu.querySelector('li.menu-item.active')
+		appMenubars.addEventListener("mouseleave", () => {
+			if (document.documentElement.getAttribute("data-app-sidebar") === "mini-hover") {
+				document.documentElement.setAttribute("data-app-sidebar", "mini");
+			}
+		});
+	}
+};
 
-    if (activeEl) {
-        // t = current time
-        // b = start value
-        // c = change in value
-        // d = duration
-        const easeInOutQuad = (t, b, c, d) => {
-            t /= d / 2
-            if (t < 1) return (c / 2) * t * t + b
-            t -= 1
-            return (-c / 2) * (t * (t - 2) - 1) + b
-        }
-
-        const element = document.querySelector('.layout-menu').querySelector('.menu-inner')
-
-        if (typeof activeEl === 'string') {
-            activeEl = document.querySelector(activeEl)
-        }
-        if (typeof activeEl !== 'number') {
-            activeEl = activeEl.getBoundingClientRect().top + element.scrollTop
-        }
-
-        // If active element's top position is less than 2/3 (66%) of menu height than do not scroll
-        if (activeEl < parseInt((element.clientHeight * 2) / 3, 10)) return
-
-        const start = element.scrollTop
-        const change = activeEl - start - parseInt(element.clientHeight / 2, 10)
-        const startDate = +new Date()
-
-        if (animate === true) {
-            const animateScroll = () => {
-                const currentDate = +new Date()
-                const currentTime = currentDate - startDate
-                const val = easeInOutQuad(currentTime, start, change, duration)
-                element.scrollTop = val
-                if (currentTime < duration) {
-                    requestAnimationFrame(animateScroll)
-                } else {
-                    element.scrollTop = change
-                }
-            }
-            animateScroll()
-        } else {
-            element.scrollTop = change
-        }
-    }
+const passwordToggle = () => {
+	document.querySelectorAll('.toggle-password').forEach(btn => {
+		btn.addEventListener('click', () => {
+			const input = btn.previousElementSibling;
+			const isPassword = input.type === 'password';
+			input.type = isPassword ? 'text' : 'password';
+			btn.classList.toggle('active', isPassword);
+		});
+	});
 }
 
+const saerchList = () => {
+	let listItems = [];
 
+	// JSON load
+	$.getJSON("assets/ajax/search.json", function(data) {
+		listItems = data.listItems;
+	});
 
-let isRtl = window.Helpers.isRtl(),
-    isDarkStyle = window.Helpers.isDarkStyle(),
-    menu,
-    animate,
-    isHorizontalLayout = false;
+	// Search functionality
+	$("#searchInput").on("keyup", function() {
+		let query = $(this).val().toLowerCase();
+		let searchContainer = $("#searchContainer");
+		searchContainer.empty();
+		searchContainer.hide();
+		
+		$('#recentlyResults').hide();
+		
+		if (query.length === 0) {
+			searchContainer.hide();
+			$('#recentlyResults').show();
+			return;
+		}
 
-if (document.getElementById('layout-menu')) {
-    isHorizontalLayout = document.getElementById('layout-menu').classList.contains('menu-horizontal');
+		let matched = listItems.filter(item =>
+			item.name.toLowerCase().includes(query) ||
+			item.url.toLowerCase().includes(query)
+		);
+
+		if (matched.length > 0) {
+			let grouped = {};
+			matched.forEach(item => {
+				if (!grouped[item.category]) grouped[item.category] = [];
+				grouped[item.category].push(item);
+			});
+
+			for (let cat in grouped) {
+				searchContainer.append(
+					`<span class="text-uppercase text-2xs fw-semibold text-muted d-block mb-2">${cat}</span>`
+				);
+				let ul = $("<ul class='list-inline search-list'></ul>");
+				grouped[cat].forEach(item => {
+					ul.append(
+						`<li>
+							<a class="search-item" href="${item.url}">
+								<i class="${item.icon}"></i> <span>${item.name}</span>
+							</a>
+						</li>`
+					);
+				});
+				searchContainer.append(ul);
+			}
+			searchContainer.show();
+		} else {
+			searchContainer.append(`
+				<div class="text-center pb-5 pt-4">
+					<div class="avatar avatar-lg bg-danger-subtle shadow-secondary rounded-circle text-danger mb-3 m-auto">
+						<i class="fi fi-rr-assessment"></i>
+					</div>
+					<h5 class="mb-1">No result found</h5>
+					<div class="text-muted">Please try again with a different query</div>
+				</div>
+			`);
+			searchContainer.show();
+		}
+	});
+};
+
+const currentYear = () => {
+    const elements = document.querySelectorAll('.currentYear');
+    const currentYear = new Date().getFullYear();
+
+    elements.forEach(element => {
+        element.textContent = currentYear;
+    });
+};
+
+const setElementHeight = () => {
+    const footer = document.querySelector('.footer-wrapper');
+	if (footer) {
+		const footerHeight = footer ? footer.offsetHeight : 0;
+		document.documentElement.style.setProperty('--footer-height', `${footerHeight}px`);
+	}
+	
+	const chatBox = document.querySelector('.chat-wrapper');
+	if (chatBox) {
+		const chatHeight = chatBox.offsetHeight;
+		document.documentElement.style.setProperty('--chat-height', `${chatHeight}px`);
+	}
+	
+};
+
+const initSelectPicker = () => {
+	
+	document.querySelectorAll('.select-status').forEach(dropdown => {
+		const toggleButton = dropdown.querySelector('.dropdown-toggle');
+		const items = dropdown.querySelectorAll('.dropdown-item');
+
+		const updateButtonClassAndText = (text, selectedClass) => {
+			// Remove btn-* except btn-sm, btn-lg
+			toggleButton.classList.forEach(cls => {
+				if (/^btn-/.test(cls) && !['btn-sm', 'btn-lg'].includes(cls)) {
+					toggleButton.classList.remove(cls);
+				}
+			});
+
+			if (selectedClass) {
+				toggleButton.classList.add(...selectedClass.split(' '));
+			}
+
+			toggleButton.textContent = text;
+		};
+
+		// Handle default selection on page load
+		const selectedItem = dropdown.querySelector('.dropdown-item[data-selected="true"]');
+		if (selectedItem) {
+			const defaultText = selectedItem.textContent.trim();
+			const defaultClass = selectedItem.getAttribute('data-class');
+			updateButtonClassAndText(defaultText, defaultClass);
+		}
+
+		// Handle selection on click
+		items.forEach(item => {
+			item.addEventListener('click', (e) => {
+				e.preventDefault();
+				items.forEach(i => i.removeAttribute('data-selected'));
+				item.setAttribute('data-selected', 'true');
+
+				const selectedText = item.textContent.trim();
+				const selectedClass = item.getAttribute('data-class');
+				updateButtonClassAndText(selectedText, selectedClass);
+			});
+		});
+	});
+};
+
+function initSectionCheckboxSync() {
+    document.querySelectorAll('.data-row-checkbox').forEach(function(section) {
+        const masterCheckbox = section.querySelector('[data-row-checkbox]');
+        const checkboxes = section.querySelectorAll('[data-checkbox]');
+
+        if (!masterCheckbox || checkboxes.length === 0) return;
+
+        masterCheckbox.addEventListener('change', function() {
+            const checked = this.checked;
+            checkboxes.forEach(function(cb) {
+                cb.checked = checked;
+            });
+        });
+
+        checkboxes.forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                const allChecked = Array.from(checkboxes).every(c => c.checked);
+                masterCheckbox.checked = allChecked;
+            });
+        });
+    });
 }
 
-(function () {
+function initTooltips() {
+	const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+	const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+}
 
+function initPopover() {
+	var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+	var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+		return new bootstrap.Popover(popoverTriggerEl)
+	})
+}
 
-    setTimeout(function () {
-        window.Helpers.initCustomOptionCheck();
-    }, 1000);
+function initSidebarMenu() {
+	
+	jQuery('.app-navbar .menubar > li.menu-arrow > a').next('.menu-inner').slideUp();
+	jQuery('.app-navbar .menu-inner > li > a').next('.menu-inner').slideUp();
+	
+	jQuery('.app-navbar .menubar > li.menu-arrow > a, .app-navbar .menu-inner > li > a').unbind().on('click', function(e){
+		if(jQuery(this).hasClass('open')){
+			jQuery(this).removeClass('open');
+			jQuery(this).parent('li').children('.menu-inner').slideUp();
+		}else{
+			if (!window.event.ctrlKey) {
+				jQuery(this).addClass('open');
+			}
+			if(jQuery(this).parent('li').children('.menu-inner').length > 0){
+				
+				e.preventDefault();
+				jQuery(this).next('.menu-inner').slideDown();
+				jQuery(this).parent('li').siblings('li').find('a:first').removeClass('open');
+				jQuery(this).parent('li').siblings('li').children('.menu-inner').slideUp();
+			}else{
+				jQuery(this).next('.menu-inner').slideUp();
+			}
+		}
+	});
+	
+	for (var nk = window.location,
+		o = $(".app-navbar .menubar a").filter(function(){
+		return this.href == nk;
+	}).addClass("active").parent().addClass("active").parent().show().siblings('a').addClass("active open").parent().parent().show().siblings('a').addClass("open");;){
+		if (!o.is("li")) {
+			break;
+		}
+		o = o.parent().slideDown().parent('li').children('a').addClass("active");
+	}
+}
 
-    if (typeof Waves !== 'undefined') {
-        Waves.init();
-        Waves.attach(".btn[class*='btn-']:not([class*='btn-outline-']):not([class*='btn-label-'])", ['waves-light']);
-        Waves.attach("[class*='btn-outline-']");
-        Waves.attach("[class*='btn-label-']");
-        Waves.attach('.pagination .page-item .page-link');
-    }
+function initCheckable() {
+    document.querySelectorAll('.checkable-wrapper').forEach(function(wrapper) {
+        const checkAll = wrapper.querySelector('.checkable-check-all');
+        const checkboxes = wrapper.querySelectorAll('.checkable-check-input');
 
-    // Initialize menu
-    //-----------------
-
-    let layoutMenuEl = document.querySelectorAll('#layout-menu');
-    layoutMenuEl.forEach(function (element) {
-        menu = new Menu(element, {
-            orientation: isHorizontalLayout ? 'horizontal' : 'vertical',
-            closeChildren: isHorizontalLayout ? true : false,
-            // ? This option only works with Horizontal menu
-            showDropdownOnHover: localStorage.getItem('templateCustomizer-' + templateName + '--ShowDropdownOnHover') // If value(showDropdownOnHover) is set in local storage
-                ? localStorage.getItem('templateCustomizer-' + templateName + '--ShowDropdownOnHover') === 'true' // Use the local storage value
-                : window.templateCustomizer !== undefined // If value is set in config.js
-                    ? window.templateCustomizer.settings.defaultShowDropdownOnHover // Use the config.js value
-                    : true // Use this if you are not using the config.js and want to set value directly from here
+        // Initialize checked state on load
+        checkboxes.forEach(function(checkbox) {
+            const item = checkbox.closest('.checkable-item');
+            if (checkbox.checked && item) {
+                item.classList.add('is-checked');
+            }
         });
 
-        let url = location.pathname;
-        let pl = url.substring(url.lastIndexOf('/') + 1);
-        if (pl === "") pl = "index.html";
-
-        let layout_menu = document.querySelector("#layout-menu");
-        if (layout_menu) {
-
-            let menu_item = layout_menu.querySelectorAll(".menu-link[href='" + pl + "']");
-            menu_item = menu_item[menu_item.length- 1];
-
-            if (menu_item != null) {
-
-                menu_item.parentElement.className = menu_item.parentElement.className + " active";
-
-                function recursive(item) {
-                    if (item.className.includes("menu-item")) {
-                        if(isHorizontalLayout) item.className = item.className + " active open";
-                        else item.className = item.className + " open";
-                        recursive(item.parentElement);
-                    } else if (item.className.includes("menu-inner")) {
-                        return "-1";
-                    } else {
-                        recursive(item.parentElement);
+        // Handle "Select All"
+        if (checkAll) {
+            checkAll.addEventListener('change', function () {
+                const isChecked = this.checked;
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = isChecked;
+                    const item = checkbox.closest('.checkable-item');
+                    if (item) {
+                        item.classList.toggle('is-checked', isChecked);
                     }
-                }
-
-                recursive(menu_item);
-            }
-        }
-
-        // Change parameter to true if you want scroll animation
-        _scrollToActive();
-        window.Helpers.mainMenu = menu;
-    });
-
-
-    // Initialize menu togglers and bind click on each
-    let menuToggler = document.querySelectorAll('.layout-menu-toggle');
-    menuToggler.forEach(item => {
-        item.addEventListener('click', event => {
-            event.preventDefault();
-            window.Helpers.toggleCollapsed();
-            // Enable menu state with local storage support if enableMenuLocalStorage = true from config.js
-            if (config.enableMenuLocalStorage && !window.Helpers.isSmallScreen()) {
-                try {
-                    localStorage.setItem(
-                        'templateCustomizer-' + templateName + '--LayoutCollapsed',
-                        String(window.Helpers.isCollapsed())
-                    );
-                    // Update customizer checkbox state on click of menu toggler
-                    let layoutCollapsedCustomizerOptions = document.querySelector('.template-customizer-layouts-options');
-                    if (layoutCollapsedCustomizerOptions) {
-                        let layoutCollapsedVal = window.Helpers.isCollapsed() ? 'collapsed' : 'expanded';
-                        layoutCollapsedCustomizerOptions.querySelector(`input[value="${layoutCollapsedVal}"]`).click();
-                    }
-                } catch (e) {
-                }
-            }
-        });
-    });
-
-    // Menu swipe gesture
-
-    // Detect swipe gesture on the target element and call swipe In
-    window.Helpers.swipeIn('.drag-target', function (e) {
-        window.Helpers.setCollapsed(false);
-    });
-
-    // Detect swipe gesture on the target element and call swipe Out
-    window.Helpers.swipeOut('#layout-menu', function (e) {
-        if (window.Helpers.isSmallScreen()) window.Helpers.setCollapsed(true);
-    });
-
-    // Display in main menu when menu scrolls
-    let menuInnerContainer = document.getElementsByClassName('menu-inner'),
-        menuInnerShadow = document.getElementsByClassName('menu-inner-shadow')[0];
-    if (menuInnerContainer.length > 0 && menuInnerShadow) {
-        menuInnerContainer[0].addEventListener('ps-scroll-y', function () {
-            if (this.querySelector('.ps__thumb-y').offsetTop) {
-                menuInnerShadow.style.display = 'block';
-            } else {
-                menuInnerShadow.style.display = 'none';
-            }
-        });
-    }
-
-    // Update light/dark image based on current style
-    function switchImage(style) {
-        if (style === 'system') {
-            if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                style = 'dark';
-            } else {
-                style = 'light';
-            }
-        }
-        const switchImagesList = [].slice.call(document.querySelectorAll('[data-app-' + style + '-img]'));
-        switchImagesList.map(function (imageEl) {
-            const setImage = imageEl.getAttribute('data-app-' + style + '-img');
-            imageEl.src = assetsPath + 'img/' + setImage; // Using window.assetsPath to get the exact relative path
-        });
-    }
-
-    //Style Switcher (Light/Dark/System Mode)
-    let styleSwitcher = document.querySelector('.dropdown-style-switcher');
-
-    // Get style from local storage or use 'system' as default
-    let storedStyle =
-        localStorage.getItem('templateCustomizer-' + templateName + '--Style') || //if no template style then use Customizer style
-        (window.templateCustomizer?.settings?.defaultStyle ?? 'light'); //!if there is no Customizer then use default style as light
-
-    // Set style on click of style switcher item if template customizer is enabled
-    if (window.templateCustomizer && styleSwitcher) {
-        let styleSwitcherItems = [].slice.call(styleSwitcher.children[1].querySelectorAll('.dropdown-item'));
-        styleSwitcherItems.forEach(function (item) {
-            item.addEventListener('click', function () {
-                let currentStyle = this.getAttribute('data-theme');
-                if (currentStyle === 'light') {
-                    window.templateCustomizer.setStyle('light');
-                } else if (currentStyle === 'dark') {
-                    window.templateCustomizer.setStyle('dark');
-                } else {
-                    window.templateCustomizer.setStyle('system');
-                }
-            });
-        });
-
-        // Update style switcher icon based on the stored style
-
-        const styleSwitcherIcon = styleSwitcher.querySelector('i');
-
-        if (storedStyle === 'light') {
-            styleSwitcherIcon.classList.add('ti-sun');
-            new bootstrap.Tooltip(styleSwitcherIcon, {
-                title: 'حالت روز',
-                fallbackPlacements: ['bottom']
-            });
-        } else if (storedStyle === 'dark') {
-            styleSwitcherIcon.classList.add('ti-moon');
-            new bootstrap.Tooltip(styleSwitcherIcon, {
-                title: 'حالت شب',
-                fallbackPlacements: ['bottom']
-            });
-        } else {
-            styleSwitcherIcon.classList.add('ti-device-desktop');
-            new bootstrap.Tooltip(styleSwitcherIcon, {
-                title: 'حالت سیستم',
-                fallbackPlacements: ['bottom']
-            });
-        }
-    }
-
-    // Run switchImage function based on the stored style
-    switchImage(storedStyle);
-
-    // Internationalization (Language Dropdown)
-    // ---------------------------------------
-
-    if (typeof i18next !== 'undefined' && typeof i18NextHttpBackend !== 'undefined') {
-        i18next
-            .use(i18NextHttpBackend)
-            .init({
-                lng: window.templateCustomizer ? window.templateCustomizer.settings.lang : 'fa',
-                debug: false,
-                fallbackLng: 'fa',
-                backend: {
-                    loadPath: assetsPath + 'json/locales/{{lng}}.json'
-                },
-                returnObjects: true
-            })
-            .then(function (t) {
-                localize();
-            });
-    }
-
-    let languageDropdown = document.getElementsByClassName('dropdown-language');
-
-    if (languageDropdown.length) {
-        let dropdownItems = languageDropdown[0].querySelectorAll('.dropdown-item');
-
-        for (let i = 0; i < dropdownItems.length; i++) {
-            dropdownItems[i].addEventListener('click', function () {
-                let currentLanguage = this.getAttribute('data-language');
-                let textDirection = this.getAttribute('data-text-direction');
-
-                for (let sibling of this.parentNode.children) {
-                    var siblingEle = sibling.parentElement.parentNode.firstChild;
-
-                    // Loop through each sibling and push to the array
-                    while (siblingEle) {
-                        if (siblingEle.nodeType === 1 && siblingEle !== siblingEle.parentElement) {
-                            siblingEle.querySelector('.dropdown-item').classList.remove('active');
-                        }
-                        siblingEle = siblingEle.nextSibling;
-                    }
-                }
-                this.classList.add('active');
-
-                i18next.changeLanguage(currentLanguage, (err, t) => {
-                    window.templateCustomizer ? window.templateCustomizer.setLang(currentLanguage) : '';
-                    directionChange(textDirection);
-                    if (err) return console.log('something went wrong loading', err);
-                    localize();
                 });
-
             });
         }
 
-        function directionChange(textDirection) {
-            if (textDirection === 'rtl') {
-                if (localStorage.getItem('templateCustomizer-' + templateName + '--Rtl') !== 'true')
-                    window.templateCustomizer ? window.templateCustomizer.setRtl(true) : '';
-            } else {
-                if (localStorage.getItem('templateCustomizer-' + templateName + '--Rtl') === 'true')
-                    window.templateCustomizer ? window.templateCustomizer.setRtl(false) : '';
+        // Handle individual checkbox toggle
+        wrapper.addEventListener('change', function (e) {
+            if (e.target.matches('.checkable-check-input')) {
+                const item = e.target.closest('.checkable-item');
+                if (item) {
+                    item.classList.toggle('is-checked', e.target.checked);
+                }
+
+                // Update "Select All" state
+                const allChecked = wrapper.querySelectorAll('.checkable-check-input:not(:checked)').length === 0;
+                if (checkAll) {
+                    checkAll.checked = allChecked;
+                }
+            }
+        });
+    });
+}
+
+function initEmailSidebarToggle() {
+    const toggler = document.querySelector('.mail-sidebar-toggler');
+    const sidebar = document.querySelector('.mail-sidebar');
+    const overlay = document.querySelector('.sidebar-mobile-overlay');
+
+    if (toggler && sidebar && overlay) {
+        toggler.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show', sidebar.classList.contains('open'));
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        });
+    }
+}
+
+function initChatSidebarToggle() {
+    const toggler = document.querySelector('.chat-sidebar-toggler');
+    const sidebar = document.querySelector('.chat-sidebar');
+    const overlay = document.querySelector('.sidebar-mobile-overlay');
+    const btnClose = document.querySelector('.btn-close');
+
+    if (toggler && sidebar && overlay) {
+        toggler.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('show', sidebar.classList.contains('open'));
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        });
+		
+		btnClose.addEventListener('click', () => {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        });
+    }
+}
+
+function initBookmarks() {
+    document.addEventListener('click', (e) => {
+        const bookmark = e.target.closest('.mail-item-bookmark');
+        if (bookmark) {
+            bookmark.classList.toggle('active');
+        }
+    });
+}
+
+const ThemeSwitcher = () => {
+	'use strict';
+
+	// Cookie helpers
+	const getCookie = (name) => {
+	  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+	  return match ? match[2] : null;
+	};
+
+	const setCookie = (name, value, days = 365) => {
+	  const expires = new Date(Date.now() + days * 864e5).toUTCString();
+	  document.cookie = `${name}=${value}; expires=${expires}; path=/`;
+	};
+
+	const getStoredTheme = () => getCookie('theme');
+	const setStoredTheme = (theme) => setCookie('theme', theme);
+
+	// Preferred theme
+	const getPreferredTheme = () => {
+	  const storedTheme = getStoredTheme();
+	  if (storedTheme) return storedTheme;
+	  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+	};
+
+	// Apply theme
+	const setTheme = (theme) => {
+	  document.documentElement.setAttribute('data-bs-theme', theme);
+	};
+
+	// Page Ready
+	$(document).ready(function () {
+	  // ðŸ”¹ On load: apply saved/preferred theme
+	  const preferredTheme = getPreferredTheme();
+	  setTheme(preferredTheme);
+
+	  // ðŸ”¹ Restore active state on button
+	  if (preferredTheme === 'dark') {
+		$('.theme-btn').addClass('active');
+	  } else {
+		$('.theme-btn').removeClass('active');
+	  }
+
+	  // ðŸ”¹ Click handler
+	  $('.theme-btn').on('click', function () {
+		$(this).toggleClass('active');
+
+		let currentTheme = document.documentElement.getAttribute('data-bs-theme');
+		let newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+		setTheme(newTheme);
+		setStoredTheme(newTheme);
+	  });
+	});
+};
+
+function initSidebarPanel() {
+	document.addEventListener('click', function(e) {
+		const toggler = e.target.closest('.sidebar-panel-toggler');
+		if (toggler) {
+			const panel = document.querySelector('.app-sidebar-panel');
+			if (panel) {
+				panel.classList.toggle('show');
+			}
+		}
+
+		const closeBtn = e.target.closest('.sidebar-close');
+		if (closeBtn) {
+			document.querySelectorAll('.app-sidebar-panel').forEach(panel => {
+				panel.classList.remove('show');
+			});
+		}
+	});
+}
+
+function initPriceSwitch() {
+	const priceSwitch = document.querySelector("#priceSwitchCheck");
+
+	if (priceSwitch) {
+		priceSwitch.addEventListener("change", function () {
+			const isYearly = this.checked;
+			const monthlyPrices = document.querySelectorAll(".price-monthly");
+			const yearlyPrices = document.querySelectorAll(".price-yearly");
+
+			monthlyPrices.forEach(price => price.classList.toggle("d-none", isYearly));
+			yearlyPrices.forEach(price => price.classList.toggle("d-none", !isYearly));
+		});	
+	}
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    Waves.init();
+	initAppToggler();
+	passwordToggle();
+	saerchList();
+	setElementHeight();
+	currentYear();
+	initSectionCheckboxSync();
+	initSelectPicker();
+	initTooltips();
+	initPopover();
+	initCheckable();
+	initSidebarMenu();
+	initEmailSidebarToggle();
+	initChatSidebarToggle();
+	initBookmarks();
+	ThemeSwitcher();
+	initSidebarPanel();
+	initPriceSwitch();
+});
+
+
+$(document).ready(function () {
+    if (typeof jalaliDatepicker !== 'undefined') {
+        
+        jalaliDatepicker.startWatch({
+            minDate: "attr",
+            maxDate: "attr",
+            autoHide: true,
+            time: false,
+
+            onSelect: function(input, d) {
+
+                const date = d.year + "/" + 
+                             String(d.month).padStart(2, '0') + "/" + 
+                             String(d.day).padStart(2, '0');
+                
+                input.value = date;
+                
+
+                $(input).trigger('change');
+            }
+        });
+
+        $(".flatpickr-input").on('focus', function() {
+            const inputElement = this;
+            setTimeout(() => {
+                const picker = document.querySelector('jdp-container');
+                if (picker) {
+                    picker.style.setProperty('z-index', '999999', 'important');
+                }
+            }, 10);
+        });
+    }
+});
+
+$(document).ready(function() {
+    
+    // ۱. تاریخ و زمان
+    $(".p-date-time").pDatepicker({
+        timePicker: { enabled: true, second: { enabled: false } },
+        format: 'YYYY/MM/DD HH:mm'
+    });
+
+    // ۲. فقط تاریخ
+    $(".p-date-only").pDatepicker({
+        timePicker: { enabled: false },
+        format: 'YYYY/MM/DD',
+        autoClose: true
+    });
+
+    // ۳. فقط ماه و سال
+    $(".p-month-only").pDatepicker({
+        timePicker: { enabled: false },
+        format: 'MMMM YYYY',
+        autoClose: true,
+        viewMode: 'month',
+        minViewMode: 'month',
+        onlySelectOnDate: false 
+    });
+
+    // ۴. فقط زمان
+    $(".p-time-only").pDatepicker({
+        onlyTimePicker: true,
+        timePicker: { enabled: true, second: { enabled: false } },
+        format: 'HH:mm',
+        autoClose: true
+    });
+
+});
+
+// ۵. شروع تقویم هفته
+$(document).on('mousedown', '.week-input-target', function() {
+    var $input = $(this);
+
+    if ($input.data('calendar-linked') === true) return;
+
+    var checkExist = setInterval(function() {
+        var datePickerInstance = $input.data('datepicker');
+        
+        if (datePickerInstance && datePickerInstance.container) {
+            var $calendar = $(datePickerInstance.container.element);
+            var calendarId = $calendar.attr('id');
+
+            if (calendarId) {
+                $("#" + calendarId).addClass("is-week-mode");
+                $input.data('calendar-linked', true);
+                
+                console.log("اتصال موفق به تقویم اختصاصی: " + calendarId);
+                clearInterval(checkExist);
+            }
+        } else {
+            var $visibleCalendar = $(".datepicker-container").not(".pwt-hide");
+            if ($visibleCalendar.length > 0) {
+                $visibleCalendar.addClass("is-week-mode");
+                $input.data('calendar-linked', true);
+                clearInterval(checkExist);
             }
         }
-    }
+    }, 200);
 
-    function localize() {
-        let i18nList = document.querySelectorAll('[data-i18n]');
-        // Set the current language in dd
-        let currentLanguageEle = document.querySelector('.dropdown-item[data-language="' + i18next.language + '"]');
+    setTimeout(function() { clearInterval(checkExist); }, 1500);
+});
 
-        if (currentLanguageEle) {
-            currentLanguageEle.click();
+
+$(document).ready(function() {
+    // ۱. تنظیم دیت‌پیکر هفته
+    var weekPicker = $(".week-input-target").pDatepicker({
+        timePicker: { enabled: false },
+        autoClose: false,
+        calendar: { showWeekNumbers: true },
+        formatter: function(unix) {
+            var date = new persianDate(unix);
+            return "هفته " + date.format('ww') + "، " + date.format('YYYY');
         }
-
-        i18nList.forEach(function (item) {
-            item.innerHTML = i18next.t(item.dataset.i18n);
-        });
-    }
-
-    // Notification
-    // ------------
-    const notificationMarkAsReadAll = document.querySelector('.dropdown-notifications-all');
-    const notificationMarkAsReadList = document.querySelectorAll('.dropdown-notifications-read');
-
-    // Notification: Mark as all as read
-    if (notificationMarkAsReadAll) {
-        notificationMarkAsReadAll.addEventListener('click', event => {
-            notificationMarkAsReadList.forEach(item => {
-                item.closest('.dropdown-notifications-item').classList.add('marked-as-read');
-            });
-        });
-    }
-    // Notification: Mark as read/unread onclick of dot
-    if (notificationMarkAsReadList) {
-        notificationMarkAsReadList.forEach(item => {
-            item.addEventListener('click', event => {
-                item.closest('.dropdown-notifications-item').classList.toggle('marked-as-read');
-            });
-        });
-    }
-
-    // Notification: Mark as read/unread onclick of dot
-    const notificationArchiveMessageList = document.querySelectorAll('.dropdown-notifications-archive');
-    notificationArchiveMessageList.forEach(item => {
-        item.addEventListener('click', event => {
-            item.closest('.dropdown-notifications-item').remove();
-        });
     });
+})
 
-    // Init helpers & misc
-    // --------------------
+$(document).on('click', '.is-week-mode td:not(.new):not(.old)', function() {
+    var $tr = $(this).closest('tr');
+    var $container = $(this).closest('.is-week-mode');
 
-    // Init BS Tooltip
-    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
+    var firstDayUnix = $tr.find('td[data-date]').first().data('date');
+    if (firstDayUnix) {
+        var date = new persianDate(firstDayUnix);
+        var weekString = "هفته " + date.format('ww') + "، " + date.format('YYYY');
 
-    // Accordion active class
-    const accordionActiveFunction = function (e) {
-        if (e.type == 'show.bs.collapse' || e.type == 'show.bs.collapse') {
-            e.target.closest('.accordion-item').classList.add('active');
+        $(".week-input-target:focus").val(weekString);
+    }
+
+    setTimeout(function() {
+        $container.find('td').removeClass('selected-week');
+        $tr.find('td').addClass('selected-week');
+    }, 20);
+});
+
+$(document).on('mouseenter', '.is-week-mode td:not(.new):not(.old)', function() {
+    $(this).closest('tr').find('td').addClass('hover-week');
+});
+
+$(document).on('mouseleave', '.is-week-mode td', function() {
+    $(this).closest('tr').find('td').removeClass('hover-week');
+});
+// پایان تقویم هفته
+
+// شروع تقویم رنج
+$(document).on('mousedown', '.range-input-target', function() {
+    var $input = $(this);
+
+    if ($input.data('calendar-linked') === true) return;
+
+    var checkExist = setInterval(function() {
+        var datePickerInstance = $input.data('datepicker');
+        
+        if (datePickerInstance && datePickerInstance.container) {
+            var $calendar = $(datePickerInstance.container.element);
+            var calendarId = $calendar.attr('id');
+
+            if (calendarId) {
+                // اختصاص کلاس مخصوص رنج
+                $("#" + calendarId).addClass("is-range-mode");
+                $input.data('calendar-linked', true);
+                
+                console.log("تقویم رنج متصل شد: " + calendarId);
+                clearInterval(checkExist);
+            }
         } else {
-            e.target.closest('.accordion-item').classList.remove('active');
+            var $visibleCalendar = $(".datepicker-container").not(".pwt-hide");
+            if ($visibleCalendar.length > 0) {
+                $visibleCalendar.addClass("is-range-mode");
+                $input.data('calendar-linked', true);
+                clearInterval(checkExist);
+            }
         }
+    }, 200);
+
+    setTimeout(function() { clearInterval(checkExist); }, 1500);
+});
+
+
+$(document).ready(function() {
+    // متغیرهایی برای نگه داشتن وضعیت رنج
+    var rangeState = {
+        start: null,
+        end: null
     };
 
-    const accordionTriggerList = [].slice.call(document.querySelectorAll('.accordion'));
-    const accordionList = accordionTriggerList.map(function (accordionTriggerEl) {
-        accordionTriggerEl.addEventListener('show.bs.collapse', accordionActiveFunction);
-        accordionTriggerEl.addEventListener('hide.bs.collapse', accordionActiveFunction);
+    // مقداردهی اولیه پلاگین
+    $(".range-input-target").pDatepicker({
+        timePicker: { enabled: false },
+        format: 'YYYY/MM/DD',
+        autoClose: false,
+        onSelect: function(unix) {
+            handleDateSelection(unix);
+        }
     });
 
-    // If layout is RTL add .dropdown-menu-end class to .dropdown-menu
-    // if (isRtl) {
-    //   Helpers._addClass('dropdown-menu-end', document.querySelectorAll('#layout-navbar .dropdown-menu'));
-    // }
+    // تابع اصلی مدیریت انتخاب رنج (هوشمند)
+    function handleDateSelection(selectedUnix) {
+        var unix = parseInt(selectedUnix);
 
-    // Auto update layout based on screen size
-    window.Helpers.setAutoUpdate(true);
-
-    // Toggle Password Visibility
-    window.Helpers.initPasswordToggle();
-
-    // Speech To Text
-    window.Helpers.initSpeechToText();
-
-    // Init PerfectScrollbar in Navbar Dropdown (i.e notification)
-    window.Helpers.initNavbarDropdownScrollbar();
-
-    let horizontalMenuTemplate = document.querySelector("[data-template^='horizontal-menu']");
-    if (horizontalMenuTemplate) {
-        // if screen size is small then set navbar fixed
-        if (window.innerWidth < window.Helpers.LAYOUT_BREAKPOINT) {
-            window.Helpers.setNavbarFixed('fixed');
+        // ۱. منطق چرخه انتخاب
+        if (!rangeState.start || (rangeState.start && rangeState.end)) {
+            // کلیک اول (فرد): شروع جدید
+            rangeState.start = unix;
+            rangeState.end = null;
         } else {
-            window.Helpers.setNavbarFixed('');
+            // کلیک دوم (زوج): مقایسه و جابه‌جایی هوشمند
+            if (unix < rangeState.start) {
+                // اگر دومی قبل از اولی بود، جابجا کن (هوشمند)
+                rangeState.end = rangeState.start;
+                rangeState.start = unix;
+            } else {
+                rangeState.end = unix;
+            }
         }
+
+        updateInputAndStyles();
     }
 
-    // On window resize listener
-    // -------------------------
-    window.addEventListener(
-        'resize',
-        function (event) {
-            // Hide open search input and set value blank
-            if (window.innerWidth >= window.Helpers.LAYOUT_BREAKPOINT) {
-                if (document.querySelector('.search-input-wrapper')) {
-                    document.querySelector('.search-input-wrapper').classList.add('d-none');
-                    document.querySelector('.search-input').value = '';
-                }
+    // به‌روزرسانی اینپوت و استایل‌های بصری
+    function updateInputAndStyles() {
+        var startStr = rangeState.start ? new persianDate(rangeState.start).format('YYYY/MM/DD') : "";
+        var endStr = rangeState.end ? new persianDate(rangeState.end).format('YYYY/MM/DD') : "";
+
+        var $input = $(".range-input-target:focus").length ? $(".range-input-target:focus") : $(".range-input-target");
+
+        if (rangeState.start && rangeState.end) {
+            $input.val(startStr + " تا " + endStr);
+        } else if (rangeState.start) {
+            $input.val(startStr + " - انتخاب پایان...");
+        }
+
+        applyRangeStyles();
+    }
+
+    // اعمال کلاس‌ها (حل مشکل رندر مجدد پلاگین)
+    function applyRangeStyles() {
+        setTimeout(function() {
+            var $container = $(".datepicker-container").not(".pwt-hide");
+            
+            // حذف تمام کلاس‌های قبلی
+            $container.find('td').removeClass('range-start-custom range-end-custom range-between-custom');
+
+            // اعمال کلاس مبدأ
+            if (rangeState.start) {
+                $container.find('td[data-date="' + rangeState.start + '"]').addClass('range-start-custom');
             }
-            // Horizontal Layout : Update menu based on window size
-            if (horizontalMenuTemplate) {
-                // if screen size is small then set navbar fixed
-                if (window.innerWidth < window.Helpers.LAYOUT_BREAKPOINT) {
-                    window.Helpers.setNavbarFixed('fixed');
-                } else {
-                    window.Helpers.setNavbarFixed('');
-                }
-                setTimeout(function () {
-                    if (window.innerWidth < window.Helpers.LAYOUT_BREAKPOINT) {
-                        if (document.getElementById('layout-menu')) {
-                            if (document.getElementById('layout-menu').classList.contains('menu-horizontal')) {
-                                menu.switchMenu('vertical');
-                            }
-                        }
-                    } else {
-                        if (document.getElementById('layout-menu')) {
-                            if (document.getElementById('layout-menu').classList.contains('menu-vertical')) {
-                                menu.switchMenu('horizontal');
-                            }
-                        }
+
+            // اعمال کلاس مقصد و روزهای بین
+            if (rangeState.end) {
+                $container.find('td[data-date="' + rangeState.end + '"]').addClass('range-end-custom');
+
+                $container.find('td[data-date]').each(function() {
+                    var currentUnix = parseInt($(this).attr('data-date'));
+                    if (currentUnix > rangeState.start && currentUnix < rangeState.end) {
+                        $(this).addClass('range-between-custom');
                     }
-                }, 100);
+                });
             }
-        },
-        true
-    );
-
-    // Manage menu expanded/collapsed with templateCustomizer & local storage
-    //------------------------------------------------------------------
-
-    // If current layout is horizontal OR current window screen is small (overlay menu) than return from here
-    if (isHorizontalLayout || window.Helpers.isSmallScreen()) {
-        return;
+        }, 50);
     }
 
-    // If current layout is vertical and current window screen is > small
+    // حیاتی: اعمال مجدد استایل‌ها وقتی کاربر ماه یا سال را عوض می‌کند
+    $(document).on('click', '.pwt-btn-next, .pwt-btn-prev, .month-item, .year-item', function() {
+        applyRangeStyles();
+    });
+});
+//پایان تقویم رنج
 
-    // Auto update menu collapsed/expanded based on the themeConfig
-    if (typeof TemplateCustomizer !== 'undefined') {
-        if (window.templateCustomizer.settings.defaultMenuCollapsed) {
-            window.Helpers.setCollapsed(true, false);
+//شروع تقویم انتخابگر تاریخ های متعدد
+
+$(document).ready(function() {
+    // آرایه برای ذخیره تاریخ‌های انتخاب شده
+    var selectedDates = [];
+
+    // ۱. تنظیم اولیه تقویم
+    $(".p-multiple-date").pDatepicker({
+        timePicker: { enabled: false },
+        autoClose: false,
+        format: 'YYYY/MM/DD',
+        onSelect: function(unix) {
+            handleMultipleDates(unix);
+        }
+    });
+
+    // ۲. تابع مدیریت انتخاب‌ها
+    function handleMultipleDates(unix) {
+        var clickedUnix = parseInt(unix);
+        var index = selectedDates.indexOf(clickedUnix);
+
+        if (index > -1) {
+            // اگر قبلاً انتخاب شده بود -> حذفش کن
+            selectedDates.splice(index, 1);
         } else {
-            window.Helpers.setCollapsed(false, false);
-        }
-    }
-
-    // Manage menu expanded/collapsed state with local storage support If enableMenuLocalStorage = true in config.js
-    if (typeof config !== 'undefined') {
-        if (config.enableMenuLocalStorage) {
-            try {
-                if (localStorage.getItem('templateCustomizer-' + templateName + '--LayoutCollapsed') !== null)
-                    window.Helpers.setCollapsed(
-                        localStorage.getItem('templateCustomizer-' + templateName + '--LayoutCollapsed') === 'true',
-                        false
-                    );
-            } catch (e) {
+            // اگر جدید است -> چک کن لیمیت ۱۰ تا پر نشده باشد
+            if (selectedDates.length < 10) {
+                selectedDates.push(clickedUnix);
+            } else {
+                alert("شما حداکثر مجاز به انتخاب ۱۰ تاریخ هستید.");
             }
         }
+
+        updateMultipleInputAndStyles();
     }
-})();
 
-// ! Removed following code if you do't wish to use jQuery. Remember that navbar search functionality will stop working on removal.
-if (typeof $ !== 'undefined') {
-    $(function () {
-        // ! TODO: Required to load after DOM is ready, did this now with jQuery ready.
-        window.Helpers.initSidebarToggle();
-        // Toggle Universal Navbar
+    // ۳. به‌روزرسانی اینپوت و کلاس‌های بصری
+    function updateMultipleInputAndStyles() {
+        // به‌روزرسانی مقدار اینپوت (تاریخ‌ها را با کاما جدا می‌کنیم)
+        var dateStrings = selectedDates.map(function(u) {
+            return new persianDate(u).format('YYYY/MM/DD');
+        });
+        $(".p-multiple-date").val(dateStrings.join("، "));
 
-        // Navbar Search with autosuggest (typeahead)
-        // ? You can remove the following JS if you don't want to use search functionality.
-        //----------------------------------------------------------------------------------
+        applyMultipleStyles();
+    }
 
-        var searchToggler = $('.search-toggler'),
-            searchInputWrapper = $('.search-input-wrapper'),
-            searchInput = $('.search-input'),
-            contentBackdrop = $('.content-backdrop');
+    // ۴. اعمال کلاس به خانه‌های انتخاب شده
+    function applyMultipleStyles() {
+        setTimeout(function() {
+            var $container = $(".datepicker-container").not(".pwt-hide");
+            
+            // پاک کردن کلاس‌های قبلی
+            $container.find('td').removeClass('selected-multiple');
 
-        // Open search input on click of search icon
-        if (searchToggler.length) {
-            searchToggler.on('click', function () {
-                if (searchInputWrapper.length) {
-                    searchInputWrapper.toggleClass('d-none');
-                    searchInput.focus();
-                }
+            // هایلایت کردن تمام تاریخ‌های موجود در آرایه
+            selectedDates.forEach(function(unix) {
+                $container.find('td[data-date="' + unix + '"]').addClass('selected-multiple');
             });
-        }
-        // Open search on 'CTRL+/'
-        $(document).on('keydown', function (event) {
-            let ctrlKey = event.ctrlKey,
-                slashKey = event.which === 191;
+        }, 50);
+    }
 
-            if (ctrlKey && slashKey) {
-                if (searchInputWrapper.length) {
-                    searchInputWrapper.toggleClass('d-none');
-                    searchInput.focus();
-                }
+    // ۵. حفظ کلاس‌ها هنگام تغییر ماه/سال
+    $(document).on('click', '.pwt-btn-next, .pwt-btn-prev, .month-item, .year-item', function() {
+        applyMultipleStyles();
+    });
+});
+
+//پایان تقویم انتخابگر تاریخ متعدد
+
+// شروع تقویم انتخابگر درون خطی
+$(document).ready(function() {
+    // ۱. انتخاب کانتینر و اینپوت
+    const $holder = $('#inline-calendar-holder');
+    const $input = $(".inline-input-target");
+
+    // ۲. اجرای پلاگین مستقیم روی DIV (این تضمین می‌کند که تقویم ساخته شود)
+    $holder.pDatepicker({
+        inline: true,
+        autoClose: false,
+        timePicker: { 
+            enabled: true, 
+            second: { enabled: false },
+            meridian: { enabled: true }
+        },
+        format: 'YYYY/MM/DD HH:mm',
+        // وقتی تقویم تغییر کرد، مقدار را در اینپوت بریز
+        onSelect: function(unix) {
+            const dateStr = new persianDate(unix).format('YYYY/MM/DD HH:mm');
+            $input.val(dateStr);
+        }
+    });
+
+    // ۳. پیدا کردن المان ساخته شده و حذف کلاس‌های مخفی‌ساز
+    const $datepicker = $holder.find('.datepicker-container');
+    
+    if ($datepicker.length > 0) {
+        $datepicker.removeClass('pwt-hide').show();
+        
+        // ناظر برای اینکه اگر پلاگین خواست مخفی‌اش کند، جلویش را بگیریم
+        const observer = new MutationObserver(() => {
+            if ($datepicker.hasClass('pwt-hide') || $datepicker.css('display') === 'none') {
+                $datepicker.removeClass('pwt-hide').show();
             }
         });
-        // Note: Following code is required to update container class of typeahead dropdown width on focus of search input. setTimeout is required to allow time to initiate Typeahead UI.
-        setTimeout(function () {
-            var twitterTypeahead = $('.twitter-typeahead');
-            searchInput.on('focus', function () {
-                if (searchInputWrapper.hasClass('container-xxl')) {
-                    searchInputWrapper.find(twitterTypeahead).addClass('container-xxl');
-                    twitterTypeahead.removeClass('container-fluid');
-                } else if (searchInputWrapper.hasClass('container-fluid')) {
-                    searchInputWrapper.find(twitterTypeahead).addClass('container-fluid');
-                    twitterTypeahead.removeClass('container-xxl');
-                }
-            });
-        }, 10);
+        observer.observe($datepicker[0], { attributes: true, attributeFilter: ['class', 'style'] });
+    } else {
+        // اگر هنوز ساخته نشده بود (احتمال کم)، یک بار متد show را صدا بزن
+        const dp = $holder.data('datepicker');
+        if (dp) dp.show();
+    }
+});
+// پایان تقویم انتخابگر درون خطی
 
-        if (searchInput.length) {
-            // Filter config
-            var filterConfig = function (data) {
-                return function findMatches(q, cb) {
-                    let matches;
-                    matches = [];
-                    data.filter(function (i) {
-                        if (i.name.toLowerCase().startsWith(q.toLowerCase())) {
-                            matches.push(i);
-                        } else if (
-                            !i.name.toLowerCase().startsWith(q.toLowerCase()) &&
-                            i.name.toLowerCase().includes(q.toLowerCase())
-                        ) {
-                            matches.push(i);
-                            matches.sort(function (a, b) {
-                                return b.name < a.name ? 1 : -1;
-                            });
-                        } else {
-                            return [];
-                        }
-                    });
-                    cb(matches);
-                };
-            };
 
-            // Search JSON
-            var searchJson = 'search-vertical.json'; // For vertical layout
-            if ($('#layout-menu').hasClass('menu-horizontal')) {
-                var searchJson = 'search-horizontal.json'; // For vertical layout
-            }
-            // Search API AJAX call
-            var searchData = $.ajax({
-                url: assetsPath + 'json/' + searchJson, //? Use your own search api instead
-                dataType: 'json',
-                async: false
-            }).responseJSON;
-            // Init typeahead on searchInput
-            searchInput.each(function () {
-                var $this = $(this);
-                searchInput
-                    .typeahead(
-                        {
-                            hint: false,
-                            classNames: {
-                                menu: 'tt-menu navbar-search-suggestion',
-                                cursor: 'active',
-                                suggestion: 'suggestion d-flex justify-content-between px-3 py-2 w-100'
-                            }
-                        },
-                        // ? Add/Update blocks as per need
-                        // Pages
-                        {
-                            name: 'pages',
-                            display: 'name',
-                            limit: 5,
-                            source: filterConfig(searchData.pages),
-                            templates: {
-                                header: '<h6 class="suggestions-header text-primary mb-0 mx-3 mt-3 pb-2">صفحات</h6>',
-                                suggestion: function ({url, icon, name}) {
-                                    return (
-                                        '<a href="' +
-                                        url +
-                                        '">' +
-                                        '<div>' +
-                                        '<i class="ti ' +
-                                        icon +
-                                        ' me-2"></i>' +
-                                        '<span class="align-middle">' +
-                                        name +
-                                        '</span>' +
-                                        '</div>' +
-                                        '</a>'
-                                    );
-                                },
-                                notFound:
-                                    '<div class="not-found px-3 py-2">' +
-                                    '<h6 class="suggestions-header text-primary mb-2">صفحات</h6>' +
-                                    '<p class="py-2 mb-0"><i class="ti ti-alert-circle ti-xs me-2"></i> نتیجه ای یافت نشد</p>' +
-                                    '</div>'
-                            }
-                        },
-                        // Files
-                        {
-                            name: 'files',
-                            display: 'name',
-                            limit: 4,
-                            source: filterConfig(searchData.files),
-                            templates: {
-                                header: '<h6 class="suggestions-header text-primary mb-0 mx-3 mt-3 pb-2">فایل‌ها</h6>',
-                                suggestion: function ({src, name, subtitle, meta}) {
-                                    return (
-                                        '<a href="javascript:;">' +
-                                        '<div class="d-flex w-50">' +
-                                        '<img class="me-3" src="' +
-                                        assetsPath +
-                                        src +
-                                        '" alt="' +
-                                        name +
-                                        '" height="32">' +
-                                        '<div class="w-75">' +
-                                        '<h6 class="mb-0">' +
-                                        name +
-                                        '</h6>' +
-                                        '<small class="text-muted">' +
-                                        subtitle +
-                                        '</small>' +
-                                        '</div>' +
-                                        '</div>' +
-                                        '<small class="text-muted">' +
-                                        meta +
-                                        '</small>' +
-                                        '</a>'
-                                    );
-                                },
-                                notFound:
-                                    '<div class="not-found px-3 py-2">' +
-                                    '<h6 class="suggestions-header text-primary mb-2">فایل‌ها</h6>' +
-                                    '<p class="py-2 mb-0"><i class="ti ti-alert-circle ti-xs me-2"></i> نتیجه‌ای یافت نشد</p>' +
-                                    '</div>'
-                            }
-                        },
-                        // Members
-                        {
-                            name: 'members',
-                            display: 'name',
-                            limit: 4,
-                            source: filterConfig(searchData.members),
-                            templates: {
-                                header: '<h6 class="suggestions-header text-primary mb-0 mx-3 mt-3 pb-2">اعضا</h6>',
-                                suggestion: function ({name, src, subtitle}) {
-                                    return (
-                                        '<a href="app-user-view-account.html">' +
-                                        '<div class="d-flex align-items-center">' +
-                                        '<img class="rounded-circle me-3" src="' +
-                                        assetsPath +
-                                        src +
-                                        '" alt="' +
-                                        name +
-                                        '" height="32">' +
-                                        '<div class="user-info">' +
-                                        '<h6 class="mb-0">' +
-                                        name +
-                                        '</h6>' +
-                                        '<small class="text-muted">' +
-                                        subtitle +
-                                        '</small>' +
-                                        '</div>' +
-                                        '</div>' +
-                                        '</a>'
-                                    );
-                                },
-                                notFound:
-                                    '<div class="not-found px-3 py-2">' +
-                                    '<h6 class="suggestions-header text-primary mb-2">اعضا</h6>' +
-                                    '<p class="py-2 mb-0"><i class="ti ti-alert-circle ti-xs me-2"></i> نتیجه‌ای یافت نشد</p>' +
-                                    '</div>'
-                            }
-                        }
-                    )
-                    //On typeahead result render.
-                    .bind('typeahead:render', function () {
-                        // Show content backdrop,
-                        contentBackdrop.addClass('show').removeClass('fade');
-                    })
-                    // On typeahead select
-                    .bind('typeahead:select', function (ev, suggestion) {
-                        // Open selected page
-                        if (suggestion.url) {
-                            window.location = suggestion.url;
-                        }
-                    })
-                    // On typeahead close
-                    .bind('typeahead:close', function () {
-                        // Clear search
-                        searchInput.val('');
-                        $this.typeahead('val', '');
-                        // Hide search input wrapper
-                        searchInputWrapper.addClass('d-none');
-                        // Fade content backdrop
-                        contentBackdrop.addClass('fade').removeClass('show');
-                    });
 
-                // On searchInput keyup, Fade content backdrop if search input is blank
-                searchInput.on('keyup', function () {
-                    if (searchInput.val() == '') {
-                        contentBackdrop.addClass('fade').removeClass('show');
-                    }
-                });
-            });
 
-            // Init PerfectScrollbar in search result
-            var psSearch;
-            $('.navbar-search-suggestion').each(function () {
-                psSearch = new PerfectScrollbar($(this)[0], {
-                    wheelPropagation: false,
-                    suppressScrollX: true
-                });
-            });
-
-            searchInput.on('keyup', function () {
-                psSearch.update();
-            });
-        }
-    });
-}
