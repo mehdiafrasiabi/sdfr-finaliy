@@ -128,9 +128,8 @@
 
 
 
-        {{-- Header --}}
 
-        <div class="mb-10 text-center">
+            <div class="mb-10 text-center">
 
             <h1 class="text-2xl md:text-3xl font-extrabold text-foreground mb-3">
 

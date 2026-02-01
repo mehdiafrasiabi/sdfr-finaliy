@@ -1,7 +1,24 @@
-<div class="min-h-screen flex flex-col lg:flex-row bg-background p-5">
+<div class="min-h-screen flex flex-col lg:flex-row bg-background p-0">
 
-    @push('link')
+@push('link')
+        <style>
+            .auth-hero {
+                /* بک‌گراند اصلی */
+                background: linear-gradient(135deg, rgba(0,0,0,.25), rgba(0,0,0,.25)),
+                url('/client/auth-illustration.webp') center / cover no-repeat;
+            }
 
+            /* برای اینکه روی موبایل هم تصویر “به صفحه بچسبه” و خوب دیده بشه */
+            .auth-hero-inner {
+                min-height: 210px; /* موبایل */
+            }
+
+            @media (min-width: 1024px) {
+                .auth-hero-inner {
+                    min-height: 100vh; /* دسکتاپ تمام قد */
+                }
+            }
+        </style>
         <style>
 
             .auth-bg {
@@ -9,8 +26,11 @@
                 background: linear-gradient(135deg, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)),
                 url('/client/test.JPG') center/cover no-repeat;
 
-            }
+                min-height: 100vh;
+                position: sticky;
+                top: 0;
 
+            }
 
             .step-indicator {
 
@@ -207,25 +227,38 @@
 
 
 
-    <!-- Image section -->
+        <!-- Image section - MOBILE HORIZONTAL LAYOUT -->
+        <div class="lg:w-1/2 auth-hero relative flex items-stretch justify-center overflow-hidden rounded-none rounded-3xl">
+            <!-- Overlay -->
+            <div class="absolute inset-0 bg-black/10 dark:bg-black/30"></div>
 
-    <div class="lg:w-1/2 auth-bg relative hidden lg:flex items-center justify-center p-12">
+            <!-- محتوا: توی موبایل افقی (flex-row)، توی دسکتاپ عمودی (lg:flex-col) -->
+            <div class="relative z-10 w-full auth-hero-inner
+                flex flex-row items-center justify-center gap-4
+                lg:flex-col
+                text-center px-4 py-6 lg:px-6 lg:py-10">
 
-        <div class="absolute inset-0 bg-black/30 dark:bg-black/50"></div>
+                <!-- تصویر - توی موبایل کوچک‌تر -->
+                <div class="relative flex items-center justify-center shrink-0">
+                    <img
+                        src="/client/authenticator1.png"
+                        alt=""
+                        class="max-w-[120px] sm:max-w-[140px] lg:max-w-[420px] h-auto drop-shadow-2xl"
+                    />
+                </div>
 
-        <div class="relative z-10 text-white text-center max-w-md">
+                <!-- متن - توی موبایل text-right -->
+                <div class="lg:mt-6 max-w-md text-right lg:text-center">
+                    <h2 class="font-black text-white text-lg sm:text-xl lg:text-4xl leading-relaxed">
+                        کاربر محترم SDFR
+                    </h2>
 
-
-
-            <h2 class="font-black sm:text-5xl text-3xl text-foreground mb-5">به SDFR خوش آمدید</h2>
-
-{{--            <p class="text-lg mb-6">--}}
-{{--                --}}
-{{--            </p>--}}
-
+                    <p class="mt-2 lg:mt-3 text-white/90 text-xs sm:text-sm lg:text-base leading-6 lg:leading-7">
+                        به دلیل اختلال در ارسال پیامک‌ها، بعد از ورود، شناسایی دو عاملی خود را از بخش امنیت فعال کنید.
+                    </p>
+                </div>
+            </div>
         </div>
-
-    </div>
 
 
     <!-- Registration form section -->
@@ -233,14 +266,6 @@
     <div class="lg:w-1/2 flex items-center justify-center p-6">
 
         <div class="w-full max-w-md">
-
-            <!-- Mobile logo -->
-
-            <div class="flex items-center justify-center mb-8 lg:hidden">
-
-
-            </div>
-
 
             <div class="bg-gradient-to-b from-secondary to-background space-y-5 px-5 pb-5 rounded-3xl shadow-soft dark:shadow-soft-dark  border border-border"
             >

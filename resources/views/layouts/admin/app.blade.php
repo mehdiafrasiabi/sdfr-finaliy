@@ -1,42 +1,82 @@
 <!DOCTYPE html>
-<html class="light-style layout-navbar-fixed layout-menu-fixed layout-compact"
-      data-assets-path="/admin/assets/" data-template="vertical-menu-template" data-theme="theme-default" dir="rtl"
-      lang="fa">
+<html dir="rtl" lang="fa">
 <head>
     {!! SEO::generate() !!}
     @include('layouts.admin.link')
+    <link rel="stylesheet" href="/admin/assets/css/bootstrap-icons.min.css">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
 
 </head>
 <body>
-<div class="layout-wrapper layout-content-navbar">
-    <div class="layout-container">
-        <!-- Menu -->
-        <livewire:admin.layout.menu/>
-        <!-- / Menu -->
-        <!-- Layout container -->
-        <div class="layout-page">
-            <!-- Navbar -->
-            <livewire:admin.layout.navbar/>
-            <!-- / Navbar -->
+<div class="page-layout">
+    <!-- begin::NexLink Page Header -->
+    <livewire:admin.layout.menu/>
+    <!-- end::NexLink Page Header -->
 
-            <!-- Content wrapper -->
-            <div class="content-wrapper">
-                <!-- Content -->
-                <div class="container-xxl flex-grow-1 container-p-y">
-                    <div class="row">
-                        {{$slot}}
-                    </div>
-                </div>
-                <!-- / Content -->
+    <!-- begin::NexLink Sidebar Menu -->
+    <livewire:admin.layout.navbar/>
+    <!-- end::NexLink Sidebar Menu -->
 
-            </div>
-            <!-- Content wrapper -->
+    <main class="app-wrapper">
+        <div class="container-fluid">
+            {{$slot}}
         </div>
-        <!-- / Layout page -->
-    </div>
+    </main>
+    <!-- begin::NexLink Footer -->
+    <footer class="footer-wrapper bg-body">
+        <div class="container-fluid">
+            <div class="row g-2">
+                <div class="col-lg-6 col-md-7 text-center text-md-start">
+                    <p class="mb-0">
+                        &copy;
+                        <span class="">
+		</span>
+                        تمامی حقوق محفوظ است. با افتخار طراحی شده توسط
+                        <a href="https://sdfr.me">
+                            SDFR
+                        </a>
+                        .
+                    </p>
+                </div>
+                <div class="col-lg-6 col-md-5">
+                    <ul class="d-flex list-inline mb-0 gap-3 flex-wrap justify-content-center justify-content-md-end">
+                        <li>
+                            <a class="text-body" href="#">
+                                صفحه اصلی
+                            </a>
+                        </li>
+                        <li>
+                            <a class="text-body" href="#">
+                                سوالات متداول
+                            </a>
+                        </li>
+                        <li>
+                            <a class="text-body" href="#">
+                                پشتیبانی
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- end::NexLink Footer -->
 </div>
+<script src="/admin/assets/libs/global/global.min.js"></script>
+<script src="/admin/assets/js/appSettings.js"></script>
+<script src="/admin/assets/js/main.js"></script>
+<script src="/admin/js/jquery-3.6.0.min.js"></script>
+<script src="/admin/assets/libs/apexcharts/apexcharts.min.js">
+</script>
+<script src="/admin/assets/libs/datatables/datatables.min.js">
+</script>
+<script src="/admin/js/persian-date.min.js"></script>
+<script src="/admin/js/persian-datepicker-2.min.js"></script>
 
-<!-- Links Of JS File -->
-@include('layouts.admin.script')
+<script src="/admin/assets/js/dashboard/dashboard.js">
+</script>
+<script src="/admin/assets/js/plugins/todolist.js">
+</script>
 </body>
 </html>

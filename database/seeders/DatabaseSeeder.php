@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
             BlogSeoItemsTableSeeder::class,
             SdfrSchoolsTableSeeder::class,
             SdfrStudentsTableSeeder::class,
-            StoriesTableSeeder::class,
+//            StoriesTableSeeder::class,
             OrdersTableSeeder::class,
             OrderItemsTableSeeder::class,
             PersonalInformationTableSeeder::class,

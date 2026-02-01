@@ -121,7 +121,7 @@
                     </div>
                     <div class="space-y-1">
                         <label for="text" class="font-medium text-xs text-muted">متن پیــــام (اختیاری) :</label>
-                        <textarea rows="12" id="text" name="text" wire:model="text"
+                        <textarea rows="8" id="text" name="text" wire:model="text"
                                   class="form-textarea w-full !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"></textarea>
                         @error('text')
                         <div style="color: red;margin-right: 8px">{{$message}}</div>

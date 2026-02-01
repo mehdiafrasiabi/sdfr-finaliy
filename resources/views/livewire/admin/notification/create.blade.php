@@ -101,8 +101,10 @@
                             <div class="border rounded p-3" style="max-height:150px; overflow:auto;">
                                 @forelse($students as $student)
                                     <div class="d-flex align-items-center gap-2 py-1 small">
-                                        <i class="material-symbols-outlined text-success"
-                                           style="font-size:16px;">person</i>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16">
+                                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z"/>
+                                        </svg>
+
                                         <span>{{ $student->user?->personalInformation?->name ?? $student->user?->name ?? 'نامشخص' }}</span>
                                     </div>
                                 @empty
@@ -123,7 +125,9 @@
                         <button type="submit" class="btn btn-success flex-grow-1">
                             <span wire:loading.remove wire:target="send"
                                   class="d-flex align-items-center justify-content-center gap-2">
-                                <i class="material-symbols-outlined">send</i>
+                               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+  <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+</svg>
                                 ثبت و ارسال
                             </span>
 

@@ -1,143 +1,192 @@
-<div class="container-xxl flex-grow-1 container-p-y">
+<div>
+    <div class="app-page-head">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item">
+                    <a href="{{route('admin.dashboard.index')}}">
+                        <i class="fi fi-rr-home">
+                        </i>
+                        صفحه اصلی
+                    </a>
+                </li>
+                <li aria-current="page" class="breadcrumb-item active">
 
-    <h4 class="py-3 mb-4">
-        <span class="text-muted fw-light">دانش آموزان /</span>
-       برنامه درسی
-    </h4>
-    <!-- DataTable direct html : by byteMaster at 2024-02-01 -->
-    <div class="card">
-        <div class="card-datatable table-responsive pt-0">
-            <div id="DataTables_Table_1_wrapper" class="dataTables_wrapper dt-bootstrap5 no-footer">
-                <div class="card-header flex-column flex-md-row">
-                    <div class="head-label text-center"></div>
-                    <div class="dt-action-buttons text-end pt-3 pt-md-0">
-                        <div class="dt-buttons btn-group flex-wrap">
-                            <div class="btn-group">
-                                <button
-                                    class="btn btn-secondary buttons-collection dropdown-toggle btn-label-primary me-2 waves-effect waves-light"
-                                    tabindex="0" aria-controls="DataTables_Table_1" type="button" aria-haspopup="dialog"
-                                    aria-expanded="false">
-                                    <span><i class="ti ti-file-export me-sm-1"></i>
-                                        <span
-                                            class="d-none d-sm-inline-block">گرفتن خروجی
-                                        </span>
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-sm-12 col-md-6">
-                        <div class="dataTables_length" id="DataTables_Table_1_length">
-                        </div>
-                    </div>
-                    <div class="col-sm-12 col-md-6 d-flex justify-content-center justify-content-md-end">
-                        <div id="DataTables_Table_1_filter" class="dataTables_filter">
-                            <label>جستجو:<input type="search"
-                                                class="form-control"
-                                                wire:model.live.debounce.350ms="search"
-                                                placeholder="جستجو ..."
-                                                aria-controls="DataTables_Table_1">
-                            </label>
-                        </div>
-                    </div>
+                </li>
+            </ol>
+        </nav>
+    </div>
+
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card overflow-hidden">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <h6 class="card-title mb-0">
+                       برنامه دانش آموزان
+                    </h6>
                 </div>
 
-            </div>
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>#</th>
-                    <th>دانش آموز</th>
-                    <th>پدر</th>
-                    <th>مادر</th>
-                    <th>پایه + رشته</th>
-                    <th>جزییات</th>
-                </tr>
-                </thead>
-                <tbody>
-                @forelse($students as $student)
-                    <tr>
-                        <td> {{$loop->iteration + $students->firstItem() - 1}}</td>
+                <div class="card-body p-0 pb-2">
+                    <div id="dt_basic_wrapper" class="dt-container dt-bootstrap5 dt-empty-footer">
 
-                        <td>
-                            <div class="d-flex justify-content-left align-items-center">
-                                <div class="avatar-wrapper">
-                                    <div class="avatar me-2">
-                                        <img src="/admin/assets/img/icons/brands/html-label.png"
-                                             alt="Avatar" class="rounded-circle">
-                                    </div>
-                                </div>
-                                <div class="d-flex flex-column">
-                                    <span
-                                        class="text-truncate fw-medium">{{$student->user->personalInformation->name }}</span>
-                                    <small
-                                        class="text-truncate text-muted">29
-                                        {{$student->payment->order->user->mobile}}
-                                    </small>
+                        <!-- Top Controls -->
+                        <div class="row mt-2 justify-content-between mx-2 py-2">
+                            <div
+                                class="d-md-flex justify-content-between align-items-center dt-layout-start col-md-auto me-auto">
+                                <div class="dt-length">
+                                    <label for="dt-length-0"> در هرصفحه</label>:
+                                    <select
+                                        aria-controls="dt_basic"
+                                        class="form-select form-select-sm"
+                                        id="dt-length-0"
+                                    >
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
+                                        <option value="100">100</option>
+                                    </select>
+
                                 </div>
                             </div>
-                        </td>
 
-                        <td>
-                            {{$student->user->personalInformation->father_mobile}}
-                        </td>
-                        <td>
-                            {{$student->user->personalInformation->mother_mobile}}
-                        </td>
-                        <td>
-                            <div>
-                                @if($student->user->personalInformation->grade == 12)
-                                    دوازدهم
-                                @elseif($student->user->personalInformation->grade == 11)
-                                    یازدهم
-                                @elseif($student->user->personalInformation->grade == 10)
-                                    دهم
-                                @endif
+                            <div
+                                class="d-md-flex justify-content-between align-items-center dt-layout-end col-md-auto ms-auto">
+                                <div >
+                                    <input
+                                        type="text"
+                                        class="form-control form-control-sm"
+                                        id="search"
+                                        wire:model.live.debounce.350ms="search"
+                                        name="search"
+                                        placeholder="جستجو"
+                                    />
+                                    <label for="dt-search-0"></label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table -->
+                        <div class="row mt-2 justify-content-between ">
+                            <div
+                                class="d-md-flex justify-content-between align-items-center col-12  col-md">
+                                <table class="table display"  style="width: 100%;">
+
+
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th data-dt-column="0">#</th>
+                                        <th data-dt-column="1">دانش آموز</th>
+                                        <th data-dt-column="2">پدر</th>
+                                        <th data-dt-column="3">مادر</th>
+                                        <th data-dt-column="4">پایه + رشته</th>
+                                        <th data-dt-column="5"></th>
+                                    </tr>
+                                    </thead>
+
+                                    <tbody>
+                                    @forelse($students as $student)
+                                        <tr>
+                                            <td>
+                                                {{$loop->iteration + $students->firstItem() - 1}}
+                                            </td>
+
+                                            <td>
+                                                <div class="d-flex justify-content-left align-items-center">
+                                                    <div class="avatar-wrapper">
+                                                        <div class="avatar me-2">
+                                                            <img
+                                                                src="/admin/assets/images/avatar/avatar2.webp"
+                                                                alt="Avatar"
+                                                                class="rounded-circle"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="d-flex flex-column">
+                                                            <span class="text-truncate fw-medium">
+                                                                {{$student->user->personalInformation->name}}
+                                                            </span>
+                                                        <small class="text-truncate text-muted">
+                                                            29 {{$student->payment->order->user->mobile}}
+                                                        </small>
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <td>
+                                                {{$student->user->personalInformation->father_mobile}}
+                                            </td>
+
+                                            <td>
+                                                {{$student->user->personalInformation->mother_mobile}}
+                                            </td>
+
+                                            <td>
+                                                @if($student->user->personalInformation->grade == 12)
+                                                    دوازدهم
+                                                @elseif($student->user->personalInformation->grade == 11)
+                                                    یازدهم
+                                                @elseif($student->user->personalInformation->grade == 10)
+                                                    دهم
+                                                @endif
+
+                                                @if($student->user->personalInformation->field == 'math')
+                                                    ریاضی
+                                                @elseif($student->user->personalInformation->field == 'experimental')
+                                                    تجربی
+                                                @elseif($student->user->personalInformation->field == 'human')
+                                                    انسانی
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="btn-group float-end">
+                                                    <button class="btn btn-white btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                                        <i class="fi fi-rr-menu-dots">
+                                                        </i>
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                        <li>
+                                                            <a class="dropdown-item" href="{{route('admin.student.plan.detail',$student->payment->order->user->id)}}">
+                                                                ایجاد برنامه مشاوره ای
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-danger text-center">
+                                                وجود ندارد
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                    </tbody>
+
+                                </table>
+
 
                             </div>
-                            <div>
-                                @if($student->user->personalInformation->field == 'math')
-                                    ریاضی
-                                @elseif($student->user->personalInformation->field == 'experimental')
-                                    تجربی
-                                @elseif($student->user->personalInformation->field == 'human')
-                                    انسانی
-                                @endif
+                        </div>
+
+                        <!-- Bottom Pagination -->
+                        <div class="row mt-2 justify-content-between">
+                            <div
+                                class="d-md-flex justify-content-between align-items-center dt-layout-start col-md-auto me-auto">
                             </div>
-                        </td>
-                        <td>
-                            <a href="{{route('admin.student.plan.detail',$student->payment->order->user->id)}}" class="btn btn-sm btn-icon item-edit waves-effect waves-light">
-                                <i
-                                    class="text-primary ti ti-pencil">
 
-                                </i>
-                            </a>
-                        </td>
-                    </tr>
-                @empty
-                    Not Found
-                @endforelse
+                            <div
+                                class="d-md-flex justify-content-between align-items-center dt-layout-end col-md-auto ms-auto">
+                                <div class="dt-paging">
+                                    {{ $students->links('layouts.admin.pagination') }}
+                                </div>
+                            </div>
+                        </div>
 
-                </tbody>
-            </table>
-        </div>
-
-        <div class="row">
-            <div class="col-sm-12 col-md-5">
-            </div>
-            <div class="col-sm-12 col-md-7">
-                <div>
-                    {{ $students->links('layouts.admin.pagination') }}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-
-    @push('script')
-        <!-- Page JS -->
-        <script src="/admin/assets/js/tables-datatables-basic.js"></script>
-    @endpush
 </div>

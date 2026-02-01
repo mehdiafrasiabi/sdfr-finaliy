@@ -8,9 +8,7 @@
     <link rel="stylesheet" href="/client/assets/css/dependencies/plyr.min.css" />
     <link rel="stylesheet" href="/client/assets/css/fonts.css" />
     <link rel="stylesheet" href="/client/assets/css/app.css" />
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="/client/assets/css/toast/toastify.min.css">
     @stack('link')
     <title>ورود و ثبت نام</title>
     <style>
@@ -152,7 +150,11 @@
 <script src="/client/assets/js/dependencies/swiper-bundle.min.js"></script>
 <script src="/client/assets/js/dependencies/plyr.min.js"></script>
 <script src="/client/assets/js/app.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script type="text/javascript" src="/client/assets/css/toast/toastify-js.js"></script>
+<script src="/client/assets/tailwind-3.4.17.js"></script>
+<script src="/client/assets/js/chart/chart.js"></script>
+
+
 
 <script>
     window.addEventListener('success', function(event) {

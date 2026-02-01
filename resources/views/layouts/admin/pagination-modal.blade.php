@@ -1,60 +1,47 @@
 @if ($paginator->hasPages())
-    <nav aria-label="پیمایش صفحه">
-        <ul class="pagination justify-content-center" dir="rtl">
+    <nav aria-label="Page navigation example">
+        <ul class="pagination pagination-rounded pagination-success" dir="rtl">
 
-            {{-- دکمه صفحه اول --}}
-            <li class="page-item first {{ $paginator->onFirstPage() ? 'disabled' : '' }}">
-                <a
-                    href="javascript:void(0);"
-                    class="page-link"
-                    @unless($paginator->onFirstPage())
-                        wire:click="gotoPage(1, '{{ $pageName }}')"
-                    @endunless
-                >
-                    <i class="ti ti-chevrons-right ti-xs"></i>
-                </a>
-            </li>
-
-            {{-- دکمه قبلی --}}
-            <li class="page-item prev {{ $paginator->onFirstPage() ? 'disabled' : '' }}">
-                <a
-                    href="javascript:void(0);"
-                    class="page-link"
-                    @unless($paginator->onFirstPage())
+            {{-- Previous (double right) --}}
+            <li class="page-item {{ $paginator->onFirstPage() ? 'disabled' : '' }}">
+                @if ($paginator->onFirstPage())
+                    <span class="page-link" aria-label="Previous">
+                        <i class="fi fi-rr-angle-double-right"></i>
+                    </span>
+                @else
+                    <a
+                        class="page-link"
+                        href="javascript:void(0);"
+                        aria-label="Previous"
                         wire:click="previousPage('{{ $pageName }}')"
-                    rel="prev"
-                    @endunless
-                >
-                    <i class="ti ti-chevron-right ti-xs"></i>
-                </a>
+                        rel="prev"
+                    >
+                        <i class="fi fi-rr-angle-double-right"></i>
+                    </a>
+                @endif
             </li>
 
-            {{-- صفحات میانی --}}
+            {{-- Pages --}}
             @foreach ($elements as $element)
-
-                {{-- سه‌نقطه‌ها --}}
                 @if (is_string($element))
                     <li class="page-item disabled">
-                        <a href="javascript:void(0);" class="page-link">
-                            {{ $element }}
-                        </a>
+                        <span class="page-link">{{ $element }}</span>
                     </li>
                 @endif
 
-                {{-- آرایه لینک‌ها --}}
                 @if (is_array($element))
                     @foreach ($element as $page => $url)
                         @if ($page == $paginator->currentPage())
-                            <li class="page-item active">
-                                <a href="javascript:void(0);" class="page-link">
+                            <li class="page-item">
+                                <a class="page-link active" href="javascript:void(0);">
                                     {{ $page }}
                                 </a>
                             </li>
                         @else
                             <li class="page-item">
                                 <a
-                                    href="javascript:void(0);"
                                     class="page-link"
+                                    href="javascript:void(0);"
                                     wire:click="gotoPage({{ $page }}, '{{ $pageName }}')"
                                 >
                                     {{ $page }}
@@ -63,34 +50,25 @@
                         @endif
                     @endforeach
                 @endif
-
             @endforeach
 
-            {{-- دکمه بعدی --}}
-            <li class="page-item next {{ $paginator->hasMorePages() ? '' : 'disabled' }}">
-                <a
-                    href="javascript:void(0);"
-                    class="page-link"
-                    @if ($paginator->hasMorePages())
+            {{-- Next (double left) --}}
+            <li class="page-item {{ $paginator->hasMorePages() ? '' : 'disabled' }}">
+                @if ($paginator->hasMorePages())
+                    <a
+                        class="page-link"
+                        href="javascript:void(0);"
+                        aria-label="Next"
                         wire:click="nextPage('{{ $pageName }}')"
-                    rel="next"
-                    @endif
-                >
-                    <i class="ti ti-chevron-left ti-xs"></i>
-                </a>
-            </li>
-
-            {{-- دکمه صفحه آخر --}}
-            <li class="page-item last {{ $paginator->hasMorePages() ? '' : 'disabled' }}">
-                <a
-                    href="javascript:void(0);"
-                    class="page-link"
-                    @if ($paginator->hasMorePages())
-                        wire:click="gotoPage({{ $paginator->lastPage() }}, '{{ $pageName }}')"
-                    @endif
-                >
-                    <i class="ti ti-chevrons-left ti-xs"></i>
-                </a>
+                        rel="next"
+                    >
+                        <i class="fi fi-rr-angle-double-left"></i>
+                    </a>
+                @else
+                    <span class="page-link" aria-label="Next">
+                        <i class="fi fi-rr-angle-double-left"></i>
+                    </span>
+                @endif
             </li>
 
         </ul>

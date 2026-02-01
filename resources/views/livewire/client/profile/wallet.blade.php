@@ -17,52 +17,112 @@
 
                     {{-- Wallet Guide --}}
 
-                    <div class="bg-blue-50 dark:bg-blue-950/30 rounded-2xl overflow-hidden">
+                    <!-- section:title -->
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-1">
+                            <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                            <div class="w-2 h-2 bg-foreground rounded-full"></div>
+                        </div>
+                        <div class="font-black text-foreground">کیف پول</div>
+                    </div>
+                    <!-- end section:title -->
 
-                        <div class="flex items-center justify-between p-4 cursor-pointer" x-data="{ open: true }"
-                             @click="open = !open">
+                    <!-- Guide Section -->
+                    <div
+                        dir="rtl"
+                        x-data="collapseGuide('wallet-guide')"
+                        x-init="init()"
+                        class="rounded-2xl border border-border bg-primary  overflow-hidden transition-all">
 
-                            <div class="flex items-center gap-3">
+                        <!-- HEADER -->
+                        <button
+                            @click="toggle"
+                            class="w-full flex items-center justify-between px-4 md:px-6 py-4
+                                 transition">
 
-                                <div class="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center">
+                            <!-- title -->
+                            <div class="flex items-center gap-2">
 
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-blue-500">
+                                <svg class="w-5 h-5 text-white dark:text-white"
+                                     fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
+                                </svg>
 
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/>
+                                <span class="font-black text-white dark:text-white text-blue-300 md:text-lg">
+                راهنمای کیف پول
+            </span>
+                            </div>
 
-                                    </svg>
+                            <!-- arrow -->
+                            <svg
+                                class="w-5 h-5 text-white transition-transform duration-300"
+                                :class="open && 'rotate-180'"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+
+                        <!-- CONTENT -->
+                        <div
+                            x-show="open"
+                            x-cloak
+                            x-transition:enter="transition ease-out duration-600"
+                            x-transition:enter-start="opacity-0 -translate-y-2"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 -translate-y-1"
+                            class="px-4 md:px-6 pb-6"
+                        >
+
+
+                            <div class="flex flex-col md:flex-row-reverse gap-6 items-center mt-2">
+
+                                <!-- IMAGE -->
+                                <div class="relative w-full md:w-[280px] shrink-0 order-2 md:order-1">
+
+                                    <img
+                                        src="/client/assets/images/blog/sdfr.jpg"
+                                        class="w-full h-[200px] md:h-[180px] object-cover rounded-xl"
+                                    >
+                                    <button
+                                        type="button"
+                                        id="57612318744"
+                                        data-video-url="https://www.aparat.com/video/video/embed/videohash/utg98i1/vt/frame?titleShow=true&recom=self" allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
+                                        data-video-title="راهنمای کیف پول"
+                                        class="absolute inset-0 flex items-center justify-center"
+                                    >
+            <span
+                class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60
+                       flex items-center justify-center shadow-lg transition"
+            >
+                <svg class="w-7 h-7 text-blue-600 mr-1"
+                     fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            </span>
+                                    </button>
+                                </div>
+
+                                <!-- TEXT -->
+                                <div
+                                    class="flex-1 text-right text-sm md:text-base  text-white dark:text-white leading-7 order-1 md:order-2">
+
+                                    دانش‌آموز عزیز سلام، قبل از شرکت در آزمون موارد زیر را با دقت مطالعه کنید:
+
+                                    <br>• استفاده از آخرین نسخه مرورگر کروم الزامی است.
+                                    <br>• حتماً قبل از خروج ثبت نهایی انجام شود.
+                                    <br>• پس از ورود به هر دفترچه امکان بازگشت وجود ندارد.
+                                    <br>• دفترچه آزمایشی ممکن است در پایان نمایش داده شود.
 
                                 </div>
 
-                                <span class="font-bold text-blue-700 dark:text-blue-400">راهنمای کیف پول</span>
-
                             </div>
-
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                 stroke="currentColor" class="w-5 h-5 text-blue-500 transition-transform"
-                                 :class="{ 'rotate-180': open }">
-
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 15.75 7.5-7.5 7.5 7.5"/>
-
-                            </svg>
-
                         </div>
-
-                        <div class="px-4 pb-4" x-show="open" x-collapse>
-
-                            <p class="text-sm text-blue-600 dark:text-blue-300 leading-7">
-
-                                این بخش اعتبار الکترونیکی کاربر را نمایش میدهد، شما میتوانید با پرداخت هزینه مورد نظر، کیف
-                                پول خود را تا سقف بینهایت شارژ کنید.
-
-                            </p>
-
-                        </div>
-
                     </div>
-
+                    <!-- End Guide Section -->
 
                     <div class="grid md:grid-cols-12 gap-6">
 
@@ -356,6 +416,5 @@
         </div>
 
     </div>
-
 
 </div>

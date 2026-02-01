@@ -31,7 +31,104 @@
                             <div class="font-black text-foreground">آزمون‌ ها</div>
 
                         </div>
+                        <!-- Guide Section -->
+                        <div
+                            dir="rtl"
+                            x-data="collapseGuide('exam-guide')"
+                            x-init="init()"
+                            class="rounded-2xl border border-border bg-primary  overflow-hidden transition-all">
 
+                            <!-- HEADER -->
+                            <button
+                                @click="toggle"
+                                class="w-full flex items-center justify-between px-4 md:px-6 py-4
+                                 transition">
+
+                                <!-- title -->
+                                <div class="flex items-center gap-2">
+
+                                    <svg class="w-5 h-5 text-white dark:text-white"
+                                         fill="currentColor" viewBox="0 0 24 24">
+                                        <path
+                                            d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
+                                    </svg>
+
+                                    <span class="font-black text-white dark:text-white text-blue-300 md:text-lg">
+                راهنمای شرکت در آزمون
+            </span>
+                                </div>
+
+                                <!-- arrow -->
+                                <svg
+                                    class="w-5 h-5 text-white transition-transform duration-300"
+                                    :class="open && 'rotate-180'"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+
+                            <!-- CONTENT -->
+                            <div
+                                x-show="open"
+                                x-cloak
+                                x-transition:enter="transition ease-out duration-600"
+                                x-transition:enter-start="opacity-0 -translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-200"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 -translate-y-1"
+                                class="px-4 md:px-6 pb-6"
+                            >
+
+
+                                <div class="flex flex-col md:flex-row-reverse gap-6 items-center mt-2">
+
+                                    <!-- IMAGE -->
+                                    <div class="relative w-full md:w-[280px] shrink-0 order-2 md:order-1">
+
+                                        <img
+                                            src="/client/assets/images/blog/sdfr.jpg"
+                                            class="w-full h-[200px] md:h-[180px] object-cover rounded-xl"
+                                        >
+
+                                        <button
+                                            type="button"
+                                            id="57612318744"
+                                            data-video-url="https://www.aparat.com/video/video/embed/videohash/utg98i1/vt/frame?titleShow=true&recom=self"
+                                            allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
+                                            data-video-title="راهنمای شرکت در آزمون"
+                                            class="absolute inset-0 flex items-center justify-center"
+                                        >
+            <span
+                class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60
+                       flex items-center justify-center shadow-lg transition"
+            >
+                <svg class="w-7 h-7 text-blue-600 mr-1"
+                     fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                </svg>
+            </span>
+                                        </button>
+                                    </div>
+
+                                    <!-- TEXT -->
+                                    <div
+                                        class="flex-1 text-right text-sm md:text-base  text-white dark:text-white leading-7 order-1 md:order-2">
+
+                                        دانش‌آموز عزیز سلام، قبل از شرکت در آزمون موارد زیر را با دقت مطالعه کنید:
+
+                                        <br>• استفاده از آخرین نسخه مرورگر کروم الزامی است.
+                                        <br>• حتماً قبل از خروج ثبت نهایی انجام شود.
+                                        <br>• پس از ورود به هر دفترچه امکان بازگشت وجود ندارد.
+                                        <br>• دفترچه آزمایشی ممکن است در پایان نمایش داده شود.
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Guide Section -->
 
                         @if($assignments->isEmpty())
 
@@ -313,6 +410,7 @@
 
     <!-- Start Exam Modal -->
 
+
     @if($confirmingExamId)
 
         @php
@@ -465,6 +563,7 @@
         </div>
 
     @endif
+
 
 </div>
 

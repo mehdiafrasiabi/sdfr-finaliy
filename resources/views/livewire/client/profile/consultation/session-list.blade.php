@@ -22,8 +22,7 @@
     @endpush
 
 
-
-    <div class="max-w-7xl space-y-14 px-4 mx-auto"  x-data="{ showPreSessionModal: @entangle('showPreSessionModal') }">
+    <div class="max-w-7xl space-y-14 px-4 mx-auto" x-data="{ showPreSessionModal: @entangle('showPreSessionModal') }">
 
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
@@ -43,7 +42,7 @@
                 <div class="space-y-10">
 
 
-                    <div >
+                    <div>
 
                         <div>
 
@@ -54,41 +53,115 @@
 
                                 {{-- عنوان صفحه --}}
 
-                                <header>
+                                <!-- section:title -->
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-1">
+                                        <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                                        <div class="w-2 h-2 bg-foreground rounded-full"></div>
+                                    </div>
+                                    <div class="font-black text-foreground">اتاق مشاوره</div>
+                                </div>
+                                <!-- end section:title -->
 
-                                    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
 
-                                        <div>
+                                <!-- Guide Section -->
+                                <div
+                                    dir="rtl"
+                                    x-data="collapseGuide('consultation-guide')"
+                                    x-init="init()"
+                                    class="rounded-2xl border border-border bg-primary  overflow-hidden transition-all">
 
-                                            <div class="flex items-center gap-3 mb-2">
+                                    <!-- HEADER -->
+                                    <button
+                                        @click="toggle"
+                                        class="w-full flex items-center justify-between px-4 md:px-6 py-4
+                                 transition">
 
-                                                <div class="flex items-center gap-1">
+                                        <!-- title -->
+                                        <div class="flex items-center gap-2">
 
-                                                    <div class="w-1 h-1 bg-slate-900 dark:bg-slate-100 rounded-full"></div>
+                                            <svg class="w-5 h-5 text-white dark:text-white"
+                                                 fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
+                                            </svg>
 
-                                                    <div class="w-2 h-2 bg-slate-900 dark:bg-slate-100 rounded-full"></div>
+                                            <span
+                                                class="font-black text-white dark:text-white text-blue-300 md:text-lg">
+                راهنمای شرکت در اتاق مشاوره
+            </span>
+                                        </div>
 
-                                                </div>
+                                        <!-- arrow -->
+                                        <svg
+                                            class="w-5 h-5 text-white transition-transform duration-300"
+                                            :class="open && 'rotate-180'"
+                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                  stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                        </svg>
+                                    </button>
 
-                                                <h1 class="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-50">
+                                    <!-- CONTENT -->
+                                    <div
+                                        x-show="open"
+                                        x-cloak
+                                        x-transition:enter="transition ease-out duration-600"
+                                        x-transition:enter-start="opacity-0 -translate-y-2"
+                                        x-transition:enter-end="opacity-100 translate-y-0"
+                                        x-transition:leave="transition ease-in duration-200"
+                                        x-transition:leave-start="opacity-100 translate-y-0"
+                                        x-transition:leave-end="opacity-0 -translate-y-1"
+                                        class="px-4 md:px-6 pb-6"
+                                    >
 
-                                                    جلسات مشاوره من
 
-                                                </h1>
+                                        <div class="flex flex-col md:flex-row-reverse gap-6 items-center mt-2">
+
+                                            <!-- IMAGE -->
+                                            <div class="relative w-full md:w-[280px] shrink-0 order-2 md:order-1">
+
+                                                <img
+                                                    src="/client/assets/images/blog/sdfr.jpg"
+                                                    class="w-full h-[200px] md:h-[180px] object-cover rounded-xl"
+                                                >
+
+                                                <button
+                                                    type="button"
+                                                    id="57612318744"
+                                                    data-video-url="https://www.aparat.com/video/video/embed/videohash/utg98i1/vt/frame?titleShow=true&recom=self" allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
+                                                    data-video-title="راهنمای اتاق مشاوزه"
+                                                    class="absolute inset-0 flex items-center justify-center"
+                                                >
+                                                        <span
+                                                            class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60
+                                                                   flex items-center justify-center shadow-lg transition">
+                                                            <svg class="w-7 h-7 text-blue-600 mr-1"
+                                                                 fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M8 5v14l11-7z"/>
+                                                            </svg>
+                                                        </span>
+                                                </button>
+                                            </div>
+
+                                            <!-- TEXT -->
+                                            <div
+                                                class="flex-1 text-right text-sm md:text-base  text-white dark:text-white leading-7 order-1 md:order-2">
+
+                                                دانش‌آموز عزیز سلام، قبل از شرکت در جلسه مشاوره موارد زیر را با دقت مطالعه
+                                                کنید:
+
+                                                <br>• استفاده از آخرین نسخه مرورگر کروم الزامی است.
+                                                <br>• قبل از شروع جلسه حتما "پیش جلسه" پرشود .
+                                                <br>• در ساعت مقرر در جلسه حضور داشته باشید .
+                                                <br>•پس برگزاری جلسه نهایت یک ساعت بعد برنامه شما بارگزاری میشود .
 
                                             </div>
 
-                                            <p class="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-
-                                                در این بخش می‌توانید جلسات مشاوره و پیش‌جلسه‌های خود را مشاهده و مدیریت کنید.
-
-                                            </p>
-
                                         </div>
-
                                     </div>
-
-                                </header>
+                                </div>
+                                <!-- End Guide Section -->
 
 
                                 {{-- لیست جلسات --}}
@@ -163,11 +236,14 @@
 
                                                 <th class="px-3 py-3 text-right sm:px-4">تاریخ و ساعت</th>
 
-                                                <th class="px-3 py-3 text-right sm:px-4 hidden md:table-cell">محل برگزاری</th>
+                                                <th class="px-3 py-3 text-right sm:px-4 hidden md:table-cell">محل
+                                                    برگزاری
+                                                </th>
 
                                                 <th class="px-3 py-3 text-right sm:px-4">وضعیت</th>
 
-                                                <th class="px-3 py-3 text-right sm:px-4 hidden sm:table-cell">پیش‌جلسه</th>
+                                                <th class="px-3 py-3 text-right sm:px-4 hidden sm:table-cell">پیش‌جلسه
+                                                </th>
 
                                                 <th class="px-3 py-3 text-right sm:px-4">عملیات</th>
 
@@ -199,7 +275,8 @@
 
                                                     <td class="px-3 py-3 sm:px-4 align-top">
 
-                                                        <div class="text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-100">
+                                                        <div
+                                                            class="text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-100">
 
                                                             {{ $session->title }}
 
@@ -230,7 +307,8 @@
 
                                                         @if($session->session_time)
 
-                                                            <span class="mt-0.5 block text-[11px] text-slate-500 dark:text-slate-400">
+                                                            <span
+                                                                class="mt-0.5 block text-[11px] text-slate-500 dark:text-slate-400">
 
                                                 ساعت {{ \Carbon\Carbon::parse($session->session_time)->format('H:i') }}
 
@@ -387,7 +465,8 @@
 
                                                         @else
 
-                                                            <span class="text-[11px] text-slate-400 dark:text-slate-500">-</span>
+                                                            <span
+                                                                class="text-[11px] text-slate-400 dark:text-slate-500">-</span>
 
                                                         @endif
 
@@ -436,7 +515,8 @@
 
                                                         @else
 
-                                                            <span class="text-[11px] text-slate-400 dark:text-slate-500">-</span>
+                                                            <span
+                                                                class="text-[11px] text-slate-400 dark:text-slate-500">-</span>
 
                                                         @endif
 
@@ -543,7 +623,8 @@
 
                                     آیا می‌خواهید پیش‌جلسه
 
-                                    <strong class="text-slate-900 dark:text-slate-100">{{ $selectedSession->title }}</strong>
+                                    <strong
+                                        class="text-slate-900 dark:text-slate-100">{{ $selectedSession->title }}</strong>
 
                                     را پر کنید؟
 
@@ -615,6 +696,7 @@
 
 
     </div>
+
 
 </div>
 

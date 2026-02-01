@@ -6,13 +6,13 @@
 <link rel="stylesheet" href="/client/assets/css/dependencies/plyr.min.css"/>
 <link rel="stylesheet" href="/client/assets/css/fonts.css"/>
 <link rel="stylesheet" href="/client/assets/css/app.css"/>
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<link rel="stylesheet" type="text/css" href="/client/assets/css/toast/toastify.min.css">
 <link href="/client/assets/css/custom-pagination.css" rel="stylesheet" type="text/css"/>
 <link href="/client/assets/css/custom-pagination2.css" rel="stylesheet" type="text/css"/>
 <link href="/client/assets/js/story-player/styles.css" rel="stylesheet" type="text/css"/>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="/client/assets/tailwind-3.4.17.js"></script>
+<script src="/client/assets/js/chart/chart.js"></script>
 
 <style>
     #loadingOverlay {

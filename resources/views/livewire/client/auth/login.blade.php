@@ -1,6 +1,24 @@
-<div class="min-h-screen flex flex-col lg:flex-row bg-background p-5">
+<div class="min-h-screen flex flex-col lg:flex-row bg-background p-0">
 
-    @push('link')
+@push('link')
+        <style>
+            .auth-hero {
+                /* بک‌گراند اصلی */
+                background: linear-gradient(135deg, rgba(0,0,0,.25), rgba(0,0,0,.25)),
+                url('/client/auth-illustration.webp') center / cover no-repeat;
+            }
+
+            /* برای اینکه روی موبایل هم تصویر “به صفحه بچسبه” و خوب دیده بشه */
+            .auth-hero-inner {
+                min-height: 210px; /* موبایل */
+            }
+
+            @media (min-width: 1024px) {
+                .auth-hero-inner {
+                    min-height: 100vh; /* دسکتاپ تمام قد */
+                }
+            }
+        </style>
 
         <style>
 
@@ -151,22 +169,39 @@
 
     <!-- Image section -->
 
-    <div class="lg:w-1/2 auth-bg relative hidden lg:flex items-center justify-center p-12">
+    <!-- Image section - MOBILE HORIZONTAL LAYOUT -->
+    <div class="lg:w-1/2 auth-hero relative flex items-stretch justify-center overflow-hidden rounded-none rounded-3xl">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black/10 dark:bg-black/30"></div>
 
-        <div class="absolute inset-0 bg-black/30 dark:bg-black/50"></div>
+        <!-- محتوا: توی موبایل افقی (flex-row)، توی دسکتاپ عمودی (lg:flex-col) -->
+        <div class="relative z-10 w-full auth-hero-inner
+                flex flex-row items-center justify-center gap-4
+                lg:flex-col
+                text-center px-4 py-6 lg:px-6 lg:py-10">
 
-        <div class="relative z-10 text-white text-center max-w-md">
+            <!-- تصویر - توی موبایل کوچک‌تر -->
+            <div class="relative flex items-center justify-center shrink-0">
+                <img
+                    src="/client/authenticator1.png"
+                    alt=""
+                    class="max-w-[120px] sm:max-w-[140px] lg:max-w-[420px] h-auto drop-shadow-2xl"
+                />
+            </div>
 
+            <!-- متن - توی موبایل text-right -->
+            <div class="lg:mt-6 max-w-md text-right lg:text-center">
+                <h2 class="font-black text-white text-lg sm:text-xl lg:text-4xl leading-relaxed">
+                    کاربر محترم SDFR
+                </h2>
 
-            <h2 class="font-black sm:text-5xl text-3xl text-foreground mb-5">SDFR یکی از برترین مجموعه های کشور است !</h2>
-
-{{--            <p class="text-lg mb-6">--}}
-{{--            --}}
-{{--            </p>--}}
-
+                <p class="mt-2 lg:mt-3 text-white/90 text-xs sm:text-sm lg:text-base leading-6 lg:leading-7">
+                    به دلیل اختلال در ارسال پیامک‌ها، بعد از ورود، شناسایی دو عاملی خود را از بخش امنیت فعال کنید.
+                </p>
+            </div>
         </div>
-
     </div>
+
 
 
     <!-- Login form section -->
@@ -183,7 +218,8 @@
             </div>
 
 
-            <div class="bg-gradient-to-b from-secondary to-background space-y-5 px-5 pb-5 rounded-3xl shadow-soft dark:shadow-soft-dark  border border-border">
+            <div
+                class="bg-gradient-to-b from-secondary to-background space-y-5 px-5 pb-5 rounded-3xl shadow-soft dark:shadow-soft-dark  border border-border">
 
                 <div class="bg-background rounded-b-3xl space-y-2 p-5 " style="    text-align: center;">
                     <a href="https://sdfr.me" class="inline-flex items-center gap-2 text-primary">
@@ -438,7 +474,7 @@
                                                maxlength="11"
 
                                                class="w-full ps-4 pe-10 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent bg-secondary text-foreground placeholder:text-muted @error('mobile') border-red-500 @enderror"
-                                                dir="rtl"
+                                               dir="rtl"
                                                placeholder="09123456789">
 
                                         <div class="absolute input-icon top-1/2 transform -translate-y-1/2 text-muted">
@@ -680,9 +716,11 @@
 
             <div class="bg-secondary rounded-xl space-y-5 p-5 mt-3">
                 <div class="font-medium text-xs text-center text-muted">
-                    ورود شما به معنای پذیرش <a href="https://sdfr.me/terms" class="text-foreground transition-colors hover:text-primary hover:underline">شرایط</a>
+                    ورود شما به معنای پذیرش <a href="https://sdfr.me/terms"
+                                               class="text-foreground transition-colors hover:text-primary hover:underline">شرایط</a>
                     و
-                    <a href="https://sdfr.me/terms" class="text-foreground transition-colors hover:text-primary hover:underline">قوانین
+                    <a href="https://sdfr.me/terms"
+                       class="text-foreground transition-colors hover:text-primary hover:underline">قوانین
                         حریم خصوصی</a> است.
                 </div>
             </div>

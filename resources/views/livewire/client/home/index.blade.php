@@ -30,7 +30,7 @@
 {{--            <livewire:client.home.top-student.index lazy/>--}}
 
         </div>
-        <livewire:client.home.feedback.index lazy/>
+        <livewire:client.home.feedback.index />
 
         <!-- blog -->
         <livewire:client.home.blog.index lazy/>

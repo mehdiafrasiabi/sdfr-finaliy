@@ -10,6 +10,8 @@
 
             <div class="lg:col-span-9 md:col-span-8">
                 <div class="space-y-10">
+                    <!-- Help Box -->
+
                     <div class="space-y-5">
                         <!-- section:title -->
                         <div class="flex items-center gap-3">
@@ -20,6 +22,7 @@
                             <div class="font-black text-foreground"> کارنامه وضعیت</div>
                         </div>
                         <!-- end section:title -->
+
 
                         <!-- tabs container -->
                         <div class="space-y-5" x-data="{ activeTab: 'tabOne'}">
@@ -147,5 +150,7 @@
                 </div>
             </div>
         </div>
+
     </div>
+
 </div>

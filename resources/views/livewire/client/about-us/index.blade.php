@@ -20,11 +20,14 @@
 
                             SDFR در سال ۱۴۰۰ با هدف ارائه خدمات مشاوره تحصیلی آنلاین با کیفیت به دانش‌آموزان سراسر کشور
 
-                            تأسیس شد. ما می‌دانستیم که بسیاری از دانش‌آموزان شهرستان‌ها برای دریافت مشاوره تحصیلی حرفه‌ای،
+                            تأسیس شد. ما می‌دانستیم که بسیاری از دانش‌آموزان شهرستان‌ها برای دریافت مشاوره تحصیلی
+                            حرفه‌ای،
 
-                            مجبور به پرداخت هزینه‌های بالا و سفرهای طولانی هستند. از آن زمان تاکنون، همواره در تلاش بوده‌ایم
+                            مجبور به پرداخت هزینه‌های بالا و سفرهای طولانی هستند. از آن زمان تاکنون، همواره در تلاش
+                            بوده‌ایم
 
-                            تا با بهره‌گیری از فناوری‌های روز و تیم متخصص مشاوران، تجربه‌ای منحصر به فرد از یادگیری را برای
+                            تا با بهره‌گیری از فناوری‌های روز و تیم متخصص مشاوران، تجربه‌ای منحصر به فرد از یادگیری را
+                            برای
 
                             شما به ارمغان بیاوریم.
 
@@ -32,7 +35,8 @@
 
                         <p class="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed text-justify">
 
-                            امروز با افتخار می‌توانیم ادعا کنیم که یکی از پیشروترین سیستم‌های مشاوره تحصیلی آنلاین در ایران
+                            امروز با افتخار می‌توانیم ادعا کنیم که یکی از پیشروترین سیستم‌های مشاوره تحصیلی آنلاین در
+                            ایران
 
                             هستیم و هزاران دانش‌آموز موفق گواه این ادعای ما هستند. مسیر موفقیت تحصیلی شما را از یک جاده
 
@@ -48,7 +52,8 @@
 
                             <svg class="w-4 h-4 ms-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
 
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M15 19l-7-7 7-7"/>
 
                             </svg>
 
@@ -56,17 +61,21 @@
 
                     </div>
 
-                    <div class="md:w-4/12 relative">
+                    <div class="md:w-1/2 flex justify-center">
+                        <div class="relative rounded-2xl overflow-hidden shadow-xl max-w-md">
 
-                        <div class="relative rounded-2xl overflow-hidden shadow-xl">
+                            <img
+                                src="/client/assets/images/features/about-us.png"
+                                class="w-full h-[320px] md:h-[380px] object-cover rounded-2xl"
+                            />
 
-                            <img src="/client/assets/images/features/about-us.png" alt="تیم SDFR" class="w-full h-auto">
 
-                            <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-50"></div>
+                            <div
+                                class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent opacity-50"></div>
 
                         </div>
-
                     </div>
+
 
                 </div>
 
@@ -104,11 +113,13 @@
 
                         <h3 class="text-xl font-bold mb-3 dark:text-foreground text-foreground">کیفیت بی‌نظیر</h3>
 
-                        <p class="text-gray-600 dark:text-gray-400">ما فقط با مشاوران متخصص و باتجربه همکاری می‌کنیم و از
+                        <p class="text-gray-600 dark:text-gray-400">ما فقط با مشاوران متخصص و باتجربه همکاری می‌کنیم و
+                            از
 
                             کیفیت خدمات آموزشی خود مطمئن هستیم. برنامه‌های آموزشی ما بر اساس آخرین استانداردهای علمی
 
-                            طراحی شده‌اند.</p>
+                            طراحی شده‌اند.
+                        </p>
 
                     </div>
 
@@ -132,7 +143,8 @@
 
                             قیمت‌ها را به شما ارائه می‌دهیم. همه دانش‌آموزان، بدون توجه به محل زندگی، می‌توانند از خدمات
 
-                            با کیفیت ما بهره‌مند شوند.</p>
+                            با کیفیت ما بهره‌مند شوند.
+                        </p>
 
                     </div>
 
@@ -154,7 +166,8 @@
 
                         <p class="text-gray-600 dark:text-gray-400">تیم پشتیبانی ما به صورت روزانه آماده پاسخگویی به
 
-                            سوالات و حل مشکلات شماست. هر زمان که نیاز داشتید، ما در کنار شما هستیم تا مسیر موفقیت را هموار
+                            سوالات و حل مشکلات شماست. هر زمان که نیاز داشتید، ما در کنار شما هستیم تا مسیر موفقیت را
+                            هموار
 
                             کنیم.</p>
 
@@ -216,7 +229,8 @@
 
                     <h2 class="text-3xl font-bold dark:text-foreground text-foreground">تیم متخصص ما</h2>
 
-                    <p class="max-w-2xl mx-auto text-gray-600 dark:text-gray-400 mt-4">با اعضای باتجربه و متخصص تیم ما آشنا
+                    <p class="max-w-2xl mx-auto text-gray-600 dark:text-gray-400 mt-4">با اعضای باتجربه و متخصص تیم ما
+                        آشنا
 
                         شوید</p>
 
@@ -225,9 +239,11 @@
 
                 <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6">
 
-                    <div class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <div
+                        class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
 
-                        <img src="/client/assets/images/about/behshadAtg.jpg" alt="عضو تیم" class="w-full h-48 object-cover">
+                        <img src="/client/assets/images/avatars/01.jpeg" alt="عضو تیم"
+                             class="w-full h-45 object-cover">
 
                         <div class="p-4">
 
@@ -239,9 +255,11 @@
 
                     </div>
 
-                    <div class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <div
+                        class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
 
-                        <img src="/client/assets/images/about/mehdiAbban.jpg" alt="عضو تیم" class="w-full h-48 object-cover">
+                        <img src="/client/assets/images/avatars/01.jpeg" alt="عضو تیم"
+                             class="w-full h-45 object-cover">
 
                         <div class="p-4">
 
@@ -253,9 +271,11 @@
 
                     </div>
 
-                    <div class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <div
+                        class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
 
-                        <img src="/client/assets/images/about/taraTorabi.jpg" alt="عضو تیم" class="w-full h-48 object-cover">
+                        <img src="/client/assets/images/avatars/01.jpeg" alt="عضو تیم"
+                             class="w-full h-45 object-cover">
 
                         <div class="p-4">
 
@@ -267,9 +287,11 @@
 
                     </div>
 
-                    <div class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+                    <div
+                        class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
 
-                        <img src="/client/assets/images/about/nadiaMilan.jpg" alt="عضو تیم" class="w-full h-48 object-cover">
+                        <img src="/client/assets/images/avatars/01.jpeg" alt="عضو تیم"
+                             class="w-full h-45 object-cover">
 
                         <div class="p-4">
 
@@ -391,7 +413,8 @@
 
                             <p class="font-semibold text-xs text-muted">
 
-                                برنامه‌ریزی اختصاصی برای هر دانش‌آموز، پشتیبانی روزانه، پیگیری پیشرفت، گزارش‌های کامل برای
+                                برنامه‌ریزی اختصاصی برای هر دانش‌آموز، پشتیبانی روزانه، پیگیری پیشرفت، گزارش‌های کامل
+                                برای
                                 والدین و دوره‌ها و کلاس‌های آنلاین ویژه.
 
                             </p>

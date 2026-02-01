@@ -22,33 +22,70 @@
                 </div>
                 <!-- end section:title -->
 
-                <!-- راهنمای پیام‌ها -->
+                <!-- Guide Section -->
                 <div
-                    class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 md:p-5">
-                    <div class="flex items-start gap-3">
-                        <div class="flex-shrink-0 mt-0.5">
-                            <div
-                                class="w-10 h-10 md:w-12 md:h-12 rounded-full bg-blue-100 dark:bg-blue-800/30 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     stroke-width="1.5"
-                                     stroke="currentColor"
-                                     class="w-5 h-5 md:w-6 md:h-6 text-blue-500 dark:text-blue-400">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
-                                </svg>
-                            </div>
+                    dir="rtl"
+                    x-data="collapseGuide('notification-guide')"
+                    x-init="init()"
+                    class="rounded-2xl border border-border bg-primary  overflow-hidden transition-all">
+
+                    <!-- HEADER -->
+                    <button
+                        @click="toggle"
+                        class="w-full flex items-center justify-between px-4 md:px-6 py-4
+                                 transition">
+
+                        <!-- title -->
+                        <div class="flex items-center gap-2">
+
+                            <svg class="w-5 h-5 text-white dark:text-white"
+                                 fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
+                            </svg>
+
+                            <span
+                                class="font-black text-white dark:text-white text-blue-300 md:text-lg">راهنمای پیام‌ها</span>
                         </div>
-                        <div class="flex-grow">
-                            <h4 class="font-bold text-blue-700 dark:text-blue-400 mb-2 text-sm md:text-base">راهنمای
-                                پیام‌ها</h4>
-                            <p class="text-xs md:text-sm text-blue-600 dark:text-blue-300 leading-relaxed">
+
+                        <!-- arrow -->
+                        <svg
+                            class="w-5 h-5 text-white transition-transform duration-300"
+                            :class="open && 'rotate-180'"
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    <!-- CONTENT -->
+                    <div
+                        x-show="open"
+                        x-cloak
+                        x-transition:enter="transition ease-out duration-600"
+                        x-transition:enter-start="opacity-0 -translate-y-2"
+                        x-transition:enter-end="opacity-100 translate-y-0"
+                        x-transition:leave="transition ease-in duration-200"
+                        x-transition:leave-start="opacity-100 translate-y-0"
+                        x-transition:leave-end="opacity-0 -translate-y-1"
+                        class="px-4 md:px-6 pb-6"
+                    >
+
+
+                        <div class="flex flex-col md:flex-row-reverse gap-6 items-center mt-2">
+                            <!-- TEXT -->
+                            <div
+                                class="flex-1 text-right text-sm md:text-base  text-white dark:text-white leading-7 order-1 md:order-2">
                                 در این بخش رویدادها و اخبارهای مهم را به شما اعلام می‌کنیم. مانند؛ تغییر در روند برگزاری
-                                اتاق مشاوره و آزمون SDFR، زمان برگزاری آزمون‌های کلاسی و همچنین اعلام زمان ارسال تکالیف
+                                اتاق مشاوره و آزمون SDFR، زمان برگزاری آزمون‌های کلاسی‌ و همچنین اعلام زمان ارسال تکالیف
                                 و ...
-                            </p>
+                            </div>
+
                         </div>
                     </div>
                 </div>
+                <!-- End Guide Section -->
+
 
                 <!-- تب‌های دسته‌بندی -->
                 <div class="flex flex-wrap gap-2">
@@ -224,5 +261,4 @@
         </div>
 
     </div>
-
 </div>

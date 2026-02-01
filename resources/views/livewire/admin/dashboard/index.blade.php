@@ -1,883 +1,2043 @@
-<div class="row">
-    <!-- Website Analytics -->
-    <div class="col-lg-6 mb-4">
-        <div class="swiper-container swiper-container-horizontal swiper swiper-card-advance-bg" id="swiper-with-pagination-cards">
-            <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                    <div class="row">
-                        <div class="col-12">
-                            <h5 class="text-white mb-2 mt-0">بررسی وب‌سایت</h5>
-                            <small>نرخ تبدیل کل : 28.5%</small>
+<div>
+
+
+
+    <div class="app-page-head d-flex align-items-center justify-content-between">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a href="index.html">
+                        <i class="fi fi-rr-home">
+                        </i>
+                        صفحه اصلی
+                    </a>
+                </li>
+                <li aria-current="page" class="breadcrumb-item active">
+                    داشبورد
+                </li>
+            </ol>
+        </nav>
+    </div>
+    <div class="row">
+        <div class="col-xxl-6 col-lg-8">
+            <div class="row">
+                <div class="col-xxl-6 col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
+                            <div class="clearfix">
+                                <h6>
+                                    مجموع مخاطبین
+                                </h6>
+                            </div>
+                            <div class="btn-group">
+                                <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                    <i class="fi fi-bs-menu-dots">
+                                    </i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            ویرایش کنید
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            حذف کنید
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </div>
-                        <div class="row">
-                            <div class="col-lg-7 col-md-9 col-12 order-2 order-md-1">
-                                <h6 class="text-white mt-0 mt-md-3 mb-3">ترافیک</h6>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <ul class="list-unstyled mb-0">
-                                            <li class="d-flex mb-4 align-items-center">
-                                                <p class="mb-0 fw-medium me-2 website-analytics-text-bg">28%</p>
-                                                <p class="mb-0">بازدید یکتا</p>
-                                            </li>
-                                            <li class="d-flex align-items-center mb-2">
-                                                <p class="mb-0 fw-medium me-2 website-analytics-text-bg">1.2k</p>
-                                                <p class="mb-0">کاربر یکتا</p>
-                                            </li>
-                                        </ul>
+                        <div class="card-body py-0 d-flex align-items-start justify-content-between">
+                            <div class="d-flex align-items-center gap-2">
+                                <h2 class="mb-0">
+                                    5,758
+                                </h2>
+                                <span class="badge badge-sm bg-success-subtle text-success">
+			 +2.57%
+			</span>
+                            </div>
+                            <div class="mb-n4 mt-n3" id="chartContacts">
+                            </div>
+                        </div>
+                        <div class="card-footer border-0 pt-0 mt-n1">
+                            <div class="border-top pb-2">
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <p class="mb-0">
+                                    در مقایسه با ماه گذشته: 1195
+                                </p>
+                                <a class="btn-link" href="javascript:void(0);">
+                                    <svg fill="none" height="20" viewbox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(180deg);">
+                                        <path d="M3.33301 9.375C2.98783 9.375 2.70801 9.65483 2.70801 10C2.70801 10.3452 2.98783 10.625 3.33301 10.625V9.375ZM3.33301 10.625H16.6663V9.375H3.33301V10.625Z" fill="var(--bs-primary)" opacity="0.5">
+                                        </path>
+                                        <path d="M11.667 5L16.667 10L11.667 15" stroke="var(--bs-primary)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                        </path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-6 col-md-6">
+                    <div class="card overflow-hidden">
+                        <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
+                            <div class="clearfix">
+                                <h6>
+                                    تجزیه و تحلیل پیشرو
+                                </h6>
+                            </div>
+                            <div class="btn-group">
+                                <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                    <i class="fi fi-bs-menu-dots">
+                                    </i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            ویرایش کنید
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            حذف کنید
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="d-flex align-items-center gap-2">
+                                <h2 class="mb-0">
+                                    70
+                                </h2>
+                                <span class="badge badge-sm bg-danger-subtle text-danger">
+			 -2.57%
+			</span>
+                            </div>
+                        </div>
+                        <div class="card-footer border-0 p-0">
+                            <div class="my-n3 mx-n1" id="chartLeadAnalytics">
+                            </div>
+                            <div class="position-absolute bottom-0 translate-middle start-50 text-center text-1xs w-100">
+                                در مقایسه با ماه گذشته
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-6 col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <h6 class="mb-0">
+                                        بررسی اجمالی وظایف
+                                    </h6>
+                                    <span class="text-2xs">
+			  وظایف انجام شد
+			  <span class="text-primary fw-semibold">
+			   25
+			  </span>
+			 </span>
+                                </div>
+                                <div aria-label="Default striped example" aria-valuemax="100" aria-valuemin="0" aria-valuenow="10" class="progress progress-sm" role="progressbar">
+                                    <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 70%">
                                     </div>
-                                    <div class="col-6">
-                                        <ul class="list-unstyled mb-0">
-                                            <li class="d-flex mb-4 align-items-center">
-                                                <p class="mb-0 fw-medium me-2 website-analytics-text-bg">3.1k</p>
-                                                <p class="mb-0">بازدید صفحات</p>
-                                            </li>
-                                            <li class="d-flex align-items-center mb-2">
-                                                <p class="mb-0 fw-medium me-2 website-analytics-text-bg">12%</p>
-                                                <p class="mb-0">نرخ تبدیل</p>
-                                            </li>
-                                        </ul>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-grid text-1xs">
+                                    <div class="d-flex gap-1 align-items-center py-1 mx-1">
+                                        <i class="fa fa-square text-primary text-opacity-10 me-1">
+                                        </i>
+                                        پیگیری ها
+                                    </div>
+                                    <div class="d-flex gap-1 align-items-center py-1 mx-1">
+                                        <i class="fa fa-square text-primary text-opacity-25 me-1">
+                                        </i>
+                                        در حال انجام است
+                                    </div>
+                                    <div class="d-flex gap-1 align-items-center py-1 mx-1">
+                                        <i class="fa fa-square text-primary text-opacity-50 me-1">
+                                        </i>
+                                        در انتظار
+                                    </div>
+                                </div>
+                                <div class="maxw-100px ratio ratio-1x1">
+                                    <canvas id="chartTasksOverview">
+                                    </canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-6 col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
+                            <div class="clearfix">
+                                <h6>
+                                    معاملات فعال
+                                </h6>
+                            </div>
+                            <div class="btn-group">
+                                <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                    <i class="fi fi-bs-menu-dots">
+                                    </i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            ویرایش کنید
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            حذف کنید
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="d-flex align-items-center gap-2">
+                                <h2 class="mb-0">
+                                    1,249
+                                </h2>
+                                <span class="badge badge-sm bg-success-subtle text-success">
+			 +2.57%
+			</span>
+                            </div>
+                        </div>
+                        <div class="card-footer border-0 pt-0">
+                            <div class="border-top pb-2">
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <p class="mb-0">
+                                    در مقایسه با ماه گذشته: 1195
+                                </p>
+                                <a class="btn-link" href="javascript:void(0);">
+                                    <svg fill="none" height="20" viewbox="0 0 20 20" width="20" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(180deg);">
+                                        <path d="M3.33301 9.375C2.98783 9.375 2.70801 9.65483 2.70801 10C2.70801 10.3452 2.98783 10.625 3.33301 10.625V9.375ZM3.33301 10.625H16.6663V9.375H3.33301V10.625Z" fill="var(--bs-primary)" opacity="0.5">
+                                        </path>
+                                        <path d="M11.667 5L16.667 10L11.667 15" stroke="var(--bs-primary)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                        </path>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-12">
+                    <div class="card">
+                        <div class="card-header d-flex flex-wrap gap-2 align-items-center justify-content-between border-0 pb-2">
+                            <h6 class="card-title mb-0">
+                                درآمد
+                            </h6>
+                            <div class="d-flex flex-wrap gap-2">
+                                <ul class="nav nav-pills nav-pills-custom nav-fill p-1 bg-light rounded-5" id="chartRevenueTabs" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <button aria-selected="false" class="nav-link rounded-5" data-bs-toggle="tab" id="todayRevenueTab" role="tab" type="button">
+                                            امروز
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button aria-selected="false" class="nav-link rounded-5" data-bs-toggle="tab" id="weekRevenueTab" role="tab" type="button">
+                                            هفته
+                                        </button>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <button aria-selected="true" class="nav-link active rounded-5" data-bs-toggle="tab" id="monthRevenueTab" role="tab" type="button">
+                                            ماه
+                                        </button>
+                                    </li>
+                                </ul>
+                                <button class="btn btn-light rounded-circle btn-icon waves-effect waves-light flatpickr-date" type="button">
+                                    <i class="fi fi-rr-calendar">
+                                    </i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body py-0">
+                            <div class="d-flex gap-2 align-items-center">
+                                <h2 class="mb-0">
+			 <span class="text-body">
+			  $</span>2,56,054.<span class="text-primary">50</span>
+                                </h2>
+                                <span>
+			 20% در مقایسه با ماه گذشته
+			</span>
+                            </div>
+                        </div>
+                        <div class="card-footer border-0 px-1 py-0">
+                            <div class="revenue-chart" id="chartRevenue">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-lg-4">
+            <div class="row">
+                <div class="col-xxl-12">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
+                            <h6 class="card-title mb-0">
+                                منابع ترافیک
+                            </h6>
+                            <div class="btn-group">
+                                <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                    <i class="fi fi-bs-menu-dots">
+                                    </i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            ویرایش کنید
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            حذف کنید
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div class="chart-rounded my-1" id="chartTrafficSources">
+                            </div>
+                            <div class="d-grid gap-1">
+                                <div class="d-flex gap-1 align-items-center py-1 mx-1">
+                                    <i class="fa fa-square text-primary text-opacity-10 me-1">
+                                    </i>
+                                    جستجوی ارگانیک
+                                    <strong class="text-dark fw-semibold ms-auto">
+                                        41.50%
+                                    </strong>
+                                </div>
+                                <div class="d-flex gap-1 align-items-center py-1 mx-1">
+                                    <i class="fa fa-square text-primary text-opacity-25 me-1">
+                                    </i>
+                                    ترافیک مستقیم
+                                    <strong class="text-dark fw-semibold ms-auto">
+                                        27%
+                                    </strong>
+                                </div>
+                                <div class="d-flex gap-1 align-items-center py-1 mx-1">
+                                    <i class="fa fa-square text-primary text-opacity-50 me-1">
+                                    </i>
+                                    ترافیک ارجاعی
+                                    <strong class="text-dark fw-semibold ms-auto">
+                                        18%
+                                    </strong>
+                                </div>
+                                <div class="d-flex gap-1 align-items-center py-1 py-1 mx-1">
+                                    <i class="fa fa-square text-primary text-opacity-75 me-1">
+                                    </i>
+                                    سوشال مدیا
+                                    <strong class="text-dark fw-semibold ms-auto">
+                                        10.30%
+                                    </strong>
+                                </div>
+                                <div class="d-flex gap-1 align-items-center py-1 mx-1">
+                                    <i class="fa fa-square text-primary me-1">
+                                    </i>
+                                    ترافیک ایمیل
+                                    <strong class="text-dark fw-semibold ms-auto">
+                                        3.20%
+                                    </strong>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-primary bg-opacity-05 py-2 d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">
+                                گزارش سالانه
+                            </h6>
+                            <button class="btn btn-sm btn-white waves-effect text-primary fw-semibold" type="button">
+                                <svg class="me-1" fill="none" height="18" viewbox="0 0 20 20" width="18" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2.5 12.5C2.5 14.857 2.5 16.0355 3.23223 16.7677C3.96447 17.5 5.14297 17.5 7.5 17.5H12.5C14.857 17.5 16.0355 17.5 16.7677 16.7677C17.5 16.0355 17.5 14.857 17.5 12.5" opacity="0.5" stroke="var(--bs-primary)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                    </path>
+                                    <path d="M10.0003 2.5V13.3333M10.0003 13.3333L13.3337 9.6875M10.0003 13.3333L6.66699 9.6875" stroke="var(--bs-primary)" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
+                                    </path>
+                                </svg>
+                                نام و نمایه
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xxl-12">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
+                            <h6 class="card-title mb-0">
+                                نرخ نگهداری
+                            </h6>
+                            <div class="btn-group">
+                                <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                    <i class="fi fi-bs-menu-dots">
+                                    </i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            ویرایش کنید
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            حذف کنید
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body pb-0 pt-0">
+                            <div class="d-flex gap-2 align-items-center">
+                                <h2 class="mb-0">
+                                    92%
+                                </h2>
+                                <span>
+			 + 15٪ در مقایسه با ماه گذشته
+			</span>
+                            </div>
+                        </div>
+                        <div class="card-footer border-0 pb-0 pt-1 px-1">
+                            <div class="retention-chart mt-n1" id="chartRetentionRate">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-3 col-lg-6">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card overflow-hidden bg-primary border-0 ovarlay-primary-gradient" style="background-image: url(assets/images/wind.gif); background-position: center; background-size: cover;">
+                        <div class="card-header pb-0 border-0 d-flex align-items-center justify-content-between z-1 position-relative">
+                            <h6 class="card-title mb-0 text-white">
+                                کل درآمد
+                            </h6>
+                            <div class="btn-group">
+                                <button aria-expanded="false" class="btn btn-sm btn-icon text-white waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                    <i class="fi fi-bs-menu-dots">
+                                    </i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            ویرایش کنید
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            حذف کنید
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0 border-light border-bottom border-opacity-10">
+                            <div class="mb-5 mt-n3 z-n1 position-relative">
+                                <div id="statusChart">
+                                </div>
+                                <div class="text-white mt-n5 text-center">
+                                    673 سفارش
+                                </div>
+                            </div>
+                            <div class="px-4 mb-3 d-flex align-items-start justify-content-between">
+                                <div class="d-flex align-items-start gap-2">
+                                    <div class="py-1">
+                                        <i class="text-white fa-solid fa-square">
+                                        </i>
+                                    </div>
+                                    <div class="clearfix">
+                                        <h3 class="mb-0 text-white">
+                                            2.78 m
+                                        </h3>
+                                        <p class="text-white text-opacity-50 mb-0">
+                                            245 وانت
+                                        </p>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-start gap-2">
+                                    <div class="p-1">
+                                        <i class="text-white text-opacity-50 fa-solid fa-square">
+                                        </i>
+                                    </div>
+                                    <div class="clearfix">
+                                        <h3 class="mb-0 text-white">
+                                            $65,823
+                                        </h3>
+                                        <p class="text-white text-opacity-50 mb-0">
+                                            120 ارسال
+                                        </p>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-5 col-md-3 col-12 order-1 order-md-2 my-4 my-md-0 text-center">
-                                <img alt="بررسی وب‌سایت" class="card-website-analytics-img" src="/admin/assets/img/illustrations/card-website-analytics-1.png" width="170"/>
-                            </div>
                         </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="row">
-                        <div class="col-12">
-                            <h5 class="text-white mb-2 mt-0">بررسی وب‌سایت</h5>
-                            <small>نرخ تبدیل کل : 28.5%</small>
-                        </div>
-                        <div class="col-lg-7 col-md-9 col-12 order-2 order-md-1">
-                            <h6 class="text-white mt-0 mt-md-3 mb-3">آمار فروش</h6>
-                            <div class="row">
-                                <div class="col-6">
-                                    <ul class="list-unstyled mb-0">
-                                        <li class="d-flex mb-4 align-items-center">
-                                            <p class="mb-0 fw-medium me-2 website-analytics-text-bg">12h</p>
-                                            <p class="mb-0">سود</p>
-                                        </li>
-                                        <li class="d-flex align-items-center mb-2">
-                                            <p class="mb-0 fw-medium me-2 website-analytics-text-bg">127</p>
-                                            <p class="mb-0">سفارشات</p>
-                                        </li>
-                                    </ul>
+                        <div class="card-footer border-0">
+                            <h6 class="card-title mb-3 text-white">
+                                وضعیت سفارشات
+                            </h6>
+                            <div class="progress-stacked bg-transparent mb-4">
+                                <div aria-label="Segment one" aria-valuemax="100" aria-valuemin="0" aria-valuenow="15" class="progress bg-transparent" role="progressbar" style="width: 70%">
+                                    <div class="progress-bar bg-white">
+                                    </div>
                                 </div>
-                                <div class="col-6">
-                                    <ul class="list-unstyled mb-0">
-                                        <li class="d-flex mb-4 align-items-center">
-                                            <p class="mb-0 fw-medium me-2 website-analytics-text-bg">18</p>
-                                            <p class="mb-0">تعداد سفارشات</p>
-                                        </li>
-                                        <li class="d-flex align-items-center mb-2">
-                                            <p class="mb-0 fw-medium me-2 website-analytics-text-bg">2.3k</p>
-                                            <p class="mb-0">آیتم‌ها</p>
-                                        </li>
-                                    </ul>
+                                <div aria-label="Segment two" aria-valuemax="100" aria-valuemin="0" aria-valuenow="30" class="progress bg-transparent" role="progressbar" style="width: 25%">
+                                    <div class="progress-bar bg-white bg-opacity-50">
+                                    </div>
+                                </div>
+                                <div aria-label="Segment three" aria-valuemax="100" aria-valuemin="0" aria-valuenow="20" class="progress bg-transparent" role="progressbar" style="width: 5%">
+                                    <div class="progress-bar bg-white bg-opacity-25">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-lg-5 col-md-3 col-12 order-1 order-md-2 my-4 my-md-0 text-center">
-                            <img alt="بررسی وب‌سایت" class="card-website-analytics-img" src="/admin/assets/img/illustrations/card-website-analytics-2.png" width="170"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="swiper-slide">
-                    <div class="row">
-                        <div class="col-12">
-                            <h5 class="text-white mb-2 mt-0">بررسی وب‌سایت</h5>
-                            <small>نرخ تبدیل کل : 28.5%</small>
-                        </div>
-                        <div class="col-lg-7 col-md-9 col-12 order-2 order-md-1">
-                            <h6 class="text-white mt-0 mt-md-3 mb-3">منابع درآمد</h6>
-                            <div class="row">
-                                <div class="col-6">
-                                    <ul class="list-unstyled mb-0">
-                                        <li class="d-flex mb-4 align-items-center">
-                                            <p class="mb-0 fw-medium me-2 website-analytics-text-bg">268</p>
-                                            <p class="mb-0">مستقیم</p>
-                                        </li>
-                                        <li class="d-flex align-items-center mb-2">
-                                            <p class="mb-0 fw-medium me-2 website-analytics-text-bg">62</p>
-                                            <p class="mb-0">زیرمجموعه</p>
-                                        </li>
-                                    </ul>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="text-white fa-solid fa-square">
+                                    </i>
+                                    <h6 class="fw-light text-white mb-0">
+                                        پرداخت شده است
+                                    </h6>
                                 </div>
-                                <div class="col-6">
-                                    <ul class="list-unstyled mb-0">
-                                        <li class="d-flex mb-4 align-items-center">
-                                            <p class="mb-0 fw-medium me-2 website-analytics-text-bg">890</p>
-                                            <p class="mb-0">خدمات</p>
-                                        </li>
-                                        <li class="d-flex align-items-center mb-2">
-                                            <p class="mb-0 fw-medium me-2 website-analytics-text-bg">1.2k</p>
-                                            <p class="mb-0">کمپین‌ها</p>
-                                        </li>
-                                    </ul>
+                                <strong class="text-white fw-semibold">
+                                    70%
+                                </strong>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="text-white text-opacity-50 fa-solid fa-square">
+                                    </i>
+                                    <h6 class="fw-light text-white mb-0">
+                                        لغو شد
+                                    </h6>
                                 </div>
+                                <strong class="text-white fw-semibold">
+                                    25%
+                                </strong>
                             </div>
-                        </div>
-                        <div class="col-lg-5 col-md-3 col-12 order-1 order-md-2 my-4 my-md-0 text-center">
-                            <img alt="بررسی وب‌سایت" class="card-website-analytics-img" src="/admin/assets/img/illustrations/card-website-analytics-3.png" width="170"/>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="swiper-pagination"></div>
-        </div>
-    </div>
-    <!--/ Website Analytics -->
-    <!-- Sales Overview -->
-    <div class="col-lg-3 col-sm-6 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between">
-                    <small class="d-block mb-0 text-muted">آمار فروش</small>
-                    <p class="card-text text-success">
-                        <bdi>+18.2%</bdi>
-                    </p>
-                </div>
-                <h4 class="card-title mb-0">
-                    <bdi><svg class="toman" width="1rem" height="1rem">
-                            <use xlink:href="#toman">
-                                <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                    <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                </symbol>
-                            </use>
-                        </svg>42.5k</bdi>
-                </h4>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-4">
-                        <div class="d-flex gap-2 align-items-center mb-2">
-                                                <span class="badge bg-label-info p-1 rounded">
-                                                    <i class="ti ti-shopping-cart ti-xs"></i>
-                                                </span>
-                            <p class="mb-0">سفارشات</p>
-                        </div>
-                        <h5 class="mb-0 pt-1 text-nowrap">62.2%</h5>
-                        <small class="text-muted">6,440</small>
-                    </div>
-                    <div class="col-4">
-                        <div class="divider divider-vertical">
-                            <div class="divider-text">
-                                <span class="badge-divider-bg bg-label-secondary">مقایسه</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-4 text-end">
-                        <div class="d-flex gap-2 justify-content-end align-items-center mb-2">
-                            <p class="mb-0">بازدید</p>
-                            <span class="badge bg-label-primary p-1 rounded">
-                                                    <i class="ti ti-link ti-xs"></i>
-                                                </span>
-                        </div>
-                        <h5 class="mb-0 pt-1 text-nowrap ms-lg-n3 ms-xl-0">25.5%</h5>
-                        <small class="text-muted">12,749</small>
-                    </div>
-                </div>
-                <div class="d-flex align-items-center mt-4">
-                    <div class="progress w-100" style="height: 8px">
-                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="70" class="progress-bar bg-info" role="progressbar" style="width: 70%"></div>
-                        <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="30" class="progress-bar bg-primary" role="progressbar" style="width: 30%"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--/ Sales Overview -->
-    <!-- Revenue Generated -->
-    <div class="col-lg-3 col-md-6 col-sm-6 mb-4">
-        <div class="card">
-            <div class="card-body pb-0">
-                <div class="card-icon">
-                                        <span class="badge bg-label-success rounded-pill p-2">
-                                            <i class="ti ti-credit-card ti-sm"></i>
-                                        </span>
-                </div>
-                <h5 class="card-title mb-0 mt-2">97.5k</h5>
-                <small>درآمد سیستم</small>
-            </div>
-            <div id="revenueGenerated" class="mt-2-5"></div>
-        </div>
-    </div>
-    <!--/ Revenue Generated -->
-    <!-- Earning Reports -->
-    <div class="col-lg-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header pb-0 d-flex justify-content-between mb-lg-n4">
-                <div class="card-title mb-0">
-                    <h5 class="mb-0">گزارش فروش</h5>
-                    <small class="text-muted">آمار فروش هفتگی</small>
-                </div>
-                <div class="dropdown">
-                    <button aria-expanded="false" aria-haspopup="true" class="btn p-0" data-bs-toggle="dropdown" id="earningReportsId" type="button">
-                        <i class="ti ti-dots-vertical ti-sm text-muted"></i>
-                    </button>
-                    <div aria-labelledby="earningReportsId" class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="javascript:void(0);">موارد بیشتر</a>
-                        <a class="dropdown-item" href="javascript:void(0);">حـذف</a>
-                    </div>
-                </div>
-                <!-- </div> -->
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 col-md-4 mt-md-10 d-flex flex-column align-self-end">
-                        <div class="d-flex gap-2 align-items-center mb-2 pb-1 flex-wrap pt-3">
-                            <h1 class="mb-0 ">
-                                <bdi><svg class="toman" width="1rem" height="1rem">
-                                        <use xlink:href="#toman">
-                                            <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                                <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                            </symbol>
-                                        </use>
-                                    </svg>468</bdi>
-                            </h1>
-                            <div class="badge rounded bg-label-success">
-                                <bdi>+4.2%</bdi>
-                            </div>
-                        </div>
-                        <small>نمودار درآمد شما برای هر روز در هفته جاری قابل مشاهده می باشد.</small>
-                    </div>
-                    <div class="col-12 col-md-8">
-                        <div id="weeklyEarningReports"></div>
-                    </div>
-                </div>
-                <div class="border rounded p-3 mt-4">
-                    <div class="row gap-4 gap-sm-0">
-                        <div class="col-12 col-sm-4">
-                            <div class="d-flex gap-2 align-items-center">
-                                <div class="badge rounded bg-label-primary p-1">
-                                    <i class="ti ti-currency-dollar ti-sm"></i>
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="text-white text-opacity-25 fa-solid fa-square">
+                                    </i>
+                                    <h6 class="fw-light text-white mb-0">
+                                        برگشت‌خورده
+                                    </h6>
                                 </div>
-                                <h6 class="mb-0">فروش</h6>
-                            </div>
-                            <h4 class="my-2 pt-1">
-                                <bdi><svg class="toman" width="1rem" height="1rem">
-                                        <use xlink:href="#toman">
-                                            <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                                <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                            </symbol>
-                                        </use>
-                                    </svg>545.69</bdi>
-                            </h4>
-                            <div class="progress w-75" style="height: 4px">
-                                <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="65" class="progress-bar" role="progressbar" style="width: 65%"></div>
+                                <strong class="text-white fw-semibold">
+                                    5%
+                                </strong>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-4">
-                            <div class="d-flex gap-2 align-items-center">
-                                <div class="badge rounded bg-label-info p-1">
-                                    <i class="ti ti-chart-pie-2 ti-sm"></i>
-                                </div>
-                                <h6 class="mb-0">سـود</h6>
-                            </div>
-                            <h4 class="my-2 pt-1">
-                                <bdi><svg class="toman" width="1rem" height="1rem">
-                                        <use xlink:href="#toman">
-                                            <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                                <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                            </symbol>
-                                        </use>
-                                    </svg>256.34</bdi>
-                            </h4>
-                            <div class="progress w-75" style="height: 4px">
-                                <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="50" class="progress-bar bg-info" role="progressbar" style="width: 50%"></div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
+                            <h6 class="card-title mb-0">
+                                سفارش بر اساس زمان
+                            </h6>
+                            <div class="btn-group">
+                                <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                    <i class="fi fi-bs-menu-dots">
+                                    </i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            ویرایش کنید
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="javascript:void(0);">
+                                            حذف کنید
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-4">
-                            <div class="d-flex gap-2 align-items-center">
-                                <div class="badge rounded bg-label-danger p-1">
-                                    <i class="ti ti-brand-paypal ti-sm"></i>
-                                </div>
-                                <h6 class="mb-0">هزینه‌ها</h6>
-                            </div>
-                            <h4 class="my-2 pt-1">
-                                <bdi><svg class="toman" width="1rem" height="1rem">
-                                        <use xlink:href="#toman">
-                                            <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                                <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                            </symbol>
-                                        </use>
-                                    </svg>74.19</bdi>
-                            </h4>
-                            <div class="progress w-75" style="height: 4px">
-                                <div aria-valuemax="100" aria-valuemin="0" aria-valuenow="65" class="progress-bar bg-danger" role="progressbar" style="width: 65%"></div>
+                        <div class="card-body p-0">
+                            <div class="mt-n3 mb-n1" id="chartOrderByTime">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!--/ Earning Reports -->
-    <!-- Support Tracker -->
-    <div class="col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header d-flex justify-content-between pb-0">
-                <div class="card-title mb-0">
-                    <h5 class="mb-0">گزارش پشتیبانی</h5>
-                    <small class="text-muted">7 روز گذشته</small>
+        <div class="col-xxl-3 col-lg-6">
+            <div class="card overflow-hidden">
+                <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
+                    <h6 class="card-title">
+                        جلسات آتی
+                    </h6>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-icon btn-action-primary waves-effect" type="button">
+                            <i class="fi fi-rr-plus text-2xs">
+                            </i>
+                        </button>
+                        <div class="btn-group">
+                            <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                <i class="fi fi-bs-menu-dots">
+                                </i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="javascript:void(0);">
+                                        ویرایش کنید
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="javascript:void(0);">
+                                        حذف کنید
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                <div class="dropdown">
-                    <button aria-expanded="false" aria-haspopup="true" class="btn p-0" data-bs-toggle="dropdown" id="supportTrackerMenu" type="button">
-                        <i class="ti ti-dots-vertical ti-sm text-muted"></i>
-                    </button>
-                    <div aria-labelledby="supportTrackerMenu" class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="javascript:void(0);">موارد بیشتر</a>
-                        <a class="dropdown-item" href="javascript:void(0);">حـذف</a>
+                <div class="card-body gradient-layer" data-simplebar="" style="height: 325px;">
+                    <div class="p-3 bg-light bg-opacity-50 mb-2 rounded">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 text-sm">
+                                تیم ایستادن
+                            </h6>
+                            <div class="clearfix d-flex align-items-center">
+                                <div class="btn-group">
+                                    <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-bs-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-1xs d-flex gap-1 align-items-center">
+                            <img alt="" src="assets/images/icons/google-meet.svg"/>
+                            <span>
+			در Google Meet
+		   </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+		   <span class="badge bg-white text-black">
+			بازاریابی
+		   </span>
+                            <span class="text-primary text-2xs fw-semibold d-flex align-items-center">
+			<i class="fi fi-rr-clock-three me-1">
+			</i>
+			06:00 - 07:00
+		   </span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-light bg-opacity-50 mb-2 rounded">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 text-sm">
+                                جلسه همه دست ها
+                            </h6>
+                            <div class="clearfix d-flex align-items-center">
+                                <div class="btn-group">
+                                    <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-bs-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-1xs d-flex gap-1 align-items-center">
+                            <img alt="" src="assets/images/icons/google-meet.svg"/>
+                            <span>
+			در Google Meet
+		   </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+		   <span class="badge bg-white text-black">
+			مدیر
+		   </span>
+                            <span class="text-primary text-2xs fw-semibold d-flex align-items-center">
+			<i class="fi fi-rr-clock-three me-1">
+			</i>
+			06:00 - 07:00
+		   </span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-light bg-opacity-50 mb-2 rounded">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 text-sm">
+                                عمومی
+                            </h6>
+                            <div class="clearfix d-flex align-items-center">
+                                <div class="btn-group">
+                                    <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-bs-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-1xs d-flex gap-1 align-items-center">
+                            <img alt="" src="assets/images/icons/google-meet.svg"/>
+                            <span>
+			در Google Meet
+		   </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+		   <span class="badge bg-white text-black">
+			منابع انسانی
+		   </span>
+                            <span class="text-primary text-2xs fw-semibold d-flex align-items-center">
+			<i class="fi fi-rr-clock-three me-1">
+			</i>
+			06:00 - 07:00
+		   </span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-light bg-opacity-50 mb-2 rounded">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 text-sm">
+                                تیم ایستادن
+                            </h6>
+                            <div class="clearfix d-flex align-items-center">
+                                <div class="btn-group">
+                                    <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-bs-menu-dots">
+                                        </i>
+                                        <i class="fi fi-bs-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-1xs d-flex gap-1 align-items-center">
+                            <img alt="" src="assets/images/icons/google-meet.svg"/>
+                            <span>
+			در Google Meet
+		   </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+		   <span class="badge bg-white text-black">
+			بازاریابی
+		   </span>
+                            <span class="text-primary text-2xs fw-semibold d-flex align-items-center">
+			<i class="fi fi-rr-clock-three me-1">
+			</i>
+			06:00 - 07:00
+		   </span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-light bg-opacity-50 mb-2 rounded">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 text-sm">
+                                جلسه همه دست ها
+                            </h6>
+                            <div class="clearfix d-flex align-items-center">
+                                <div class="btn-group">
+                                    <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-bs-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-1xs d-flex gap-1 align-items-center">
+                            <img alt="" src="assets/images/icons/google-meet.svg"/>
+                            <span>
+			در Google Meet
+		   </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+		   <span class="badge bg-white text-black">
+			مدیر
+		   </span>
+                            <span class="text-primary text-2xs fw-semibold d-flex align-items-center">
+			<i class="fi fi-rr-clock-three me-1">
+			</i>
+			06:00 - 07:00
+		   </span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-12 col-sm-4 col-md-12 col-lg-4">
-                        <div class="mt-lg-4 mt-lg-2 mb-lg-4 mb-2 pt-3">
-                            <h1 class="mb-0 lh-80p">164</h1>
-                            <p class="mb-0">کل تیکت‌ها</p>
+        </div>
+        <div class="col-xxl-4 col-lg-6">
+            <div class="card overflow-hidden">
+                <div class="card-header d-flex align-items-center justify-content-between border-0 pb-2">
+                    <h6 class="card-title mb-0">
+                        بررسی اجمالی معاملات
+                    </h6>
+                    <div class="d-flex gap-2 align-items-center">
+		  <span>
+		   + 15٪ در مقایسه با ماه گذشته
+		  </span>
+                        <div class="btn-group ms-2">
+                            <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                <i class="fi fi-bs-menu-dots">
+                                </i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" href="javascript:void(0);">
+                                        ویرایش کنید
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="javascript:void(0);">
+                                        حذف کنید
+                                    </a>
+                                </li>
+                            </ul>
                         </div>
-                        <ul class="p-0 m-0">
-                            <li class="d-flex gap-3 align-items-center mb-lg-3 pt-2 pb-1">
-                                <div class="badge rounded bg-label-primary p-1">
-                                    <i class="ti ti-ticket ti-sm"></i>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-2">
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center border border-1 py-3 px-3 rounded-2">
+                                <div class="avatar avatar-sm bg-light rounded-circle me-2">
+                                    <i class="fi fi-rr-check-double text-md">
+                                    </i>
                                 </div>
-                                <div>
-                                    <h6 class="mb-0 text-nowrap">تیکت جدید</h6>
-                                    <small class="text-muted">142</small>
+                                <div class="clearfix">
+                                    <h6 class="text-body mb-0 text-1xs">
+                                        معاملات بسته
+                                    </h6>
+                                    <div class="d-flex align-items-end">
+                                        <h4 class="mb-0">
+                                            27
+                                        </h4>
+                                        <span class="text-success text-1xs ms-1">
+			   +10 تخفیف
+			  </span>
+                                    </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center border border-1 py-3 px-3 rounded-2">
+                                <div class="avatar avatar-sm bg-light rounded-circle me-2">
+                                    <i class="fi fi-rr-clock-five text-md">
+                                    </i>
+                                </div>
+                                <div class="clearfix">
+                                    <h6 class="text-body mb-0 text-1xs">
+                                        ارزش خط لوله
+                                    </h6>
+                                    <div class="d-flex align-items-end">
+                                        <h4 class="mb-0">
+                                            5.2 m
+                                        </h4>
+                                        <span class="text-success text-1xs ms-1">
+			   + 270 K دلار
+			  </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer border-0 p-0">
+                    <div class="my-n3 mx-n1" id="chartDealsOverview">
+                    </div>
+                    <div class="bg-white d-inline-block position-absolute bottom-0 px-3 py-2 rounded-5 shadow-sm translate-middle start-50">
+		  <span class="text-info fw-semibold">
+		   نرخ تبدیل
+		  </span>
+                        <span class="text-dark fw-bold">
+		   16%
+		  </span>
+                        <span class="text-danger fw-bold">
+		   -2%
+		  </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-5 col-lg-6">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
+                    <h6 class="card-title">
+                        نمای کلی فرآیند فروش
+                    </h6>
+                    <div class="btn-group">
+                        <button aria-expanded="false" class="btn btn-action-primary btn-sm btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                            <i class="fi fi-bs-menu-dots">
+                            </i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="javascript:void(0);">
+                                    ویرایش کنید
+                                </a>
                             </li>
-                            <li class="d-flex gap-3 align-items-center mb-lg-3 pb-1">
-                                <div class="badge rounded bg-label-info p-1">
-                                    <i class="ti ti-circle-check ti-sm"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 text-nowrap">تیکت باز</h6>
-                                    <small class="text-muted">28</small>
-                                </div>
-                            </li>
-                            <li class="d-flex gap-3 align-items-center pb-1">
-                                <div class="badge rounded bg-label-warning p-1">
-                                    <i class="ti ti-clock ti-sm"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-0 text-nowrap">زمان پاسخگویی</h6>
-                                    <small class="text-muted">1 روز</small>
-                                </div>
+                            <li>
+                                <a class="dropdown-item" href="javascript:void(0);">
+                                    حذف کنید
+                                </a>
                             </li>
                         </ul>
                     </div>
-                    <div class="col-12 col-sm-8 col-md-12 col-lg-8">
-                        <div id="supportTracker"></div>
+                </div>
+                <div class="card-body pt-2">
+                    <div class="d-flex gap-2 align-items-center mb-5">
+                        <h2 class="mb-0">
+		   <span class="text-body">
+			$</span>2,56,054.<span class="text-primary">50</span>
+                        </h2>
+                        <span>
+		   20% در مقایسه با ماه گذشته
+		  </span>
+                    </div>
+                    <div aria-label="Leads" class="progress progress-primary progress-overlap mb-1" role="progressbar">
+                        <div class="progress-label">
+                            منجر می شود
+                        </div>
+                        <div class="progress-value">
+                            120
+                        </div>
+                        <div class="progress-bar" style="width: 85%">
+                        </div>
+                    </div>
+                    <div aria-label="Prospects" class="progress progress-success progress-overlap mb-1" role="progressbar">
+                        <div class="progress-label">
+                            چشم انداز
+                        </div>
+                        <div class="progress-value">
+                            85
+                        </div>
+                        <div class="progress-bar" style="width: 60%">
+                        </div>
+                    </div>
+                    <div aria-label="Opportunities" class="progress progress-info progress-overlap mb-1" role="progressbar">
+                        <div class="progress-label">
+                            فرصت ها
+                        </div>
+                        <div class="progress-value">
+                            40
+                        </div>
+                        <div class="progress-bar" style="width: 40%">
+                        </div>
+                    </div>
+                    <div aria-label="Closed Deals" class="progress progress-danger progress-overlap mb-1" role="progressbar">
+                        <div class="progress-label">
+                            معاملات بسته
+                        </div>
+                        <div class="progress-value">
+                            20
+                        </div>
+                        <div class="progress-bar" style="width: 25%">
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-    <!--/ Support Tracker -->
-    <!-- Sales By Country -->
-    <div class="col-xl-4 col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header d-flex justify-content-between">
-                <div class="card-title mb-0">
-                    <h5 class="m-0 me-2">فروش بر اساس کشور</h5>
-                    <small class="text-muted">آمار فروش ماهانه</small>
-                </div>
-                <div class="dropdown">
-                    <button aria-expanded="false" aria-haspopup="true" class="btn p-0" data-bs-toggle="dropdown" id="salesByCountry" type="button">
-                        <i class="ti ti-dots-vertical ti-sm text-muted"></i>
+                <div class="card-footer bg-primary bg-opacity-05 py-2 d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0">
+                        گزارش سالانه
+                    </h6>
+                    <button class="btn btn-sm btn-white waves-effect text-primary fw-semibold" type="button">
+                        <i class="fi fi-rr-plus text-2xs me-1">
+                        </i>
+                        نام و نمایه
                     </button>
-                    <div aria-labelledby="salesByCountry" class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="javascript:void(0);">دانـلود</a>
-                        <a class="dropdown-item" href="javascript:void(0);">تازه سازی</a>
-                        <a class="dropdown-item" href="javascript:void(0);">اشتراک گذاری</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-8">
+            <div class="card overflow-hidden">
+                <div class="card-header d-flex flex-wrap gap-3 align-items-center justify-content-between border-0 pb-0">
+                    <h6 class="card-title mb-0">
+                        مشتریان جدید
+                    </h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <div id="dt_NewCustomers_Search">
+                        </div>
+                        <button class="btn btn-sm btn-light waves-effect" type="button">
+                            <i class="fi fi-rr-plus text-2xs me-1">
+                            </i>
+                            افزودن جدید
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body px-1 pt-2 pb-2">
+                    <table class="table table-sm display table-row-rounded data-row-checkbox" id="dt_NewCustomers">
+                        <thead class="table-light">
+                        <tr>
+                            <th class="pe-0">
+                                <div class="form-check">
+                                    <input class="form-check-input" data-row-checkbox="" type="checkbox"/>
+                                </div>
+                            </th>
+                            <th class="minw-200px">
+                                نام
+                            </th>
+                            <th class="minw-150px">
+                                تلفن
+                            </th>
+                            <th class="minw-150px">
+                                ایمیل
+                            </th>
+                            <th class="minw-125px">
+                                روزها
+                            </th>
+                            <th>
+                                وضعیت
+                            </th>
+                            <th>
+                                اقدام
+                            </th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar1.webp"/>
+                                    </div>
+                                    امیرارسلان رهنما
+                                </div>
+                            </td>
+                            <td>
+                                09010010011
+                            </td>
+                            <td>
+                                johndoe1@example.com
+                            </td>
+                            <td>
+                                02:19 بعد از ظهر
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-primary-subtle text-primary">
+			  فعال
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar2.webp"/>
+                                    </div>
+                                    باربد باباخانی
+                                </div>
+                            </td>
+                            <td>
+                                09010010012
+                            </td>
+                            <td>
+                                janedoe2@example.com
+                            </td>
+                            <td>
+                                نیمه روز اول
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-primary-subtle text-primary">
+			  فعال
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar3.webp"/>
+                                    </div>
+                                    مهسا رهنما
+                                </div>
+                            </td>
+                            <td>
+                                09010010013
+                            </td>
+                            <td>
+                                testuser3@example.com
+                            </td>
+                            <td>
+                                4 روز
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-success-subtle text-success">
+			  در انتظار
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar4.webp"/>
+                                    </div>
+                                    احسان رفیعی
+                                </div>
+                            </td>
+                            <td>
+                                09010010014
+                            </td>
+                            <td>
+                                randomuser4@example.com
+                            </td>
+                            <td>
+                                نیمه روز دوم
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-primary-subtle text-primary">
+			  فعال
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar5.webp"/>
+                                    </div>
+                                    دانیال دهدشتی
+                                </div>
+                            </td>
+                            <td>
+                                09010010015
+                            </td>
+                            <td>
+                                demoaccount5@example.com
+                            </td>
+                            <td>
+                                مدیر فروش
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-success-subtle text-success">
+			  در انتظار
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar1.webp"/>
+                                    </div>
+                                    باربد باباخانی
+                                </div>
+                            </td>
+                            <td>
+                                09010010016
+                            </td>
+                            <td>
+                                samplemail6@example.com
+                            </td>
+                            <td>
+                                مدیر فروش
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-success-subtle text-success">
+			  در انتظار
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar2.webp"/>
+                                    </div>
+                                    باربد باباخانی
+                                </div>
+                            </td>
+                            <td>
+                                09010010012
+                            </td>
+                            <td>
+                                janedoe2@example.com
+                            </td>
+                            <td>
+                                نیمه روز اول
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-primary-subtle text-primary">
+			  فعال
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar3.webp"/>
+                                    </div>
+                                    مهسا رهنما
+                                </div>
+                            </td>
+                            <td>
+                                09010010013
+                            </td>
+                            <td>
+                                testuser3@example.com
+                            </td>
+                            <td>
+                                4 روز
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-success-subtle text-success">
+			  در انتظار
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar4.webp"/>
+                                    </div>
+                                    احسان رفیعی
+                                </div>
+                            </td>
+                            <td>
+                                09010010014
+                            </td>
+                            <td>
+                                randomuser4@example.com
+                            </td>
+                            <td>
+                                نیمه روز دوم
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-primary-subtle text-primary">
+			  فعال
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar2.webp"/>
+                                    </div>
+                                    باربد باباخانی
+                                </div>
+                            </td>
+                            <td>
+                                09010010012
+                            </td>
+                            <td>
+                                janedoe2@example.com
+                            </td>
+                            <td>
+                                نیمه روز اول
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-primary-subtle text-primary">
+			  فعال
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar3.webp"/>
+                                    </div>
+                                    مهسا رهنما
+                                </div>
+                            </td>
+                            <td>
+                                09010010013
+                            </td>
+                            <td>
+                                testuser3@example.com
+                            </td>
+                            <td>
+                                4 روز
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-success-subtle text-success">
+			  در انتظار
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="pe-0">
+                                <div class="form-check p-0 w-auto d-inline-block mb-0 mb-n1">
+                                    <input class="form-check-input m-0" data-checkbox="" type="checkbox"/>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-xxs rounded-circle me-2">
+                                        <img alt="" src="assets/images/avatar/avatar4.webp"/>
+                                    </div>
+                                    احسان رفیعی
+                                </div>
+                            </td>
+                            <td>
+                                09010010014
+                            </td>
+                            <td>
+                                randomuser4@example.com
+                            </td>
+                            <td>
+                                نیمه روز دوم
+                            </td>
+                            <td>
+			 <span class="badge badge-lg bg-primary-subtle text-primary">
+			  فعال
+			 </span>
+                            </td>
+                            <td>
+                                <div class="btn-group float-end">
+                                    <button aria-expanded="false" class="btn btn-subtle-primary btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
+                                        <i class="fi fi-rr-menu-dots">
+                                        </i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                ویرایش کنید
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="javascript:void(0);">
+                                                حذف کنید
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-xxl-4">
+            <div class="card">
+                <div class="card-header d-flex align-items-center justify-content-between border-0 pb-0">
+                    <h6 class="card-title mb-0">
+                        تسک ها
+                    </h6>
+                    <div class="clearfix">
+                        <a class="btn-link" href="javascript:void(0);">
+                            مشاهده همه
+                        </a>
+                        <button class="btn btn-sm btn-light waves-effect ms-3" data-bs-target="#todoTaskModal" data-bs-toggle="modal" type="button">
+                            <i class="fi fi-rr-plus text-2xs me-1">
+                            </i>
+                            وظیفه جدید
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body pb-1 px-2 pt-3 overflow-auto" data-simplebar="" style="height: 385px;">
+                    <ul class="list-group list-group-smooth list-group-unlined todo-nav" id="todoList">
+                        <li class="list-group-item d-flex gap-2 align-items-center todo-item bg-opacity-05 mb-1 ps-3 pe-2 py-2">
+		   <span class="sortable-handle">
+			<svg fill="none" height="17" viewbox="0 0 16 17" width="16" xmlns="http://www.w3.org/2000/svg">
+			 <path d="M11.9998 3.16667C12.7362 3.16667 13.3332 2.56971 13.3332 1.83333C13.3332 1.09695 12.7362 0.5 11.9998 0.5C11.2635 0.5 10.6665 1.09695 10.6665 1.83333C10.6665 2.56971 11.2635 3.16667 11.9998 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 9.26237C12.7362 9.26237 13.3332 8.66542 13.3332 7.92904C13.3332 7.19266 12.7362 6.5957 11.9998 6.5957C11.2635 6.5957 10.6665 7.19266 10.6665 7.92904C10.6665 8.66542 11.2635 9.26237 11.9998 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 15.3571C12.7362 15.3571 13.3332 14.7601 13.3332 14.0238C13.3332 13.2874 12.7362 12.6904 11.9998 12.6904C11.2635 12.6904 10.6665 13.2874 10.6665 14.0238C10.6665 14.7601 11.2635 15.3571 11.9998 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 3.16667C5.49818 3.16667 6.09513 2.56971 6.09513 1.83333C6.09513 1.09695 5.49818 0.5 4.7618 0.5C4.02542 0.5 3.42847 1.09695 3.42847 1.83333C3.42847 2.56971 4.02542 3.16667 4.7618 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 9.26237C5.49818 9.26237 6.09513 8.66542 6.09513 7.92904C6.09513 7.19266 5.49818 6.5957 4.7618 6.5957C4.02542 6.5957 3.42847 7.19266 3.42847 7.92904C3.42847 8.66542 4.02542 9.26237 4.7618 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 15.3571C5.49818 15.3571 6.09513 14.7601 6.09513 14.0238C6.09513 13.2874 5.49818 12.6904 4.7618 12.6904C4.02542 12.6904 3.42847 13.2874 3.42847 14.0238C3.42847 14.7601 4.02542 15.3571 4.7618 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			</svg>
+		   </span>
+                            <input class="form-check-input todo-checkbox check-dark" type="checkbox"/>
+                            <span class="form-label mb-0">
+			تهیه گزارش مالی ماهانه
+		   </span>
+                            <span class="todo-time text-body">
+			04:25 بعد از ظهر
+		   </span>
+                            <button class="btn btn-action-gray rounded-circle btn-sm btn-icon waves-effect waves-light item-delete ms-auto" type="button">
+                                <i class="fi fi-rr-trash">
+                                </i>
+                            </button>
+                        </li>
+                        <li class="list-group-item d-flex gap-2 align-items-center todo-item bg-opacity-05 mb-1 ps-3 pe-2 py-2">
+		   <span class="sortable-handle">
+			<svg fill="none" height="17" viewbox="0 0 16 17" width="16" xmlns="http://www.w3.org/2000/svg">
+			 <path d="M11.9998 3.16667C12.7362 3.16667 13.3332 2.56971 13.3332 1.83333C13.3332 1.09695 12.7362 0.5 11.9998 0.5C11.2635 0.5 10.6665 1.09695 10.6665 1.83333C10.6665 2.56971 11.2635 3.16667 11.9998 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 9.26237C12.7362 9.26237 13.3332 8.66542 13.3332 7.92904C13.3332 7.19266 12.7362 6.5957 11.9998 6.5957C11.2635 6.5957 10.6665 7.19266 10.6665 7.92904C10.6665 8.66542 11.2635 9.26237 11.9998 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 15.3571C12.7362 15.3571 13.3332 14.7601 13.3332 14.0238C13.3332 13.2874 12.7362 12.6904 11.9998 12.6904C11.2635 12.6904 10.6665 13.2874 10.6665 14.0238C10.6665 14.7601 11.2635 15.3571 11.9998 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 3.16667C5.49818 3.16667 6.09513 2.56971 6.09513 1.83333C6.09513 1.09695 5.49818 0.5 4.7618 0.5C4.02542 0.5 3.42847 1.09695 3.42847 1.83333C3.42847 2.56971 4.02542 3.16667 4.7618 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 9.26237C5.49818 9.26237 6.09513 8.66542 6.09513 7.92904C6.09513 7.19266 5.49818 6.5957 4.7618 6.5957C4.02542 6.5957 3.42847 7.19266 3.42847 7.92904C3.42847 8.66542 4.02542 9.26237 4.7618 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 15.3571C5.49818 15.3571 6.09513 14.7601 6.09513 14.0238C6.09513 13.2874 5.49818 12.6904 4.7618 12.6904C4.02542 12.6904 3.42847 13.2874 3.42847 14.0238C3.42847 14.7601 4.02542 15.3571 4.7618 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			</svg>
+		   </span>
+                            <input checked="" class="form-check-input todo-checkbox check-dark" type="checkbox"/>
+                            <span class="form-label mb-0">
+			استراتژی بازاریابی جدید را توسعه دهید
+		   </span>
+                            <span class="todo-time text-body">
+			04:25 بعد از ظهر
+		   </span>
+                            <button class="btn btn-action-gray rounded-circle btn-sm btn-icon waves-effect waves-light item-delete ms-auto" type="button">
+                                <i class="fi fi-rr-trash">
+                                </i>
+                            </button>
+                        </li>
+                        <li class="list-group-item d-flex gap-2 align-items-center todo-item bg-opacity-05 mb-1 ps-3 pe-2 py-2">
+		   <span class="sortable-handle">
+			<svg fill="none" height="17" viewbox="0 0 16 17" width="16" xmlns="http://www.w3.org/2000/svg">
+			 <path d="M11.9998 3.16667C12.7362 3.16667 13.3332 2.56971 13.3332 1.83333C13.3332 1.09695 12.7362 0.5 11.9998 0.5C11.2635 0.5 10.6665 1.09695 10.6665 1.83333C10.6665 2.56971 11.2635 3.16667 11.9998 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 9.26237C12.7362 9.26237 13.3332 8.66542 13.3332 7.92904C13.3332 7.19266 12.7362 6.5957 11.9998 6.5957C11.2635 6.5957 10.6665 7.19266 10.6665 7.92904C10.6665 8.66542 11.2635 9.26237 11.9998 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 15.3571C12.7362 15.3571 13.3332 14.7601 13.3332 14.0238C13.3332 13.2874 12.7362 12.6904 11.9998 12.6904C11.2635 12.6904 10.6665 13.2874 10.6665 14.0238C10.6665 14.7601 11.2635 15.3571 11.9998 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 3.16667C5.49818 3.16667 6.09513 2.56971 6.09513 1.83333C6.09513 1.09695 5.49818 0.5 4.7618 0.5C4.02542 0.5 3.42847 1.09695 3.42847 1.83333C3.42847 2.56971 4.02542 3.16667 4.7618 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 9.26237C5.49818 9.26237 6.09513 8.66542 6.09513 7.92904C6.09513 7.19266 5.49818 6.5957 4.7618 6.5957C4.02542 6.5957 3.42847 7.19266 3.42847 7.92904C3.42847 8.66542 4.02542 9.26237 4.7618 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 15.3571C5.49818 15.3571 6.09513 14.7601 6.09513 14.0238C6.09513 13.2874 5.49818 12.6904 4.7618 12.6904C4.02542 12.6904 3.42847 13.2874 3.42847 14.0238C3.42847 14.7601 4.02542 15.3571 4.7618 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			</svg>
+		   </span>
+                            <input class="form-check-input todo-checkbox check-dark" type="checkbox"/>
+                            <span class="form-label mb-0">
+			به ایمیل های مشتریان پاسخ دهید
+		   </span>
+                            <span class="todo-time text-body">
+			04:25 بعد از ظهر
+		   </span>
+                            <button class="btn btn-action-gray rounded-circle btn-sm btn-icon waves-effect waves-light item-delete ms-auto" type="button">
+                                <i class="fi fi-rr-trash">
+                                </i>
+                            </button>
+                        </li>
+                        <li class="list-group-item d-flex gap-2 align-items-center todo-item bg-opacity-05 mb-1 ps-3 pe-2 py-2">
+		   <span class="sortable-handle">
+			<svg fill="none" height="17" viewbox="0 0 16 17" width="16" xmlns="http://www.w3.org/2000/svg">
+			 <path d="M11.9998 3.16667C12.7362 3.16667 13.3332 2.56971 13.3332 1.83333C13.3332 1.09695 12.7362 0.5 11.9998 0.5C11.2635 0.5 10.6665 1.09695 10.6665 1.83333C10.6665 2.56971 11.2635 3.16667 11.9998 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 9.26237C12.7362 9.26237 13.3332 8.66542 13.3332 7.92904C13.3332 7.19266 12.7362 6.5957 11.9998 6.5957C11.2635 6.5957 10.6665 7.19266 10.6665 7.92904C10.6665 8.66542 11.2635 9.26237 11.9998 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 15.3571C12.7362 15.3571 13.3332 14.7601 13.3332 14.0238C13.3332 13.2874 12.7362 12.6904 11.9998 12.6904C11.2635 12.6904 10.6665 13.2874 10.6665 14.0238C10.6665 14.7601 11.2635 15.3571 11.9998 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 3.16667C5.49818 3.16667 6.09513 2.56971 6.09513 1.83333C6.09513 1.09695 5.49818 0.5 4.7618 0.5C4.02542 0.5 3.42847 1.09695 3.42847 1.83333C3.42847 2.56971 4.02542 3.16667 4.7618 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 9.26237C5.49818 9.26237 6.09513 8.66542 6.09513 7.92904C6.09513 7.19266 5.49818 6.5957 4.7618 6.5957C4.02542 6.5957 3.42847 7.19266 3.42847 7.92904C3.42847 8.66542 4.02542 9.26237 4.7618 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 15.3571C5.49818 15.3571 6.09513 14.7601 6.09513 14.0238C6.09513 13.2874 5.49818 12.6904 4.7618 12.6904C4.02542 12.6904 3.42847 13.2874 3.42847 14.0238C3.42847 14.7601 4.02542 15.3571 4.7618 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			</svg>
+		   </span>
+                            <input class="form-check-input todo-checkbox check-dark" type="checkbox"/>
+                            <span class="form-label mb-0">
+			محتوای وب سایت را به روز کنید
+		   </span>
+                            <span class="todo-time text-body">
+			04:25 بعد از ظهر
+		   </span>
+                            <button class="btn btn-action-gray rounded-circle btn-sm btn-icon waves-effect waves-light item-delete ms-auto" type="button">
+                                <i class="fi fi-rr-trash">
+                                </i>
+                            </button>
+                        </li>
+                        <li class="list-group-item d-flex gap-2 align-items-center todo-item bg-opacity-05 mb-1 ps-3 pe-2 py-2">
+		   <span class="sortable-handle">
+			<svg fill="none" height="17" viewbox="0 0 16 17" width="16" xmlns="http://www.w3.org/2000/svg">
+			 <path d="M11.9998 3.16667C12.7362 3.16667 13.3332 2.56971 13.3332 1.83333C13.3332 1.09695 12.7362 0.5 11.9998 0.5C11.2635 0.5 10.6665 1.09695 10.6665 1.83333C10.6665 2.56971 11.2635 3.16667 11.9998 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 9.26237C12.7362 9.26237 13.3332 8.66542 13.3332 7.92904C13.3332 7.19266 12.7362 6.5957 11.9998 6.5957C11.2635 6.5957 10.6665 7.19266 10.6665 7.92904C10.6665 8.66542 11.2635 9.26237 11.9998 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 15.3571C12.7362 15.3571 13.3332 14.7601 13.3332 14.0238C13.3332 13.2874 12.7362 12.6904 11.9998 12.6904C11.2635 12.6904 10.6665 13.2874 10.6665 14.0238C10.6665 14.7601 11.2635 15.3571 11.9998 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 3.16667C5.49818 3.16667 6.09513 2.56971 6.09513 1.83333C6.09513 1.09695 5.49818 0.5 4.7618 0.5C4.02542 0.5 3.42847 1.09695 3.42847 1.83333C3.42847 2.56971 4.02542 3.16667 4.7618 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 9.26237C5.49818 9.26237 6.09513 8.66542 6.09513 7.92904C6.09513 7.19266 5.49818 6.5957 4.7618 6.5957C4.02542 6.5957 3.42847 7.19266 3.42847 7.92904C3.42847 8.66542 4.02542 9.26237 4.7618 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 15.3571C5.49818 15.3571 6.09513 14.7601 6.09513 14.0238C6.09513 13.2874 5.49818 12.6904 4.7618 12.6904C4.02542 12.6904 3.42847 13.2874 3.42847 14.0238C3.42847 14.7601 4.02542 15.3571 4.7618 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			</svg>
+		   </span>
+                            <input checked="" class="form-check-input todo-checkbox check-primary" type="checkbox"/>
+                            <span class="form-label mb-0">
+			بررسی عملکرد کارکنان
+		   </span>
+                            <span class="todo-time text-body text-body">
+			04:25 بعد از ظهر
+		   </span>
+                            <button class="btn btn-action-gray rounded-circle btn-sm btn-icon waves-effect waves-light item-delete ms-auto" type="button">
+                                <i class="fi fi-rr-trash">
+                                </i>
+                            </button>
+                        </li>
+                        <li class="list-group-item d-flex gap-2 align-items-center todo-item bg-opacity-05 mb-1 ps-3 pe-2 py-2">
+		   <span class="sortable-handle">
+			<svg fill="none" height="17" viewbox="0 0 16 17" width="16" xmlns="http://www.w3.org/2000/svg">
+			 <path d="M11.9998 3.16667C12.7362 3.16667 13.3332 2.56971 13.3332 1.83333C13.3332 1.09695 12.7362 0.5 11.9998 0.5C11.2635 0.5 10.6665 1.09695 10.6665 1.83333C10.6665 2.56971 11.2635 3.16667 11.9998 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 9.26237C12.7362 9.26237 13.3332 8.66542 13.3332 7.92904C13.3332 7.19266 12.7362 6.5957 11.9998 6.5957C11.2635 6.5957 10.6665 7.19266 10.6665 7.92904C10.6665 8.66542 11.2635 9.26237 11.9998 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 15.3571C12.7362 15.3571 13.3332 14.7601 13.3332 14.0238C13.3332 13.2874 12.7362 12.6904 11.9998 12.6904C11.2635 12.6904 10.6665 13.2874 10.6665 14.0238C10.6665 14.7601 11.2635 15.3571 11.9998 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 3.16667C5.49818 3.16667 6.09513 2.56971 6.09513 1.83333C6.09513 1.09695 5.49818 0.5 4.7618 0.5C4.02542 0.5 3.42847 1.09695 3.42847 1.83333C3.42847 2.56971 4.02542 3.16667 4.7618 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 9.26237C5.49818 9.26237 6.09513 8.66542 6.09513 7.92904C6.09513 7.19266 5.49818 6.5957 4.7618 6.5957C4.02542 6.5957 3.42847 7.19266 3.42847 7.92904C3.42847 8.66542 4.02542 9.26237 4.7618 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 15.3571C5.49818 15.3571 6.09513 14.7601 6.09513 14.0238C6.09513 13.2874 5.49818 12.6904 4.7618 12.6904C4.02542 12.6904 3.42847 13.2874 3.42847 14.0238C3.42847 14.7601 4.02542 15.3571 4.7618 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			</svg>
+		   </span>
+                            <input checked="" class="form-check-input todo-checkbox check-success" type="checkbox"/>
+                            <span class="form-label mb-0">
+			به ایمیل های مشتریان پاسخ دهید
+		   </span>
+                            <span class="todo-time text-body">
+			04:25 بعد از ظهر
+		   </span>
+                            <button class="btn btn-action-gray rounded-circle btn-sm btn-icon waves-effect waves-light item-delete ms-auto" type="button">
+                                <i class="fi fi-rr-trash">
+                                </i>
+                            </button>
+                        </li>
+                        <li class="list-group-item d-flex gap-2 align-items-center todo-item bg-opacity-05 mb-1 ps-3 pe-2 py-2">
+		   <span class="sortable-handle">
+			<svg fill="none" height="17" viewbox="0 0 16 17" width="16" xmlns="http://www.w3.org/2000/svg">
+			 <path d="M11.9998 3.16667C12.7362 3.16667 13.3332 2.56971 13.3332 1.83333C13.3332 1.09695 12.7362 0.5 11.9998 0.5C11.2635 0.5 10.6665 1.09695 10.6665 1.83333C10.6665 2.56971 11.2635 3.16667 11.9998 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 9.26237C12.7362 9.26237 13.3332 8.66542 13.3332 7.92904C13.3332 7.19266 12.7362 6.5957 11.9998 6.5957C11.2635 6.5957 10.6665 7.19266 10.6665 7.92904C10.6665 8.66542 11.2635 9.26237 11.9998 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M11.9998 15.3571C12.7362 15.3571 13.3332 14.7601 13.3332 14.0238C13.3332 13.2874 12.7362 12.6904 11.9998 12.6904C11.2635 12.6904 10.6665 13.2874 10.6665 14.0238C10.6665 14.7601 11.2635 15.3571 11.9998 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 3.16667C5.49818 3.16667 6.09513 2.56971 6.09513 1.83333C6.09513 1.09695 5.49818 0.5 4.7618 0.5C4.02542 0.5 3.42847 1.09695 3.42847 1.83333C3.42847 2.56971 4.02542 3.16667 4.7618 3.16667Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 9.26237C5.49818 9.26237 6.09513 8.66542 6.09513 7.92904C6.09513 7.19266 5.49818 6.5957 4.7618 6.5957C4.02542 6.5957 3.42847 7.19266 3.42847 7.92904C3.42847 8.66542 4.02542 9.26237 4.7618 9.26237Z" fill="var(--bs-body-color)">
+			 </path>
+			 <path d="M4.7618 15.3571C5.49818 15.3571 6.09513 14.7601 6.09513 14.0238C6.09513 13.2874 5.49818 12.6904 4.7618 12.6904C4.02542 12.6904 3.42847 13.2874 3.42847 14.0238C3.42847 14.7601 4.02542 15.3571 4.7618 15.3571Z" fill="var(--bs-body-color)">
+			 </path>
+			</svg>
+		   </span>
+                            <input checked="" class="form-check-input todo-checkbox check-warning" type="checkbox"/>
+                            <span class="form-label mb-0">
+			به ایمیل های مشتریان پاسخ دهید
+		   </span>
+                            <span class="todo-time text-body">
+			04:25 بعد از ظهر
+		   </span>
+                            <button class="btn btn-action-gray rounded-circle btn-sm btn-icon waves-effect waves-light item-delete ms-auto" type="button">
+                                <i class="fi fi-rr-trash">
+                                </i>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div aria-hidden="true" class="modal fade" id="todoTaskModal" tabindex="-1">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header py-3">
+                                <h5 class="modal-title">
+                                    کار جدید اضافه کنید
+                                </h5>
+                                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button">
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="taskForm">
+                                    <div class="row">
+                                        <div class="col-12 mb-3">
+                                            <input class="form-control" id="todoInput" placeholder="یک کار جدید اضافه کنید" type="text"/>
+                                        </div>
+                                        <div class="col-12 mb-3">
+                                            <select class="form-select" id="todoPriority">
+                                                <option value="primary">
+                                                    پیش فرض
+                                                </option>
+                                                <option value="success">
+                                                    تکمیل شد
+                                                </option>
+                                                <option value="danger">
+                                                    اولویت بالا
+                                                </option>
+                                                <option value="info">
+                                                    اطلاعات
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 text-end">
+                                            <button class="btn btn-light waves-effect waves-light me-2" data-bs-dismiss="modal" type="button">
+                                                بستن
+                                            </button>
+                                            <button class="btn btn-primary waves-effect waves-light" data-bs-dismiss="modal" id="todoAdd" type="button">
+                                                اضافه کردن تسک
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="card-body">
-                <ul class="p-0 m-0">
-                    <li class="d-flex align-items-center mb-4">
-                        <img alt="User" class="rounded-circle me-3" src="/admin/assets/svg/flags/us.svg" width="40"/>
-                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                            <div class="me-2">
-                                <div class="d-flex align-items-center">
-                                    <h6 class="mb-0 me-1">
-                                        <bdi><svg class="toman" width="1rem" height="1rem">
-                                                <use xlink:href="#toman">
-                                                    <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                                        <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                                    </symbol>
-                                                </use>
-                                            </svg>8,567k</bdi>
-                                    </h6>
-                                </div>
-                                <small class="text-muted m-0">ایالات متحده</small>
-                            </div>
-                            <div class="user-progress">
-                                <p class="text-success fw-medium mb-0 d-flex justify-content-center gap-1">
-                                    <i class="ti ti-chevron-up"></i>
-                                    25.8%
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="d-flex align-items-center mb-4">
-                        <img alt="User" class="rounded-circle me-3" src="/admin/assets/svg/flags/br.svg" width="40"/>
-                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                            <div class="me-2">
-                                <div class="d-flex align-items-center">
-                                    <h6 class="mb-0 me-1">
-                                        <bdi><svg class="toman" width="1rem" height="1rem">
-                                                <use xlink:href="#toman">
-                                                    <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                                        <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                                    </symbol>
-                                                </use>
-                                            </svg>2,415k</bdi>
-                                    </h6>
-                                </div>
-                                <small class="text-muted m-0">برزیل</small>
-                            </div>
-                            <div class="user-progress">
-                                <p class="text-danger fw-medium mb-0 d-flex justify-content-center gap-1">
-                                    <i class="ti ti-chevron-down"></i>
-                                    6.2%
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="d-flex align-items-center mb-4">
-                        <img alt="User" class="rounded-circle me-3" src="/admin/assets/svg/flags/in.svg" width="40"/>
-                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                            <div class="me-2">
-                                <div class="d-flex align-items-center">
-                                    <h6 class="mb-0 me-1">
-                                        <bdi><svg class="toman" width="1rem" height="1rem">
-                                                <use xlink:href="#toman">
-                                                    <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                                        <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                                    </symbol>
-                                                </use>
-                                            </svg>865k</bdi>
-                                    </h6>
-                                </div>
-                                <small class="text-muted m-0">هند</small>
-                            </div>
-                            <div class="user-progress">
-                                <p class="text-success fw-medium mb-0 d-flex align-items-center gap-1">
-                                    <i class="ti ti-chevron-up"></i>
-                                    12.4%
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="d-flex align-items-center mb-4">
-                        <img alt="User" class="rounded-circle me-3" src="/admin/assets/svg/flags/au.svg" width="40"/>
-                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                            <div class="me-2">
-                                <div class="d-flex align-items-center">
-                                    <h6 class="mb-0 me-1">
-                                        <bdi><svg class="toman" width="1rem" height="1rem">
-                                                <use xlink:href="#toman">
-                                                    <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                                        <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                                    </symbol>
-                                                </use>
-                                            </svg>745k</bdi>
-                                    </h6>
-                                </div>
-                                <small class="text-muted m-0">استرالیا</small>
-                            </div>
-                            <div class="user-progress">
-                                <p class="text-danger fw-medium mb-0 d-flex justify-content-center gap-1">
-                                    <i class="ti ti-chevron-down"></i>
-                                    11.9%
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="d-flex align-items-center mb-4">
-                        <img alt="User" class="rounded-circle me-3" src="/admin/assets/svg/flags/fr.svg" width="40"/>
-                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                            <div class="me-2">
-                                <div class="d-flex align-items-center">
-                                    <h6 class="mb-0 me-1">
-                                        <bdi><svg class="toman" width="1rem" height="1rem">
-                                                <use xlink:href="#toman">
-                                                    <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                                        <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                                    </symbol>
-                                                </use>
-                                            </svg>45</bdi>
-                                    </h6>
-                                </div>
-                                <small class="text-muted m-0">فرانسه</small>
-                            </div>
-                            <div class="user-progress">
-                                <p class="text-success fw-medium mb-0 d-flex justify-content-center gap-1">
-                                    <i class="ti ti-chevron-up"></i>
-                                    16.2%
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="d-flex align-items-center">
-                        <img alt="User" class="rounded-circle me-3" src="/admin/assets/svg/flags/cn.svg" width="40"/>
-                        <div class="d-flex w-100 flex-wrap align-items-center justify-content-between gap-2">
-                            <div class="me-2">
-                                <div class="d-flex align-items-center">
-                                    <h6 class="mb-0 me-1">
-                                        <bdi>+<svg class="toman" width="1rem" height="1rem">
-                                                <use xlink:href="#toman">
-                                                    <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                                        <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                                    </symbol>
-                                                </use>
-                                            </svg>98</bdi>
-                                    </h6>
-                                </div>
-                                <small class="text-muted m-0">چین</small>
-                            </div>
-                            <div class="user-progress">
-                                <p class="text-success fw-medium mb-0 d-flex justify-content-center gap-1">
-                                    <i class="ti ti-chevron-up"></i>
-                                    14.8%
-                                </p>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
         </div>
     </div>
-    <!--/ Sales By Country -->
-    <!-- Total Earning -->
-    <div class="col-12 col-xl-4 mb-4 col-md-6">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between pb-1">
-                <h5 class="mb-0 card-title">گزارش سـود</h5>
-                <div class="dropdown">
-                    <button aria-expanded="false" aria-haspopup="true" class="btn p-0" data-bs-toggle="dropdown" id="totalEarning" type="button">
-                        <i class="ti ti-dots-vertical ti-sm text-muted"></i>
+
+    <div aria-hidden="true" aria-labelledby="addCustomerModal" class="modal fade" id="addCustomerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        مشتری جدید
+                    </h5>
+                    <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button">
                     </button>
-                    <div aria-labelledby="totalEarning" class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="javascript:void(0);">موارد بیشتر</a>
-                        <a class="dropdown-item" href="javascript:void(0);">حـذف</a>
-                    </div>
                 </div>
-            </div>
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <h1 class="mb-0 me-2 mt-3">87%</h1>
-                    <i class="ti ti-chevron-up text-success me-1"></i>
-                    <p class="text-success mb-0">25.8%</p>
-                </div>
-                <div id="totalEarningChart" class="my-2"></div>
-                <div class="d-flex align-items-start my-4">
-                    <div class="badge rounded bg-label-primary p-2 me-3 rounded">
-                        <i class="ti ti-currency-dollar ti-sm"></i>
-                    </div>
-                    <div class="d-flex justify-content-between w-100 gap-2 align-items-center">
-                        <div class="me-2">
-                            <h6 class="mb-0">کل فروش</h6>
-                            <small class="text-muted">بازپرداخت</small>
+                <div class="modal-body">
+                    <form class="row">
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">
+                                نام مشتری
+                            </label>
+                            <input class="form-control" placeholder="نام کامل را وارد کنید" type="text"/>
                         </div>
-                        <p class="mb-0 text-success">
-                            <bdi>+<svg class="toman" width="1rem" height="1rem">
-                                    <use xlink:href="#toman">
-                                        <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                            <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                        </symbol>
-                                    </use>
-                                </svg>98</bdi>
-                        </p>
-                    </div>
-                </div>
-                <div class="d-flex align-items-start">
-                    <div class="badge rounded bg-label-secondary p-2 me-3 rounded">
-                        <i class="ti ti-brand-paypal ti-sm"></i>
-                    </div>
-                    <div class="d-flex justify-content-between w-100 gap-2 align-items-center">
-                        <div class="me-2">
-                            <h6 class="mb-0">کل درآمد</h6>
-                            <small class="text-muted">پرداخت مشتریان</small>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">
+                                آدرس ایمیل
+                            </label>
+                            <input class="form-control" placeholder="ایمیل را وارد کنید" type="text"/>
                         </div>
-                        <p class="mb-0 text-success">
-                            <bdi>+<svg class="toman" width="1rem" height="1rem">
-                                    <use xlink:href="#toman">
-                                        <symbol id="toman" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
-                                            <path clip-rule="evenodd" d="M3.057 1.742L3.821 1l.78.75-.776.741-.768-.749zm3.23 2.48c0 .622-.16 1.111-.478 1.467-.201.221-.462.39-.783.505a3.251 3.251 0 01-1.083.163h-.555c-.421 0-.801-.074-1.139-.223a2.045 2.045 0 01-.9-.738A2.238 2.238 0 011 4.148c0-.059.001-.117.004-.176.03-.55.204-1.158.525-1.827l1.095.484c-.257.532-.397 1-.419 1.403-.002.04-.004.08-.004.12 0 .252.055.458.166.618a.887.887 0 00.5.354c.085.028.178.048.278.06.079.01.16.014.243.014h.555c.458 0 .769-.081.933-.244.14-.139.21-.383.21-.731V2.02h1.2v2.202zm5.433 3.184l-.72-.7.709-.706.735.707-.724.7zm-2.856.308c.542 0 .973.19 1.293.569.297.346.445.777.445 1.293v.364h.18v-.004h.41c.221 0 .377-.028.467-.084.093-.055.14-.14.14-.258v-.069c.004-.243.017-1.044 0-1.115L13 8.05v1.574a1.4 1.4 0 01-.287.863c-.306.405-.804.607-1.495.607h-.627c-.061.733-.434 1.257-1.117 1.573-.267.122-.58.21-.937.265a5.845 5.845 0 01-.914.067v-1.159c.612 0 1.072-.082 1.38-.247.25-.132.376-.298.376-.499h-.515c-.436 0-.807-.113-1.113-.339-.367-.273-.55-.667-.55-1.18 0-.488.122-.901.367-1.24.296-.415.728-.622 1.296-.622zm.533 2.226v-.364c0-.217-.048-.389-.143-.516a.464.464 0 00-.39-.187.478.478 0 00-.396.187.705.705 0 00-.136.449.65.65 0 00.003.067c.008.125.066.22.177.283.093.054.21.08.352.08h.533zM9.5 6.707l.72.7.724-.7L10.209 6l-.709.707zm-6.694 4.888h.03c.433-.01.745-.106.937-.29.024.012.065.035.12.068l.074.039.081.042c.135.073.261.133.379.18.345.146.67.22.977.22a1.216 1.216 0 00.87-.34c.3-.285.449-.714.449-1.286a2.19 2.19 0 00-.335-1.145c-.299-.457-.732-.685-1.3-.685-.502 0-.916.192-1.242.575-.113.132-.21.284-.294.456-.032.062-.06.125-.084.191a.504.504 0 00-.03.078 1.67 1.67 0 00-.022.06c-.103.309-.171.485-.205.53-.072.09-.214.14-.427.147-.123-.005-.209-.03-.256-.076-.057-.054-.085-.153-.085-.297V7l-1.201-.5v3.562c0 .261.048.496.143.703.071.158.168.296.29.413.123.118.266.211.43.28.198.084.42.13.665.136v.001h.036zm2.752-1.014a.778.778 0 00.044-.353.868.868 0 00-.165-.47c-.1-.134-.217-.201-.35-.201-.18 0-.33.103-.447.31-.042.071-.08.158-.114.262a2.434 2.434 0 00-.04.12l-.015.053-.015.046c.142.118.323.216.544.293.18.062.325.092.433.092.044 0 .086-.05.125-.152z" fill-rule="evenodd"></path>
-                                        </symbol>
-                                    </use>
-                                </svg>126</bdi>
-                        </p>
-                    </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">
+                                شماره تلفن
+                            </label>
+                            <input class="form-control" placeholder="به عنوان مثال 09010010011" type="text"/>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">
+                                شرکت
+                            </label>
+                            <input class="form-control" placeholder="نام شرکت" type="text"/>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">
+                                کشور
+                            </label>
+                            <select class="form-select">
+                                <option value="">
+                                    کشور را انتخاب کنید
+                                </option>
+                                <option value="US">
+                                    ایالات متحده آمریکا
+                                </option>
+                                <option value="UK">
+                                    انگلستان
+                                </option>
+                                <option value="IN">
+                                    هند
+                                </option>
+                                <option value="CA">
+                                    کانادا
+                                </option>
+                                <option value="DE">
+                                    آلمان
+                                </option>
+                                <option value="FR">
+                                    فرانسه
+                                </option>
+                                <option value="JP">
+                                    ژاپن
+                                </option>
+                                <option value="BR">
+                                    برزیل
+                                </option>
+                                <option value="EG">
+                                    مصر
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">
+                                نوع مشتری
+                            </label>
+                            <select class="form-select">
+                                <option value="">
+                                    نوع را انتخاب کنید
+                                </option>
+                                <option value="Lead">
+                                    لید
+                                </option>
+                                <option value="Prospect">
+                                    مشتری
+                                </option>
+                                <option value="Client">
+                                    چشم انداز
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">
+                                وضعیت حساب
+                            </label>
+                            <select class="form-select">
+                                <option value="">
+                                    وضعیت را انتخاب کنید
+                                </option>
+                                <option value="Active">
+                                    فعال
+                                </option>
+                                <option value="Inactive">
+                                    غیر فعال
+                                </option>
+                                <option value="Blocked">
+                                    مسدود شده است
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-lg-6 mb-3">
+                            <label class="form-label">
+                                تاریخ عضویت
+                            </label>
+                            <input type="text" class="form-control p-date-only" placeholder="انتخاب تاریخ" />
+                        </div>
+                    </form>
                 </div>
-            </div>
-        </div>
-    </div>
-    <!--/ Total Earning -->
-    <!-- Monthly Campaign State -->
-    <div class="col-xl-4 col-md-6 mb-4">
-        <div class="card h-100">
-            <div class="card-header d-flex justify-content-between">
-                <div class="card-title mb-0">
-                    <h5 class="mb-0">گزارش ماهیانه کمپین‌ها</h5>
-                    <small class="text-muted">8.52k بازدید رسانه‌ها</small>
-                </div>
-                <div class="dropdown">
-                    <button aria-expanded="false" aria-haspopup="true" class="btn p-0" data-bs-toggle="dropdown" id="MonthlyCampaign" type="button">
-                        <i class="ti ti-dots-vertical ti-sm text-muted"></i>
+                <div class="modal-footer">
+                    <button class="btn btn-light" data-bs-dismiss="modal" type="button">
+                        لغو کنید
                     </button>
-                    <div aria-labelledby="MonthlyCampaign" class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="javascript:void(0);">تازه سازی</a>
-                        <a class="dropdown-item" href="javascript:void(0);">دانـلود</a>
-                        <a class="dropdown-item" href="javascript:void(0);">نمایش همه</a>
-                    </div>
-                </div>
-            </div>
-            <div class="card-body">
-                <ul class="p-0 m-0">
-                    <li class="mb-4 pb-1 d-flex justify-content-between align-items-center">
-                        <div class="badge bg-label-success rounded p-2">
-                            <i class="ti ti-mail ti-sm"></i>
-                        </div>
-                        <div class="d-flex justify-content-between w-100 flex-wrap">
-                            <h6 class="mb-0 ms-3">ایمیل‌ها</h6>
-                            <div class="d-flex">
-                                <p class="mb-0 fw-medium">12,346</p>
-                                <p class="ms-3 text-success mb-0">0.3%</p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="mb-4 pb-1 d-flex justify-content-between align-items-center">
-                        <div class="badge bg-label-info rounded p-2">
-                            <i class="ti ti-link ti-sm"></i>
-                        </div>
-                        <div class="d-flex justify-content-between w-100 flex-wrap">
-                            <h6 class="mb-0 ms-3">شرکت کننده</h6>
-                            <div class="d-flex">
-                                <p class="mb-0 fw-medium">8,734</p>
-                                <p class="ms-3 text-success mb-0">2.1%</p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="mb-4 pb-1 d-flex justify-content-between align-items-center">
-                        <div class="badge bg-label-warning rounded p-2">
-                            <i class="ti ti-click ti-sm"></i>
-                        </div>
-                        <div class="d-flex justify-content-between w-100 flex-wrap">
-                            <h6 class="mb-0 ms-3">کلیک‌ها</h6>
-                            <div class="d-flex">
-                                <p class="mb-0 fw-medium">967</p>
-                                <p class="ms-3 text-success mb-0">1.4%</p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="mb-4 pb-1 d-flex justify-content-between align-items-center">
-                        <div class="badge bg-label-primary rounded p-2">
-                            <i class="ti ti-users ti-sm"></i>
-                        </div>
-                        <div class="d-flex justify-content-between w-100 flex-wrap">
-                            <h6 class="mb-0 ms-3">دنبال کننده</h6>
-                            <div class="d-flex">
-                                <p class="mb-0 fw-medium">345</p>
-                                <p class="ms-3 text-success mb-0">8.5k</p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="mb-4 pb-1 d-flex justify-content-between align-items-center">
-                        <div class="badge bg-label-secondary rounded p-2">
-                            <i class="ti ti-alert-triangle ti-sm text-body"></i>
-                        </div>
-                        <div class="d-flex justify-content-between w-100 flex-wrap">
-                            <h6 class="mb-0 ms-3">شکایات</h6>
-                            <div class="d-flex">
-                                <p class="mb-0 fw-medium">10</p>
-                                <p class="ms-3 text-success mb-0">1.5%</p>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="d-flex justify-content-between align-items-center">
-                        <div class="badge bg-label-danger rounded p-2">
-                            <i class="ti ti-ban ti-sm"></i>
-                        </div>
-                        <div class="d-flex justify-content-between w-100 flex-wrap">
-                            <h6 class="mb-0 ms-3">لغو اشتراک</h6>
-                            <div class="d-flex">
-                                <p class="mb-0 fw-medium">86</p>
-                                <p class="ms-3 text-success mb-0">0.8%</p>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <!--/ Monthly Campaign State -->
-    <!-- Source Visit -->
-    <div class="col-xl-4 col-md-6 order-2 order-lg-1 mb-4">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between">
-                <div class="card-title mb-0">
-                    <h5 class="mb-0">منابع بازدید</h5>
-                    <small class="text-muted">38.4k بازدیدکننده</small>
-                </div>
-                <div class="dropdown">
-                    <button aria-expanded="false" aria-haspopup="true" class="btn p-0" data-bs-toggle="dropdown" id="sourceVisits" type="button">
-                        <i class="ti ti-dots-vertical ti-sm text-muted"></i>
+                    <button class="btn btn-primary ms-2" type="button">
+                        مشتری اضافه کنید
                     </button>
-                    <div aria-labelledby="sourceVisits" class="dropdown-menu dropdown-menu-end">
-                        <a class="dropdown-item" href="javascript:void(0);">تازه سازی</a>
-                        <a class="dropdown-item" href="javascript:void(0);">دانـلود</a>
-                        <a class="dropdown-item" href="javascript:void(0);">نمایش همه</a>
-                    </div>
                 </div>
             </div>
-            <div class="card-body">
-                <ul class="list-unstyled mb-0">
-                    <li class="mb-3 pb-1">
-                        <div class="d-flex align-items-start">
-                            <div class="badge bg-label-secondary p-2 me-3 rounded">
-                                <i class="ti ti-shadow ti-sm"></i>
-                            </div>
-                            <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                <div class="me-2">
-                                    <h6 class="mb-0">منابع مستقل</h6>
-                                    <small class="text-muted">لینک مستقیم</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <p class="mb-0">1.2k</p>
-                                    <div class="ms-3 badge bg-label-success">
-                                        <bdi>+4.2%</bdi>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="mb-3 pb-1">
-                        <div class="d-flex align-items-start">
-                            <div class="badge bg-label-secondary p-2 me-3 rounded">
-                                <i class="ti ti-globe ti-sm"></i>
-                            </div>
-                            <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                <div class="me-2">
-                                    <h6 class="mb-0">رسانه ها</h6>
-                                    <small class="text-muted">سوشال مدیا</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <p class="mb-0">31.5k</p>
-                                    <div class="ms-3 badge bg-label-success">
-                                        <bdi>+8.2%</bdi>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="mb-3 pb-1">
-                        <div class="d-flex align-items-start">
-                            <div class="badge bg-label-secondary p-2 me-3 rounded">
-                                <i class="ti ti-mail ti-sm"></i>
-                            </div>
-                            <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                <div class="me-2">
-                                    <h6 class="mb-0">خبرنامه</h6>
-                                    <small class="text-muted">کمپین ایمیلی</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <p class="mb-0">893</p>
-                                    <div class="ms-3 badge bg-label-success">
-                                        <bdi>+2.4%</bdi>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="mb-3 pb-1">
-                        <div class="d-flex align-items-start">
-                            <div class="badge bg-label-secondary p-2 me-3 rounded">
-                                <i class="ti ti-external-link ti-sm"></i>
-                            </div>
-                            <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                <div class="me-2">
-                                    <h6 class="mb-0">باشگاه مشتریان</h6>
-                                    <small class="text-muted">بازاریابی هرمی</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <p class="mb-0">342</p>
-                                    <div class="ms-3 badge bg-label-danger">
-                                        <bdi>-0.4%</bdi>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="mb-3 pb-1">
-                        <div class="d-flex align-items-start">
-                            <div class="badge bg-label-secondary p-2 me-3 rounded">
-                                <i class="ti ti-discount-2 ti-sm"></i>
-                            </div>
-                            <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                <div class="me-2">
-                                    <h6 class="mb-0">تبلیغات</h6>
-                                    <small class="text-muted">تبلیغات گوگل</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <p class="mb-0">2.15k</p>
-                                    <div class="ms-3 badge bg-label-success">
-                                        <bdi>+9.1%</bdi>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                    <li class="mb-0">
-                        <div class="d-flex align-items-start">
-                            <div class="badge bg-label-secondary p-2 me-3 rounded">
-                                <i class="ti ti-star ti-sm"></i>
-                            </div>
-                            <div class="d-flex justify-content-between w-100 flex-wrap gap-2">
-                                <div class="me-2">
-                                    <h6 class="mb-0">سایرموارد</h6>
-                                    <small class="text-muted">منابع بسیار</small>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <p class="mb-0">12.5k</p>
-                                    <div class="ms-3 badge bg-label-success">
-                                        <bdi>+6.2%</bdi>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </li>
-                </ul>
-            </div>
         </div>
     </div>
-    <!--/ Source Visit -->
-    <!-- Projects table -->
-    <div class="col-12 col-xl-8 col-sm-12 order-1 order-lg-2 mb-4 mb-lg-0">
-        <div class="card">
-            <div class="card-datatable table-responsive">
-                <table class="datatables-projects table border-top">
-                    <thead>
-                    <tr>
-                        <th></th>
-                        <th></th>
-                        <th>عنوان</th>
-                        <th>مدیر</th>
-                        <th>گروه</th>
-                        <th class="w-px-200">وضعیت</th>
-                        <th>عملیات</th>
-                    </tr>
-                    </thead>
-                </table>
-            </div>
-        </div>
-    </div>
-    <!--/ Projects table -->
 </div>

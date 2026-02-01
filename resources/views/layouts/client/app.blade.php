@@ -3,254 +3,7 @@
 
 
 <head>
-    <style>
-        .bg-gray-300 {
-            background-color: oklch(0.872 0.01 258.338);
-        }
-
-        .text-gray-300 {
-            color: oklch(0.872 0.01 258.338);
-        }
-
-        .bg-gray-500 {
-            background-color: oklch(0.551 0.027 264.364);
-        }
-
-        .text-gray-500 {
-            color: oklch(0.551 0.027 264.364);
-        }
-
-        .bg-gray-400 {
-            background-color: #9ca3af;
-        }
-
-        .text-gray-400 {
-            color: #9ca3af;
-        }
-
-        .bg-gray-100 {
-            background-color: oklch(96.7% 0.003 264.542);
-        }
-
-        .text-gray-100 {
-            color: oklch(96.7% 0.003 264.542);
-        }
-
-        .bg-gray-200 {
-            background-color: oklch(92.8% 0.006 264.531);
-        }
-
-        .text-gray-200 {
-            color: oklch(92.8% 0.006 264.531);
-        }
-
-        .bg-gray-600 {
-            background-color: oklch(44.6% 0.03 256.802);
-        }
-
-        .text-gray-600 {
-            color: oklch(44.6% 0.03 256.802);
-        }
-
-        .bg-gray-700 {
-            background-color: oklch(37.3% 0.034 259.733);
-        }
-
-        .text-gray-700 {
-            color: oklch(37.3% 0.034 259.733);
-        }
-
-        .bg-green-500 {
-            background-color: #22c55e;
-        }
-
-        .text-green-500 {
-            color: #22c55e;
-        }
-
-        .text-green-100 {
-            color: oklch(0.962 0.044 156.743);
-        }
-
-        .bg-green-100 {
-            background-color: oklch(0.962 0.044 156.743);
-        }
-
-        .text-green-400 {
-            color: oklch(79.2% 0.209 151.711);
-        }
-
-        .bg-green-400 {
-            background-color: oklch(79.2% 0.209 151.711);
-        }
-
-        .bg-sky-500 {
-            background-color: oklch(68.5% 0.169 237.323);
-        }
-
-        .text-sky-500 {
-            background-color: oklch(68.5% 0.169 237.323);
-        }
-
-        .bg-red-100 {
-            background-color: oklch(93.6% 0.032 17.717);
-        }
-
-        .text-red-100 {
-            color: oklch(93.6% 0.032 17.717);
-        }
-
-        .bg-red-400 {
-            background-color: oklch(70.4% 0.191 22.216);
-        }
-
-        .text-red-400 {
-            color: oklch(70.4% 0.191 22.216);
-        }
-
-        .text-red-300 {
-            color: oklch(80.8% 0.114 19.571);
-        }
-
-        .text-red-500 {
-            color: oklch(63.7% 0.237 25.331);
-        }
-
-        .bg-red-600 {
-            background-color: oklch(57.7% 0.245 27.325);
-        }
-
-        .text-red-600 {
-            color: oklch(57.7% 0.245 27.325);
-        }
-
-        .bg-yellow-100 {
-            background-color: oklch(0.973 0.071 103.193);
-        }
-
-        .text-yellow-100 {
-            color: oklch(0.973 0.071 103.193);
-        }
-
-        .bg-yellow-600 {
-            background-color: oklch(0.681 0.162 75.834);
-        }
-
-        .text-yellow-600 {
-            color: oklch(0.681 0.162 75.834);
-        }
-
-
-        .bg-blue-100 {
-            background-color: oklch(93.2% 0.032 255.585);
-        }
-
-        .text-blue-100 {
-            color: oklch(93.2% 0.032 255.585);
-        }
-
-        .bg-blue-400 {
-            background-color: oklch(70.7% 0.165 254.624);
-        }
-
-        .text-blue-400 {
-            color: oklch(70.7% 0.165 254.624);
-        }
-
-
-        .bg-amber-300 {
-            background-color: oklch(87.9% 0.169 91.605);
-        }
-
-        .text-amber-300 {
-            color: oklch(87.9% 0.169 91.605);
-        }
-
-        .bg-amber-500 {
-            background-color: oklch(76.9% 0.188 70.08);
-        }
-
-        .text-amber-500 {
-            color: oklch(76.9% 0.188 70.08);
-        }
-
-
-        .bg-emerald-400 {
-            background-color: oklch(76.5% 0.177 163.223);
-        }
-
-        .text-emerald-400 {
-            color: oklch(76.5% 0.177 163.223);
-        }
-
-        .bg-sky-300 {
-            background-color: oklch(82.8% 0.111 230.318);
-        }
-
-        .text-sky-300 {
-            color: oklch(82.8% 0.111 230.318);
-        }
-
-        .bg-sky-500 {
-            background-color: oklch(68.5% 0.169 237.323);
-        }
-
-        .text-sky-500 {
-            color: oklch(68.5% 0.169 237.323);
-        }
-
-
-        .border-blue-500 {
-            border-color: rgb(59 130 246);
-        }
-
-        .backdrop-blur-sm {
-            backdrop-filter: blur(4px);
-        }
-
-
-        .bg-black {
-            background-color: rgb(0 0 0);
-        }
-
-        .border-t-transparent {
-            border-top-color: transparent;
-
-        }
-
-        .bg-emerald-500 {
-            background-color: oklch(69.6% 0.17 162.48);
-        }
-
-        .text-emerald-500 {
-            color: oklch(69.6% 0.17 162.48);
-        }
-
-        .bg-lime-950 {
-            background-color: oklch(27.4% 0.072 132.109);
-        }
-
-        .text-lime-950 {
-            color: oklch(27.4% 0.072 132.109);
-        }
-
-        .bg-yellow-500 {
-            background-color: oklch(79.5% 0.184 86.047);
-        }
-
-        .text-yellow-500 {
-            color: oklch(79.5% 0.184 86.047);
-        }
-
-        .bg-yellow-600 {
-            background-color: oklch(68.1% 0.162 75.834);
-        }
-
-        .text-yellow-600 {
-            color: oklch(68.1% 0.162 75.834);
-        }
-
-    </style>
+{{--    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>--}}
 
     @include('layouts.client.link')
     @include('layouts.client.pwa')
@@ -301,26 +54,126 @@
     {{--        <img src="/client/loading.png" alt="SDFR Loading Logo" class="loading-logo rounded-xl">--}}
     {{--    </div>--}}
 
-    <div id="pwaBanner" style="background-color: #0a53be"
-         class="hidden w-full flex-wrap md:flex-nowrap justify-center md:justify-between items-center md:py-4 py-2 gap-2 bg-green-700 z-20 relative">
+    <livewire:client.update-countdown-banner />
 
-        <!-- متن سمت راست -->
-        <p class="font-black xs:text-2xl text-lg text-white text-center md:text-center">
-            📱 همین حالا SDFR رو روی موبایلت داشته باش
-        </p>
+<div class="mb-1"></div>
 
-        <!-- دکمه‌ها سمت چپ -->
-        <div class="flex items-center gap-3 mt-2 md:mt-0 justify-center">
-            <button id="installApp" type="button"
-                    class="bg-green-500 text-white font-semibold justify-center px-4 py-2 rounded-full text-sm hover:opacity-80 transition ">
-                نصب اپلیکیشن
-            </button>
-            <button id="closeBanner"
-                    class="bg-red-500 text-white font-semibold px-4 py-2 rounded-full text-sm hover:opacity-80 transition">
-                نمیخوام
-            </button>
+    <!-- PWA Banner (RTL + Responsive + Light/Dark) -->
+    <div id="pwaBanner" dir="rtl" class="hidden w-full relative z-20">
+        <div
+            class="w-full border-b border-slate-200/60 dark:border-slate-700/60
+           bg-gradient-to-l from-blue-700 via-blue-600 to-indigo-700
+           dark:from-slate-900 dark:via-slate-900 dark:to-slate-800
+           text-white">
+            <div class="max-w-6xl mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row items-center justify-between gap-3">
+
+                <!-- متن -->
+                <div class="flex items-center gap-3 text-center md:text-right">
+                    <div class="shrink-0 w-10 h-10 rounded-2xl bg-white/15 dark:bg-white/10 flex items-center justify-center shadow-inner">
+                        <span class="text-xl">📱</span>
+                    </div>
+
+                    <div>
+                        <p class="font-extrabold text-base sm:text-lg md:text-xl leading-snug">
+                            همین حالا <span class="text-yellow-300">SDFR</span> رو روی موبایلت داشته باش
+                        </p>
+                        <p class="text-xs sm:text-sm text-white/80 dark:text-white/70 mt-0.5">
+                            نصب سریع، دسترسی راحت، تجربه بهتر ✨
+                        </p>
+                    </div>
+                </div>
+
+                <!-- دکمه‌ها -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <button id="installApp" type="button"
+                            class="group relative overflow-hidden rounded-full px-4 sm:px-5 py-2 text-sm font-bold
+                 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98]
+                 shadow-md shadow-emerald-500/30 transition">
+                        <span class="relative z-10">نصب اپلیکیشن</span>
+                        <span class="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-white/10"></span>
+                    </button>
+
+                    <button id="closeBanner" type="button"
+                            class="rounded-full px-4 sm:px-5 py-2 text-sm font-bold
+                 bg-rose-500 hover:bg-rose-400 active:scale-[0.98]
+                 shadow-md shadow-rose-500/25 transition">
+                        نمی‌خوام
+                    </button>
+                </div>
+
+            </div>
         </div>
     </div>
+
+    <!-- ANDROID Modal -->
+    <div id="pwaAndroidModal" class="hidden fixed inset-0 z-50">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+        <div class="relative mx-auto w-[92%] max-w-lg mt-16 sm:mt-24 rounded-2xl overflow-hidden
+              bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-2xl">
+            <div class="p-5 sm:p-6">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-lg sm:text-xl font-extrabold">نصب اپلیکیشن روی اندروید</p>
+                        <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-7">
+                            1) روی دکمه <b>«فهمیدم»</b> بزن.<br>
+                            2) پنجره‌ی نصب مرورگر باز میشه.<br>
+                            3) گزینه <b>Install</b> یا <b>Add</b> رو بزن تا اپ نصب بشه ✅
+                        </p>
+                    </div>
+                    <button type="button" data-close-modal="android"
+                            class="shrink-0 rounded-xl px-3 py-1.5 text-sm font-bold
+                       bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition">
+                        بستن
+                    </button>
+                </div>
+
+                <div class="mt-5 flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+                    <button type="button" data-understood="android"
+                            class="rounded-xl px-4 py-2 font-bold bg-emerald-500 hover:bg-emerald-400 text-white transition">
+                        فهمیدم ✅
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- IOS Modal -->
+    <div id="pwaIOSModal" class="hidden fixed inset-0 z-50">
+        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+
+        <div class="relative mx-auto w-[92%] max-w-lg mt-16 sm:mt-24 rounded-2xl overflow-hidden
+              bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-2xl">
+            <div class="p-5 sm:p-6">
+                <div class="flex items-start justify-between gap-3">
+                    <div>
+                        <p class="text-lg sm:text-xl font-extrabold">نصب روی iPhone / iPad</p>
+                        <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-7">
+                            iOS نصب خودکار نداره. برای نصب:<br>
+                            1) پایین Safari روی دکمه <b>Share</b> بزن (آیکن مربع با فلش بالا).<br>
+                            2) گزینه <b>Add to Home Screen</b> رو انتخاب کن.<br>
+                            3) روی <b>Add</b> بزن ✅
+                        </p>
+                    </div>
+                    <button type="button" data-close-modal="ios"
+                            class="shrink-0 rounded-xl px-3 py-1.5 text-sm font-bold
+                       bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition">
+                        بستن
+                    </button>
+                </div>
+
+                <div class="mt-5 flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
+                    <button type="button" data-close-modal="ios"
+                            class="rounded-xl px-4 py-2 font-bold bg-emerald-500 hover:bg-emerald-400 text-white transition">
+                        فهمیدم ✅
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
 
     <!-- Loading Overlay برای نصب -->
     <div id="pwaLoading"
@@ -376,119 +229,31 @@
 
     <livewire:client.layout.mobile-bottom-nav/>
 
+    <div id="video-modal"
+         class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div class="absolute inset-0" data-close-video></div>
+
+        <div class="relative w-full max-w-4xl bg-background dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between p-4 md:p-5 border-b border-border">
+                <h3 id="video-modal-title" class="text-lg font-bold text-foreground">ویدیو راهنما</h3>
+
+                <button type="button" data-close-video
+                        class="w-8 h-8 rounded-full hover:bg-secondary text-white flex items-center justify-center transition-colors">
+                    ✕
+                </button>
+            </div>
+
+            <div class="p-4 md:p-6">
+                <div id="video-container" class="w-full aspect-video bg-black rounded-lg overflow-hidden"></div>
+            </div>
+        </div>
+    </div>
+
 </div>
-<script>
-    const banner = document.getElementById('pwaBanner');
-    const installBtn = document.getElementById('installApp');
-    const closeBanner = document.getElementById('closeBanner');
-    const loadingOverlay = document.getElementById('pwaLoading');
-    let deferredPrompt = null;
 
-    // ✅ تابع کوکی
-    function setCookie(name, value, days) {
-        const date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        document.cookie = `${name}=${value};expires=${date.toUTCString()};path=/`;
-    }
 
-    function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(';').shift();
-        return null;
-    }
 
-    // 🔹 چک کردن حالت PWA
-    const isInStandaloneMode =
-        (window.matchMedia('(display-mode: standalone)').matches) ||
-        (window.navigator.standalone) ||
-        document.referrer.startsWith('android-app://');
 
-    // 🔹 تشخیص iOS
-    const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent);
-
-    // 🔹 گوش دادن به beforeinstallprompt (فقط Android/Chrome)
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-
-        // اگر کوکی "بستن" ست نشده باشه، نشون بده
-        if (!isInStandaloneMode && !getCookie('pwa-dismissed') && !getCookie('pwa-installed')) {
-            banner.classList.remove('hidden');
-        }
-    });
-
-    // 🔹 دکمه نصب
-    installBtn.addEventListener('click', async () => {
-        if (isIOS) {
-            // برای iOS راهنمایی نشون بده
-            alert('📱 برای نصب:\n۱. روی دکمه Share بزن\n۲. "Add to Home Screen" رو انتخاب کن');
-            return;
-        }
-
-        if (!deferredPrompt) {
-            alert('متاسفانه مرورگر شما از نصب خودکار پشتیبانی نمیکنه');
-            return;
-        }
-
-        // نمایش Loading
-        loadingOverlay.classList.remove('hidden');
-
-        try {
-            deferredPrompt.prompt();
-            const {outcome} = await deferredPrompt.userChoice;
-            console.log('✅ userChoice:', outcome);
-
-            if (outcome === 'accepted') {
-                setCookie('pwa-installed', 'true', 365);
-                banner.classList.add('hidden');
-            }
-        } catch (error) {
-            console.error('❌ Install failed:', error);
-        } finally {
-            loadingOverlay.classList.add('hidden');
-            deferredPrompt = null;
-        }
-    });
-
-    // 🔹 وقتی کاربر PWA رو نصب کرد
-    window.addEventListener('appinstalled', () => {
-        console.log('✅ PWA installed');
-        setCookie('pwa-installed', 'true', 365);
-        banner.classList.add('hidden');
-        loadingOverlay.classList.add('hidden');
-    });
-
-    // 🔹 دکمه بستن (دیگه نشون نده)
-    closeBanner.addEventListener('click', () => {
-        setCookie('pwa-dismissed', 'true', 30); // 30 روز نشون نده
-        banner.classList.add('hidden');
-    });
-
-    // 🔹 نمایش بنر در صفحه دانلود
-    if (window.location.pathname === '/download') {
-        // در صفحه دانلود همیشه نشون بده (حتی اگه قبلا بسته بشه)
-        if (!isInStandaloneMode && !getCookie('pwa-installed')) {
-            banner.classList.remove('hidden');
-        }
-    } else {
-        // در بقیه صفحات فقط اگه کوکی dismissed نباشه
-        window.addEventListener('load', () => {
-            if (!isInStandaloneMode && !getCookie('pwa-dismissed') && !getCookie('pwa-installed')) {
-                setTimeout(() => banner.classList.remove('hidden'), 2000);
-            }
-        });
-    }
-
-    // 🔹 ثبت Service Worker
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(reg => console.log('✅ Service Worker registered:', reg))
-                .catch(err => console.log('❌ Service Worker failed:', err));
-        });
-    }
-</script>
 @include('layouts.client.script')
 
 

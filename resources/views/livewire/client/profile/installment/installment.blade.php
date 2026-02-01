@@ -12,6 +12,7 @@
 
         <div class="lg:col-span-9 md:col-span-8">
             <div class="space-y-10">
+
                 <div class="space-y-5">
                     <!-- section:title -->
                     <div class="flex items-center gap-3">

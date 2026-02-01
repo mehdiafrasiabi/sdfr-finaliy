@@ -2,7 +2,7 @@
 <script src="/client/assets/js/dependencies/swiper-bundle.min.js"></script>
 <script src="/client/assets/js/dependencies/plyr.min.js"></script>
 <script src="/client/assets/js/app.js"></script>
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script type="text/javascript" src="/client/assets/css/toast/toastify-js.js"></script>
 <script src="/client/assets/js/story-player/story-player.js"></script>
 
 <script>
@@ -117,6 +117,249 @@
     });
 </script>
 
+<script>
+    function collapseGuide(key) {
+        return {
+            open: true,
+
+            init() {
+                const saved = localStorage.getItem(key);
+                this.open = saved !== null ? saved === 'true' : true;
+            },
+
+            toggle() {
+                this.open = !this.open;
+                localStorage.setItem(key, this.open);
+            }
+        }
+    }
+</script>
+<script>
+    const banner = document.getElementById('pwaBanner');
+    const installBtn = document.getElementById('installApp');
+    const closeBanner = document.getElementById('closeBanner');
+
+    const androidModal = document.getElementById('pwaAndroidModal');
+    const iosModal = document.getElementById('pwaIOSModal');
+
+    let deferredPrompt = null;
+
+    // ---------- Helpers ----------
+    const LS_KEY_DISMISS = 'pwa_banner_dismiss_until';
+    const LS_KEY_INSTALLED = 'pwa_installed';
+
+    function isDismissedNow() {
+        const until = Number(localStorage.getItem(LS_KEY_DISMISS) || 0);
+        return Date.now() < until;
+    }
+
+    function dismissForDays(days) {
+        const until = Date.now() + (days * 24 * 60 * 60 * 1000);
+        localStorage.setItem(LS_KEY_DISMISS, String(until));
+    }
+
+    function setInstalled() {
+        localStorage.setItem(LS_KEY_INSTALLED, 'true');
+    }
+
+    function isInstalledSaved() {
+        return localStorage.getItem(LS_KEY_INSTALLED) === 'true';
+    }
+
+    const isInStandaloneMode =
+        (window.matchMedia('(display-mode: standalone)').matches) ||
+        (window.navigator.standalone) ||
+        document.referrer.startsWith('android-app://');
+
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+
+    function isMobile() {
+        return window.matchMedia('(max-width: 1024px)').matches;
+    }
+
+    function openModal(type) {
+        if (type === 'android') androidModal.classList.remove('hidden');
+        if (type === 'ios') iosModal.classList.remove('hidden');
+        document.documentElement.classList.add('overflow-hidden');
+    }
+
+    function closeModal(type) {
+        if (type === 'android') androidModal.classList.add('hidden');
+        if (type === 'ios') iosModal.classList.add('hidden');
+        document.documentElement.classList.remove('overflow-hidden');
+    }
+
+    async function triggerInstallPrompt() {
+        if (!deferredPrompt) {
+            // اگر beforeinstallprompt نیومده باشه
+            alert('متاسفانه مرورگر شما از نصب خودکار پشتیبانی نمی‌کند.');
+            return;
+        }
+
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+
+        if (outcome === 'accepted') {
+            setInstalled();
+            banner.classList.add('hidden');
+        }
+
+        deferredPrompt = null;
+    }
+
+    // ---------- Banner show logic ----------
+    function canShowBanner() {
+        if (isInStandaloneMode) return false;
+        if (isInstalledSaved()) return false;
+        if (isDismissedNow()) return false;
+        return true;
+    }
+
+    // iOS: beforeinstallprompt نداریم، خودمون اگر mobile بود نمایش می‌دیم
+    window.addEventListener('load', () => {
+        if (!canShowBanner()) return;
+
+        // برای iOS موبایل نمایش بنر اوکیه، برای دسکتاپ هم میشه نمایش داد ولی شما معمولاً نمی‌خوای
+        // اینجا می‌ذاریم روی همه دستگاه‌ها نمایش بده اگر خواستی شرطش کن.
+        setTimeout(() => banner.classList.remove('hidden'), 800);
+    });
+
+    // Android/Chrome: beforeinstallprompt
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+
+        if (canShowBanner()) {
+            banner.classList.remove('hidden');
+        }
+    });
+
+    // ---------- Actions ----------
+    closeBanner.addEventListener('click', () => {
+        dismissForDays(7); // ✅ 7 روز مخفی
+        banner.classList.add('hidden');
+    });
+
+    installBtn.addEventListener('click', async () => {
+        // iOS: فقط مودال آموزشی
+        if (isIOS) {
+            openModal('ios');
+            return;
+        }
+
+        // Android موبایل: اول مودال آموزشی، بعد prompt
+        if (isAndroid && isMobile()) {
+            openModal('android');
+            return;
+        }
+
+        // Desktop یا Android tablet/desktop: مستقیم نصب (بدون مودال)
+        await triggerInstallPrompt();
+    });
+
+    // وقتی کاربر PWA رو نصب کرد
+    window.addEventListener('appinstalled', () => {
+        setInstalled();
+        banner.classList.add('hidden');
+        deferredPrompt = null;
+    });
+
+    // ---------- Modal buttons ----------
+    document.querySelectorAll('[data-close-modal]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const type = e.currentTarget.getAttribute('data-close-modal');
+            closeModal(type);
+        });
+    });
+
+    // Android: دکمه "فهمیدم" -> بعد install prompt
+    document.querySelectorAll('[data-understood="android"]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            closeModal('android');
+            await triggerInstallPrompt();
+        });
+    });
+
+    // ---------- Optional: close modal by clicking backdrop ----------
+    [androidModal, iosModal].forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) return; // (در این ساختار کلیک روی خود modal کمتر رخ می‌ده)
+        });
+    });
+</script>
+<script>
+    (function () {
+        const modal = () => document.getElementById('video-modal');
+        const container = () => document.getElementById('video-container');
+        const titleEl = () => document.getElementById('video-modal-title');
+
+        function openVideo({ url, title }) {
+            const m = modal();
+            const c = container();
+            if (!m || !c) return;
+
+            c.innerHTML = '';
+
+            // بهترین روش برای آپارات: iframe
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.setAttribute('allowfullscreen', 'true');
+            iframe.setAttribute('allow', 'autoplay; encrypted-media');
+            iframe.className = 'w-full h-full';
+            iframe.style.border = '0';
+            c.appendChild(iframe);
+
+            if (titleEl() && title) titleEl().textContent = title;
+
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVideo() {
+            const m = modal();
+            const c = container();
+            if (!m || !c) return;
+
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+            c.innerHTML = '';
+            document.body.style.overflow = '';
+        }
+
+        // کلیک روی دکمه‌های باز کردن (حتی بعد از navigate)
+        document.addEventListener('click', (e) => {
+            const openBtn = e.target.closest('[data-video-url]');
+            if (openBtn) {
+                const url = openBtn.getAttribute('data-video-url');
+                const title = openBtn.getAttribute('data-video-title') || 'ویدیو راهنما';
+                if (url) openVideo({ url, title });
+                return;
+            }
+
+            // بستن مدال
+            if (e.target.closest('[data-close-video]')) {
+                closeVideo();
+                return;
+            }
+        });
+
+        // ESC برای بستن
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeVideo();
+        });
+
+        // Livewire v3: بعد از navigate اگر مدال باز مونده بود، ببند
+        document.addEventListener('livewire:navigated', () => {
+            closeVideo();
+        });
+
+        // برای استفاده در جاهای دیگه (اختیاری)
+        window.openVideoModal = (url, title = 'ویدیو راهنما') => openVideo({ url, title });
+        window.closeVideoModal = closeVideo;
+    })();
+</script>
 
 @stack('script')
 @php

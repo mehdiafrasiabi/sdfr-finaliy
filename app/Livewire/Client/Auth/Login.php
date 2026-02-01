@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Validator;
 
 use Livewire\Component;
 
-
+use Illuminate\Support\Facades\Cookie;
 
 class Login extends Component
 
@@ -289,10 +289,21 @@ class Login extends Component
 
 
 
+
         $this->isLoading = false;
 
         $this->dispatch('success', 'خوش آمدید!');
 
+
+        // If remember me is checked, update the cookie lifetime to 30 days
+        if ($this->rememberMe) {
+            $recallerName = Auth::getRecallerName();
+            $recaller = Cookie::get($recallerName);
+            if ($recaller) {
+                // Re-queue the cookie with 30 days expiration (43200 minutes)
+                Cookie::queue($recallerName, $recaller, 43200);
+            }
+        }
 
 
         return redirect()->route('client.profile.dashboard');

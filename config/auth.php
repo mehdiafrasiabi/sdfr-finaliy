@@ -137,4 +137,17 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 3600),
 
+    /*
+   |--------------------------------------------------------------------------
+   | Remember Me Cookie Expiration
+   |--------------------------------------------------------------------------
+   |
+   | This option controls the duration in minutes for which the "remember me"
+   | cookies remain valid. When a user logs in with "remember me" checked,
+   | their session will persist for this duration. Default is 30 days (43200 minutes).
+   |
+   */
+
+    'expiration' => env('AUTH_EXPIRATION', 43200), // 30 days in minutes
+
 ];

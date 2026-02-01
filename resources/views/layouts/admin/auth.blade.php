@@ -2,77 +2,66 @@
 <html class="light-style layout-wide customizer-hide" data-assets-path="/admin/assets/" data-template="vertical-menu-template" data-theme="theme-default" dir="rtl" lang="fa">
 
 <head>
-    <meta charset="UTF-8"/>
-    <title>ورود ادمین</title>
-    <meta content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-          name="viewport"/>
-    <meta content="" name="description"/>
-    <!-- Favicon -->
-    <link href="/admin/assets/img/favicon/favicon.ico" rel="icon" type="image/x-icon"/>
-    <!-- Icons -->
-    <link href="/admin/assets/vendor/fonts/fontawesome.css" rel="stylesheet"/>
-    <link href="/admin/assets/vendor/fonts/tabler-icons.css" rel="stylesheet"/>
-    <link href="/admin/assets/vendor/fonts/flag-icons.css" rel="stylesheet"/>
-    <!-- Core CSS -->
-    <link class="template-customizer-core-css" href="/admin/assets/vendor/css/rtl/core.css" rel="stylesheet"/>
-    <link class="template-customizer-theme-css" href="/admin/assets/vendor/css/rtl/theme-default.css" rel="stylesheet"/>
-    <link href="/admin/assets/css/demo.css" rel="stylesheet"/>
-    <!-- Vendors CSS -->
-    <link href="/admin/assets/vendor/libs/node-waves/node-waves.css" rel="stylesheet"/>
-    <link href="/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" rel="stylesheet"/>
-    <link href="/admin/assets/vendor/libs/typeahead-js/typeahead.css" rel="stylesheet"/>
-    <!-- Vendor -->
-    <link href="/admin/assets/vendor/libs/@form-validation/form-validation.css" rel="stylesheet"/>
-    <!-- Page CSS -->
-    <!-- Page -->
-    <link href="/admin/assets/vendor/css/pages/page-auth.css" rel="stylesheet"/>
-    <!-- Helpers -->
-    <script src="/admin/assets/vendor/js/helpers.js"></script>
-    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
-    <!--? Template customizer: To hide customizer set displayCustomizer value false in config.js.  -->
-    <script src="/admin/assets/vendor/js/template-customizer.js"></script>
-    <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
-    <script src="/admin/assets/js/config.js"></script>
-    <!-- Better experience of RTL -->
-    <link href="/admin/assets/css/rtl.css" rel="stylesheet"/>
+    <base href="../"/>
+    <!-- begin::NexLink Meta Basic -->
+    <meta charset="utf-8"/>
+    <meta content="#5955D1" name="theme-color"/>
+    <title>
+      ورود مشاوران
+    </title>
+    <!-- end::NexLink Website Page Title -->
+    <!-- begin::NexLink Mobile Specific -->
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <!-- end::NexLink Mobile Specific -->
+    <!-- begin::NexLink Favicon Tags -->
+    <link href="/admin/assets/images/favicon.png" rel="icon" type="image/png"/>
+    <link href="/admin/assets/images/apple-touch-icon.png" rel="apple-touch-icon" sizes="180x180"/>
+    <!-- end::NexLink Favicon Tags -->
 
+    <!-- begin::NexLink Google Fonts -->
+    <link href="/admin/assets/css/css2.css" rel="stylesheet"/>
+    <!-- end::NexLink Google Fonts -->
+    <!-- begin::NexLink Required Stylesheet -->
+    <link href="/admin/assets/libs/flaticon/css/all/all.css" rel="stylesheet"/>
+    <link href="/admin/assets/libs/lucide/lucide.css" rel="stylesheet"/>
+    <link href="/admin/assets/libs/fontawesome/css/all.min.css" rel="stylesheet"/>
+    <link href="/admin/assets/libs/simplebar/simplebar.css" rel="stylesheet"/>
+    <link href="/admin/assets/libs/node-waves/waves.css" rel="stylesheet"/>
+    <link href="/admin/assets/libs/bootstrap-select/css/bootstrap-select.min.css" rel="stylesheet"/>
+    <!-- end::NexLink Required Stylesheet -->
+    <!-- begin::NexLink CSS Stylesheet -->
+    <link href="/admin/assets/css/styles.css" rel="stylesheet"/>
+    <!-- end::NexLink CSS Stylesheet -->
+    <!-- begin::NexLink Googletagmanager -->
+    <script async=""  src="/admin/assets/js/js.js">
+    </script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-XWVQM68HHQ', {
+            'cookie_flags': 'SameSite=None;Secure',
+            'send_page_view': true
+        });
+    </script>
+    <!-- end::NexLink Googletagmanager -->
 </head>
 
 <body>
-
-<div class="container-xxl">
-    <div class="authentication-wrapper authentication-basic container-p-y">
-        <div class="authentication-inner py-4">
-            <!-- Login -->
-            <div class="card">
-                {{$slot}}
-            </div>
-            <!-- /Register -->
-        </div>
+<div class="page-layout">
+    <div class="auth-wrapper min-vh-100 px-2">
+        {{$slot}}
     </div>
 </div>
-
-
-
-<script src="/admin/assets/vendor/libs/jquery/jquery.js"></script>
-<script src="/admin/assets/vendor/libs/popper/popper.js"></script>
-<script src="/admin/assets/vendor/js/bootstrap.js"></script>
-<script src="/admin/assets/vendor/libs/node-waves/node-waves.js"></script>
-<script src="/admin/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-<script src="/admin/assets/vendor/libs/hammer/hammer.js"></script>
-<script src="/admin/assets/vendor/libs/i18n/i18n.js"></script>
-<script src="/admin/assets/vendor/libs/typeahead-js/typeahead.js"></script>
-<script src="/admin/assets/vendor/js/menu.js"></script>
-<!-- endbuild -->
-<!-- Vendors JS -->
-<script src="/admin/assets/vendor/libs/@form-validation/popular.js"></script>
-<script src="/admin/assets/vendor/libs/@form-validation/bootstrap5.js"></script>
-<script src="/admin/assets/vendor/libs/@form-validation/auto-focus.js"></script>
-<!-- Main JS -->
-<script src="/admin/assets/js/main.js"></script>
-<!-- Page JS -->
-<script src="/admin/assets/js/pages-auth.js"></script>
-
+<!-- begin::NexLink Page Scripts -->
+<script src="/admin/assets/libs/global/global.min.js">
+</script>
+<script src="/admin/assets/js/appSettings.js">
+</script>
+<script src="/admin/assets/js/main.js">
+</script>
+<!-- end::NexLink Page Scripts -->
 @include('layouts.admin.theme-toggle-script')
 </body>
 </html>
