@@ -9,21 +9,21 @@
             x-init="init()"
         >
             <div class="max-w-6xl mx-auto px-4 py-3 sm:py-4">
-                <div class="flex flex-col lg:flex-row items-center justify-between gap-3">
+                <div class="flex flex-col lg:flex-row items-center justify-between gap-4">
 
                     <!-- متن + آیکن -->
-                    <div class="flex items-center gap-3 text-center lg:text-right">
-                        <div class="shrink-0 w-11 h-11 rounded-2xl bg-white/15 dark:bg-white/10
-                                flex items-center justify-center shadow-inner">
-                            <span class="text-2xl">⏳</span>
+                    <div class="flex items-center gap-3 text-center lg:text-right w-full lg:w-auto">
+                        <div class="shrink-0 w-12 h-12 rounded-2xl bg-white/15 dark:bg-white/10
+                                flex items-center justify-center shadow-lg">
+                            <span class="text-3xl">⏳</span>
                         </div>
 
-                        <div class="space-y-0.5">
+                        <div class="space-y-1">
                             <p class="font-extrabold text-base sm:text-lg md:text-xl leading-snug">
-                                 آیا منتظر آپدیت SDFR هستی؟
+                                آیا منتظر آپدیت SDFR هستی؟
                             </p>
-                            <p class="text-xs sm:text-sm text-white/85 dark:text-white/70">
-                               بزودی بزرگ ترین آپدیت مجموعه SDFR  با کلی امکانات خفن
+                            <p class="text-xs sm:text-sm text-white/90 dark:text-white/75">
+                                بزودی بزرگ‌ترین آپدیت مجموعه SDFR با کلی امکانات خفن
                             </p>
                         </div>
                     </div>
@@ -31,56 +31,53 @@
                     <!-- تایمر -->
                     <div class="w-full lg:w-auto">
                         <div
-                            class="w-full lg:w-auto rounded-2xl px-3 sm:px-4 py-2.5
+                            class="rounded-2xl px-4 sm:px-5 py-3
                                bg-white/12 dark:bg-white/5
-                               border border-white/15 dark:border-white/10
-                               backdrop-blur-md shadow-lg shadow-black/10"
+                               border border-white/20 dark:border-white/10
+                               backdrop-blur-md shadow-xl shadow-black/15"
                         >
                             <!-- وقتی تموم شد -->
                             <template x-if="finished">
-                                <div class="flex items-center justify-center gap-3">
-                                    <div class="text-right">
-                                        <div class="font-extrabold text-lg sm:text-xl">هورراااا 🎉</div>
-                                        <div class="text-sm text-white/80">در حال آپدیت</div>
+                                <div class="flex items-center justify-center gap-3 py-1">
+                                    <div class="text-center">
+                                        <div class="font-extrabold text-xl sm:text-2xl mb-1">🎉 هورراااا</div>
+                                        <div class="text-sm text-white/85">در حال آپدیت</div>
                                     </div>
                                 </div>
                             </template>
 
                             <!-- در حال شمارش -->
                             <template x-if="!finished">
-                                <div class="flex items-center justify-between gap-3">
+                                <div class="flex items-center justify-center">
                                     <div class="flex items-center gap-2 sm:gap-3 font-extrabold">
                                         <!-- روز -->
-                                        <div class="min-w-[72px] sm:min-w-[88px] text-center">
-                                            <div class="text-[11px] sm:text-xs font-bold text-white/75 mb-0.5">روز</div>
-                                            <div class="text-lg sm:text-xl tabular-nums" x-text="fmt(days)"></div>
+                                        <div class="min-w-[70px] sm:min-w-[85px] text-center">
+                                            <div class="text-[10px] sm:text-xs font-bold text-white/70 mb-1">روز</div>
+                                            <div class="text-xl sm:text-2xl tabular-nums tracking-tight" x-text="fmt(days)"></div>
                                         </div>
 
-                                        <div class="text-white/40 font-black">:</div>
+                                        <div class="text-white/50 font-black text-lg">:</div>
 
                                         <!-- ساعت -->
-                                        <div class="min-w-[62px] sm:min-w-[72px] text-center">
-                                            <div class="text-[11px] sm:text-xs font-bold text-white/75 mb-0.5">ساعت
-                                            </div>
-                                            <div class="text-lg sm:text-xl tabular-nums" x-text="pad(hours)"></div>
+                                        <div class="min-w-[60px] sm:min-w-[70px] text-center">
+                                            <div class="text-[10px] sm:text-xs font-bold text-white/70 mb-1">ساعت</div>
+                                            <div class="text-xl sm:text-2xl tabular-nums tracking-tight" x-text="pad(hours)"></div>
                                         </div>
 
-                                        <div class="text-white/40 font-black">:</div>
+                                        <div class="text-white/50 font-black text-lg">:</div>
 
                                         <!-- دقیقه -->
-                                        <div class="min-w-[62px] sm:min-w-[72px] text-center">
-                                            <div class="text-[11px] sm:text-xs font-bold text-white/75 mb-0.5">دقیقه
-                                            </div>
-                                            <div class="text-lg sm:text-xl tabular-nums" x-text="pad(minutes)"></div>
+                                        <div class="min-w-[60px] sm:min-w-[70px] text-center">
+                                            <div class="text-[10px] sm:text-xs font-bold text-white/70 mb-1">دقیقه</div>
+                                            <div class="text-xl sm:text-2xl tabular-nums tracking-tight" x-text="pad(minutes)"></div>
                                         </div>
 
-                                        <div class="text-white/40 font-black">:</div>
+                                        <div class="text-white/50 font-black text-lg">:</div>
 
                                         <!-- ثانیه -->
-                                        <div class="min-w-[62px] sm:min-w-[72px] text-center">
-                                            <div class="text-[11px] sm:text-xs font-bold text-white/75 mb-0.5">ثانیه
-                                            </div>
-                                            <div class="text-lg sm:text-xl tabular-nums" x-text="pad(seconds)"></div>
+                                        <div class="min-w-[60px] sm:min-w-[70px] text-center">
+                                            <div class="text-[10px] sm:text-xs font-bold text-white/70 mb-1">ثانیه</div>
+                                            <div class="text-xl sm:text-2xl tabular-nums tracking-tight" x-text="pad(seconds)"></div>
                                         </div>
                                     </div>
                                 </div>

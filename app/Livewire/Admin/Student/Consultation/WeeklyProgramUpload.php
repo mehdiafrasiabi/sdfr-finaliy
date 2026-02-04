@@ -36,6 +36,7 @@ class WeeklyProgramUpload extends Component
     // آرایه‌ی پارت‌ها برای ۷ روز
     public $parts = [];
 
+
     // روز انتخاب‌شده برای اضافه کردن پارت
     public $selectedDay = 0;
 
@@ -63,6 +64,9 @@ class WeeklyProgramUpload extends Component
     public $subjects = [];
     public $chapters = [];
     public $topics = [];
+    // Global search
+    public string $globalSearch = '';
+    public array $globalSearchResults = [];
 
     protected function messages()
     {
@@ -180,8 +184,9 @@ class WeeklyProgramUpload extends Component
 
         if ($part->cc_grade_id) {
             $this->subjects = CcSubject::where('cc_grade_id', $part->cc_grade_id)
-                ->when($part->cc_field_id, fn($q) => $q->where('cc_field_id', $part->cc_field_id))
-                ->when(!$part->cc_field_id, fn($q) => $q->whereNull('cc_field_id'))
+                ->when($part->cc_field_id, fn($q) => $q->where(function ($q2) use ($part) {
+                    $q2->where('cc_field_id', $part->cc_field_id)->orWhereNull('cc_field_id');
+                }))
                 ->orderBy('order')
                 ->get();
         }
@@ -227,6 +232,8 @@ class WeeklyProgramUpload extends Component
         $this->subjects = [];
         $this->chapters = [];
         $this->topics = [];
+        $this->globalSearch = '';
+        $this->globalSearchResults = [];
     }
 
     public function updatedPartFormEducationLevelId($value): void
@@ -269,8 +276,9 @@ class WeeklyProgramUpload extends Component
             }
             $fieldId = $this->partForm['cc_field_id'] ?: null;
             $this->subjects = CcSubject::where('cc_grade_id', $value)
-                ->when($fieldId, fn($q) => $q->where('cc_field_id', $fieldId))
-                ->when(!$fieldId, fn($q) => $q->whereNull('cc_field_id'))
+                ->when($fieldId, fn($q) => $q->where(function ($q2) use ($fieldId) {
+                    $q2->where('cc_field_id', $fieldId)->orWhereNull('cc_field_id');
+                }))
                 ->orderBy('order')
                 ->get();
         } else {
@@ -290,8 +298,9 @@ class WeeklyProgramUpload extends Component
 
         if ($this->partForm['cc_grade_id']) {
             $this->subjects = CcSubject::where('cc_grade_id', $this->partForm['cc_grade_id'])
-                ->when($value, fn($q) => $q->where('cc_field_id', $value))
-                ->when(!$value, fn($q) => $q->whereNull('cc_field_id'))
+                ->when($value, fn($q) => $q->where(function ($q2) use ($value) {
+                    $q2->where('cc_field_id', $value)->orWhereNull('cc_field_id');
+                }))
                 ->orderBy('order')
                 ->get();
         }
@@ -361,15 +370,7 @@ class WeeklyProgramUpload extends Component
                 'items' => $this->grades,
                 'selected' => $this->partForm['cc_grade_id'],
                 'emptyText' => 'ابتدا دوره را انتخاب کنید',
-                'format' => function ($item) {
-                    $text = $item->name ?? $item['name'];
-                    $field = is_object($item) ? $item->field : ($item['field'] ?? null);
-                    if ($field) {
-                        $fieldName = is_object($field) ? $field->name : ($field['name'] ?? '');
-                        $text .= " ({$fieldName})";
-                    }
-                    return $text;
-                },
+                'format' => fn($item) => is_object($item) ? $item->name : ($item['name'] ?? ''),
             ],
             'fields' => [
                 'id' => 'field-select',
@@ -430,6 +431,193 @@ class WeeklyProgramUpload extends Component
                 'disabled' => count($items) === 0,
             ]);
         }
+    }
+
+    public function updatedGlobalSearch($value): void
+    {
+        if (mb_strlen($value) < 2) {
+            $this->globalSearchResults = [];
+            return;
+        }
+
+        $results = [];
+
+        // Search topics
+        $topics = CcTopic::where('is_active', true)
+            ->where('name', 'like', "%{$value}%")
+            ->with(['chapter.subject.grade.educationLevel', 'chapter.subject.field'])
+            ->limit(10)
+            ->get();
+
+        foreach ($topics as $topic) {
+            $chapter = $topic->chapter;
+            if (!$chapter) continue;
+            $subject = $chapter->subject;
+            if (!$subject) continue;
+            $grade = $subject->grade;
+            if (!$grade) continue;
+            $educationLevel = $grade->educationLevel;
+            if (!$educationLevel) continue;
+
+            $results[] = [
+                'type' => 'topic',
+                'topic_id' => $topic->id,
+                'chapter_id' => $chapter->id,
+                'subject_id' => $subject->id,
+                'grade_id' => $grade->id,
+                'field_id' => $subject->cc_field_id,
+                'education_level_id' => $educationLevel->id,
+                'label' => $educationLevel->name . ' / ' . $grade->name . ' / ' . $subject->name . ' / ' . $chapter->name . ' / ' . $topic->name,
+            ];
+        }
+
+        // Search chapters
+        $chapters = CcChapter::where('is_active', true)
+            ->where('name', 'like', "%{$value}%")
+            ->with(['subject.grade.educationLevel', 'subject.field'])
+            ->limit(10)
+            ->get();
+
+        foreach ($chapters as $chapter) {
+            $subject = $chapter->subject;
+            if (!$subject) continue;
+            $grade = $subject->grade;
+            if (!$grade) continue;
+            $educationLevel = $grade->educationLevel;
+            if (!$educationLevel) continue;
+
+            $results[] = [
+                'type' => 'chapter',
+                'topic_id' => null,
+                'chapter_id' => $chapter->id,
+                'subject_id' => $subject->id,
+                'grade_id' => $grade->id,
+                'field_id' => $subject->cc_field_id,
+                'education_level_id' => $educationLevel->id,
+                'label' => $educationLevel->name . ' / ' . $grade->name . ' / ' . $subject->name . ' / ' . $chapter->name,
+            ];
+        }
+
+        // Search subjects
+        $subjects = CcSubject::where('name', 'like', "%{$value}%")
+            ->with(['grade.educationLevel', 'field'])
+            ->limit(10)
+            ->get();
+
+        foreach ($subjects as $subject) {
+            $grade = $subject->grade;
+            if (!$grade) continue;
+            $educationLevel = $grade->educationLevel;
+            if (!$educationLevel) continue;
+
+            $results[] = [
+                'type' => 'subject',
+                'topic_id' => null,
+                'chapter_id' => null,
+                'subject_id' => $subject->id,
+                'grade_id' => $grade->id,
+                'field_id' => $subject->cc_field_id,
+                'education_level_id' => $educationLevel->id,
+                'label' => $educationLevel->name . ' / ' . $grade->name . ' / ' . $subject->name,
+            ];
+        }
+
+        $this->globalSearchResults = array_slice($results, 0, 15);
+    }
+
+    public function selectGlobalResult(int $index): void
+    {
+        if (!isset($this->globalSearchResults[$index])) return;
+
+        $result = $this->globalSearchResults[$index];
+
+        // Fill form fields
+        $this->partForm['education_level_id'] = $result['education_level_id'];
+        $this->partForm['cc_grade_id'] = $result['grade_id'];
+        $this->partForm['cc_field_id'] = $result['field_id'] ?? '';
+        $this->partForm['cc_subject_id'] = $result['subject_id'];
+        $this->partForm['cc_chapter_id'] = $result['chapter_id'] ?? '';
+        $this->partForm['cc_topic_id'] = $result['topic_id'] ?? '';
+
+        // Load cascading data
+        $this->grades = CcGrade::where('education_level_id', $result['education_level_id'])
+            ->where('is_active', true)
+            ->with('field')
+            ->orderBy('order')
+            ->get();
+
+        $this->fields = CcField::active()->ordered()->get();
+
+        $fieldId = $result['field_id'] ?: null;
+        $this->subjects = CcSubject::where('cc_grade_id', $result['grade_id'])
+            ->when($fieldId, fn($q) => $q->where(function ($q2) use ($fieldId) {
+                $q2->where('cc_field_id', $fieldId)->orWhereNull('cc_field_id');
+            }))
+            ->orderBy('order')
+            ->get();
+
+        if ($result['subject_id']) {
+            $subject = CcSubject::find($result['subject_id']);
+            if ($subject) {
+                $this->partForm['lesson_name'] = $subject->name;
+                $this->partForm['lesson_type'] = $subject->type;
+            }
+            $this->chapters = CcChapter::where('cc_subject_id', $result['subject_id'])
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+        }
+
+        if ($result['chapter_id']) {
+            $this->topics = CcTopic::where('cc_chapter_id', $result['chapter_id'])
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get();
+        }
+
+        // Set grade number
+        $grade = CcGrade::find($result['grade_id']);
+        if ($grade) {
+            $this->partForm['grade'] = $grade->grade_number;
+        }
+
+        // Build description
+        $descParts = [];
+        if ($result['subject_id']) {
+            $subject = CcSubject::find($result['subject_id']);
+            if ($subject) $descParts[] = $subject->name;
+        }
+        if ($result['chapter_id']) {
+            $chapter = CcChapter::find($result['chapter_id']);
+            if ($chapter) $descParts[] = $chapter->name;
+        }
+        if ($result['topic_id']) {
+            $topic = CcTopic::find($result['topic_id']);
+            if ($topic) $descParts[] = $topic->name;
+        }
+        if (!empty($descParts)) {
+            $this->partForm['description'] = implode(' » ', $descParts);
+        }
+
+        // Clear search
+        $this->globalSearch = '';
+        $this->globalSearchResults = [];
+
+        // Get education levels for education-level-select update
+        $educationLevels = EducationLevel::active()->ordered()->get();
+        $eduOptions = [['value' => '', 'text' => 'انتخاب کنید']];
+        foreach ($educationLevels as $level) {
+            $eduOptions[] = ['value' => $level->id, 'text' => $level->name];
+        }
+        $this->dispatch('select2-update', [
+            'id' => 'education-level-select',
+            'options' => $eduOptions,
+            'selected' => $result['education_level_id'],
+            'disabled' => false,
+        ]);
+
+        // Dispatch updates for all other selects
+        $this->dispatchSelectUpdates(['grades', 'fields', 'subjects', 'chapters', 'topics']);
     }
 
     public function closePartModal(): void

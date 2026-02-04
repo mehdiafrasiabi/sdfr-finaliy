@@ -1,103 +1,103 @@
 <div>
 
+    @if( (request()->is('client*') || !request()->routeIs('client.profile.*')))
+        @if($settings && $settings->floating_support_enabled)
+            @php
+                $supportWidgetId = 'floating-support-' . uniqid();
 
-    @if($settings && $settings->floating_support_enabled)
-        @php
-            $supportWidgetId = 'floating-support-' . uniqid();
+                $mobile   = $settings->floating_mobile ? trim($settings->floating_mobile) : null;
+                $phone    = $settings->floating_phone ? trim($settings->floating_phone) : null;
 
-            $mobile   = $settings->floating_mobile ? trim($settings->floating_mobile) : null;
-            $phone    = $settings->floating_phone ? trim($settings->floating_phone) : null;
+                $telegramRaw = $settings->floating_telegram ? trim($settings->floating_telegram) : null;
+                $telegramUser = $telegramRaw ? ltrim($telegramRaw, '@') : null;
+                $telegramUrl = $telegramRaw
+                    ? (str_starts_with($telegramRaw, 'http') ? $telegramRaw : ('https://t.me/' . $telegramUser))
+                    : null;
 
-            $telegramRaw = $settings->floating_telegram ? trim($settings->floating_telegram) : null;
-            $telegramUser = $telegramRaw ? ltrim($telegramRaw, '@') : null;
-            $telegramUrl = $telegramRaw
-                ? (str_starts_with($telegramRaw, 'http') ? $telegramRaw : ('https://t.me/' . $telegramUser))
-                : null;
+                $whatsappDigits = $settings->floating_whatsapp
+                    ? preg_replace('/\D+/', '', $settings->floating_whatsapp)
+                    : null;
 
-            $whatsappDigits = $settings->floating_whatsapp
-                ? preg_replace('/\D+/', '', $settings->floating_whatsapp)
-                : null;
-
-            $hasAny = $mobile || $phone || $telegramUrl || $whatsappDigits;
-        @endphp
-        @push('link')
-            <style>
-                /* قطره های خیلی ملایم زیر دکمه */
-                .droplet {
-                    position: absolute;
-                    inset: -10px;
-                    border-radius: 9999px;
-                    background: rgba(59, 130, 246, 0.22); /* آبی ملایم */
-                    filter: blur(10px);
-                    transform: scale(0.88);
-                    opacity: 0;
-                }
-
-                @keyframes dropletPulse {
-                    0% {
+                $hasAny = $mobile || $phone || $telegramUrl || $whatsappDigits;
+            @endphp
+            @push('link')
+                <style>
+                    /* قطره های خیلی ملایم زیر دکمه */
+                    .droplet {
+                        position: absolute;
+                        inset: -10px;
+                        border-radius: 9999px;
+                        background: rgba(59, 130, 246, 0.22); /* آبی ملایم */
+                        filter: blur(10px);
                         transform: scale(0.88);
-                        opacity: 0.0;
+                        opacity: 0;
                     }
-                    18% {
-                        opacity: 0.18;
+
+                    @keyframes dropletPulse {
+                        0% {
+                            transform: scale(0.88);
+                            opacity: 0.0;
+                        }
+                        18% {
+                            opacity: 0.18;
+                        }
+                        55% {
+                            opacity: 0.12;
+                        }
+                        100% {
+                            transform: scale(1.28);
+                            opacity: 0.0;
+                        }
                     }
-                    55% {
-                        opacity: 0.12;
+
+                    .droplet-1 {
+                        animation: dropletPulse 2.6s ease-in-out infinite;
                     }
-                    100% {
-                        transform: scale(1.28);
-                        opacity: 0.0;
+
+                    .droplet-2 {
+                        animation: dropletPulse 2.6s ease-in-out infinite 0.55s;
+                        background: rgba(59, 130, 246, 0.16);
                     }
-                }
 
-                .droplet-1 {
-                    animation: dropletPulse 2.6s ease-in-out infinite;
-                }
-
-                .droplet-2 {
-                    animation: dropletPulse 2.6s ease-in-out infinite 0.55s;
-                    background: rgba(59, 130, 246, 0.16);
-                }
-
-                .droplet-3 {
-                    animation: dropletPulse 2.6s ease-in-out infinite 1.10s;
-                    background: rgba(59, 130, 246, 0.10);
-                }
-
-                /* وقتی باز شد: انیمیشن فریز بشه روی همون فریم */
-                [data-support-widget][data-open="true"] [data-droplet] .droplet {
-                    animation-play-state: paused;
-                }
-
-                /* notch مورب برای حالت X */
-                [data-notch] {
-                    width: 18px;
-                    height: 18px;
-                    background: #1D4ED8;
-                    border-radius: 6px;
-                    transform: rotate(45deg);
-                    box-shadow: 0 10px 22px rgba(29, 78, 216, 0.20);
-                }
-
-                /* کاربران prefers-reduced-motion */
-                @media (prefers-reduced-motion: reduce) {
-                    .droplet-1, .droplet-2, .droplet-3 {
-                        animation: none;
-                        opacity: 0.12;
-                        transform: scale(1.05);
+                    .droplet-3 {
+                        animation: dropletPulse 2.6s ease-in-out infinite 1.10s;
+                        background: rgba(59, 130, 246, 0.10);
                     }
-                }
-            </style>
-        @endpush
-        @if($hasAny)
-            <div data-support-widget class="fixed bottom-6 right-6 z-50">
-                <!-- Popup -->
-                <div
-                    id="{{ $supportWidgetId }}-menu"
-                    data-support-menu
-                    role="menu"
-                    aria-hidden="true"
-                    class="absolute bottom-[74px] right-0 w-[240px] max-w-[calc(100vw-3rem)]
+
+                    /* وقتی باز شد: انیمیشن فریز بشه روی همون فریم */
+                    [data-support-widget][data-open="true"] [data-droplet] .droplet {
+                        animation-play-state: paused;
+                    }
+
+                    /* notch مورب برای حالت X */
+                    [data-notch] {
+                        width: 18px;
+                        height: 18px;
+                        background: #1D4ED8;
+                        border-radius: 6px;
+                        transform: rotate(45deg);
+                        box-shadow: 0 10px 22px rgba(29, 78, 216, 0.20);
+                    }
+
+                    /* کاربران prefers-reduced-motion */
+                    @media (prefers-reduced-motion: reduce) {
+                        .droplet-1, .droplet-2, .droplet-3 {
+                            animation: none;
+                            opacity: 0.12;
+                            transform: scale(1.05);
+                        }
+                    }
+                </style>
+            @endpush
+            @if($hasAny)
+                <div data-support-widget class="fixed bottom-6 right-6 z-50">
+                    <!-- Popup -->
+                    <div
+                        id="{{ $supportWidgetId }}-menu"
+                        data-support-menu
+                        role="menu"
+                        aria-hidden="true"
+                        class="absolute bottom-[74px] right-0 w-[240px] max-w-[calc(100vw-3rem)]
          rounded-[16px] bg-white
          border border-black/5
          shadow-[0_18px_45px_rgba(0,0,0,0.12)]
@@ -105,25 +105,25 @@
          origin-bottom-right
          transition duration-200 ease-out
          invisible opacity-0 translate-y-3 pointer-events-none"
-                >
+                    >
 
-                    <div class="space-y-2">
-                        @if($mobile)
-                            <a
-                                href="tel:{{ $mobile }}"
-                                role="menuitem"
-                                class="grid grid-cols-[1fr_16px_36px] items-center
+                        <div class="space-y-2">
+                            @if($mobile)
+                                <a
+                                    href="tel:{{ $mobile }}"
+                                    role="menuitem"
+                                    class="grid grid-cols-[1fr_16px_36px] items-center
                                    rounded-[12px]
                                    bg-[#F3F4F6] hover:bg-[#EDEFF3]
                                    px-3 py-[10px]
                                    transition
                                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
-                            >
+                                >
                                    <span dir="rtl" class="text-center text-[13px] font-medium text-[#111827]">
                   تلفن همراه
                 </span>
-                                <span aria-hidden="true"></span>
-                                <span class="flex items-center justify-center">
+                                    <span aria-hidden="true"></span>
+                                    <span class="flex items-center justify-center">
                                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                                                fill="none" stroke="currentColor" stroke-width="2"
                                                class="w-[18px] h-[18px] text-[#111827]">
@@ -133,26 +133,26 @@
                              </span>
 
 
-                            </a>
-                        @endif
+                                </a>
+                            @endif
 
-                        @if($phone)
-                            <a
-                                href="tel:{{ $phone }}"
-                                role="menuitem"
-                                class="grid grid-cols-[1fr_16px_36px] items-center
+                            @if($phone)
+                                <a
+                                    href="tel:{{ $phone }}"
+                                    role="menuitem"
+                                    class="grid grid-cols-[1fr_16px_36px] items-center
                                    rounded-[12px]
                                    bg-[#F3F4F6] hover:bg-[#EDEFF3]
                                    px-3 py-[10px]
                                    transition
                                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
-                            >
+                                >
                                                                 <span dir="rtl"
                                                                       class="text-center text-[13px] font-medium text-[#111827]">
-                  تلفن ثابت
+                  پشتیبانی
                 </span>
-                                <span aria-hidden="true"></span>
-                                <span class="flex items-center justify-center">
+                                    <span aria-hidden="true"></span>
+                                    <span class="flex items-center justify-center">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                        fill="none" stroke="currentColor" stroke-width="2"
                        class="w-[18px] h-[18px] text-[#111827]">
@@ -166,28 +166,28 @@
                 </span>
 
 
-                            </a>
-                        @endif
+                                </a>
+                            @endif
 
-                        @if($telegramUrl)
-                            <a
-                                href="{{ $telegramUrl }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                role="menuitem"
-                                class="grid grid-cols-[1fr_16px_36px] items-center
+                            @if($telegramUrl)
+                                <a
+                                    href="{{ $telegramUrl }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    role="menuitem"
+                                    class="grid grid-cols-[1fr_16px_36px] items-center
                                    rounded-[12px]
                                    bg-[#F3F4F6] hover:bg-[#EDEFF3]
                                    px-3 py-[10px]
                                    transition
                                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50"
 
-                            >
+                                >
                                 <span dir="rtl" class="text-center text-[13px] font-medium text-[#111827]">
-                  پشتیبانی تلگرام
+                   تلگرام
                 </span>
-                                <span aria-hidden="true"></span>
-                                <span class="flex items-center justify-center">
+                                    <span aria-hidden="true"></span>
+                                    <span class="flex items-center justify-center">
                                       <span
                                           class="inline-flex items-center justify-center w-[22px] h-[22px] rounded-full bg-[#2AABEE]">
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
@@ -199,26 +199,26 @@
                                     </span>
 
 
-                            </a>
-                        @endif
+                                </a>
+                            @endif
 
-                        @if($whatsappDigits)
-                            <a
-                                href="https://wa.me/{{ $whatsappDigits }}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                role="menuitem"
-                                class="grid grid-cols-[1fr_16px_36px] items-center
+                            @if($whatsappDigits)
+                                <a
+                                    href="https://wa.me/{{ $whatsappDigits }}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    role="menuitem"
+                                    class="grid grid-cols-[1fr_16px_36px] items-center
                                    rounded-[12px]
                                    bg-[#F3F4F6] hover:bg-[#EDEFF3]
                                    px-3 py-[10px]
                                    transition
                                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/50">
                                      <span dir="rtl" class="text-center text-[13px] font-medium text-[#111827]">
-                  پشتیبانی واتساپ
+                   واتساپ
                 </span>
-                                <span aria-hidden="true"></span>
-                                <span class="flex items-center justify-center">
+                                    <span aria-hidden="true"></span>
+                                    <span class="flex items-center justify-center">
                   <span class="inline-flex items-center justify-center w-[22px] h-[22px] rounded-full bg-[#22C55E]">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" class="w-[13px] h-[13px] text-white"
                          fill="currentColor">
@@ -231,164 +231,166 @@
                 </span>
 
 
-                            </a>
-                        @endif
-                    </div>
-                </div>
-
-                <!-- Floating Button -->
-                <div class="relative">
-                    <!-- ripple / droplet (فقط زیر دکمه) -->
-                    <div data-droplet class="pointer-events-none absolute inset-0">
-                        <span class="droplet droplet-1"></span>
-                        <span class="droplet droplet-2"></span>
-                        <span class="droplet droplet-3"></span>
+                                </a>
+                            @endif
+                        </div>
                     </div>
 
-                    <!-- notch (فقط وقتی بازه) -->
-                    <span data-notch class="pointer-events-none absolute -top-1 right-1 hidden"></span>
+                    <!-- Floating Button -->
+                    <div class="relative">
+                        <!-- ripple / droplet (فقط زیر دکمه) -->
+                        <div data-droplet class="pointer-events-none absolute inset-0">
+                            <span class="droplet droplet-1"></span>
+                            <span class="droplet droplet-2"></span>
+                            <span class="droplet droplet-3"></span>
+                        </div>
 
-                    <button
-                        type="button"
-                        data-support-toggle
-                        aria-controls="{{ $supportWidgetId }}-menu"
-                        aria-expanded="false"
-                        aria-label="پشتیبانی"
-                        class="relative flex items-center justify-center w-14 h-14 rounded-full
+                        <!-- notch (فقط وقتی بازه) -->
+                        <span data-notch class="pointer-events-none absolute -top-1 right-1 hidden"></span>
+
+                        <button
+                            type="button"
+                            data-support-toggle
+                            aria-controls="{{ $supportWidgetId }}-menu"
+                            aria-expanded="false"
+                            aria-label="پشتیبانی"
+                            class="relative flex items-center justify-center w-14 h-14 rounded-full
            bg-[#1D4ED8] hover:bg-[#1E40AF]
            shadow-[0_10px_22px_rgba(29,78,216,0.28)]
            transition duration-200 hover:scale-[1.03]
            focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-blue-300/60"
-                    >
-                        <!-- Headset (closed) -->
-                        <svg data-support-icon="open" xmlns="http://www.w3.org/2000/svg"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                             class="w-7 h-7 text-white">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 12a8 8 0 0 1 16 0"/>
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M4 12v6a2 2 0 0 0 2 2h1v-8H6a2 2 0 0 0-2 2Z"/>
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="M20 12v6a2 2 0 0 1-2 2h-1v-8h1a2 2 0 0 1 2 2Z"/>
-                        </svg>
+                        >
+                            <!-- Headset (closed) -->
+                            <svg data-support-icon="open" xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 class="w-7 h-7 text-white">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 12a8 8 0 0 1 16 0"/>
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M4 12v6a2 2 0 0 0 2 2h1v-8H6a2 2 0 0 0-2 2Z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M20 12v6a2 2 0 0 1-2 2h-1v-8h1a2 2 0 0 1 2 2Z"/>
+                            </svg>
 
-                        <!-- X (open state) -->
-                        <svg data-support-icon="close" xmlns="http://www.w3.org/2000/svg"
-                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                             class="w-7 h-7 text-white hidden">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
-                        </svg>
-                    </button>
+                            <!-- X (open state) -->
+                            <svg data-support-icon="close" xmlns="http://www.w3.org/2000/svg"
+                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 class="w-7 h-7 text-white hidden">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/>
+                            </svg>
+                        </button>
+                    </div>
+
                 </div>
 
-            </div>
+                @once
+                    @push('script')
+                        <script>
+                            (() => {
+                                const TRANSITION_MS = 200;
 
-            @once
-                @push('script')
-                    <script>
-                        (() => {
-                            const TRANSITION_MS = 200;
+                                const widgets = Array.from(document.querySelectorAll('[data-support-widget]'));
+                                if (!widgets.length) return;
 
-                            const widgets = Array.from(document.querySelectorAll('[data-support-widget]'));
-                            if (!widgets.length) return;
+                                const setIcons = (widget, open) => {
+                                    const iconOpen = widget.querySelector('[data-support-icon="open"]');
+                                    const iconClose = widget.querySelector('[data-support-icon="close"]');
+                                    const notch = widget.querySelector('[data-notch]');
 
-                            const setIcons = (widget, open) => {
-                                const iconOpen = widget.querySelector('[data-support-icon="open"]');
-                                const iconClose = widget.querySelector('[data-support-icon="close"]');
-                                const notch = widget.querySelector('[data-notch]');
+                                    if (iconOpen) iconOpen.classList.toggle('hidden', open);
+                                    if (iconClose) iconClose.classList.toggle('hidden', !open);
 
-                                if (iconOpen) iconOpen.classList.toggle('hidden', open);
-                                if (iconClose) iconClose.classList.toggle('hidden', !open);
-
-                                if (notch) notch.classList.toggle('hidden', !open);
-                            };
+                                    if (notch) notch.classList.toggle('hidden', !open);
+                                };
 
 
-                            const openWidget = (widget) => {
-                                const menu = widget.querySelector('[data-support-menu]');
-                                const btn = widget.querySelector('[data-support-toggle]');
-                                if (!menu || !btn) return;
+                                const openWidget = (widget) => {
+                                    const menu = widget.querySelector('[data-support-menu]');
+                                    const btn = widget.querySelector('[data-support-toggle]');
+                                    if (!menu || !btn) return;
 
-                                widget.dataset.open = 'true';
-                                btn.setAttribute('aria-expanded', 'true');
-                                menu.setAttribute('aria-hidden', 'false');
-                                setIcons(widget, true);
+                                    widget.dataset.open = 'true';
+                                    btn.setAttribute('aria-expanded', 'true');
+                                    menu.setAttribute('aria-hidden', 'false');
+                                    setIcons(widget, true);
 
-                                menu.classList.remove('invisible', 'pointer-events-none');
-                                requestAnimationFrame(() => {
-                                    menu.classList.remove('opacity-0', 'translate-y-3');
-                                    menu.classList.add('opacity-100', 'translate-y-0');
-                                });
-                            };
-
-                            const closeWidget = (widget) => {
-                                const menu = widget.querySelector('[data-support-menu]');
-                                const btn = widget.querySelector('[data-support-toggle]');
-                                if (!menu || !btn) return;
-
-                                widget.dataset.open = 'false';
-                                btn.setAttribute('aria-expanded', 'false');
-                                menu.setAttribute('aria-hidden', 'true');
-                                setIcons(widget, false);
-
-                                menu.classList.add('opacity-0', 'translate-y-3', 'pointer-events-none');
-                                menu.classList.remove('opacity-100', 'translate-y-0');
-
-                                window.setTimeout(() => {
-                                    if (widget.dataset.open === 'false') menu.classList.add('invisible');
-                                }, TRANSITION_MS);
-                            };
-
-                            const toggleWidget = (widget) => {
-                                const isOpen = widget.dataset.open === 'true';
-                                isOpen ? closeWidget(widget) : openWidget(widget);
-                            };
-
-                            widgets.forEach((widget) => {
-                                widget.dataset.open = 'false';
-
-                                const btn = widget.querySelector('[data-support-toggle]');
-                                const menu = widget.querySelector('[data-support-menu]');
-
-                                if (menu) {
-                                    menu.classList.add('invisible', 'opacity-0', 'translate-y-3', 'pointer-events-none');
-                                    menu.setAttribute('aria-hidden', 'true');
-
-                                    menu.querySelectorAll('a').forEach(a => {
-                                        a.addEventListener('click', () => closeWidget(widget));
+                                    menu.classList.remove('invisible', 'pointer-events-none');
+                                    requestAnimationFrame(() => {
+                                        menu.classList.remove('opacity-0', 'translate-y-3');
+                                        menu.classList.add('opacity-100', 'translate-y-0');
                                     });
-                                }
+                                };
 
-                                if (btn) {
+                                const closeWidget = (widget) => {
+                                    const menu = widget.querySelector('[data-support-menu]');
+                                    const btn = widget.querySelector('[data-support-toggle]');
+                                    if (!menu || !btn) return;
+
+                                    widget.dataset.open = 'false';
                                     btn.setAttribute('aria-expanded', 'false');
-                                    btn.addEventListener('click', (e) => {
-                                        e.stopPropagation();
-                                        widgets.forEach(w => {
-                                            if (w !== widget && w.dataset.open === 'true') closeWidget(w);
+                                    menu.setAttribute('aria-hidden', 'true');
+                                    setIcons(widget, false);
+
+                                    menu.classList.add('opacity-0', 'translate-y-3', 'pointer-events-none');
+                                    menu.classList.remove('opacity-100', 'translate-y-0');
+
+                                    window.setTimeout(() => {
+                                        if (widget.dataset.open === 'false') menu.classList.add('invisible');
+                                    }, TRANSITION_MS);
+                                };
+
+                                const toggleWidget = (widget) => {
+                                    const isOpen = widget.dataset.open === 'true';
+                                    isOpen ? closeWidget(widget) : openWidget(widget);
+                                };
+
+                                widgets.forEach((widget) => {
+                                    widget.dataset.open = 'false';
+
+                                    const btn = widget.querySelector('[data-support-toggle]');
+                                    const menu = widget.querySelector('[data-support-menu]');
+
+                                    if (menu) {
+                                        menu.classList.add('invisible', 'opacity-0', 'translate-y-3', 'pointer-events-none');
+                                        menu.setAttribute('aria-hidden', 'true');
+
+                                        menu.querySelectorAll('a').forEach(a => {
+                                            a.addEventListener('click', () => closeWidget(widget));
                                         });
-                                        toggleWidget(widget);
+                                    }
+
+                                    if (btn) {
+                                        btn.setAttribute('aria-expanded', 'false');
+                                        btn.addEventListener('click', (e) => {
+                                            e.stopPropagation();
+                                            widgets.forEach(w => {
+                                                if (w !== widget && w.dataset.open === 'true') closeWidget(w);
+                                            });
+                                            toggleWidget(widget);
+                                        });
+                                    }
+
+                                    setIcons(widget, false);
+                                });
+
+                                document.addEventListener('click', (e) => {
+                                    widgets.forEach((widget) => {
+                                        if (widget.dataset.open !== 'true') return;
+                                        if (!widget.contains(e.target)) closeWidget(widget);
                                     });
-                                }
-
-                                setIcons(widget, false);
-                            });
-
-                            document.addEventListener('click', (e) => {
-                                widgets.forEach((widget) => {
-                                    if (widget.dataset.open !== 'true') return;
-                                    if (!widget.contains(e.target)) closeWidget(widget);
                                 });
-                            });
 
-                            document.addEventListener('keydown', (e) => {
-                                if (e.key !== 'Escape') return;
-                                widgets.forEach((widget) => {
-                                    if (widget.dataset.open === 'true') closeWidget(widget);
+                                document.addEventListener('keydown', (e) => {
+                                    if (e.key !== 'Escape') return;
+                                    widgets.forEach((widget) => {
+                                        if (widget.dataset.open === 'true') closeWidget(widget);
+                                    });
                                 });
-                            });
-                        })();
-                    </script>
-                @endpush
-            @endonce
+                            })();
+                        </script>
+                    @endpush
+                @endonce
+            @endif
         @endif
     @endif
+
 </div>

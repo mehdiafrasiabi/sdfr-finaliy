@@ -54,47 +54,6 @@
 
                     <!-- articles:wrapper -->
                     <div class="grid lg:grid-cols-3 sm:grid-cols-2 gap-x-5 gap-y-10">
-                        @forelse($blogs as $blog)
-                            @php
-                                $slug = optional($blog->seo)->slug ?? \Illuminate\Support\Str::slug($blog->title);
-                                $image = $blog->images->first();
-                            @endphp
-
-                            <div class="relative bg-background rounded-xl shadow-xl shadow-black/5 p-4">
-                                <div class="relative mb-3 z-20">
-                                    <a href="{{ route('client.blog.show', [$blog->blog_code, $slug]) }}" class="block">
-                                        <img
-                                            src="{{ $image ? asset('blogs/'.$blog->id.'/photo/'.$image->path) : '/client/assets/images/theme/default.jpg' }}"
-                                            class="max-w-full rounded-xl" alt="{{ $blog->seo->meta_title }}"/>
-                                    </a>
-                                </div>
-                                <div class="relative space-y-3 z-10">
-                                    <h2 class="font-bold text-sm">
-                                        <a href="{{ route('client.blog.show', [$blog->blog_code, $slug]) }}"
-                                           class="line-clamp-1 text-foreground transition-colors hover:text-primary">
-                                            {{$blog->title}}
-                                        </a>
-                                    </h2>
-                                    <div class="flex items-center justify-between">
-                                        <div class="flex items-center gap-1">
-                                            <div class="flex items-center gap-1 text-muted">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                          d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                                </svg>
-                                                <span class="font-semibold text-xs text-muted">زمان مطالعه:</span>
-                                                <span class="font-semibold text-xs text-foreground">{{$blog->study_time}} دقیقه</span>
-                                            </div>
-                                        </div>
-                                        <a href="{{ route('client.blog.show', [$blog->blog_code, $slug]) }}"
-                                           class="bg-primary/10 rounded-full text-primary transition-all hover:opacity-80 py-1 px-4">
-                                            <span class="font-bold text-xxs">{{$blog->category->name}}</span>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
                             <div class="flex flex-col items-center justify-center text-center col-span-full">
                                 <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35"
                                      alt="..."/>
@@ -102,7 +61,6 @@
                                     <h2 class="font-bold text-xl text-foreground">مقاله ای وجود ندارد</h2>
                                 </div>
                             </div>
-                        @endforelse
                     </div>
                     <!-- end articles:wrapper -->
 

@@ -1,6 +1,6 @@
 <div>
 
-    <footer class="pt-20">
+    <footer class="pt-20 {{ Route::is('client.profile*') ? 'hidden md:block' : '' }}">
         <div class="max-w-7xl px-4 mx-auto">
             <div class="flex items-center gap-3">
                 <div class="flex-grow border-t border-border border-dashed"></div>

@@ -763,6 +763,48 @@
                     </div>
 
                     <div class="modal-body">
+                        {{-- جستجوی سریع --}}
+                        <div class="mb-3 position-relative">
+                            <label class="form-label fw-semibold d-flex align-items-center gap-2">
+                                <i class="material-symbols-outlined text-primary" style="font-size: 20px;">search</i>
+                                جستجوی سریع
+                            </label>
+                            <div class="position-relative">
+                                <input type="text"
+                                       wire:model.live.debounce.300ms="globalSearch"
+                                       class="form-control pe-5"
+                                       placeholder="نام درس، فصل یا مبحث را جستجو کنید..."
+                                       autocomplete="off">
+                                <div wire:loading wire:target="globalSearch"
+                                     class="position-absolute top-50 translate-middle-y"
+                                     style="left: 12px;">
+                                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                                </div>
+                            </div>
+                            @if(count($globalSearchResults) > 0)
+                                <div class="list-group position-absolute w-100 mt-1 shadow-lg rounded-3 overflow-auto border"
+                                     style="z-index: 1060; max-height: 280px;">
+                                    @foreach($globalSearchResults as $index => $result)
+                                        <button type="button"
+                                                wire:click="selectGlobalResult({{ $index }})"
+                                                class="list-group-item list-group-item-action py-2 px-3 d-flex align-items-center gap-2">
+                                            @if($result['type'] === 'topic')
+                                                <span class="badge bg-success-subtle text-success small">مبحث</span>
+                                            @elseif($result['type'] === 'chapter')
+                                                <span class="badge bg-info-subtle text-info small">فصل</span>
+                                            @else
+                                                <span class="badge bg-warning-subtle text-warning small">درس</span>
+                                            @endif
+                                            <span class="small text-truncate">{{ $result['label'] }}</span>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            @endif
+                            <small class="text-muted-2">با جستجو تمام فیلدها خودکار پر می‌شوند</small>
+                        </div>
+
+                        <hr class="mb-3 mt-1">
+
                         {{-- انتخاب دوره تحصیلی و پایه --}}
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
@@ -770,6 +812,9 @@
                                     <i class="material-symbols-outlined text-primary"
                                        style="font-size: 20px;">school</i>
                                     دوره تحصیلی <span class="text-danger">*</span>
+                                    <span wire:loading wire:target="partForm.education_level_id">
+                                        <span class="spinner-border spinner-border-sm text-primary"></span>
+                                    </span>
                                 </label>
                                 <div wire:ignore>
                                     <select id="education-level-select"
@@ -793,6 +838,9 @@
                                     <i class="material-symbols-outlined text-success"
                                        style="font-size: 20px;">stairs</i>
                                     پایه تحصیلی <span class="text-danger">*</span>
+                                    <span wire:loading wire:target="partForm.cc_grade_id">
+                                        <span class="spinner-border spinner-border-sm text-success"></span>
+                                    </span>
                                 </label>
                                 <div wire:ignore>
                                     <select id="grade-select"
@@ -804,9 +852,6 @@
                                             <option
                                                 value="{{ $grade->id }}" {{ $partForm['cc_grade_id'] == $grade->id ? 'selected' : '' }}>
                                                 {{ $grade->name }}
-                                                @if($grade->field)
-                                                    ({{ $grade->field->name }})
-                                                @endif
                                             </option>
                                         @endforeach
                                     </select>
@@ -819,28 +864,34 @@
 
                         {{-- رشته و درس --}}
                         <div class="row g-3 mb-3">
-                            @if(count($fields) > 0 && $partForm['cc_grade_id'])
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold">رشته</label>
-                                    <div wire:ignore>
-                                        <select id="field-select" class="form-select select2-modal">
-                                            <option value="">بدون رشته</option>
-                                            @foreach($fields as $field)
-                                                <option
-                                                    value="{{ $field->id }}" {{ $partForm['cc_field_id'] == $field->id ? 'selected' : '' }}>
-                                                    {{ $field->name }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <small class="text-muted-2">برای متوسطه اول خالی بگذارید</small>
+                            <div class="col-md-4" wire:ignore.self id="field-select-wrapper" style="{{ !(count($fields) > 0 && $partForm['cc_grade_id']) ? 'display:none;' : '' }}">
+                                <label class="form-label fw-semibold d-flex align-items-center gap-2">
+                                    رشته
+                                    <span wire:loading wire:target="partForm.cc_field_id">
+                                        <span class="spinner-border spinner-border-sm text-secondary"></span>
+                                    </span>
+                                </label>
+                                <div wire:ignore>
+                                    <select id="field-select" class="form-select select2-modal">
+                                        <option value="">بدون رشته</option>
+                                        @foreach($fields as $field)
+                                            <option
+                                                value="{{ $field->id }}" {{ $partForm['cc_field_id'] == $field->id ? 'selected' : '' }}>
+                                                {{ $field->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
                                 </div>
-                            @endif
+                                <small class="text-muted-2">برای متوسطه اول خالی بگذارید</small>
+                            </div>
 
                             <div class="{{ count($fields) > 0 && $partForm['cc_grade_id'] ? 'col-md-8' : 'col-12' }}">
                                 <label class="form-label fw-semibold d-flex align-items-center gap-2">
                                     <i class="material-symbols-outlined text-warning" style="font-size: 20px;">book</i>
                                     درس <span class="text-danger">*</span>
+                                    <span wire:loading wire:target="partForm.cc_subject_id">
+                                        <span class="spinner-border spinner-border-sm text-warning"></span>
+                                    </span>
                                 </label>
                                 <div wire:ignore>
                                     <select id="subject-select"
@@ -869,6 +920,9 @@
                                 <label class="form-label fw-semibold d-flex align-items-center gap-2">
                                     <i class="material-symbols-outlined text-info" style="font-size: 20px;">bookmark</i>
                                     فصل
+                                    <span wire:loading wire:target="partForm.cc_chapter_id">
+                                        <span class="spinner-border spinner-border-sm text-info"></span>
+                                    </span>
                                 </label>
                                 <div wire:ignore>
                                     <select id="chapter-select"
@@ -891,6 +945,9 @@
                                     <i class="material-symbols-outlined text-secondary"
                                        style="font-size: 20px;">topic</i>
                                     مبحث
+                                    <span wire:loading wire:target="partForm.cc_topic_id">
+                                        <span class="spinner-border spinner-border-sm text-secondary"></span>
+                                    </span>
                                 </label>
                                 <div wire:ignore>
                                     <select id="topic-select"

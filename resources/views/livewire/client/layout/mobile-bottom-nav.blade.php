@@ -132,7 +132,7 @@
                             </div>
 
                             <span
-                                class="text-xs font-semibold text-foreground bg-background/90 px-2 py-0.5 rounded-full">برنامه</span>
+                                class="text-xs font-semibold text-foreground bg-background/90 px-2 py-0.5 rounded-full">برنامه درسی</span>
 
                         </a>
 
@@ -167,7 +167,7 @@
                             </div>
 
                             <span
-                                class="text-xs font-semibold text-foreground bg-background/90 px-2 py-0.5 rounded-full">گزارش</span>
+                                class="text-xs font-semibold text-foreground bg-background/90 px-2 py-0.5 rounded-full">گزارش درسی</span>
 
                         </a>
 
@@ -280,37 +280,29 @@
 
                             </div>
 
-                            <span class="text-[10px] font-semibold">اطلاع رسانی</span>
+                            <span class="text-[10px] font-semibold">پیام ها</span>
 
                         </a>
 
 
                         <!-- سرویس‌ها (Center Button with Favicon) -->
-
+                        <!-- سرویس‌ها (Center Button with Favicon) -->
                         <button type="button"
-
                                 x-on:click="servicesOpen = !servicesOpen"
+                                class="relative flex items-center justify-center -mt-6 services-btn">
 
-                                class="relative flex items-center justify-center -mt-6">
-
-                            <div
-                                class="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transition-all duration-300"
-
-                                :class="servicesOpen ? 'rotate-45 scale-110' : ''">
+                            <div class="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transition-all duration-300 services-circle"
+                                 :class="servicesOpen ? 'rotate-45 scale-110' : ''">
 
                                 <img src="/client/assets/images/favicon.svg"
-
                                      alt="سرویس‌ها"
-
-                                     class="w-8 h-8 transition-transform duration-300"
-
+                                     class="w-8 h-8 transition-transform duration-300 services-icon"
                                      style="filter: brightness(0) invert(1);">
-
                             </div>
 
-                            <span class="absolute -bottom-4 text-[10px] font-semibold text-foreground">سرویس‌ها</span>
-
+                            <span class="absolute -bottom-4 text-[10px] font-semibold text-foreground"></span>
                         </button>
+
 
 
                         <!-- تیکت و پشتیبانی -->
@@ -359,22 +351,25 @@
 
                         <!-- طبقه بندی -->
 
-                        <a href="{{ route('client.profile.classification.projects') }}" wire:navigate
+                        <a href="{{ route('client.profile.professionalTools.index') }}" wire:navigate
 
-                           class="flex flex-col items-center justify-center gap-1 min-w-[60px] py-2 px-1 rounded-xl transition-all {{ request()->routeIs('client.profile.classification.*') ? 'text-primary' : 'text-muted hover:text-foreground' }}">
+                           class="flex flex-col items-center justify-center gap-1 min-w-[60px] py-2 px-1 rounded-xl transition-all {{ request()->routeIs('client.profile.professionalTools.index') ? 'text-primary' : 'text-muted hover:text-foreground' }}">
 
                             <div class="relative">
 
-                                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-
-                                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-
-                                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     class="feather feather-package w-5 h-5">
+                                    <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+                                    <path
+                                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
                                 </svg>
 
-                                @if(request()->routeIs('client.profile.classification.*'))
+                                @if(request()->routeIs('client.profile.professionalTools.index'))
 
                                     <span
                                         class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></span>
@@ -383,7 +378,7 @@
 
                             </div>
 
-                            <span class="text-[10px] font-semibold">طبقه بندی</span>
+                            <span class="text-[10px] font-semibold">آچار فرانسه</span>
 
                         </a>
 

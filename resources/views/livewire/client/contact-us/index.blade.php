@@ -32,7 +32,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="https://t.me/Atghiaeee"
+                        <a href="https://t.me/SdfrWebApp"
                            class="flex items-center justify-center w-12 h-12 bg-secondary rounded-full text-foreground transition-colors hover:text-primary">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
                                  stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -79,7 +79,7 @@
                 </div>
                 <span
                     class="inline-flex font-bold text-base text-foreground transition-colors hover:text-primary">
-                      خراسان رضوی ، مشهد
+                       خراسان رضوی ، مشهد ، بلوار وکیل آباد ، خیابان دانش آموز
                 </span>
             </div>
         </div>

@@ -13,14 +13,7 @@
             <div class="lg:col-span-9 md:col-span-8">
                 <div class="space-y-10">
                     <div class="space-y-5">
-                        <!-- section:title -->
-                        <div class="flex items-center gap-3">
-                            <div class="flex items-center gap-1">
-                                <div class="w-1 h-1 bg-foreground rounded-full"></div>
-                                <div class="w-2 h-2 bg-foreground rounded-full"></div>
-                            </div>
-                            <div class="font-black text-foreground">ابزار های حرفه ای</div>
-                        </div>
+
                         <!-- end section:title -->
 
                         <!-- Guide Section -->
@@ -46,7 +39,7 @@
                                     </svg>
 
                                     <span class="font-black text-white dark:text-white text-blue-300 md:text-lg">
-                راهنمای ثبت گزارش روزانه
+               راهنمای آچار فرانسه
             </span>
                                 </div>
 
@@ -89,7 +82,7 @@
                                             id="57612318744"
                                             data-video-url="https://www.aparat.com/video/video/embed/videohash/utg98i1/vt/frame?titleShow=true&recom=self"
                                             allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
-                                            data-video-title="راهنمای ابزارهای حرفه ای"
+                                            data-video-title="راهنمای آچار فرانسه"
                                             class="absolute inset-0 flex items-center justify-center"
                                         >
                                         <span
@@ -198,7 +191,7 @@
                                                         </td>
                                                         <td class="p-5">
                                                             <div class="flex items-center gap-2">
-                                                                <span class="font-bold text-white">تکنیک مطالعاتی پومودورو</span>
+                                                                <span class="font-bold text-white"> پومودورو</span>
                                                             </div>
                                                         </td>
 
@@ -206,6 +199,58 @@
                                                             <a wire:navigate href="{{route('client.profile.professionalTools.pomodoro')}}"
                                                                class="inline-flex items-center gap-x-1 text-cyan-400">
                                                                 <span class="h-11 inline-flex items-center bg-primary justify-center gap-3 rounded-full text-white px-4 mr-auto">شروع</span>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="odd:bg-secondary even:bg-background">
+                                                        <td class="p-5">
+                                                            <div class="font-black text-sm text-foreground">2</div>
+                                                        </td>
+                                                        <td class="p-5">
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="font-bold text-white">تست سرعتی</span>
+                                                            </div>
+                                                        </td>
+
+                                                        <td class="p-5">
+                                                            <a wire:navigate href="#"
+                                                               class="inline-flex items-center gap-x-1 text-cyan-400">
+                                                                <span class="h-11 inline-flex items-center bg-yellow-600 justify-center gap-3 rounded-full text-white px-4 mr-auto">بزودی</span>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+
+                                                    <tr class="odd:bg-secondary even:bg-background">
+                                                        <td class="p-5">
+                                                            <div class="font-black text-sm text-foreground">3</div>
+                                                        </td>
+                                                        <td class="p-5">
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="font-bold text-white">کلاسور تحلیل</span>
+                                                            </div>
+                                                        </td>
+
+                                                        <td class="p-5">
+                                                            <a wire:navigate href="#"
+                                                               class="inline-flex items-center gap-x-1 text-cyan-400">
+                                                                <span class="h-11 inline-flex items-center bg-yellow-600 justify-center gap-3 rounded-full text-white px-4 mr-auto">بزودی</span>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="odd:bg-secondary even:bg-background">
+                                                        <td class="p-5">
+                                                            <div class="font-black text-sm text-foreground">4</div>
+                                                        </td>
+                                                        <td class="p-5">
+                                                            <div class="flex items-center gap-2">
+                                                                <span class="font-bold text-white">دفتر خلاصه ها</span>
+                                                            </div>
+                                                        </td>
+
+                                                        <td class="p-5">
+                                                            <a wire:navigate href="#"
+                                                               class="inline-flex items-center gap-x-1 text-cyan-400">
+                                                                <span class="h-11 inline-flex items-center bg-yellow-600 justify-center gap-3 rounded-full text-white px-4 mr-auto">بزودی</span>
                                                             </a>
                                                         </td>
                                                     </tr>

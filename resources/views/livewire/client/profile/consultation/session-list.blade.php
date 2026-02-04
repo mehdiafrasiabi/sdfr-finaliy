@@ -390,7 +390,7 @@
 
                                                             >
 
-                                                مانده به برگزاری
+                                                 در انتظار برگزاری
 
                                             </span>
 
@@ -398,9 +398,9 @@
 
                                                             <span
 
-                                                                class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700
+                                                                class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-white
 
-                                                       dark:bg-amber-900/40 dark:text-amber-200"
+                                                       dark:bg-green-600/40 dark:text-white"
 
                                                             >
 
@@ -509,7 +509,7 @@
 
                                                             >
 
-                                                                مشاهده پیش‌جلسه
+                                                                مشاهده
 
                                                             </a>
 

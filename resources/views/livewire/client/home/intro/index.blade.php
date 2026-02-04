@@ -23,7 +23,7 @@
                 <p class="sm:text-base text-sm text-muted">
                     رتبه برتر شدن، یک آرزو نیست بلکه یک هدفه
 
-                    فقط کافیه با کمی تلاش و برنامه ریزی اصولی خودتو رتبه برتر کنی !
+                    فقط کافیه با کمی تلاش و برنامه ریزی اصولی از خودت رتبه برتر بسازی !
 
                 </p>
                 <a href="{{route('client.auth.login')}}"
@@ -39,7 +39,7 @@
             </div>
 
             <div class="flex-shrink-0 flex justify-center md:w-72 w-full md:order-2 -order-1">
-                <img src="/client/assets/images/theme/intro/main.png" class="max-w-full h-auto" alt="..."/>
+                <img src="/client/zohal-hero.webp" class="max-w-full h-auto" alt="..."/>
             </div>
         </div>
     </div>

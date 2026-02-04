@@ -3,7 +3,7 @@
 
 
 <head>
-{{--    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>--}}
+    {{--    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>--}}
 
     @include('layouts.client.link')
     @include('layouts.client.pwa')
@@ -27,9 +27,9 @@
             position: absolute;
             inset: 0;
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(8px) brightness(0.7);
+            backdrop-filter: blur(5px) brightness(0.7);
             border-radius: 16px;
-            z-index: 10;
+            z-index: 20;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -39,8 +39,46 @@
             pointer-events: none;
             user-select: none;
         }
-    </style>
 
+
+    </style>
+<style>
+    /* احترام به کاربرانی که Reduce Motion فعال دارند */
+    @media (prefers-reduced-motion: reduce) {
+        .services-circle.is-bouncing,
+        .services-circle.is-bouncing .services-icon {
+            animation: none !important;
+        }
+    }
+
+    /* انیمیشن پرش: تند بالا، نرم پایین */
+    @keyframes servicesBounceUpDown {
+        0%   { transform: translateY(0) scale(1); }
+        18%  { transform: translateY(-40px) scale(1.06); } /* سریع میره بالا */
+        55%  { transform: translateY(0) scale(1.00); }     /* آروم برمیگرده */
+        70%  { transform: translateY(-8px) scale(1.02); }  /* یه بونس کوچیک */
+        100% { transform: translateY(0) scale(1); }
+    }
+
+    /* چرخش فرفره‌ای عکس */
+    @keyframes servicesSpin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+    }
+
+    /* وقتی کلاس فعال شد */
+    .services-circle.is-bouncing {
+        animation: servicesBounceUpDown 1.2s cubic-bezier(.15,.95,.25,1) both;
+        will-change: transform;
+    }
+
+    /* همزمان با پرش، عکس بچرخه */
+    .services-circle.is-bouncing .services-icon {
+        animation: servicesSpin 1.2s linear both;
+        will-change: transform;
+    }
+
+</style>
 </head>
 
 <body class="dark">
@@ -54,56 +92,8 @@
     {{--        <img src="/client/loading.png" alt="SDFR Loading Logo" class="loading-logo rounded-xl">--}}
     {{--    </div>--}}
 
-    <livewire:client.update-countdown-banner />
 
-<div class="mb-1"></div>
 
-    <!-- PWA Banner (RTL + Responsive + Light/Dark) -->
-    <div id="pwaBanner" dir="rtl" class="hidden w-full relative z-20">
-        <div
-            class="w-full border-b border-slate-200/60 dark:border-slate-700/60
-           bg-gradient-to-l from-blue-700 via-blue-600 to-indigo-700
-           dark:from-slate-900 dark:via-slate-900 dark:to-slate-800
-           text-white">
-            <div class="max-w-6xl mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row items-center justify-between gap-3">
-
-                <!-- متن -->
-                <div class="flex items-center gap-3 text-center md:text-right">
-                    <div class="shrink-0 w-10 h-10 rounded-2xl bg-white/15 dark:bg-white/10 flex items-center justify-center shadow-inner">
-                        <span class="text-xl">📱</span>
-                    </div>
-
-                    <div>
-                        <p class="font-extrabold text-base sm:text-lg md:text-xl leading-snug">
-                            همین حالا <span class="text-yellow-300">SDFR</span> رو روی موبایلت داشته باش
-                        </p>
-                        <p class="text-xs sm:text-sm text-white/80 dark:text-white/70 mt-0.5">
-                            نصب سریع، دسترسی راحت، تجربه بهتر ✨
-                        </p>
-                    </div>
-                </div>
-
-                <!-- دکمه‌ها -->
-                <div class="flex items-center gap-2 sm:gap-3">
-                    <button id="installApp" type="button"
-                            class="group relative overflow-hidden rounded-full px-4 sm:px-5 py-2 text-sm font-bold
-                 bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98]
-                 shadow-md shadow-emerald-500/30 transition">
-                        <span class="relative z-10">نصب اپلیکیشن</span>
-                        <span class="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-white/10"></span>
-                    </button>
-
-                    <button id="closeBanner" type="button"
-                            class="rounded-full px-4 sm:px-5 py-2 text-sm font-bold
-                 bg-rose-500 hover:bg-rose-400 active:scale-[0.98]
-                 shadow-md shadow-rose-500/25 transition">
-                        نمی‌خوام
-                    </button>
-                </div>
-
-            </div>
-        </div>
-    </div>
 
     <!-- ANDROID Modal -->
     <div id="pwaAndroidModal" class="hidden fixed inset-0 z-50">
@@ -173,8 +163,6 @@
     </div>
 
 
-
-
     <!-- Loading Overlay برای نصب -->
     <div id="pwaLoading"
          class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
@@ -201,16 +189,7 @@
     </div>
 
 
-    <header class="bg-background/80 backdrop-blur-xl border-b border-border sticky top-0 z-30"
-            x-data="{ offcanvasOpen: false }">
-
-
-        <!-- بنر نصب PWA -->
-
-
-        <livewire:client.layout.header/>
-    </header>
-
+    <livewire:client.layout.header/>
 
     <!-- end header -->
 
@@ -252,10 +231,34 @@
 </div>
 
 
-
-
 @include('layouts.client.script')
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const circle = document.querySelector(".services-circle");
+        if (!circle) return;
 
+        const run = () => {
+            // اگر وسط انیمیشن بود، دوباره از اول شروع کن
+            circle.classList.remove("is-bouncing");
+            // ری‌فلو برای ریست شدن انیمیشن
+            void circle.offsetWidth;
+            circle.classList.add("is-bouncing");
+        };
+
+        // اجرای اولیه (اختیاری)
+        run();
+
+        // هر 60 ثانیه
+        setInterval(run,15000);
+
+        // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)
+        circle.addEventListener("animationend", (e) => {
+            if (e.animationName === "servicesBounceUpDown") {
+                circle.classList.remove("is-bouncing");
+            }
+        });
+    });
+</script>
 
 </body>
 

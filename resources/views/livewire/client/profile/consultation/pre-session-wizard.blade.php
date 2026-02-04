@@ -195,7 +195,7 @@
 
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
-                                        تعداد پارت
+                                        تعداد پارت (پیشنهادی جهت مطالعه امتحان فوق)
                                     </label>
                                     <input
                                         type="number"
@@ -316,7 +316,7 @@
 
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
-                                        تعداد پارت
+                                        تعداد پارت (پیشنهادی جهت آمادگی در فعالیت فوق)
                                     </label>
                                     <input
                                         type="number"
@@ -436,7 +436,7 @@
 
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
-                                        تعداد پارت
+                                        تعداد پارت (پیشنهادی جهت مطالعه انجام تکالیف فوق)
                                     </label>
                                     <input
                                         type="number"
