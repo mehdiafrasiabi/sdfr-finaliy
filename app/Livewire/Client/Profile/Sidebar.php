@@ -2,9 +2,10 @@
 
 namespace App\Livewire\Client\Profile;
 
-use App\Models\Notification;
+use App\Models\NotificationRecipient;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\Attributes\On;
 
 class Sidebar extends Component
 {
@@ -18,19 +19,20 @@ class Sidebar extends Component
     public function loadUnreadCount()
     {
         $user = Auth::user();
-        $student = $user?->student;
 
-        if (! $student) {
+        if (! $user) {
             $this->unreadCount = 0;
             return;
         }
-        $this->unreadCount = Notification::where('student_id', $student->id)
+
+        $this->unreadCount = NotificationRecipient::where('user_id', $user->id)
+            ->where('is_read', false)
+            ->where('created_at', '>=', now()->subDays(5)) // فقط پیام‌های 5 روز اخیر
             ->where('is_read', false)
             ->count();
     }
 
     #[On('notificationAdded')]
-    #[On('notificationRead')]
     public function refreshUnreadCount()
     {
         $this->loadUnreadCount();

@@ -1,7 +1,11 @@
 <div>
     @if(\Illuminate\Support\Facades\Auth::check() && (request()->is('profile*') || request()->routeIs('client.profile.*')))
 
-        <div x-data="{ servicesOpen: false, headerOpen: false }"
+        <div x-data="{
+                servicesOpen: false,
+                headerOpen: false,
+                unreadCount: {{ $unreadCount }}
+             }"
 
              x-init="$watch('servicesOpen', value => {
 
@@ -19,7 +23,9 @@
 
              x-on:header-opened.window="headerOpen = true; servicesOpen = false"
 
-             x-on:header-closed.window="headerOpen = false">
+             x-on:header-closed.window="headerOpen = false"
+
+             x-on:notification-read.window="if (unreadCount > 0) { unreadCount--; }">
 
 
             <!-- Mobile Sticky Bottom Navigation -->
@@ -257,19 +263,20 @@
 
                                 </svg>
 
-                                @if($unreadCount > 0)
+                                <template x-if="unreadCount > 0">
 
                                     <span class="absolute -top-1 -right-1 flex h-4 w-4">
 
-                                <span
-                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                                        <span
+                                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
 
-                                <span
-                                    class="relative inline-flex items-center justify-center rounded-full h-4 w-4 bg-red-500 text-white font-bold text-[8px]">{{ $unreadCount > 9 ? '9+' : $unreadCount }}</span>
+                                        <span
+                                            class="relative inline-flex items-center justify-center rounded-full h-4 w-4 bg-red-500 text-white font-bold text-[8px]"
+                                            x-text="unreadCount > 9 ? '9+' : unreadCount"></span>
 
-                            </span>
+                                    </span>
 
-                                @endif
+                                </template>
 
                                 @if(request()->routeIs('client.profile.notification'))
 

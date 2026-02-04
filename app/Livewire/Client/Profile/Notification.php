@@ -1,9 +1,7 @@
 <?php
 
 
-
 namespace App\Livewire\Client\Profile;
-
 
 
 use App\Models\Notification as ModelsNotification;
@@ -16,16 +14,13 @@ use Illuminate\Support\Facades\Auth;
 
 use Livewire\Component;
 
-use Livewire\WithPagination;
-
 
 
 class Notification extends Component
 
 {
 
-    use SEOTools, WithPagination;
-
+    use SEOTools;
 
 
     public $student;
@@ -35,17 +30,14 @@ class Notification extends Component
     public $isStudent = false;
 
 
-
     // دسته‌بندی فعال
 
     public $activeCategory = 'all';
 
 
-
     // تعداد پیام‌های خوانده نشده در هر دسته‌بندی
 
     public $unreadCounts = [];
-
 
 
     public function mount()
@@ -65,7 +57,6 @@ class Notification extends Component
     }
 
 
-
     public function seoConfig()
 
     {
@@ -75,11 +66,42 @@ class Notification extends Component
     }
 
 
+    /**
+     * تنظیم دسته‌بندی پیش‌فرض بر اساس آخرین پیام خوانده نشده
+     */
+    public function setDefaultActiveCategory()
+    {
+        $userId = $this->user->id;
+
+        // پیدا کردن آخرین پیام خوانده نشده
+        $latestUnread = NotificationRecipient::where('user_id', $userId)
+            ->where('is_read', false)
+            ->whereHas('notification')
+            ->with('notification')
+            ->latest()
+            ->first();
+
+        if ($latestUnread && $latestUnread->notification) {
+            $category = $latestUnread->notification->category;
+
+            // اگر کاربر دانش‌آموز است و مشاور و پشتیبان یکی است
+            if ($this->isStudent) {
+                $student = $this->student;
+                if ($student->advisor_id && $student->supporter_id && $student->advisor_id == $student->supporter_id) {
+                    // اگر پیام از دسته مشاور یا پشتیبان است، دسته 'sdfr' را فعال کن
+                    if (in_array($category, [ModelsNotification::CATEGORY_ADVISOR, ModelsNotification::CATEGORY_SUPPORTER])) {
+                        $this->activeCategory = 'sdfr';
+                        return;
+                    }
+                }
+            }
+
+            $this->activeCategory = $category;
+        }
+    }
 
     /**
-
      * بارگذاری تعداد پیام‌های خوانده نشده در هر دسته‌بندی
-
      */
 
     public function loadUnreadCounts()
@@ -89,15 +111,11 @@ class Notification extends Component
         $userId = $this->user->id;
 
 
-
         // تعداد کل پیام‌های خوانده نشده
 
         $this->unreadCounts['all'] = NotificationRecipient::where('user_id', $userId)
-
             ->where('is_read', false)
-
             ->count();
-
 
 
         // دسته‌بندی‌های قابل نمایش
@@ -105,19 +123,15 @@ class Notification extends Component
         $categories = $this->getAvailableCategories();
 
 
-
         foreach (array_keys($categories) as $category) {
 
             $this->unreadCounts[$category] = NotificationRecipient::where('user_id', $userId)
-
                 ->where('is_read', false)
-
                 ->whereHas('notification', function ($query) use ($category) {
 
                     $query->where('category', $category);
 
                 })
-
                 ->count();
 
         }
@@ -125,11 +139,8 @@ class Notification extends Component
     }
 
 
-
     /**
-
      * دسته‌بندی‌های قابل نمایش برای این کاربر
-
      */
 
     public function getAvailableCategories(): array
@@ -141,7 +152,6 @@ class Notification extends Component
             // برای دانش‌آموزان
 
             $student = $this->student;
-
 
 
             // بررسی اینکه آیا مشاور و پشتیبان یکی هستند
@@ -163,7 +173,6 @@ class Notification extends Component
             }
 
 
-
             return [
 
                 ModelsNotification::CATEGORY_ANNOUNCEMENT => 'اعلانات',
@@ -179,7 +188,6 @@ class Notification extends Component
         }
 
 
-
         // برای کاربران عادی
 
         return [
@@ -193,29 +201,20 @@ class Notification extends Component
     }
 
 
-
     /**
-
      * تغییر دسته‌بندی فعال
-
      */
 
     public function setCategory($category)
 
     {
-
         $this->activeCategory = $category;
-
-        $this->resetPage();
 
     }
 
 
-
     /**
-
      * علامت‌گذاری به عنوان خوانده شده
-
      */
 
     public function markAsRead($recipientId)
@@ -223,11 +222,8 @@ class Notification extends Component
     {
 
         $recipient = NotificationRecipient::where('id', $recipientId)
-
             ->where('user_id', $this->user->id)
-
             ->first();
-
 
 
         if ($recipient) {
@@ -241,15 +237,17 @@ class Notification extends Component
             ]);
 
 
-
             $this->loadUnreadCounts();
-
+            // تنظیم دسته‌بندی فعال بر اساس آخرین پیام خوانده نشده
+            $this->setDefaultActiveCategory();
+            // Dispatch browser event برای به‌روزرسانی badge بدون re-render
+            $this->dispatch('notification-read');
             $this->dispatch('success', 'پیام با موفقیت خوانده شد.');
+
 
         }
 
     }
-
 
 
     public function render()
@@ -259,13 +257,10 @@ class Notification extends Component
         $userId = $this->user->id;
 
 
-
         $query = NotificationRecipient::where('user_id', $userId)
-
             ->with(['notification.admin'])
-
-            ->whereHas('notification');
-
+            ->whereHas('notification')
+            ->where('created_at', '>=', now()->subDays(5)); // فقط پیام‌های 5 روز اخیر
 
 
         // فیلتر بر اساس دسته‌بندی
@@ -321,9 +316,7 @@ class Notification extends Component
         }
 
 
-
-        $notifications = $query->latest()->paginate(10);
-
+        $notifications = $query->latest()->limit(10)->get();
 
 
         return view('livewire.client.profile.notification', [

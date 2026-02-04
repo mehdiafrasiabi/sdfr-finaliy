@@ -232,33 +232,33 @@
 
 
 @include('layouts.client.script')
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const circle = document.querySelector(".services-circle");
-        if (!circle) return;
+{{--<script>--}}
+{{--    document.addEventListener("DOMContentLoaded", () => {--}}
+{{--        const circle = document.querySelector(".services-circle");--}}
+{{--        if (!circle) return;--}}
 
-        const run = () => {
-            // اگر وسط انیمیشن بود، دوباره از اول شروع کن
-            circle.classList.remove("is-bouncing");
-            // ری‌فلو برای ریست شدن انیمیشن
-            void circle.offsetWidth;
-            circle.classList.add("is-bouncing");
-        };
+{{--        const run = () => {--}}
+{{--            // اگر وسط انیمیشن بود، دوباره از اول شروع کن--}}
+{{--            circle.classList.remove("is-bouncing");--}}
+{{--            // ری‌فلو برای ریست شدن انیمیشن--}}
+{{--            void circle.offsetWidth;--}}
+{{--            circle.classList.add("is-bouncing");--}}
+{{--        };--}}
 
-        // اجرای اولیه (اختیاری)
-        run();
+{{--        // اجرای اولیه (اختیاری)--}}
+{{--        run();--}}
 
-        // هر 60 ثانیه
-        setInterval(run,15000);
+{{--        // هر 60 ثانیه--}}
+{{--        setInterval(run,15000);--}}
 
-        // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)
-        circle.addEventListener("animationend", (e) => {
-            if (e.animationName === "servicesBounceUpDown") {
-                circle.classList.remove("is-bouncing");
-            }
-        });
-    });
-</script>
+{{--        // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)--}}
+{{--        circle.addEventListener("animationend", (e) => {--}}
+{{--            if (e.animationName === "servicesBounceUpDown") {--}}
+{{--                circle.classList.remove("is-bouncing");--}}
+{{--            }--}}
+{{--        });--}}
+{{--    });--}}
+{{--</script>--}}
 
 </body>
 

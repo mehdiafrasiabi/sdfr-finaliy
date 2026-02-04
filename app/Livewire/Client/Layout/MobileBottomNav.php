@@ -12,7 +12,7 @@ use Livewire\Component;
 
 use Livewire\Attributes\On;
 
-
+use App\Models\NotificationRecipient;
 class MobileBottomNav extends Component
 
 {
@@ -35,10 +35,7 @@ class MobileBottomNav extends Component
 
         $user = Auth::user();
 
-        $student = $user?->student;
-
-
-        if (!$student) {
+        if (!$user) {
 
             $this->unreadCount = 0;
 
@@ -46,7 +43,7 @@ class MobileBottomNav extends Component
 
         }
 
-        $this->unreadCount = Notification::where('student_id', $student->id)
+        $this->unreadCount = NotificationRecipient::where('user_id', $user->id)
             ->where('is_read', false)
             ->count();
 
@@ -54,7 +51,7 @@ class MobileBottomNav extends Component
 
 
     #[On('notificationAdded')]
-    #[On('notificationRead')]
+
     public function refreshUnreadCount()
 
     {

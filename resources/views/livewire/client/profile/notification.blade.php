@@ -110,7 +110,7 @@
                 </div>
 
                 <!-- section:notifications:wrapper -->
-                <div class="space-y-4" wire:poll.keep-alive.10s>
+                <div class="space-y-4">
                     @forelse($notifications as $recipient)
                         @php
                             $notif = $recipient->notification;
@@ -199,7 +199,7 @@
                                                             <path stroke-linecap="round" stroke-linejoin="round"
                                                                   d="M4.5 12.75l6 6 9-13.5"/>
                                                         </svg>
-                                                        خوانده شد
+                                                        خوانده شده
                                                     </button>
                                                 @else
                                                     <button wire:click="markAsRead({{ $recipient->id }})"
@@ -219,14 +219,21 @@
                                 </div>
 
                                 <!-- محتوای پیام -->
-                                <div class="bg-muted/30 dark:bg-muted/10 rounded-lg p-3 md:p-4">
-                                    <p class="text-xs md:text-sm text-foreground dark:text-foreground leading-relaxed whitespace-pre-line">{{ $notif->body }}</p>
-                                </div>
 
+                                <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 md:p-5 border border-gray-100 dark:border-gray-700">
+                                    <p class="text-xs md:text-sm text-gray-700 dark:text-gray-300 leading-relaxed text-right whitespace-pre-line">
+                                        {{ $notif->body }}
+                                    </p>
+                                </div>
                                 <!-- Footer: زمان خوانده شدن -->
                                 @if($recipient->is_read && $recipient->read_at)
-                                    <div class="mt-3 md:mt-4">
-                                        <span class="text-[10px] md:text-xs text-muted">
+{{--                                    <div class="mt-3 md:mt-4 flex justify-end gap-5">--}}
+{{--                                        <span class=" font-extrabold text-muted dark:bg-blue-500 dark:text-white rounded-full" style="    padding: 5px 4px 5px 11px">--}}
+{{--                                            خوانده شده در {{ \Morilog\Jalali\Jalalian::fromDateTime($recipient->read_at)->format('H:i - Y/m/d') }}--}}
+{{--                                        </span>--}}
+{{--                                    </div>--}}
+                                    <div class="mt-3 md:mt-4 flex justify-end gap-5">
+                                        <span class="text-[12px] md:text-based h-11 inline-flex items-center justify-center gap-2 bg-primary rounded-full text-white px-4 mr-auto">
                                             خوانده شده در {{ \Morilog\Jalali\Jalalian::fromDateTime($recipient->read_at)->format('H:i - Y/m/d') }}
                                         </span>
                                     </div>
@@ -249,14 +256,6 @@
                     @endforelse
                 </div>
                 <!-- end section:notifications:wrapper -->
-
-                <!-- Pagination -->
-                @if($notifications->hasPages())
-                    <div class="p-4 md:p-5 text-xs text-muted-foreground whitespace-nowrap">
-                        {{ $notifications->links('layouts.client.pagination') }}
-                    </div>
-                @endif
-
             </div>
         </div>
 
