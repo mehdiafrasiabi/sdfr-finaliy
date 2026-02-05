@@ -42,43 +42,43 @@
 
 
     </style>
-<style>
-    /* احترام به کاربرانی که Reduce Motion فعال دارند */
-    @media (prefers-reduced-motion: reduce) {
-        .services-circle.is-bouncing,
-        .services-circle.is-bouncing .services-icon {
-            animation: none !important;
+    <style>
+        /* احترام به کاربرانی که Reduce Motion فعال دارند */
+        @media (prefers-reduced-motion: reduce) {
+            .services-circle.is-bouncing,
+            .services-circle.is-bouncing .services-icon {
+                animation: none !important;
+            }
         }
-    }
 
-    /* انیمیشن پرش: تند بالا، نرم پایین */
-    @keyframes servicesBounceUpDown {
-        0%   { transform: translateY(0) scale(1); }
-        18%  { transform: translateY(-40px) scale(1.06); } /* سریع میره بالا */
-        55%  { transform: translateY(0) scale(1.00); }     /* آروم برمیگرده */
-        70%  { transform: translateY(-8px) scale(1.02); }  /* یه بونس کوچیک */
-        100% { transform: translateY(0) scale(1); }
-    }
+        /* انیمیشن پرش: تند بالا، نرم پایین */
+        @keyframes servicesBounceUpDown {
+            0%   { transform: translateY(0) scale(1); }
+            18%  { transform: translateY(-40px) scale(1.06); } /* سریع میره بالا */
+            55%  { transform: translateY(0) scale(1.00); }     /* آروم برمیگرده */
+            70%  { transform: translateY(-8px) scale(1.02); }  /* یه بونس کوچیک */
+            100% { transform: translateY(0) scale(1); }
+        }
 
-    /* چرخش فرفره‌ای عکس */
-    @keyframes servicesSpin {
-        from { transform: rotate(0deg); }
-        to   { transform: rotate(360deg); }
-    }
+        /* چرخش فرفره‌ای عکس */
+        @keyframes servicesSpin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
 
-    /* وقتی کلاس فعال شد */
-    .services-circle.is-bouncing {
-        animation: servicesBounceUpDown 1.2s cubic-bezier(.15,.95,.25,1) both;
-        will-change: transform;
-    }
+        /* وقتی کلاس فعال شد */
+        .services-circle.is-bouncing {
+            animation: servicesBounceUpDown 1.2s cubic-bezier(.15,.95,.25,1) both;
+            will-change: transform;
+        }
 
-    /* همزمان با پرش، عکس بچرخه */
-    .services-circle.is-bouncing .services-icon {
-        animation: servicesSpin 1.2s linear both;
-        will-change: transform;
-    }
+        /* همزمان با پرش، عکس بچرخه */
+        .services-circle.is-bouncing .services-icon {
+            animation: servicesSpin 1.2s linear both;
+            will-change: transform;
+        }
 
-</style>
+    </style>
 </head>
 
 <body class="dark">
@@ -232,34 +232,33 @@
 
 
 @include('layouts.client.script')
-{{--<script>--}}
-{{--    document.addEventListener("DOMContentLoaded", () => {--}}
-{{--        const circle = document.querySelector(".services-circle");--}}
-{{--        if (!circle) return;--}}
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const circle = document.querySelector(".services-circle");
+        if (!circle) return;
 
-{{--        const run = () => {--}}
-{{--            // اگر وسط انیمیشن بود، دوباره از اول شروع کن--}}
-{{--            circle.classList.remove("is-bouncing");--}}
-{{--            // ری‌فلو برای ریست شدن انیمیشن--}}
-{{--            void circle.offsetWidth;--}}
-{{--            circle.classList.add("is-bouncing");--}}
-{{--        };--}}
+        const run = () => {
+            // اگر وسط انیمیشن بود، دوباره از اول شروع کن
+            circle.classList.remove("is-bouncing");
+            // ری‌فلو برای ریست شدن انیمیشن
+            void circle.offsetWidth;
+            circle.classList.add("is-bouncing");
+        };
 
-{{--        // اجرای اولیه (اختیاری)--}}
-{{--        run();--}}
+        // اجرای اولیه (اختیاری)
+        run();
 
-{{--        // هر 60 ثانیه--}}
-{{--        setInterval(run,15000);--}}
+        // هر 60 ثانیه
+        setInterval(run,15000);
 
-{{--        // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)--}}
-{{--        circle.addEventListener("animationend", (e) => {--}}
-{{--            if (e.animationName === "servicesBounceUpDown") {--}}
-{{--                circle.classList.remove("is-bouncing");--}}
-{{--            }--}}
-{{--        });--}}
-{{--    });--}}
-{{--</script>--}}
-
+        // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)
+        circle.addEventListener("animationend", (e) => {
+            if (e.animationName === "servicesBounceUpDown") {
+                circle.classList.remove("is-bouncing");
+            }
+        });
+    });
+</script>
 </body>
 
 </html>
