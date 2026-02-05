@@ -12,6 +12,8 @@
     {!! SEO::generate() !!}
 
     <style>
+        [x-cloak] { display: none !important; }
+
         /* اطمینان از نمایش درست */
         #pwaBanner.hidden,
         #pwaLoading.hidden {
@@ -232,33 +234,8 @@
 
 
 @include('layouts.client.script')
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const circle = document.querySelector(".services-circle");
-        if (!circle) return;
 
-        const run = () => {
-            // اگر وسط انیمیشن بود، دوباره از اول شروع کن
-            circle.classList.remove("is-bouncing");
-            // ری‌فلو برای ریست شدن انیمیشن
-            void circle.offsetWidth;
-            circle.classList.add("is-bouncing");
-        };
 
-        // اجرای اولیه (اختیاری)
-        run();
-
-        // هر 60 ثانیه
-        setInterval(run,15000);
-
-        // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)
-        circle.addEventListener("animationend", (e) => {
-            if (e.animationName === "servicesBounceUpDown") {
-                circle.classList.remove("is-bouncing");
-            }
-        });
-    });
-</script>
 </body>
 
 </html>

@@ -1,4 +1,156 @@
 <script src="/client/assets/js/dependencies/alpinejs.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const circle = document.querySelector(".services-circle");
+        if (!circle) return;
+
+        const run = () => {
+            // اگر وسط انیمیشن بود، دوباره از اول شروع کن
+            circle.classList.remove("is-bouncing");
+            // ری‌فلو برای ریست شدن انیمیشن
+            void circle.offsetWidth;
+            circle.classList.add("is-bouncing");
+        };
+
+        // اجرای اولیه (اختیاری)
+        run();
+
+        // هر 60 ثانیه
+        setInterval(run, 15000);
+
+        // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)
+        circle.addEventListener("animationend", (e) => {
+            if (e.animationName === "servicesBounceUpDown") {
+                circle.classList.remove("is-bouncing");
+            }
+        });
+    });
+</script>
+
+<script>
+    // ⭐ این تابع باید قبل از Alpine.js لود بشه
+    function mobileMenuHandler() {
+        return {
+            offcanvasOpen: false,
+            profileModalOpen: false,
+            desktopProfileOpen: false,
+            isScrolled: false,
+            isMobile: false,
+            pwaBannerClosed: false,
+            bannersHidden: false,
+            isClosingMenu: false,
+
+            init() {
+                this.checkMobile();
+                this.checkScroll();
+
+                window.addEventListener('scroll', () => this.checkScroll(), {passive: true});
+
+                // Watch برای قفل اسکرول
+                this.$watch('offcanvasOpen', (value) => {
+                    if (value) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                });
+
+                this.$watch('profileModalOpen', (value) => {
+                    if (value) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                });
+
+                this.$watch('desktopProfileOpen', (value) => {
+                    if (value) {
+                        document.body.style.overflow = 'hidden';
+                    } else {
+                        document.body.style.overflow = '';
+                    }
+                });
+            },
+
+            checkMobile() {
+                this.isMobile = window.innerWidth < 1024;
+            },
+
+            checkScroll() {
+                this.isScrolled = window.scrollY > 50;
+            },
+
+            handleResize() {
+                this.checkMobile();
+                if (!this.isMobile && this.offcanvasOpen) {
+                    this.closeMenu();
+                }
+                if (!this.isMobile && this.profileModalOpen) {
+                    this.profileModalOpen = false;
+                }
+                if (this.isMobile && this.desktopProfileOpen) {
+                    this.desktopProfileOpen = false;
+                }
+            },
+
+            toggleMenu() {
+                if (this.offcanvasOpen) {
+                    this.closeMenu();
+                } else {
+                    this.openMenu();
+                }
+            },
+
+            openMenu() {
+                this.profileModalOpen = false;
+                this.desktopProfileOpen = false;
+
+                if (!this.isScrolled) {
+                    this.bannersHidden = true;
+                }
+
+                this.offcanvasOpen = true;
+            },
+
+            openProfileModal() {
+                if (this.offcanvasOpen) {
+                    this.closeMenu();
+                }
+
+                this.profileModalOpen = true;
+            },
+
+            closeMenu() {
+                if (this.isClosingMenu) return;
+                this.isClosingMenu = true;
+
+                this.offcanvasOpen = false;
+
+                if (!this.isScrolled) {
+                    setTimeout(() => {
+                        this.bannersHidden = false;
+                        this.isClosingMenu = false;
+                    }, 350);
+                } else {
+                    this.isClosingMenu = false;
+                }
+            },
+
+            scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+        }
+    }
+
+    // در app.js خط 9
+    const darkModeToggle = document.getElementById('dark-mode-button');
+    if (darkModeToggle) { // ⭐ چک کن که null نباشه
+        darkModeToggle.checked = something;
+    }
+</script>
 <script src="/client/assets/js/dependencies/swiper-bundle.min.js"></script>
 <script src="/client/assets/js/dependencies/plyr.min.js"></script>
 <script src="/client/assets/js/app.js"></script>
@@ -198,7 +350,7 @@
         }
 
         deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
+        const {outcome} = await deferredPrompt.userChoice;
 
         if (outcome === 'accepted') {
             setInstalled();
@@ -294,7 +446,7 @@
         const container = () => document.getElementById('video-container');
         const titleEl = () => document.getElementById('video-modal-title');
 
-        function openVideo({ url, title }) {
+        function openVideo({url, title}) {
             const m = modal();
             const c = container();
             if (!m || !c) return;
@@ -334,7 +486,7 @@
             if (openBtn) {
                 const url = openBtn.getAttribute('data-video-url');
                 const title = openBtn.getAttribute('data-video-title') || 'ویدیو راهنما';
-                if (url) openVideo({ url, title });
+                if (url) openVideo({url, title});
                 return;
             }
 
@@ -356,7 +508,7 @@
         });
 
         // برای استفاده در جاهای دیگه (اختیاری)
-        window.openVideoModal = (url, title = 'ویدیو راهنما') => openVideo({ url, title });
+        window.openVideoModal = (url, title = 'ویدیو راهنما') => openVideo({url, title});
         window.closeVideoModal = closeVideo;
     })();
 </script>
