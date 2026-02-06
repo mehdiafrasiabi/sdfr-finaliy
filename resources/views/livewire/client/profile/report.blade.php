@@ -3,91 +3,32 @@
     @push('link')
 
         <style>
-
             .part-box {
-
                 transition: all 0.2s ease;
-
                 cursor: pointer;
-
-                border: 2px solid transparent;
-
             }
 
             .part-box:hover {
-
-                transform: translateY(-2px);
-
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
             }
 
-            .part-box.selected {
-
-                border-color: #10b981;
-
-                background: rgba(16, 185, 129, 0.1);
-
+            .star-btn {
+                cursor: pointer;
+                transition: all 0.15s ease;
             }
 
-            .part-box.selected .part-icon {
-
-                color: #10b981;
-
+            .star-btn:active {
+                transform: scale(0.95);
             }
 
-            .day-card {
-
-                transition: all 0.3s ease;
-
+            /* تضمین فاصله از bottom nav در موبایل */
+            @media (max-width: 768px) {
+                .modal-bottom-safe {
+                    padding-bottom: calc(env(safe-area-inset-bottom) + 80px);
+                }
             }
-
-            .day-card:hover {
-
-                transform: translateY(-3px);
-
-            }
-
-            .day-card.locked {
-
-                opacity: 0.6;
-
-            }
-
-            .day-card.submitted {
-
-                border-color: #10b981;
-
-            }
-
-            .day-card.today {
-
-                border-color: #3b82f6;
-
-                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-
-            }
-
-            .rating-btn {
-
-                transition: all 0.2s ease;
-
-            }
-
-            .rating-btn:hover {
-
-                transform: scale(1.05);
-
-            }
-
-            .rating-btn.active {
-
-                transform: scale(1.1);
-
-            }
-
         </style>
-
     @endpush
 
 
@@ -190,7 +131,7 @@
                                         allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
                                         data-video-title="راهنمای گزارش"
                                         class="absolute inset-0 flex items-center justify-center"
-                                                                                >
+                                    >
                                         <span
                                             class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60
                                                flex items-center justify-center shadow-lg transition">
@@ -289,45 +230,6 @@
                         <div x-show="activeTab === 'submit'" class="space-y-6">
 
                             @if($currentSession && $currentProgram)
-
-                                <!-- Session Info -->
-
-                                <div
-                                    class="bg-gradient-to-r from-primary/10 to-primary/5 dark:from-primary/20 dark:to-primary/10 border border-primary/20 rounded-2xl p-5">
-
-                                    <div class="flex flex-wrap items-center justify-between gap-4">
-
-                                        <div>
-
-                                            <h3 class="font-bold text-foreground">جلسه مشاوره فعال</h3>
-
-                                            <p class="text-sm text-muted mt-1">
-
-                                                تاریخ: {{ jdate($currentSession->activation_date)->format('d F Y') }}
-
-                                            </p>
-
-                                        </div>
-
-                                        <div class="text-left">
-
-                                            <span
-                                                class="inline-flex items-center gap-2 bg-green-500/20 text-green-600 dark:text-green-400 rounded-full px-3 py-1 text-sm font-medium">
-
-                                                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-
-                                                برگزار شده
-
-                                            </span>
-
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-
-
                                 <!-- Week Days Grid -->
 
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -676,11 +578,11 @@
 
                                                         <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium
 
-                                                            {{ $report->rating >= 4 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
+                                                            {{ $report->rating >= 3 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
 
-                                                            {{ $report->rating == 3 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
+                                                            {{ $report->rating == 2 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
 
-                                                            {{ $report->rating <= 2 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
+                                                            {{ $report->rating <= 1 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
 
                                                             {{ $this->getRatingLabel($report->rating) }}
 
@@ -798,323 +700,275 @@
 
     <!-- Report Modal -->
 
+    <!-- Report Modal - IMPROVED VERSION -->
     @if($showReportModal && isset($weekDays[$selectedDayIndex]))
-
         @php $selectedDay = $weekDays[$selectedDayIndex]; @endphp
 
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-
-             wire:click.self="closeReportModal">
+        <div
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
+            wire:click.self="closeReportModal">
 
             <div
-                class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-background border border-border rounded-2xl shadow-2xl"
-
+                class="w-full sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] overflow-hidden bg-background border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col"
+                style="margin-bottom: env(safe-area-inset-bottom, 80px);"
                 wire:keydown.escape.window="closeReportModal">
 
-
-                <!-- Modal Header -->
-
-                <div class="sticky top-0 z-10 bg-background border-b border-border px-6 py-4">
-
+                <!-- Modal Header - Fixed -->
+                <div class="shrink-0 bg-background border-b border-border px-4 sm:px-6 py-3 sm:py-4">
                     <div class="flex items-center justify-between">
-
                         <div>
-
-                            <h3 class="text-lg font-bold text-foreground">ثبت گزارش روزانه</h3>
-
-                            <p class="text-sm text-muted">{{ $selectedDay['name'] }}
+                            <h3 class="text-base sm:text-lg font-bold text-foreground">ثبت گزارش روزانه</h3>
+                            <p class="text-xs sm:text-sm text-muted">{{ $selectedDay['name'] }}
                                 - {{ $selectedDay['jalali_short'] }}</p>
-
                         </div>
-
-                        <button type="button" wire:click="closeReportModal"
-                                class="text-muted hover:text-foreground transition-all">
-
+                        <button type="button"
+                                wire:click="closeReportModal"
+                                class="text-muted hover:text-foreground transition-all p-1">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                 stroke="currentColor" class="w-6 h-6">
-
+                                 stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-
                             </svg>
-
                         </button>
-
                     </div>
-
                 </div>
 
-
-                <div class="px-6 py-5 space-y-6">
+                <!-- Scrollable Content -->
+                <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5">
 
                     <!-- Parts Selection -->
-
                     <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="font-semibold text-foreground text-sm sm:text-base">پارت‌های خوانده
+                                شده:</label>
+                            <span class="text-xs sm:text-sm text-muted">
+                            <span class="font-medium text-green-600">{{ count($selectedParts) }}</span> / {{ count($selectedDay['parts']) }}
+                        </span>
+                        </div>
 
-                        <label class="font-semibold text-foreground">پارت های خوانده شده را انتخاب کنید:</label>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
+                        <div class="grid grid-cols-1 gap-2.5 sm:gap-3">
                             @foreach($selectedDay['parts'] as $part)
+                                <div wire:key="part-select-{{ $part->id }}"
+                                     class="part-box relative bg-secondary rounded-xl border-2 transition-all duration-200 {{ in_array($part->id, $selectedParts) ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : 'border-transparent' }}">
 
-                                <div wire:click="togglePart({{ $part->id }})"
-
-                                     wire:key="part-select-{{ $part->id }}"
-
-                                     class="part-box p-4 bg-secondary rounded-xl {{ in_array($part->id, $selectedParts) ? 'selected' : '' }}">
-
-                                    <div class="flex items-start gap-3">
+                                    <!-- Part Header - Clickable -->
+                                    <div wire:click="togglePart({{ $part->id }})"
+                                         class="flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 cursor-pointer">
 
                                         <div
-                                            class="part-icon mt-1 {{ in_array($part->id, $selectedParts) ? 'text-green-500' : 'text-muted' }}">
-
+                                            class="mt-0.5 shrink-0 {{ in_array($part->id, $selectedParts) ? 'text-green-500' : 'text-muted' }}">
                                             @if(in_array($part->id, $selectedParts))
-
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                     fill="currentColor" class="w-5 h-5">
-
+                                                     fill="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
                                                     <path fill-rule="evenodd"
                                                           d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
                                                           clip-rule="evenodd"/>
-
                                                 </svg>
-
                                             @else
-
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-
+                                                     stroke-width="1.5" stroke="currentColor"
+                                                     class="w-5 h-5 sm:w-6 sm:h-6">
                                                     <path stroke-linecap="round" stroke-linejoin="round"
                                                           d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-
                                                 </svg>
-
                                             @endif
-
                                         </div>
 
                                         <div class="flex-1 min-w-0">
+                                            <h4 class="font-semibold text-foreground text-sm sm:text-base line-clamp-1">{{ $part->lesson_name }}</h4>
 
-                                            <h4 class="font-medium text-foreground text-sm truncate">{{ $part->lesson_name }}</h4>
-
-                                            <div class="flex flex-wrap gap-2 mt-1">
-
+                                            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1">
                                                 @if($part->ccSubject)
-
-                                                    <span class="text-xs text-muted">{{ $part->ccSubject->name }}</span>
-
+                                                    <span
+                                                        class="text-[10px] sm:text-xs text-muted bg-background px-1.5 py-0.5 rounded">{{ $part->ccSubject->name }}</span>
                                                 @endif
-
                                                 @if($part->ccTopic)
-
-                                                    <span class="text-xs text-primary">{{ $part->ccTopic->name }}</span>
-
+                                                    <span
+                                                        class="text-[10px] sm:text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded">{{ $part->ccTopic->name }}</span>
                                                 @endif
-
                                             </div>
 
-                                            <div class="flex items-center gap-2 mt-2 text-xs text-muted">
-
-                                                <span>{{ $part->duration_minutes }} دقیقه</span>
-
+                                            <div class="flex items-center gap-2 mt-1.5 text-xs text-muted">
+                                            <span class="flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                                                     stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          stroke-width="2"
+                                                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                {{ $part->duration_minutes }} دقیقه
+                                            </span>
                                                 @if($part->test_count)
-
-                                                    <span>|</span>
-
-                                                    <span>{{ $part->test_count }} تست</span>
-
+                                                    <span class="text-muted/50">•</span>
+                                                    <span class="flex items-center gap-1">
+                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                                                         stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                              stroke-width="2"
+                                                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                    </svg>
+                                                    {{ $part->test_count }} تست
+                                                </span>
                                                 @endif
-
                                             </div>
-
                                         </div>
-
                                     </div>
 
+                                    {{-- ✅ فقط اگر پارت انتخاب شده، ستاره‌ها و تست نمایش داده بشه --}}
+                                    @if(in_array($part->id, $selectedParts))
+                                        <div class="px-3 sm:px-3.5 pb-3 sm:pb-3.5 space-y-2.5 border-t border-border/50"
+                                             wire:click.stop>
 
-                                    <!-- Test Input (if part has tests and is selected) -->
+                                            <!-- Star Rating -->
+                                            <div>
+                                                <label class="text-xs text-muted block mb-1.5">امتیاز این پارت:</label>
+                                                <div class="flex items-center gap-1">
+                                                    @for($s = 1; $s <= 4; $s++)
+                                                        <button type="button"
+                                                                wire:click="setPartRating({{ $part->id }}, {{ $s }})"
+                                                                class="star-btn transition-transform hover:scale-110 p-0.5">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                                 class="w-6 h-6 sm:w-7 sm:h-7 {{ ($partRatings[$part->id] ?? 0) >= $s ? 'text-amber-400 fill-amber-400' : 'text-gray-300 fill-none' }}"
+                                                                 stroke-width="1.5" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                      d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+                                                            </svg>
+                                                        </button>
+                                                    @endfor
+                                                    @if(($partRatings[$part->id] ?? 0) > 0)
+                                                        <span class="text-xs font-medium mr-1.5
+                                                        {{ ($partRatings[$part->id] ?? 0) >= 3 ? 'text-green-600' : '' }}
+                                                        {{ ($partRatings[$part->id] ?? 0) == 2 ? 'text-blue-600' : '' }}
+                                                        {{ ($partRatings[$part->id] ?? 0) == 1 ? 'text-red-600' : '' }}">
+                                                        {{ \App\Models\DailyReport::RATINGS[$partRatings[$part->id]] ?? '' }}
+                                                    </span>
+                                                    @endif
+                                                </div>
+                                            </div>
 
-                                    @if($part->test_count && in_array($part->id, $selectedParts))
-
-                                        <div class="mt-3 pt-3 border-t border-border" wire:click.stop>
-
-                                            <label class="text-xs text-muted block mb-1">تعداد تست زده شده:</label>
-
-                                            <input type="tel"
-
-                                                   wire:model="testsDone.{{ $part->id }}"
-
-                                                   min="0"
-
-                                                   max="{{ $part->test_count }}"
-
-                                                   class="w-full h-9 rounded-lg border border-border bg-background text-foreground text-sm px-3"
-
-                                                   placeholder="از {{ $part->test_count }} تست">
-
+                                            {{-- Test Input --}}
+                                            @if($part->test_count)
+                                                <div>
+                                                    <label class="text-xs text-muted block mb-1">تعداد تست زده
+                                                        شده:</label>
+                                                    <input type="number"
+                                                           wire:model="testsDone.{{ $part->id }}"
+                                                           min="0"
+                                                           max="{{ $part->test_count }}"
+                                                           class="w-full h-9 sm:h-10 rounded-lg border border-border bg-background text-foreground text-sm px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                                           placeholder="از {{ $part->test_count }} تست">
+                                                </div>
+                                            @endif
                                         </div>
-
                                     @endif
-
                                 </div>
-
                             @endforeach
-
                         </div>
-
-                        <p class="text-sm text-muted">
-
-                            انتخاب شده: <span class="font-medium text-green-600">{{ count($selectedParts) }}</span>
-
-                            از <span class="font-medium">{{ count($selectedDay['parts']) }}</span> پارت
-
-                        </p>
-
                     </div>
-
 
                     <!-- Phone Hours -->
-
                     <div class="space-y-2">
-
-                        <label class="font-semibold text-foreground">ساعت استفاده از گوشی (غیر درسی):</label>
-
+                        <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
+                            <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                            ساعت استفاده از گوشی (غیر درسی):
+                        </label>
                         <input type="number"
-
                                wire:model="phoneHours"
-
                                min="0"
-
                                max="24"
-
-                               class="w-full h-11 rounded-xl border border-border bg-secondary text-foreground px-4"
-
-                               placeholder="از 24 ساعت">
-
+                               class="w-full h-11 rounded-xl border border-border bg-secondary text-foreground px-4 text-sm sm:text-base focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                               placeholder="مثال: 3 ساعت">
                         @error('phoneHours')
-
-                        <p class="text-red-500 text-xs">{{ $message }}</p>
-
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
-
                     </div>
-
 
                     <!-- Description -->
-
                     <div class="space-y-2">
-
-                        <label class="font-semibold text-foreground">توضیحات (اختیاری):</label>
-
+                        <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
+                            <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            توضیحات (اختیاری):
+                        </label>
                         <textarea wire:model="description"
-
                                   rows="3"
-
-                                  class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 resize-none"
-
-                                  placeholder="توضیحات خود را بنویسید..."></textarea>
-
+                                  class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                  placeholder="اگر توضیحی دارید اینجا بنویسید..."></textarea>
                         @error('description')
-
-                        <p class="text-red-500 text-xs">{{ $message }}</p>
-
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
-
                     </div>
 
-
-                    <!-- Rating -->
-
-                    <div class="space-y-3">
-
-                        <label class="font-semibold text-foreground">امتیاز روز:</label>
-
-                        <div class="flex flex-wrap gap-2">
-
-                            @foreach(\App\Models\DailyReport::RATINGS as $value => $label)
-
-                                <button type="button"
-
-                                        wire:click="$set('rating', {{ $value }})"
-
-                                        class="rating-btn px-4 py-2 rounded-xl text-sm font-medium transition-all
-
-                                            {{ $rating == $value ? 'active ring-2 ring-primary ring-offset-2' : '' }}
-
-                                            {{ $value >= 4 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
-
-                                            {{ $value == 3 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
-
-                                            {{ $value <= 2 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
-
-                                    {{ $label }}
-
-                                </button>
-
-                            @endforeach
-
+                    <!-- Computed Rating Display -->
+                    @php $computedRating = $this->computedRating; @endphp
+                    <div
+                        class="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-3.5 sm:p-4">
+                        <div class="flex items-center justify-between gap-3">
+                        <span class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
+                            <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            امتیاز کلی روز:
+                        </span>
+                            @if($computedRating > 0)
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-0.5">
+                                        @for($s = 1; $s <= 4; $s++)
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                 class="w-4 h-4 {{ $s <= $computedRating ? 'text-amber-400 fill-amber-400' : 'text-gray-300' }}"
+                                                 stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-bold px-2 py-1 rounded-lg
+                                    {{ $computedRating >= 3 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
+                                    {{ $computedRating == 2 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
+                                    {{ $computedRating == 1 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
+                                    {{ \App\Models\DailyReport::RATINGS[$computedRating] ?? '' }}
+                                </span>
+                                </div>
+                            @else
+                                <span class="text-muted text-xs sm:text-sm">ابتدا پارت‌ها را امتیازدهی کنید</span>
+                            @endif
                         </div>
-
-                        @error('rating')
-
-                        <p class="text-red-500 text-xs">{{ $message }}</p>
-
-                        @enderror
-
                     </div>
-
                 </div>
 
-
-                <!-- Modal Footer -->
-
-                <div
-                    class="sticky bottom-0 bg-secondary border-t border-border px-6 py-4 flex items-center justify-end gap-3">
-
-                    <button type="button"
-
-                            wire:click="closeReportModal"
-
-                            class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-background transition-all">
-
-                        انصراف
-
-                    </button>
-
-                    <button type="button"
-
-                            wire:click="submitReport"
-
-                            wire:loading.attr="disabled"
-
-                            class="px-5 py-2.5 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all disabled:opacity-50">
-
-                        <span wire:loading.remove wire:target="submitReport">ثبت گزارش</span>
-
-                        <span wire:loading wire:target="submitReport" class="flex items-center gap-2">
-
+                <!-- Modal Footer - Fixed -->
+                <div class="shrink-0 bg-secondary border-t border-border px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="flex items-center justify-end gap-2 sm:gap-3">
+                        <button type="button"
+                                wire:click="closeReportModal"
+                                class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl border border-border text-foreground hover:bg-background transition-all text-sm sm:text-base font-medium">
+                            انصراف
+                        </button>
+                        <button type="button"
+                                wire:click="submitReport"
+                                wire:loading.attr="disabled"
+                                class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all disabled:opacity-50 text-sm sm:text-base font-semibold">
+                            <span wire:loading.remove wire:target="submitReport">ثبت گزارش</span>
+                            <span wire:loading wire:target="submitReport" class="flex items-center gap-2">
                             <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
                                  viewBox="0 0 24 24">
-
                                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                                         stroke-width="4"></circle>
-
                                 <path class="opacity-75" fill="currentColor"
                                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-
                             </svg>
-
                             در حال ثبت...
-
                         </span>
-
-                    </button>
-
+                        </button>
+                    </div>
                 </div>
-
             </div>
-
         </div>
-
     @endif
 
 
@@ -1282,45 +1136,66 @@
                         <div
                             class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-4">
 
-                            <h4 class="font-semibold text-amber-800 dark:text-amber-200 mb-2">پارت‌های انتخاب شده:</h4>
+                            <h4 class="font-semibold text-amber-800 dark:text-amber-200 mb-3">پارت‌های انتخاب شده:</h4>
 
-                            <div class="space-y-2">
+                            <div class="space-y-4">
 
                                 @foreach($missedParts as $missed)
 
                                     @if(in_array($missed['part']->id, $selectedCompensatoryParts))
 
-                                        <div class="flex items-center justify-between text-sm">
+                                        <div
+                                            class="pb-3 border-b border-amber-200/50 dark:border-amber-800/50 last:border-0 last:pb-0">
+                                            <div class="flex items-center justify-between text-sm mb-2">
 
-                                            <span class="text-foreground">{{ $missed['part']->lesson_name }}</span>
+                                                <span
+                                                    class="text-foreground font-medium">{{ $missed['part']->lesson_name }}</span>
 
-                                            @if($missed['part']->test_count)
+                                                @if($missed['part']->test_count)
 
-                                                <div class="flex items-center gap-2" wire:click.stop>
+                                                    <div class="flex items-center gap-2" wire:click.stop>
 
-                                                    <label class="text-xs text-muted">تست زده:</label>
+                                                        <label class="text-xs text-muted">تست زده:</label>
 
-                                                    <input type="number"
+                                                        <input type="number"
 
-                                                           wire:model="compensatoryTestsDone.{{ $missed['part']->id }}"
+                                                               wire:model="compensatoryTestsDone.{{ $missed['part']->id }}"
 
-                                                           min="0"
+                                                               min="0"
 
-                                                           max="{{ $missed['part']->test_count }}"
+                                                               max="{{ $missed['part']->test_count }}"
 
-                                                           class="w-20 h-8 rounded-lg border border-border bg-background text-foreground text-sm px-2 text-center"
+                                                               class="w-20 h-8 rounded-lg border border-border bg-background text-foreground text-sm px-2 text-center"
 
-                                                           placeholder="{{ $missed['part']->test_count }}">
+                                                               placeholder="{{ $missed['part']->test_count }}">
 
-                                                </div>
+                                                    </div>
+
+                                                @endif
+
+                                            </div>
 
                                             @endif
-
                                         </div>
 
-                                    @endif
-
-                                @endforeach
+                                        <!-- Star Rating -->
+                                        <div wire:click.stop>
+                                            <label class="text-xs text-muted block mb-1">امتیاز:</label>
+                                            <div class="star-rating">
+                                                @for($s = 1; $s <= 4; $s++)
+                                                    <button type="button"
+                                                            wire:click="setCompensatoryPartRating({{ $missed['part']->id }}, {{ $s }})"
+                                                            class="star-btn {{ ($compensatoryPartRatings[$missed['part']->id] ?? 0) >= $s ? 'filled' : 'empty' }}">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                             stroke-width="1.5" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                  d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+                                                        </svg>
+                                                    </button>
+                                                @endfor
+                                            </div>
+                                        </div>
+                                        @endforeach
 
                             </div>
 
@@ -1371,48 +1246,6 @@
                                       placeholder="توضیحات خود را بنویسید..."></textarea>
 
                             @error('compensatoryDescription')
-
-                            <p class="text-red-500 text-xs">{{ $message }}</p>
-
-                            @enderror
-
-                        </div>
-
-
-
-                        <!-- Rating -->
-
-                        <div class="space-y-3">
-
-                            <label class="font-semibold text-foreground">امتیاز روز:</label>
-
-                            <div class="flex flex-wrap gap-2">
-
-                                @foreach(\App\Models\DailyReport::RATINGS as $value => $label)
-
-                                    <button type="button"
-
-                                            wire:click="$set('compensatoryRating', {{ $value }})"
-
-                                            class="rating-btn px-4 py-2 rounded-xl text-sm font-medium transition-all
-
-                                                {{ $compensatoryRating == $value ? 'active ring-2 ring-amber-500 ring-offset-2' : '' }}
-
-                                                {{ $value >= 4 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
-
-                                                {{ $value == 3 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
-
-                                                {{ $value <= 2 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
-
-                                        {{ $label }}
-
-                                    </button>
-
-                                @endforeach
-
-                            </div>
-
-                            @error('compensatoryRating')
 
                             <p class="text-red-500 text-xs">{{ $message }}</p>
 
@@ -1502,154 +1335,275 @@
 
 
 
-    <!-- Reply Modal -->
+    <!-- Report Modal - IMPROVED VERSION -->
+    @if($showReportModal && isset($weekDays[$selectedDayIndex]))
+        @php $selectedDay = $weekDays[$selectedDayIndex]; @endphp
 
-    @if($replyModalOpen)
+        <div
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
+            wire:click.self="closeReportModal">
 
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+            <div
+                class="w-full sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] overflow-hidden bg-background border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col"
+                style="margin-bottom: env(safe-area-inset-bottom, 80px);"
+                wire:keydown.escape.window="closeReportModal">
 
-             wire:click.self="closeReplyModal">
-
-            <div class="w-full max-w-xl bg-background border border-border rounded-2xl shadow-2xl"
-
-                 wire:keydown.escape.window="closeReplyModal">
-
-
-                <div class="flex items-center justify-between px-6 py-4 border-b border-border">
-
-                    <div>
-
-                        <h3 class="text-base font-bold text-foreground">نظر مشاور</h3>
-
-                        <p class="text-xs text-muted mt-1">امکان ثبت تنها یک پاسخ برای هر گزارش وجود دارد.</p>
-
+                <!-- Modal Header - Fixed -->
+                <div class="shrink-0 bg-background border-b border-border px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-base sm:text-lg font-bold text-foreground">ثبت گزارش روزانه</h3>
+                            <p class="text-xs sm:text-sm text-muted">{{ $selectedDay['name'] }}
+                                - {{ $selectedDay['jalali_short'] }}</p>
+                        </div>
+                        <button type="button"
+                                wire:click="closeReportModal"
+                                class="text-muted hover:text-foreground transition-all p-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                 stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
                     </div>
-
-                    <button type="button" wire:click="closeReplyModal"
-                            class="text-muted hover:text-foreground transition-all">
-
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                             stroke="currentColor" class="w-6 h-6">
-
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-
-                        </svg>
-
-                    </button>
-
                 </div>
 
+                <!-- Scrollable Content -->
+                <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5">
 
-                <div class="px-6 py-5 space-y-4">
+                    <!-- Parts Selection -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="font-semibold text-foreground text-sm sm:text-base">پارت‌های خوانده
+                                شده:</label>
+                            <span class="text-xs sm:text-sm text-muted">
+                            <span class="font-medium text-green-600">{{ count($selectedParts) }}</span> / {{ count($selectedDay['parts']) }}
+                        </span>
+                        </div>
 
+                        <div class="grid grid-cols-1 gap-2.5 sm:gap-3">
+                            @foreach($selectedDay['parts'] as $part)
+                                <div wire:key="part-select-{{ $part->id }}"
+                                     class="part-box relative bg-secondary rounded-xl border-2 transition-all duration-200 {{ in_array($part->id, $selectedParts) ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : 'border-transparent' }}">
+
+                                    <!-- Part Header - Clickable -->
+                                    <div wire:click="togglePart({{ $part->id }})"
+                                         class="flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 cursor-pointer">
+
+                                        <div
+                                            class="mt-0.5 shrink-0 {{ in_array($part->id, $selectedParts) ? 'text-green-500' : 'text-muted' }}">
+                                            @if(in_array($part->id, $selectedParts))
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                     fill="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
+                                                    <path fill-rule="evenodd"
+                                                          d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                                                          clip-rule="evenodd"/>
+                                                </svg>
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                     stroke-width="1.5" stroke="currentColor"
+                                                     class="w-5 h-5 sm:w-6 sm:h-6">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                            @endif
+                                        </div>
+
+                                        <div class="flex-1 min-w-0">
+                                            <h4 class="font-semibold text-foreground text-sm sm:text-base line-clamp-1">{{ $part->lesson_name }}</h4>
+
+                                            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1">
+                                                @if($part->ccSubject)
+                                                    <span
+                                                        class="text-[10px] sm:text-xs text-muted bg-background px-1.5 py-0.5 rounded">{{ $part->ccSubject->name }}</span>
+                                                @endif
+                                                @if($part->ccTopic)
+                                                    <span
+                                                        class="text-[10px] sm:text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded">{{ $part->ccTopic->name }}</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="flex items-center gap-2 mt-1.5 text-xs text-muted">
+                                            <span class="flex items-center gap-1">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                                                     stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          stroke-width="2"
+                                                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                </svg>
+                                                {{ $part->duration_minutes }} دقیقه
+                                            </span>
+                                                @if($part->test_count)
+                                                    <span class="text-muted/50">•</span>
+                                                    <span class="flex items-center gap-1">
+                                                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24"
+                                                         stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                              stroke-width="2"
+                                                              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                    </svg>
+                                                    {{ $part->test_count }} تست
+                                                </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- ✅ فقط اگر پارت انتخاب شده، ستاره‌ها و تست نمایش داده بشه --}}
+                                    @if(in_array($part->id, $selectedParts))
+                                        <div class="px-3 sm:px-3.5 pb-3 sm:pb-3.5 space-y-2.5 border-t border-border/50"
+                                             wire:click.stop>
+
+                                            <!-- Star Rating -->
+                                            <div>
+                                                <label class="text-xs text-muted block mb-1.5">امتیاز این پارت:</label>
+                                                <div class="flex items-center gap-1">
+                                                    @for($s = 1; $s <= 4; $s++)
+                                                        <button type="button"
+                                                                wire:click="setPartRating({{ $part->id }}, {{ $s }})"
+                                                                class="star-btn transition-transform hover:scale-110 p-0.5">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                                 class="w-6 h-6 sm:w-7 sm:h-7 {{ ($partRatings[$part->id] ?? 0) >= $s ? 'text-amber-400 fill-amber-400' : 'text-gray-300 fill-none' }}"
+                                                                 stroke-width="1.5" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                      d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+                                                            </svg>
+                                                        </button>
+                                                    @endfor
+                                                    @if(($partRatings[$part->id] ?? 0) > 0)
+                                                        <span class="text-xs font-medium mr-1.5
+                                                        {{ ($partRatings[$part->id] ?? 0) >= 3 ? 'text-green-600' : '' }}
+                                                        {{ ($partRatings[$part->id] ?? 0) == 2 ? 'text-blue-600' : '' }}
+                                                        {{ ($partRatings[$part->id] ?? 0) == 1 ? 'text-red-600' : '' }}">
+                                                        {{ \App\Models\DailyReport::RATINGS[$partRatings[$part->id]] ?? '' }}
+                                                    </span>
+                                                    @endif
+                                                </div>
+                                            </div>
+
+                                            {{-- Test Input --}}
+                                            @if($part->test_count)
+                                                <div>
+                                                    <label class="text-xs text-muted block mb-1">تعداد تست زده
+                                                        شده:</label>
+                                                    <input type="number"
+                                                           wire:model="testsDone.{{ $part->id }}"
+                                                           min="0"
+                                                           max="{{ $part->test_count }}"
+                                                           class="w-full h-9 sm:h-10 rounded-lg border border-border bg-background text-foreground text-sm px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                                           placeholder="از {{ $part->test_count }} تست">
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Phone Hours -->
                     <div class="space-y-2">
-
-                        <div class="text-xs text-primary font-bold">نظر مشاور</div>
-
-                        <p class="text-sm leading-6 text-foreground bg-secondary border border-border rounded-xl p-4">
-
-                            {{ $advisorCommentPreview }}
-
-                        </p>
-
+                        <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
+                            <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                            </svg>
+                            ساعت استفاده از گوشی (غیر درسی):
+                        </label>
+                        <input type="number"
+                               wire:model="phoneHours"
+                               min="0"
+                               max="24"
+                               class="w-full h-11 rounded-xl border border-border bg-secondary text-foreground px-4 text-sm sm:text-base focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                               placeholder="مثال: 3 ساعت">
+                        @error('phoneHours')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
+                    <!-- Description -->
+                    <div class="space-y-2">
+                        <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
+                            <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            توضیحات (اختیاری):
+                        </label>
+                        <textarea wire:model="description"
+                                  rows="3"
+                                  class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                  placeholder="اگر توضیحی دارید اینجا بنویسید..."></textarea>
+                        @error('description')
+                        <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
 
-                    @if($studentReplyPreview)
-
-                        <div class="space-y-2">
-
-                            <div class="text-xs text-green-600 font-bold">پاسخ شما</div>
-
-                            <p class="text-sm leading-6 text-foreground bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl p-4">
-
-                                {{ $studentReplyPreview }}
-
-                            </p>
-
+                    <!-- Computed Rating Display -->
+                    @php $computedRating = $this->computedRating; @endphp
+                    <div
+                        class="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-3.5 sm:p-4">
+                        <div class="flex items-center justify-between gap-3">
+                        <span class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
+                            <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                            </svg>
+                            امتیاز کلی روز:
+                        </span>
+                            @if($computedRating > 0)
+                                <div class="flex items-center gap-2">
+                                    <div class="flex items-center gap-0.5">
+                                        @for($s = 1; $s <= 4; $s++)
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                 class="w-4 h-4 {{ $s <= $computedRating ? 'text-amber-400 fill-amber-400' : 'text-gray-300' }}"
+                                                 stroke-width="1.5" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                    <span class="text-xs sm:text-sm font-bold px-2 py-1 rounded-lg
+                                    {{ $computedRating >= 3 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
+                                    {{ $computedRating == 2 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
+                                    {{ $computedRating == 1 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
+                                    {{ \App\Models\DailyReport::RATINGS[$computedRating] ?? '' }}
+                                </span>
+                                </div>
+                            @else
+                                <span class="text-muted text-xs sm:text-sm">ابتدا پارت‌ها را امتیازدهی کنید</span>
+                            @endif
                         </div>
-
-                    @else
-
-                        <div class="space-y-2">
-
-                            <label class="text-sm font-medium text-foreground">پاسخ شما</label>
-
-                            <textarea wire:model="studentReplyInput"
-
-                                      rows="4"
-
-                                      class="w-full rounded-xl border border-border bg-secondary text-sm text-foreground px-4 py-3 resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"
-
-                                      placeholder="پاسخ خود را بنویسید..."></textarea>
-
-                            @error('studentReplyInput')
-
-                            <p class="text-xs font-medium text-red-500">{{ $message }}</p>
-
-                            @enderror
-
-                        </div>
-
-                    @endif
-
+                    </div>
                 </div>
 
-
-                <div
-                    class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl">
-
-                    @if($studentReplyPreview)
-
+                <!-- Modal Footer - Fixed -->
+                <div class="shrink-0 bg-secondary border-t border-border px-4 sm:px-6 py-3 sm:py-4">
+                    <div class="flex items-center justify-end gap-2 sm:gap-3">
                         <button type="button"
-
-                                wire:click="closeReplyModal"
-
-                                class="px-5 py-2.5 rounded-full bg-primary text-white hover:bg-primary/80 transition-all">
-
-                            بستن
-
+                                wire:click="closeReportModal"
+                                class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl border border-border text-foreground hover:bg-background transition-all text-sm sm:text-base font-medium">
+                            انصراف
                         </button>
-
-                    @else
-
                         <button type="button"
-
-                                wire:click="saveStudentReply"
-
+                                wire:click="submitReport"
                                 wire:loading.attr="disabled"
-
-                                class="px-5 py-2.5 rounded-full bg-primary text-white hover:bg-primary/80 transition-all disabled:opacity-50">
-
-                            <span wire:loading.remove wire:target="saveStudentReply">ثبت پاسخ</span>
-
-                            <span wire:loading wire:target="saveStudentReply" class="flex items-center gap-2">
-
-                                <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                     viewBox="0 0 24 24">
-
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                            stroke-width="4"></circle>
-
-                                    <path class="opacity-75" fill="currentColor"
-                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-
-                                </svg>
-
-                                در حال ارسال...
-
-                            </span>
-
+                                class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all disabled:opacity-50 text-sm sm:text-base font-semibold">
+                            <span wire:loading.remove wire:target="submitReport">ثبت گزارش</span>
+                            <span wire:loading wire:target="submitReport" class="flex items-center gap-2">
+                            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                 viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            در حال ثبت...
+                        </span>
                         </button>
-
-                    @endif
-
+                    </div>
                 </div>
-
             </div>
-
         </div>
-
     @endif
 
 </div>

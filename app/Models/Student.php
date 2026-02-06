@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Student extends Model
 {
@@ -13,10 +15,7 @@ class Student extends Model
         return $this->belongsTo(Payment::class)->where('status', '=', 'completed');
     }
 
-    public function examAttempts()
-    {
-        return $this->hasMany(ExamAttemp::class);
-    }
+
 
     public function user()
     {
@@ -31,11 +30,6 @@ class Student extends Model
         return $this->user?->personalInformation;
     }
 
-    public function barnamehs()
-    {
-        return $this->hasMany(\App\Models\Barnameh::class);
-    }
-
     public function reportMonthlies()
     {
         return $this->hasMany(\App\Models\ReportMonthly::class);
@@ -46,10 +40,7 @@ class Student extends Model
         return $this->hasMany(\App\Models\Report::class);
     }
 
-    public function exams()
-    {
-        return $this->belongsToMany(Exam::class);
-    }
+
 
     public function studySessions()
     {
@@ -90,7 +81,10 @@ class Student extends Model
     {
         return $this->hasMany(DailyReport::class);
     }
-
+    public function weeklyPrograms(): HasMany
+    {
+        return $this->hasMany(WeeklyProgram::class);
+    }
     public function studyPartSessions()
     {
         return $this->hasMany(StudyPartSession::class);

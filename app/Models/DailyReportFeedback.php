@@ -1,21 +1,22 @@
 <?php
+
 namespace App\Models;
+
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-class DailyReportPart extends Model
+
+class DailyReportFeedback extends Model
 {
     protected $guarded = [];
+    protected $table = 'daily_report_feedbacks'; // مهم: نام جدول صحیح
 
     protected $casts = [
-        'is_read' => 'boolean',
-        'is_compensatory' => 'boolean',
+        'advisor_commented_at' => 'datetime',
+        'student_replied_at' => 'datetime',
     ];
+
     public function dailyReport(): BelongsTo
     {
         return $this->belongsTo(DailyReport::class);
-    }
-    public function programPart(): BelongsTo
-    {
-        return $this->belongsTo(ProgramPart::class);
     }
 }
