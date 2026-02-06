@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Livewire\Admin\Student\StudySession;
-
+use App\Models\MakeupSession;
+use App\Models\SessionFeedback;
+use App\Models\StudyPartSession;
 use App\Models\StudySession;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
@@ -24,15 +26,21 @@ class Show extends Component
     public $dateTo = '';
     public $sortBy = 'started_at';
     public $sortDirection = 'desc';
-
+    public $sessionType = 'all'; // all | regular | makeup
     // Statistics
     public $totalSessions = 0;
     public $averageDuration = 0;
-
+    public $makeupCount = 0;
+    public $regularCount = 0;
+    public $feedbackAvg = 0;
+    public $completedPartsCount = 0;
+    // جلسات جبرانی
+    public $makeupSessions = [];
     protected $queryString = [
         'search' => ['except' => ''],
         'dateFrom' => ['except' => ''],
         'dateTo' => ['except' => ''],
+        'sessionType' => ['except' => 'all'],
     ];
 
     public function mount(User $student)
@@ -47,8 +55,10 @@ class Show extends Component
 
         $this->calculateStudyTime();
         $this->loadStudySessions();
-
+        $this->loadMakeupSessions();
+        $this->loadStats();
         $this->seoConfig();
+
     }
 
     public function seoConfig()
@@ -85,6 +95,10 @@ class Show extends Component
             ->whereBetween('started_at', [$monthStart, $monthEnd])
             ->sum('duration_seconds');
 
+        $makeupSeconds = MakeupSession::where('student_id', $this->studentId)
+            ->where('status', 'approved')
+            ->sum('duration_seconds');
+
         $formatTime = fn($seconds) => sprintf(
             '%02d:%02d:%02d',
             floor($seconds / 3600),
@@ -93,10 +107,11 @@ class Show extends Component
         );
 
         $this->studyTime = [
-            'total' => $formatTime($totalSeconds),
+            'total' => $formatTime($totalSeconds + $makeupSeconds),
             'today' => $formatTime($todaySeconds),
             'week' => $formatTime($weekSeconds),
             'month' => $formatTime($monthSeconds),
+            'makeup' => $formatTime($makeupSeconds),
         ];
 
         // Calculate total sessions count
@@ -107,6 +122,18 @@ class Show extends Component
             $this->averageDuration = round($totalSeconds / $this->totalSessions / 60, 0);
         }
     }
+    protected function loadStats()
+    {
+        $this->makeupCount = MakeupSession::where('student_id', $this->studentId)->count();
+        $this->regularCount = $this->totalSessions;
+        $this->completedPartsCount = StudyPartSession::where('student_id', $this->studentId)
+            ->where('is_completed', true)
+            ->count();
+        $this->feedbackAvg = round(
+            SessionFeedback::where('student_id', $this->studentId)->avg('rating') ?? 0,
+            1
+        );
+    }
 
     protected function loadStudySessions()
     {
@@ -114,7 +141,7 @@ class Show extends Component
 
         // Apply search filter
         if ($this->search) {
-            $query->where(function($q) {
+            $query->where(function ($q) {
                 $q->where('note', 'like', '%' . $this->search . '%')
                     ->orWhere('id', 'like', '%' . $this->search . '%');
             });
@@ -144,8 +171,18 @@ class Show extends Component
 
         $this->studySessions = $query->get();
     }
-
+    protected function loadMakeupSessions()
+    {
+        $this->makeupSessions = MakeupSession::where('student_id', $this->studentId)
+            ->with(['ccTopic.chapter.subject'])
+            ->orderByDesc('created_at')
+            ->get();
+    }
     public function updatedSearch()
+    {
+        $this->loadStudySessions();
+    }
+    public function updatedSessionType()
     {
         $this->loadStudySessions();
     }
@@ -164,12 +201,35 @@ class Show extends Component
     {
         if ($this->sortBy === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+            $this->sessionType = 'all';
         } else {
             $this->sortBy = $field;
             $this->sortDirection = 'asc';
         }
 
         $this->loadStudySessions();
+
+    }
+    public function approveMakeup($id)
+    {
+        $makeup = MakeupSession::where('id', $id)->where('student_id', $this->studentId)->first();
+        if ($makeup && $makeup->status === 'pending') {
+            $makeup->update(['status' => 'approved']);
+            $this->loadMakeupSessions();
+            $this->calculateStudyTime();
+            $this->loadStats();
+            session()->flash('success', 'جلسه جبرانی تایید شد.');
+        }
+    }
+    public function rejectMakeup($id)
+    {
+        $makeup = MakeupSession::where('id', $id)->where('student_id', $this->studentId)->first();
+        if ($makeup && $makeup->status === 'pending') {
+            $makeup->update(['status' => 'rejected']);
+            $this->loadMakeupSessions();
+            $this->loadStats();
+            session()->flash('success', 'جلسه جبرانی رد شد.');
+        }
     }
 
     public function resetFilters()
@@ -231,6 +291,7 @@ class Show extends Component
             // Reload data
             $this->calculateStudyTime();
             $this->loadStudySessions();
+            $this->loadStats();
 
         } catch (\Exception $e) {
             session()->flash('error', 'خطا در حذف جلسه مطالعه: ' . $e->getMessage());

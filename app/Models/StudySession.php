@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class StudySession extends Model
 {
@@ -13,12 +15,16 @@ class StudySession extends Model
         'ended_at' => 'datetime',
     ];
 
-    public function student()
+    public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
     }
     public function programPart()
     {
         return $this->belongsTo(ProgramPart::class);
+    }
+    public function timing(): HasOne
+    {
+        return $this->hasOne(SsTiming::class);
     }
 }

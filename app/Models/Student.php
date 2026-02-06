@@ -87,17 +87,20 @@ class Student extends Model
     }
 
     public function dailyReports()
-
     {
-
         return $this->hasMany(DailyReport::class);
-
     }
+
     public function studyPartSessions()
-
     {
-
         return $this->hasMany(StudyPartSession::class);
-
+    }
+    public function makeupSessions()
+    {
+        return $this->hasMany(MakeupSession::class);
+    }
+    public function sessionFeedbacks()
+    {
+        return $this->hasMany(SessionFeedback::class);
     }
 }
