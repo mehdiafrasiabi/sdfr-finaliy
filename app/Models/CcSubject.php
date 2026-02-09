@@ -31,6 +31,12 @@ class CcSubject extends Model
 
         return $this->belongsTo(CcField::class, 'cc_field_id');
 
+    }  public function ccField()
+
+    {
+
+        return $this->belongsTo(CcField::class, 'cc_field_id');
+
     }
 
 

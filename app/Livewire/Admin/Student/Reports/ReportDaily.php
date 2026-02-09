@@ -9,6 +9,7 @@ use App\Models\Student;
 use App\Models\WeeklyProgram;
 use App\Models\WeeklyProgramRestDay;
 use App\Models\AdvisingSession;
+use App\Models\StudyPartSession;
 use App\Models\PersonalInformation;
 use App\Services\NotificationService;
 use Carbon\Carbon;
@@ -458,6 +459,13 @@ class ReportDaily extends Component
         // ✅ Map کردن پارت‌های گزارش شده
         $reportPartsMap = $report->reportParts->keyBy('program_part_id');
 
+        // ✅ دریافت اطلاعات ثبت ساعت مطالعه برای پارت‌های این برنامه
+        $studySessionsMap = StudyPartSession::where('student_id', $report->student_id)
+            ->where('weekly_program_id', $report->weekly_program_id)
+            ->where('is_completed', true)
+            ->get()
+            ->keyBy('program_part_id');
+
         $this->reportPartsDetails = [];
         $totalTests = 0;
         $doneTests = 0;
@@ -466,6 +474,7 @@ class ReportDaily extends Component
 
         foreach ($programParts as $programPart) {
             $reportPart = $reportPartsMap->get($programPart->id);
+            $studySession = $studySessionsMap->get($programPart->id);
             $isRead = $reportPart?->is_read ?? false;
             $testsDone = $reportPart?->tests_done ?? 0;
             $testCount = $programPart->test_count ?? 0;
@@ -479,14 +488,21 @@ class ReportDaily extends Component
                 'id' => $programPart->id,
                 'lesson_name' => $programPart->lesson_name,
                 'subject_name' => $programPart->ccSubject->name ?? null,
-                'chapter_name' => $programPart->ccChapter->name ?? null, // ✅ اضافه شد
+                'chapter_name' => $programPart->ccChapter->name ?? null,
                 'topic_name' => $programPart->ccTopic->name ?? null,
                 'duration_minutes' => $programPart->duration_minutes,
+                'part_type' => $programPart->part_type ?? null,
+                'part_type_label' => $programPart->part_type_label ?? '-',
+                'lesson_type_label' => $programPart->lesson_type_label ?? '-',
                 'is_read' => $isRead,
                 'tests_done' => $testsDone,
                 'test_count' => $testCount,
                 'part_rating' => $reportPart?->part_rating ?? null,
                 'is_compensatory' => $reportPart?->is_compensatory ?? false,
+                'has_study_session' => $studySession !== null,
+                'study_duration_seconds' => $studySession?->duration_seconds ?? 0,
+                'study_started_at' => $studySession?->started_at?->format('H:i') ?? null,
+                'study_ended_at' => $studySession?->ended_at?->format('H:i') ?? null,
             ];
         }
 

@@ -746,7 +746,7 @@
                         </div>
 
                         <div class="grid grid-cols-1 gap-2.5 sm:gap-3">
-                            @foreach($selectedDay['parts'] as $part)
+                            @foreach($selectedDay['parts'] as $part)ظ
                                 <div wire:key="part-select-{{ $part->id }}"
                                      class="part-box relative bg-secondary rounded-xl border-2 transition-all duration-200 {{ in_array($part->id, $selectedParts) ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : 'border-transparent' }}">
 
@@ -1051,18 +1051,29 @@
                         <!-- Step 1: Select Parts -->
 
                         @foreach($missedParts as $index => $missed)
-
+                            @php $compPartHasStudyHours = in_array($missed['part']->id, $completedStudyParts); @endphp
                             <div wire:click="toggleCompensatoryPart({{ $missed['part']->id }})"
 
                                  wire:key="comp-part-{{ $missed['part']->id }}"
 
-                                 class="part-box p-4 bg-secondary rounded-xl {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'selected' : '' }}">
+                                 class="part-box p-4 bg-secondary rounded-xl
+                                 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'selected' : '' }}
+                                 {{ !$compPartHasStudyHours ? 'border-2 border-red-300 dark:border-red-800 opacity-70 cursor-not-allowed' : 'cursor-pointer' }}">
+
+                                {{-- هشدار عدم ثبت ساعت مطالعه --}}
+                                @if(!$compPartHasStudyHours)
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-red-500 shrink-0">
+                                            <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
+                                        </svg>
+                                        <span class="text-[10px] sm:text-xs text-red-600 dark:text-red-400 font-semibold">ساعت مطالعه ثبت نشده — ابتدا از بخش «ثبت ساعت مطالعه» اقدام کنید</span>
+                                    </div>
+                                @endif
 
                                 <div class="flex items-start gap-3">
 
                                     <div
-                                        class="part-icon mt-1 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'text-green-500' : 'text-muted' }}">
-
+                                        class="part-icon mt-1 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'text-green-500' : (!$compPartHasStudyHours ? 'text-red-400' : 'text-muted') }}">
                                         @if(in_array($missed['part']->id, $selectedCompensatoryParts))
 
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
@@ -1073,7 +1084,14 @@
                                                       clip-rule="evenodd"/>
 
                                             </svg>
+                                        @elseif(!$compPartHasStudyHours)
 
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                 fill="currentColor" class="w-5 h-5">
+                                                <path fill-rule="evenodd"
+                                                      d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"
+                                                      clip-rule="evenodd"/>
+                                            </svg>
                                         @else
 
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -1101,8 +1119,7 @@
 
                                         </div>
 
-                                        <h4 class="font-medium text-foreground text-sm">{{ $missed['part']->lesson_name }}</h4>
-
+                                        <h4 class="font-medium {{ !$compPartHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm">{{ $missed['part']->lesson_name }}</h4>
                                         @if($missed['part']->ccSubject || $missed['part']->ccTopic)
 
                                             <p class="text-xs text-muted mt-1">
@@ -1175,27 +1192,35 @@
 
                                             </div>
 
-                                            @endif
-                                        </div>
-
-                                        <!-- Star Rating -->
-                                        <div wire:click.stop>
-                                            <label class="text-xs text-muted block mb-1">امتیاز:</label>
-                                            <div class="star-rating">
-                                                @for($s = 1; $s <= 4; $s++)
-                                                    <button type="button"
-                                                            wire:click="setCompensatoryPartRating({{ $missed['part']->id }}, {{ $s }})"
-                                                            class="star-btn {{ ($compensatoryPartRatings[$missed['part']->id] ?? 0) >= $s ? 'filled' : 'empty' }}">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                             stroke-width="1.5" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                  d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
-                                                        </svg>
-                                                    </button>
-                                                @endfor
+                                            <!-- Star Rating -->
+                                            <div wire:click.stop>
+                                                <label class="text-xs text-muted block mb-1.5">امتیاز:</label>
+                                                <div class="flex items-center gap-1">
+                                                    @for($s = 1; $s <= 4; $s++)
+                                                        <button type="button"
+                                                                wire:click="setCompensatoryPartRating({{ $missed['part']->id }}, {{ $s }})"
+                                                                class="star-btn transition-transform hover:scale-110 p-0.5">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                                 class="w-6 h-6 sm:w-7 sm:h-7 {{ ($compensatoryPartRatings[$missed['part']->id] ?? 0) >= $s ? 'text-amber-400 fill-amber-400' : 'text-gray-300 fill-none' }}"
+                                                                 stroke-width="1.5" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                      d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
+                                                            </svg>
+                                                        </button>
+                                                    @endfor
+                                                    @if(($compensatoryPartRatings[$missed['part']->id] ?? 0) > 0)
+                                                        <span class="text-xs font-medium mr-1.5
+                {{ ($compensatoryPartRatings[$missed['part']->id] ?? 0) >= 3 ? 'text-green-600' : '' }}
+                {{ ($compensatoryPartRatings[$missed['part']->id] ?? 0) == 2 ? 'text-blue-600' : '' }}
+                {{ ($compensatoryPartRatings[$missed['part']->id] ?? 0) == 1 ? 'text-red-600' : '' }}">
+                {{ \App\Models\DailyReport::RATINGS[$compensatoryPartRatings[$missed['part']->id]] ?? '' }}
+            </span>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
-                                        @endforeach
+                                    @endif
+                                @endforeach
 
                             </div>
 
@@ -1382,20 +1407,37 @@
 
                         <div class="grid grid-cols-1 gap-2.5 sm:gap-3">
                             @foreach($selectedDay['parts'] as $part)
+                                @php $partHasStudyHours = in_array($part->id, $completedStudyParts); @endphp
                                 <div wire:key="part-select-{{ $part->id }}"
-                                     class="part-box relative bg-secondary rounded-xl border-2 transition-all duration-200 {{ in_array($part->id, $selectedParts) ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : 'border-transparent' }}">
+                                     class="part-box relative bg-secondary rounded-xl border-2 transition-all duration-200
+                                     {{ in_array($part->id, $selectedParts) ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : '' }}
+                                     {{ !$partHasStudyHours ? 'border-red-300 dark:border-red-800 opacity-70' : 'border-transparent' }}">
 
+                                    {{-- نمایش هشدار عدم ثبت ساعت مطالعه --}}
+                                    @if(!$partHasStudyHours)
+                                        <div class="flex items-center gap-2 px-3 sm:px-3.5 pt-2.5 pb-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-red-500 shrink-0">
+                                                <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <span class="text-[10px] sm:text-xs text-red-600 dark:text-red-400 font-semibold">ساعت مطالعه ثبت نشده — ابتدا از بخش «ثبت ساعت مطالعه» اقدام کنید</span>
+                                        </div>
+                                    @endif
                                     <!-- Part Header - Clickable -->
                                     <div wire:click="togglePart({{ $part->id }})"
-                                         class="flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 cursor-pointer">
-
-                                        <div
-                                            class="mt-0.5 shrink-0 {{ in_array($part->id, $selectedParts) ? 'text-green-500' : 'text-muted' }}">
+                                         class="flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 {{ !$partHasStudyHours ? 'cursor-not-allowed' : 'cursor-pointer' }}">                                        <div
+                                            class="mt-0.5 shrink-0 {{ in_array($part->id, $selectedParts) ? 'text-green-500' : (!$partHasStudyHours ? 'text-red-400' : 'text-muted') }}">
                                             @if(in_array($part->id, $selectedParts))
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                                                      fill="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
                                                     <path fill-rule="evenodd"
                                                           d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z"
+                                                          clip-rule="evenodd"/>
+                                                </svg>
+                                            @elseif(!$partHasStudyHours)
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                     fill="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
+                                                    <path fill-rule="evenodd"
+                                                          d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"
                                                           clip-rule="evenodd"/>
                                                 </svg>
                                             @else
@@ -1409,9 +1451,7 @@
                                         </div>
 
                                         <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold text-foreground text-sm sm:text-base line-clamp-1">{{ $part->lesson_name }}</h4>
-
-                                            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1">
+                                            <h4 class="font-semibold {{ !$partHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm sm:text-base line-clamp-1">{{ $part->lesson_name }}</h4>                                            <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1">
                                                 @if($part->ccSubject)
                                                     <span
                                                         class="text-[10px] sm:text-xs text-muted bg-background px-1.5 py-0.5 rounded">{{ $part->ccSubject->name }}</span>

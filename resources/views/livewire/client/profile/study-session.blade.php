@@ -226,7 +226,7 @@
                                 دانش‌آموز عزیز سلام، قبل از شروع مطالعه موارد زیر را با دقت بخوانید:
                                 <br>• استفاده از آخرین نسخه مرورگر کروم الزامی است.
                                 <br>• حتماً قبل از خروج ثبت نهایی انجام شود.
-                                <br>• برای جلسات جبرانی، ابتدا باید پارت‌های امروز را تکمیل کنید.
+                                <br>• می‌توانید هر زمان که بخواهید ساعت مطالعه اضافه بر سازمان ثبت کنید.
                                 <br>• پس از پایان هر جلسه، حتماً بازخورد خود را ثبت کنید.
                             </div>
                         </div>
@@ -236,118 +236,38 @@
 
                 @if($weeklyProgram)
 
-                    {{-- تایمر ثابت پارت عادی --}}
-                    <div class="sticky-safe" wire:key="timer-fixed" wire:poll.visible.1000ms="tick">
-                        <section class="timer-shell rounded-3xl p-4 sm:p-6 text-white relative overflow-hidden">
-                            <div
-                                class="pointer-events-none absolute -top-20 -left-20 w-72 h-72 rounded-full bg-amber-500/10 blur-3xl"></div>
-                            <div
-                                class="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl"></div>
+                    {{-- تایمر یکپارچه (عادی + اضافه بر سازمان) --}}
+                    <div class="sticky-safe" wire:key="timer-unified"
+                         wire:poll.visible.1000ms="{{ $makeupTimerRunning ? 'tickMakeup' : 'tick' }}">
 
-                            <div class="flex flex-col gap-4 relative">
-                                <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-                                    <div class="space-y-1">
-                                        <div class="text-sm text-slate-100 font-extrabold tracking-tight">تایمر مطالعه
-                                        </div>
-                                        <div class="text-[11px] text-slate-200/90 leading-5">
-                                            @if($currentPartId)
-                                                <span class="text-white font-semibold">پارت:</span>
-                                                <span
-                                                    class="text-slate-100">{{ $programParts->firstWhere('id', $currentPartId)?->lesson_name ?? '—' }}</span>
-                                                <span class="mx-2 text-slate-400">•</span>
-                                                <span
-                                                    class="{{ $isRunning ? 'text-emerald-200' : 'text-orange-200' }} font-semibold">
-                                                    {{ $isRunning ? 'در حال اجرا' : 'متوقف' }}
-                                                </span>
-                                            @else
-                                                هیچ پارت فعالی انتخاب نشده — از لیست پایین یک پارت را شروع کن.
-                                            @endif
-                                        </div>
-
-                                        <div class="mt-1 inline-flex items-center gap-2 text-[10px] text-slate-200/80">
-                                            <span
-                                                class="live-dot {{ ($currentPartId && $isRunning) ? 'on' : '' }}"></span>
-                                            <span>{{ ($currentPartId && $isRunning) ? 'زنده' : 'آماده' }}</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="flex flex-wrap items-center gap-2 justify-end">
-                                        @if($currentPartId && $isRunning)
-                                            <button wire:click="pausePart"
-                                                    class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300/50 font-semibold text-xs transition inline-flex items-center gap-2">
-                                                توقف
-                                            </button>
-                                        @elseif($currentPartId && !$isRunning && $pausedAtTs)
-                                            <button wire:click="resumePart"
-                                                    class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 font-semibold text-xs transition inline-flex items-center gap-2">
-                                                ادامه
-                                            </button>
-                                        @endif
-
-                                        @if($currentPartId)
-                                            <button wire:click="cancelPart"
-                                                    class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 focus:outline-none focus:ring-2 focus:ring-white/20 font-semibold text-xs transition inline-flex items-center gap-2">
-                                                لغو
-                                            </button>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                <div class="text-center">
-                                    <div class="digital-clock">
-                                        {{ $this->formatClock($currentPartId ? $remainingSeconds : 0) }}
-                                    </div>
-                                    <div class="mt-1 text-[11px] text-slate-200/80">
-                                        {{ $currentPartId ? 'زمان باقی‌مانده' : 'برای شروع، روی دکمه شروع یکی از پارت‌ها بزنید' }}
-                                    </div>
-                                </div>
-
-                                <div class="space-y-2">
-                                    <div class="w-full bg-slate-700/30 rounded-full h-3 overflow-hidden">
-                                        <div
-                                            class="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300"
-                                            style="width: {{ $currentPartId && $targetSeconds > 0 ? (($targetSeconds - $remainingSeconds) / $targetSeconds * 100) : 0 }}%">
-                                        </div>
-                                    </div>
-
-                                    <div class="flex items-center justify-between text-[10px] text-slate-200/80">
-                                        <span>مصرف‌شده: <span
-                                                class="text-slate-100 font-semibold">{{ $currentPartId ? $this->formatClock($targetSeconds - $remainingSeconds) : '00:00:00' }}</span></span>
-                                        <span>کل: <span
-                                                class="text-slate-100 font-semibold">{{ $currentPartId ? $this->formatClock($targetSeconds) : '00:00:00' }}</span></span>
-                                    </div>
-                                </div>
-                            </div>
-                        </section>
-                    </div>
-
-                    {{-- تایمر جبرانی فعال --}}
-                    @if($makeupTimerRunning)
-                        <div class="mt-4 sticky-safe" wire:key="makeup-timer" wire:poll.visible.1000ms="tickMakeup">
+                        @if($makeupTimerRunning || $makeupPausedAtTs)
+                            {{-- حالت اضافه بر سازمان (بنفش) --}}
                             <section class="timer-shell rounded-3xl p-4 sm:p-6 text-white relative overflow-hidden"
                                      style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(109, 40, 217, 0.95) 100%);">
-                                <div
-                                    class="pointer-events-none absolute -top-20 -left-20 w-72 h-72 rounded-full bg-violet-400/20 blur-3xl"></div>
-                                <div
-                                    class="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-purple-400/20 blur-3xl"></div>
+                                <div class="pointer-events-none absolute -top-20 -left-20 w-72 h-72 rounded-full bg-violet-400/20 blur-3xl"></div>
+                                <div class="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-purple-400/20 blur-3xl"></div>
 
                                 <div class="flex flex-col gap-4 relative">
                                     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                         <div class="space-y-1">
-                                            <div
-                                                class="text-sm text-violet-100 font-extrabold tracking-tight flex items-center gap-2">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                            <div class="text-sm text-violet-100 font-extrabold tracking-tight flex items-center gap-2">
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                      stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                          d="M12 4.5v15m7.5-7.5h-15"/>
-                                                </svg>
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+
+                                            </svg>
                                                 تایمر مطالعه جبرانی
                                             </div>
                                             <div class="text-[11px] text-violet-100/90 leading-5">
-                                                <span
-                                                    class="{{ $makeupTimerRunning ? 'text-emerald-200' : 'text-orange-200' }} font-semibold">
+                                                <span class="{{ $makeupTimerRunning ? 'text-emerald-200' : 'text-orange-200' }} font-semibold">
+
                                                     {{ $makeupTimerRunning ? 'در حال اجرا' : 'متوقف' }}
                                                 </span>
+                                            </div>
+                                            <div class="mt-1 inline-flex items-center gap-2 text-[10px] text-violet-100/80">
+                                                <span class="live-dot {{ $makeupTimerRunning ? 'on' : '' }}"></span>
+                                                <span>{{ $makeupTimerRunning ? 'زنده' : 'متوقف' }}</span>
                                             </div>
                                         </div>
 
@@ -357,7 +277,7 @@
                                                         class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300/50 font-semibold text-xs transition">
                                                     توقف
                                                 </button>
-                                            @elseif(!$makeupTimerRunning && $makeupPausedAtTs)
+                                            @elseif($makeupPausedAtTs)
                                                 <button wire:click="resumeMakeup"
                                                         class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 font-semibold text-xs transition">
                                                     ادامه
@@ -365,8 +285,7 @@
                                             @endif
 
                                             <button wire:click="cancelMakeup"
-                                                    class="px-4 h-10 rounded-full bg-red-500/90 hover:bg-red-500 focus:outline-none focus:ring-2 focus:ring-red-300/50 font-semibold text-xs transition">
-                                                لغو
+                                                    class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 focus:outline-none focus:ring-2 focus:ring-white/20 font-semibold text-xs transition">                                                لغو
                                             </button>
                                         </div>
                                     </div>
@@ -386,21 +305,91 @@
                                         </div>
 
                                         <div class="flex items-center justify-between text-[10px] text-violet-100/80">
-                                            <span>مصرف‌شده: <span
-                                                    class="text-violet-100 font-semibold">{{ $this->formatClock($makeupLiveSeconds) }}</span></span>
-                                            <span>کل: <span
-                                                    class="text-violet-100 font-semibold">{{ $this->formatClock($makeupTargetSeconds) }}</span></span>
+                                            <span>مصرف‌شده: <span class="text-violet-100 font-semibold">{{ $this->formatClock($makeupLiveSeconds) }}</span></span>
+                                            <span>کل: <span class="text-violet-100 font-semibold">{{ $this->formatClock($makeupTargetSeconds) }}</span></span>
                                         </div>
                                     </div>
                                 </div>
                             </section>
-                        </div>
-                    @endif
+                        @else
+                            {{-- حالت عادی (طلایی/نارنجی) --}}
+                            <section class="timer-shell rounded-3xl p-4 sm:p-6 text-white relative overflow-hidden">
+                                <div class="pointer-events-none absolute -top-20 -left-20 w-72 h-72 rounded-full bg-amber-500/10 blur-3xl"></div>
+                                <div class="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl"></div>
+
+                                <div class="flex flex-col gap-4 relative">
+                                    <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                                        <div class="space-y-1">
+                                            <div class="text-sm text-slate-100 font-extrabold tracking-tight">تایمر مطالعه</div>
+                                            <div class="text-[11px] text-slate-200/90 leading-5">
+                                                @if($currentPartId)
+                                                    <span class="text-white font-semibold">پارت:</span>
+                                                    <span class="text-slate-100">{{ $programParts->firstWhere('id', $currentPartId)?->lesson_name ?? '—' }}</span>
+                                                    <span class="mx-2 text-slate-400">&bull;</span>
+                                                    <span class="{{ $isRunning ? 'text-emerald-200' : 'text-orange-200' }} font-semibold">
+                                                        {{ $isRunning ? 'در حال اجرا' : 'متوقف' }}
+                                                    </span>
+                                                @else
+                                                    هیچ پارت فعالی انتخاب نشده — از لیست پایین یک پارت را شروع کن.
+                                                @endif
+                                            </div>
+                                            <div class="mt-1 inline-flex items-center gap-2 text-[10px] text-slate-200/80">
+                                                <span class="live-dot {{ ($currentPartId && $isRunning) ? 'on' : '' }}"></span>
+                                                <span>{{ ($currentPartId && $isRunning) ? 'زنده' : 'آماده' }}</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-wrap items-center gap-2 justify-end">
+                                            @if($currentPartId && $isRunning)
+                                                <button wire:click="pausePart"
+                                                        class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300/50 font-semibold text-xs transition inline-flex items-center gap-2">
+                                                    توقف
+                                                </button>
+                                            @elseif($currentPartId && !$isRunning && $pausedAtTs)
+                                                <button wire:click="resumePart"
+                                                        class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 font-semibold text-xs transition inline-flex items-center gap-2">
+                                                    ادامه
+                                                </button>
+                                            @endif
+
+                                            @if($currentPartId)
+                                                <button wire:click="cancelPart"
+                                                        class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 focus:outline-none focus:ring-2 focus:ring-white/20 font-semibold text-xs transition inline-flex items-center gap-2">
+                                                    لغو
+                                                </button>
+                                            @endif
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <div class="digital-clock">
+                                            {{ $this->formatClock($currentPartId ? $remainingSeconds : 0) }}
+                                        </div>
+                                        <div class="mt-1 text-[11px] text-slate-200/80">
+                                            {{ $currentPartId ? 'زمان باقی‌مانده' : 'برای شروع، روی دکمه شروع یکی از پارت‌ها بزنید' }}
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <div class="w-full bg-slate-700/30 rounded-full h-3 overflow-hidden">
+                                            <div class="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-300"
+                                                 style="width: {{ $currentPartId && $targetSeconds > 0 ? (($targetSeconds - $remainingSeconds) / $targetSeconds * 100) : 0 }}%">
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between text-[10px] text-slate-200/80">
+                                            <span>مصرف‌شده: <span class="text-slate-100 font-semibold">{{ $currentPartId ? $this->formatClock($targetSeconds - $remainingSeconds) : '00:00:00' }}</span></span>
+                                            <span>کل: <span class="text-slate-100 font-semibold">{{ $currentPartId ? $this->formatClock($targetSeconds) : '00:00:00' }}</span></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        @endif
+                    </div>
 
                     <div class="h-3 sm:h-4"></div>
 
-                    {{-- دکمه ثبت جلسه جبرانی --}}
-                    @if($this->canRecordMakeup() && !$makeupTimerRunning && !$currentPartId)
+                    {{-- دکمه ثبت ساعت مطالعه اضافه بر سازمان --}}
+                    @if(!$makeupTimerRunning && !$makeupPausedAtTs && !$currentPartId)
                         <div class="mt-4">
                             <button wire:click="openMakeupModal"
                                     wire:loading.attr="disabled"
@@ -410,7 +399,7 @@
                                      stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                                 </svg>
-                                <span>ثبت ساعت مطالعه جبرانی</span>
+                                <span>ثبت ساعت مطالعه اضافه بر سازمان</span>
                                 <span wire:loading wire:target="openMakeupModal" class="spinner"></span>
                             </button>
                         </div>
@@ -589,7 +578,7 @@
                                             <div class="mt-4 soft-surface rounded-2xl p-4">
                                                 <div class="flex items-center gap-2 mb-3">
                                                     <span class="w-2 h-2 rounded-full bg-violet-500"></span>
-                                                    <h4 class="font-bold text-foreground text-sm">جلسات جبرانی
+                                                    <h4 class="font-bold text-foreground text-sm">جلسات اضافه بر سازمان
                                                         امروز</h4>
                                                     <span
                                                         class="px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-[10px] font-bold">
@@ -764,10 +753,10 @@
 
                             <div class="space-y-2">
                                 <h3 class="text-2xl font-black text-violet-600 dark:text-violet-400">عالی!</h3>
-                                <p class="text-lg font-bold text-violet-700 dark:text-violet-300">تایمر جبرانی به پایان
+                                <p class="text-lg font-bold text-violet-700 dark:text-violet-300">تایمر مطالعه اضافه بر سازمان به پایان
                                     رسید</p>
-                                <p class="text-sm text-violet-600 dark:text-violet-400">آیا می‌خواهید این جلسه جبرانی
-                                    را ثبت کنید؟</p>
+                                <p class="text-sm text-violet-600 dark:text-violet-400">آیا می‌خواهید این جلسه را ثبت کنید؟</p>
+
                             </div>
 
                             <div class="flex items-center justify-center gap-3 pt-4">
@@ -779,7 +768,7 @@
                                 <button type="button"
                                         wire:click="saveMakeupSession"
                                         class="px-8 h-11 rounded-full bg-violet-500 hover:bg-violet-600 text-white font-semibold transition transform hover:scale-105">
-                                    ثبت جلسه جبرانی
+                                    ثبت جلسه
                                 </button>
                             </div>
                         </div>
@@ -798,15 +787,17 @@
                         </div>
 
                         <div class="px-6 py-5 space-y-5">
-                            {{-- نمایش اطلاعات پارت --}}
+                            {{-- نمایش اطلاعات کامل مسیر مبحث --}}
                             @if($pendingFeedbackPartName)
-                                <div
-                                    class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                                    <div class="text-xs text-blue-600 dark:text-blue-400 mb-1">
-                                        {{ $pendingFeedbackType === 'part' ? 'پارت مطالعه' : 'جلسه جبرانی' }}
+                                <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                                    <div class="flex items-center gap-2 mb-2">
+                                        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full {{ $pendingFeedbackType === 'part' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400' }}">
+                                            {{ $pendingFeedbackType === 'part' ? 'پارت برنامه' : 'اضافه بر سازمان' }}
+                                        </span>
                                     </div>
-                                    <div
-                                        class="font-bold text-blue-800 dark:text-blue-300">{{ $pendingFeedbackPartName }}</div>
+                                    <div class="font-bold text-blue-800 dark:text-blue-300 text-sm leading-6" dir="rtl">
+                                        {{ $pendingFeedbackPartName }}
+                                    </div>
                                 </div>
                             @endif
 
@@ -883,7 +874,7 @@
                         <div
                             class="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-background dark:bg-zinc-900 z-10 rounded-t-2xl">
                             <h3 class="text-base font-bold text-foreground">
-                                ثبت ساعت مطالعه جبرانی
+                                ثبت ساعت مطالعه اضافه بر سازمان
                             </h3>
                             <button type="button" wire:click="closeMakeupModal"
                                     class="text-muted hover:text-foreground transition-all">
@@ -916,30 +907,59 @@
                     </span>
                                 </div>
 
-                                @if($this->searchResults->isNotEmpty())
-                                    <div
-                                        class="mt-2 rounded-xl border border-border bg-background shadow-lg max-h-48 overflow-y-auto">
-                                        @foreach($this->searchResults as $result)
-                                            <button type="button"
-                                                    wire:click="selectSearchTopic({{ $result->id }})"
-                                                    class="w-full text-right px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-border last:border-b-0">
-                                                <div class="font-semibold text-foreground">{{ $result->name }}</div>
-                                                <div class="text-[11px] text-muted">
-                                                    {{ $result->chapter?->subject?->grade?->name ?? '' }}
-                                                    &laquo; {{ $result->chapter?->subject?->name ?? '' }}
-                                                    &laquo; {{ $result->chapter?->name ?? '' }}
-                                                </div>
-                                            </button>
-                                        @endforeach
-                                    </div>
-                                @endif
+                                {{-- نتایج جستجو --}}
+                                <div wire:loading wire:target="makeupSearch" class="mt-2 text-center py-4">
+                                    <span class="spinner border-primary/30 border-t-primary inline-block"></span>
+                                    <span class="text-xs text-muted mr-2">در حال جستجو...</span>
+                                </div>
+
+                                <div wire:loading.remove wire:target="makeupSearch">
+                                    @if(mb_strlen($makeupSearch) >= 2 && $this->searchResults->isNotEmpty())
+                                        <div class="mt-2 rounded-xl border border-border bg-background shadow-lg max-h-60 overflow-y-auto">
+                                            @foreach($this->searchResults as $result)
+                                                <button type="button"
+                                                        wire:click="selectSearchTopic({{ $result->id }})"
+                                                        class="w-full text-right px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-border last:border-b-0">
+                                                    <div class="font-semibold text-foreground">{{ $result->name }}</div>
+                                                    <div class="text-[11px] text-muted leading-5">
+                                                        {{ $result->chapter?->subject?->grade?->name ?? '' }}
+                                                        &laquo; {{ $result->chapter?->subject?->name ?? '' }}
+                                                        &laquo; {{ $result->chapter?->name ?? '' }}
+                                                        &laquo; <span class="text-primary font-medium">{{ $result->name }}</span>
+                                                    </div>
+                                                </button>
+                                            @endforeach
+                                        </div>
+                                    @elseif(mb_strlen($makeupSearch) >= 2 && $this->searchResults->isEmpty())
+                                        <div class="mt-2 text-center py-3 text-xs text-muted">
+                                            نتیجه‌ای یافت نشد.
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
 
                             <div class="border-t border-border pt-4">
                                 <p class="text-[11px] text-muted mb-3">یا از فیلترهای زیر استفاده کنید:</p>
-                                <div class="grid grid-cols-2 gap-3 mb-3">
+
+                                <div class="space-y-3 mb-3">
+                                    {{-- نمایش رشته (فقط نمایش، بدون select) --}}
+                                    @if($this->fields->isNotEmpty())
+                                        <div>
+                                            <label class="block text-[11px] font-semibold text-foreground mb-1">رشته</label>
+                                            <div class="w-full rounded-xl border border-border bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5 text-sm text-foreground">
+                                                <div class="flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-primary">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                                                    </svg>
+                                                    <span class="font-semibold">{{ $this->fields->first()->name ?? 'نامشخص' }}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    {{-- انتخاب پایه (فقط پایه‌های مجاز رشته خودش) --}}
                                     <div>
-                                        <label class="block text-[11px] font-semibold text-foreground mb-1">پایه</label>
+                                        <label class="block text-[11px] font-semibold text-foreground mb-1">پایه تحصیلی</label>
                                         <select wire:model.live="makeupGradeId"
                                                 class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
                                             <option value="">انتخاب پایه...</option>
@@ -947,29 +967,26 @@
                                                 <option value="{{ $grade->id }}">{{ $grade->name }}</option>
                                             @endforeach
                                         </select>
-                                    </div>
-                                    <div>
-                                        <label class="block text-[11px] font-semibold text-foreground mb-1">رشته</label>
-                                        <select wire:model.live="makeupFieldId"
-                                                class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
-                                            <option value="">همه رشته‌ها</option>
-                                            @foreach($this->fields as $field)
-                                                <option value="{{ $field->id }}">{{ $field->name }}</option>
-                                            @endforeach
-                                        </select>
+                                        @if($this->grades->isEmpty())
+                                            <p class="text-[10px] text-muted mt-1">هیچ پایه‌ای برای رشته شما یافت نشد.</p>
+                                        @endif
                                     </div>
                                 </div>
 
                                 @if($makeupGradeId)
-                                    <div class="mb-3" wire:loading.class="opacity-50"
-                                         wire:target="makeupGradeId,makeupFieldId">
+                                    <div class="mb-3" wire:loading.class="opacity-50" wire:target="makeupGradeId">
                                         <label class="block text-[11px] font-semibold text-foreground mb-1">درس</label>
                                         <select wire:model.live="makeupSubjectId"
                                                 class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
                                             <option value="">انتخاب درس...</option>
                                             @foreach($this->subjects as $subject)
-                                                <option value="{{ $subject->id }}">{{ $subject->name }}
-                                                    ({{ $subject->type === 'general' ? 'عمومی' : 'تخصصی' }})
+                                                <option value="{{ $subject->id }}">
+                                                    {{ $subject->name }}
+                                                    @if($subject->type === 'general')
+                                                        (عمومی)
+                                                    @else
+                                                        (تخصصی)
+                                                    @endif
                                                 </option>
                                             @endforeach
                                         </select>
@@ -1001,9 +1018,7 @@
                                         </select>
                                     </div>
                                 @endif
-                            </div>
-
-                            {{-- انتخاب نوع پارت --}}
+                            </div>                            {{-- انتخاب نوع پارت --}}
                             <div class="border-t border-border pt-4">
                                 <label class="block text-xs font-semibold text-foreground mb-2">نوع مطالعه</label>
                                 <div class="grid grid-cols-3 gap-2">

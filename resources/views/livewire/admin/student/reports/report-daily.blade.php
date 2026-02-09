@@ -456,17 +456,30 @@
 
                         <!-- Report Summary Statistics -->
                         <div class="row g-3 mb-4">
-                            <div class="col-6 col-lg-3">
+                            <div class="col-6 col-lg-2">
                                 <div class="card border-0 shadow-sm h-100">
-                                    <div class="card-body text-center">
+                                    <div class="card-body text-center py-3">
+                                        @php
+                                            $studySessionCount = collect($reportPartsDetails)->where('has_study_session', true)->count();
+                                        @endphp
+                                        <div class="{{ $studySessionCount === ($selectedReportData['total_parts'] ?? 0) ? 'text-success' : 'text-warning' }} fw-bold fs-4">
+                                            {{ $studySessionCount }}/{{ $selectedReportData['total_parts'] ?? 0 }}
+                                        </div>
+                                        <small class="text-muted">ثبت ساعت مطالعه</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-2">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center py-3">
                                         <div class="text-success fw-bold fs-4">{{ $selectedReportData['read_parts'] ?? 0 }}/{{ $selectedReportData['total_parts'] ?? 0 }}</div>
                                         <small class="text-muted">پارت خوانده شده</small>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-6 col-lg-3">
+                            <div class="col-6 col-lg-2">
                                 <div class="card border-0 shadow-sm h-100">
-                                    <div class="card-body text-center">
+                                    <div class="card-body text-center py-3">
                                         <div class="text-primary fw-bold fs-4">{{ $selectedReportData['done_tests'] ?? 0 }}/{{ $selectedReportData['total_tests'] ?? 0 }}</div>
                                         <small class="text-muted">تست زده شده</small>
                                     </div>
@@ -493,6 +506,18 @@
                                         </span>
                                         </div>
                                         <small class="text-muted">امتیاز کلی</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-2">
+                                <div class="card border-0 shadow-sm h-100">
+                                    <div class="card-body text-center py-3">
+                                        @if($selectedReportData['is_compensatory'] ?? false)
+                                            <span class="badge bg-warning text-dark fs-6">جبرانی</span>
+                                        @else
+                                            <span class="badge bg-success fs-6">عادی</span>
+                                        @endif
+                                        <div><small class="text-muted">نوع گزارش</small></div>
                                     </div>
                                 </div>
                             </div>
@@ -529,8 +554,10 @@
                                             <th class="text-nowrap">ردیف</th>
                                             <th class="text-nowrap">نام درس</th>
                                             <th class="text-nowrap">موضوع/فصل</th>
-                                            <th class="text-center text-nowrap">مدت زمان</th>
-                                            <th class="text-center text-nowrap">وضعیت مطالعه</th>
+                                            <th class="text-center text-nowrap">نوع پارت</th>
+                                            <th class="text-center text-nowrap">مدت برنامه</th>
+                                            <th class="text-center text-nowrap">ثبت ساعت مطالعه</th>
+                                            <th class="text-center text-nowrap">وضعیت گزارش</th>
                                             <th class="text-center text-nowrap">تست</th>
                                             <th class="text-center text-nowrap">امتیاز</th>
                                         </tr>
@@ -557,7 +584,50 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
+                                                    @php $pType = $part['part_type'] ?? ''; @endphp
+                                                    <span class="badge
+                                                        {{ $pType === 'test' ? 'bg-primary bg-opacity-10 text-primary' : '' }}
+                                                        {{ $pType === 'descriptive' ? 'bg-purple bg-opacity-10 text-purple' : '' }}
+                                                        {{ $pType === 'video' ? 'bg-warning bg-opacity-10 text-warning' : '' }}
+                                                        {{ !in_array($pType, ['test','descriptive','video']) ? 'bg-secondary bg-opacity-10 text-secondary' : '' }}">
+                                                        {{ $part['part_type_label'] ?? '-' }}
+                                                    </span>
+                                                    @if($part['lesson_type_label'] ?? false)
+                                                        <br><small class="text-muted">{{ $part['lesson_type_label'] }}</small>
+                                                    @endif
+                                                    @if($part['is_compensatory'] ?? false)
+                                                        <br><span class="badge bg-warning text-dark mt-1" style="font-size: 10px;">جبرانی</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
                                                     <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ $part['duration_minutes'] }} دقیقه</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    @if($part['has_study_session'] ?? false)
+                                                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" class="text-success">
+                                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                                        </svg>
+                                                        <div>
+                                                            @php
+                                                                $studySecs = $part['study_duration_seconds'] ?? 0;
+                                                                $studyH = floor($studySecs / 3600);
+                                                                $studyM = floor(($studySecs % 3600) / 60);
+                                                            @endphp
+                                                            <small class="text-success fw-medium d-block">
+                                                                {{ $studyH }}:{{ str_pad($studyM, 2, '0', STR_PAD_LEFT) }} ثبت شده
+                                                            </small>
+                                                            @if($part['study_started_at'] && $part['study_ended_at'])
+                                                                <small class="text-muted" style="font-size: 10px;">
+                                                                    {{ $part['study_started_at'] }} - {{ $part['study_ended_at'] }}
+                                                                </small>
+                                                            @endif
+                                                        </div>
+                                                    @else
+                                                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" class="text-danger">
+                                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                                                        </svg>
+                                                        <div><small class="text-danger fw-medium">ثبت نشده</small></div>
+                                                    @endif
                                                 </td>
                                                 <td class="text-center">
                                                     @if($part['is_read'])
@@ -598,7 +668,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="7" class="text-center text-muted py-5">
+                                                <td colspan="9" class="text-center text-muted py-5">
                                                     <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16" class="mb-3 opacity-50">
                                                         <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/>
                                                     </svg>

@@ -1,382 +1,214 @@
 <?php
 
-
 namespace App\Livewire\Client\Auth;
 
-
 use App\Models\User;
-
 use App\Models\Otp;
-
 use App\Notifications\SendOtpToUser;
-
 use Artesaos\SEOTools\Traits\SEOTools;
-
 use Illuminate\Support\Facades\Hash;
-
 use Illuminate\Support\Facades\Log;
-
 use Illuminate\Support\Facades\RateLimiter;
-
 use Illuminate\Support\Facades\Validator;
-
 use Livewire\Component;
 
-
 class ForgotPassword extends Component
-
 {
-
     use SEOTools;
-
-
-    // Steps: 1 = enter mobile, 2 = verify code, 3 = new password, 4 = success
 
     public $step = 1;
 
-
     public $mobile = '';
-
     public $code = '';
-
     public $password = '';
-
     public $passwordConfirmation = '';
 
-
     public $isLoading = false;
-
     public $errorMessage = '';
-
     public $countdown = 0;
-
+    public $showPassword = false;
+    public $showPasswordConfirmation = false;
 
     public $passwordStrength = [
-
         'length' => false,
-
         'letter' => false,
-
         'number' => false,
-
     ];
 
+    protected $listeners = ['countdownFinished'];
 
     public function mount()
-
     {
-
         $this->seoConfig();
-
     }
-
 
     public function seoConfig()
-
     {
-
-        $this->seo()->setTitle('فراموشی رمز عبور');
-
+        $this->seo()->setTitle('بازیابی رمز عبور');
     }
-
-
-    /**
-     * Convert Persian/Arabic digits to English
-     */
 
     protected function convertToEnglishDigits($value)
-
     {
-
         return preg_replace_callback('/[۰-۹٠-٩]/u', function ($match) {
-
             $map = [
-
                 '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
-
                 '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
-
                 '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
-
                 '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
-
             ];
-
             return $map[$match[0]] ?? $match[0];
-
         }, $value);
-
     }
-
 
     public function updatedMobile($value)
-
     {
-
         $this->mobile = $this->convertToEnglishDigits($value);
-
     }
-
 
     public function updatedCode($value)
-
     {
-
         $this->code = $this->convertToEnglishDigits($value);
-
     }
-
 
     public function updatedPassword($value)
-
     {
-
         $this->validatePasswordStrength($value);
-
     }
-
 
     public function validatePasswordStrength($password)
-
     {
-
         $this->passwordStrength['length'] = strlen($password) >= 8;
-
         $this->passwordStrength['number'] = (bool)preg_match('/\d/', $password);
-
         $this->passwordStrength['letter'] = (bool)preg_match('/[A-Za-z]/', $password);
-
     }
-
 
     public function isPasswordValid()
-
     {
-
         return $this->passwordStrength['length'] &&
-
             $this->passwordStrength['number'] &&
-
             $this->passwordStrength['letter'];
-
     }
 
+    public function togglePasswordVisibility()
+    {
+        $this->showPassword = !$this->showPassword;
+    }
 
-    /**
-     * Step 1: Send recovery code to mobile
-     */
+    public function togglePasswordConfirmationVisibility()
+    {
+        $this->showPasswordConfirmation = !$this->showPasswordConfirmation;
+    }
 
     public function sendCode()
-
     {
-
         $this->isLoading = true;
-
         $this->errorMessage = '';
 
-
         $validator = Validator::make([
-
             'mobile' => $this->mobile,
-
         ], [
-
             'mobile' => ['required', 'regex:/^09[0-9]{9}$/'],
-
         ], [
-
             'mobile.required' => 'وارد کردن شماره موبایل الزامی است.',
-
             'mobile.regex' => 'فرمت شماره موبایل صحیح نیست. (مثال: ۰۹۱۲۳۴۵۶۷۸۹)',
-
         ]);
 
-
         if ($validator->fails()) {
-
             $this->isLoading = false;
-
             $this->setErrorBag($validator->errors());
-
             return;
-
         }
-
 
         $this->resetValidation();
 
-
-        // Check if user exists
-
         $user = User::where('mobile', $this->mobile)->first();
-
         if (!$user) {
-
             $this->isLoading = false;
-
             $this->errorMessage = 'کاربری با این شماره موبایل یافت نشد.';
-
             $this->dispatch('error', $this->errorMessage);
-
             return;
-
         }
-
-
-        // Rate limiting
 
         $key = 'forgot-password:' . $this->mobile;
-
         if (RateLimiter::tooManyAttempts($key, 5)) {
-
             $this->isLoading = false;
-
             $this->errorMessage = 'تعداد درخواست‌ها بیش از حد مجاز است. لطفاً چند دقیقه صبر کنید.';
-
             $this->dispatch('error', $this->errorMessage);
-
             return;
-
         }
-
 
         RateLimiter::hit($key, 180);
 
-
-        // Generate OTP
-
         $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
-
         Otp::create([
-
             'mobile' => $this->mobile,
-
             'code' => $code,
-
             'expires_at' => now()->addMinutes(5),
-
         ]);
-
 
         try {
-
             $user->notify(new SendOtpToUser($this->mobile, $code));
 
-
             session()->put('reset_mobile', $this->mobile);
-
             $this->countdown = 90;
-
             $this->step = 2;
 
-
             $this->dispatch('success', 'کد بازیابی با موفقیت ارسال شد.');
-
-            $this->dispatch('start-countdown', countdown: 90);
-
+            $this->dispatch('start-countdown');
         } catch (\Exception $e) {
-
             Log::error('Send Recovery Code Error', ['error' => $e->getMessage()]);
-
             $this->errorMessage = 'متاسفانه ارسال پیامک با خطا مواجه شد.';
-
             $this->dispatch('error', $this->errorMessage);
-
         }
-
 
         $this->isLoading = false;
-
     }
-
-
-    /**
-     * Resend recovery code
-     */
 
     public function resendCode()
-
     {
-
         $this->code = '';
-
         $this->errorMessage = '';
-
         $this->sendCode();
-
     }
-
-
-    /**
-     * Go back to mobile input step
-     */
 
     public function backToMobileStep()
-
     {
-
         $this->step = 1;
-
         $this->code = '';
-
         $this->errorMessage = '';
-
         $this->resetValidation();
-
     }
 
-
-    /**
-     * Step 2: Verify recovery code
-     */
+    public function countdownFinished()
+    {
+        $this->countdown = 0;
+    }
 
     public function verifyCode()
-
     {
-
         $this->isLoading = true;
-
         $this->errorMessage = '';
 
-
         $validator = Validator::make([
-
             'code' => $this->code,
-
         ], [
-
             'code' => ['required', 'numeric', 'digits:6'],
-
         ], [
-
             'code.required' => 'وارد کردن کد تایید الزامی است.',
-
             'code.numeric' => 'کد تایید باید فقط شامل اعداد باشد.',
-
             'code.digits' => 'کد تایید باید ۶ رقم باشد.',
-
         ]);
 
-
         if ($validator->fails()) {
-
             $this->isLoading = false;
-
             $this->setErrorBag($validator->errors());
-
             return;
-
         }
-
 
         $this->resetValidation();
 
-
         $mobile = session('reset_mobile', $this->mobile);
-
-
-        // Verify OTP
 
         $otp = Otp::where('mobile', $mobile)
             ->where('code', $this->code)
@@ -385,184 +217,89 @@ class ForgotPassword extends Component
             ->latest()
             ->first();
 
-
         if (!$otp) {
-
             $this->isLoading = false;
-
             $this->errorMessage = 'کد وارد شده نامعتبر یا منقضی شده است.';
-
             $this->dispatch('error', $this->errorMessage);
-
             return;
-
         }
-
-
-        // Mark OTP as used
 
         $otp->update(['is_used' => true]);
 
-
         $this->isLoading = false;
-
         $this->step = 3;
-
         $this->dispatch('success', 'کد تایید شد. لطفاً رمز عبور جدید را وارد کنید.');
-
     }
 
-
-    /**
-     * Step 3: Set new password
-     */
-
     public function resetPassword()
-
     {
-
         $this->isLoading = true;
-
         $this->errorMessage = '';
 
-
-        // Validate password strength
-
         if (!$this->isPasswordValid()) {
-
             $this->isLoading = false;
-
             $this->addError('password', 'رمز عبور باید حداقل ۸ کاراکتر، یک حرف و یک عدد داشته باشد.');
-
             return;
-
         }
-
 
         $validator = Validator::make([
-
             'password' => $this->password,
-
-            'password_confirmation' => $this->passwordConfirmation,
-
+            'passwordConfirmation' => $this->passwordConfirmation,
         ], [
-
-            'password' => [
-
-                'required',
-
-                'min:8',
-
-                'regex:/^(?=.*[A-Za-z])(?=.*\d).{8,}$/'
-
-            ],
-
-            'password_confirmation' => ['required', 'same:password'],
-
+            'password' => ['required', 'min:8'],
+            'passwordConfirmation' => ['required', 'same:password'],
         ], [
-
             'password.required' => 'وارد کردن رمز عبور جدید الزامی است.',
-
             'password.min' => 'رمز عبور باید حداقل ۸ کاراکتر باشد.',
-
-            'password.regex' => 'رمز عبور باید شامل حداقل یک حرف و یک عدد باشد.',
-
-            'password_confirmation.required' => 'تکرار رمز عبور الزامی است.',
-
-            'password_confirmation.same' => 'رمز عبور و تکرار آن مطابقت ندارند.',
-
+            'passwordConfirmation.required' => 'تکرار رمز عبور الزامی است.',
+            'passwordConfirmation.same' => 'رمز عبور و تکرار آن مطابقت ندارند.',
         ]);
 
-
         if ($validator->fails()) {
-
             $this->isLoading = false;
-
             $this->setErrorBag($validator->errors());
-
             return;
-
         }
-
 
         $this->resetValidation();
 
-
         $mobile = session('reset_mobile', $this->mobile);
-
 
         $user = User::where('mobile', $mobile)->first();
 
-
         if (!$user) {
-
             $this->isLoading = false;
-
             $this->errorMessage = 'کاربر یافت نشد. لطفاً دوباره تلاش کنید.';
-
             $this->dispatch('error', $this->errorMessage);
-
             return;
-
         }
 
-
-        // Update password
-
         $user->password = Hash::make($this->password);
-
         $user->save();
-
-
-        // Clear session
 
         session()->forget('reset_mobile');
 
-
         $this->isLoading = false;
-
         $this->step = 4;
-
         $this->dispatch('success', 'رمز عبور با موفقیت تغییر کرد!');
-
     }
-
-
-    /**
-     * Login and redirect to dashboard
-     */
 
     public function loginAndRedirect()
-
     {
-
         $mobile = $this->mobile ?: session('reset_mobile');
 
-
         if ($mobile) {
-
             $user = User::where('mobile', $mobile)->first();
-
             if ($user) {
-
                 auth()->login($user, true);
-
             }
-
         }
 
-
         return redirect()->route('client.profile.dashboard');
-
     }
-
 
     public function render()
-
     {
-
         return view('livewire.client.auth.forgot-password')->layout('layouts.client.app-auth');
-
     }
-
 }

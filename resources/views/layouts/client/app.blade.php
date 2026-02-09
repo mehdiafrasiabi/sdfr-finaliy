@@ -11,76 +11,7 @@
 
     {!! SEO::generate() !!}
 
-    <style>
-        [x-cloak] { display: none !important; }
 
-        /* اطمینان از نمایش درست */
-        #pwaBanner.hidden,
-        #pwaLoading.hidden {
-            display: none !important;
-            background-color: #2866c8;
-        }
-
-        .blur-container {
-            position: relative;
-        }
-
-        .blur-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(5px) brightness(0.7);
-            border-radius: 16px;
-            z-index: 20;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .blur-container *:not(.blur-overlay, .blur-overlay *) {
-            pointer-events: none;
-            user-select: none;
-        }
-
-
-    </style>
-    <style>
-        /* احترام به کاربرانی که Reduce Motion فعال دارند */
-        @media (prefers-reduced-motion: reduce) {
-            .services-circle.is-bouncing,
-            .services-circle.is-bouncing .services-icon {
-                animation: none !important;
-            }
-        }
-
-        /* انیمیشن پرش: تند بالا، نرم پایین */
-        @keyframes servicesBounceUpDown {
-            0%   { transform: translateY(0) scale(1); }
-            18%  { transform: translateY(-40px) scale(1.06); } /* سریع میره بالا */
-            55%  { transform: translateY(0) scale(1.00); }     /* آروم برمیگرده */
-            70%  { transform: translateY(-8px) scale(1.02); }  /* یه بونس کوچیک */
-            100% { transform: translateY(0) scale(1); }
-        }
-
-        /* چرخش فرفره‌ای عکس */
-        @keyframes servicesSpin {
-            from { transform: rotate(0deg); }
-            to   { transform: rotate(360deg); }
-        }
-
-        /* وقتی کلاس فعال شد */
-        .services-circle.is-bouncing {
-            animation: servicesBounceUpDown 1.2s cubic-bezier(.15,.95,.25,1) both;
-            will-change: transform;
-        }
-
-        /* همزمان با پرش، عکس بچرخه */
-        .services-circle.is-bouncing .services-icon {
-            animation: servicesSpin 1.2s linear both;
-            will-change: transform;
-        }
-
-    </style>
 </head>
 
 <body class="dark">

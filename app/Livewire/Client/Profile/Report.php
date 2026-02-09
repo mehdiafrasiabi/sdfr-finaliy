@@ -9,6 +9,8 @@ use App\Models\DailyReportDetail;
 use App\Models\DailyReportFeedback;
 use App\Models\WeeklyProgram;
 use App\Models\WeeklyProgramRestDay;
+use App\Models\StudyPartSession;
+
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -45,6 +47,11 @@ class Report extends Component
 
     // Rest days
     public array $restDays = [];
+
+    // Completed study parts (parts with logged study hours)
+    public array $completedStudyParts = [];
+    public array $alreadyCompensatedPartIds = [];
+
 
     // Reply modal data
     public ?int $replyReportId = null;
@@ -118,9 +125,21 @@ class Report extends Component
                 ->first();
 
             if ($this->currentProgram) {
+                $this->loadCompletedStudyParts();
                 $this->loadWeekDays();
             }
         }
+    }
+    protected function loadCompletedStudyParts()
+    {
+        $student = Auth::user()->student;
+        if (!$student || !$this->currentProgram) return;
+
+        $this->completedStudyParts = StudyPartSession::where('student_id', $student->id)
+            ->where('weekly_program_id', $this->currentProgram->id)
+            ->where('is_completed', true)
+            ->pluck('program_part_id')
+            ->toArray();
     }
 
     protected function loadWeekDays()
@@ -128,6 +147,17 @@ class Report extends Component
         $this->weekDays = [];
         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
         $student = Auth::user()->student;
+
+        // ✅ پارت‌هایی که قبلاً گزارش جبرانی برایشان ثبت شده
+        $this->alreadyCompensatedPartIds = DailyReportPart::whereHas('dailyReport', function ($q) use ($student) {
+            $q->where('student_id', $student->id)
+                ->where('weekly_program_id', $this->currentProgram->id)
+                ->where('is_compensatory', true);
+        })
+            ->where('is_compensatory', true)
+            ->where('is_read', true)
+            ->pluck('program_part_id')
+            ->toArray();
 
         $this->restDays = WeeklyProgramRestDay::where('weekly_program_id', $this->currentProgram->id)
             ->pluck('day_index')
@@ -221,6 +251,10 @@ class Report extends Component
             if ($day['is_locked'] && !$day['is_submitted']) {
                 // همه پارت‌ها از دست رفته
                 foreach ($day['parts'] as $part) {
+                    if (in_array($part->id, $this->alreadyCompensatedPartIds)) {
+                        continue;
+                    }
+
                     $this->missedParts[] = [
                         'part' => $part,
                         'day_index' => $dayIndex,
@@ -237,7 +271,7 @@ class Report extends Component
                     ->toArray();
 
                 foreach ($day['parts'] as $part) {
-                    if (in_array($part->id, $unreadPartIds)) {
+                    if (in_array($part->id, $unreadPartIds) && !in_array($part->id, $alreadyCompensatedPartIds)) {
                         $this->missedParts[] = [
                             'part' => $part,
                             'day_index' => $dayIndex,
@@ -294,6 +328,11 @@ class Report extends Component
             // ✅ وقتی پارت از انتخاب خارج شد، امتیازش رو پاک کن
             unset($this->partRatings[$partId]);
         } else {
+            // ✅ بررسی ثبت ساعت مطالعه قبل از انتخاب پارت
+            if (!in_array($partId, $this->completedStudyParts)) {
+                $this->dispatch('warning', 'شما هنوز ساعت مطالعه این پارت را ثبت نکرده‌اید. ابتدا از بخش «ثبت ساعت مطالعه» اقدام کنید.');
+                return;
+            }
             $this->selectedParts[] = $partId;
         }
     }
@@ -422,6 +461,11 @@ class Report extends Component
             $this->selectedCompensatoryParts = array_values(array_diff($this->selectedCompensatoryParts, [$partId]));
             unset($this->compensatoryPartRatings[$partId]);
         } else {
+            // ✅ بررسی ثبت ساعت مطالعه قبل از انتخاب پارت جبرانی
+            if (!in_array($partId, $this->completedStudyParts)) {
+                $this->dispatch('warning', 'شما هنوز ساعت مطالعه این پارت را ثبت نکرده‌اید. ابتدا از بخش «ثبت ساعت مطالعه» اقدام کنید.');
+                return;
+            }
             $this->selectedCompensatoryParts[] = $partId;
         }
     }
@@ -610,6 +654,7 @@ class Report extends Component
             'currentProgram' => $this->currentProgram,
             'weekDays' => $this->weekDays,
             'missedParts' => $this->missedParts,
+            'completedStudyParts' => $this->completedStudyParts,
         ])->layout('layouts.client.app');
     }
 }

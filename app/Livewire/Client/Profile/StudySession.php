@@ -7,6 +7,8 @@ use App\Models\ProgramPart;
 use App\Models\StudyPartSession;
 use App\Models\WeeklyProgram;
 use App\Models\WeeklyProgramRestDay;
+use App\Models\PersonalInformation;
+
 use Artesaos\SEOTools\Traits\SEOTools;
 use App\Models\SessionFeedback;
 use App\Models\CcChapter;
@@ -62,6 +64,12 @@ class StudySession extends Component
     public $makeupDurationMinutes = 30;
     public $makeupNote = '';
 
+    // --- اطلاعات پایه/رشته دانش‌آموز ---
+    public $studentGradeNumber = null;
+    public $studentFieldSlug = null;
+    public $allowedGradeIds = [];
+    public $studentFieldId = null;
+
     // تایمر جبرانی
     public $makeupTimerRunning = false;
     public $makeupStartedAt = null;
@@ -84,10 +92,38 @@ class StudySession extends Component
     public function mount()
     {
         $this->permissionGranted = (bool) session('study_permission_granted', false);
+        $this->loadStudentGradeField();
         $this->loadLatestProgram();
         $this->restoreTimerState();
         $this->checkPendingFeedback();
         $this->seoConfig();
+    }
+
+    protected function loadStudentGradeField()
+    {
+        $user = auth()->user();
+        if (!$user) return;
+
+        $personalInfo = PersonalInformation::where('user_id', $user->id)->first();
+        if (!$personalInfo) return;
+
+        $this->studentGradeNumber = $personalInfo->grade ? (int) $personalInfo->grade : null;
+        $this->studentFieldSlug = $personalInfo->field;
+
+        // تبدیل slug رشته به ID
+        if ($this->studentFieldSlug) {
+            $field = CcField::where('slug', $this->studentFieldSlug)->first();
+            $this->studentFieldId = $field?->id;
+        }
+
+        // بارگذاری پایه‌های مجاز: فقط رشته خودش و پایه‌های مساوی یا پایین‌تر
+        if ($this->studentGradeNumber && $this->studentFieldId) {
+            $this->allowedGradeIds = CcGrade::where('is_active', true)
+                ->where('cc_field_id', $this->studentFieldId) // فقط رشته خودش
+                ->where('grade_number', '<=', $this->studentGradeNumber) // پایه‌های مساوی یا کمتر
+                ->pluck('id')
+                ->toArray();
+        }
     }
 
     public function seoConfig()
@@ -367,10 +403,18 @@ class StudySession extends Component
         $this->resetTimer();
         $this->showFinishModal = false;
 
-        // باز کردن مودال بازخورد
+        // باز کردن مودال بازخورد (نمایش مسیر کامل)
+        $part->load(['ccSubject.grade', 'ccChapter', 'ccTopic']);
+        $fullPath = collect([
+            $part->ccSubject?->grade?->name,
+            $part->ccSubject?->name,
+            $part->ccChapter?->name,
+            $part->ccTopic?->name,
+            $part->lesson_name,
+        ])->filter()->unique()->implode(' » ');
         $this->pendingFeedbackSpsId = $session->id;
         $this->pendingFeedbackType = 'part';
-        $this->pendingFeedbackPartName = $part->lesson_name;
+        $this->pendingFeedbackPartName = $fullPath ?: $part->lesson_name;
         $this->feedbackRating = 0;
         $this->feedbackComment = '';
         $this->showFeedbackModal = true;
@@ -458,9 +502,22 @@ class StudySession extends Component
         if ($lastSession) {
             $hasFeedback = SessionFeedback::where('sps_id', $lastSession->id)->exists();
             if (!$hasFeedback) {
+                $part = $lastSession->programPart;
+                $partName = 'پارت مطالعه';
+                if ($part) {
+                    $part->load(['ccSubject.grade', 'ccChapter', 'ccTopic']);
+                    $partName = collect([
+                        $part->ccSubject?->grade?->name,
+                        $part->ccSubject?->name,
+                        $part->ccChapter?->name,
+                        $part->ccTopic?->name,
+                        $part->lesson_name,
+                    ])->filter()->unique()->implode(' » ') ?: $part->lesson_name;
+                }
+
                 $this->pendingFeedbackSpsId = $lastSession->id;
                 $this->pendingFeedbackType = 'part';
-                $this->pendingFeedbackPartName = $lastSession->programPart?->lesson_name ?? 'پارت مطالعه';
+                $this->pendingFeedbackPartName = $partName;
                 $this->feedbackRating = 0;
                 $this->feedbackComment = '';
                 $this->showFeedbackModal = true;
@@ -468,7 +525,7 @@ class StudySession extends Component
             }
         }
 
-        // بررسی جبرانی
+        // بررسی اضافه بر سازمان
         $lastMakeup = MakeupSession::where('student_id', $studentId)
             ->whereNotNull('ended_at')
             ->orderByDesc('id')
@@ -477,9 +534,10 @@ class StudySession extends Component
         if ($lastMakeup) {
             $hasFeedback = SessionFeedback::where('makeup_session_id', $lastMakeup->id)->exists();
             if (!$hasFeedback) {
+                $topic = CcTopic::with(['chapter.subject.grade'])->find($lastMakeup->cc_topic_id);
                 $this->pendingFeedbackMakeupId = $lastMakeup->id;
                 $this->pendingFeedbackType = 'makeup';
-                $this->pendingFeedbackPartName = $lastMakeup->ccTopic?->name ?? 'جلسه جبرانی';
+                $this->pendingFeedbackPartName = $topic?->full_path ?? $lastMakeup->ccTopic?->name ?? 'جلسه اضافه بر سازمان';
                 $this->feedbackRating = 0;
                 $this->feedbackComment = '';
                 $this->showFeedbackModal = true;
@@ -536,31 +594,7 @@ class StudySession extends Component
 
     public function canRecordMakeup(): bool
     {
-        if (!$this->weeklyProgram) return false;
-
-        $today = now()->toDateString();
-        $todayDayIndex = $this->getTodayDayIndex();
-
-        // اگر روز استراحت است
-        if (in_array($todayDayIndex, $this->restDays)) {
-            return true;
-        }
-
-        // اگر پارت دارد، باید همه تکمیل شده باشند
-        $todayParts = collect($this->programParts)
-            ->filter(fn($p) => Carbon::parse($p->part_date)->toDateString() === $today);
-
-        if ($todayParts->isEmpty()) {
-            return false;
-        }
-
-        foreach ($todayParts as $part) {
-            if (!in_array($part->id, $this->completedParts)) {
-                return false;
-            }
-        }
-
-        return true;
+        return (bool) $this->weeklyProgram;
     }
 
     private function getTodayDayIndex(): int
@@ -589,11 +623,12 @@ class StudySession extends Component
         }
 
         if (!$this->canRecordMakeup()) {
-            $this->dispatch('error', 'ابتدا همه پارت‌های امروز را تکمیل کنید یا منتظر روز استراحت باشید.');
+            $this->dispatch('error', 'برنامه مطالعاتی فعالی وجود ندارد.');
             return;
         }
 
         $this->resetMakeupForm();
+
         $this->showMakeupModal = true;
     }
 
@@ -727,11 +762,11 @@ class StudySession extends Component
         $this->resetMakeupTimer();
         $this->showMakeupFinishModal = false;
 
-        // باز کردن مودال بازخورد
-        $topic = CcTopic::find($this->makeupTopicId);
+        // باز کردن مودال بازخورد (نمایش مسیر کامل)
+        $topic = CcTopic::with(['chapter.subject.grade'])->find($this->makeupTopicId);
         $this->pendingFeedbackMakeupId = $makeup->id;
         $this->pendingFeedbackType = 'makeup';
-        $this->pendingFeedbackPartName = $topic?->name ?? 'جلسه جبرانی';
+        $this->pendingFeedbackPartName = $topic?->full_path ?? $topic?->name ?? 'جلسه اضافه بر سازمان';
         $this->feedbackRating = 0;
         $this->feedbackComment = '';
         $this->showFeedbackModal = true;
@@ -780,27 +815,43 @@ class StudySession extends Component
         $this->makeupNote = '';
     }
 
-    // فیلترهای آبشاری
+    // فیلترهای آبشاری (فیلتر شده بر اساس پایه و رشته دانش‌آموز)
     public function getGradesProperty()
     {
-        return CcGrade::where('is_active', true)->orderBy('order')->get();
+        if (empty($this->allowedGradeIds)) {
+            return collect();
+        }
+
+        return CcGrade::whereIn('id', $this->allowedGradeIds)
+            ->where('is_active', true)
+            ->orderBy('grade_number', 'desc') // از بزرگ به کوچک (12، 11، 10)
+            ->get();
     }
 
     public function getFieldsProperty()
     {
-        return CcField::where('is_active', true)->orderBy('order')->get();
+        // فقط رشته خود دانش‌آموز
+        if ($this->studentFieldId) {
+            return CcField::where('id', $this->studentFieldId)
+                ->where('is_active', true)
+                ->get();
+        }
+
+        return collect();
     }
 
     public function getSubjectsProperty()
     {
         if (!$this->makeupGradeId) return collect();
 
-        $query = CcSubject::where('cc_grade_id', $this->makeupGradeId)->orderBy('order');
+        $query = CcSubject::where('cc_grade_id', $this->makeupGradeId)
+            ->orderBy('order');
 
-        if ($this->makeupFieldId) {
+        // فقط دروس مربوط به رشته دانش‌آموز یا دروس عمومی (بدون رشته)
+        if ($this->studentFieldId) {
             $query->where(function ($q) {
-                $q->where('cc_field_id', $this->makeupFieldId)
-                    ->orWhereNull('cc_field_id');
+                $q->where('cc_field_id', $this->studentFieldId)
+                    ->orWhereNull('cc_field_id'); // دروس عمومی
             });
         }
 
@@ -833,23 +884,64 @@ class StudySession extends Component
 
         $term = $this->makeupSearch;
 
-        return CcTopic::where('is_active', true)
-            ->where('name', 'like', "%{$term}%")
-            ->with(['chapter.subject.grade'])
-            ->limit(15)
-            ->get();
+        $query = CcTopic::where('is_active', true)
+            ->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                    ->orWhereHas('chapter', function ($cq) use ($term) {
+                        $cq->where('name', 'like', "%{$term}%");
+                    })
+                    ->orWhereHas('chapter.subject', function ($sq) use ($term) {
+                        $sq->where('name', 'like', "%{$term}%");
+                    });
+            })
+            ->with(['chapter.subject.grade', 'chapter.subject.ccField']);
+
+        // فیلتر بر اساس پایه‌های مجاز و رشته دانش‌آموز
+        $query->whereHas('chapter.subject', function ($sq) {
+            // محدود به پایه‌های مجاز
+            if (!empty($this->allowedGradeIds)) {
+                $sq->whereIn('cc_grade_id', $this->allowedGradeIds);
+            }
+
+            // محدود به رشته دانش‌آموز یا دروس عمومی
+            if ($this->studentFieldId) {
+                $sq->where(function ($fq) {
+                    $fq->where('cc_field_id', $this->studentFieldId)
+                        ->orWhereNull('cc_field_id'); // دروس عمومی
+                });
+            }
+        });
+
+        return $query->limit(20)->get();
     }
 
     public function selectSearchTopic($topicId)
     {
-        $topic = CcTopic::with(['chapter.subject.grade'])->find($topicId);
+        $topic = CcTopic::with(['chapter.subject.grade', 'chapter.subject.ccField'])->find($topicId);
         if (!$topic) return;
 
+        // بررسی اینکه این مبحث مجاز است یا نه
+        $subjectGradeId = $topic->chapter->subject->cc_grade_id;
+        $subjectFieldId = $topic->chapter->subject->cc_field_id;
+
+        // بررسی پایه
+        if (!in_array($subjectGradeId, $this->allowedGradeIds ?? [])) {
+            $this->dispatch('error', 'این مبحث برای پایه شما مجاز نیست.');
+            return;
+        }
+
+        // بررسی رشته (باید یا همان رشته باشد یا عمومی باشد)
+        if ($this->studentFieldId && $subjectFieldId && $subjectFieldId != $this->studentFieldId) {
+            $this->dispatch('error', 'این مبحث برای رشته شما مجاز نیست.');
+            return;
+        }
+
+        // همه چیز OK، انتخاب کن
         $this->makeupTopicId = $topic->id;
         $this->makeupChapterId = $topic->chapter->id;
         $this->makeupSubjectId = $topic->chapter->subject->id;
-        $this->makeupGradeId = $topic->chapter->subject->cc_grade_id;
-        $this->makeupFieldId = $topic->chapter->subject->cc_field_id ?? '';
+        $this->makeupGradeId = $subjectGradeId;
+        $this->makeupFieldId = $subjectFieldId ?? '';
         $this->makeupSearch = '';
     }
 
@@ -860,12 +952,6 @@ class StudySession extends Component
         $this->makeupTopicId = '';
     }
 
-    public function updatedMakeupFieldId()
-    {
-        $this->makeupSubjectId = '';
-        $this->makeupChapterId = '';
-        $this->makeupTopicId = '';
-    }
 
     public function updatedMakeupSubjectId()
     {
