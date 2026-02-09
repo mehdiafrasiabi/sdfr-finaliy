@@ -9,9 +9,19 @@ class MakeupSession extends Model
 {
     protected $guarded = [];
 
+    protected $casts = [
+        'started_at' => 'datetime',
+        'ended_at' => 'datetime',
+        'paused_at' => 'datetime',
+    ];
+
     const STATUS_PENDING = 'pending';
     const STATUS_APPROVED = 'approved';
     const STATUS_REJECTED = 'rejected';
+
+    const PART_TYPE_TEST = 'test';
+    const PART_TYPE_DESCRIPTIVE = 'descriptive';
+    const PART_TYPE_VIDEO = 'video';
 
     public function student(): BelongsTo
     {
@@ -21,6 +31,11 @@ class MakeupSession extends Model
     public function ccTopic(): BelongsTo
     {
         return $this->belongsTo(CcTopic::class);
+    }
+
+    public function feedback(): BelongsTo
+    {
+        return $this->belongsTo(SessionFeedback::class, 'id', 'makeup_session_id');
     }
 
     public function isEditable(): bool
@@ -45,6 +60,26 @@ class MakeupSession extends Model
             self::STATUS_APPROVED => 'emerald',
             self::STATUS_REJECTED => 'red',
             default => 'slate',
+        };
+    }
+
+    public function getPartTypeLabelAttribute(): string
+    {
+        return match ($this->part_type) {
+            self::PART_TYPE_TEST => 'تستی',
+            self::PART_TYPE_DESCRIPTIVE => 'تشریحی',
+            self::PART_TYPE_VIDEO => 'ویدیویی',
+            default => 'نامشخص',
+        };
+    }
+
+    public function getPartTypeColorAttribute(): string
+    {
+        return match ($this->part_type) {
+            self::PART_TYPE_TEST => 'blue',
+            self::PART_TYPE_DESCRIPTIVE => 'purple',
+            self::PART_TYPE_VIDEO => 'orange',
+            default => 'gray',
         };
     }
 }

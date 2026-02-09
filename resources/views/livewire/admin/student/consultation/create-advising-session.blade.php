@@ -318,7 +318,7 @@
 
                                 <a
 
-                                    href="{{ route('admin.student.reportStudent.detail', $student->id) }}"
+                                    href="#"
 
                                     class="d-block border rounded-3 p-3 h-100 text-center text-reset text-decoration-none hover-card-shadow"
 

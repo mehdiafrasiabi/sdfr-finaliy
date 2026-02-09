@@ -1,10 +1,12 @@
 <?php
 
 namespace App\Livewire\Admin\Student\StudySession;
+
 use App\Models\MakeupSession;
 use App\Models\SessionFeedback;
 use App\Models\StudyPartSession;
 use App\Models\StudySession;
+use App\Models\AdvisingSession;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
 use Livewire\Component;
@@ -26,26 +28,43 @@ class Show extends Component
     public $dateTo = '';
     public $sortBy = 'started_at';
     public $sortDirection = 'desc';
-    public $sessionType = 'all'; // all | regular | makeup
+    public $sessionType = 'all'; // all | regular | makeup | program
+    public $feedbackFilter = 'all'; // all | has_feedback | no_feedback
+    public $partTypeFilter = 'all'; // all | test | descriptive | video
+    public $advisingSessionFilter = ''; // فیلتر بر اساس جلسه مشاوره
+
     // Statistics
     public $totalSessions = 0;
     public $averageDuration = 0;
     public $makeupCount = 0;
     public $regularCount = 0;
+    public $programPartsCount = 0;
     public $feedbackAvg = 0;
     public $completedPartsCount = 0;
+
     // جلسات جبرانی
     public $makeupSessions = [];
+
+    // جلسات مشاوره
+    public $advisingSessions = [];
+
+    // مودال جزئیات
+    public $showDetailModal = false;
+    public $selectedSession = null;
+    public $selectedSessionType = null; // 'regular' | 'makeup' | 'program'
+
     protected $queryString = [
         'search' => ['except' => ''],
         'dateFrom' => ['except' => ''],
         'dateTo' => ['except' => ''],
         'sessionType' => ['except' => 'all'],
+        'feedbackFilter' => ['except' => 'all'],
+        'partTypeFilter' => ['except' => 'all'],
+        'advisingSessionFilter' => ['except' => ''],
     ];
 
     public function mount(User $student)
     {
-        // چک کردن اینکه کاربر حتما student داشته باشد
         if (!$student->student) {
             abort(404, 'Student not found');
         }
@@ -53,12 +72,12 @@ class Show extends Component
         $this->studentId = $student->student->id;
         $this->studentName = $student->personalInformation->name ?? $student->name;
 
+        $this->loadAdvisingSessions();
         $this->calculateStudyTime();
         $this->loadStudySessions();
         $this->loadMakeupSessions();
         $this->loadStats();
         $this->seoConfig();
-
     }
 
     public function seoConfig()
@@ -68,22 +87,37 @@ class Show extends Component
             ->setDescription('گزارش کامل زمان مطالعه و جلسات ' . $this->studentName);
     }
 
+    protected function loadAdvisingSessions()
+    {
+        $this->advisingSessions = AdvisingSession::where('student_id', $this->studentId)
+            ->where('result_status', AdvisingSession::RESULT_HELD)
+            ->with(['weeklyProgram'])
+            ->orderByDesc('activation_date')
+            ->get();
+    }
+
     protected function calculateStudyTime()
     {
         $now = Carbon::now();
 
+        // جلسات عادی (بدون برنامه)
         $totalSeconds = StudySession::where('student_id', $this->studentId)->sum('duration_seconds');
 
-        // Today - using today's date
-        $todaySeconds = StudySession::where('student_id', $this->studentId)
+        // جلسات پارت‌های برنامه
+        $programSeconds = StudyPartSession::where('student_id', $this->studentId)
+            ->where('is_completed', true)
+            ->sum('duration_seconds');
+
+        // Today
+        $todaySeconds = StudyPartSession::where('student_id', $this->studentId)
             ->whereDate('started_at', $now->toDateString())
             ->sum('duration_seconds');
 
-        // This Week - Saturday to Friday (Persian week)
+        // This Week
         $weekStart = $now->copy()->startOfWeek(Carbon::SATURDAY);
         $weekEnd = $now->copy()->endOfWeek(Carbon::FRIDAY);
 
-        $weekSeconds = StudySession::where('student_id', $this->studentId)
+        $weekSeconds = StudyPartSession::where('student_id', $this->studentId)
             ->whereBetween('started_at', [$weekStart, $weekEnd])
             ->sum('duration_seconds');
 
@@ -91,10 +125,11 @@ class Show extends Component
         $monthStart = $now->copy()->startOfMonth();
         $monthEnd = $now->copy()->endOfMonth();
 
-        $monthSeconds = StudySession::where('student_id', $this->studentId)
+        $monthSeconds = StudyPartSession::where('student_id', $this->studentId)
             ->whereBetween('started_at', [$monthStart, $monthEnd])
             ->sum('duration_seconds');
 
+        // جلسات جبرانی
         $makeupSeconds = MakeupSession::where('student_id', $this->studentId)
             ->where('status', 'approved')
             ->sum('duration_seconds');
@@ -107,28 +142,34 @@ class Show extends Component
         );
 
         $this->studyTime = [
-            'total' => $formatTime($totalSeconds + $makeupSeconds),
+            'total' => $formatTime($totalSeconds + $programSeconds + $makeupSeconds),
             'today' => $formatTime($todaySeconds),
             'week' => $formatTime($weekSeconds),
             'month' => $formatTime($monthSeconds),
             'makeup' => $formatTime($makeupSeconds),
+            'program' => $formatTime($programSeconds),
         ];
 
         // Calculate total sessions count
-        $this->totalSessions = StudySession::where('student_id', $this->studentId)->count();
+        $this->totalSessions = StudyPartSession::where('student_id', $this->studentId)->count();
 
         // Calculate average duration
+        $totalDuration = $programSeconds;
         if ($this->totalSessions > 0) {
-            $this->averageDuration = round($totalSeconds / $this->totalSessions / 60, 0);
+            $this->averageDuration = round($totalDuration / $this->totalSessions / 60, 0);
         }
     }
+
     protected function loadStats()
     {
         $this->makeupCount = MakeupSession::where('student_id', $this->studentId)->count();
-        $this->regularCount = $this->totalSessions;
-        $this->completedPartsCount = StudyPartSession::where('student_id', $this->studentId)
+        $this->regularCount = StudySession::where('student_id', $this->studentId)->count();
+        $this->programPartsCount = StudyPartSession::where('student_id', $this->studentId)
             ->where('is_completed', true)
             ->count();
+
+        $this->completedPartsCount = $this->programPartsCount;
+
         $this->feedbackAvg = round(
             SessionFeedback::where('student_id', $this->studentId)->avg('rating') ?? 0,
             1
@@ -137,17 +178,19 @@ class Show extends Component
 
     protected function loadStudySessions()
     {
-        $query = StudySession::where('student_id', $this->studentId);
+        $query = StudyPartSession::where('student_id', $this->studentId)
+            ->with(['programPart', 'feedback', 'weeklyProgram.advisingSession']);
 
-        // Apply search filter
+        // Apply filters
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('note', 'like', '%' . $this->search . '%')
-                    ->orWhere('id', 'like', '%' . $this->search . '%');
+                $q->whereHas('programPart', function ($partQ) {
+                    $partQ->where('lesson_name', 'like', '%' . $this->search . '%')
+                        ->orWhere('description', 'like', '%' . $this->search . '%');
+                });
             });
         }
 
-        // Apply date filters
         if ($this->dateFrom) {
             try {
                 $dateFrom = Carbon::createFromFormat('Y/m/d', $this->dateFrom)->startOfDay();
@@ -166,23 +209,91 @@ class Show extends Component
             }
         }
 
+        // Feedback filter
+        if ($this->feedbackFilter === 'has_feedback') {
+            $query->has('feedback');
+        } elseif ($this->feedbackFilter === 'no_feedback') {
+            $query->doesntHave('feedback');
+        }
+
+        // Part type filter
+        if ($this->partTypeFilter !== 'all') {
+            $query->whereHas('programPart', function ($q) {
+                $q->where('part_type', $this->partTypeFilter);
+            });
+        }
+
+        // Advising session filter
+        if ($this->advisingSessionFilter) {
+            $query->whereHas('weeklyProgram', function ($q) {
+                $q->where('advising_session_id', $this->advisingSessionFilter);
+            });
+        }
+
         // Apply sorting
         $query->orderBy($this->sortBy, $this->sortDirection);
 
         $this->studySessions = $query->get();
     }
+
     protected function loadMakeupSessions()
     {
-        $this->makeupSessions = MakeupSession::where('student_id', $this->studentId)
-            ->with(['ccTopic.chapter.subject'])
-            ->orderByDesc('created_at')
-            ->get();
+        $query = MakeupSession::where('student_id', $this->studentId)
+            ->with(['ccTopic.chapter.subject']);
+
+        // Apply same date filters
+        if ($this->dateFrom) {
+            try {
+                $dateFrom = Carbon::createFromFormat('Y/m/d', $this->dateFrom)->startOfDay();
+                $query->where('created_at', '>=', $dateFrom);
+            } catch (\Exception $e) {
+                // Invalid date format
+            }
+        }
+
+        if ($this->dateTo) {
+            try {
+                $dateTo = Carbon::createFromFormat('Y/m/d', $this->dateTo)->endOfDay();
+                $query->where('created_at', '<=', $dateTo);
+            } catch (\Exception $e) {
+                // Invalid date format
+            }
+        }
+
+        // Part type filter for makeup
+        if ($this->partTypeFilter !== 'all') {
+            $query->where('part_type', $this->partTypeFilter);
+        }
+
+        $this->makeupSessions = $query->orderByDesc('created_at')->get();
     }
+
     public function updatedSearch()
     {
         $this->loadStudySessions();
+        if ($this->sessionType === 'all' || $this->sessionType === 'makeup') {
+            $this->loadMakeupSessions();
+        }
     }
+
     public function updatedSessionType()
+    {
+        $this->loadStudySessions();
+        $this->loadMakeupSessions();
+    }
+
+    public function updatedFeedbackFilter()
+    {
+        $this->loadStudySessions();
+    }
+
+    public function updatedPartTypeFilter()
+    {
+        $this->loadStudySessions();
+        $this->loadMakeupSessions();
+    }
+
+    public function updatedAdvisingSessionFilter()
     {
         $this->loadStudySessions();
     }
@@ -190,26 +301,49 @@ class Show extends Component
     public function updatedDateFrom()
     {
         $this->loadStudySessions();
+        $this->loadMakeupSessions();
     }
 
     public function updatedDateTo()
     {
         $this->loadStudySessions();
+        $this->loadMakeupSessions();
     }
 
     public function sortBy($field)
     {
         if ($this->sortBy === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
-            $this->sessionType = 'all';
         } else {
             $this->sortBy = $field;
             $this->sortDirection = 'asc';
         }
 
         $this->loadStudySessions();
-
     }
+
+    public function showDetail($sessionId, $type = 'program')
+    {
+        $this->selectedSessionType = $type;
+
+        if ($type === 'makeup') {
+            $this->selectedSession = MakeupSession::with(['ccTopic.chapter.subject.grade', 'student.user.personalInformation'])
+                ->find($sessionId);
+        } else {
+            $this->selectedSession = StudyPartSession::with(['programPart', 'feedback', 'student.user.personalInformation', 'weeklyProgram.advisingSession'])
+                ->find($sessionId);
+        }
+
+        $this->showDetailModal = true;
+    }
+
+    public function closeDetailModal()
+    {
+        $this->showDetailModal = false;
+        $this->selectedSession = null;
+        $this->selectedSessionType = null;
+    }
+
     public function approveMakeup($id)
     {
         $makeup = MakeupSession::where('id', $id)->where('student_id', $this->studentId)->first();
@@ -221,6 +355,7 @@ class Show extends Component
             session()->flash('success', 'جلسه جبرانی تایید شد.');
         }
     }
+
     public function rejectMakeup($id)
     {
         $makeup = MakeupSession::where('id', $id)->where('student_id', $this->studentId)->first();
@@ -239,8 +374,13 @@ class Show extends Component
         $this->dateTo = '';
         $this->sortBy = 'started_at';
         $this->sortDirection = 'desc';
+        $this->sessionType = 'all';
+        $this->feedbackFilter = 'all';
+        $this->partTypeFilter = 'all';
+        $this->advisingSessionFilter = '';
 
         $this->loadStudySessions();
+        $this->loadMakeupSessions();
     }
 
     public function formatDuration(?int $seconds): string
@@ -259,36 +399,22 @@ class Show extends Component
 
     public function exportToExcel()
     {
-        // Logic for exporting to Excel
         session()->flash('success', 'فایل Excel در حال آماده‌سازی است...');
-
-        // You can use Laravel Excel package here
-        // return Excel::download(new StudySessionsExport($this->studentId), 'study-sessions.xlsx');
     }
 
     public function exportToPdf()
     {
-        // Logic for exporting to PDF
         session()->flash('success', 'فایل PDF در حال آماده‌سازی است...');
-
-        // You can use DomPDF package here
-        // $pdf = PDF::loadView('admin.reports.study-sessions-pdf', [
-        //     'student' => $this->studentName,
-        //     'sessions' => $this->studySessions,
-        //     'studyTime' => $this->studyTime
-        // ]);
-        // return $pdf->download('study-sessions.pdf');
     }
 
     public function deleteSession($sessionId)
     {
         try {
-            $session = StudySession::findOrFail($sessionId);
+            $session = StudyPartSession::findOrFail($sessionId);
             $session->delete();
 
             session()->flash('success', 'جلسه مطالعه با موفقیت حذف شد.');
 
-            // Reload data
             $this->calculateStudyTime();
             $this->loadStudySessions();
             $this->loadStats();

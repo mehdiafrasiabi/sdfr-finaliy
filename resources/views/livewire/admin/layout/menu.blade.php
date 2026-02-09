@@ -247,24 +247,6 @@
                                     </a>
                                 </li>
                                 <li class="menu-item">
-                                    <a class="menu-link" href="{{route('admin.student.plan.index')}}">
-                                        <i class="fi fi-rr-calendar">
-                                        </i>
-                                        <span class="menu-label">
-                                             برنامه درسی
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="menu-item">
-                                    <a class="menu-link" href="{{route('admin.student.reportStudent.index')}}">
-                                        <i class="fi fi-rr-calendar">
-                                        </i>
-                                        <span class="menu-label">
-                                             کارنامه وضعیت
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="menu-item">
                                     <a class="menu-link" href="{{route('admin.student.studySession.index')}}">
                                         <i class="fi fi-rr-calendar">
                                         </i>

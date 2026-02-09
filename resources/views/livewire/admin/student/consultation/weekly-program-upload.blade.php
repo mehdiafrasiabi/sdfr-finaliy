@@ -289,7 +289,7 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-6 col-md-2">
-                        <a href="{{ route('admin.student.reportStudent.detail', $student->id) }}"
+                        <a href="#"
                            class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
                             <i class="material-symbols-outlined d-block mb-2 text-primary">assessment</i>
                             <span class="small d-block fw-semibold">کارنامه وضعیت</span>

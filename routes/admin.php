@@ -55,26 +55,6 @@ Route::name('admin.')->group(function () {
         Route::get('/notification', NotificationCreate::class)->name('student.notification')
             ->middleware('admin.permission:admin.notification.send');
 
-
-        // برنامه‌ریزی دانش‌آموز
-
-        Route::get('/studentPlan', StudentPlanIndex::class)->name('student.plan.index')
-            ->middleware('admin.permission:admin.student-plan.view');
-
-        Route::get('/studentPlan/{student}/plan', StudentPlanDetail::class)->name('student.plan.detail')
-            ->middleware('admin.permission:admin.student-plan.view');
-
-
-        // گزارش وضعیت
-
-        Route::get('/studentReportStatus', StudentReportStatusIndex::class)->name('student.reportStudent.index')
-            ->middleware('admin.permission:admin.report-status.view');
-
-        Route::get('/studentReportStatus/{student}/ReportStatus', StudentReportStatusDetail::class)->name('student.reportStudent.detail')
-            ->middleware('admin.permission:admin.report-status.view');
-
-
-
         // گزارش فعالیت روزانه
 
         Route::get('/studentReportDailyActivities', ReportDailyActivitiesIndex::class)->name('student.reportDailyActivities.index')

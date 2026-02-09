@@ -1,0 +1,1181 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+
+class CcSubjectsTableSeeder extends Seeder
+{
+
+    /**
+     * Auto generated seed file
+     *
+     * @return void
+     */
+    public function run()
+    {
+        
+
+        \DB::table('cc_subjects')->delete();
+        
+        \DB::table('cc_subjects')->insert(array (
+            0 => 
+            array (
+                'id' => 1,
+                'cc_grade_id' => 1,
+                'cc_field_id' => 1,
+                'name' => 'حسابان 2',
+                'type' => 'specialized',
+                'order' => 0,
+                'created_at' => '2026-02-07 14:16:49',
+                'updated_at' => '2026-02-07 14:16:49',
+            ),
+            1 => 
+            array (
+                'id' => 2,
+                'cc_grade_id' => 1,
+                'cc_field_id' => 1,
+                'name' => 'هندسه 3',
+                'type' => 'specialized',
+                'order' => 1,
+                'created_at' => '2026-02-07 14:16:58',
+                'updated_at' => '2026-02-07 14:16:58',
+            ),
+            2 => 
+            array (
+                'id' => 3,
+                'cc_grade_id' => 1,
+                'cc_field_id' => 1,
+                'name' => 'ریاضیات گسسته',
+                'type' => 'specialized',
+                'order' => 2,
+                'created_at' => '2026-02-07 14:17:09',
+                'updated_at' => '2026-02-07 14:17:09',
+            ),
+            3 => 
+            array (
+                'id' => 4,
+                'cc_grade_id' => 1,
+                'cc_field_id' => 1,
+                'name' => 'فیزیک 3',
+                'type' => 'specialized',
+                'order' => 3,
+                'created_at' => '2026-02-07 14:17:26',
+                'updated_at' => '2026-02-07 14:17:26',
+            ),
+            4 => 
+            array (
+                'id' => 5,
+                'cc_grade_id' => 1,
+                'cc_field_id' => 1,
+                'name' => 'شیمی 3',
+                'type' => 'specialized',
+                'order' => 4,
+                'created_at' => '2026-02-07 14:17:38',
+                'updated_at' => '2026-02-07 14:17:38',
+            ),
+            5 => 
+            array (
+                'id' => 6,
+                'cc_grade_id' => 1,
+                'cc_field_id' => 1,
+                'name' => 'فارسی 3',
+                'type' => 'general',
+                'order' => 5,
+                'created_at' => '2026-02-07 14:17:58',
+                'updated_at' => '2026-02-07 14:17:58',
+            ),
+            6 => 
+            array (
+                'id' => 7,
+                'cc_grade_id' => 1,
+                'cc_field_id' => 1,
+                'name' => 'عربی 3',
+                'type' => 'general',
+                'order' => 6,
+                'created_at' => '2026-02-07 14:18:11',
+                'updated_at' => '2026-02-07 14:18:11',
+            ),
+            7 => 
+            array (
+                'id' => 8,
+                'cc_grade_id' => 1,
+                'cc_field_id' => 1,
+                'name' => 'دینی 3',
+                'type' => 'general',
+                'order' => 7,
+                'created_at' => '2026-02-07 14:18:23',
+                'updated_at' => '2026-02-07 14:18:23',
+            ),
+            8 => 
+            array (
+                'id' => 9,
+                'cc_grade_id' => 1,
+                'cc_field_id' => 1,
+                'name' => 'زبان 3',
+                'type' => 'general',
+                'order' => 8,
+                'created_at' => '2026-02-07 14:18:57',
+                'updated_at' => '2026-02-07 14:18:57',
+            ),
+            9 => 
+            array (
+                'id' => 10,
+                'cc_grade_id' => 1,
+                'cc_field_id' => 1,
+                'name' => 'سلامت و بهداشت',
+                'type' => 'general',
+                'order' => 9,
+                'created_at' => '2026-02-07 14:19:16',
+                'updated_at' => '2026-02-07 14:19:16',
+            ),
+            10 => 
+            array (
+                'id' => 11,
+                'cc_grade_id' => 1,
+                'cc_field_id' => 1,
+                'name' => 'علوم اجتماعی',
+                'type' => 'general',
+                'order' => 10,
+                'created_at' => '2026-02-07 14:19:30',
+                'updated_at' => '2026-02-07 14:19:30',
+            ),
+            11 => 
+            array (
+                'id' => 17,
+                'cc_grade_id' => 2,
+                'cc_field_id' => 2,
+                'name' => 'فیزیک 3',
+                'type' => 'specialized',
+                'order' => 1,
+                'created_at' => '2026-02-07 14:17:26',
+                'updated_at' => '2026-02-08 19:40:35',
+            ),
+            12 => 
+            array (
+                'id' => 18,
+                'cc_grade_id' => 2,
+                'cc_field_id' => 2,
+                'name' => 'شیمی 3',
+                'type' => 'specialized',
+                'order' => 2,
+                'created_at' => '2026-02-07 14:17:38',
+                'updated_at' => '2026-02-08 19:40:39',
+            ),
+            13 => 
+            array (
+                'id' => 19,
+                'cc_grade_id' => 2,
+                'cc_field_id' => 2,
+                'name' => 'فارسی 3',
+                'type' => 'general',
+                'order' => 3,
+                'created_at' => '2026-02-07 14:17:58',
+                'updated_at' => '2026-02-08 19:40:44',
+            ),
+            14 => 
+            array (
+                'id' => 20,
+                'cc_grade_id' => 2,
+                'cc_field_id' => 2,
+                'name' => 'عربی 3',
+                'type' => 'general',
+                'order' => 4,
+                'created_at' => '2026-02-07 14:18:11',
+                'updated_at' => '2026-02-08 19:40:54',
+            ),
+            15 => 
+            array (
+                'id' => 21,
+                'cc_grade_id' => 2,
+                'cc_field_id' => 2,
+                'name' => 'دینی 3',
+                'type' => 'general',
+                'order' => 5,
+                'created_at' => '2026-02-07 14:18:23',
+                'updated_at' => '2026-02-08 19:40:59',
+            ),
+            16 => 
+            array (
+                'id' => 22,
+                'cc_grade_id' => 2,
+                'cc_field_id' => 2,
+                'name' => 'زبان 3',
+                'type' => 'general',
+                'order' => 6,
+                'created_at' => '2026-02-07 14:18:57',
+                'updated_at' => '2026-02-08 19:41:44',
+            ),
+            17 => 
+            array (
+                'id' => 23,
+                'cc_grade_id' => 2,
+                'cc_field_id' => 2,
+                'name' => 'سلامت و بهداشت',
+                'type' => 'general',
+                'order' => 7,
+                'created_at' => '2026-02-07 14:19:16',
+                'updated_at' => '2026-02-08 19:41:58',
+            ),
+            18 => 
+            array (
+                'id' => 24,
+                'cc_grade_id' => 2,
+                'cc_field_id' => 2,
+                'name' => 'علوم اجتماعی',
+                'type' => 'general',
+                'order' => 8,
+                'created_at' => '2026-02-07 14:19:30',
+                'updated_at' => '2026-02-08 19:42:13',
+            ),
+            19 => 
+            array (
+                'id' => 27,
+                'cc_grade_id' => 2,
+                'cc_field_id' => 2,
+                'name' => 'زیست 3',
+                'type' => 'specialized',
+                'order' => 9,
+                'created_at' => '2026-02-07 14:27:10',
+                'updated_at' => '2026-02-08 19:42:19',
+            ),
+            20 => 
+            array (
+                'id' => 28,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'ریاضی و آمار 3',
+                'type' => 'specialized',
+                'order' => 0,
+                'created_at' => '2026-02-07 14:31:53',
+                'updated_at' => '2026-02-07 14:31:53',
+            ),
+            21 => 
+            array (
+                'id' => 29,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'عربی 3',
+                'type' => 'specialized',
+                'order' => 1,
+                'created_at' => '2026-02-07 14:33:56',
+                'updated_at' => '2026-02-07 14:33:56',
+            ),
+            22 => 
+            array (
+                'id' => 30,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'علوم و فنون ادبی 3',
+                'type' => 'specialized',
+                'order' => 2,
+                'created_at' => '2026-02-07 15:24:47',
+                'updated_at' => '2026-02-07 15:25:05',
+            ),
+            23 => 
+            array (
+                'id' => 31,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'فسلفه 2',
+                'type' => 'specialized',
+                'order' => 3,
+                'created_at' => '2026-02-07 15:25:35',
+                'updated_at' => '2026-02-07 15:25:35',
+            ),
+            24 => 
+            array (
+                'id' => 32,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'تاریخ 3',
+                'type' => 'specialized',
+                'order' => 4,
+                'created_at' => '2026-02-07 15:25:59',
+                'updated_at' => '2026-02-07 15:25:59',
+            ),
+            25 => 
+            array (
+                'id' => 33,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'جغرافیا 3',
+                'type' => 'specialized',
+                'order' => 5,
+                'created_at' => '2026-02-07 15:26:12',
+                'updated_at' => '2026-02-07 15:26:43',
+            ),
+            26 => 
+            array (
+                'id' => 34,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'جامعه‌شناسی 3',
+                'type' => 'specialized',
+                'order' => 6,
+                'created_at' => '2026-02-07 15:26:31',
+                'updated_at' => '2026-02-07 15:26:31',
+            ),
+            27 => 
+            array (
+                'id' => 35,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'فارسی 3',
+                'type' => 'general',
+                'order' => 7,
+                'created_at' => '2026-02-07 15:27:12',
+                'updated_at' => '2026-02-07 15:27:12',
+            ),
+            28 => 
+            array (
+                'id' => 36,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'دین و زندگی 3',
+                'type' => 'general',
+                'order' => 8,
+                'created_at' => '2026-02-07 15:27:30',
+                'updated_at' => '2026-02-07 15:27:30',
+            ),
+            29 => 
+            array (
+                'id' => 37,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'زبان انگلیسی 3',
+                'type' => 'general',
+                'order' => 9,
+                'created_at' => '2026-02-07 15:27:47',
+                'updated_at' => '2026-02-07 15:27:47',
+            ),
+            30 => 
+            array (
+                'id' => 38,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'سلامت و بهداشت',
+                'type' => 'general',
+                'order' => 10,
+                'created_at' => '2026-02-07 15:27:59',
+                'updated_at' => '2026-02-07 15:27:59',
+            ),
+            31 => 
+            array (
+                'id' => 39,
+                'cc_grade_id' => 3,
+                'cc_field_id' => 3,
+                'name' => 'مدیریت خانواده و سبک زندگی',
+                'type' => 'general',
+                'order' => 11,
+                'created_at' => '2026-02-07 15:28:17',
+                'updated_at' => '2026-02-07 15:28:17',
+            ),
+            32 => 
+            array (
+                'id' => 40,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'ریاضی و آمار 2',
+                'type' => 'specialized',
+                'order' => 0,
+                'created_at' => '2026-02-07 15:29:20',
+                'updated_at' => '2026-02-07 15:29:20',
+            ),
+            33 => 
+            array (
+                'id' => 41,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'عربی 2',
+                'type' => 'specialized',
+                'order' => 1,
+                'created_at' => '2026-02-07 15:29:39',
+                'updated_at' => '2026-02-07 15:29:39',
+            ),
+            34 => 
+            array (
+                'id' => 42,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'علوم و فنون ادبی 2',
+                'type' => 'specialized',
+                'order' => 2,
+                'created_at' => '2026-02-07 15:29:54',
+                'updated_at' => '2026-02-07 15:29:54',
+            ),
+            35 => 
+            array (
+                'id' => 43,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'فسلفه',
+                'type' => 'specialized',
+                'order' => 3,
+                'created_at' => '2026-02-07 15:30:02',
+                'updated_at' => '2026-02-07 15:30:02',
+            ),
+            36 => 
+            array (
+                'id' => 44,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'تاریخ 2',
+                'type' => 'specialized',
+                'order' => 4,
+                'created_at' => '2026-02-07 15:30:18',
+                'updated_at' => '2026-02-07 15:30:18',
+            ),
+            37 => 
+            array (
+                'id' => 45,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'جغرافیا 2',
+                'type' => 'specialized',
+                'order' => 5,
+                'created_at' => '2026-02-07 15:30:51',
+                'updated_at' => '2026-02-07 15:30:51',
+            ),
+            38 => 
+            array (
+                'id' => 46,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'جامعه‌شناسی 2',
+                'type' => 'specialized',
+                'order' => 6,
+                'created_at' => '2026-02-07 15:31:06',
+                'updated_at' => '2026-02-07 15:31:06',
+            ),
+            39 => 
+            array (
+                'id' => 47,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'روانشناسی',
+                'type' => 'specialized',
+                'order' => 7,
+                'created_at' => '2026-02-07 15:31:18',
+                'updated_at' => '2026-02-07 15:31:18',
+            ),
+            40 => 
+            array (
+                'id' => 48,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'فارسی 2',
+                'type' => 'general',
+                'order' => 8,
+                'created_at' => '2026-02-07 15:31:37',
+                'updated_at' => '2026-02-07 15:31:37',
+            ),
+            41 => 
+            array (
+                'id' => 49,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'دین و زندگی 2',
+                'type' => 'general',
+                'order' => 9,
+                'created_at' => '2026-02-07 15:31:52',
+                'updated_at' => '2026-02-07 15:31:52',
+            ),
+            42 => 
+            array (
+                'id' => 50,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'انسان و محیط زیست',
+                'type' => 'general',
+                'order' => 10,
+                'created_at' => '2026-02-07 15:32:03',
+                'updated_at' => '2026-02-07 15:32:03',
+            ),
+            43 => 
+            array (
+                'id' => 51,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'زبان انگلیسی 2',
+                'type' => 'general',
+                'order' => 11,
+                'created_at' => '2026-02-07 15:32:15',
+                'updated_at' => '2026-02-07 15:32:15',
+            ),
+            44 => 
+            array (
+                'id' => 52,
+                'cc_grade_id' => 7,
+                'cc_field_id' => 3,
+                'name' => 'مدیریت خانواده و سبک زندگی',
+                'type' => 'general',
+                'order' => 12,
+                'created_at' => '2026-02-07 15:32:31',
+                'updated_at' => '2026-02-07 15:32:31',
+            ),
+            45 => 
+            array (
+                'id' => 53,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'ریاضی و آمار 1',
+                'type' => 'specialized',
+                'order' => 0,
+                'created_at' => '2026-02-07 15:45:44',
+                'updated_at' => '2026-02-07 15:45:44',
+            ),
+            46 => 
+            array (
+                'id' => 54,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'عربی 1',
+                'type' => 'specialized',
+                'order' => 1,
+                'created_at' => '2026-02-07 15:45:57',
+                'updated_at' => '2026-02-07 15:45:57',
+            ),
+            47 => 
+            array (
+                'id' => 55,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'علوم و فنون ادبی 1',
+                'type' => 'specialized',
+                'order' => 2,
+                'created_at' => '2026-02-07 15:46:10',
+                'updated_at' => '2026-02-07 15:46:10',
+            ),
+            48 => 
+            array (
+                'id' => 56,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'اقتصاد',
+                'type' => 'specialized',
+                'order' => 3,
+                'created_at' => '2026-02-07 15:46:19',
+                'updated_at' => '2026-02-07 15:46:19',
+            ),
+            49 => 
+            array (
+                'id' => 57,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'تاریخ 1',
+                'type' => 'specialized',
+                'order' => 4,
+                'created_at' => '2026-02-07 15:46:30',
+                'updated_at' => '2026-02-07 15:46:30',
+            ),
+            50 => 
+            array (
+                'id' => 58,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'جغرافیای ایران',
+                'type' => 'specialized',
+                'order' => 5,
+                'created_at' => '2026-02-07 15:46:44',
+                'updated_at' => '2026-02-07 15:46:44',
+            ),
+            51 => 
+            array (
+                'id' => 59,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'جامعه‌شناسی 1',
+                'type' => 'specialized',
+                'order' => 6,
+                'created_at' => '2026-02-07 15:46:57',
+                'updated_at' => '2026-02-07 15:46:57',
+            ),
+            52 => 
+            array (
+                'id' => 60,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'منطق',
+                'type' => 'specialized',
+                'order' => 7,
+                'created_at' => '2026-02-07 15:47:06',
+                'updated_at' => '2026-02-07 15:47:06',
+            ),
+            53 => 
+            array (
+                'id' => 61,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'فارسی 1',
+                'type' => 'general',
+                'order' => 8,
+                'created_at' => '2026-02-07 15:47:22',
+                'updated_at' => '2026-02-07 15:47:27',
+            ),
+            54 => 
+            array (
+                'id' => 62,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'دین و زندگی 1',
+                'type' => 'general',
+                'order' => 9,
+                'created_at' => '2026-02-07 15:47:38',
+                'updated_at' => '2026-02-07 15:47:38',
+            ),
+            55 => 
+            array (
+                'id' => 63,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'آمادگی دفاعی',
+                'type' => 'general',
+                'order' => 10,
+                'created_at' => '2026-02-07 15:47:52',
+                'updated_at' => '2026-02-07 15:47:52',
+            ),
+            56 => 
+            array (
+                'id' => 64,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'زبان انگلیسی 1',
+                'type' => 'general',
+                'order' => 11,
+                'created_at' => '2026-02-07 15:48:05',
+                'updated_at' => '2026-02-07 15:48:05',
+            ),
+            57 => 
+            array (
+                'id' => 65,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'هنر',
+                'type' => 'general',
+                'order' => 12,
+                'created_at' => '2026-02-07 15:48:19',
+                'updated_at' => '2026-02-07 15:48:19',
+            ),
+            58 => 
+            array (
+                'id' => 66,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'هنر',
+                'type' => 'general',
+                'order' => 13,
+                'created_at' => '2026-02-07 15:48:44',
+                'updated_at' => '2026-02-07 15:48:44',
+            ),
+            59 => 
+            array (
+                'id' => 67,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'کارگاه کارآفرینی و تولید',
+                'type' => 'general',
+                'order' => 14,
+                'created_at' => '2026-02-07 15:48:55',
+                'updated_at' => '2026-02-07 15:48:55',
+            ),
+            60 => 
+            array (
+                'id' => 68,
+                'cc_grade_id' => 11,
+                'cc_field_id' => 3,
+                'name' => 'تفکر و سواد رسانه‌ای',
+                'type' => 'general',
+                'order' => 15,
+                'created_at' => '2026-02-07 15:49:10',
+                'updated_at' => '2026-02-07 15:49:10',
+            ),
+            61 => 
+            array (
+                'id' => 69,
+                'cc_grade_id' => 6,
+                'cc_field_id' => 2,
+                'name' => 'شیمی 2',
+                'type' => 'specialized',
+                'order' => 1,
+                'created_at' => '2026-02-07 15:51:47',
+                'updated_at' => '2026-02-08 19:32:07',
+            ),
+            62 => 
+            array (
+                'id' => 75,
+                'cc_grade_id' => 6,
+                'cc_field_id' => 2,
+                'name' => 'دین و زندگی 2',
+                'type' => 'general',
+                'order' => 4,
+                'created_at' => '2026-02-07 15:52:58',
+                'updated_at' => '2026-02-08 19:37:42',
+            ),
+            63 => 
+            array (
+                'id' => 79,
+                'cc_grade_id' => 6,
+                'cc_field_id' => 2,
+                'name' => 'عربی 2',
+                'type' => 'general',
+                'order' => 6,
+                'created_at' => '2026-02-07 15:53:51',
+                'updated_at' => '2026-02-08 19:37:53',
+            ),
+            64 => 
+            array (
+                'id' => 83,
+                'cc_grade_id' => 6,
+                'cc_field_id' => 2,
+                'name' => 'انسان و محیط زیست',
+                'type' => 'general',
+                'order' => 10,
+                'created_at' => '2026-02-07 15:54:37',
+                'updated_at' => '2026-02-08 19:38:14',
+            ),
+            65 => 
+            array (
+                'id' => 84,
+                'cc_grade_id' => 10,
+                'cc_field_id' => 2,
+                'name' => 'زیست‌شناسی 1',
+                'type' => 'specialized',
+                'order' => 0,
+                'created_at' => '2026-02-07 15:55:22',
+                'updated_at' => '2026-02-07 15:55:22',
+            ),
+            66 => 
+            array (
+                'id' => 91,
+                'cc_grade_id' => 10,
+                'cc_field_id' => 2,
+                'name' => 'دین و زندگی',
+                'type' => 'general',
+                'order' => 5,
+                'created_at' => '2026-02-07 15:56:48',
+                'updated_at' => '2026-02-08 19:29:14',
+            ),
+            67 => 
+            array (
+                'id' => 92,
+                'cc_grade_id' => 10,
+                'cc_field_id' => 2,
+                'name' => 'عربی',
+                'type' => 'general',
+                'order' => 6,
+                'created_at' => '2026-02-07 15:57:09',
+                'updated_at' => '2026-02-08 19:29:21',
+            ),
+            68 => 
+            array (
+                'id' => 94,
+                'cc_grade_id' => 10,
+                'cc_field_id' => 2,
+                'name' => 'جغرافیای ایران',
+                'type' => 'general',
+                'order' => 7,
+                'created_at' => '2026-02-07 15:57:31',
+                'updated_at' => '2026-02-08 19:29:25',
+            ),
+            69 => 
+            array (
+                'id' => 95,
+                'cc_grade_id' => 10,
+                'cc_field_id' => 2,
+                'name' => 'زبان انگلیسی',
+                'type' => 'general',
+                'order' => 8,
+                'created_at' => '2026-02-07 15:57:40',
+                'updated_at' => '2026-02-08 19:29:30',
+            ),
+            70 => 
+            array (
+                'id' => 98,
+                'cc_grade_id' => 10,
+                'cc_field_id' => 2,
+                'name' => 'آمادگی دفاعی',
+                'type' => 'general',
+                'order' => 9,
+                'created_at' => '2026-02-07 15:58:26',
+                'updated_at' => '2026-02-08 19:29:34',
+            ),
+            71 => 
+            array (
+                'id' => 100,
+                'cc_grade_id' => 9,
+                'cc_field_id' => 1,
+                'name' => 'ریاضی',
+                'type' => 'specialized',
+                'order' => 0,
+                'created_at' => '2026-02-07 16:00:04',
+                'updated_at' => '2026-02-07 16:00:04',
+            ),
+            72 => 
+            array (
+                'id' => 101,
+                'cc_grade_id' => 9,
+                'cc_field_id' => 1,
+                'name' => 'هندسه',
+                'type' => 'specialized',
+                'order' => 1,
+                'created_at' => '2026-02-07 16:00:12',
+                'updated_at' => '2026-02-07 16:00:12',
+            ),
+            73 => 
+            array (
+                'id' => 102,
+                'cc_grade_id' => 9,
+                'cc_field_id' => 1,
+                'name' => 'شیمی',
+                'type' => 'specialized',
+                'order' => 2,
+                'created_at' => '2026-02-07 16:00:19',
+                'updated_at' => '2026-02-07 16:00:19',
+            ),
+            74 => 
+            array (
+                'id' => 103,
+                'cc_grade_id' => 9,
+                'cc_field_id' => 1,
+                'name' => 'فیزیک',
+                'type' => 'specialized',
+                'order' => 3,
+                'created_at' => '2026-02-07 16:00:27',
+                'updated_at' => '2026-02-07 16:00:27',
+            ),
+            75 => 
+            array (
+                'id' => 105,
+                'cc_grade_id' => 9,
+                'cc_field_id' => 1,
+                'name' => 'ادبیات فارسی',
+                'type' => 'general',
+                'order' => 5,
+                'created_at' => '2026-02-07 16:00:50',
+                'updated_at' => '2026-02-07 16:00:50',
+            ),
+            76 => 
+            array (
+                'id' => 107,
+                'cc_grade_id' => 9,
+                'cc_field_id' => 1,
+                'name' => 'دین و زندگی',
+                'type' => 'general',
+                'order' => 7,
+                'created_at' => '2026-02-07 16:01:15',
+                'updated_at' => '2026-02-07 16:01:15',
+            ),
+            77 => 
+            array (
+                'id' => 108,
+                'cc_grade_id' => 9,
+                'cc_field_id' => 1,
+                'name' => 'عربی',
+                'type' => 'general',
+                'order' => 8,
+                'created_at' => '2026-02-07 16:01:24',
+                'updated_at' => '2026-02-07 16:01:24',
+            ),
+            78 => 
+            array (
+                'id' => 110,
+                'cc_grade_id' => 9,
+                'cc_field_id' => 1,
+                'name' => 'جغرافیای ایران',
+                'type' => 'general',
+                'order' => 9,
+                'created_at' => '2026-02-07 16:01:51',
+                'updated_at' => '2026-02-08 18:55:48',
+            ),
+            79 => 
+            array (
+                'id' => 111,
+                'cc_grade_id' => 9,
+                'cc_field_id' => 1,
+                'name' => 'زبان انگلیسی',
+                'type' => 'general',
+                'order' => 10,
+                'created_at' => '2026-02-07 16:02:03',
+                'updated_at' => '2026-02-08 18:55:52',
+            ),
+            80 => 
+            array (
+                'id' => 114,
+                'cc_grade_id' => 9,
+                'cc_field_id' => 1,
+                'name' => 'آمادگی دفاعی',
+                'type' => 'general',
+                'order' => 11,
+                'created_at' => '2026-02-07 16:02:32',
+                'updated_at' => '2026-02-08 18:55:57',
+            ),
+            81 => 
+            array (
+                'id' => 116,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+                'name' => 'حسابان 1',
+                'type' => 'specialized',
+                'order' => 0,
+                'created_at' => '2026-02-07 16:03:23',
+                'updated_at' => '2026-02-07 16:03:23',
+            ),
+            82 => 
+            array (
+                'id' => 117,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+                'name' => 'هندسه 2',
+                'type' => 'specialized',
+                'order' => 1,
+                'created_at' => '2026-02-07 16:03:34',
+                'updated_at' => '2026-02-07 16:03:34',
+            ),
+            83 => 
+            array (
+                'id' => 118,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+                'name' => 'شیمی 2',
+                'type' => 'specialized',
+                'order' => 2,
+                'created_at' => '2026-02-07 16:03:45',
+                'updated_at' => '2026-02-07 16:03:45',
+            ),
+            84 => 
+            array (
+                'id' => 119,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+            'name' => 'فیزیک (2)',
+                'type' => 'specialized',
+                'order' => 3,
+                'created_at' => '2026-02-07 16:03:54',
+                'updated_at' => '2026-02-07 16:03:54',
+            ),
+            85 => 
+            array (
+                'id' => 120,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+                'name' => 'آمار و احتمال',
+                'type' => 'specialized',
+                'order' => 4,
+                'created_at' => '2026-02-07 16:04:00',
+                'updated_at' => '2026-02-07 16:04:00',
+            ),
+            86 => 
+            array (
+                'id' => 122,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+                'name' => 'ادبیات فارسی 2',
+                'type' => 'general',
+                'order' => 6,
+                'created_at' => '2026-02-07 16:04:23',
+                'updated_at' => '2026-02-07 16:04:23',
+            ),
+            87 => 
+            array (
+                'id' => 124,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+                'name' => 'دین و زندگی 2',
+                'type' => 'general',
+                'order' => 8,
+                'created_at' => '2026-02-07 16:04:45',
+                'updated_at' => '2026-02-07 16:04:45',
+            ),
+            88 => 
+            array (
+                'id' => 125,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+                'name' => 'عربی 2',
+                'type' => 'general',
+                'order' => 9,
+                'created_at' => '2026-02-07 16:04:59',
+                'updated_at' => '2026-02-07 16:04:59',
+            ),
+            89 => 
+            array (
+                'id' => 127,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+                'name' => 'تاریخ معاصر ایران 2',
+                'type' => 'general',
+                'order' => 10,
+                'created_at' => '2026-02-07 16:05:22',
+                'updated_at' => '2026-02-08 18:54:55',
+            ),
+            90 => 
+            array (
+                'id' => 128,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+                'name' => 'زبان انگلیسی 2',
+                'type' => 'general',
+                'order' => 11,
+                'created_at' => '2026-02-07 16:05:41',
+                'updated_at' => '2026-02-08 18:54:59',
+            ),
+            91 => 
+            array (
+                'id' => 130,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+                'name' => 'زمین‌شناسی',
+                'type' => 'general',
+                'order' => 12,
+                'created_at' => '2026-02-07 16:06:09',
+                'updated_at' => '2026-02-08 18:55:04',
+            ),
+            92 => 
+            array (
+                'id' => 131,
+                'cc_grade_id' => 5,
+                'cc_field_id' => 1,
+                'name' => 'انسان و محیط زیست',
+                'type' => 'general',
+                'order' => 13,
+                'created_at' => '2026-02-07 16:06:18',
+                'updated_at' => '2026-02-08 18:55:09',
+            ),
+            93 => 
+            array (
+                'id' => 132,
+                'cc_grade_id' => 2,
+                'cc_field_id' => 2,
+                'name' => 'ریاضی 3',
+                'type' => 'specialized',
+                'order' => 0,
+                'created_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-08 19:22:23',
+            ),
+            94 => 
+            array (
+                'id' => 133,
+                'cc_grade_id' => 10,
+                'cc_field_id' => 2,
+                'name' => 'ریاضی',
+                'type' => 'specialized',
+                'order' => 1,
+                'created_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-08 19:29:04',
+            ),
+            95 => 
+            array (
+                'id' => 135,
+                'cc_grade_id' => 10,
+                'cc_field_id' => 2,
+                'name' => 'شیمی',
+                'type' => 'specialized',
+                'order' => 2,
+                'created_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-08 19:20:43',
+            ),
+            96 => 
+            array (
+                'id' => 136,
+                'cc_grade_id' => 10,
+                'cc_field_id' => 2,
+                'name' => 'فیزیک',
+                'type' => 'specialized',
+                'order' => 3,
+                'created_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-08 19:20:43',
+            ),
+            97 => 
+            array (
+                'id' => 137,
+                'cc_grade_id' => 10,
+                'cc_field_id' => 2,
+                'name' => 'ادبیات فارسی',
+                'type' => 'general',
+                'order' => 4,
+                'created_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-08 19:29:10',
+            ),
+            98 => 
+            array (
+                'id' => 138,
+                'cc_grade_id' => 6,
+                'cc_field_id' => 2,
+                'name' => 'ریاضی 2',
+                'type' => 'specialized',
+                'order' => 0,
+                'created_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-08 19:30:24',
+            ),
+            99 => 
+            array (
+                'id' => 140,
+                'cc_grade_id' => 6,
+                'cc_field_id' => 2,
+                'name' => 'فیزیک 2',
+                'type' => 'specialized',
+                'order' => 2,
+                'created_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-08 19:35:50',
+            ),
+            100 => 
+            array (
+                'id' => 142,
+                'cc_grade_id' => 6,
+                'cc_field_id' => 2,
+                'name' => 'ادبیات فارسی 2',
+                'type' => 'general',
+                'order' => 3,
+                'created_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-08 19:37:37',
+            ),
+            101 => 
+            array (
+                'id' => 143,
+                'cc_grade_id' => 6,
+                'cc_field_id' => 2,
+                'name' => 'تاریخ معاصر ایران',
+                'type' => 'general',
+                'order' => 7,
+                'created_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-08 19:37:56',
+            ),
+            102 => 
+            array (
+                'id' => 144,
+                'cc_grade_id' => 6,
+                'cc_field_id' => 2,
+                'name' => 'زبان انگلیسی 2',
+                'type' => 'general',
+                'order' => 8,
+                'created_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-08 19:38:01',
+            ),
+            103 => 
+            array (
+                'id' => 145,
+                'cc_grade_id' => 6,
+                'cc_field_id' => 2,
+                'name' => 'زمین‌شناسی',
+                'type' => 'specialized',
+                'order' => 9,
+                'created_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-08 19:38:05',
+            ),
+            104 => 
+            array (
+                'id' => 146,
+                'cc_grade_id' => 6,
+                'cc_field_id' => 2,
+                'name' => 'زیست 2',
+                'type' => 'specialized',
+                'order' => 11,
+                'created_at' => '2026-02-08 19:52:54',
+                'updated_at' => '2026-02-08 19:52:54',
+            ),
+        ));
+        
+        
+    }
+}

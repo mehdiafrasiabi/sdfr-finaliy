@@ -42,11 +42,19 @@ class DatabaseSeeder extends Seeder
             PaymentsTableSeeder::class,
             StudentsTableSeeder::class,
             ReportsTableSeeder::class,
-            SubjectSeeder::class,
             CcFieldSeeder::class,
             ExamPeriodSeeder::class,
             AcademicAdvisorPermissionSeeder::class,
             GeneralSettingsTableSeeder::class,
+
+            EducationLevelsTableSeeder::class,
+            CcFieldsTableSeeder::class,
+            CcGradesTableSeeder::class,
+            CcSubjectsTableSeeder::class,
+            CcChaptersTableSeeder::class,
+            CcTopicsTableSeeder::class,
+            SubjectsTableSeeder::class,
+//        CopyMathToExperimentalSeeder::class,
         ]);
     }
 }
