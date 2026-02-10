@@ -190,11 +190,18 @@
                             <div class="relative">
                                 <!-- Desktop Profile Button -->
                                 <button class="flex items-center sm:gap-3 gap-1 group" @click="desktopProfileOpen = !desktopProfileOpen">
-            <span class="inline-flex items-center justify-center w-9 h-9 bg-secondary rounded-full text-foreground ring-2 ring-transparent group-hover:ring-primary/20 transition-all">
-                <img src="{{ (auth()->check() && auth()->user()->picture && file_exists(public_path('user/img/'.auth()->id().'/'.auth()->user()->picture)))
-                    ? asset('user/img/'.auth()->id().'/'.auth()->user()->picture)
-                    : asset('client/assets/images/avatars/01.jpeg') }}"
-                     class="rounded-full w-full h-full object-cover">
+                  <span class="inline-flex items-center justify-center w-9 h-9 bg-secondary rounded-full text-foreground ring-2 ring-transparent group-hover:ring-primary/20 transition-all overflow-hidden">
+                @if($profilePictureUrl)
+                          <img src="{{ $profilePictureUrl }}" class="rounded-full w-full h-full object-cover" alt="avatar">
+                      @elseif($this->defaultAvatarType === 'female')
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75a4.5 4.5 0 0 0-4.5 4.5v.334a4.5 4.5 0 1 0 9 0V8.25a4.5 4.5 0 0 0-4.5-4.5ZM4.5 20.25a7.5 7.5 0 0 1 15 0" />
+                    </svg>
+                      @else
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+                    </svg>
+                      @endif
             </span>
                                     <span class="flex flex-col items-start text-xs space-y-1">
                 <span class="font-semibold text-foreground">{{auth()->user()->name}} عزیز</span>
@@ -239,11 +246,17 @@
                                         <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
                                             <div class="flex items-center gap-3 mb-3">
                                                 <div class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
-                                                    <img src="{{ (auth()->check() && auth()->user()->picture && file_exists(public_path('user/img/'.auth()->id().'/'.auth()->user()->picture)))
-                                ? asset('user/img/'.auth()->id().'/'.auth()->user()->picture)
-                                : asset('client/assets/images/avatars/01.jpeg') }}"
-                                                         class="rounded-full w-full h-full object-cover">
-                                                </div>
+                                                    @if($profilePictureUrl)
+                                                        <img src="{{ $profilePictureUrl }}" class="rounded-full w-full h-full object-cover" alt="avatar">
+                                                    @elseif($this->defaultAvatarType === 'female')
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-slate-500 dark:text-slate-200">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75a4.5 4.5 0 0 0-4.5 4.5v.334a4.5 4.5 0 1 0 9 0V8.25a4.5 4.5 0 0 0-4.5-4.5ZM4.5 20.25a7.5 7.5 0 0 1 15 0" />
+                                                        </svg>
+                                                    @else
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-slate-500 dark:text-slate-200">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+                                                        </svg>
+                                                    @endif                                                </div>
                                                 <div class="flex-1 min-w-0">
                                                     <h3 class="text-sm font-bold text-foreground truncate">{{auth()->user()->name}}</h3>
                                                     <p class="text-xs text-muted truncate">{{auth()->user()->mobile ?? ''}}</p>
@@ -364,10 +377,18 @@
                     <!-- دکمه پروفایل/ورود - سمت راست -->
                     @if(\Illuminate\Support\Facades\Auth::check())
                         <button @click="openProfileModal()"
-                                class="inline-flex items-center justify-center w-10 h-10 bg-secondary rounded-full text-foreground hover:bg-secondary/80 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                            </svg>
+                                class="inline-flex items-center justify-center w-10 h-10 bg-secondary rounded-full text-foreground hover:bg-secondary/80 transition-colors overflow-hidden">
+                            @if($profilePictureUrl)
+                                <img src="{{ $profilePictureUrl }}" class="w-full h-full object-cover rounded-full" alt="avatar">
+                            @elseif($this->defaultAvatarType === 'female')
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75a4.5 4.5 0 0 0-4.5 4.5v.334a4.5 4.5 0 1 0 9 0V8.25a4.5 4.5 0 0 0-4.5-4.5ZM4.5 20.25a7.5 7.5 0 0 1 15 0" />
+                                </svg>
+                            @else
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+                                </svg>
+                            @endif
                         </button>
                     @else
                         <a href="{{route('client.auth.login')}}"
@@ -683,13 +704,21 @@
                             <div class="flex flex-col items-center text-center mb-6">
                                 <div class="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm p-1 shadow-xl mb-4 ring-4 ring-white/20">
                                     <div class="w-full h-full rounded-full bg-slate-400 dark:bg-slate-500 flex items-center justify-center overflow-hidden">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-white">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                                        </svg>
+                                        @if($profilePictureUrl)
+                                            <img src="{{ $profilePictureUrl }}" class="w-full h-full object-cover rounded-full" alt="avatar">
+                                        @elseif($this->defaultAvatarType === 'female')
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75a4.5 4.5 0 0 0-4.5 4.5v.334a4.5 4.5 0 1 0 9 0V8.25a4.5 4.5 0 0 0-4.5-4.5ZM4.5 20.25a7.5 7.5 0 0 1 15 0" />
+                                            </svg>
+                                        @else
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-white">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+                                            </svg>
+                                        @endif
                                     </div>
                                 </div>
-                                <h3 class="text-white font-bold text-lg mb-1">امیرمحمد نیک نام</h3>
-                                <span class="text-white/70 text-sm">۰۹۰۳۳۶۱۷۶۰</span>
+                                <h3 class="text-white font-bold text-lg mb-1">{{ auth()->user()->name ?? '-' }}</h3>
+                                <span class="text-white/70 text-sm">{{ auth()->user()->mobile ?? '-' }}</span>
                             </div>
 
                             <!-- White Card -->

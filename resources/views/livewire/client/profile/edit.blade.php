@@ -110,12 +110,20 @@
                                 <form wire:submit.prevent="save" class="space-y-5">
                                     <div class="grid sm:grid-cols-2 gap-5">
                                         <div class="space-y-1">
-                                            <label for="fullname" class="font-medium text-xs text-muted">نام
-                                                و
-                                                نام خانوادگی (فارسی)</label>
-                                            <input type="text" id="fullname" wire:model="name" name="name"
+                                            <label for="name" class="font-medium text-xs text-muted">نام</label>
+                                            <input type="text" id="name" wire:model="name" name="name"
                                                    class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
                                             @error('name')
+                                            <div class="font-medium text-xs text-red-500">
+                                                {{$message}}
+                                            </div>
+                                            @enderror
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label for="full_name" class="font-medium text-xs text-muted">نام و نام خانوادگی</label>
+                                            <input type="text" id="full_name" wire:model="full_name" name="full_name"
+                                                   class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"/>
+                                            @error('full_name')
                                             <div class="font-medium text-xs text-red-500">
                                                 {{$message}}
                                             </div>
@@ -132,6 +140,49 @@
                                             <div class="font-medium text-xs text-red-500">
                                                 {{$message}}
                                             </div>
+                                            @enderror
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label for="mobile" class="font-medium text-xs text-muted">شماره موبایل (غیرقابل ویرایش)</label>
+                                            <input type="text" id="mobile" dir="ltr" wire:model="mobile" readonly
+                                                   class="form-input w-full h-11 !ring-0 !ring-offset-0 bg-slate-200/70 dark:bg-slate-800 border-border focus:border-border rounded-xl text-sm text-foreground px-5 cursor-not-allowed"/>
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label for="gender" class="font-medium text-xs text-muted">جنسیت</label>
+                                            <select id="gender" wire:model="gender"
+                                                    class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
+                                                <option value="">انتخاب کنید</option>
+                                                <option value="male">مرد</option>
+                                                <option value="female">زن</option>
+                                            </select>
+                                            @error('gender')
+                                            <div class="font-medium text-xs text-red-500">{{$message}}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label for="state_id" class="font-medium text-xs text-muted">استان</label>
+                                            <select id="state_id" wire:model.live="state_id"
+                                                    class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
+                                                <option value="">انتخاب کنید</option>
+                                                @foreach($states as $state)
+                                                    <option value="{{ $state->id }}">{{ $state->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('state_id')
+                                            <div class="font-medium text-xs text-red-500">{{$message}}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="space-y-1">
+                                            <label for="city_id" class="font-medium text-xs text-muted">شهر</label>
+                                            <select id="city_id" wire:model="city_id"
+                                                    class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
+                                                <option value="">انتخاب کنید</option>
+                                                @foreach($cities as $city)
+                                                    <option value="{{ $city->id }}">{{ $city->name }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('city_id')
+                                            <div class="font-medium text-xs text-red-500">{{$message}}</div>
                                             @enderror
                                         </div>
                                         <div class="space-y-1">

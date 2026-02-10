@@ -12,12 +12,15 @@ class Header extends Component
 {
     public $cart=0;
 
+    public ?string $profilePictureUrl = null;
 
+    public ?string $gender = null;
     public $unreadCount = 0;
 
     public function mount()
     {
         $this->loadUnreadCount();
+        $this->loadUserProfileData();
         $this->cart = Cart::query()
             ->where('user_id', Auth()->id())->count();
 
@@ -36,6 +39,43 @@ class Header extends Component
             ->count();
     }
 
+    public function loadUserProfileData(): void
+    {
+        $user = Auth::user();
+
+        if (! $user) {
+            $this->profilePictureUrl = null;
+            $this->gender = null;
+            return;
+        }
+
+        $this->gender = $user->profile?->gender;
+        $this->profilePictureUrl = $this->resolveUserPictureUrl($user);
+    }
+
+    protected function resolveUserPictureUrl($user): ?string
+    {
+        if (! $user?->picture) {
+            return null;
+        }
+
+        $picture = ltrim($user->picture, '/');
+        if (file_exists(public_path($picture))) {
+            return asset($picture);
+        }
+
+        $legacyPath = "user/img/{$user->id}/{$user->picture}";
+        if (file_exists(public_path($legacyPath))) {
+            return asset($legacyPath);
+        }
+
+        return null;
+    }
+
+    public function getDefaultAvatarTypeProperty(): string
+    {
+        return $this->gender === 'female' ? 'female' : 'male';
+    }
     #[On('add-to-cart')]
     public function getUserCart()
     {
@@ -47,14 +87,7 @@ class Header extends Component
     {
         $this->cart = $newCount;
     }
-    public function getProfilePictureUrlAttribute()
-    {
-        $path = public_path("user/img/{$this->id}/{$this->picture}");
-        if ($this->picture && file_exists($path)) {
-            return asset("user/img/{$this->id}/{$this->picture}");
-        }
-        return asset('client/assets/images/avatars/01.jpeg');
-    }
+
     #[On('notificationAdded')]
     #[On('notificationRead')]
     public function refreshUnreadCount()

@@ -207,7 +207,7 @@ trait UploadFile
 
         $manager = new ImageManager(new Driver());
         $manager->read($photo->getRealPath())
-            ->scale($width, $height)
+            ->cover($width, $height)
             ->toWebp(80)
             ->save($finalPath);
 
@@ -244,7 +244,7 @@ trait UploadFile
         // تبدیل به WebP و ذخیره
         $manager = new ImageManager(new Driver());
         $manager->read($photo->getRealPath())
-            ->scale($width, $height)
+            ->cover($width, $height)
             ->toWebp(80)
             ->save($finalPath);
 

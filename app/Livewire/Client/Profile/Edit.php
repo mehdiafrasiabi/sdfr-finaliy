@@ -1,23 +1,16 @@
 <?php
 
 namespace App\Livewire\Client\Profile;
-
 use App\Notifications\SendOtpToUser;
-
 use App\Traits\UploadFile;
-
 use Artesaos\SEOTools\Traits\SEOTools;
-
 use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Support\Facades\Hash;
-
 use Illuminate\Support\Facades\Storage;
-
 use Livewire\Attributes\Rule;
-
+use App\Models\City;
+use App\Models\State;
 use Livewire\Component;
-
 use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 
@@ -28,7 +21,11 @@ class Edit extends Component
     use SEOTools, WithFileUploads, UploadFile;
 
 
-    public $name, $email, $photo, $new_photo;
+    public $name, $email, $mobile, $photo, $new_photo;
+    public $full_name, $gender, $state_id, $city_id;
+
+    public $states = [];
+    public $cities = [];
 
 
     // تغییر رمز با رمز فعلی
@@ -63,7 +60,26 @@ class Edit extends Component
         $user = Auth::user(); // یا Student::find(Auth::id()) در صورت نیاز
         $this->name = $user->name;
         $this->email = $user->email;
+        $this->mobile = $user->mobile;
         $this->photo = $user->picture;
+        $profile = $user->profile;
+        $this->full_name = $profile?->full_name;
+        $this->gender = $profile?->gender;
+        $this->state_id = $profile?->state_id;
+        $this->city_id = $profile?->city_id;
+
+        $this->states = State::query()->select('id', 'name')->get();
+        $this->cities = $this->state_id
+            ? City::query()->where('state_id', $this->state_id)->select('id', 'name')->get()
+            : collect();
+    }
+
+    public function updatedStateId($value): void
+    {
+        $this->city_id = null;
+        $this->cities = $value
+            ? City::query()->where('state_id', $value)->select('id', 'name')->get()
+            : collect();
     }
 
     public function seoConfig()
@@ -77,6 +93,10 @@ class Edit extends Component
         $this->validate([
             'name' => ['required', 'string', 'min:3', 'max:150'],
             'email' => ['required', 'email'],
+            'full_name' => ['required', 'string', 'min:3', 'max:150'],
+            'gender' => ['required', 'in:male,female'],
+            'state_id' => ['nullable', 'exists:states,id'],
+            'city_id' => ['nullable', 'exists:cities,id'],
             'new_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'],
         ], [
             'name.required' => 'وارد کردن نام الزامی است.',
@@ -86,6 +106,16 @@ class Edit extends Component
 
             'email.required' => 'وارد کردن ایمیل الزامی است.',
             'email.email' => 'فرمت ایمیل معتبر نیست.',
+
+            'full_name.required' => 'وارد کردن نام و نام خانوادگی الزامی است.',
+            'full_name.min' => 'نام و نام خانوادگی باید حداقل ۳ کاراکتر داشته باشد.',
+            'full_name.max' => 'نام و نام خانوادگی نمی‌تواند بیشتر از ۱۵۰ کاراکتر باشد.',
+
+            'gender.required' => 'انتخاب جنسیت الزامی است.',
+            'gender.in' => 'جنسیت انتخاب‌شده معتبر نیست.',
+
+            'state_id.exists' => 'استان انتخاب‌شده معتبر نیست.',
+            'city_id.exists' => 'شهر انتخاب‌شده معتبر نیست.',
 
             'new_photo.required' => 'انتخاب تصویر الزامی است.',
             'new_photo.image' => 'فایل انتخابی باید یک تصویر باشد.',
@@ -98,6 +128,11 @@ class Edit extends Component
         $user->name = $this->name;
         $user->email = $this->email;
 
+        $profile = $user->profile()->firstOrNew();
+        $profile->full_name = $this->full_name;
+        $profile->gender = $this->gender;
+        $profile->state_id = $this->state_id;
+        $profile->city_id = $this->city_id;
 
         if ($this->new_photo) {
             // حذف عکس قبلی
@@ -112,10 +147,14 @@ class Edit extends Component
             $filename = $this->uploadImageInWebpFormatProfile($this->new_photo, $user->id, 150, 150, 'img');
 
             $user->picture = $filename; // فقط نام فایل
+            $profile->picture = $filename;
         }
 
 
         $user->save();
+        $user->profile()->save($profile);
+
+        $this->photo = $user->picture;
         $this->dispatch('success','پروفایل با موفقیت به‌روزرسانی شد.');
 
     }
