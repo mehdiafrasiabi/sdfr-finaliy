@@ -38,16 +38,25 @@ class Info extends Component
 
     public $mobile;
     public $text;
-
+    public $loadingCities = false;
     public function mount()
     {
         $this->seoConfig();
         $this->provinces = State::all();
     }
-
+    public function updatedGrade($value)
+    {
+        // اگر پایه نهم انتخاب شد، رشته را خالی کن
+        if ($value === '9') {
+            $this->field = null;
+        }
+    }
     public function getCity($value)
     {
+        $this->loadingCities = true;
         $this->cities = City::query()->where('state_id', $value)->get();
+        $this->city = ''; // Reset city when province changes
+        $this->loadingCities = false;
     }
 
     public function seoConfig()
@@ -67,6 +76,10 @@ class Info extends Component
         $birthDateRaw = $this->convertPersianToEnglish($formData['birth_date']);
         $birthDate = \Morilog\Jalali\Jalalian::fromFormat('Y/m/d', $birthDateRaw)->toCarbon();
 
+        // تعیین قوانین ولیدیشن رشته بر اساس پایه
+        $fieldRule = $formData['grade'] === '9'
+            ? 'nullable'
+            : 'required|in:math,experimental,human';
         $validator = Validator::make($formData, [
             'name' => 'required|string|max:35',
             'address' => 'required|string|max:200',
@@ -78,8 +91,8 @@ class Info extends Component
             'city' => 'required|exists:cities,id',
             'fMobile' => ['required', 'regex:/^09\d{9}$/'],
             'mMobile' => ['required', 'regex:/^09\d{9}$/'],
-            'grade' => 'required|in:10,11,12',
-            'field' => 'required|in:math,experimental,human',
+            'grade' => 'required|in:9,10,11,12',
+            'field' => $fieldRule,
             'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
             'name.required' => 'وارد کردن نام الزامی است.',

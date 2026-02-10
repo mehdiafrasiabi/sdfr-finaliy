@@ -23,12 +23,36 @@
                                     </span>
                             <div class="flex flex-col space-y-2">
                                 <span class="font-black xs:text-2xl text-lg text-primary">سبد خرید شما</span>
-                                <span class="font-semibold text-xs text-muted">{{$cart}} دوره به سبد اضافه کرده
-                                            اید</span>
+                                <span class="font-semibold text-xs text-muted">{{$cart}} دوره به سبد اضافه کرده‌اید</span>
                             </div>
                         </div>
                     </div>
                     <!-- end section:title -->
+
+                    <!-- alert: محدودیت تک دوره -->
+                    @if($cart > 1)
+                        <div class="flex items-start gap-3 relative bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 mt-5" x-data="{ open: true }" x-show="open">
+                            <span class="text-yellow-600 dark:text-yellow-400 flex-shrink-0">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
+                                    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                </svg>
+                            </span>
+                            <div class="flex-1">
+                                <div class="font-bold text-sm text-yellow-800 dark:text-yellow-300 mb-1">
+                                    توجه: محدودیت خرید
+                                </div>
+                                <div class="font-medium text-xs text-yellow-700 dark:text-yellow-400">
+                                    شما فقط میتوانید یک دوره در هر خرید انتخاب کنید. لطفا سایر دوره‌ها را از سبد خرید حذف کنید.
+                                </div>
+                            </div>
+                            <button type="button" class="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-200 transition-colors" x-on:click="open = false">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                    @endif
+                    <!-- end alert -->
 
 
                     <!-- cart-items:wrapper -->
@@ -308,14 +332,23 @@
                             </div>
                         </div>
                         <button type="submit" wire:click="goToOrderInfo"
-                                class="w-full h-11 inline-flex items-center justify-center gap-1 bg-primary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4">
-                            <span class="font-semibold text-sm">تکمیل فرایند خرید</span>
+                                @if($cart > 1) disabled @endif
+                                class="w-full h-11 inline-flex items-center justify-center gap-1 bg-primary rounded-full text-primary-foreground transition-all hover:opacity-80 px-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                                wire:loading.attr="disabled">
+                            <span class="font-semibold text-sm" wire:loading.remove wire:target="goToOrderInfo">تکمیل فرایند خرید</span>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                                 class="w-5 h-5">
+                                 class="w-5 h-5" wire:loading.remove wire:target="goToOrderInfo">
                                 <path fill-rule="evenodd"
                                       d="M14.78 14.78a.75.75 0 0 1-1.06 0L6.5 7.56v5.69a.75.75 0 0 1-1.5 0v-7.5A.75.75 0 0 1 5.75 5h7.5a.75.75 0 0 1 0 1.5H7.56l7.22 7.22a.75.75 0 0 1 0 1.06Z"
                                       clip-rule="evenodd"></path>
                             </svg>
+                            <div wire:loading wire:target="goToOrderInfo" class="flex items-center gap-2">
+                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span class="font-semibold text-sm">در حال انتقال...</span>
+                            </div>
                         </button>
                     </div>
                 </div>
