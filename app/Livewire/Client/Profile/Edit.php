@@ -160,6 +160,7 @@ class Edit extends Component
         $this->photo = $user->picture;
         $this->dispatch('success','پروفایل با موفقیت به‌روزرسانی شد.');
 
+        $this->redirectRoute('client.profile.edit');
     }
 
 
@@ -226,7 +227,7 @@ class Edit extends Component
 
         // تغییر رمز
 
-        $user->password = $this->new_password;
+        $user->password = Hash::make($this->new_password);
 
         $user->save();
 
@@ -235,7 +236,7 @@ class Edit extends Component
 
         $this->reset(['current_password', 'new_password', 'new_password_confirmation']);
 
-        $this->dispatch('success','رمز عبور با موفقیت تغییر کرد.');
+        $this->dispatch('warning','شماره موبایل در حساب کاربری ثبت نشده است.');
 
         session()->flash('password_success', 'رمز عبور با موفقیت تغییر کرد.');
 
@@ -426,7 +427,7 @@ class Edit extends Component
 
         $user = Auth::user();
 
-        $user->password = $this->forgot_new_password;
+        $user->password = Hash::make($this->forgot_new_password);
 
         $user->save();
 

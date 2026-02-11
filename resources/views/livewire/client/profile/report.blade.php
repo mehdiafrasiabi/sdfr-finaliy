@@ -163,21 +163,13 @@
 
 
                     <!-- Tabs -->
-
                     <div class="space-y-5" x-data="{ activeTab: 'submit' }">
-
                         <!-- Tab List -->
-
                         <div class="relative overflow-x-auto">
-
                             <ul class="inline-flex gap-2 bg-secondary border border-border rounded-full p-1">
-
                                 <li>
-
                                     <button type="button"
-
                                             class="flex items-center gap-x-2 relative rounded-full py-2 px-4"
-
                                             :class="activeTab === 'submit' ? 'text-foreground bg-background' : 'text-muted'"
 
                                             @click="activeTab = 'submit'">
@@ -235,7 +227,7 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 
                                     @foreach($weekDays as $dayIndex => $day)
-                                        <div class="day-card bg-background border border-border rounded-2xl p-4
+                                        <div class="day-card bg-background border border-border rounded-2xl p-4 bg-secondary
 
                                             {{ $day['is_submitted'] ? 'submitted border-green-500/50' : '' }}
 
@@ -498,189 +490,240 @@
 
                         <!-- Tab Content: Report History -->
 
-                        <div x-show="activeTab === 'history'" class="space-y-4">
+                        <!-- بخش History با طراحی باکسی -->
+
+                        <div x-show="activeTab === 'history'" class="space-y-5">
 
                             @if($reports->isNotEmpty())
 
-                                <div class="overflow-x-auto">
+                                <div class="space-y-4 sm:space-y-5">
 
-                                    <table class="w-full text-sm text-right">
+                                    @foreach($reports as $report)
 
-                                        <thead class="text-xs text-muted uppercase bg-secondary border-b border-border">
+                                        <div wire:key="report-{{ $report->id }}"
+                                             class="report-card bg-background rounded-2xl overflow-hidden
+                            hover:shadow-xl transition-all duration-300 card-soft-shadow">
 
-                                        <tr>
+                                            {{-- Header --}}
+                                            <div class="bg-gradient-to-r from-primary/10 via-blue-500/10 to-sky-500/10
+                                px-4 sm:px-6 py-3 sm:py-4 border-b border-border">
+                                                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                                    <div class="flex items-center gap-3 sm:gap-4">
+                                                        {{-- Icon --}}
+                                                        <div class="flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-xl
+                                            bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/30">
+                                                            <svg class="w-5 h-5 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                            </svg>
+                                                        </div>
 
-                                            <th class="whitespace-nowrap p-4">ردیف</th>
+                                                        {{-- Date & Day --}}
+                                                        <div>
+                                                            <h3 class="text-base sm:text-lg font-black text-foreground">{{ $report->day_name }}</h3>
+                                                            <div class="flex items-center gap-2 mt-0.5">
+                                                                <p class="text-xs sm:text-sm text-muted">
+                                                                    {{ jdate($report->report_date)->format('Y/m/d') }}
+                                                                </p>
+                                                                @if($report->is_compensatory)
+                                                                    <span class="inline-flex items-center gap-1 bg-amber-500/20 text-amber-600 dark:text-amber-400
+                                                         text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold">
+                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                </svg>
+                                                جبرانی
+                                            </span>
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    </div>
 
-                                            <th class="whitespace-nowrap p-4">تاریخ</th>
+                                                    {{-- Status Badge --}}
+                                                    <div>
+                                                        @if($report->status === 'approved')
+                                                            <span class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl
+                                                 bg-green-500/20 text-green-600 dark:text-green-400 text-xs sm:text-sm font-black
+                                                 border border-green-500/30">
+                                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                        تایید شده
+                                    </span>
+                                                        @elseif($report->status === 'rejected')
+                                                            <span class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl
+                                                 bg-red-500/20 text-red-500 text-xs sm:text-sm font-black
+                                                 border border-red-500/30">
+                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                        </svg>
+                                        رد شده
+                                    </span>
+                                                        @else
+                                                            <span class="inline-flex items-center gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl
+                                                 bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs sm:text-sm font-black
+                                                 border border-amber-500/30">
+                                        <span class="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></span>
+                                        در انتظار بررسی
+                                    </span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                            <th class="whitespace-nowrap p-4">روز</th>
+                                            {{-- Content --}}
+                                            <div class="p-4 sm:p-6">
+                                                {{-- Stats Grid --}}
+                                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
+                                                    {{-- Parts Read --}}
+                                                    <div class="bg-secondary rounded-xl p-3 sm:p-4 hover:bg-muted/50 transition-colors">
+                                                        <div class="flex items-center gap-2 mb-2">
+                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20">
+                                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                                                </svg>
+                                                            </div>
+                                                            <span class="text-xs text-muted font-semibold">پارت خوانده</span>
+                                                        </div>
+                                                        <div class="flex items-baseline gap-1.5">
+                                                            <span class="text-2xl sm:text-3xl font-black text-green-600">{{ $report->read_parts_count }}</span>
+                                                            <span class="text-sm text-muted font-medium">/</span>
+                                                            <span class="text-base text-foreground font-bold">{{ $report->total_parts }}</span>
+                                                        </div>
+                                                    </div>
 
-                                            <th class="whitespace-nowrap p-4">پارت خوانده</th>
+                                                    {{-- Tests Done --}}
+                                                    <div class="bg-secondary rounded-xl p-3 sm:p-4 hover:bg-muted/50 transition-colors">
+                                                        <div class="flex items-center gap-2 mb-2">
+                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/20">
+                                                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                                                </svg>
+                                                            </div>
+                                                            <span class="text-xs text-muted font-semibold">تست زده</span>
+                                                        </div>
+                                                        <div class="text-2xl sm:text-3xl font-black text-blue-600">{{ $report->total_tests }}</div>
+                                                    </div>
 
-                                            <th class="whitespace-nowrap p-4">تست زده</th>
+                                                    {{-- Phone Hours --}}
+                                                    <div class="bg-secondary rounded-xl p-3 sm:p-4 hover:bg-muted/50 transition-colors">
+                                                        <div class="flex items-center gap-2 mb-2">
+                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20">
+                                                                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                          d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                                                </svg>
+                                                            </div>
+                                                            <span class="text-xs text-muted font-semibold">گوشی</span>
+                                                        </div>
+                                                        <div class="flex items-baseline gap-1">
+                                                            <span class="text-2xl sm:text-3xl font-black text-amber-600">{{ $report->phone_hours }}</span>
+                                                            <span class="text-xs text-muted font-medium">ساعت</span>
+                                                        </div>
+                                                    </div>
 
-                                            <th class="whitespace-nowrap p-4">گوشی (غیردرسی)</th>
+                                                    {{-- Rating --}}
+                                                    <div class="bg-secondary rounded-xl p-3 sm:p-4 hover:bg-muted/50 transition-colors">
+                                                        <div class="flex items-center gap-2 mb-2">
+                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg
+                                                {{ $report->rating >= 3 ? 'bg-green-500/20' : '' }}
+                                                {{ $report->rating == 2 ? 'bg-blue-500/20' : '' }}
+                                                {{ $report->rating <= 1 ? 'bg-red-500/20' : '' }}">
+                                                                <svg class="w-4 h-4 {{ $report->rating >= 3 ? 'text-green-600' : '' }}
+                                                              {{ $report->rating == 2 ? 'text-blue-600' : '' }}
+                                                              {{ $report->rating <= 1 ? 'text-red-600' : '' }}"
+                                                                     fill="currentColor" viewBox="0 0 24 24">
+                                                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                                                </svg>
+                                                            </div>
+                                                            <span class="text-xs text-muted font-semibold">امتیاز</span>
+                                                        </div>
+                                                        <span class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-black px-3 py-1.5 rounded-lg
+                                    {{ $report->rating >= 3 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
+                                    {{ $report->rating == 2 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
+                                    {{ $report->rating <= 1 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                    </svg>
+                                    {{ $this->getRatingLabel($report->rating) }}
+                                </span>
+                                                    </div>
+                                                </div>
 
-                                            <th class="whitespace-nowrap p-4">امتیاز</th>
-
-                                            <th class="whitespace-nowrap p-4">وضعیت</th>
-
-                                            <th class="whitespace-nowrap p-4">نظر مشاور</th>
-
-                                        </tr>
-
-                                        </thead>
-
-                                        <tbody>
-
-                                        @foreach($reports as $report)
-
-                                            <tr class="odd:bg-secondary even:bg-background whitespace-nowrap"
-                                                wire:key="report-{{ $report->id }}">
-
-                                                <td class="p-4 font-medium text-foreground">
-
-                                                    {{ $loop->iteration + $reports->firstItem() - 1 }}
-
-                                                </td>
-
-                                                <td class="p-4 text-foreground">
-
-                                                    {{ jdate($report->report_date)->format('Y/m/d') }}
-
-                                                    @if($report->is_compensatory)
-
-                                                        <span
-                                                            class="inline-block bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs px-2 py-0.5 rounded-full mr-1">جبرانی</span>
-
-                                                    @endif
-
-                                                </td>
-
-                                                <td class="p-4 text-foreground">{{ $report->day_name }}</td>
-
-                                                <td class="p-4">
-
-                                                    <span class="text-green-600">{{ $report->read_parts_count }}</span>
-
-                                                    <span class="text-muted">/</span>
-
-                                                    <span class="text-foreground">{{ $report->total_parts }}</span>
-
-                                                </td>
-
-                                                <td class="p-4 text-foreground">{{ $report->total_tests }}</td>
-
-                                                <td class="p-4 text-foreground">{{ $report->phone_hours }} ساعت</td>
-
-                                                <td class="p-4">
-
-                                                        <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium
-
-                                                            {{ $report->rating >= 3 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
-
-                                                            {{ $report->rating == 2 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
-
-                                                            {{ $report->rating <= 1 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
-
-                                                            {{ $this->getRatingLabel($report->rating) }}
-
-                                                        </span>
-
-                                                </td>
-
-                                                <td class="p-4">
-
-                                                    @if($report->status === 'approved')
-
-                                                        <span
-                                                            class="inline-flex items-center gap-1 text-green-600 dark:text-green-400">
-
-                                                                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
-
-                                                                تایید شده
-
-                                                            </span>
-
-                                                    @elseif($report->status === 'rejected')
-
-                                                        <span class="inline-flex items-center gap-1 text-red-500">
-
-                                                                <span class="w-2 h-2 bg-red-500 rounded-full"></span>
-
-                                                                رد شده
-
-                                                            </span>
-
-                                                    @else
-
-                                                        <span class="inline-flex items-center gap-1 text-amber-500">
-
-                                                                <span class="w-2 h-2 bg-amber-500 rounded-full"></span>
-
-                                                                در انتظار
-
-                                                            </span>
-
-                                                    @endif
-
-                                                </td>
-
-                                                <td class="p-4">
-
-                                                    @if($report->advisor_comment)
-
+                                                {{-- Advisor Comment Section --}}
+                                                @if($report->advisor_comment)
+                                                    <div class="bg-gradient-to-br from-primary/10 via-blue-500/10 to-sky-500/10
+                                        rounded-xl p-4 sm:p-5 border-2 border-primary/20">
+                                                        <div class="flex items-start gap-3 mb-3">
+                                                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20 shrink-0">
+                                                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                          d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                                                                </svg>
+                                                            </div>
+                                                            <div class="flex-1">
+                                                                <h4 class="text-sm sm:text-base font-black text-primary mb-1">نظر مشاور</h4>
+                                                                <p class="text-xs sm:text-sm text-muted">مشاور شما پاسخی برای این گزارش ثبت کرده است</p>
+                                                            </div>
+                                                        </div>
                                                         <button type="button"
-
                                                                 wire:click="openReplyModal({{ $report->id }})"
-
-                                                                class="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-white hover:bg-primary/80 transition-all text-xs">
-
-                                                            مشاهده
-
+                                                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl
+                                               bg-primary text-white hover:bg-primary/90 transition-all text-sm sm:text-base font-black
+                                               shadow-lg shadow-primary/30">
+                                                            <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                            </svg>
+                                                            مشاهده نظر کامل
                                                         </button>
+                                                    </div>
+                                                @else
+                                                    <div class="bg-muted/30 rounded-xl p-4 border border-border">
+                                                        <div class="flex items-center gap-3">
+                                                            <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/50">
+                                                                <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                                </svg>
+                                                            </div>
+                                                            <div>
+                                                                <p class="text-sm font-semibold text-foreground">در انتظار بررسی</p>
+                                                                <p class="text-xs text-muted mt-0.5">مشاور هنوز نظری ثبت نکرده است</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
 
-                                                    @else
-
-                                                        <span class="text-muted text-xs">منتظر نظر</span>
-
-                                                    @endif
-
-                                                </td>
-
-                                            </tr>
-
-                                        @endforeach
-
-                                        </tbody>
-
-                                    </table>
+                                    @endforeach
 
                                 </div>
 
-                                <div class="p-4">
-
+                                {{-- Pagination --}}
+                                <div class="mt-6 sm:mt-8">
                                     {{ $reports->links('layouts.client.pagination') }}
-
                                 </div>
 
                             @else
 
-                                <div class="flex flex-col items-center justify-center py-12 space-y-4">
-
-                                    <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35"
-                                         alt="empty"/>
-
-                                    <div class="text-center space-y-2">
-
-                                        <h2 class="font-bold text-xl text-foreground">گزارشی ثبت نشده است</h2>
-
-                                        <p class="text-muted text-sm">گزارش های ارسال شده شما در اینجا نمایش داده
-                                            می‌شود.</p>
-
+                                {{-- Empty State --}}
+                                <div class="flex flex-col items-center justify-center py-16 sm:py-20">
+                                    <div class="mb-6 flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-2xl
+                        bg-gradient-to-br from-primary/10 to-blue-500/10">
+                                        <svg class="w-10 h-10 sm:w-12 sm:h-12 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
                                     </div>
-
+                                    <div class="text-center space-y-2">
+                                        <h2 class="font-black text-xl sm:text-2xl text-foreground">گزارشی ثبت نشده است</h2>
+                                        <p class="text-muted text-sm sm:text-base max-w-md">
+                                            گزارش‌های روزانه ارسال شده شما در اینجا نمایش داده می‌شود.
+                                        </p>
+                                    </div>
                                 </div>
 
                             @endif

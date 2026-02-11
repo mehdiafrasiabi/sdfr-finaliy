@@ -22,7 +22,7 @@
                 @endif
             </div>
             <div class="flex flex-col items-start space-y-1">
-                <span class="text-xs text-muted"> سلام !خوش اومدی  </span>
+                <span class="text-xs text-muted"> سلام ! </span>
                 <div
                     class="line-clamp-1 font-semibold text-sm text-foreground cursor-default">{{auth()->user()->name}}
                     <span class="text-xs text-muted">عزیز</span>
@@ -56,11 +56,17 @@
             <a wire:navigate href="{{route('client.profile.notification')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.notification') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                 <div class="relative">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                        <path fill-rule="evenodd"
-                              d="M5.25 9a6.75 6.75 0 0 1 13.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 0 1-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 1 1-7.48 0 24.585 24.585 0 0 1-4.831-1.244.75.75 0 0 1-.298-1.205A8.217 8.217 0 0 0 5.25 9.75V9Zm4.502 8.9a2.25 2.25 0 1 0 4.496 0 25.057 25.057 0 0 1-4.496 0Z"
-                              clip-rule="evenodd"></path>
+                    <svg class="w-6 h-6"
+                         viewBox="0 0 24 24"
+                         fill="none"
+                         stroke="currentColor"
+                         stroke-width="1.5">
+
+                        <path stroke-linecap="round"
+                              stroke-linejoin="round"
+                              d="M5.25 9a6.75 6.75 0 0 1 13.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 0 1-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 1 1-7.48 0 24.585 24.585 0 0 1-4.831-1.244.75.75 0 0 1-.298-1.205A8.217 8.217 0 0 0 5.25 9.75V9Z"/>
                     </svg>
+
                     <template x-if="unreadCount > 0">
                         <span class="absolute -top-1 -right-1 flex h-4 w-4">
                             <span
@@ -80,16 +86,19 @@
         <li>
             <a wire:navigate href="{{route('client.profile.professionalTools.index')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.professionalTools.index') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="feather feather-package w-5 h-5">
-                    <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
-                    <path
-                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.5"
+                     stroke-linecap="round"
+                     stroke-linejoin="round"
+                     class="w-5 h-5">
+                    <path d="M1 19.894a3.1 3.1 0 0 0 3.098 3.102 3.149 3.149 0 0 0 2.232-.933l10.268-11.938a1.451 1.451 0 0 1 .535-.343.898.898 0 0 1 .088 0 3.932 3.932 0 0 0 3.668-.573 6.235 6.235 0 0 0 2.106-3.958.621.621 0 0 0-.108-.442l-.113-.141-.11-.06a.647.647 0 0 0-.704.06l-2.88 2.239-1.244-.927-.6-1.531 2.889-2.245a.652.652 0 0 0 .237-.644l-.045-.17-.073-.096a.638.638 0 0 0-.42-.241 6.047 6.047 0 0 0-4.32 1.032 4.209 4.209 0 0 0-1.222 4.789 6.976 6.976 0 0 1-.44.593L1.91 17.697A3.085 3.085 0 0 0 1 19.895zm1.588-1.463L14.55 8.168a5.545 5.545 0 0 0 .734-1.037l.099-.204-.09-.208a3.239 3.239 0 0 1 .824-3.844 4.799 4.799 0 0 1 2.632-.87l-2.228 1.732a.84.84 0 0 0-.264.957l.679 1.73a.752.752 0 0 0 .093.163l1.562 1.203a.815.815 0 0 0 .997-.012l2.202-1.712a4.94 4.94 0 0 1-1.516 2.353 2.904 2.904 0 0 1-2.79.396l-.124-.026a2.42 2.42 0 0 0-.28-.006 2.169 2.169 0 0 0-1.194.642L5.597 21.383A2.108 2.108 0 0 1 2 19.894a2.082 2.082 0 0 1 .588-1.463z"/>
+                    <path d="M4.1 21h.8A1.101 1.101 0 0 0 6 19.9v-.8A1.101 1.101 0 0 0 4.9 18h-.8A1.101 1.101 0 0 0 3 19.1v.8A1.101 1.101 0 0 0 4.1 21zM4 19.1a.1.1 0 0 1 .1-.1h.8a.1.1 0 0 1 .1.1v.8a.1.1 0 0 1-.1.1h-.8a.1.1 0 0 1-.1-.1z"/>
                 </svg>
-                <span class="font-semibold text-xs">ابزار های حرفه ای</span>
+
+                <span class="font-semibold text-xs">آچار فرانسه</span>
             </a>
         </li>
 
@@ -125,11 +134,22 @@
         <li>
             <a wire:navigate href="{{route('client.profile.studySession')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.studySession') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                    <path fill-rule="evenodd"
-                          d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z"
-                          clip-rule="evenodd"></path>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 20 20"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.5"
+                     class="w-5 h-5">
+
+                    <circle cx="10" cy="10" r="8"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"/>
+
+                    <path d="M10 5v5h4"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"/>
                 </svg>
+
                 <span class="font-semibold text-xs">ثبت ساعت مطالعه</span>
             </a>
         </li>
@@ -190,25 +210,13 @@
         <li>
             <a wire:navigate href="{{route('client.profile.classification.projects')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.classification') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="w-5 h-5">
-                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                </svg>
-                <span class="font-semibold text-xs">طبقه‌بندی دروس</span>
-            </a>
-        </li>
-        <li>
-            <a wire:navigate href="{{route('client.profile.financial')}}"
-               class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.financial') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                      stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                     <path stroke-linecap="round" stroke-linejoin="round"
                           d="M21 12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 9m18 0V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v3">
                     </path>
                 </svg>
-                <span class="font-semibold text-xs">تراکنش های مالی</span>
+                <span class="font-semibold text-xs">طبقه‌بندی دروس</span>
             </a>
         </li>
         <li>
@@ -217,23 +225,56 @@
 
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.wallet') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
 
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="w-5 h-5"
+                     viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.5">
 
-                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                    <path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"/>
 
-                    <path stroke-linecap="round" stroke-linejoin="round"
+                    <path d="M12 12C12 10.3431 13.3431 9 15 9H20C20.5523 9 21 9.44772 21 10V14C21 14.5523 20.5523 15 20 15H15C13.3431 15 12 13.6569 12 12Z"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"/>
 
-                          d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z">
-
-                    </path>
-
+                    <path d="M15 12L15.1 12"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"/>
                 </svg>
+
 
                 <span class="font-semibold text-xs">کیف پول</span>
 
             </a>
 
         </li>
+        <li>
+            <a wire:navigate href="{{route('client.profile.financial')}}"
+               class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.financial') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 24 24"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.5"
+                     class="w-5 h-5">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0
+           1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12
+           c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182
+           s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0
+           9 9 0 0 1 18 0Z"/>
+                </svg>
+
+                <span class="font-semibold text-xs">تراکنش های مالی</span>
+            </a>
+        </li>
+
         <li>
             <a wire:navigate href="{{route('client.profile.installment')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.installment') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
@@ -289,11 +330,18 @@
         <li>
             <a wire:navigate href="{{route('client.profile.star')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.star') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
-                    <path fill-rule="evenodd"
-                          d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z"
-                          clip-rule="evenodd"></path>
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     viewBox="0 0 20 20"
+                     fill="none"
+                     stroke="currentColor"
+                     stroke-width="1.5"
+                     class="w-5 h-5">
+
+                    <path stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 0 0 .95.69h4.154c.969 0 1.371 1.24.588 1.81l-3.36 2.441a1 1 0 0 0-.364 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.36-2.441a1 1 0 0 0-1.175 0l-3.36 2.441c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 0 0-.364-1.118L2.49 9.377c-.783-.57-.38-1.81.588-1.81h4.154a1 1 0 0 0 .95-.69l1.287-3.95Z"/>
                 </svg>
+
                 <span class="font-semibold text-xs">ستاره ها (بزودی)</span>
             </a>
         </li>

@@ -146,7 +146,7 @@
                         @endphp
 
                         <div
-                            class="bg-background border border-border rounded-xl overflow-hidden {{ $borderColor }} border-r-4 transition-all hover:shadow-lg">
+                            class="bg-secondary border border-border rounded-xl overflow-hidden {{ $borderColor }} border-r-4 transition-all hover:shadow-lg">
                             <div class="p-4 md:p-5">
 
                                 <!-- Header: آیکون، تایتل، زمان و دکمه -->

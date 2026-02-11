@@ -1,275 +1,490 @@
 <div>
-    <div class="max-w-7xl space-y-14 px-4 mx-auto">
+    @push('link')
+        <style>
+            /* ===== استایل‌های کارت ابزارها ===== */
+            .tool-card {
+                position: relative;
+                transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                cursor: pointer;
+                overflow: hidden;
+                backdrop-filter: blur(8px);
+            }
+
+            /* افکت گرادیانت پس‌زمینه */
+            .tool-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, rgba(147, 51, 234, 0.05) 100%);
+                opacity: 0;
+                transition: opacity 0.4s ease;
+                z-index: 0;
+            }
+
+            .tool-card:hover::before {
+                opacity: 1;
+            }
+
+            .tool-card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15),
+                0 8px 16px rgba(0, 0, 0, 0.1);
+            }
+
+            .tool-card > * {
+                position: relative;
+                z-index: 1;
+            }
+
+            /* استایل برای کارت‌های فعال */
+            .tool-card.active {
+                border-color: rgba(59, 130, 246, 0.5);
+                box-shadow: 0 8px 24px rgba(59, 130, 246, 0.2);
+            }
+
+            .tool-card.active::before {
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(147, 51, 234, 0.08) 100%);
+                opacity: 1;
+            }
+
+            /* استایل برای کارت‌های غیرفعال (بزودی) */
+            .tool-card.disabled {
+                cursor: not-allowed;
+                opacity: 0.7;
+            }
+
+            .tool-card.disabled::before {
+                background: linear-gradient(135deg, rgba(156, 163, 175, 0.05) 0%, rgba(107, 114, 128, 0.05) 100%);
+                opacity: 1;
+            }
+
+            .tool-card.disabled:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            }
+
+            /* انیمیشن برای آیکون‌ها */
+            .tool-icon {
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+
+            .tool-card:hover .tool-icon {
+                transform: scale(1.15) rotate(5deg);
+            }
+
+            .tool-card.disabled:hover .tool-icon {
+                transform: scale(1.05);
+            }
+
+            /* انیمیشن برای دکمه‌ها */
+            .tool-button {
+                transition: all 0.3s ease;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .tool-button::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                transition: width 0.5s ease, height 0.5s ease;
+            }
+
+            .tool-button:hover::before {
+                width: 300px;
+                height: 300px;
+            }
+
+            .tool-button:active {
+                transform: scale(0.95);
+            }
+
+            /* Badge انیمیشن */
+            @keyframes pulse-badge {
+                0%, 100% {
+                    opacity: 1;
+                    transform: scale(1);
+                }
+                50% {
+                    opacity: 0.8;
+                    transform: scale(1.05);
+                }
+            }
+
+            .coming-soon-badge {
+                animation: pulse-badge 2s ease-in-out infinite;
+            }
+
+            /* شماره ردیف */
+            .tool-number {
+                transition: all 0.3s ease;
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 100%);
+            }
+
+            .tool-card:hover .tool-number {
+                background: linear-gradient(135deg, rgba(59, 130, 246, 0.2) 0%, rgba(147, 51, 234, 0.2) 100%);
+                transform: scale(1.1);
+            }
+
+            /* انیمیشن ورود کارت‌ها */
+            @keyframes slideInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .tool-card {
+                animation: slideInUp 0.6s ease-out backwards;
+            }
+
+            .tool-card:nth-child(1) {
+                animation-delay: 0.1s;
+            }
+
+            .tool-card:nth-child(2) {
+                animation-delay: 0.2s;
+            }
+
+            .tool-card:nth-child(3) {
+                animation-delay: 0.3s;
+            }
+
+            .tool-card:nth-child(4) {
+                animation-delay: 0.4s;
+            }
+
+            /* Responsive */
+            @media (max-width: 768px) {
+                .tool-card:hover {
+                    transform: translateY(-4px);
+                }
+            }
+        </style>
+    @endpush
+
+    <div class="max-w-7xl space-y-6 px-4 mx-auto">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
             <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
-                <!-- user:info -->
-                <!-- end user:info -->
-
-                <!-- user:menus -->
                 <livewire:client.profile.sidebar/>
-                <!-- end user:menus -->
             </div>
 
             <div class="lg:col-span-9 md:col-span-8">
-                <div class="space-y-10">
-                    <div class="space-y-5">
+                <div class="space-y-6">
 
-                        <!-- end section:title -->
+                    <!-- Section Title -->
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-1">
+                            <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                            <div class="w-2 h-2 bg-foreground rounded-full"></div>
+                        </div>
+                        <div class="font-black text-foreground">آجار فرانسه</div>
+                    </div>
 
-                        <!-- Guide Section -->
-                        <div
-                            dir="rtl"
-                            x-data="collapseGuide('report-guide')"
-                            x-init="init()"
-                            class="rounded-2xl border border-border bg-primary  overflow-hidden transition-all">
+                    <!-- Guide Section -->
+                    <div
+                        dir="rtl"
+                        x-data="collapseGuide('report-guide')"
+                        x-init="init()"
+                        class="rounded-2xl border border-border bg-primary overflow-hidden transition-all">
 
-                            <!-- HEADER -->
-                            <button
-                                @click="toggle"
-                                class="w-full flex items-center justify-between px-4 md:px-6 py-4
-                                 transition">
+                        <!-- HEADER -->
+                        <button
+                            @click="toggle"
+                            class="w-full flex items-center justify-between px-4 md:px-6 py-4 transition">
 
-                                <!-- title -->
-                                <div class="flex items-center gap-2">
-
-                                    <svg class="w-5 h-5 text-white dark:text-white"
-                                         fill="currentColor" viewBox="0 0 24 24">
-                                        <path
-                                            d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
-                                    </svg>
-
-                                    <span class="font-black text-white dark:text-white text-blue-300 md:text-lg">
-               راهنمای آچار فرانسه
-            </span>
-                                </div>
-
-                                <!-- arrow -->
-                                <svg
-                                    class="w-5 h-5 text-white transition-transform duration-300"
-                                    :class="open && 'rotate-180'"
-                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            <!-- title -->
+                            <div class="flex items-center gap-2">
+                                <svg class="w-5 h-5 text-white dark:text-white"
+                                     fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
                                 </svg>
-                            </button>
 
-                            <!-- CONTENT -->
-                            <div
-                                x-show="open"
-                                x-cloak
-                                x-transition:enter="transition ease-out duration-600"
-                                x-transition:enter-start="opacity-0 -translate-y-2"
-                                x-transition:enter-end="opacity-100 translate-y-0"
-                                x-transition:leave="transition ease-in duration-200"
-                                x-transition:leave-start="opacity-100 translate-y-0"
-                                x-transition:leave-end="opacity-0 -translate-y-1"
-                                class="px-4 md:px-6 pb-6"
-                            >
+                                <span class="font-black text-white dark:text-white md:text-lg">
+                                    راهنمای ابزارها
+                                </span>
+                            </div>
 
+                            <!-- arrow -->
+                            <svg
+                                class="w-5 h-5 text-white transition-transform duration-300"
+                                :class="open && 'rotate-180'"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
 
-                                <div class="flex flex-col md:flex-row-reverse gap-6 items-center mt-2">
+                        <!-- CONTENT -->
+                        <div
+                            x-show="open"
+                            x-cloak
+                            x-transition:enter="transition ease-out duration-600"
+                            x-transition:enter-start="opacity-0 -translate-y-2"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-200"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 -translate-y-1"
+                            class="px-4 md:px-6 pb-6">
 
-                                    <!-- IMAGE -->
-                                    <div class="relative w-full md:w-[280px] shrink-0 order-2 md:order-1">
+                            <div class="flex flex-col md:flex-row-reverse gap-6 items-center mt-2">
+                                <!-- IMAGE -->
+                                <div class="relative w-full md:w-[280px] shrink-0 order-2 md:order-1">
+                                    <img
+                                        src="/client/assets/images/blog/sdfr.jpg"
+                                        class="w-full h-[200px] md:h-[180px] object-cover rounded-xl">
 
-                                        <img
-                                            src="/client/assets/images/blog/sdfr.jpg"
-                                            class="w-full h-[200px] md:h-[180px] object-cover rounded-xl"
-                                        >
-
-                                        <button
-                                            type="button"
-                                            id="57612318744"
-                                            data-video-url="https://www.aparat.com/video/video/embed/videohash/utg98i1/vt/frame?titleShow=true&recom=self"
-                                            allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
-                                            data-video-title="راهنمای آچار فرانسه"
-                                            class="absolute inset-0 flex items-center justify-center"
-                                        >
-                                        <span
-                                            class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60
-                                               flex items-center justify-center shadow-lg transition">
+                                    <button
+                                        type="button"
+                                        id="57612318744"
+                                        data-video-url="https://www.aparat.com/video/video/embed/videohash/utg98i1/vt/frame?titleShow=true&recom=self"
+                                        allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
+                                        data-video-title="راهنمای ابزارها"
+                                        class="absolute inset-0 flex items-center justify-center">
+                                        <span class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60
+                                            flex items-center justify-center shadow-lg transition">
                                             <svg class="w-7 h-7 text-blue-600 mr-1"
                                                  fill="currentColor" viewBox="0 0 24 24">
                                                 <path d="M8 5v14l11-7z"/>
                                             </svg>
                                         </span>
-                                        </button>
-                                    </div>
+                                    </button>
+                                </div>
 
-                                    <!-- TEXT -->
-                                    <div
-                                        class="flex-1 text-right text-sm md:text-base  text-white dark:text-white leading-7 order-1 md:order-2">
+                                <!-- TEXT -->
+                                <div
+                                    class="flex-1 text-right text-sm md:text-base text-white dark:text-white leading-7 order-1 md:order-2">
+                                    از ابزارهای حرفه‌ای برای بهبود عملکرد مطالعاتی خود استفاده کنید:
 
-                                        دانش‌آموز عزیز سلام، قبل از شرکت در آزمون موارد زیر را با دقت مطالعه کنید:
-
-                                        <br>• استفاده از آخرین نسخه مرورگر کروم الزامی است.
-                                        <br>• حتماً قبل از خروج ثبت نهایی انجام شود.
-                                        <br>• پس از ورود به هر دفترچه امکان بازگشت وجود ندارد.
-                                        <br>• دفترچه آزمایشی ممکن است در پایان نمایش داده شود.
-
-                                    </div>
-
+                                    <br>• پومودورو: مدیریت زمان مطالعه با تکنیک 25 دقیقه‌ای
+                                    <br>• تست سرعتی: تمرین و افزایش سرعت پاسخگویی
+                                    <br>• کلاسور تحلیل: تحلیل دقیق نقاط قوت و ضعف
+                                    <br>• دفتر خلاصه‌ها: یادداشت و مرور مطالب مهم
                                 </div>
                             </div>
                         </div>
-                        <!-- End Guide Section -->
+                    </div>
+                    <!-- End Guide Section -->
 
+                    <!-- Tools Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                        <!-- tabs container -->
-                        <div class="space-y-5" x-data="{ activeTab: 'tabOne'}">
-                            <!-- tabs:list-container -->
-                            <div class="relative overflow-x-auto">
-                                <!-- tabs:list -->
-                                <ul
-                                    class="inline-flex gap-2 bg-secondary border border-border rounded-full p-1">
-                                    <!-- tabs:list:item -->
-                                    <li>
-                                        <button type="button"
-                                                class="flex items-center gap-x-2 relative rounded-full py-2 px-4"
-                                                x-bind:class="activeTab === 'tabOne' ? 'text-foreground bg-background' : 'text-muted'"
-                                                x-on:click="activeTab = 'tabOne'">
-                                            <!-- active icon -->
-                                            <span x-show="activeTab === 'tabOne'">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                             fill="currentColor" class="w-5 h-5">
-                                                            <path
-                                                                d="M11.7 2.805a.75.75 0 0 1 .6 0A60.65 60.65 0 0 1 22.83 8.72a.75.75 0 0 1-.231 1.337 49.948 49.948 0 0 0-9.902 3.912l-.003.002c-.114.06-.227.119-.34.18a.75.75 0 0 1-.707 0A50.88 50.88 0 0 0 7.5 12.173v-.224c0-.131.067-.248.172-.311a54.615 54.615 0 0 1 4.653-2.52.75.75 0 0 0-.65-1.352 56.123 56.123 0 0 0-4.78 2.589 1.858 1.858 0 0 0-.859 1.228 49.803 49.803 0 0 0-4.634-1.527.75.75 0 0 1-.231-1.337A60.653 60.653 0 0 1 11.7 2.805Z">
-                                                            </path>
-                                                            <path
-                                                                d="M13.06 15.473a48.45 48.45 0 0 1 7.666-3.282c.134 1.414.22 2.843.255 4.284a.75.75 0 0 1-.46.711 47.87 47.87 0 0 0-8.105 4.342.75.75 0 0 1-.832 0 47.87 47.87 0 0 0-8.104-4.342.75.75 0 0 1-.461-.71c.035-1.442.121-2.87.255-4.286.921.304 1.83.634 2.726.99v1.27a1.5 1.5 0 0 0-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.66a6.727 6.727 0 0 0 .551-1.607 1.5 1.5 0 0 0 .14-2.67v-.645a48.549 48.549 0 0 1 3.44 1.667 2.25 2.25 0 0 0 2.12 0Z">
-                                                            </path>
-                                                            <path
-                                                                d="M4.462 19.462c.42-.419.753-.89 1-1.395.453.214.902.435 1.347.662a6.742 6.742 0 0 1-1.286 1.794.75.75 0 0 1-1.06-1.06Z">
-                                                            </path>
-                                                        </svg>
-                                                    </span><!-- end active icon -->
+                        <!-- Tool Card 1: Pomodoro -->
+                        <div class="tool-card active bg-background border-2 border-border rounded-2xl p-5 sm:p-6">
+                            <div class="flex items-start gap-4">
+                                <!-- Number Badge -->
+                                <div
+                                    class="tool-number shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg text-primary">
+                                    01
+                                </div>
 
-                                            <!-- inactive icon -->
-                                            <span x-show="activeTab !== 'tabOne'">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                             viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                                             class="w-5 h-5">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                  d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5">
-                                                            </path>
-                                                        </svg>
-                                                    </span><!-- end inactive icon -->
-
-                                            <span class="font-semibold text-sm">ابزار ها</span>
-                                        </button>
-                                    </li><!-- end tabs:list:item -->
-
-                                    <!-- tabs:list:item -->
-
-                                    <!-- end tabs:list:item -->
-                                </ul>
-                                <!-- end tabs:list -->
-                            </div>
-                            <!-- end tabs:list-container -->
-
-                            <!-- tabs:contents -->
-                            <div>
-                                <!-- tabs:contents:tabOne -->
-                                <div x-show="activeTab === 'tabOne'">
-                                    <div class="relative overflow-x-auto">
-                                        <table class="w-full text-sm text-right">
-
-                                                <thead
-                                                    class="text-xs text-muted uppercase bg-background border-b border-border">
-                                                <tr>
-                                                    <th class="whitespace-nowrap p-5">ردیف</th>
-                                                    <th class="whitespace-nowrap p-5">توضیحات</th>
-                                                    <th class="whitespace-nowrap p-5"></th>
-                                                </tr>
-                                                </thead>
-
-
-                                                <tbody>
-                                                    <tr class="odd:bg-secondary even:bg-background">
-                                                        <td class="p-5">
-                                                            <div class="font-black text-sm text-foreground">1</div>
-                                                        </td>
-                                                        <td class="p-5">
-                                                            <div class="flex items-center gap-2">
-                                                                <span class="font-bold text-white"> پومودورو</span>
-                                                            </div>
-                                                        </td>
-
-                                                        <td class="p-5">
-                                                            <a wire:navigate href="{{route('client.profile.professionalTools.pomodoro')}}"
-                                                               class="inline-flex items-center gap-x-1 text-cyan-400">
-                                                                <span class="h-11 inline-flex items-center bg-primary justify-center gap-3 rounded-full text-white px-4 mr-auto">شروع</span>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="odd:bg-secondary even:bg-background">
-                                                        <td class="p-5">
-                                                            <div class="font-black text-sm text-foreground">2</div>
-                                                        </td>
-                                                        <td class="p-5">
-                                                            <div class="flex items-center gap-2">
-                                                                <span class="font-bold text-white">تست سرعتی</span>
-                                                            </div>
-                                                        </td>
-
-                                                        <td class="p-5">
-                                                            <a wire:navigate href="#"
-                                                               class="inline-flex items-center gap-x-1 text-cyan-400">
-                                                                <span class="h-11 inline-flex items-center bg-yellow-600 justify-center gap-3 rounded-full text-white px-4 mr-auto">بزودی</span>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-                                                    <tr class="odd:bg-secondary even:bg-background">
-                                                        <td class="p-5">
-                                                            <div class="font-black text-sm text-foreground">3</div>
-                                                        </td>
-                                                        <td class="p-5">
-                                                            <div class="flex items-center gap-2">
-                                                                <span class="font-bold text-white">کلاسور تحلیل</span>
-                                                            </div>
-                                                        </td>
-
-                                                        <td class="p-5">
-                                                            <a wire:navigate href="#"
-                                                               class="inline-flex items-center gap-x-1 text-cyan-400">
-                                                                <span class="h-11 inline-flex items-center bg-yellow-600 justify-center gap-3 rounded-full text-white px-4 mr-auto">بزودی</span>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                    <tr class="odd:bg-secondary even:bg-background">
-                                                        <td class="p-5">
-                                                            <div class="font-black text-sm text-foreground">4</div>
-                                                        </td>
-                                                        <td class="p-5">
-                                                            <div class="flex items-center gap-2">
-                                                                <span class="font-bold text-white">دفتر خلاصه ها</span>
-                                                            </div>
-                                                        </td>
-
-                                                        <td class="p-5">
-                                                            <a wire:navigate href="#"
-                                                               class="inline-flex items-center gap-x-1 text-cyan-400">
-                                                                <span class="h-11 inline-flex items-center bg-yellow-600 justify-center gap-3 rounded-full text-white px-4 mr-auto">بزودی</span>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-
-
-                                                </tbody>
-
-                                        </table>
-
+                                <!-- Content -->
+                                <div class="flex-1 min-w-0 space-y-3">
+                                    <!-- Icon & Title -->
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="tool-icon w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-foreground text-base sm:text-lg">تایمر
+                                                پومودورو</h3>
+                                            <p class="text-xs text-muted">مدیریت زمان مطالعه</p>
+                                        </div>
                                     </div>
 
-                                </div>
-                                <!-- end tabs:contents:tabOne -->
+                                    <!-- Description -->
+                                    <p class="text-sm text-muted leading-relaxed">
+                                        با تکنیک پومودورو 25 دقیقه تمرکز کامل داشته باشید و بعد از هر جلسه 5 دقیقه
+                                        استراحت کنید.
+                                    </p>
 
-                                <!-- tabs:contents:tabTwo -->
-                                <!-- end tabs:contents:tabTwo -->
-                            </div><!-- end tabs:contents -->
-                        </div><!-- end tabs container -->
+                                    <!-- Action Button -->
+                                    <a wire:navigate
+                                       href="{{route('client.profile.professionalTools.pomodoro')}}"
+                                       class="tool-button inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-2.5 bg-primary hover:bg-primary/90 text-white rounded-xl font-semibold text-sm transition-all">
+                                        <span>شروع</span>
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                  d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tool Card 2: Speed Test -->
+                        <div class="tool-card disabled bg-background border-2 border-border rounded-2xl p-5 sm:p-6">
+                            <div class="flex items-start gap-4">
+                                <!-- Number Badge -->
+                                <div
+                                    class="tool-number shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg text-muted">
+                                    02
+                                </div>
+
+                                <!-- Content -->
+                                <div class="flex-1 min-w-0 space-y-3">
+                                    <!-- Icon & Title -->
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="tool-icon w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M20.38 8.57l-1.23 1.85a8 8 0 01-.22 7.58H5.07A8 8 0 0115.58 6.85l1.85-1.23A10 10 0 003.35 19a2 2 0 001.72 1h13.85a2 2 0 001.74-1 10 10 0 00-.27-10.44zm-9.79 6.84a2 2 0 002.83 0l5.66-8.49-8.49 5.66a2 2 0 000 2.83z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h3 class="font-bold text-foreground text-base sm:text-lg">تست
+                                                    سرعتی</h3>
+                                                <span
+                                                    class="coming-soon-badge inline-flex items-center px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold rounded-full">
+                                                    بزودی
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-muted">افزایش سرعت پاسخگویی</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <p class="text-sm text-muted leading-relaxed">
+                                        با تمرین‌های سرعتی مهارت پاسخگویی سریع و دقیق خود را در آزمون‌ها تقویت کنید.
+                                    </p>
+
+                                    <!-- Action Button -->
+                                    <button disabled
+                                            class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-2.5 bg-muted/20 text-muted rounded-xl font-semibold text-sm cursor-not-allowed">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"/>
+                                        </svg>
+                                        <span>در حال توسعه</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tool Card 3: Analysis Folder -->
+                        <div class="tool-card disabled bg-background border-2 border-border rounded-2xl p-5 sm:p-6">
+                            <div class="flex items-start gap-4">
+                                <!-- Number Badge -->
+                                <div
+                                    class="tool-number shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg text-muted">
+                                    03
+                                </div>
+
+                                <!-- Content -->
+                                <div class="flex-1 min-w-0 space-y-3">
+                                    <!-- Icon & Title -->
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="tool-icon w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h3 class="font-bold text-foreground text-base sm:text-lg">کلاسور
+                                                    تحلیل</h3>
+                                                <span
+                                                    class="coming-soon-badge inline-flex items-center px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold rounded-full">
+                                                    بزودی
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-muted">تحلیل نقاط قوت و ضعف</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <p class="text-sm text-muted leading-relaxed">
+                                        تحلیل دقیق تست های زده شده خود را در این بخش ثبت می کنید تا در بازه های جمع بندی بهترین منبع مروری از نقاط قوت و ضعف تان داشته باشید.
+                                    </p>
+
+                                    <!-- Action Button -->
+                                    <button disabled
+                                            class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-2.5 bg-muted/20 text-muted rounded-xl font-semibold text-sm cursor-not-allowed">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"/>
+                                        </svg>
+                                        <span>در حال توسعه</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tool Card 4: Summary Notebook -->
+                        <div class="tool-card disabled bg-background border-2 border-border rounded-2xl p-5 sm:p-6">
+                            <div class="flex items-start gap-4">
+                                <!-- Number Badge -->
+                                <div
+                                    class="tool-number shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg text-muted">
+                                    04
+                                </div>
+
+                                <!-- Content -->
+                                <div class="flex-1 min-w-0 space-y-3">
+                                    <!-- Icon & Title -->
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="tool-icon w-10 h-10 rounded-lg bg-gradient-to-br from-rose-500 to-pink-600 flex items-center justify-center">
+                                            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                                <path
+                                                    d="M19 3h-4.18C14.4 1.84 13.3 1 12 1c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm2 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <div class="flex items-center gap-2">
+                                                <h3 class="font-bold text-foreground text-base sm:text-lg">دفتر
+                                                    خلاصه‌ها</h3>
+                                                <span
+                                                    class="coming-soon-badge inline-flex items-center px-2 py-0.5 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-[10px] font-bold rounded-full">
+                                                    بزودی
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-muted">یادداشت و مرور مطالب</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Description -->
+                                    <p class="text-sm text-muted leading-relaxed">
+                                        نکات مهم و خلاصه‌های درسی خود را یادداشت کنید و هر زمان که خواستید مرور کنید.
+                                    </p>
+
+                                    <!-- Action Button -->
+                                    <button disabled
+                                            class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-2.5 bg-muted/20 text-muted rounded-xl font-semibold text-sm cursor-not-allowed">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"/>
+                                        </svg>
+                                        <span>در حال توسعه</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
+                    <!-- End Tools Grid -->
+
                 </div>
             </div>
         </div>

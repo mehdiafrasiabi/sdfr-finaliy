@@ -226,7 +226,7 @@
                                 دانش‌آموز عزیز سلام، قبل از شروع مطالعه موارد زیر را با دقت بخوانید:
                                 <br>• استفاده از آخرین نسخه مرورگر کروم الزامی است.
                                 <br>• حتماً قبل از خروج ثبت نهایی انجام شود.
-                                <br>• می‌توانید هر زمان که بخواهید ساعت مطالعه اضافه بر سازمان ثبت کنید.
+                                <br>• می‌توانید هر زمان که بخواهید ساعت مطالعه  خارج از چارچوب برنامه ثبت کنید.
                                 <br>• پس از پایان هر جلسه، حتماً بازخورد خود را ثبت کنید.
                             </div>
                         </div>
@@ -399,17 +399,15 @@
                                      stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                                 </svg>
-                                <span>ثبت ساعت مطالعه اضافه بر سازمان</span>
+                                <span>ثبت ساعت مطالعه خارج از چارچوب برنامه </span>
                                 <span wire:loading wire:target="openMakeupModal" class="spinner"></span>
                             </button>
                         </div>
                     @endif
 
-                    <div class="h-3 sm:h-4"></div>
-
                     {{-- ابزارها --}}
-                    <section class="mt-5 soft-surface rounded-3xl p-4 sm:p-5">
-                        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                    <section class="mt-5 bg-secondary rounded-3xl p-4 sm:p-5 ">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between ">
                             <div>
                                 <div class="font-black text-foreground">برنامه مطالعاتی من</div>
                                 <div class="text-xs text-muted mt-1">بر اساس آخرین جلسه مشاوره برگزار شده</div>
@@ -489,7 +487,7 @@
 
                                     @if($day['is_rest_day'])
                                         <div
-                                            class="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-8 text-center">
+                                            class="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-secondary bg-emerald-50/50 dark:bg-emerald-900/10 p-8 text-center">
                                             <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-1">روز
                                                 استراحت</h4>
                                             <p class="text-sm text-emerald-600/80 dark:text-emerald-400/70">امروز نیازی
@@ -506,7 +504,6 @@
                                                     <th class="px-3 py-3 text-right">درس</th>
                                                     <th class="px-3 py-3 text-center">مدت</th>
                                                     <th class="px-3 py-3 text-center">نوع</th>
-                                                    <th class="px-3 py-3 text-center">تست</th>
                                                     <th class="px-3 py-3 text-left">عملیات</th>
                                                 </tr>
                                                 </thead>
@@ -518,6 +515,7 @@
                                                             <div class="font-semibold">
                                                                 {{ $part->lesson_name }}
                                                             </div>
+
                                                             @if($part->description)
                                                                 <div class="text-[11px] text-muted mt-1">
                                                                     {{ $part->description }}
@@ -526,8 +524,10 @@
                                                         </td>
 
                                                         <td class="px-3 py-3 text-center text-foreground">
+
+                                                             {{ $part->duration_minutes % 60 }}
+                                                            :
                                                             {{ floor($part->duration_minutes / 60) }}
-                                                            ساعت {{ $part->duration_minutes % 60 }}دقیقه
                                                         </td>
 
                                                         <td class="px-3 py-3 text-center">
@@ -543,9 +543,6 @@
                                                                 {{ $part->lesson_type_label }}
                                                             </span>
                                                         </td>
-
-                                                        <td class="px-3 py-3 text-center text-foreground">{{ $part->test_count ?? '-' }}</td>
-
                                                         <td class="px-3 py-3 text-left">
                                                             @if($this->isPartCompleted($part->id))
                                                                 <span
@@ -578,7 +575,7 @@
                                             <div class="mt-4 soft-surface rounded-2xl p-4">
                                                 <div class="flex items-center gap-2 mb-3">
                                                     <span class="w-2 h-2 rounded-full bg-violet-500"></span>
-                                                    <h4 class="font-bold text-foreground text-sm">جلسات اضافه بر سازمان
+                                                    <h4 class="font-bold text-foreground text-sm">جلسات  خارج از چارچوب برنامه
                                                         امروز</h4>
                                                     <span
                                                         class="px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-[10px] font-bold">
@@ -874,7 +871,7 @@
                         <div
                             class="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-background dark:bg-zinc-900 z-10 rounded-t-2xl">
                             <h3 class="text-base font-bold text-foreground">
-                                ثبت ساعت مطالعه اضافه بر سازمان
+                                ثبت ساعت مطالعه خارج از چارچوب برنامه
                             </h3>
                             <button type="button" wire:click="closeMakeupModal"
                                     class="text-muted hover:text-foreground transition-all">

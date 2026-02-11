@@ -21,6 +21,17 @@ class Financial extends Component
             ->setTitle('مالی و پرداخت');
     }
 
+    public array $expandedPayments = [];
+
+    public function togglePaymentDetails(int $paymentId): void
+    {
+        if (in_array($paymentId, $this->expandedPayments)) {
+            $this->expandedPayments = array_values(array_diff($this->expandedPayments, [$paymentId]));
+            return;
+        }
+
+        $this->expandedPayments[] = $paymentId;
+    }
 
     public function render()
     {
