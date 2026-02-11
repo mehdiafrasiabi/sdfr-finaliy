@@ -131,147 +131,151 @@
                                 <div x-show="activeTab === 'tabOne'">
                                     @if($weeklyPrograms->count() > 0)
                                         <div class="mt-6">
-                                            <div class="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-2">
+                                            <div class="grid gap-4 sm:grid-cols-1">
                                                 @foreach($weeklyPrograms as $program)
-                                                    <a href="{{ route('client.profile.consultation.weekly-program', $program->id) }}"
-                                                       class="group relative block overflow-hidden rounded-2xl
-                                                              bg-gradient-to-br from-slate-50 to-slate-100
-                                                              dark:from-slate-800/50 dark:to-slate-900/80
-                                                              border border-slate-200/60 dark:border-slate-700/50
-                                                              p-5 transition-all duration-300 ease-out
-                                                              hover:shadow-xl hover:shadow-slate-200/50 dark:hover:shadow-slate-900/50
-                                                              hover:-translate-y-1 hover:border-teal-500/30 dark:hover:border-teal-400/30">
+                                                    @php
+                                                        $isExpanded = in_array($program->id, $expandedPrograms ?? []);
+                                                    @endphp
 
-                                                        <!-- گرادیان تزئینی بالای کارت -->
-                                                        <div class="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r
-                                                                    from-teal-500 via-cyan-500 to-blue-500
-                                                                    opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                                    <div class="bg-secondary border border-border rounded-2xl overflow-hidden flex flex-col">
 
-                                                        <!-- آیکون تزئینی گوشه -->
-                                                        <div class="absolute -top-6 -left-6 w-20 h-20
-                                                                    bg-gradient-to-br from-teal-500/10 to-cyan-500/10
-                                                                    dark:from-teal-500/5 dark:to-cyan-500/5
-                                                                    rounded-full blur-2xl
-                                                                    group-hover:scale-150 transition-transform duration-500"></div>
+                                                        <!-- Main Box -->
+                                                        <div class="p-4 flex-1 flex flex-col gap-4">
 
-                                                        <div class="relative flex items-start justify-between gap-4">
-                                                            <div class="flex-1 min-w-0">
-                                                                <!-- هدر کارت -->
-                                                                <div class="flex items-center gap-2.5 mb-3">
-                                                                    <div class="flex-shrink-0 w-10 h-10 rounded-xl
-                                                                                bg-gradient-to-br from-teal-500 to-cyan-600
-                                                                                flex items-center justify-center shadow-lg shadow-teal-500/25">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                             viewBox="0 0 20 20"
-                                                                             fill="currentColor"
-                                                                             class="w-5 h-5 text-white">
-                                                                            <path fill-rule="evenodd"
-                                                                                  d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z"
-                                                                                  clip-rule="evenodd"/>
+                                                            <!-- بالا: آیکن + اطلاعات برنامه -->
+                                                            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                                                                <!-- راست: آیکن و عنوان و بازه زمانی -->
+                                                                <div class="flex items-center gap-4">
+                                                                    <div class="flex-shrink-0 w-12 h-12 bg-teal-100 dark:bg-teal-900/30 rounded-full flex items-center justify-center">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
+                                                                            <path fill-rule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z" clip-rule="evenodd"/>
                                                                         </svg>
                                                                     </div>
-                                                                    <div class="min-w-0">
-                                                                        <h3 class="font-bold text-slate-800 dark:text-slate-100
-                                                                                   text-base leading-tight truncate">
-                                                                            برنامه
-                                                                            هفته {{ jdate($program->start_date)->format('d %B') }}
+
+                                                                    <div class="flex-1" style="margin-right: 10px">
+                                                                        <h3 class="font-bold text-foreground text-lg">
+                                                                            برنامه هفته {{ jdate($program->start_date)->format('d %B') }}
                                                                         </h3>
-                                                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                                                                            تا {{ jdate($program->end_date)->format('d %B Y') }}
+
+                                                                        <p class="text-sm text-muted mt-1">
+                            <span class="inline-flex items-center gap-1">
+                                تا {{ jdate($program->end_date)->format('d %B Y') }}
+                            </span>
                                                                         </p>
-                                                                    </div>
-                                                                </div>
 
-                                                                <!-- آمار برنامه -->
-                                                                <div class="flex flex-wrap gap-2 mt-4">
-                                                                    <!-- ساعت -->
-                                                                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
-                                                                                bg-blue-50 dark:bg-blue-500/10
-                                                                                text-blue-600 dark:text-blue-400
-                                                                                border border-blue-100 dark:border-blue-500/20">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                             viewBox="0 0 16 16"
-                                                                             fill="currentColor" class="w-3.5 h-3.5">
-                                                                            <path fill-rule="evenodd"
-                                                                                  d="M1 8a7 7 0 1 1 14 0A7 7 0 0 1 1 8Zm7.75-4.25a.75.75 0 0 0-1.5 0V8c0 .414.336.75.75.75h3.25a.75.75 0 0 0 0-1.5H8.75V3.75Z"
-                                                                                  clip-rule="evenodd"/>
-                                                                        </svg>
-                                                                        <span class="font-semibold text-xs">{{ $program->total_hours }} ساعت</span>
-                                                                    </div>
+                                                                        {{-- وضعیت + آمار در یک ردیف --}}
+                                                                        <div class="mt-3 flex flex-wrap items-center gap-2">
+                                                                            <!-- ساعت -->
+                                                                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {{ $program->total_hours }} ساعت
+                            </span>
 
-                                                                    <!-- پارت -->
-                                                                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
-                                                                                bg-emerald-50 dark:bg-emerald-500/10
-                                                                                text-emerald-600 dark:text-emerald-400
-                                                                                border border-emerald-100 dark:border-emerald-500/20">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                             viewBox="0 0 16 16"
-                                                                             fill="currentColor" class="w-3.5 h-3.5">
-                                                                            <path
-                                                                                d="M8.5 4.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0ZM10.9 12.006c.11.542-.348.994-.9.994H2c-.553 0-1.01-.452-.902-.994a5.002 5.002 0 0 1 9.803 0ZM14.002 12h-1.59a2.556 2.556 0 0 0-.04-.29 6.476 6.476 0 0 0-1.167-2.603 3.002 3.002 0 0 1 3.633 1.911c.18.522-.283.982-.836.982ZM12 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/>
-                                                                        </svg>
-                                                                        <span class="font-semibold text-xs">{{ $program->total_parts }} پارت</span>
-                                                                    </div>
+                                                                            <!-- پارت -->
+                                                                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                </svg>
+                                {{ $program->total_parts }} پارت
+                            </span>
 
-                                                                    <!-- تست -->
-                                                                    <div class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg
-                                                                                bg-violet-50 dark:bg-violet-500/10
-                                                                                text-violet-600 dark:text-violet-400
-                                                                                border border-violet-100 dark:border-violet-500/20">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                                                             viewBox="0 0 16 16"
-                                                                             fill="currentColor" class="w-3.5 h-3.5">
-                                                                            <path fill-rule="evenodd"
-                                                                                  d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14Zm3.844-8.791a.75.75 0 0 0-1.188-.918l-3.7 4.79-1.649-1.833a.75.75 0 1 0-1.114 1.004l2.25 2.5a.75.75 0 0 0 1.15-.043l4.25-5.5Z"
-                                                                                  clip-rule="evenodd"/>
-                                                                        </svg>
-                                                                        <span class="font-semibold text-xs">{{ $program->total_tests }} تست</span>
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- اطلاعات جلسه -->
-                                                                @if($program->advisingSession)
-                                                                    <div
-                                                                        class="mt-4 pt-3 border-t border-slate-200/60 dark:border-slate-700/50">
-                                                                        <div
-                                                                            class="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                                                 viewBox="0 0 16 16"
-                                                                                 fill="currentColor"
-                                                                                 class="w-3.5 h-3.5 text-amber-500">
-                                                                                <path fill-rule="evenodd"
-                                                                                      d="M8 1.75a.75.75 0 0 1 .692.462l1.41 3.393 3.664.293a.75.75 0 0 1 .428 1.317l-2.791 2.39.853 3.575a.75.75 0 0 1-1.12.814L8 12.177l-3.136 1.817a.75.75 0 0 1-1.12-.814l.852-3.574-2.79-2.39a.75.75 0 0 1 .427-1.318l3.663-.293 1.41-3.393A.75.75 0 0 1 8 1.75Z"
-                                                                                      clip-rule="evenodd"/>
-                                                                            </svg>
-                                                                            <span
-                                                                                class="text-xs font-medium truncate">{{ $program->advisingSession->title }}</span>
+                                                                            <!-- تست -->
+                                                                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-xs rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {{ $program->total_tests }} تست
+                            </span>
                                                                         </div>
-                                                                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1 pr-5">
-                                                                            {{ jalali($program->advisingSession->activation_date)->format('%d %B %Y') }}
-                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- پایین باکس: دکمه‌ها (مشاهده برنامه + دراپ‌داون) -->
+                                                            <div class="mt-2 pt-3 border-t border-border flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 md:gap-3">
+                                                                <a href="{{ route('client.profile.consultation.weekly-program', $program->id) }}"
+                                                                   class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                                    </svg>
+                                                                    مشاهده برنامه
+                                                                </a>
+
+                                                                <!-- دکمه دراپ‌داون کنار بقیه دکمه‌ها -->
+                                                                <button
+                                                                    wire:click="toggleDetails({{ $program->id }})"
+                                                                    class="w-full sm:w-auto inline-flex items-center justify-between sm:justify-center gap-3 px-4 py-2.5 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
+                                                                    <span class="md:hidden">مشاهده جزئیات</span>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                                         class="w-5 h-5 transition-transform {{ $isExpanded ? 'rotate-180' : '' }}"
+                                                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                                    </svg>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Dropdown Details -->
+                                                        @if($isExpanded)
+                                                            <div class="border-t border-border bg-background/50 p-4">
+                                                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                                    <!-- تاریخ شروع -->
+                                                                    <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                                        </svg>
+                                                                        <span class="text-xs text-muted">تاریخ شروع</span>
+                                                                        <span class="font-bold text-foreground text-sm mt-1">{{ jdate($program->start_date)->format('d %B') }}</span>
+                                                                    </div>
+
+                                                                    <!-- تاریخ پایان -->
+                                                                    <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: orange">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                                        </svg>
+                                                                        <span class="text-xs text-muted">تاریخ پایان</span>
+                                                                        <span class="font-bold text-foreground text-sm mt-1">{{ jdate($program->end_date)->format('d %B') }}</span>
+                                                                    </div>
+
+                                                                    <!-- ساعت کل -->
+                                                                    <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                                        </svg>
+                                                                        <span class="text-xs text-muted">ساعت کل</span>
+                                                                        <span class="font-bold text-foreground text-sm mt-1">{{ $program->total_hours }} ساعت</span>
+                                                                    </div>
+
+                                                                    <!-- تعداد تست -->
+                                                                    <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #bc1dbc">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                                                        </svg>
+                                                                        <span class="text-xs text-muted">تعداد تست</span>
+                                                                        <span class="font-bold text-foreground text-sm mt-1">{{ $program->total_tests }} تست</span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- اطلاعات جلسه مشاوره (اگر وجود داشته باشد) -->
+                                                                @if($program->advisingSession)
+                                                                    <div class="mt-4 pt-4 border-t border-border">
+                                                                        <div class="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-5 h-5 text-amber-500">
+                                                                                <path fill-rule="evenodd" d="M8 1.75a.75.75 0 0 1 .692.462l1.41 3.393 3.664.293a.75.75 0 0 1 .428 1.317l-2.791 2.39.853 3.575a.75.75 0 0 1-1.12.814L8 12.177l-3.136 1.817a.75.75 0 0 1-1.12-.814l.852-3.574-2.79-2.39a.75.75 0 0 1 .427-1.318l3.663-.293 1.41-3.393A.75.75 0 0 1 8 1.75Z" clip-rule="evenodd"/>
+                                                                            </svg>
+                                                                            <div class="flex-1">
+                                                                                <p class="font-semibold text-foreground text-sm">{{ $program->advisingSession->title }}</p>
+                                                                                <p class="text-xs text-muted mt-0.5">{{ jalali($program->advisingSession->activation_date)->format('%d %B %Y') }}</p>
+                                                                            </div>
+                                                                        </div>
                                                                     </div>
                                                                 @endif
                                                             </div>
-
-                                                            <!-- فلش -->
-                                                            <div class="flex-shrink-0 w-8 h-8 rounded-full
-                                                                        bg-slate-100 dark:bg-slate-700/50
-                                                                        flex items-center justify-center
-                                                                        group-hover:bg-teal-500 dark:group-hover:bg-teal-500
-                                                                        transition-all duration-300">
-                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                     viewBox="0 0 20 20"
-                                                                     fill="currentColor"
-                                                                     class="w-4 h-4 text-slate-400 dark:text-slate-500
-                                                                            group-hover:text-white group-hover:-translate-x-0.5
-                                                                            transition-all duration-300">
-                                                                    <path fill-rule="evenodd"
-                                                                          d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z"
-                                                                          clip-rule="evenodd"/>
-                                                                </svg>
-                                                            </div>
-                                                        </div>
-                                                    </a>
+                                                        @endif
+                                                    </div>
                                                 @endforeach
                                             </div>
                                         </div>

@@ -1,704 +1,397 @@
 <div>
     @push('link')
-
         <style>
-
             [x-cloak] {
-
                 display: none !important;
-
             }
-
-
-            .sessions-card-shadow {
-
-                box-shadow: 0 18px 45px rgba(15, 23, 42, 0.12),
-                0 10px 20px rgba(15, 23, 42, 0.04);
-
-            }
-
         </style>
-
     @endpush
 
-
     <div class="max-w-7xl space-y-14 px-4 mx-auto" x-data="{ showPreSessionModal: @entangle('showPreSessionModal') }">
-
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
-
             <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
-
-                <!-- end user:info -->
-
-                <!-- user:menus -->
-
                 <livewire:client.profile.sidebar/>
-
-                <!-- end user:menus -->
             </div>
 
             <div class="lg:col-span-9 md:col-span-8">
                 <div class="space-y-10">
+                    <div class="space-y-5">
 
+                        <!-- section:title -->
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-1">
+                                <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                                <div class="w-2 h-2 bg-foreground rounded-full"></div>
+                            </div>
+                            <div class="font-black text-foreground">اتاق مشاوره</div>
+                        </div>
+                        <!-- end section:title -->
 
-                    <div>
+                        <!-- Guide Section -->
+                        <div
+                            dir="rtl"
+                            x-data="collapseGuide('consultation-guide')"
+                            x-init="init()"
+                            class="rounded-2xl border border-border bg-primary overflow-hidden transition-all">
 
-                        <div>
+                            <!-- HEADER -->
+                            <button
+                                @click="toggle"
+                                class="w-full flex items-center justify-between px-4 md:px-6 py-4 transition">
 
-                            {{-- Main Content --}}
-
-                            <div class="lg:col-span-9 md:col-span-8 space-y-6">
-
-
-                                {{-- عنوان صفحه --}}
-
-                                <!-- section:title -->
-                                <div class="flex items-center gap-3">
-                                    <div class="flex items-center gap-1">
-                                        <div class="w-1 h-1 bg-foreground rounded-full"></div>
-                                        <div class="w-2 h-2 bg-foreground rounded-full"></div>
-                                    </div>
-                                    <div class="font-black text-foreground">اتاق مشاوره</div>
+                                <!-- title -->
+                                <div class="flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-white dark:text-white"
+                                         fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
+                                    </svg>
+                                    <span class="font-black text-white dark:text-white text-blue-300 md:text-lg">
+                                        راهنمای شرکت در اتاق مشاوره
+                                    </span>
                                 </div>
-                                <!-- end section:title -->
 
+                                <!-- arrow -->
+                                <svg
+                                    class="w-5 h-5 text-white transition-transform duration-300"
+                                    :class="open && 'rotate-180'"
+                                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                          stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
 
-                                <!-- Guide Section -->
-                                <div
-                                    dir="rtl"
-                                    x-data="collapseGuide('consultation-guide')"
-                                    x-init="init()"
-                                    class="rounded-2xl border border-border bg-primary  overflow-hidden transition-all">
+                            <!-- CONTENT -->
+                            <div
+                                x-show="open"
+                                x-cloak
+                                x-transition:enter="transition ease-out duration-600"
+                                x-transition:enter-start="opacity-0 -translate-y-2"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-200"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 -translate-y-1"
+                                class="px-4 md:px-6 pb-6">
 
-                                    <!-- HEADER -->
-                                    <button
-                                        @click="toggle"
-                                        class="w-full flex items-center justify-between px-4 md:px-6 py-4
-                                 transition">
+                                <div class="flex flex-col md:flex-row-reverse gap-6 items-center mt-2">
+                                    <!-- IMAGE -->
+                                    <div class="relative w-full md:w-[280px] shrink-0 order-2 md:order-1">
+                                        <img src="/client/assets/images/blog/sdfr.jpg"
+                                             class="w-full h-[200px] md:h-[180px] object-cover rounded-xl">
+                                        <button
+                                            type="button"
+                                            id="57612318744"
+                                            data-video-url="https://www.aparat.com/video/video/embed/videohash/utg98i1/vt/frame?titleShow=true&recom=self"
+                                            allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
+                                            data-video-title="راهنمای اتاق مشاوزه"
+                                            class="absolute inset-0 flex items-center justify-center">
+                                            <span class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60
+                                                   flex items-center justify-center shadow-lg transition">
+                                                <svg class="w-7 h-7 text-blue-600 mr-1"
+                                                     fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M8 5v14l11-7z"/>
+                                                </svg>
+                                            </span>
+                                        </button>
+                                    </div>
 
-                                        <!-- title -->
-                                        <div class="flex items-center gap-2">
+                                    <!-- TEXT -->
+                                    <div class="flex-1 text-right text-sm md:text-base text-white dark:text-white leading-7 order-1 md:order-2">
+                                        دانش‌آموز عزیز سلام، قبل از شرکت در جلسه مشاوره موارد زیر را با دقت مطالعه کنید:
+                                        <br>• استفاده از آخرین نسخه مرورگر کروم الزامی است.
+                                        <br>• قبل از شروع جلسه حتما "پیش جلسه" پرشود .
+                                        <br>• در ساعت مقرر در جلسه حضور داشته باشید .
+                                        <br>•پس برگزاری جلسه نهایت یک ساعت بعد برنامه شما بارگزاری میشود .
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- End Guide Section -->
 
-                                            <svg class="w-5 h-5 text-white dark:text-white"
-                                                 fill="currentColor" viewBox="0 0 24 24">
-                                                <path
-                                                    d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
-                                            </svg>
+                        <!-- لیست جلسات به صورت کارت -->
+                        @if($sessions->isEmpty())
+                            <div class="flex flex-col items-center justify-center space-y-12 py-16">
+                                <div class="flex flex-col items-center justify-center space-y-12">
+                                    <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="empty"/>
+                                    <div class="text-center space-y-3">
+                                        <h2 class="font-bold text-xl text-foreground">
+                                            جلسه‌ای برای شما وجود ندارد.
+                                        </h2>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="space-y-4">
+                                @foreach($sessions as $session)
+                                    @php
+                                        $isExpanded = in_array($session->id, $expandedSessions ?? []);
+                                    @endphp
 
-                                            <span
-                                                class="font-black text-white dark:text-white text-blue-300 md:text-lg">
-                راهنمای شرکت در اتاق مشاوره
-            </span>
-                                        </div>
+                                    <div class="bg-secondary border border-border rounded-2xl overflow-hidden flex flex-col">
 
-                                        <!-- arrow -->
-                                        <svg
-                                            class="w-5 h-5 text-white transition-transform duration-300"
-                                            :class="open && 'rotate-180'"
-                                            fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                  stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                        </svg>
-                                    </button>
+                                        <!-- Main Box -->
+                                        <div class="p-4 flex-1 flex flex-col gap-4">
 
-                                    <!-- CONTENT -->
-                                    <div
-                                        x-show="open"
-                                        x-cloak
-                                        x-transition:enter="transition ease-out duration-600"
-                                        x-transition:enter-start="opacity-0 -translate-y-2"
-                                        x-transition:enter-end="opacity-100 translate-y-0"
-                                        x-transition:leave="transition ease-in duration-200"
-                                        x-transition:leave-start="opacity-100 translate-y-0"
-                                        x-transition:leave-end="opacity-0 -translate-y-1"
-                                        class="px-4 md:px-6 pb-6"
-                                    >
+                                            <!-- بالا: آیکن + اطلاعات جلسه -->
+                                            <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                                                <!-- راست: آیکن و عنوان و تاریخ -->
+                                                <div class="flex items-center gap-4">
+                                                    <div class="flex-shrink-0 w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                        </svg>
+                                                    </div>
 
+                                                    <div class="flex-1" style="margin-right: 10px">
+                                                        <h3 class="font-bold text-foreground text-lg">
+                                                            {{ $session->title }}
+                                                        </h3>
 
-                                        <div class="flex flex-col md:flex-row-reverse gap-6 items-center mt-2">
+                                                        <p class="text-sm text-muted mt-1">
+                                                            <span class="inline-flex items-center gap-1">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                                </svg>
+                                                                {{ jalali($session->activation_date)->format('%d %B %Y') }}
+                                                                @if($session->session_time)
+                                                                    - ساعت {{ \Carbon\Carbon::parse($session->session_time)->format('H:i') }}
+                                                                @endif
+                                                            </span>
+                                                        </p>
 
-                                            <!-- IMAGE -->
-                                            <div class="relative w-full md:w-[280px] shrink-0 order-2 md:order-1">
+                                                        {{-- وضعیت + محل برگزاری در یک ردیف --}}
+                                                        <div class="mt-3 flex flex-wrap items-center gap-2">
+                                                            <!-- وضعیت جلسه -->
+                                                            @if($session->status === 'inactive')
+                                                                <span class="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-slate-900/30 text-slate-600 dark:text-slate-400 text-xs rounded-full">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                                    </svg>
+                                                                    در انتظار برگزاری
+                                                                </span>
+                                                            @elseif($session->status === 'active')
+                                                                <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-500 dark:text-green-400 text-xs rounded-full">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.636 18.364a9 9 0 010-12.728m12.728 0a9 9 0 010 12.728m-9.9-2.829a5 5 0 010-7.07m7.072 0a5 5 0 010 7.07M13 12a1 1 0 11-2 0 1 1 0 012 0z"/>
+                                                                    </svg>
+                                                                    در حال برگزاری
+                                                                </span>
+                                                            @else
+                                                                <span class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-500 dark:text-emerald-400 text-xs rounded-full">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                                    </svg>
+                                                                    برگزار شده
+                                                                </span>
+                                                            @endif
 
-                                                <img
-                                                    src="/client/assets/images/blog/sdfr.jpg"
-                                                    class="w-full h-[200px] md:h-[180px] object-cover rounded-xl"
-                                                >
+                                                            <!-- محل برگزاری -->
+                                                            @if($session->location_type === 'online')
+                                                                <span class="inline-flex items-center gap-1 px-2 py-1 bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-xs rounded-full">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/>
+                                                                    </svg>
+                                                                    مجازی
+                                                                </span>
+                                                            @else
+                                                                <span class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs rounded-full">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                    </svg>
+                                                                    حضوری
+                                                                </span>
+                                                            @endif
 
-                                                <button
-                                                    type="button"
-                                                    id="57612318744"
-                                                    data-video-url="https://www.aparat.com/video/video/embed/videohash/utg98i1/vt/frame?titleShow=true&recom=self" allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
-                                                    data-video-title="راهنمای اتاق مشاوزه"
-                                                    class="absolute inset-0 flex items-center justify-center"
-                                                >
-                                                        <span
-                                                            class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60
-                                                                   flex items-center justify-center shadow-lg transition">
-                                                            <svg class="w-7 h-7 text-blue-600 mr-1"
-                                                                 fill="currentColor" viewBox="0 0 24 24">
-                                                                <path d="M8 5v14l11-7z"/>
-                                                            </svg>
-                                                        </span>
+                                                            <!-- وضعیت پیش‌جلسه -->
+                                                            @if($session->preSession)
+                                                                @if($session->preSession->status === 'completed')
+                                                                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-400 text-xs rounded-full">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                                        </svg>
+                                                                        پیش‌جلسه تکمیل شده
+                                                                    </span>
+                                                                @else
+                                                                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400 text-xs rounded-full">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                                        </svg>
+                                                                        پیش‌جلسه در انتظار
+                                                                    </span>
+                                                                @endif
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- پایین باکس: دکمه‌ها -->
+                                            <div class="mt-2 pt-3 border-t border-border flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 md:gap-3">
+                                                @if($session->canFillPreSession() && $session->preSession && $session->preSession->status !== 'completed')
+                                                    <button wire:click="openPreSessionModal({{ $session->id }})"
+                                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold text-sm transition-colors">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                        </svg>
+                                                        پر کردن پیش‌جلسه
+                                                    </button>
+                                                @elseif($session->preSession)
+                                                    <a href="{{ route('client.profile.consultation.pre-session', $session->id) }}"
+                                                       class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-500 hover:bg-slate-600 text-white rounded-xl font-semibold text-sm transition-colors">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                        </svg>
+                                                        مشاهده پیش‌جلسه
+                                                    </a>
+                                                @endif
+
+                                                @if($session->skyroom_link && $session->is_active)
+                                                    <a href="{{ $session->skyroom_link }}" target="_blank"
+                                                       class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                                        </svg>
+                                                        ورود به جلسه
+                                                    </a>
+                                                @endif
+
+                                                <!-- دکمه دراپ‌داون -->
+                                                <button wire:click="toggleDetails({{ $session->id }})"
+                                                        class="w-full sm:w-auto inline-flex items-center justify-between sm:justify-center gap-3 px-4 py-2.5 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
+                                                    <span class="md:hidden">مشاهده جزئیات</span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                         class="w-5 h-5 transition-transform {{ $isExpanded ? 'rotate-180' : '' }}"
+                                                         fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                    </svg>
                                                 </button>
                                             </div>
+                                        </div>
 
-                                            <!-- TEXT -->
-                                            <div
-                                                class="flex-1 text-right text-sm md:text-base  text-white dark:text-white leading-7 order-1 md:order-2">
+                                        <!-- Dropdown Details -->
+                                        @if($isExpanded)
+                                            <div class="border-t border-border bg-background/50 p-4">
+                                                <!-- توضیحات جلسه -->
+                                                @if($session->description)
+                                                    <div class="mb-4 p-3 bg-secondary rounded-xl">
+                                                        <h4 class="font-semibold text-foreground text-sm mb-2">توضیحات:</h4>
+                                                        <p class="text-sm text-muted leading-relaxed">{{ $session->description }}</p>
+                                                    </div>
+                                                @endif
 
-                                                دانش‌آموز عزیز سلام، قبل از شرکت در جلسه مشاوره موارد زیر را با دقت مطالعه
-                                                کنید:
+                                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                                    <!-- تاریخ -->
+                                                    <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                        </svg>
+                                                        <span class="text-xs text-muted">تاریخ جلسه</span>
+                                                        <span class="font-bold text-foreground text-sm mt-1">{{ jalali($session->activation_date)->format('%d %B %Y') }}</span>
+                                                    </div>
 
-                                                <br>• استفاده از آخرین نسخه مرورگر کروم الزامی است.
-                                                <br>• قبل از شروع جلسه حتما "پیش جلسه" پرشود .
-                                                <br>• در ساعت مقرر در جلسه حضور داشته باشید .
-                                                <br>•پس برگزاری جلسه نهایت یک ساعت بعد برنامه شما بارگزاری میشود .
+                                                    <!-- ساعت -->
+                                                    @if($session->session_time)
+                                                        <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: orange">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                            </svg>
+                                                            <span class="text-xs text-muted">ساعت برگزاری</span>
+                                                            <span class="font-bold text-foreground text-sm mt-1">{{ \Carbon\Carbon::parse($session->session_time)->format('H:i') }}</span>
+                                                        </div>
+                                                    @endif
 
+                                                    <!-- نوع جلسه -->
+                                                    <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                        </svg>
+                                                        <span class="text-xs text-muted">نوع جلسه</span>
+                                                        <span class="font-bold text-foreground text-sm mt-1">{{ $session->location_type === 'online' ? 'مجازی' : 'حضوری' }}</span>
+                                                    </div>
+                                                </div>
                                             </div>
-
-                                        </div>
+                                        @endif
                                     </div>
+                                @endforeach
+                            </div>
+
+                            <!-- Pagination -->
+                            @if($sessions->hasPages())
+                                <div class="mt-6">
+                                    {{ $sessions->links() }}
                                 </div>
-                                <!-- End Guide Section -->
-
-
-                                {{-- لیست جلسات --}}
-
-                                <section
-
-                                    class="sessions-card-shadow overflow-hidden rounded-2xl border border-slate-100/80
-
-                           bg-white/95 dark:border-slate-800 dark:bg-slate-900/95"
-
-                                >
-
-                                    <div
-
-                                        class="border-b border-slate-100/80 px-4 py-4 sm:px-6 sm:py-5
-
-                               bg-slate-50/70 dark:border-slate-800 dark:bg-slate-900"
-
-                                    >
-
-                                        <div class="flex items-center justify-between gap-2">
-
-                                            <h2 class="text-sm sm:text-base font-bold text-slate-900 dark:text-slate-50">
-
-                                                لیست جلسات مشاوره
-
-                                            </h2>
-
-
-                                            @if($sessions->count() > 0)
-
-                                                <span
-
-                                                    class="inline-flex items-center gap-1 rounded-full bg-slate-900/5 px-3 py-1
-
-                                           text-[11px] text-slate-600 ring-1 ring-slate-200/80
-
-                                           dark:bg-slate-100/5 dark:text-slate-300 dark:ring-slate-700"
-
-                                                >
-
-                                    <span class="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-
-                                    {{ $sessions->total() }} جلسه فعال
-
-                                </span>
-
-                                            @endif
-
-                                        </div>
-
-                                    </div>
-
-
-                                    <div class="overflow-x-auto">
-
-                                        <table class="min-w-full text-xs sm:text-sm">
-
-                                            <thead>
-
-                                            <tr
-
-                                                class="bg-slate-50 text-[11px] font-medium text-slate-600
-
-                                       dark:bg-slate-800 dark:text-slate-200"
-
-                                            >
-
-                                                <th class="px-3 py-3 text-right sm:px-4">#</th>
-
-                                                <th class="px-3 py-3 text-right sm:px-4">عنوان جلسه</th>
-
-                                                <th class="px-3 py-3 text-right sm:px-4">تاریخ و ساعت</th>
-
-                                                <th class="px-3 py-3 text-right sm:px-4 hidden md:table-cell">محل
-                                                    برگزاری
-                                                </th>
-
-                                                <th class="px-3 py-3 text-right sm:px-4">وضعیت</th>
-
-                                                <th class="px-3 py-3 text-right sm:px-4 hidden sm:table-cell">پیش‌جلسه
-                                                </th>
-
-                                                <th class="px-3 py-3 text-right sm:px-4">عملیات</th>
-
-                                            </tr>
-
-                                            </thead>
-
-
-                                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-
-                                            @forelse($sessions as $session)
-
-                                                <tr
-
-                                                    class="hover:bg-slate-50/80 transition-colors dark:hover:bg-slate-800/70"
-
-                                                >
-
-                                                    {{-- ردیف --}}
-
-                                                    <td class="px-3 py-3 sm:px-4 text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
-
-                                                        {{ $loop->iteration }}
-
-                                                    </td>
-
-
-                                                    {{-- عنوان و توضیح --}}
-
-                                                    <td class="px-3 py-3 sm:px-4 align-top">
-
-                                                        <div
-                                                            class="text-xs sm:text-sm font-medium text-slate-900 dark:text-slate-100">
-
-                                                            {{ $session->title }}
-
-                                                        </div>
-
-                                                        @if($session->description)
-
-                                                            <p class="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
-
-                                                                {{ Str::limit($session->description, 70) }}
-
-                                                            </p>
-
-                                                        @endif
-
-                                                    </td>
-
-
-                                                    {{-- تاریخ و ساعت --}}
-
-                                                    <td class="px-3 py-3 sm:px-4 align-top text-xs sm:text-sm text-slate-700 dark:text-slate-100">
-
-                                        <span class="block">
-
-                                            {{ jalali($session->activation_date)->format('%d %B %Y') }}
-
-                                        </span>
-
-                                                        @if($session->session_time)
-
-                                                            <span
-                                                                class="mt-0.5 block text-[11px] text-slate-500 dark:text-slate-400">
-
-                                                ساعت {{ \Carbon\Carbon::parse($session->session_time)->format('H:i') }}
-
-                                            </span>
-
-                                                        @endif
-
-                                                    </td>
-
-
-                                                    {{-- محل برگزاری --}}
-
-                                                    <td class="px-3 py-3 sm:px-4 align-top hidden md:table-cell text-xs sm:text-sm">
-
-                                                        @if($session->location_type === 'online')
-
-                                                            <span
-
-                                                                class="inline-flex items-center rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-medium text-sky-700
-
-                                                       dark:bg-sky-900/50 dark:text-sky-200"
-
-                                                            >
-
-                                              مجازی
-
-                                            </span>
-
-
-
-                                                            @if($session->skyroom_link && $session->is_active)
-
-                                                                <a
-
-                                                                    href="{{ $session->skyroom_link }}"
-
-                                                                    target="_blank"
-
-                                                                    class="mt-1 block text-[11px] text-sky-600 underline underline-offset-2 hover:text-sky-700 dark:text-sky-300"
-
-                                                                >
-
-                                                                    ورود به جلسه
-
-                                                                </a>
-
-                                                            @endif
-
-                                                        @else
-
-                                                            <span
-
-                                                                class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700
-
-                                                       dark:bg-emerald-900/50 dark:text-emerald-200"
-
-                                                            >
-
-                                                حضوری
-
-                                            </span>
-
-                                                        @endif
-
-                                                    </td>
-
-
-                                                    {{-- وضعیت جلسه --}}
-
-                                                    <td class="px-3 py-3 sm:px-4 align-top text-xs sm:text-sm">
-
-                                                        @if($session->status === 'inactive')
-
-                                                            <span
-
-                                                                class="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-700
-
-                                                       dark:bg-slate-800 dark:text-slate-200"
-
-                                                            >
-
-                                                 در انتظار برگزاری
-
-                                            </span>
-
-                                                        @elseif($session->status === 'active')
-
-                                                            <span
-
-                                                                class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-white
-
-                                                       dark:bg-green-600/40 dark:text-white"
-
-                                                            >
-
-                                                در حال برگزاری
-
-                                            </span>
-
-                                                        @else
-
-                                                            <span
-
-                                                                class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700
-
-                                                       dark:bg-emerald-900/40 dark:text-emerald-200"
-
-                                                            >
-
-                                                برگزار شده
-
-                                            </span>
-
-                                                        @endif
-
-                                                    </td>
-
-
-                                                    {{-- وضعیت پیش‌جلسه --}}
-
-                                                    <td class="px-3 py-3 sm:px-4 align-top hidden sm:table-cell text-xs sm:text-sm">
-
-                                                        @if($session->preSession)
-
-                                                            @if($session->preSession->status === 'completed')
-
-                                                                <span
-
-                                                                    class="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[11px] font-medium text-emerald-700
-
-                                                           dark:bg-emerald-900/40 dark:text-emerald-200"
-
-                                                                >
-
-                                                    تکمیل شده
-
-                                                </span>
-
-                                                            @else
-
-                                                                <span
-
-                                                                    class="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-medium text-amber-700
-
-                                                           dark:bg-amber-900/40 dark:text-amber-200"
-
-                                                                >
-
-                                                    در انتظار تکمیل
-
-                                                </span>
-
-                                                            @endif
-
-                                                        @else
-
-                                                            <span
-                                                                class="text-[11px] text-slate-400 dark:text-slate-500">-</span>
-
-                                                        @endif
-
-                                                    </td>
-
-
-                                                    {{-- عملیات --}}
-
-                                                    <td class="px-3 py-3 sm:px-4 align-top text-xs sm:text-sm">
-
-                                                        @if($session->canFillPreSession() && $session->preSession && $session->preSession->status !== 'completed')
-
-                                                            <button
-
-                                                                wire:click="openPreSessionModal({{ $session->id }})"
-
-                                                                class="inline-flex items-center rounded-lg bg-blue-600 px-3 py-1.5 text-[11px] sm:text-xs font-medium text-white shadow-sm
-
-                                                       transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1
-
-                                                       focus:ring-offset-white dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400 dark:focus:ring-offset-slate-900"
-
-                                                            >
-
-                                                                پر کردن پیش‌جلسه
-
-                                                            </button>
-
-                                                        @elseif($session->preSession)
-
-                                                            <a
-
-                                                                href="{{ route('client.profile.consultation.pre-session', $session->id) }}"
-
-                                                                class="inline-flex items-center rounded-lg bg-slate-600 px-3 py-1.5 text-[11px] sm:text-xs font-medium text-white shadow-sm
-
-                                                       transition hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1
-
-                                                       focus:ring-offset-white dark:bg-slate-700 dark:hover:bg-slate-600 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-900"
-
-                                                            >
-
-                                                                مشاهده
-
-                                                            </a>
-
-                                                        @else
-
-                                                            <span
-                                                                class="text-[11px] text-slate-400 dark:text-slate-500">-</span>
-
-                                                        @endif
-
-                                                    </td>
-
-                                                </tr>
-
-                                            @empty
-
-                                                <tr>
-
-                                                    <td
-
-                                                        colspan="7"
-
-                                                        class="px-4 py-10 text-center text-xs sm:text-sm text-slate-500 dark:text-slate-400"
-
-                                                    >
-
-                                                        <div class="flex flex-col items-center justify-center gap-2">
-
-                                                            <i class="material-symbols-outlined text-4xl text-slate-300 dark:text-slate-600">
-
-                                                                event_busy
-
-                                                            </i>
-
-                                                            <p>هیچ جلسه مشاوره‌ای ثبت نشده است.</p>
-
-                                                        </div>
-
-                                                    </td>
-
-                                                </tr>
-
-                                            @endforelse
-
-                                            </tbody>
-
-                                        </table>
-
-                                    </div>
-
-
-                                    @if($sessions->hasPages())
-
-                                        <div
-
-                                            class="border-t border-slate-100/80 px-3 py-3 sm:px-4 sm:py-4
-
-                                   bg-slate-50/70 dark:border-slate-800 dark:bg-slate-900"
-
-                                        >
-
-                                            {{ $sessions->links() }}
-
-                                        </div>
-
-                                    @endif
-
-                                </section>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-
-                    {{-- Modal تایید پیش‌جلسه --}}
-
-                    <div
-
-                        x-show="showPreSessionModal"
-
-                        x-cloak
-
-                        x-transition.opacity
-
-                        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 sm:px-0"
-
-                    >
-
-                        <div
-
-                            x-transition.scale
-
-                            class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl
-
-                   dark:border-slate-700 dark:bg-slate-900"
-
-                        >
-
-                            <h3 class="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-50 mb-3">
-
-                                پر کردن پیش‌جلسه
-
-                            </h3>
-
-
-                            @if($selectedSession)
-
-                                <p class="mb-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
-
-                                    آیا می‌خواهید پیش‌جلسه
-
-                                    <strong
-                                        class="text-slate-900 dark:text-slate-100">{{ $selectedSession->title }}</strong>
-
-                                    را پر کنید؟
-
-                                </p>
-
-
-
-                                <p
-
-                                    class="mb-4 rounded-xl bg-amber-50 px-3 py-2 text-[11px] text-amber-700
-
-                           border border-amber-200/80 dark:bg-amber-900/20 dark:text-amber-200 dark:border-amber-700/80"
-
-                                >
-
-                                    <i class="material-symbols-outlined text-sm align-middle mr-1">warning</i>
-
-                                    توجه: پس از رسیدن به تاریخ جلسه، امکان ویرایش پیش‌جلسه وجود نخواهد داشت.
-
-                                </p>
-
                             @endif
+                        @endif
 
-
-                            <div class="mt-4 flex items-center justify-end gap-2 sm:gap-3">
-
-                                <button
-
-                                    wire:click="closePreSessionModal"
-
-                                    class="inline-flex items-center justify-center rounded-lg bg-slate-500 px-4 py-1.5 text-xs sm:text-sm font-medium text-white shadow-sm
-
-                           hover:bg-slate-600 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-1
-
-                           focus:ring-offset-white dark:bg-slate-700 dark:hover:bg-slate-600 dark:focus:ring-slate-500 dark:focus:ring-offset-slate-900"
-
-                                >
-
-                                    انصراف
-
-                                </button>
-
-
-                                <button
-
-                                    wire:click="confirmStartPreSession"
-
-                                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-1.5 text-xs sm:text-sm font-medium text-white shadow-sm
-
-                           hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1
-
-                           focus:ring-offset-white dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-400 dark:focus:ring-offset-slate-900"
-
-                                >
-
-                                    بله، شروع می‌کنم
-
-                                </button>
-
-                            </div>
-
-                        </div>
                     </div>
-
                 </div>
-
             </div>
         </div>
 
+        {{-- Modal تایید پیش‌جلسه --}}
+        <div x-show="showPreSessionModal" x-cloak x-transition.opacity
+             class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div x-show="showPreSessionModal"
+                     x-transition:enter="transition ease-out duration-300 transform"
+                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave="transition ease-in duration-200 transform"
+                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                     class="relative w-full max-w-md my-20 overflow-hidden transition-all transform bg-background border border-border rounded-2xl shadow-2xl z-20">
 
+                    <div class="relative p-4">
+                        <button type="button" wire:click="closePreSessionModal"
+                                class="absolute left-4 text-muted focus:outline-none hover:text-error">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <hr class="border-border">
+
+                    <div class="p-6">
+                        <div class="flex flex-col items-center justify-center space-y-5">
+                            <div class="flex items-center justify-center w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                            </div>
+
+                            <h3 class="font-bold text-xl text-foreground">پر کردن پیش‌جلسه</h3>
+
+                            @if($selectedSession)
+                                <p class="text-center text-muted text-sm leading-relaxed">
+                                    آیا می‌خواهید پیش‌جلسه <strong>{{ $selectedSession->title }}</strong> را پر کنید؟
+                                </p>
+                                <p class="text-center text-amber-600 dark:text-amber-400 text-xs bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl">
+                                    ⚠️ توجه: پس از رسیدن به تاریخ جلسه، امکان ویرایش پیش‌جلسه وجود نخواهد داشت.
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-x-4 border-t border-border p-4">
+                        <button type="button" wire:click="closePreSessionModal"
+                                class="flex items-center justify-center gap-x-2 w-full bg-background border border-border rounded-xl text-foreground py-3 px-4 hover:bg-secondary transition-colors">
+                            <span class="font-bold text-sm">لغو</span>
+                        </button>
+                        <button wire:click="confirmStartPreSession"
+                                class="flex items-center justify-center gap-x-2 w-full bg-primary hover:bg-primary/90 border border-transparent rounded-xl text-primary-foreground py-3 px-4 transition-colors">
+                            <span class="font-bold text-sm">بله، شروع می‌کنم</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div x-show="showPreSessionModal" wire:click="closePreSessionModal"
+                     class="fixed inset-0 bg-secondary/80 cursor-pointer transition-all z-10"></div>
+            </div>
+        </div>
     </div>
-
-
 </div>
-
-
-

@@ -3,12 +3,23 @@
      x-on:notification-read.window="if (unreadCount > 0) { unreadCount--; }">
     <div class="flex items-center gap-5 mb-5">
         <div class="flex items-center gap-3">
-            <div class="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden">
-                <img src="{{ (auth()->check() && auth()->user()->picture && file_exists(public_path('user/img/'.auth()->id().'/'.auth()->user()->picture)))
-                          ? asset('user/img/'.auth()->id().'/'.auth()->user()->picture)
-                             : asset('client/assets/images/avatars/01.jpeg') }}"
-                     class="w-full h-full object-cover"
-                     alt="..."/>
+            <div class="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-secondary from-blue-100  flex items-center justify-center">
+                @if($profilePictureUrl)
+                    <img src="{{ $profilePictureUrl }}" class="w-full h-full object-cover rounded-full" alt="avatar">
+                @elseif($this->defaultAvatarType === 'female')
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-pink-500">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                @else
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-pink-500">
+                        <!-- سر -->
+                        <circle cx="12" cy="7" r="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <!-- بدن -->
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.5 21c0-3.866 2.91-7 6.5-7s6.5 3.134 6.5 7"/>
+                        <!-- موهای بلند (برای تمایز) -->
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 6.5C8.5 5.5 9 4 12 4s3.5 1.5 3.5 2.5"/>
+                    </svg>
+                @endif
             </div>
             <div class="flex flex-col items-start space-y-1">
                 <span class="text-xs text-muted"> سلام !خوش اومدی  </span>
@@ -313,4 +324,3 @@
     </ul>
 
 </div>
-

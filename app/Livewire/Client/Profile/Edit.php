@@ -80,6 +80,9 @@ class Edit extends Component
         $this->cities = $value
             ? City::query()->where('state_id', $value)->select('id', 'name')->get()
             : collect();
+
+        // Dispatch event for Tom-Select reinitialization
+        $this->dispatch('state-changed');
     }
 
     public function seoConfig()

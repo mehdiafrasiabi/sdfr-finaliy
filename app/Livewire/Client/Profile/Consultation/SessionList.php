@@ -76,7 +76,16 @@ class SessionList extends Component
         }
 
     }
+    public $expandedSessions = [];
 
+    public function toggleDetails($sessionId)
+    {
+        if (in_array($sessionId, $this->expandedSessions)) {
+            $this->expandedSessions = array_diff($this->expandedSessions, [$sessionId]);
+        } else {
+            $this->expandedSessions[] = $sessionId;
+        }
+    }
 
     public function render()
 
