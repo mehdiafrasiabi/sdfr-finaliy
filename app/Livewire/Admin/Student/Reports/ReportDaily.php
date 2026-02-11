@@ -60,23 +60,30 @@ class ReportDaily extends Component
         $this->loadStudentsWithoutReports();
     }
 
+
     protected function getReportDate(): Carbon
     {
         $now = Carbon::now();
+
+        // اگر ساعت قبل از 06:00 صبح است، گزارش دیروز را نمایش بده
         if ($now->hour < self::REPORT_CUTOFF_HOUR) {
-            return Carbon::today()->subDays(2);
+            return Carbon::yesterday(); // فقط یک روز عقب
         }
-        return Carbon::yesterday();
+
+        // اگر ساعت بعد از 06:00 صبح است، گزارش امروز را نمایش بده
+        return Carbon::today();
     }
 
     protected function getReportTimeRange(): array
     {
         $reportDate = $this->getReportDate();
+
         return [
-            'start' => $reportDate->copy()->startOfDay(),
-            'end' => $reportDate->copy()->addDay()->setHour(self::REPORT_CUTOFF_HOUR)->setMinute(0)->setSecond(0),
+            'start' => $reportDate->copy()->startOfDay(), // 00:00:00 همان روز
+            'end' => $reportDate->copy()->addDay()->setHour(self::REPORT_CUTOFF_HOUR)->setMinute(0)->setSecond(0), // 06:00:00 روز بعد
         ];
     }
+
 
     protected function getReportDateJalali(): string
     {
@@ -432,7 +439,7 @@ class ReportDaily extends Component
         $personalInfo = $report->student->user->personalInformation;
 
         $this->selectedReportData = [
-            'student_name' => $report->student->user->name ?? 'نامشخص',
+            'student_name' => $personalInfo->name ?? $report->student->user->name ?? 'نامشخص',
             'student_grade' => $personalInfo->grade ?? '-', // ✅ اضافه شد
             'student_field' => $this->getFieldLabel($personalInfo->field ?? ''), // ✅ اضافه شد
             'report_date' => jdate($report->report_date)->format('Y/m/d'),

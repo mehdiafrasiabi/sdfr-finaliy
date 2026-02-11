@@ -80,7 +80,21 @@
                                 <strong>{{ $chapter->subject->grade->name }}</strong>
 
                             </div>
+                            @if($parentTopic)
 
+                                <div class="vr d-none d-md-block"></div>
+
+                                <div>
+
+                                    <i class="ri-node-tree text-success me-1"></i>
+
+                                    <span class="text-muted">مبحث اصلی:</span>
+
+                                    <strong>{{ $parentTopic->name }}</strong>
+
+                                </div>
+
+                            @endif
                         </div>
 
                     </div>
@@ -102,12 +116,41 @@
 
                         <h5 class="card-title mb-0">
 
-                            {{ $editingId ? 'ویرایش مبحث' : 'افزودن مبحث' }}
-
+                            @if($editingId)
+                                @if($managingSubtopicsFor)
+                                    ویرایش زیرمبحث
+                                @else
+                                    ویرایش مبحث
+                                @endif
+                            @else
+                                @if($managingSubtopicsFor)
+                                    افزودن زیرمبحث
+                                @else
+                                    افزودن مبحث
+                                @endif
+                            @endif
                         </h5>
 
                     </div>
+                    @if($managingSubtopicsFor)
 
+                        <div class="row mb-3">
+
+                            <div class="col-12">
+
+                                <button wire:click="backToMainTopics" class="btn btn-secondary">
+
+                                    <i class="ri-arrow-right-line me-1"></i>
+
+                                    بازگشت به مباحث اصلی
+
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    @endif
                     <div class="card-body">
 
                         <form wire:submit="submit">
@@ -208,13 +251,36 @@
 
 
             <div class="col-lg-8">
+                @if(!$managingSubtopicsFor)
+
+                    <div class="mb-3">
+
+                        <div class="form-check form-switch">
+
+                            <input class="form-check-input" type="checkbox" wire:model="has_subtopics"
+                                   id="has_subtopics">
+
+                            <label class="form-check-label" for="has_subtopics">دارای زیرمبحث</label>
+
+                        </div>
+
+                        <small class="text-muted">اگر این مبحث شامل زیرمباحث است، این گزینه را فعال کنید</small>
+
+                    </div>
+
+                @endif
 
                 <div class="card">
 
                     <div class="card-header d-flex align-items-center justify-content-between">
 
-                        <h5 class="card-title mb-0">لیست مباحث</h5>
-
+                        <h5 class="card-title mb-0">
+                            @if($managingSubtopicsFor)
+                                لیست زیرمباحث
+                            @else
+                                لیست مباحث
+                            @endif
+                        </h5>
                         <div class="search-box">
 
                             <input type="text" wire:model.live.debounce.300ms="search"
@@ -245,7 +311,7 @@
 
                                     <th style="width: 100px;">وضعیت</th>
 
-                                    <th style="width: 150px;">عملیات</th>
+                                    <th style="width: 200px;">عملیات</th>
 
                                 </tr>
 
@@ -259,7 +325,14 @@
 
                                         <td>{{ $loop->iteration + ($topics->currentPage() - 1) * $topics->perPage() }}</td>
 
-                                        <td class="fw-medium">{{ $topic->name }}</td>
+                                        <td class="fw-medium">
+                                            {{ $topic->name }}
+                                            @if($topic->has_subtopics && !$managingSubtopicsFor)
+                                                <span class="badge bg-info-subtle text-info ms-2">
+                                                    <i class="ri-node-tree"></i> دارای زیرمبحث
+                                                </span>
+                                            @endif
+                                        </td>
 
                                         <td>{{ $topic->order }}</td>
 
@@ -280,7 +353,17 @@
                                         <td>
 
                                             <div class="d-flex gap-1">
+                                                @if($topic->has_subtopics && !$managingSubtopicsFor)
 
+                                                    <button wire:click="manageSubtopics({{ $topic->id }})"
+
+                                                            class="btn btn-sm btn-soft-info" title="مدیریت زیرمباحث">
+
+                                                        <i class="ri-node-tree"></i>
+
+                                                    </button>
+
+                                                @endif
                                                 <button wire:click="edit({{ $topic->id }})"
 
                                                         class="btn btn-sm btn-soft-success" title="ویرایش">
@@ -315,8 +398,11 @@
 
                                                 <i class="ri-file-list-3-line fs-1 d-block mb-2"></i>
 
-                                                هیچ مبحثی یافت نشد
-
+                                                @if($managingSubtopicsFor)
+                                                    هیچ زیرمبحثی یافت نشد
+                                                @else
+                                                    هیچ مبحثی یافت نشد
+                                                @endif
                                             </div>
 
                                         </td>

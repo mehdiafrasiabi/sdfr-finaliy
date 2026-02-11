@@ -15,7 +15,7 @@ use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
-
+use Morilog\Jalali\Jalalian;
 class Info extends Component
 {
     use SEOTools;
@@ -64,18 +64,45 @@ class Info extends Component
         $this->seo()->setTitle('احراز هویت VIP');
     }
 
-    function convertPersianToEnglish($string)
+    protected function convertJalaliToGregorian($date)
     {
-        $persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-        $english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-        return str_replace($persian, $english, $string);
+        $normalizedDate = strtr(trim((string) $date), [
+            '۰' => '0',
+            '۱' => '1',
+            '۲' => '2',
+            '۳' => '3',
+            '۴' => '4',
+            '۵' => '5',
+            '۶' => '6',
+            '۷' => '7',
+            '۸' => '8',
+            '۹' => '9',
+            '٠' => '0',
+            '١' => '1',
+            '٢' => '2',
+            '٣' => '3',
+            '٤' => '4',
+            '٥' => '5',
+            '٦' => '6',
+            '٧' => '7',
+            '٨' => '8',
+            '٩' => '9',
+            '-' => '/',
+        ]);
+
+        if (!$normalizedDate) {
+            return null;
+        }
+
+        try {
+            return Jalalian::fromFormat('Y/m/d', $normalizedDate)->toCarbon()->toDateString();
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     public function submit($formData, PaymentGateWayInterface $paymentGateway)
     {
-        $birthDateRaw = $this->convertPersianToEnglish($formData['birth_date']);
-        $birthDate = \Morilog\Jalali\Jalalian::fromFormat('Y/m/d', $birthDateRaw)->toCarbon();
-
         // تعیین قوانین ولیدیشن رشته بر اساس پایه
         $fieldRule = $formData['grade'] === '9'
             ? 'nullable'
@@ -86,7 +113,7 @@ class Info extends Component
             'placeOfBirth' => 'required|string|max:35',
             'fName' => 'required|string|max:35',
             'codeMell' => 'required|numeric|digits:10',
-            'birth_date' => 'required',
+            'birth_date' => 'required|string',
             'province' => 'required|exists:states,id',
             'city' => 'required|exists:cities,id',
             'fMobile' => ['required', 'regex:/^09\d{9}$/'],
@@ -120,7 +147,12 @@ class Info extends Component
             'photo.max' => 'حجم تصویر نباید بیش از ۲ مگابایت باشد.',
         ]);
         $validator->validate();
+        $birthDate = $this->convertJalaliToGregorian($formData['birth_date']);
 
+        if (!$birthDate) {
+            $this->addError('birth_date', 'فرمت تاریخ تولد معتبر نیست.');
+            return;
+        }
         // ذخیره اطلاعات هویتی
         $personalInfo = \App\Models\PersonalInformation::query()->create([
             'name' => $formData['name'],

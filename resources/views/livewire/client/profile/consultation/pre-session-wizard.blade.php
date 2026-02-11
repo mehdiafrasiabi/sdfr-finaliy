@@ -2,6 +2,7 @@
     <div class="container mx-auto px-3 sm:px-4 max-w-4xl">
 
         @push('link')
+            <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
             <style>
                 [x-cloak] {
                     display: none !important;
@@ -182,11 +183,13 @@
                                         تاریخ امتحان
                                     </label>
                                     <input
-                                        type="date"
+                                        type="text"
+                                        data-jdp
                                         wire:model="examForm.exam_date"
                                         class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
                                                focus:border-blue-500 focus:ring-2 focus:ring-blue-100
                                                dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                        placeholder="انتخاب تاریخ"
                                     >
                                     @error('examForm.exam_date')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
@@ -303,11 +306,13 @@
                                         تاریخ
                                     </label>
                                     <input
-                                        type="date"
+                                        type="text"
+                                        data-jdp
                                         wire:model="qaForm.qa_date"
                                         class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
                                                focus:border-blue-500 focus:ring-2 focus:ring-blue-100
                                                dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                        placeholder="انتخاب تاریخ"
                                     >
                                     @error('qaForm.qa_date')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
@@ -423,11 +428,13 @@
                                         تاریخ
                                     </label>
                                     <input
-                                        type="date"
+                                        type="text"
+                                        data-jdp
                                         wire:model="assignmentForm.due_date"
                                         class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
                                                focus:border-blue-500 focus:ring-2 focus:ring-blue-100
                                                dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                        placeholder="انتخاب تاریخ"
                                     >
                                     @error('assignmentForm.due_date')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
@@ -690,4 +697,20 @@
             </div>
         </div>
     </div>
+    @push('script')
+        <script type="text/javascript" src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+        <script>
+            (function () {
+                function startJalaliDatepicker() {
+                    if (typeof jalaliDatepicker !== 'undefined') {
+                        jalaliDatepicker.startWatch();
+                    }
+                }
+
+                document.addEventListener('DOMContentLoaded', startJalaliDatepicker);
+                document.addEventListener('livewire:navigated', startJalaliDatepicker);
+                document.addEventListener('livewire:initialized', startJalaliDatepicker);
+            })();
+        </script>
+    @endpush
 </div>

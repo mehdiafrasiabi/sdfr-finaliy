@@ -19,7 +19,7 @@ use App\Models\AdvisingPreSessionMisc;
 use App\Models\Student;
 
 use Illuminate\Support\Facades\Validator;
-
+use Morilog\Jalali\Jalalian;
 use Livewire\Component;
 
 
@@ -172,6 +172,74 @@ class PreSessionWizard extends Component
     }
 
 
+    protected function convertJalaliToGregorian($date)
+
+    {
+
+        $normalizedDate = strtr(trim((string)$date), [
+
+            '۰' => '0',
+
+            '۱' => '1',
+
+            '۲' => '2',
+
+            '۳' => '3',
+
+            '۴' => '4',
+
+            '۵' => '5',
+
+            '۶' => '6',
+
+            '۷' => '7',
+
+            '۸' => '8',
+
+            '۹' => '9',
+
+            '٠' => '0',
+
+            '١' => '1',
+
+            '٢' => '2',
+
+            '٣' => '3',
+
+            '٤' => '4',
+
+            '٥' => '5',
+
+            '٦' => '6',
+
+            '٧' => '7',
+
+            '٨' => '8',
+
+            '٩' => '9',
+
+            '-' => '/',
+
+        ]);
+
+        if (!$normalizedDate) {
+
+            return null;
+
+        }
+
+        try {
+
+            return Jalalian::fromFormat('Y/m/d', $normalizedDate)->toCarbon()->toDateString();
+
+        } catch (\Throwable $e) {
+
+            return null;
+
+        }
+
+    }
+
     protected function loadExistingData()
 
     {
@@ -263,10 +331,14 @@ class PreSessionWizard extends Component
 
             'examForm.time_per_part' => 'required|integer|min:1',
 
-            'examForm.exam_date' => 'required|date',
-
+            'examForm.exam_date' => 'required|string',
         ], $this->messages());
+        $examDate = $this->convertJalaliToGregorian($this->examForm['exam_date']);
 
+        if (!$examDate) {
+            $this->addError('examForm.exam_date', 'فرمت تاریخ معتبر نیست.');
+            return;
+        }
 
         AdvisingPreSessionExam::create([
 
@@ -278,8 +350,7 @@ class PreSessionWizard extends Component
 
             'time_per_part' => $this->examForm['time_per_part'],
 
-            'exam_date' => $this->examForm['exam_date'],
-
+            'exam_date' => $examDate,
         ]);
 
 
@@ -357,10 +428,14 @@ class PreSessionWizard extends Component
 
             'qaForm.time_per_part' => 'required|integer|min:1',
 
-            'qaForm.qa_date' => 'required|date',
-
+            'qaForm.qa_date' => 'required|string',
         ], $this->messages());
+        $qaDate = $this->convertJalaliToGregorian($this->qaForm['qa_date']);
 
+        if (!$qaDate) {
+            $this->addError('qaForm.qa_date', 'فرمت تاریخ معتبر نیست.');
+            return;
+        }
 
         AdvisingPreSessionQa::create([
 
@@ -372,8 +447,7 @@ class PreSessionWizard extends Component
 
             'time_per_part' => $this->qaForm['time_per_part'],
 
-            'qa_date' => $this->qaForm['qa_date'],
-
+            'qa_date' => $qaDate,
         ]);
 
 
@@ -451,11 +525,15 @@ class PreSessionWizard extends Component
 
             'assignmentForm.time_per_part' => 'required|integer|min:1',
 
-            'assignmentForm.due_date' => 'required|date',
-
+            'assignmentForm.due_date' => 'required|string',
         ], $this->messages());
 
+        $dueDate = $this->convertJalaliToGregorian($this->assignmentForm['due_date']);
 
+        if (!$dueDate) {
+            $this->addError('assignmentForm.due_date', 'فرمت تاریخ معتبر نیست.');
+            return;
+        }
         AdvisingPreSessionAssignment::create([
 
             'pre_session_id' => $this->preSession->id,
@@ -466,8 +544,7 @@ class PreSessionWizard extends Component
 
             'time_per_part' => $this->assignmentForm['time_per_part'],
 
-            'due_date' => $this->assignmentForm['due_date'],
-
+            'due_date' => $dueDate,
         ]);
 
 

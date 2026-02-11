@@ -273,7 +273,7 @@ class Detail extends Component
 
         foreach ($reports as $report) {
 
-            $totalPhoneHours += $report->phone_hours;
+            $totalPhoneHours += $report->detail->phone_hours ?? 0;
 
             foreach ($report->reportParts as $rp) {
 
@@ -329,7 +329,7 @@ class Detail extends Component
 
     {
 
-        $query = DailyReport::with(['student.user', 'reportParts.programPart'])
+        $query = DailyReport::with(['student.user', 'reportParts.programPart', 'detail', 'feedback'])
             ->where('student_id', $this->studentId);
 
 
@@ -365,7 +365,7 @@ class Detail extends Component
 
             // Actually we need to filter by Jalali month, let's do it differently
 
-            $query = DailyReport::with(['student.user', 'reportParts.programPart'])
+            $query = DailyReport::with(['student.user', 'reportParts.programPart', 'detail', 'feedback'])
                 ->where('student_id', $this->studentId);
 
 
@@ -457,8 +457,11 @@ class Detail extends Component
 
         if ($this->statusFilter !== 'all' && $this->statusFilter !== 'not_sent') {
 
-            $reports = $reports->where('status', $this->statusFilter);
+            $reports = $reports->filter(function ($report) {
 
+                return ($report->detail->status ?? 'pending') === $this->statusFilter;
+
+            });
         }
 
 
@@ -599,8 +602,17 @@ class Detail extends Component
         $validator->validate();
 
 
-        DailyReport::where('id', $reportId)->update(['status' => $value]);
+        $report = DailyReport::with('detail')->where('id', $reportId)->firstOrFail();
 
+        if (!$report->detail) {
+
+            $report->detail()->create(['status' => $value]);
+
+        } else {
+
+            $report->detail->update(['status' => $value]);
+
+        }
         $this->resetValidation();
 
         $this->dispatch('success', 'وضعیت با موفقیت تغییر کرد.');
@@ -614,20 +626,20 @@ class Detail extends Component
 
     {
 
-        $report = DailyReport::with('student.user')
+        $report = DailyReport::with(['student.user.personalInformation', 'detail', 'feedback'])
             ->where('id', $reportId)
             ->firstOrFail();
 
 
         $this->commentReportId = $reportId;
 
-        $this->advisorCommentInput = $report->advisor_comment ?? '';
+        $this->advisorCommentInput = $report->feedback->advisor_comment ?? '';
 
-        $this->advisorCommentReadonly = !empty($report->advisor_comment);
+        $this->advisorCommentReadonly = !empty($report->feedback->advisor_comment);
 
-        $this->commentStudentName = $report->student->user->name ?? '';
+        $this->commentStudentName = $report->student->user->personalInformation->name ?? $report->student->user->name ?? '';
 
-        $this->commentStudentReply = $report->student_reply;
+        $this->commentStudentReply = $report->feedback->student_reply;
 
         $this->commentModalOpen = true;
 
@@ -662,10 +674,10 @@ class Detail extends Component
         if (!$this->commentReportId) return;
 
 
-        $report = DailyReport::where('id', $this->commentReportId)->firstOrFail();
+        $report = DailyReport::with(['feedback'])->where('id', $this->commentReportId)->firstOrFail();
 
 
-        if (!empty($report->advisor_comment)) {
+        if (!empty($report->feedback->advisor_comment)) {
 
             $this->dispatch('warning', 'برای این گزارش قبلاً نظری ثبت شده است.');
 
@@ -689,13 +701,27 @@ class Detail extends Component
         ]);
 
 
-        $report->update([
+        if (!$report->feedback) {
 
-            'advisor_comment' => $validated['advisorCommentInput'],
+            $report->feedback()->create([
 
-            'advisor_commented_at' => now(),
+                'advisor_comment' => $validated['advisorCommentInput'],
 
-        ]);
+                'advisor_commented_at' => now(),
+
+            ]);
+
+        } else {
+
+            $report->feedback->update([
+
+                'advisor_comment' => $validated['advisorCommentInput'],
+
+                'advisor_commented_at' => now(),
+
+            ]);
+
+        }
 
 
         $this->dispatch('success', 'نظر شما ثبت شد.');
@@ -711,14 +737,17 @@ class Detail extends Component
 
         $report = DailyReport::with([
 
-            'student.user',
-
+            'student.user.personalInformation',
             'weeklyProgram',
 
             'reportParts.programPart.ccSubject',
 
             'reportParts.programPart.ccTopic',
+            'reportParts.programPart.ccChapter',
 
+            'detail',
+
+            'feedback',
         ])->where('id', $reportId)->firstOrFail();
 
 
@@ -729,23 +758,27 @@ class Detail extends Component
 
         $this->selectedReportData = [
 
-            'student_name' => $report->student->user->name ?? 'نامشخص',
+            'student_name' => $report->student->user->personalInformation->name ?? $report->student->user->name ?? 'نامشخص',
 
             'report_date' => jdate($report->report_date)->format('Y/m/d'),
 
             'day_name' => $dayNames[$report->day_of_week] ?? '-',
 
-            'phone_hours' => $report->phone_hours,
+            'phone_hours' => $report->detail->phone_hours ?? 0,
 
-            'description' => $report->description,
+            'description' => $report->detail->description ?? '',
 
-            'rating' => $report->rating,
+            'rating' => $report->detail->rating ?? 3,
 
-            'rating_label' => DailyReport::RATINGS[$report->rating] ?? 'نامشخص',
+            'rating_label' => DailyReport::RATINGS[$report->detail->rating ?? 3] ?? 'نامشخص',
 
             'is_compensatory' => $report->is_compensatory,
 
-            'status' => $report->status,
+            'status' => $report->detail->status ?? 'pending',
+
+            'advisor_comment' => $report->feedback->advisor_comment ?? '',
+
+            'student_reply' => $report->feedback->student_reply ?? '',
 
         ];
 
@@ -951,9 +984,7 @@ class Detail extends Component
         DailyReport::query()
             ->where('student_id', $this->studentId)
             ->whereNotNull('student_reply')
-            ->whereNull('student_replied_at')
-            ->update(['student_replied_at' => now()]);
-
+            ->whereNull('student_replied_at');
     }
 
 

@@ -218,32 +218,97 @@
 
                                             @foreach($chapter['topics'] as $index => $topic)
 
-                                                @php
+                                                @if($topic['has_subtopics'] && isset($topic['children']) && count($topic['children']) > 0)
+                                                    {{-- Topic with Subtopics - Display Parent Header --}}
+                                                    <tr class="table-info">
+                                                        <td colspan="4" class="fw-bold">
+                                                            <i class="ri-node-tree me-1"></i>
+                                                            {{ $topic['name'] }}
+                                                        </td>
+                                                    </tr>
 
-                                                    $rating = $ratings[$topic['id']] ?? null;
+                                                    {{-- Display Subtopics --}}
+                                                    @foreach($topic['children'] as $subIndex => $subtopic)
+                                                        @php
+                                                            $rating = $ratings[$subtopic['id']] ?? null;
+                                                        @endphp
+                                                        <tr>
+                                                            <td class="ps-4">{{ $index + 1 }}.{{ $subIndex + 1 }}</td>
 
-                                                @endphp
+                                                            <td class="ps-4">{{ $subtopic['name'] }}</td>
 
-                                                <tr>
+                                                            <td>
 
-                                                    <td>{{ $index + 1 }}</td>
 
-                                                    <td>{{ $topic['name'] }}</td>
-
-                                                    <td>
+                                                            @if($rating)
 
                                                         @if($rating)
 
                                                             <div class="d-flex gap-1">
-
                                                                 @for($i = 1; $i <= 8; $i++)
-
                                                                     <span
                                                                         class="badge {{ $rating >= $i ? 'bg-' . $this->getRatingColor($rating) : 'bg-light text-muted' }}"
-
                                                                         style="width: 12px; height: 12px; padding: 0; border-radius: 50%;"></span>
-
                                                                 @endfor
+
+                                                            </div>
+
+                                                                    @else
+
+                                                                        <span class="text-muted">-</span>
+
+                                                                    @endif
+
+                                                            </td>
+
+                                                            <td>
+
+                                                                @if($rating)
+                                                                    class="badge bg-{{ $this->getRatingColor($rating) }}-subtle text-{{ $this->getRatingColor($rating) }}">
+
+                                                                    {{ $this->getRatingLabel($rating) }}
+
+                                                                    </span>
+
+                                                                @else
+
+                                                                    <span class="text-muted">امتیازی ثبت نشده</span>
+
+                                                                @endif
+
+                                                            </td>
+
+                                                        </tr>
+                                                    @endforeach
+
+                                                @else
+                                                    {{-- Regular Topic without Subtopics --}}
+                                                    @php
+
+                                                        $rating = $ratings[$topic['id']] ?? null;
+
+                                                    @endphp
+
+                                                    <tr>
+
+                                                        <td>{{ $index + 1 }}</td>
+
+                                                        <td>{{ $topic['name'] }}</td>
+
+                                                        <td>
+
+                                                            @if($rating)
+
+                                                                <div class="d-flex gap-1">
+
+                                                                    @for($i = 1; $i <= 8; $i++)
+
+                                                                        <span
+                                                                            class="badge {{ $rating >= $i ? 'bg-' . $this->getRatingColor($rating) : 'bg-light text-muted' }}"
+
+                                                                            style="width: 12px; height: 12px; padding: 0; border-radius: 50%;"></span>
+
+                                                                    @endfor
 
                                                             </div>
 
@@ -261,8 +326,7 @@
 
                                                             <span
                                                                 class="badge bg-{{ $this->getRatingColor($rating) }}-subtle text-{{ $this->getRatingColor($rating) }}">
-
-                                                                {{ $this->getRatingLabel($rating) }}
+                                                                    {{ $this->getRatingLabel($rating) }}
 
                                                             </span>
 

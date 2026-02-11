@@ -575,21 +575,107 @@
                                     {{-- Topics --}}
                                     <div class="space-y-3">
                                         @foreach($chapter['topics'] as $topic)
-                                            <div
-                                                class="topic-item rounded-xl px-4 py-4 sm:px-5 sm:py-4
-                                                       bg-secondary/50
-                                                       {{ isset($ratings[$topic['id']]) ? 'rated' : '' }}"
-                                            >
-                                                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                                                    {{-- Topic Name --}}
-                                                    <div class="flex-1 min-w-0">
-                                                        <span class="text-sm sm:text-base font-semibold text-foreground leading-relaxed block">
-                                                            {{ $topic['name'] }}
-                                                        </span>
+                                            @if($topic['has_subtopics'] && isset($topic['children']) && count($topic['children']) > 0)
+                                                {{-- Topic with Subtopics - Display Parent Name --}}
+                                                <div class="mb-4">
+                                                    <div class="flex items-center gap-2 mb-3 px-4 py-2 bg-info-subtle rounded-lg">
+                                                        <svg class="w-5 h-5 text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+                                                        </svg>
+                                                        <span class="text-sm font-bold text-info">{{ $topic['name'] }}</span>
                                                     </div>
+                                                    {{-- Display Subtopics --}}
+                                                    <div class="space-y-3 pr-6">
+                                                        @foreach($topic['children'] as $subtopic)
+                                                            <div
+                                                                class="topic-item rounded-xl px-4 py-4 sm:px-5 sm:py-4
+                                                                       bg-secondary/50
+                                                                       {{ isset($ratings[$subtopic['id']]) ? 'rated' : '' }}"
+                                                            >
+                                                                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                                                    {{-- Subtopic Name --}}
+                                                                    <div class="flex-1 min-w-0">
+                                                                        <span class="text-sm sm:text-base font-semibold text-foreground leading-relaxed block">
+                                                                            {{ $subtopic['name'] }}
+                                                                        </span>
+                                                                    </div>
 
-                                                    {{-- Rating Controls --}}
-                                                    <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+                                                                    {{-- Rating Controls for Subtopic --}}
+                                                                    <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
+                                                                        {{-- Labels --}}
+                                                                        <div class="hidden lg:flex items-center gap-2 text-xs text-muted font-medium" dir="ltr">
+                                                                            <span class="px-2 py-1 rounded bg-red-500/10 text-red-500">D</span>
+                                                                            <span class="text-muted/50">→</span>
+                                                                            <span class="px-2 py-1 rounded bg-green-500/10 text-green-500">A+</span>
+                                                                        </div>
+
+                                                                        {{-- Stars --}}
+                                                                        <div class="flex items-center gap-1 sm:gap-1.5" dir="ltr">
+                                                                            @for($i = 1; $i <= 8; $i++)
+                                                                                <button
+                                                                                    wire:click="setRating({{ $subtopic['id'] }}, {{ $i }})"
+                                                                                    type="button"
+                                                                                    class="star-btn flex items-center justify-center
+                                                                                           {{ isset($ratings[$subtopic['id']]) && $ratings[$subtopic['id']] >= $i
+                                                                                              ? 'star-filled'
+                                                                                              : 'star-empty' }}"
+                                                                                    title="{{ $this->getRatingLabel($i) }}"
+                                                                                >
+                                                                                    <svg class="w-6 h-6 sm:w-7 sm:h-7" fill="currentColor" viewBox="0 0 20 20">
+                                                                                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                                                                                    </svg>
+                                                                                </button>
+                                                                            @endfor
+
+                                                                            {{-- Clear Button --}}
+                                                                            @if(isset($ratings[$subtopic['id']]))
+                                                                                <button
+                                                                                    wire:click="clearRating({{ $subtopic['id'] }})"
+                                                                                    type="button"
+                                                                                    class="mr-2 flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8
+                                                                                           rounded-full bg-red-500/15 text-red-500 hover:bg-red-500/25
+                                                                                           transition-all duration-200 hover:scale-110"
+                                                                                    title="حذف امتیاز"
+                                                                                >
+                                                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                                                    </svg>
+                                                                                </button>
+                                                                            @endif
+                                                                        </div>
+
+                                                                        {{-- Rating Badge --}}
+                                                                        @if(isset($ratings[$subtopic['id']]))
+                                                                            <span class="text-xs sm:text-sm font-black px-3 py-1.5 rounded-xl
+                                                                                         {{ $this->getRatingBadgeColor($ratings[$subtopic['id']]) }}">
+                                                                                {{ $this->getRatingLabel($ratings[$subtopic['id']]) }}
+                                                                            </span>
+                                                                        @endif
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @else
+                                                {{-- Regular Topic without Subtopics --}}
+                                                <div
+                                                    class="topic-item rounded-xl px-4 py-4 sm:px-5 sm:py-4
+                                                           bg-secondary/50
+                                                           {{ isset($ratings[$topic['id']]) ? 'rated' : '' }}"
+                                                >
+                                                    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                                        {{-- Topic Name --}}
+                                                        <div class="flex-1 min-w-0">
+                                                            <span class="text-sm sm:text-base font-semibold text-foreground leading-relaxed block">
+                                                                {{ $topic['name'] }}
+                                                            </span>
+                                                        </div>
+
+                                                        {{-- Rating Controls --}}
+                                                        <div class="flex items-center gap-3 sm:gap-4 flex-shrink-0">
                                                         {{-- Labels --}}
                                                         <div class="hidden lg:flex items-center gap-2 text-xs text-muted font-medium" dir="ltr">
                                                             <span class="px-2 py-1 rounded bg-red-500/10 text-red-500">D</span>
@@ -643,6 +729,7 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            @endif
                                         @endforeach
                                     </div>
                                 </div>
@@ -707,6 +794,9 @@
                                                     </span>
                                                     <span class="mt-1 block text-xs text-muted">
                                                         {{ $classification->topic->chapter->name }}
+                                                        @if($classification->topic->parent)
+                                                            <span class="text-info"> → {{ $classification->topic->parent->name }}</span>
+                                                        @endif
                                                     </span>
                                                 </div>
 
@@ -744,8 +834,8 @@
                     {{-- Status --}}
                     <div class="flex items-center gap-3">
                         <div class="flex h-10 w-10 items-center justify-center rounded-xl
-                                    {{ $completedTopics >= $totalTopics && $totalTopics > 0 ? 'bg-green-500/20' : 'bg-amber-500/20' }}">
-                            <svg class="w-5 h-5 {{ $completedTopics >= $totalTopics && $totalTopics > 0 ? 'text-green-500' : 'text-amber-500' }}"
+                             {{ $completedTopics >= $totalTopics && $totalTopics > 0 ? 'bg-green-500/20' : ($completedTopics > 0 ? 'bg-blue-500/20' : 'bg-amber-500/20') }}">
+                            <svg class="w-5 h-5 {{ $completedTopics >= $totalTopics && $totalTopics > 0 ? 'text-green-500' : ($completedTopics > 0 ? 'text-blue-500' : 'text-amber-500') }}"
                                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 @if($completedTopics >= $totalTopics && $totalTopics > 0)
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -760,11 +850,15 @@
                             <div class="text-xs text-muted font-medium">وضعیت</div>
                             @if($completedTopics >= $totalTopics && $totalTopics > 0)
                                 <div class="text-sm font-black text-green-500">
-                                    آماده ثبت نهایی ✓
+                                    کامل - آماده ثبت ✓
+                                </div>
+                            @elseif($completedTopics > 0)
+                                <div class="text-sm font-black text-blue-500">
+                                    {{ $completedTopics }} مبحث ثبت شده
                                 </div>
                             @else
                                 <div class="text-sm font-black text-amber-500">
-                                    {{ max($totalTopics - $completedTopics, 0) }} مبحث باقی‌مانده
+                                    شروع نشده
                                 </div>
                             @endif
                         </div>
@@ -773,10 +867,10 @@
                     {{-- Submit Button --}}
                     <button
                         wire:click="openSubmitModal"
-                        @if($completedTopics < $totalTopics || $totalTopics == 0) disabled @endif
+                        @if($completedTopics == 0) disabled @endif
                         class="inline-flex items-center gap-2.5 rounded-xl px-6 sm:px-8 py-3 sm:py-3.5
                                text-sm sm:text-base font-black transition-all duration-300
-                               {{ $completedTopics >= $totalTopics && $totalTopics > 0
+                               {{ $completedTopics > 0
                                   ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white submit-btn-active hover:from-green-600 hover:to-emerald-700 hover:scale-105'
                                   : 'bg-gray-600/50 text-gray-400 cursor-not-allowed opacity-60' }}"
                     >
@@ -829,8 +923,11 @@
                         </h3>
 
                         <p class="text-sm sm:text-base text-muted leading-relaxed mb-6">
-                            آیا از ثبت نهایی طبقه‌بندی خود اطمینان دارید؟<br>
-                            پس از ثبت، امکان ویرایش وجود نخواهد داشت.
+                            آیا از ثبت طبقه‌بندی خود اطمینان دارید؟<br>
+                            شما {{ $completedTopics }} مبحث را امتیازدهی کرده‌اید.
+                            @if($completedTopics < $totalTopics)
+                                <br><span class="text-amber-500 font-medium">توجه: همه مباحث امتیازدهی نشده‌اند، اما می‌توانید ثبت کنید.</span>
+                            @endif
                         </p>
 
                         {{-- Actions --}}

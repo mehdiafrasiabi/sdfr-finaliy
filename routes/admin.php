@@ -8,15 +8,10 @@ use App\Livewire\Admin\Student\Consultation\CreateAdvisingSession as Consultatio
 use App\Livewire\Admin\Student\Consultation\Index as StudentConsultation;
 use App\Livewire\Admin\Student\Consultation\WeeklyProgramUpload as ConsultationWeeklyProgram;
 use App\Livewire\Admin\Student\Index as StudentIndex;
-use App\Livewire\Admin\Student\Plan\Detail as StudentPlanDetail;
-use App\Livewire\Admin\Student\Plan\Index as StudentPlanIndex;
 use App\Livewire\Admin\Student\ReportDailyActivities\Detail as ReportDailyActivitiesDetail;
 use App\Livewire\Admin\Student\ReportDailyActivities\Index as ReportDailyActivitiesIndex;
-use App\Livewire\Admin\Student\Reports\DailyReportManagement;
 use App\Livewire\Admin\Student\Reports\ReportDaily as StudentReportDaily;
 use App\Livewire\Admin\Student\Reports\ReportMissing as ReportMissingIndex;
-use App\Livewire\Admin\Student\ReportStatus\Detail as StudentReportStatusDetail;
-use App\Livewire\Admin\Student\ReportStatus\Index as StudentReportStatusIndex;
 use App\Livewire\Admin\Student\StudySession\Index as StudentStudySessionIndex;
 use App\Livewire\Admin\Student\StudySession\Show as StudentStudySessionShow;
 use Illuminate\Support\Facades\Route;
@@ -90,10 +85,6 @@ Route::name('admin.')->group(function () {
 
         Route::get('/report-not-send', ReportMissingIndex::class)->name('reportMissing')
             ->middleware('admin.permission:admin.report-missing.view');
-
-        Route::get('/daily-reports', DailyReportManagement::class)
-            ->middleware('admin.permission:admin.daily-report.view');
-
 
         // آزمون‌های تایپی
 

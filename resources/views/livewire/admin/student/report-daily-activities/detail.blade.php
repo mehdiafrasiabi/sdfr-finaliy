@@ -1,6 +1,23 @@
 <div class="container-fluid">
 
 
+    @push('link')
+        <style>
+
+            .circular-chart {
+
+                display: block;
+
+                margin: 0 auto;
+
+                max-width: 100%;
+
+                max-height: 100%;
+
+            }
+
+        </style>
+    @endpush
     <!-- Header -->
 
     <div class="row align-items-center mb-4">
@@ -1172,7 +1189,7 @@
 
                         <div class="row g-2">
 
-                            @foreach($reportPartsDetails as $part)
+                            @forelse($reportPartsDetails as $part)
 
                                 <div class="col-md-6">
 
@@ -1264,9 +1281,73 @@
 
                                 </div>
 
-                            @endforeach
+                            @empty
 
+                                <div class="col-12 text-center text-muted py-3">
+
+                                    <i class="material-symbols-outlined" style="font-size: 48px;">info</i>
+
+                                    <p class="mb-0">پارتی برای این گزارش یافت نشد</p>
+
+                                </div>
+
+                            @endforelse
                         </div>
+                        <!-- Advisor Comment & Student Reply -->
+
+                        @if(($selectedReportData['advisor_comment'] ?? null) || ($selectedReportData['student_reply'] ?? null))
+
+                            <h6 class="mb-3 mt-4 d-flex align-items-center gap-2">
+
+                                <i class="material-symbols-outlined text-primary">forum</i>
+
+                                نظرات
+
+                            </h6>
+
+                        @endif
+
+
+                        @if($selectedReportData['advisor_comment'] ?? null)
+
+                            <div class="card border-primary mb-3">
+
+                                <div class="card-header bg-primary text-white">
+
+                                    <h6 class="mb-0">نظر مشاور</h6>
+
+                                </div>
+
+                                <div class="card-body">
+
+                                    <p class="mb-0">{{ $selectedReportData['advisor_comment'] }}</p>
+
+                                </div>
+
+                            </div>
+
+                        @endif
+
+
+                        @if($selectedReportData['student_reply'] ?? null)
+
+                            <div class="card border-success mb-3">
+
+                                <div class="card-header bg-success text-white">
+
+                                    <h6 class="mb-0">پاسخ دانش‌آموز</h6>
+
+                                </div>
+
+                                <div class="card-body">
+
+                                    <p class="mb-0">{{ $selectedReportData['student_reply'] }}</p>
+
+                                </div>
+
+                            </div>
+
+                        @endif
 
                     </div>
 
@@ -1417,23 +1498,6 @@
     @endif
 
 
-@push('link')
-        <style>
-
-            .circular-chart {
-
-                display: block;
-
-                margin: 0 auto;
-
-                max-width: 100%;
-
-                max-height: 100%;
-
-            }
-
-        </style>
-@endpush
 
 
 </div>

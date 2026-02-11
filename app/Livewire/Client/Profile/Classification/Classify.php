@@ -280,12 +280,27 @@ class Classify extends Component
                 });
 
 
-            foreach ($specializedQuery->with('chapters.topics')->get() as $subject) {
+            foreach ($specializedQuery->with('chapters.topics.children')->get() as $subject) {
 
                 foreach ($subject->chapters as $chapter) {
 
-                    $total += $chapter->topics->where('is_active', true)->count();
+                    foreach ($chapter->topics->where('is_active', true) as $topic) {
 
+                        // If topic has subtopics, count the subtopics instead
+
+                        if ($topic->has_subtopics && $topic->children->isNotEmpty()) {
+
+                            $total += $topic->children->where('is_active', true)->count();
+
+                        } else {
+
+                            // Otherwise count the topic itself
+
+                            $total += 1;
+
+                        }
+
+                    }
                 }
 
             }
@@ -299,12 +314,27 @@ class Classify extends Component
                     ->where('type', 'general');
 
 
-                foreach ($generalQuery->with('chapters.topics')->get() as $subject) {
+                foreach ($generalQuery->with('chapters.topics.children')->get() as $subject) {
 
                     foreach ($subject->chapters as $chapter) {
 
-                        $total += $chapter->topics->where('is_active', true)->count();
+                        foreach ($chapter->topics->where('is_active', true) as $topic) {
 
+                            // If topic has subtopics, count the subtopics instead
+
+                            if ($topic->has_subtopics && $topic->children->isNotEmpty()) {
+
+                                $total += $topic->children->where('is_active', true)->count();
+
+                            } else {
+
+                                // Otherwise count the topic itself
+
+                                $total += 1;
+
+                            }
+
+                        }
                     }
 
                 }
@@ -404,7 +434,11 @@ class Classify extends Component
 
             $q->active()->ordered()->with(['topics' => function ($q) {
 
-                $q->active()->ordered();
+                $q->active()->ordered()->mainTopics()->with(['children' => function ($subQ) {
+
+                    $subQ->active()->ordered();
+
+                }]);
 
             }]);
 
@@ -467,17 +501,7 @@ class Classify extends Component
 
 
     public function openSubmitModal()
-
     {
-
-        if ($this->completedTopics < $this->totalTopics) {
-
-            $this->dispatch('warning', 'لطفاً ابتدا تمام مباحث را امتیازدهی کنید.');
-
-            return;
-
-        }
-
 
         $this->showSubmitModal = true;
 
@@ -488,13 +512,9 @@ class Classify extends Component
 
     {
 
-        if ($this->completedTopics < $this->totalTopics) {
 
-            $this->dispatch('error', 'همه مباحث امتیازدهی نشده‌اند.');
-
-            return;
-
-        }
+        // Allow partial submissions - students can submit without completing all topics
+        // Validation removed to allow flexible classification
 
 
         StudentClassificationSubmission::updateOrCreate(
@@ -583,7 +603,7 @@ class Classify extends Component
 
             $myRatedTopics = StudentClassification::where('user_id', auth()->id())
                 ->where('classification_project_id', $this->project->id)
-                ->with(['topic.chapter.subject.grade'])
+                ->with(['topic.chapter.subject.grade', 'topic.parent'])
                 ->get()
                 ->groupBy(function ($item) {
 

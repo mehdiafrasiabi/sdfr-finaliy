@@ -2,39 +2,24 @@
 
 namespace App\Livewire\Manager\Classification;
 
-
 use App\Models\CcChapter;
-
 use App\Models\CcTopic;
-
 use Artesaos\SEOTools\Traits\SEOTools;
-
 use Livewire\Component;
-
 use Livewire\WithPagination;
-
-
 class Topics extends Component
-
 {
-
     use WithPagination, SEOTools;
-
-
     public CcChapter $chapter;
-
-
     public $search = '';
-
     public $name = '';
-
     public $order = 0;
-
     public $is_active = true;
-
+    public $has_subtopics = false;
+    public $parent_id = null;
     public $editingId = null;
 
-
+    public $managingSubtopicsFor = null;
     protected $queryString = ['search'];
 
 
@@ -69,7 +54,9 @@ class Topics extends Component
             'order' => 'nullable|integer|min:0',
 
             'is_active' => 'boolean',
+            'has_subtopics' => 'boolean',
 
+            'parent_id' => 'nullable|exists:cc_topics,id',
         ];
 
     }
@@ -97,95 +84,61 @@ class Topics extends Component
 
 
     public function submit()
-
     {
-
         $this->validate();
-
-
         $data = [
-
             'cc_chapter_id' => $this->chapter->id,
-
             'name' => $this->name,
-
             'order' => $this->order ?? 0,
-
             'is_active' => $this->is_active,
-
+            'has_subtopics' => $this->has_subtopics,
+            'parent_id' => $this->parent_id,
         ];
 
 
         if ($this->editingId) {
-
             $topic = CcTopic::findOrFail($this->editingId);
-
             $topic->update($data);
-
             $this->dispatch('success', 'مبحث با موفقیت ویرایش شد.');
-
         } else {
-
             CcTopic::create($data);
-
             $this->dispatch('success', 'مبحث با موفقیت ایجاد شد.');
-
         }
-
-
         $this->resetForm();
-
     }
 
 
     public function edit($id)
-
     {
-
         $topic = CcTopic::findOrFail($id);
-
         $this->editingId = $topic->id;
-
         $this->name = $topic->name;
-
         $this->order = $topic->order;
-
         $this->is_active = $topic->is_active;
-
+        $this->has_subtopics = $topic->has_subtopics;
+        $this->parent_id = $topic->parent_id;
     }
 
 
     public function delete($id)
-
     {
-
         $topic = CcTopic::findOrFail($id);
-
-
         if ($topic->classifications()->exists()) {
-
             $this->dispatch('warning', 'این مبحث دارای طبقه‌بندی است و نمی‌توان آن را حذف کرد.');
-
             return;
-
         }
-
-
+        if ($topic->children()->exists()) {
+            $this->dispatch('warning', 'این مبحث دارای زیرمبحث است و نمی‌توان آن را حذف کرد. ابتدا زیرمباحث را حذف کنید.');
+            return;
+        }
         $topic->delete();
-
         $this->dispatch('success', 'مبحث با موفقیت حذف شد.');
-
     }
-
-
     public function resetForm()
-
     {
-
-        $this->reset(['name', 'order', 'is_active', 'editingId']);
-
+        $this->reset(['name', 'order', 'is_active', 'has_subtopics', 'parent_id', 'editingId']);
         $this->is_active = true;
-
+        $this->has_subtopics = false;
     }
 
 
@@ -198,23 +151,56 @@ class Topics extends Component
     }
 
 
+    public function manageSubtopics($topicId)
+
+    {
+
+        $this->managingSubtopicsFor = $topicId;
+
+        $this->parent_id = $topicId;
+
+        $this->resetForm();
+
+        $this->parent_id = $topicId;
+
+    }
+
+
+    public function backToMainTopics()
+
+    {
+
+        $this->managingSubtopicsFor = null;
+
+        $this->parent_id = null;
+
+        $this->resetForm();
+
+    }
+
+
     public function render()
 
     {
 
-        $topics = CcTopic::query()
+        $query = CcTopic::query()
+            ->where('cc_chapter_id', $this->chapter->id);
+        if ($this->managingSubtopicsFor) {
+            $query->where('parent_id', $this->managingSubtopicsFor);
+        } else {
+            $query->whereNull('parent_id');
+        }
+
+        $topics = $query
             ->where('cc_chapter_id', $this->chapter->id)
             ->when($this->search, fn($q) => $q->where('name', 'like', "%{$this->search}%"))
             ->orderBy('order')
             ->paginate(15);
-
+        $parentTopic = $this->managingSubtopicsFor ? CcTopic::find($this->managingSubtopicsFor) : null;
 
         return view('livewire.manager.classification.topics', [
-
             'topics' => $topics,
-
+            'parentTopic' => $parentTopic,
         ])->layout('layouts.manager.app');
-
     }
-
 }

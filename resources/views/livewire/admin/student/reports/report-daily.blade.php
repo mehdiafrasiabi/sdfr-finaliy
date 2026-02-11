@@ -196,7 +196,7 @@
                                                        wire:model.live="selectedReports">
                                             </td>
                                             <td>
-                                                <span class="fw-medium">{{ $report->student->user->name ?? '-' }}</span>
+                                                <span class="fw-medium">{{ $report->student->user->personalInformation->name ?? $report->student->user->name ?? '-' }}</span>
                                             </td>
                                             <td class="text-center">
                                                 <span class="text-success fw-bold">{{ $report->read_parts_count }}</span>

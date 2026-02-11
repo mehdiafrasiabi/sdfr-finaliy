@@ -142,8 +142,9 @@
                                     </label>
                                     <div class="relative">
                                         <input
-                                            type="tel"
+                                            type="text"
                                             id="birth_date"
+                                            data-jdp
                                             dir="ltr"
                                             name="birth_date"
                                             wire:model.lazy="birth_date"
@@ -542,7 +543,7 @@
     <!-- end container -->
     @push('link')
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css"/>
+        <link rel="stylesheet" href="/client/assets/date/jalalidatepicker.min.css">
         <style>
             /* Select2 Dark Mode Support */
             .dark .select2-container--default .select2-selection--single {
@@ -593,22 +594,26 @@
     @endpush
     @push('script')
         <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/persian-date/dist/persian-date.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+        <script src="/client/assets/date/persian-datepicker.min.js"></script>
         <script>
 
-            $(document).ready(function () {
-                // Initialize Persian Date Picker
-                $("#birth_date").persianDatepicker({
-                    format: "YYYY/MM/DD",
-                    initialValueType: 'gregorian',
-                    calendarType: 'persian',
-                    autoClose: true,
-                });
+            function startCartJalaliDatepicker() {
+                if (typeof jalaliDatepicker !== 'undefined') {
+                    jalaliDatepicker.startWatch();
+                }
+            }
+
+            function initProvinceSelect2() {
+                const $province = $('.select2-province');
+
+                if ($province.hasClass('select2-hidden-accessible')) {
+                    $province.select2('destroy');
+                }
+
 
                 // Initialize Select2 for Province
-                $('.select2-province').select2({
+                $province.select2({
                     placeholder: "جستجو کنید...",
                     allowClear: true,
                     width: '100%',
@@ -620,10 +625,19 @@
                             return "در حال جستجو...";
                         }
                     }
-                }).on('change', function(e) {
+                }).off('change').on('change', function(e) {
                 @this.set('province', e.target.value);
                 });
-            });
+            }
+
+            function initCartInfoUi() {
+                startCartJalaliDatepicker();
+                initProvinceSelect2();
+            }
+
+            document.addEventListener('DOMContentLoaded', initCartInfoUi);
+            document.addEventListener('livewire:navigated', initCartInfoUi);
+            document.addEventListener('livewire:initialized', initCartInfoUi);
         </script>
     @endpush
 </div>
