@@ -22,6 +22,7 @@ use App\Livewire\Client\Profile\Consultation\PreSessionWizard as ConsultationPre
 use App\Livewire\Client\Profile\Consultation\SessionList as ConsultationSessionList;
 use App\Livewire\Client\Profile\Consultation\WeeklyProgramView as ConsultationWeeklyProgramView;
 use App\Livewire\Client\Profile\Dashboard as ProfileDashboard;
+use App\Livewire\Client\Profile\Consultation\ClassScheduleUpload as ConsultationClassScheduleUpload;
 use App\Livewire\Client\Profile\Edit as ProfileEdit;
 use App\Livewire\Client\Profile\Financial as ProfileFinancial;
 use App\Livewire\Client\Profile\Installment\Installment as ProfileInstallment;
@@ -95,22 +96,20 @@ Route::name('client.')->group(function () {
             Route::get('/ProfessionalTools',ProfessionalToolsIndex::class)->name('professionalTools.index');
             Route::get('/ProfessionalTools/pomodoro',ProfessionalToolsPomodoroTimer::class)->name('professionalTools.pomodoro');
             Route::get('/studySession',StudySession::class)->name('studySession');
+
 //          Ticketing Route
             Route::get('/ticket',ProfileTicketIndex::class)->name('ticket');
             Route::get('/ticket/{ticket}/show',ProfileTicketShow::class)->name('ticket.show');
             Route::get('/ticket-create',ProfileTicketCreate::class)->name('ticket.create');
 
+            //کیف پوال
             Route::get('/wallet',ProfileWallet::class)->name('wallet');
-
-
+            // نوتیفیکیشن
             Route::get('/notification',ProfileNotification::class)->name('notification');
 
             // Typed Exam Routes (آزمون‌های تایپی)
-
             Route::get('/exams', TypedExamList::class)->name('typed-exam.list');
-
             Route::get('/exam/{assignmentId}/test', TypedExamTest::class)->name('typed-exam.test');
-
             Route::get('/exam/result/{attemptId}', TypedExamResult::class)->name('typed-exam.result');
 
 
@@ -119,15 +118,11 @@ Route::name('client.')->group(function () {
             Route::get('/{project}/classify/{grade}', Classify::class)->name('classification.classify');
 
             // Consultation Routes (جلسات مشاوره)
-
             Route::prefix('consultation')->name('consultation.')->group(function () {
-
                 Route::get('/sessions', ConsultationSessionList::class)->name('sessions');
-
                 Route::get('/session/{session}/pre-session', ConsultationPreSessionWizard::class)->name('pre-session');
-
                 Route::get('/weekly-program/{program}', ConsultationWeeklyProgramView::class)->name('weekly-program');
-
+                Route::get('/class-schedule', ConsultationClassScheduleUpload::class)->name('class-schedule');
             });
 
         });

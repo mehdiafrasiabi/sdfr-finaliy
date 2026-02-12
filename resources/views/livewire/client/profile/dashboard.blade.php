@@ -541,7 +541,60 @@
                             </div>
                         @endif
                     </div>
+                    <!-- Class Schedule Section (برنامه کلاسی) -->
+                    @if($classSchedule)
+                        <div class="dashboard-card">
+                            <div class="section-title">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-foreground">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                </svg>
+                                <h3 class="font-bold text-lg text-foreground">برنامه کلاسی من</h3>
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 text-xs rounded-full font-semibold">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                    نهایی شده
+                                </span>
+                            </div>
 
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm">
+                                    <thead>
+                                    <tr>
+                                        <th class="text-right py-2 px-3 font-bold text-foreground border-b border-border" style="min-width: 80px;">روز</th>
+                                        @for($p = 1; $p <= 5; $p++)
+                                            <th class="text-center py-2 px-3 font-bold text-foreground border-b border-border">پارت {{ $p }}</th>
+                                        @endfor
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @for($d = 0; $d < 7; $d++)
+                                        <tr class="{{ in_array($d, [5, 6]) ? 'opacity-60' : '' }}">
+                                            <td class="py-2 px-3 font-bold text-foreground border-b border-border/50">
+                                                {{ \App\Models\ClassSchedule::getDayName($d) }}
+                                            </td>
+                                            @for($p = 1; $p <= 5; $p++)
+                                                @php
+                                                    $cPart = $classSchedule->parts->where('day_of_week', $d)->where('part_order', $p)->first();
+                                                @endphp
+                                                <td class="text-center py-2 px-3 border-b border-border/50">
+                                                    @if($cPart)
+                                                        <span class="inline-block px-2 py-1 rounded-lg text-xs font-semibold"
+                                                              style="background: rgba(102, 126, 234, 0.1); color: #667eea; border: 1px solid rgba(102, 126, 234, 0.2);">
+                                                            {{ $cPart->lesson_name }}
+                                                        </span>
+                                                    @else
+                                                        <span class="text-muted">-</span>
+                                                    @endif
+                                                </td>
+                                            @endfor
+                                        </tr>
+                                    @endfor
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
                     <!-- TO DO Section -->
                     <div class="dashboard-card">
                         <div class="section-title">

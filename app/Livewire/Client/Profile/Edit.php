@@ -95,7 +95,7 @@ class Edit extends Component
     {
         $this->validate([
             'name' => ['required', 'string', 'min:3', 'max:150'],
-            'email' => ['required', 'email'],
+            'email' => ['nullable', 'email'],
             'full_name' => ['required', 'string', 'min:3', 'max:150'],
             'gender' => ['required', 'in:male,female'],
             'state_id' => ['nullable', 'exists:states,id'],

@@ -9,6 +9,10 @@ use App\Models\ProgramPart;
 use App\Models\Lesson;
 use App\Models\AdvisingPreSession;
 use App\Models\WeeklyProgramRestDay;
+use App\Models\ClassSchedule;
+use App\Models\ClassSchedulePart;
+use App\Models\Notification;
+use App\Models\NotificationRecipient;
 use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -67,7 +71,16 @@ class WeeklyProgramUpload extends Component
     // Global search
     public string $globalSearch = '';
     public array $globalSearchResults = [];
-
+    // Class Schedule (برنامه کلاسی)
+    public bool $showClassScheduleModal = false;
+    public bool $showNoScheduleModal = false;
+    public bool $showDailyReadingModal = false;
+    public ?int $dailyReadingPartId = null;
+    public ?string $dailyReadingType = null; // 'daily' or 'pre'
+    public ?int $dailyReadingSubjectId = null;
+    public string $dailyReadingDescription = '';
+    public int $dailyReadingDuration = 20;
+    public ?int $editingDailyReadingPartId = null;
     protected function messages()
     {
         return [
@@ -868,7 +881,259 @@ class WeeklyProgramUpload extends Component
         $this->restDayToToggle = null;
         $this->partsCountForRestDay = 0;
     }
+    /**
+     * باز کردن مودال مشاهده برنامه کلاسی
+     */
+    public function openClassScheduleModal(): void
+    {
+        $student = Student::find($this->studentId);
+        if (!$student) return;
 
+        $schedule = ClassSchedule::where('student_id', $student->id)
+            ->where('is_finalized', true)
+            ->latest()
+            ->first();
+
+        if ($schedule) {
+            $this->showClassScheduleModal = true;
+        } else {
+            $this->showNoScheduleModal = true;
+        }
+    }
+
+    public function closeClassScheduleModal(): void
+    {
+        $this->showClassScheduleModal = false;
+    }
+
+    public function closeNoScheduleModal(): void
+    {
+        $this->showNoScheduleModal = false;
+    }
+
+    /**
+     * ارسال نوتیفیکیشن برای آپلود برنامه کلاسی
+     */
+    public function sendScheduleReminder(): void
+    {
+        $student = Student::with('user')->find($this->studentId);
+        if (!$student || !$student->user) return;
+
+        $notification = Notification::create([
+            'title' => 'ارسال برنامه کلاسی',
+            'body' => 'دانش‌آموز عزیز، لطفاً هرچه سریع‌تر برنامه کلاسی خود را از بخش اتاق مشاوره آپلود کنید.',
+            'category' => Notification::CATEGORY_ADVISOR,
+            'target_type' => Notification::TARGET_SINGLE,
+            'admin_id' => auth('admin')->id(),
+            'student_id' => $student->id,
+            'is_from_manager' => false,
+        ]);
+
+        NotificationRecipient::create([
+            'notification_id' => $notification->id,
+            'user_id' => $student->user_id,
+            'is_read' => false,
+        ]);
+
+        $this->closeNoScheduleModal();
+        $this->dispatch('success', 'نوتیفیکیشن با موفقیت ارسال شد.');
+    }
+
+    /**
+     * ثبت روزخوانی یا پیش‌خوانی
+     */
+    public function openDailyReadingModal(string $type, int $subjectId): void
+    {
+        $this->dailyReadingType = $type;
+        $this->dailyReadingSubjectId = $subjectId;
+        $this->editingDailyReadingPartId = null;
+
+        $subject = CcSubject::find($subjectId);
+        $subjectName = $subject ? $subject->name : '';
+
+        if ($type === 'daily') {
+            $this->dailyReadingDescription = 'روزخوانی - 20 دقیقه - ' . $subjectName;
+            $this->dailyReadingDuration = 20;
+        } else {
+            $this->dailyReadingDescription = 'پیش‌خوانی - 15 دقیقه - ' . $subjectName;
+            $this->dailyReadingDuration = 15;
+        }
+
+        $this->showDailyReadingModal = true;
+    }
+
+    public function closeDailyReadingModal(): void
+    {
+        $this->showDailyReadingModal = false;
+        $this->dailyReadingType = null;
+        $this->dailyReadingSubjectId = null;
+        $this->dailyReadingDescription = '';
+        $this->dailyReadingDuration = 20;
+        $this->editingDailyReadingPartId = null;
+    }
+
+    public function saveDailyReading(): void
+    {
+        if (!$this->dailyReadingSubjectId) {
+            $this->dispatch('warning', 'درس انتخاب نشده است.');
+            return;
+        }
+
+        // اطمینان از وجود برنامه هفتگی
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        if (!$this->weeklyProgramId) {
+            $this->dispatch('warning', 'ابتدا باید برنامه هفتگی ایجاد شود.');
+            return;
+        }
+
+        $subject = CcSubject::find($this->dailyReadingSubjectId);
+        if (!$subject) return;
+
+        // پیدا کردن روز امروز در برنامه هفتگی
+        $startDate = Carbon::parse($this->start_date);
+        $today = Carbon::today();
+        $todayIndex = null;
+
+        for ($i = 0; $i < 8; $i++) {
+            $dayDate = $startDate->copy()->addDays($i);
+            if ($dayDate->isSameDay($today)) {
+                $todayIndex = $i;
+                break;
+            }
+        }
+
+        // اگر امروز در محدوده برنامه نیست، از روز 0 استفاده کن
+        if ($todayIndex === null) {
+            $todayIndex = 0;
+        }
+
+        $partDate = $startDate->copy()->addDays($todayIndex);
+
+        if ($this->editingDailyReadingPartId) {
+            // ویرایش پارت موجود
+            $part = ProgramPart::find($this->editingDailyReadingPartId);
+            if ($part) {
+                $part->update([
+                    'lesson_name' => $subject->name,
+                    'description' => $this->dailyReadingDescription,
+                    'duration_minutes' => $this->dailyReadingDuration,
+                    'cc_subject_id' => $subject->id,
+                ]);
+            }
+        } else {
+            // محاسبه ترتیب پارت جدید
+            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $todayIndex)
+                ->count();
+
+            if ($existingCount >= 10) {
+                $this->dispatch('warning', 'حداکثر ۱۰ پارت برای هر روز مجاز است.');
+                $this->closeDailyReadingModal();
+                return;
+            }
+
+            ProgramPart::create([
+                'weekly_program_id' => $this->weeklyProgramId,
+                'lesson_name' => $subject->name,
+                'part_date' => $partDate,
+                'day_of_week' => $todayIndex,
+                'part_order' => $existingCount + 1,
+                'description' => $this->dailyReadingDescription,
+                'duration_minutes' => $this->dailyReadingDuration,
+                'test_count' => null,
+                'part_type' => 'descriptive',
+                'lesson_type' => $subject->type ?? 'specialized',
+                'cc_subject_id' => $subject->id,
+            ]);
+        }
+
+        $this->loadExistingParts();
+        $this->closeDailyReadingModal();
+        $this->dispatch('success', ($this->dailyReadingType === 'daily' ? 'روزخوانی' : 'پیش‌خوانی') . ' با موفقیت ثبت شد.');
+    }
+
+    /**
+     * ویرایش پارت روزخوانی/پیش‌خوانی
+     */
+    public function editDailyReadingPart(int $partId): void
+    {
+        $part = ProgramPart::find($partId);
+        if (!$part) return;
+
+        $this->editingDailyReadingPartId = $partId;
+        $this->dailyReadingSubjectId = $part->cc_subject_id;
+        $this->dailyReadingDescription = $part->description;
+        $this->dailyReadingDuration = $part->duration_minutes;
+
+        if (str_contains($part->description, 'روزخوانی')) {
+            $this->dailyReadingType = 'daily';
+        } else {
+            $this->dailyReadingType = 'pre';
+        }
+
+        $this->showDailyReadingModal = true;
+    }
+
+    /**
+     * حذف پارت روزخوانی/پیش‌خوانی
+     */
+    public function deleteDailyReadingPart(int $partId): void
+    {
+        $part = ProgramPart::find($partId);
+        if (!$part) return;
+
+        $part->delete();
+        $this->loadExistingParts();
+        $this->dispatch('success', 'پارت با موفقیت حذف شد.');
+    }
+
+    /**
+     * دریافت برنامه کلاسی برای نمایش در مودال
+     */
+    protected function getClassScheduleData(): array
+    {
+        $student = Student::find($this->studentId);
+        if (!$student) return ['schedule' => null, 'days' => [], 'todayParts' => [], 'tomorrowParts' => []];
+
+        $schedule = ClassSchedule::where('student_id', $student->id)
+            ->where('is_finalized', true)
+            ->with('parts')
+            ->latest()
+            ->first();
+
+        if (!$schedule) return ['schedule' => null, 'days' => [], 'todayParts' => [], 'tomorrowParts' => []];
+
+        // ساخت آرایه روزها
+        $days = [];
+        for ($d = 0; $d < 7; $d++) {
+            $dayParts = $schedule->parts->where('day_of_week', $d)->sortBy('part_order')->values();
+            $days[$d] = [
+                'day_of_week' => $d,
+                'name' => ClassSchedule::getDayName($d),
+                'parts' => $dayParts,
+            ];
+        }
+
+        // روز امروز (شمسی)
+        $todayJalali = jdate(Carbon::today());
+        $todayDayOfWeek = $todayJalali->getDayOfWeek(); // 0=شنبه تا 6=جمعه
+        $tomorrowDayOfWeek = ($todayDayOfWeek + 1) % 7;
+
+        $todayParts = $schedule->parts->where('day_of_week', $todayDayOfWeek)->sortBy('part_order')->values();
+        $tomorrowParts = $schedule->parts->where('day_of_week', $tomorrowDayOfWeek)->sortBy('part_order')->values();
+
+        return [
+            'schedule' => $schedule,
+            'days' => $days,
+            'todayParts' => $todayParts,
+            'tomorrowParts' => $tomorrowParts,
+            'todayName' => ClassSchedule::getDayName($todayDayOfWeek),
+            'tomorrowName' => ClassSchedule::getDayName($tomorrowDayOfWeek),
+        ];
+    }
     public function render()
     {
         $student = Student::with(['user.personalInformation', 'advisor', 'supporter'])->find($this->studentId);
@@ -921,7 +1186,7 @@ class WeeklyProgramUpload extends Component
         // نام مشاور و پشتیبان از دیتابیس student
         $advisorName = $student->advisor?->name ?? '-';
         $supporterName = $student->supporter?->name ?? '-';
-
+        $classScheduleData = $this->getClassScheduleData();
         return view('livewire.admin.student.consultation.weekly-program-upload', [
             'student' => $student,
             'educationLevels' => $educationLevels,
@@ -930,6 +1195,7 @@ class WeeklyProgramUpload extends Component
             'preSessions' => $preSessions,
             'advisorName' => $advisorName,
             'supporterName' => $supporterName,
+            'classScheduleData' => $classScheduleData,
         ])->layout('layouts.admin.app');
     }
 }

@@ -100,7 +100,6 @@ class Info extends Component
             return null;
         }
     }
-
     public function submit($formData, PaymentGateWayInterface $paymentGateway)
     {
         // تعیین قوانین ولیدیشن رشته بر اساس پایه
@@ -148,7 +147,6 @@ class Info extends Component
         ]);
         $validator->validate();
         $birthDate = $this->convertJalaliToGregorian($formData['birth_date']);
-
         if (!$birthDate) {
             $this->addError('birth_date', 'فرمت تاریخ تولد معتبر نیست.');
             return;
@@ -169,172 +167,84 @@ class Info extends Component
             'city_id' => $formData['city'],
             'user_id' => Auth::id(),
         ]);
-
         // ادامه فرآیند سفارش مثل قبل
         $checkout = Session::get('checkout', []);
         $totalAmount = $checkout['totalAmount'] ?? 0;
         $cartItemIds = $checkout['cartItems'] ?? [];
-
         $useWallet = $checkout['useWallet'] ?? false;
-
         $walletDeduction = $checkout['walletDeduction'] ?? 0;
-
-
         $user = auth()->user();
-
         $orderNumber = 'REF-' . \Illuminate\Support\Str::uuid()->toString();
-
-
         DB::beginTransaction();
-
         try {
-
             $paidWithWallet = ($totalAmount == 0 && $useWallet && $walletDeduction > 0);
-
-
             $order = Order::query()->create([
-
                 'amount' => $checkout['totalOriginalPrice'] ?? 0,
-
                 'order_number' => $orderNumber,
-
                 'user_id' => $user->id,
-
                 'payment_method_id' => 1,
-
                 'paid_with_wallet' => $paidWithWallet,
-
                 'wallet_amount' => $walletDeduction,
-
                 'status' => $paidWithWallet ? 'completed' : 'pending',
-
             ]);
-
-
             $cartItems = Cart::query()
                 ->with('product')
                 ->whereIn('id', $cartItemIds)
                 ->get();
-
-
             foreach ($cartItems as $item) {
-
                 OrderItem::query()->create([
-
                     'price' => $item->product->price,
-
                     'order_id' => $order->id,
-
                     'product_id' => $item->product_id,
-
                 ]);
-
             }
-
-
             $payment = Payment::query()->create([
-
                 'order_id' => $order->id,
-
                 'user_id' => $user->id,
-
                 'amount' => $checkout['totalOriginalPrice'] ?? 0,
-
                 'order_number' => $orderNumber,
-
                 'personal_information_id' => $personalInfo->id,
-
                 'status' => $paidWithWallet ? 'completed' : 'pending',
-
             ]);
-
-
             // If paying fully with wallet
-
             if ($paidWithWallet) {
-
                 $wallet = $user->getOrCreateWallet();
-
                 $wallet->withdraw($walletDeduction, 'خرید سفارش: ' . $orderNumber, 'purchase');
-
-
                 // Create student record if needed
-
                 $this->createStudentRecord($user, $payment);
-
-
                 DB::commit();
-
                 Cart::query()->whereIn('id', $cartItemIds)->delete();
-
-
                 session([
-
                     'paymentSuccess' => true,
-
                     'paymentData' => [
-
                         'orderNumber' => $orderNumber,
-
                         'amount' => $walletDeduction,
-
                         'date' => now(),
-
                         'paymentMethod' => 'کیف پول',
-
                     ]
-
                 ]);
-
-
                 return redirect()->route('client.payment.callback');
-
             }
-
-
             // If using wallet partially with gateway payment
-
             if ($useWallet && $walletDeduction > 0) {
-
                 session(['pending_wallet_deduction' => $walletDeduction, 'pending_order_number' => $orderNumber]);
-
             }
-
-
             DB::commit();
-
             Cart::query()->whereIn('id', $cartItemIds)->delete();
-
             return $paymentGateway->request($totalAmount, $orderNumber);
-
-
         } catch (\Throwable $e) {
-
             DB::rollBack();
-
             report($e);
-
             session()->flash('error', 'در فرآیند ثبت سفارش خطایی رخ داد.');
-
             return;
-
         }
-
     }
-
-
     private function createStudentRecord($user, $payment)
-
     {
-
         if (!$user->student) {
-
             \App\Models\Student::create([
-
                 'user_id' => $user->id,
-
                 'payment_id' => $payment->id,
-
             ]);
         }
     }

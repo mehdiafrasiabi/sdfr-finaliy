@@ -390,7 +390,7 @@
                             </div>
 
 
-                            <div class="col-12">
+                            <div class="col-6">
 
                                 <a
 
@@ -408,7 +408,23 @@
 
                             </div>
 
+                            <div class="col-6">
 
+                                <a
+
+                                    href="{{ route('admin.student.weekly-program', $student->id) }}"
+
+                                    class="d-block border rounded-3 p-3 h-100 text-center text-reset text-decoration-none hover-card-shadow"
+
+                                >
+
+                                    <i class="material-symbols-outlined d-block mb-2 text-danger">menu_book</i>
+
+                                    <span class="d-block small fw-medium">برنامه کلاسی</span>
+
+                                </a>
+
+                            </div>
                         </div>
 
                     </div>

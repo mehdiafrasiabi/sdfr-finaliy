@@ -1,4 +1,56 @@
 <div x-data="{ modalOpen: false }">
+    @push('link')
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+        <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
+        <style>
+            /* Select2 Dark Mode Support */
+            .dark .select2-container--default .select2-selection--single {
+                background-color: hsl(var(--secondary));
+                border: 0;
+                color: hsl(var(--foreground));
+            }
+            .dark .select2-container--default .select2-selection--single .select2-selection__rendered {
+                color: hsl(var(--foreground));
+            }
+            .dark .select2-dropdown {
+                background-color: hsl(var(--background));
+                border-color: hsl(var(--border));
+            }
+            .dark .select2-container--default .select2-results__option--highlighted[aria-selected] {
+                background-color: hsl(var(--primary));
+            }
+            .dark .select2-search--dropdown .select2-search__field {
+                background-color: hsl(var(--secondary));
+                color: hsl(var(--foreground));
+                border-color: hsl(var(--border));
+            }
+
+            /* Select2 Custom Styling */
+            .select2-container--default .select2-selection--single {
+                height: 48px !important;
+                border-radius: 0.75rem !important;
+                padding: 0 1rem;
+                display: flex;
+                align-items: center;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 48px !important;
+                padding: 0 !important;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 48px !important;
+            }
+            .select2-dropdown {
+                border-radius: 0.75rem !important;
+                border: 2px solid hsl(var(--border)) !important;
+            }
+            .select2-search--dropdown .select2-search__field {
+                border-radius: 0.5rem !important;
+                padding: 0.5rem 1rem !important;
+            }
+        </style>
+    @endpush
+
     <!-- container -->
     <div class="max-w-7xl space-y-14 px-4 mx-auto">
         <div class="flex md:flex-nowrap flex-wrap items-start gap-5">
@@ -145,6 +197,7 @@
                                             type="text"
                                             id="birth_date"
                                             data-jdp
+
                                             dir="ltr"
                                             name="birth_date"
                                             wire:model.lazy="birth_date"
@@ -540,104 +593,48 @@
             <!-- end cart:detail -->
         </div>
     </div>
-    <!-- end container -->
-    @push('link')
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-        <link rel="stylesheet" href="/client/assets/date/jalalidatepicker.min.css">
-        <style>
-            /* Select2 Dark Mode Support */
-            .dark .select2-container--default .select2-selection--single {
-                background-color: hsl(var(--secondary));
-                border: 0;
-                color: hsl(var(--foreground));
-            }
-            .dark .select2-container--default .select2-selection--single .select2-selection__rendered {
-                color: hsl(var(--foreground));
-            }
-            .dark .select2-dropdown {
-                background-color: hsl(var(--background));
-                border-color: hsl(var(--border));
-            }
-            .dark .select2-container--default .select2-results__option--highlighted[aria-selected] {
-                background-color: hsl(var(--primary));
-            }
-            .dark .select2-search--dropdown .select2-search__field {
-                background-color: hsl(var(--secondary));
-                color: hsl(var(--foreground));
-                border-color: hsl(var(--border));
-            }
+        @push('script')
+            <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-            /* Select2 Custom Styling */
-            .select2-container--default .select2-selection--single {
-                height: 48px !important;
-                border-radius: 0.75rem !important;
-                padding: 0 1rem;
-                display: flex;
-                align-items: center;
-            }
-            .select2-container--default .select2-selection--single .select2-selection__rendered {
-                line-height: 48px !important;
-                padding: 0 !important;
-            }
-            .select2-container--default .select2-selection--single .select2-selection__arrow {
-                height: 48px !important;
-            }
-            .select2-dropdown {
-                border-radius: 0.75rem !important;
-                border: 2px solid hsl(var(--border)) !important;
-            }
-            .select2-search--dropdown .select2-search__field {
-                border-radius: 0.5rem !important;
-                padding: 0.5rem 1rem !important;
-            }
-        </style>
-    @endpush
-    @push('script')
-        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-        <script src="/client/assets/date/persian-datepicker.min.js"></script>
-        <script>
-
-            function startCartJalaliDatepicker() {
-                if (typeof jalaliDatepicker !== 'undefined') {
-                    jalaliDatepicker.startWatch();
-                }
-            }
-
-            function initProvinceSelect2() {
-                const $province = $('.select2-province');
-
-                if ($province.hasClass('select2-hidden-accessible')) {
-                    $province.select2('destroy');
-                }
+            <script type="text/javascript" src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
 
 
-                // Initialize Select2 for Province
-                $province.select2({
-                    placeholder: "جستجو کنید...",
-                    allowClear: true,
-                    width: '100%',
-                    language: {
-                        noResults: function() {
-                            return "نتیجه‌ای یافت نشد";
-                        },
-                        searching: function() {
-                            return "در حال جستجو...";
-                        }
+            <script>
+                function startCartJalaliDatepicker() {
+                    if (typeof jalaliDatepicker !== 'undefined') {
+                        jalaliDatepicker.startWatch();
+                    } else {
+                        console.log('jalaliDatepicker is not loaded!');
                     }
-                }).off('change').on('change', function(e) {
-                @this.set('province', e.target.value);
-                });
-            }
+                }
 
-            function initCartInfoUi() {
-                startCartJalaliDatepicker();
-                initProvinceSelect2();
-            }
+                function initProvinceSelect2() {
+                    const $province = $('.select2-province');
+                    if ($province.hasClass('select2-hidden-accessible')) $province.select2('destroy');
 
-            document.addEventListener('DOMContentLoaded', initCartInfoUi);
-            document.addEventListener('livewire:navigated', initCartInfoUi);
-            document.addEventListener('livewire:initialized', initCartInfoUi);
-        </script>
-    @endpush
+                    $province.select2({
+                        placeholder: "جستجو کنید...",
+                        allowClear: true,
+                        width: '100%',
+                        language: {
+                            noResults: () => "نتیجه‌ای یافت نشد",
+                            searching: () => "در حال جستجو..."
+                        }
+                    }).off('change').on('change', function(e) {
+                    @this.set('province', e.target.value);
+                    });
+                }
+
+                function initCartInfoUi() {
+                    startCartJalaliDatepicker();
+                    initProvinceSelect2();
+                }
+
+                document.addEventListener('DOMContentLoaded', initCartInfoUi);
+                document.addEventListener('livewire:navigated', initCartInfoUi);
+                document.addEventListener('livewire:initialized', initCartInfoUi);
+            </script>
+        @endpush
+
 </div>

@@ -16,49 +16,9 @@ class Index extends Component
 
     public $search = ''; // جستجو در نام دانش‌آموز
 
-    public function changeStatus($startId, $value)
-    {
-        $validator = Validator::make(['star' => $value, 'id' => $startId],
-            [
-                'id' => 'required|exists:students,id',
-                'star' => 'required|in:A,B,C,D'
-            ],
-            [
-                '*.required' => 'فیلد اجیاری است.',
-                'star.in' => 'فرمت اشتباه است',
-                'id.exists' => 'وضعیت سطح  نامعتبر'
-            ]
-        );
-        $validator->validate();
-        $this->resetValidation();
-        $this->dispatch('success', 'با موفقیت ثبت شد');
-
-        Student::query()->updateOrCreate(
-            [
-                'id' => $startId
-            ],
-            [
-                'star' => $value
-            ]);
-    }
-    public function getStatusColor($status)
-    {
-        switch ($status) {
-            case 'A':
-                return 'success';
-            case 'B':
-                return 'white';
-            case 'C':
-                return 'warning';
-            case 'D':
-                return 'danger';
-
-        }
-    }
 
     public function mount()
     {
-        // دریافت پارامتر course_id از URL
         $this->seoConfig();
     }
     public function seoConfig()
@@ -66,19 +26,7 @@ class Index extends Component
         $this->seo()
             ->setTitle('دانش آموزان');
     }
-    public function exportExcel()
-    {
-        $admin = auth()->user();
-        $adminId = $admin->id;
-        $adminName = $admin->name ?: 'admin'; // اگر نام نبود، fallback
 
-        $fileName = Str::slug($adminName) . '_students_' . now()->format('Ymd_His') . '.xlsx';
-
-        return Excel::download(
-            new StudentsByAdminExport($adminId),
-            $fileName
-        );
-    }
 
     public function updatingSearch()
     {

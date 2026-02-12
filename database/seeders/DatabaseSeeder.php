@@ -29,7 +29,6 @@ class DatabaseSeeder extends Seeder
             PaymentMethodsTableSeeder::class,
             RolePermissionSeeder::class,
             DepartmentsTableSeeder::class,
-
             BlogsTableSeeder::class,
             BlogImagesTableSeeder::class,
             BlogSeoItemsTableSeeder::class,
@@ -46,7 +45,6 @@ class DatabaseSeeder extends Seeder
             ExamPeriodSeeder::class,
             AcademicAdvisorPermissionSeeder::class,
             GeneralSettingsTableSeeder::class,
-
             EducationLevelsTableSeeder::class,
             CcFieldsTableSeeder::class,
             CcGradesTableSeeder::class,

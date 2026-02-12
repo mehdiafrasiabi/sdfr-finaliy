@@ -65,7 +65,7 @@
                         <div class="relative rounded-2xl overflow-hidden shadow-xl max-w-md">
 
                             <img
-                                src="/client/assets/images/features/about-us.png"
+                                src="/client/assets/images/favicon.svg"
                                 class="w-full h-[320px] md:h-[380px] object-cover rounded-2xl"
                             />
 
@@ -186,7 +186,7 @@
 
                     <div class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm hover:shadow-md transition">
 
-                        <div class="text-4xl font-bold text-primary mb-2">۴+</div>
+                        <div class="text-4xl font-bold text-primary mb-2">10+</div>
 
                         <div class="text-gray-600 dark:text-gray-400">سال تجربه</div>
 
@@ -210,7 +210,7 @@
 
                     <div class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm hover:shadow-md transition">
 
-                        <div class="text-4xl font-bold text-primary mb-2">۹۸%</div>
+                        <div class="text-4xl font-bold text-primary mb-2">93%</div>
 
                         <div class="text-gray-600 dark:text-gray-400">رضایت دانش‌آموزان</div>
 
@@ -237,19 +237,60 @@
                 </div>
 
 
-                <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-6">
+
 
                     <div
                         class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
 
-                        <img src="/client/assets/images/avatars/01.jpeg" alt="عضو تیم"
+                        <img src="/client/assets/images/about/a.jpg" alt="عضو تیم"
                              class="w-full h-45 object-cover">
 
                         <div class="p-4">
 
-                            <h3 class="font-bold text-lg dark:text-foreground text-foreground">مهندس بهشاد اتقیایی</h3>
+                            <h3 class="font-bold text-lg dark:text-foreground text-foreground text-blue-500">بهشاد اتقیایی</h3>
 
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">بنیانگذار و مشاور ارشد</p>
+                            <p class="text-white dark:text-white text-sm">بنیانگذار و مشاور ارشد</p>
+
+                        </div>
+
+                    </div>
+                    <div
+                        class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+
+                        <img src="/client/assets/images/about/c.jpg" alt="عضو تیم"
+                             class="w-full h-45 object-cover">
+
+                        <div class="p-4">
+
+                            <h3 class="font-bold text-lg dark:text-foreground text-foreground text-blue-500">مهدی آبان</h3>
+
+                            <p class="text-white dark:text-white text-sm">رهبر فنی تیم (Tech Lead) </p>
+
+                        </div>
+
+                    </div>
+                    <div
+                        class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+                        <img src="/client/assets/images/about/e.jpg" alt="عضو تیم"
+                             class="w-full h-45 object-cover">
+                        <div class="p-4">
+                            <h3 class="font-bold text-lg dark:text-foreground text-foreground text-blue-500">میلاد رادمهر</h3>
+                            <p class="text-white dark:text-white text-sm">برنامه‌نویس ارشد (Senior Developer)</p>
+                        </div>
+                    </div>
+
+                    <div
+                        class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
+
+                        <img src="/client/assets/images/about/b.jpg" alt="عضو تیم"
+                             class="w-full h-45 object-cover">
+
+                        <div class="p-4">
+
+                            <h3 class="font-bold text-lg dark:text-foreground text-foreground text-blue-500">تارا ترابی</h3>
+
+                            <p class="text-white dark:text-white text-sm">مشاور تحصیلی</p>
 
                         </div>
 
@@ -258,50 +299,19 @@
                     <div
                         class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
 
-                        <img src="/client/assets/images/avatars/01.jpeg" alt="عضو تیم"
+                        <img src="/client/assets/images/about/d.png" alt="عضو تیم"
                              class="w-full h-45 object-cover">
 
                         <div class="p-4">
 
-                            <h3 class="font-bold text-lg dark:text-foreground text-foreground">مهدی آبان</h3>
+                            <h3 class="font-bold text-lg dark:text-foreground text-foreground text-blue-500">ناهید ترابی</h3>
 
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">هم بنیانگذار و برنامه نویس مجموعه</p>
+                            <p class="text-white dark:text-white text-sm">مشاور تحصیلی</p>
 
                         </div>
 
                     </div>
 
-                    <div
-                        class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
-
-                        <img src="/client/assets/images/avatars/01.jpeg" alt="عضو تیم"
-                             class="w-full h-45 object-cover">
-
-                        <div class="p-4">
-
-                            <h3 class="font-bold text-lg dark:text-foreground text-foreground">تارا ترابی</h3>
-
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">پشتیبان و مشاور تحصیلی</p>
-
-                        </div>
-
-                    </div>
-
-                    <div
-                        class="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition">
-
-                        <img src="/client/assets/images/avatars/01.jpeg" alt="عضو تیم"
-                             class="w-full h-45 object-cover">
-
-                        <div class="p-4">
-
-                            <h3 class="font-bold text-lg dark:text-foreground text-foreground">نادیا میلان</h3>
-
-                            <p class="text-gray-600 dark:text-gray-400 text-sm">پشتیبان</p>
-
-                        </div>
-
-                    </div>
 
                 </div>
 
@@ -367,7 +377,7 @@
 
                             <p class="font-semibold text-xs text-muted">
 
-                                SDFR یک سیستم مشاوره و پشتیبانی تحصیلی آنلاین با تم فضاییه که مسیر یادگیری دانش‌آموز رو
+                                SDFR یک سیستم مشاوره و پشتیبانی تحصیلی آنلاین که مسیر یادگیری دانش‌آموز رو
 
                                 مثل یک سفر فضایی برنامه‌ریزی، هدایت و پشتیبانی می‌کنه.
 

@@ -97,4 +97,13 @@ class Student extends Model
     {
         return $this->hasMany(SessionFeedback::class);
     }
+    public function classSchedule()
+    {
+        return $this->hasOne(ClassSchedule::class)->latest();
+    }
+
+    public function classSchedules()
+    {
+        return $this->hasMany(ClassSchedule::class);
+    }
 }

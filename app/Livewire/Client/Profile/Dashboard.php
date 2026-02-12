@@ -10,6 +10,8 @@ use App\Models\NotificationRecipient;
 use App\Models\WeeklyProgram;
 use App\Models\DailyReport;
 use App\Models\StudyPartSession;
+use App\Models\ClassSchedule;
+
 use Carbon\Carbon;
 
 class Dashboard extends Component
@@ -203,7 +205,15 @@ class Dashboard extends Component
         $studyHoursProgress = $this->getStudyHoursProgress();
 
         $reportProgress = $this->getReportProgress();
-
+// برنامه کلاسی
+        $classSchedule = null;
+        if ($this->student) {
+            $classSchedule = ClassSchedule::where('student_id', $this->student->id)
+                ->where('is_finalized', true)
+                ->with('parts')
+                ->latest()
+                ->first();
+        }
         return view('livewire.client.profile.dashboard', [
             'supporterStudent' => $supporterStudent,
             'advisorStudent' => $advisorStudent,
@@ -211,6 +221,7 @@ class Dashboard extends Component
             'todayProgram' => $todayProgram,
             'studyHoursProgress' => $studyHoursProgress,
             'reportProgress' => $reportProgress,
+            'classSchedule' => $classSchedule,
         ])->layout('layouts.client.app');
 
     }

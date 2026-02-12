@@ -27,12 +27,12 @@ class StoriesTableSeeder extends Seeder
                 'type' => 'video',
                 'thumbnail' => 'WGAq2kLaKHUBBcfmdMKZFBUfvej5qHlxqaoiDHew.webp',
                 'story' => 'https://sdfr.me/stories/story/VvvHeHMuWQRz5btdnGqqNqLjSawrsOTsFf3d8WnM.mp4',
-                'status' => 1,
+                'status' => 0,
                 'expires_at' => '2026-02-28 00:00:00',
                 'widget_title' => NULL,
                 'widget_link' => NULL,
                 'created_at' => '2026-02-04 13:55:27',
-                'updated_at' => '2026-02-04 13:56:12',
+                'updated_at' => '2026-02-11 22:16:53',
             ),
             1 => 
             array (
@@ -42,12 +42,12 @@ class StoriesTableSeeder extends Seeder
                 'type' => 'video',
                 'thumbnail' => '2In8aKgVjGdqIUNzs4u4C1XbavISTNKryG4lUszw.webp',
                 'story' => 'https://sdfr.me/stories/story/KpQ5hgt4znrFdHrlG7G4QbOZue2kgOqn7Oyz6tWm.mp4',
-                'status' => 1,
+                'status' => 0,
                 'expires_at' => '2026-02-28 00:00:00',
                 'widget_title' => NULL,
                 'widget_link' => NULL,
                 'created_at' => '2026-02-04 13:57:52',
-                'updated_at' => '2026-02-04 14:17:59',
+                'updated_at' => '2026-02-11 22:16:41',
             ),
             2 => 
             array (
@@ -57,12 +57,12 @@ class StoriesTableSeeder extends Seeder
                 'type' => 'video',
                 'thumbnail' => 'tmDgS5hoT9mjk3rVNO4dIYBrLXkpI7P4CVd3pY9H.webp',
                 'story' => 'https://sdfr.me/stories/story/sSD2gPeZOanQQPW8K8pIhQpQmal258ki3St1dXlb.mp4',
-                'status' => 1,
+                'status' => 0,
                 'expires_at' => '2026-02-28 00:00:00',
                 'widget_title' => NULL,
                 'widget_link' => NULL,
                 'created_at' => '2026-02-04 13:59:47',
-                'updated_at' => '2026-02-04 14:17:56',
+                'updated_at' => '2026-02-11 22:16:37',
             ),
             3 => 
             array (
@@ -72,12 +72,12 @@ class StoriesTableSeeder extends Seeder
                 'type' => 'video',
                 'thumbnail' => '2LqgyO0MP2x1E7MqinDNVPsEM83lZ35qWdojbLXw.webp',
                 'story' => 'http://127.0.0.1:8000/stories/story/AQPC9JzDjY8Htqu5Sbr6vuPv7MmiFvz4WPJo9Q55nEA-cifW0k9emZfyDBGkZI2E9qN4JUCtmBXrY30VaQWrhDzChoyUH6vzQWjs6NU.mp4',
-                'status' => 1,
+                'status' => 0,
                 'expires_at' => '2026-02-28 00:00:00',
                 'widget_title' => NULL,
                 'widget_link' => NULL,
                 'created_at' => '2026-02-04 14:06:00',
-                'updated_at' => '2026-02-04 14:17:53',
+                'updated_at' => '2026-02-11 22:16:33',
             ),
             4 => 
             array (
@@ -87,12 +87,12 @@ class StoriesTableSeeder extends Seeder
                 'type' => 'image',
                 'thumbnail' => '4LpfUtdxek9xF7taQ30ZRJ7OgEyVA0JVJRATsO7g.webp',
                 'story' => '1JHRAAx7OkZGOnBkgmIjpJC1RBYvPBRh7ePDw5qn.webp',
-                'status' => 1,
+                'status' => 0,
                 'expires_at' => '2026-02-28 00:00:00',
                 'widget_title' => NULL,
                 'widget_link' => NULL,
                 'created_at' => '2026-02-04 14:11:23',
-                'updated_at' => '2026-02-04 14:17:48',
+                'updated_at' => '2026-02-11 22:16:25',
             ),
             5 => 
             array (
@@ -102,12 +102,12 @@ class StoriesTableSeeder extends Seeder
                 'type' => 'video',
                 'thumbnail' => 'iKby5aMnwiNQxQ23FmpgZPN1q5GGr1KaQex8CpjM.webp',
                 'story' => 'http://127.0.0.1:8000/stories/story/AQMDUjIjK7LXMUDsOpYf9I6EVXcrSdWQiKVLYa0inamMVfbo-Lef03NvyRiEPmXI5zdE2o1ZHeqqa219-nL4eFiik1HKHG89Wt2mlag.mp4',
-                'status' => 1,
+                'status' => 0,
                 'expires_at' => '2026-02-28 00:00:00',
                 'widget_title' => NULL,
                 'widget_link' => NULL,
                 'created_at' => '2026-02-04 14:12:45',
-                'updated_at' => '2026-02-04 14:17:41',
+                'updated_at' => '2026-02-11 22:16:21',
             ),
             6 => 
             array (
@@ -117,12 +117,12 @@ class StoriesTableSeeder extends Seeder
                 'type' => 'video',
                 'thumbnail' => 'S0CcHEXwT27py9i6HTM3WINnrXvk1i8c3y2zjd3m.webp',
                 'story' => 'http://127.0.0.1:8000/stories/story/AQP928-olh_Ds3N7mHN1ISQnngP9UQVvQEHAbuX1BxJRSsUekieQ0JWEShAIXOPFw-sxXcSJPt1DBH2NJwV-DFO9aZlB9mBrz4OfxUE.mp4',
-                'status' => 1,
+                'status' => 0,
                 'expires_at' => '2026-02-28 00:00:00',
                 'widget_title' => NULL,
                 'widget_link' => NULL,
                 'created_at' => '2026-02-04 14:14:06',
-                'updated_at' => '2026-02-04 14:17:37',
+                'updated_at' => '2026-02-11 22:16:13',
             ),
             7 => 
             array (
@@ -147,12 +147,12 @@ class StoriesTableSeeder extends Seeder
                 'type' => 'video',
                 'thumbnail' => 'YjpPaaOH2S37FqaGDfkpkxA2PzbYCxakhKxtDZ15.webp',
                 'story' => 'http://127.0.0.1:8000/stories/story/StorySaver.net-atghiaeee-Video-1770202495550.mp4',
-                'status' => 1,
+                'status' => 0,
                 'expires_at' => '2026-02-28 00:00:00',
                 'widget_title' => NULL,
                 'widget_link' => NULL,
                 'created_at' => '2026-02-04 14:27:00',
-                'updated_at' => '2026-02-04 14:28:17',
+                'updated_at' => '2026-02-11 22:16:10',
             ),
             9 => 
             array (
@@ -162,12 +162,12 @@ class StoriesTableSeeder extends Seeder
                 'type' => 'video',
                 'thumbnail' => 's133x6egRxfxDIRPWN1TwDK1bpVNYNBIIttrrd2Z.webp',
                 'story' => 'http://127.0.0.1:8000/stories/story/StorySaver.net-atghiaeee-Video-1770202518738.mp4',
-                'status' => 1,
+                'status' => 0,
                 'expires_at' => '2026-02-28 00:00:00',
                 'widget_title' => NULL,
                 'widget_link' => NULL,
                 'created_at' => '2026-02-04 14:28:09',
-                'updated_at' => '2026-02-04 14:28:22',
+                'updated_at' => '2026-02-11 22:16:06',
             ),
             10 => 
             array (

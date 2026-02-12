@@ -324,12 +324,20 @@
                         </a>
                     </div>
 
-                    <div class="col-12 col-md-4">
+                    <div class="col-6 col-md-2">
                         <a href="#"
                            class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
                             <i class="material-symbols-outlined d-block mb-2 text-secondary">category</i>
                             <span class="small d-block fw-semibold">طبقه‌بندی</span>
                             <span class="small text-muted-2">دسته‌بندی موارد</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <a href="#" wire:click.prevent="openClassScheduleModal"
+                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
+                            <i class="material-symbols-outlined d-block mb-2 text-danger">menu_book</i>
+                            <span class="small d-block fw-semibold">برنامه کلاسی</span>
+                            <span class="small text-muted-2">مشاهده برنامه</span>
                         </a>
                     </div>
                 </div>
@@ -1096,7 +1104,289 @@
             </div>
         </div>
     @endif
+    {{-- Modal مشاهده برنامه کلاسی دانش‌آموز --}}
+    @if($showClassScheduleModal && $classScheduleData['schedule'])
+        <div class="modal fade show d-block" tabindex="-1"
+             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header text-white"
+                         style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 40%, #c084fc 100%);">
+                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                            <i class="material-symbols-outlined">menu_book</i>
+                            برنامه کلاسی دانش‌آموز
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeClassScheduleModal"></button>
+                    </div>
 
+                    <div class="modal-body">
+                        {{-- جدول برنامه کلاسی --}}
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered table-hover align-middle mb-0">
+                                <thead>
+                                <tr>
+                                    <th class="text-center" style="background: linear-gradient(90deg, #7c3aed, #a855f7); color: #fff; width: 110px;">روز</th>
+                                    @for($p = 1; $p <= 5; $p++)
+                                        <th class="text-center" style="background: linear-gradient(90deg, #7c3aed, #a855f7); color: #fff;">پارت {{ $p }}</th>
+                                    @endfor
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @for($d = 0; $d < 7; $d++)
+                                    <tr>
+                                        <td class="text-center">
+                                            <span class="badge {{ in_array($d, [5, 6]) ? 'bg-secondary' : 'bg-primary' }} rounded-pill px-3 py-2 fw-bold">
+                                                {{ \App\Models\ClassSchedule::getDayName($d) }}
+                                            </span>
+                                        </td>
+                                        @for($p = 1; $p <= 5; $p++)
+                                            @php
+                                                $part = $classScheduleData['days'][$d]['parts']->where('part_order', $p)->first();
+                                            @endphp
+                                            <td class="text-center">
+                                                @if($part)
+                                                    <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2">
+                                                        {{ $part->lesson_name }}
+                                                    </span>
+                                                @else
+                                                    <span class="text-muted-2">-</span>
+                                                @endif
+                                            </td>
+                                        @endfor
+                                    </tr>
+                                @endfor
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <hr>
+
+                        {{-- بخش روزخوانی و پیش‌خوانی --}}
+                        <div class="row g-4">
+                            {{-- روزخوانی - پارت‌های امروز --}}
+                            <div class="col-md-6">
+                                <div class="card border-primary">
+                                    <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
+                                        <i class="material-symbols-outlined">today</i>
+                                        <span class="fw-bold">ثبت روزخوانی - {{ $classScheduleData['todayName'] ?? '' }}</span>
+                                    </div>
+                                    <div class="card-body">
+                                        @if(isset($classScheduleData['todayParts']) && $classScheduleData['todayParts']->count() > 0)
+                                            <div class="d-flex flex-wrap gap-2">
+                                                @foreach($classScheduleData['todayParts'] as $todayPart)
+                                                    <button wire:click="openDailyReadingModal('daily', {{ $todayPart->cc_subject_id }})"
+                                                            class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+                                                        <i class="material-symbols-outlined" style="font-size: 16px;">add_circle</i>
+                                                        ثبت روزخوانی {{ $todayPart->lesson_name }}
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <p class="text-muted-2 small mb-0">پارتی برای امروز ثبت نشده است.</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- پیش‌خوانی - پارت‌های فردا --}}
+                            <div class="col-md-6">
+                                <div class="card border-info">
+                                    <div class="card-header bg-info text-white d-flex align-items-center gap-2">
+                                        <i class="material-symbols-outlined">upcoming</i>
+                                        <span class="fw-bold">ثبت پیش‌خوانی - {{ $classScheduleData['tomorrowName'] ?? '' }}</span>
+                                    </div>
+                                    <div class="card-body">
+                                        @if(isset($classScheduleData['tomorrowParts']) && $classScheduleData['tomorrowParts']->count() > 0)
+                                            <div class="d-flex flex-wrap gap-2">
+                                                @foreach($classScheduleData['tomorrowParts'] as $tomorrowPart)
+                                                    <button wire:click="openDailyReadingModal('pre', {{ $tomorrowPart->cc_subject_id }})"
+                                                            class="btn btn-outline-info btn-sm d-flex align-items-center gap-1">
+                                                        <i class="material-symbols-outlined" style="font-size: 16px;">add_circle</i>
+                                                        ثبت پیش‌خوانی {{ $tomorrowPart->lesson_name }}
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <p class="text-muted-2 small mb-0">پارتی برای فردا ثبت نشده است.</p>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- نمایش پارت‌های روزخوانی/پیش‌خوانی ثبت شده امروز --}}
+                        @if($weeklyProgram ?? null)
+                            @php
+                                $startDate = \Carbon\Carbon::parse($start_date);
+                                $today = \Carbon\Carbon::today();
+                                $todayIdx = null;
+                                for ($i = 0; $i < 8; $i++) {
+                                    if ($startDate->copy()->addDays($i)->isSameDay($today)) {
+                                        $todayIdx = $i;
+                                        break;
+                                    }
+                                }
+                                $readingParts = $todayIdx !== null
+                                    ? \App\Models\ProgramPart::where('weekly_program_id', $weeklyProgram->id)
+                                        ->where('day_of_week', $todayIdx)
+                                        ->where(function($q) {
+                                            $q->where('description', 'like', '%روزخوانی%')
+                                              ->orWhere('description', 'like', '%پیش‌خوانی%');
+                                        })
+                                        ->orderBy('part_order')
+                                        ->get()
+                                    : collect();
+                            @endphp
+
+                            @if($readingParts->count() > 0)
+                                <hr>
+                                <h6 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined text-success">check_circle</i>
+                                    پارت‌های روزخوانی/پیش‌خوانی ثبت شده امروز
+                                </h6>
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <thead>
+                                        <tr class="text-muted-2">
+                                            <th>درس</th>
+                                            <th>نوع</th>
+                                            <th>مدت (دقیقه)</th>
+                                            <th>توضیحات</th>
+                                            <th class="text-center">عملیات</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($readingParts as $rPart)
+                                            <tr>
+                                                <td class="fw-semibold">{{ $rPart->lesson_name }}</td>
+                                                <td>
+                                                    @if(str_contains($rPart->description, 'روزخوانی'))
+                                                        <span class="badge bg-primary-subtle text-primary">روزخوانی</span>
+                                                    @else
+                                                        <span class="badge bg-info-subtle text-info">پیش‌خوانی</span>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $rPart->duration_minutes }}</td>
+                                                <td class="small">{{ $rPart->description }}</td>
+                                                <td class="text-center">
+                                                    <div class="d-flex justify-content-center gap-1">
+                                                        <button wire:click="editDailyReadingPart({{ $rPart->id }})"
+                                                                class="btn btn-sm btn-outline-warning" title="ویرایش">
+                                                            <i class="material-symbols-outlined" style="font-size: 16px;">edit</i>
+                                                        </button>
+                                                        <button wire:click="deleteDailyReadingPart({{ $rPart->id }})"
+                                                                wire:confirm="آیا از حذف این پارت اطمینان دارید؟"
+                                                                class="btn btn-sm btn-outline-danger" title="حذف">
+                                                            <i class="material-symbols-outlined" style="font-size: 16px;">delete</i>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @endif
+                        @endif
+                    </div>
+
+                    <div class="modal-footer bg-body-tertiary">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="closeClassScheduleModal">
+                            بستن
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal برنامه کلاسی وجود ندارد --}}
+    @if($showNoScheduleModal)
+        <div class="modal fade show d-block" tabindex="-1"
+             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header bg-warning text-white">
+                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                            <i class="material-symbols-outlined">warning</i>
+                            برنامه کلاسی
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeNoScheduleModal"></button>
+                    </div>
+
+                    <div class="modal-body text-center py-4">
+                        <div class="mb-3">
+                            <i class="material-symbols-outlined text-warning" style="font-size: 64px;">event_busy</i>
+                        </div>
+                        <h5 class="mb-3">برنامه کلاسی وجود ندارد</h5>
+                        <p class="text-muted-2 mb-0">
+                            دانش‌آموز هنوز برنامه کلاسی خود را آپلود نکرده است.
+                        </p>
+                    </div>
+
+                    <div class="modal-footer justify-content-center gap-2 bg-body-tertiary">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="closeNoScheduleModal">
+                            بستن
+                        </button>
+                        <button type="button" class="btn btn-warning text-white" wire:click="sendScheduleReminder">
+                            <i class="material-symbols-outlined" style="font-size: 18px;">notifications_active</i>
+                            اطلاع‌رسانی جهت ارسال برنامه کلاسی
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal ثبت روزخوانی / پیش‌خوانی --}}
+    @if($showDailyReadingModal)
+        <div class="modal fade show d-block" tabindex="-1"
+             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px); z-index: 1060;">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header text-white"
+                         style="background: {{ $dailyReadingType === 'daily' ? 'linear-gradient(135deg, #1d4ed8, #2563eb)' : 'linear-gradient(135deg, #0891b2, #06b6d4)' }};">
+                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                            <i class="material-symbols-outlined">{{ $dailyReadingType === 'daily' ? 'today' : 'upcoming' }}</i>
+                            {{ $editingDailyReadingPartId ? 'ویرایش' : 'ثبت' }}
+                            {{ $dailyReadingType === 'daily' ? 'روزخوانی' : 'پیش‌خوانی' }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeDailyReadingModal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">درس</label>
+                            <input type="text" class="form-control" value="{{ \App\Models\CcSubject::find($dailyReadingSubjectId)?->name ?? '' }}" disabled>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">توضیحات</label>
+                            <textarea wire:model="dailyReadingDescription" class="form-control" rows="2"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">مدت زمان (دقیقه)</label>
+                            <input type="number" wire:model="dailyReadingDuration" class="form-control" min="1">
+                            <small class="text-muted-2">
+                                پیش‌فرض: {{ $dailyReadingType === 'daily' ? '۲۰ دقیقه (روزخوانی)' : '۱۵ دقیقه (پیش‌خوانی)' }}
+                            </small>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-body-tertiary">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="closeDailyReadingModal">
+                            انصراف
+                        </button>
+                        <button type="button" class="btn {{ $dailyReadingType === 'daily' ? 'btn-primary' : 'btn-info text-white' }}" wire:click="saveDailyReading">
+                            <span wire:loading.remove wire:target="saveDailyReading">ذخیره</span>
+                            <span wire:loading wire:target="saveDailyReading">در حال ذخیره...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
     @push('script')
         <script>
             document.addEventListener('livewire:init', () => {

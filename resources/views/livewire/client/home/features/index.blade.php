@@ -10,12 +10,18 @@
                  <span class="flex items-center justify-center w-20 h-20 bg-background rounded-full">
                     <img src="/client/assets/images/avatars/s.webp" alt="منحصر به فرد" class="w-8 h-8">
                 </span>
+                 <span class="text-[10px] text-white/50 font-medium">
+                    Specific
+                </span>
                 <span class="font-bold text-sm line-clamp-1">منحصر به فرد</span>
             </div>
 
              <div class="flex flex-col items-center justify-center text-center text-white space-y-3 cursor-default shrink-0">
                  <span class="flex items-center justify-center w-20 h-20 bg-background rounded-full">
                     <img src="/client/assets/images/avatars/d.webp" alt="مبحثی" class="w-8 h-8">
+                </span>
+                 <span class="text-[10px] text-white/50 font-medium">
+                    Discussion
                 </span>
                 <span class="font-bold text-sm line-clamp-1">مبحثی</span>
             </div>
@@ -24,13 +30,21 @@
                  <span class="flex items-center justify-center w-20 h-20 bg-background rounded-full">
                     <img src="/client/assets/images/avatars/f.webp" alt="انعطاف پذیر" class="w-8 h-8">
                 </span>
-                <span class="font-bold text-sm line-clamp-1">انعطاف پذیر</span>
-            </div>
+                 <span class="text-[10px] text-white/50 font-medium">
+                        Flexible
+                 </span>
+                 <span class="font-bold text-sm line-clamp-1">
+                        انعطاف پذیر
+                 </span>
+             </div>
 
              <div class="flex flex-col items-center justify-center text-center text-white space-y-3 cursor-default shrink-0">
                  <span class="flex items-center justify-center w-20 h-20 bg-background rounded-full">
                     <img src="/client/assets/images/avatars/r.webp" alt="گزارش محور" class="w-8 h-8">
                 </span>
+                 <span class="text-[10px] text-white/50 font-medium">
+                        Reportage
+                 </span>
                 <span class="font-bold text-sm line-clamp-1">گزارش محور</span>
             </div>
 

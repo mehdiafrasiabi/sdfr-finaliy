@@ -59,7 +59,7 @@
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-1">
                                         <div class="flex-shrink-0 w-8 h-8 border border-white rounded-full overflow-hidden">
-                                            <img src="/client/assets/images/blog/01.jpeg"
+                                            <img src="/client/sdfr/logo.png"
                                                  class="w-full h-full object-cover" alt="...">
                                         </div>
                                         <a href="#"
