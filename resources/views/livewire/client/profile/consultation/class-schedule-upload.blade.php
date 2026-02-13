@@ -17,6 +17,15 @@
                                 <div class="w-2 h-2 bg-foreground rounded-full"></div>
                             </div>
                             <div class="font-black text-foreground">افزودن برنامه کلاسی</div>
+
+                            <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
+                               class="inline-flex items-center justify-center gap-x-1.5 h-10 bg-primary rounded-full text-primary-foreground transition-colors hover:bg-foreground hover:text-background px-6 ms-auto">
+                                <span class="font-semibold text-xs"> بازگشت به اتاق مشاوره</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                                </svg>
+                            </a>
+
                         </div>
 
                         <!-- اطلاعات پایه و رشته -->
@@ -82,7 +91,14 @@
                                     <div class="flex items-center justify-between px-4 py-3 {{ $day['is_mandatory'] ? 'bg-primary/5' : 'bg-secondary' }} border-b border-border">
                                         <div class="flex items-center gap-3">
                                         <span class="inline-flex items-center justify-center w-10 h-10 rounded-full {{ $day['is_complete'] ? 'bg-green-100 dark:bg-green-900/30 text-green-600' : ($day['is_mandatory'] ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted') }} font-bold text-sm">
-                                            {{ $day['name'][0] }}{{ mb_substr($day['name'], 1, 1) }}
+
+                                               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                          d="M8 3v2m8-2v2M4 8h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>
+                                                    <text x="12" y="17" text-anchor="middle" font-size="9.5" font-weight="800"
+                                                          fill="currentColor" stroke="none"
+                                                          font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial">{{ $day['day_of_week'] + 1 }}</text>
+                                                </svg>
                                         </span>
                                             <div>
                                                 <span class="font-bold text-foreground">{{ $day['name'] }}</span>
@@ -105,8 +121,11 @@
 
                                     <!-- پارت‌ها -->
                                     <div class="p-4">
-                                        <div class="grid grid-cols-5 gap-3">
+                                        <div class="-mx-4 px-4 overflow-x-auto md:overflow-x-visible">
+                                            <div class="flex gap-3 md:grid md:grid-cols-5 md:gap-3 min-w-max md:min-w-0">
+
                                             @foreach($day['parts'] as $partInfo)
+                                                    <div class="w-44 md:w-auto flex-shrink-0 md:flex-shrink">
                                                 @if($partInfo['is_filled'])
                                                     <!-- پارت پر شده -->
                                                     <div class="relative group">
@@ -149,7 +168,9 @@
                                                         <div class="text-xs text-muted mt-1">قفل</div>
                                                     </div>
                                                 @endif
+                                                    </div>
                                             @endforeach
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -159,12 +180,8 @@
                         <!-- دکمه ثبت نهایی -->
                         @if(!$isFinalized)
                             <div dir="rtl" class="flex items-center justify-between gap-4">
-                                <a href="{{ route('client.profile.consultation.sessions') }}"
-                                   class="inline-flex items-center gap-2 px-6 py-3 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                                    </svg>
-                                    بازگشت
+                                <a href="{{ route('client.profile.consultation.sessions') }}">
+
                                 </a>
 
                                 <button wire:click="finalizeSchedule"
@@ -178,16 +195,6 @@
                                     </svg>
                                     ثبت نهایی برنامه کلاسی
                                 </button>
-                            </div>
-                        @else
-                            <div dir="rtl" class="flex justify-start">
-                                <a href="{{ route('client.profile.consultation.sessions') }}"
-                                   class="inline-flex items-center gap-2 px-6 py-3 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-                                    </svg>
-                                    بازگشت به اتاق مشاوره
-                                </a>
                             </div>
                         @endif
 

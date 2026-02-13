@@ -76,6 +76,18 @@ class WeeklyProgram extends Model
 
     }
 
+    public function examDays(): HasMany
+    {
+        return $this->hasMany(WeeklyProgramExamDay::class);
+    }
+
+    /**
+     * Check if a specific day is a comprehensive exam day
+     */
+    public function isExamDay(int $dayIndex): bool
+    {
+        return $this->examDays()->where('day_index', $dayIndex)->exists();
+    }
 
     /**
      * Check if a specific day is a rest day

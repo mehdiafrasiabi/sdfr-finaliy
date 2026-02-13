@@ -224,6 +224,40 @@
                 .text-muted-2 {
                     color: var(--ui-muted) !important;
                 }
+                /* اسکرول افقی درست و تمیز */
+                .weekly-scroll{
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    -webkit-overflow-scrolling: touch;
+                    white-space: nowrap;
+                }
+
+                /* جدول از حداقل عرض کمتر نشه تا باکس‌ها کامل دیده بشن */
+                .weekly-table{
+                    min-width: 1800px; /* بسته به تعداد ستون‌ها تنظیم کن */
+                    table-layout: fixed; /* مهم: سلول‌ها هم اندازه و ثابت */
+                }
+
+                /* سلول‌ها باکس رو خرد نکنن */
+                .weekly-table td,
+                .weekly-table th{
+                    white-space: nowrap;
+                    vertical-align: top;
+                }
+
+                /* هر ستون پلن یک عرض مشخص داشته باشه */
+                .weekly-table th:nth-child(n+6):nth-child(-n+15),
+                .weekly-table td:nth-child(n+6):nth-child(-n+15){
+                    width: 190px; /* عرض هر پلن */
+                    min-width: 190px;
+                }
+
+                /* باکس داخل سلول کامل جا بگیره */
+                .plan-box{
+                    width: 100%;
+                    min-width: 180px; /* نذار تنگ‌تر از این بشه */
+                }
+
             </style>
         @endpush
 
@@ -374,12 +408,14 @@
                                     </h6>
 
                                     @if($preSession->exams->count() > 0)
-                                        <div class="table-responsive">
+                                        <div class="weekly-scroll">
                                             <table class="table table-sm align-middle mb-0">
                                                 <thead>
                                                 <tr class="text-muted-2">
                                                     <th>درس</th>
                                                     <th>تعداد پارت</th>
+                                                    <th>زمان هر پارت</th>
+
                                                     <th>تاریخ آزمون</th>
                                                 </tr>
                                                 </thead>
@@ -388,11 +424,19 @@
                                                     <tr>
                                                         <td class="fw-semibold">{{ $exam->subject }}</td>
                                                         <td>{{ $exam->part_count }} پارت</td>
+                                                        <td>{{ $exam->time_per_part }} دقیقه</td>
                                                         <td>{{ jalali($exam->exam_date)->format('%d %B %Y') }}</td>
                                                     </tr>
                                                 @endforeach
                                                 </tbody>
                                             </table>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button wire:click="previewExamDistribution"
+                                                    class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size: 16px;">auto_fix_high</i>
+                                                نشستن خودکار در برنامه
+                                            </button>
                                         </div>
                                     @else
                                         <p class="text-muted-2 small mb-0">هیچ امتحانی ثبت نشده است</p>
@@ -412,7 +456,7 @@
                                     </h6>
 
                                     @if($preSession->qas->count() > 0)
-                                        <div class="table-responsive">
+                                        <div class="weekly-scroll">
                                             <table class="table table-sm align-middle mb-0">
                                                 <thead>
                                                 <tr class="text-muted-2">
@@ -434,6 +478,13 @@
                                                 </tbody>
                                             </table>
                                         </div>
+                                        <div class="mt-3">
+                                            <button wire:click="previewQaDistribution"
+                                                    class="btn btn-sm btn-outline-info d-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size: 16px;">auto_fix_high</i>
+                                                نشستن خودکار در برنامه
+                                            </button>
+                                        </div>
                                     @else
                                         <p class="text-muted-2 small mb-0">هیچ پرسش و پاسخ کلاسی ثبت نشده است</p>
                                     @endif
@@ -452,12 +503,13 @@
                                     </h6>
 
                                     @if($preSession->assignments->count() > 0)
-                                        <div class="table-responsive">
+                                        <div class="weekly-scroll">
                                             <table class="table table-sm align-middle mb-0">
                                                 <thead>
                                                 <tr class="text-muted-2">
                                                     <th>درس</th>
                                                     <th>تعداد پارت</th>
+                                                    <th>زمان هر پارت</th>
                                                     <th>مهلت انجام</th>
                                                 </tr>
                                                 </thead>
@@ -466,11 +518,19 @@
                                                     <tr>
                                                         <td class="fw-semibold">{{ $assignment->subject }}</td>
                                                         <td>{{ $assignment->part_count }} پارت</td>
+                                                        <td>{{ $assignment->time_per_part }} دقیقه</td>
                                                         <td>{{ jalali($assignment->due_date)->format('%d %B %Y') }}</td>
                                                     </tr>
                                                 @endforeach
                                                 </tbody>
                                             </table>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button wire:click="previewHomeworkDistribution"
+                                                    class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size: 16px;">auto_fix_high</i>
+                                                نشستن خودکار در برنامه
+                                            </button>
                                         </div>
                                     @else
                                         <p class="text-muted-2 small mb-0">هیچ تکلیفی ثبت نشده است</p>
@@ -515,13 +575,15 @@
             </div>
 
             <div class="weekly-wrap">
-                <div class="table-responsive">
+                <div class="weekly-scroll">
                     <table class="table table-bordered table-hover align-middle weekly-table">
                         <thead>
                         <tr>
                             <th class="text-center" style="width: 90px;">روز</th>
                             <th class="text-center" style="width: 130px;">تاریخ</th>
                             <th class="text-center" style="width: 90px;">استراحت</th>
+                            <th class="text-center" style="width: 100px;">آزمون جامع</th>
+
                             <th class="text-center" style="width: 110px;">ساعت</th>
                             @for($i = 1; $i <= 10; $i++)
                                 <th class="text-center">پلن {{ $i }}</th>
@@ -532,12 +594,12 @@
 
                         <tbody>
                         @foreach($weekDays as $day)
-                            <tr class="{{ $day['is_rest_day'] ? 'table-success bg-success bg-opacity-10' : '' }}">
+                            <tr class="{{ $day['is_rest_day'] ? 'table-success bg-success bg-opacity-10' : ($day['is_exam_day'] ? 'table-danger bg-danger bg-opacity-10' : '') }}">
 
                                 {{-- روز --}}
                                 <td class="text-center">
                                     <span
-                                        class="badge {{ $day['is_rest_day'] ? 'bg-success' : 'bg-primary' }} rounded-pill px-3 py-2 fw-bold">
+                                        class="badge {{ $day['is_rest_day'] ? 'bg-success' : ($day['is_exam_day'] ? 'bg-danger' : 'bg-primary') }} rounded-pill px-3 py-2 fw-bold">
                                         {{ $day['name'] }}
                                     </span>
                                 </td>
@@ -560,7 +622,20 @@
                                         <small class="text-success d-block mt-1 fw-semibold">روز استراحت</small>
                                     @endif
                                 </td>
-
+                                {{-- آزمون جامع --}}
+                                <td class="text-center">
+                                    <div class="form-check form-switch d-flex justify-content-center">
+                                        <input type="checkbox"
+                                               class="form-check-input"
+                                               wire:click="toggleExamDay({{ $day['index'] }})"
+                                               {{ $day['is_exam_day'] ? 'checked' : '' }}
+                                               {{ $day['is_rest_day'] ? 'disabled' : '' }}
+                                               style="cursor: pointer;">
+                                    </div>
+                                    @if($day['is_exam_day'])
+                                        <small class="text-danger d-block mt-1 fw-semibold">آزمون جامع</small>
+                                    @endif
+                                </td>
                                 {{-- ساعت کل --}}
                                 <td class="text-center">
                                     @if($day['is_rest_day'])
@@ -585,17 +660,55 @@
                                                     </div>
                                                 @endif
                                             </div>
+                                        @elseif($day['is_exam_day'])
+                                            {{-- Comprehensive exam day mode --}}
+                                            @if(isset($day['parts'][$i]))
+                                                @php $part = $day['parts'][$i]; @endphp
+                                                <div class="plan-box clickable p-3 {{ $part->part_type === 'exam_analysis' ? 'bg-warning bg-opacity-10 border-warning' : 'bg-danger bg-opacity-10 border-danger' }}"
+                                                     wire:click="editExamPart({{ $part->id }})">
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="fw-bold small">{{ $part->lesson_name }}</span>
+                                                        <span class="badge {{ $part->part_type === 'exam_analysis' ? 'bg-warning' : 'bg-danger' }} text-white text-xs">
+                                                            {{ $part->part_type_label }}
+                                                        </span>
+                                                    </div>
+                                                    <p class="small mb-2 text-muted-2">{{ Str::limit($part->description, 55) }}</p>
+                                                    <div class="d-flex flex-wrap gap-2 small text-muted-2">
+                                                        <span class="d-flex align-items-center gap-1">
+                                                            <i class="material-symbols-outlined" style="font-size: 14px;">schedule</i>
+                                                            {{ $part->duration_minutes }} دقیقه
+                                                        </span>
+                                                    </div>
+                                                    <div class="mt-2">
+                                                        <button class="btn btn-sm btn-outline-danger"
+                                                                wire:click.stop="deleteExamPart({{ $part->id }})"
+                                                                wire:confirm="آیا از حذف این آزمون اطمینان دارید؟">
+                                                            <i class="material-symbols-outlined" style="font-size: 14px;">delete</i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            @elseif($i === count($day['parts']))
+                                                <div class="plan-box plan-empty d-flex align-items-center justify-content-center clickable"
+                                                     wire:click="openExamPartModal({{ $day['index'] }})">
+                                                    <div class="text-center">
+                                                        <i class="material-symbols-outlined text-danger">add</i>
+                                                        <div class="small text-danger mt-1">افزودن آزمون</div>
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <div class="plan-box plan-empty d-flex align-items-center justify-content-center"></div>
+                                            @endif
 
                                         @elseif(isset($day['parts'][$i]))
                                             @php $part = $day['parts'][$i]; @endphp
 
                                             {{-- رنگ‌بندی قبلی شما حفظ شده (color_class) --}}
-                                            <div class="plan-box clickable p-3 {{ $part->color_class }}"
+                                            <div class="plan-box clickable p-3 {{ $part->color_class ?? '' }}"
                                                  wire:click="editPart({{ $part->id }})">
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <span class="fw-bold small">{{ $part->lesson_name }}</span>
                                                     <span class="badge bg-body-tertiary text-body border text-xs">
-                                                        {{ $part->lesson_type_label }} {{ $part->grade_label }}
+                                                        {{ $part->part_type_label }} {{ $part->grade_label }}
                                                     </span>
                                                 </div>
 
@@ -619,14 +732,19 @@
                                                 </div>
                                             </div>
 
-                                        @else
+                                        @elseif($i === count($day['parts']))
+                                            {{-- Part C: Add New Part button at the end of existing parts --}}
                                             <div
                                                 class="plan-box plan-empty d-flex align-items-center justify-content-center clickable"
                                                 wire:click="openPartModal({{ $day['index'] }})">
                                                 <div class="text-center">
-                                                    <i class="material-symbols-outlined text-muted-2">add</i>
-                                                    <div class="small text-muted-2 mt-1">افزودن</div>
+                                                    <i class="material-symbols-outlined text-primary">add_circle</i>
+                                                    <div class="small text-primary mt-1">افزودن پارت</div>
                                                 </div>
+                                            </div>
+                                        @else
+                                            <div
+                                                class="plan-box plan-empty d-flex align-items-center justify-content-center">
                                             </div>
                                         @endif
                                     </td>
@@ -999,6 +1117,8 @@
                                     <option value="descriptive">تشریحی</option>
                                     <option value="test">تستی</option>
                                     <option value="video">ویدئو</option>
+                                    <option value="topic_exam">آزمون مبحثی</option>
+
                                 </select>
                             </div>
 
@@ -1017,7 +1137,7 @@
                                 @enderror
                             </div>
 
-                            @if($partForm['part_type'] === 'test')
+                            @if($partForm['part_type'] === 'test' || $partForm['part_type'] === 'topic_exam')
                                 <div class="col-md-4">
                                     <label class="form-label fw-semibold d-flex align-items-center gap-2">
                                         <i class="material-symbols-outlined text-warning"
@@ -1244,7 +1364,7 @@
                                     <i class="material-symbols-outlined text-success">check_circle</i>
                                     پارت‌های روزخوانی/پیش‌خوانی ثبت شده امروز
                                 </h6>
-                                <div class="table-responsive">
+                                <div class="weekly-scroll">
                                     <table class="table table-sm align-middle mb-0">
                                         <thead>
                                         <tr class="text-muted-2">
@@ -1387,7 +1507,338 @@
             </div>
         </div>
     @endif
-    @push('script')
+    {{-- Modal تایید آزمون جامع --}}
+    @if($showExamDayConfirmModal)
+        <div class="modal fade show d-block" tabindex="-1"
+             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                            <i class="material-symbols-outlined">warning</i>
+                            تایید آزمون جامع
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white"
+                                wire:click="closeExamDayConfirmModal"></button>
+                    </div>
+
+                    <div class="modal-body text-center py-4">
+                        <div class="mb-3">
+                            <i class="material-symbols-outlined text-danger"
+                               style="font-size: 64px;">assignment</i>
+                        </div>
+                        <h5 class="mb-3">آیا مطمئن هستید؟</h5>
+                        <p class="text-muted-2 mb-0">
+                            این روز <strong class="text-danger">{{ $partsCountForExamDay }}</strong> پارت دارد.
+                            <br>
+                            با تایید، تمام پارت‌های این روز حذف شده و روز به عنوان
+                            <span class="text-danger fw-bold">آزمون جامع</span> ثبت می‌شود.
+                        </p>
+                    </div>
+
+                    <div class="modal-footer justify-content-center gap-2 bg-body-tertiary">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="closeExamDayConfirmModal">
+                            انصراف
+                        </button>
+                        <button type="button" class="btn btn-danger" wire:click="confirmExamDay">
+                            <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
+                            تایید و ثبت آزمون جامع
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal افزودن/ویرایش آزمون جامع --}}
+    @if($showExamPartModal)
+        <div class="modal fade show d-block" tabindex="-1"
+             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header text-white"
+                         style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 40%, #f87171 100%);">
+                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                            <i class="material-symbols-outlined">{{ $editingExamPartId ? 'edit' : 'add_circle' }}</i>
+                            {{ $editingExamPartId ? 'ویرایش آزمون' : 'افزودن آزمون جامع' }}
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeExamPartModal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold d-flex align-items-center gap-2">
+                                <i class="material-symbols-outlined text-danger" style="font-size: 20px;">assignment</i>
+                                نام آزمون <span class="text-danger">*</span>
+                            </label>
+                            <input type="text"
+                                   wire:model="examPartForm.exam_name"
+                                   class="form-control @error('examPartForm.exam_name') is-invalid @enderror"
+                                   placeholder="مثال: آزمون جامع ریاضی">
+                            @error('examPartForm.exam_name')
+                            <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold d-flex align-items-center gap-2">
+                                <i class="material-symbols-outlined text-primary" style="font-size: 20px;">schedule</i>
+                                مدت زمان (دقیقه) <span class="text-danger">*</span>
+                            </label>
+                            <input type="number"
+                                   min="1"
+                                   wire:model="examPartForm.duration_minutes"
+                                   class="form-control @error('examPartForm.duration_minutes') is-invalid @enderror">
+                            @error('examPartForm.duration_minutes')
+                            <div class="text-danger small">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold d-flex align-items-center gap-2">
+                                <i class="material-symbols-outlined text-secondary" style="font-size: 20px;">description</i>
+                                توضیحات
+                            </label>
+                            <textarea wire:model="examPartForm.description"
+                                      rows="3"
+                                      class="form-control"
+                                      placeholder="توضیحات آزمون..."></textarea>
+                        </div>
+
+                        <div class="alert alert-info small mb-0">
+                            <i class="material-symbols-outlined" style="font-size: 16px;">info</i>
+                            با ذخیره آزمون، یک پارت «تحلیل آزمون» نیز به صورت خودکار اضافه خواهد شد.
+                        </div>
+                    </div>
+
+                    <div class="modal-footer bg-body-tertiary">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="closeExamPartModal">
+                            انصراف
+                        </button>
+                        <button type="button" class="btn btn-danger" wire:click="saveExamPart">
+                            <span wire:loading.remove wire:target="saveExamPart">ذخیره</span>
+                            <span wire:loading wire:target="saveExamPart">در حال ذخیره...</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal توزیع تکالیف --}}
+    @if($showDistributeHomeworkModal)
+        <div class="modal fade show d-block" tabindex="-1"
+             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header text-white"
+                         style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%);">
+                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                            <i class="material-symbols-outlined">assignment</i>
+                            پیش‌نمایش توزیع تکالیف در برنامه
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeDistributionModal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        @if(count($distributionPreview) > 0)
+                            <div class="alert alert-info small">
+                                <i class="material-symbols-outlined" style="font-size: 16px;">info</i>
+                                پارت‌های زیر بر اساس قوانین توزیع تکالیف محاسبه شده‌اند. با کلیک روی «اعمال» در برنامه ثبت می‌شوند.
+                            </div>
+                            <div class="weekly-scroll">
+                                <table class="table table-sm table-bordered align-middle">
+                                    <thead>
+                                    <tr class="bg-body-tertiary">
+                                        <th class="text-center">#</th>
+                                        <th>درس</th>
+                                        <th class="text-center">روز</th>
+                                        <th class="text-center">تاریخ</th>
+                                        <th class="text-center">مدت (دقیقه)</th>
+                                        <th>توضیحات</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($distributionPreview as $idx => $item)
+                                        <tr>
+                                            <td class="text-center">{{ $idx + 1 }}</td>
+                                            <td class="fw-semibold">{{ $item['subject'] }}</td>
+                                            <td class="text-center"><span class="badge bg-primary rounded-pill">{{ $item['day_name'] }}</span></td>
+                                            <td class="text-center">{{ $item['jalali_date'] }}</td>
+                                            <td class="text-center">{{ $item['duration_minutes'] }}</td>
+                                            <td class="small">{{ $item['description'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <p class="text-muted-2 text-center">موردی برای نمایش وجود ندارد.</p>
+                        @endif
+                    </div>
+
+                    <div class="modal-footer bg-body-tertiary">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="closeDistributionModal">
+                            انصراف
+                        </button>
+                        @if(count($distributionPreview) > 0)
+                            <button type="button" class="btn btn-success" wire:click="applyDistribution">
+                                <span wire:loading.remove wire:target="applyDistribution">
+                                    <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
+                                    اعمال در برنامه
+                                </span>
+                                <span wire:loading wire:target="applyDistribution">در حال اعمال...</span>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal توزیع امتحانات --}}
+    @if($showDistributeExamModal)
+        <div class="modal fade show d-block" tabindex="-1"
+             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header text-white"
+                         style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 50%, #1d4ed8 100%);">
+                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                            <i class="material-symbols-outlined">school</i>
+                            پیش‌نمایش توزیع امتحانات در برنامه
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeDistributionModal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        @if(count($distributionPreview) > 0)
+                            <div class="alert alert-info small">
+                                <i class="material-symbols-outlined" style="font-size: 16px;">info</i>
+                                پارت‌ها بر اساس تاریخ امتحان به‌صورت یکنواخت تا روز قبل امتحان توزیع شده‌اند.
+                            </div>
+                            <div class="weekly-scroll">
+                                <table class="table table-sm table-bordered align-middle">
+                                    <thead>
+                                    <tr class="bg-body-tertiary">
+                                        <th class="text-center">#</th>
+                                        <th>درس</th>
+                                        <th class="text-center">روز</th>
+                                        <th class="text-center">تاریخ</th>
+                                        <th class="text-center">مدت (دقیقه)</th>
+                                        <th>توضیحات</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($distributionPreview as $idx => $item)
+                                        <tr>
+                                            <td class="text-center">{{ $idx + 1 }}</td>
+                                            <td class="fw-semibold">{{ $item['subject'] }}</td>
+                                            <td class="text-center"><span class="badge bg-info rounded-pill">{{ $item['day_name'] }}</span></td>
+                                            <td class="text-center">{{ $item['jalali_date'] }}</td>
+                                            <td class="text-center">{{ $item['duration_minutes'] }}</td>
+                                            <td class="small">{{ $item['description'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <p class="text-muted-2 text-center">موردی برای نمایش وجود ندارد.</p>
+                        @endif
+                    </div>
+
+                    <div class="modal-footer bg-body-tertiary">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="closeDistributionModal">
+                            انصراف
+                        </button>
+                        @if(count($distributionPreview) > 0)
+                            <button type="button" class="btn btn-success" wire:click="applyDistribution">
+                                <span wire:loading.remove wire:target="applyDistribution">
+                                    <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
+                                    اعمال در برنامه
+                                </span>
+                                <span wire:loading wire:target="applyDistribution">در حال اعمال...</span>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal توزیع پرسش و پاسخ --}}
+    @if($showDistributeQaModal)
+        <div class="modal fade show d-block" tabindex="-1"
+             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header text-white"
+                         style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);">
+                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                            <i class="material-symbols-outlined">forum</i>
+                            پیش‌نمایش توزیع پرسش و پاسخ در برنامه
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeDistributionModal"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        @if(count($distributionPreview) > 0)
+                            <div class="alert alert-info small">
+                                <i class="material-symbols-outlined" style="font-size: 16px;">info</i>
+                                پارت‌ها یک روز قبل از تاریخ مشخص‌شده توزیع شده‌اند.
+                            </div>
+                            <div class="weekly-scroll">
+                                <table class="table table-sm table-bordered align-middle">
+                                    <thead>
+                                    <tr class="bg-body-tertiary">
+                                        <th class="text-center">#</th>
+                                        <th>درس</th>
+                                        <th class="text-center">روز</th>
+                                        <th class="text-center">تاریخ</th>
+                                        <th class="text-center">مدت (دقیقه)</th>
+                                        <th>توضیحات</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($distributionPreview as $idx => $item)
+                                        <tr>
+                                            <td class="text-center">{{ $idx + 1 }}</td>
+                                            <td class="fw-semibold">{{ $item['subject'] }}</td>
+                                            <td class="text-center"><span class="badge bg-success rounded-pill">{{ $item['day_name'] }}</span></td>
+                                            <td class="text-center">{{ $item['jalali_date'] }}</td>
+                                            <td class="text-center">{{ $item['duration_minutes'] }}</td>
+                                            <td class="small">{{ $item['description'] }}</td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <p class="text-muted-2 text-center">موردی برای نمایش وجود ندارد.</p>
+                        @endif
+                    </div>
+
+                    <div class="modal-footer bg-body-tertiary">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="closeDistributionModal">
+                            انصراف
+                        </button>
+                        @if(count($distributionPreview) > 0)
+                            <button type="button" class="btn btn-success" wire:click="applyDistribution">
+                                <span wire:loading.remove wire:target="applyDistribution">
+                                    <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
+                                    اعمال در برنامه
+                                </span>
+                                <span wire:loading wire:target="applyDistribution">در حال اعمال...</span>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+@push('script')
         <script>
             document.addEventListener('livewire:init', () => {
                 const select2Config = {

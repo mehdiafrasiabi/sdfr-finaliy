@@ -50,6 +50,11 @@
                                 </span>
                             @endif
                         </p>
+                        @if($minDate && $maxDate)
+                            <p class="mt-1 text-xs text-blue-200/70">
+                                بازه مجاز انتخاب تاریخ: {{ $minDate }} تا {{ $maxDate }}
+                            </p>
+                        @endif
                     </div>
 
                     <div class="flex flex-col items-stretch gap-2 sm:items-end">
@@ -84,7 +89,17 @@
                                 @endif"
                             >
                                 @if($currentStep > $step)
-                                    <i class="material-symbols-outlined">مشاهده</i>
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                         class="w-5 h-5"
+                                         viewBox="0 0 24 24"
+                                         fill="none"
+                                         stroke="white"
+                                         stroke-width="2"
+                                         stroke-linecap="round"
+                                         stroke-linejoin="round">
+                                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
+                                        <circle cx="12" cy="12" r="3"/>
+                                    </svg>
                                 @else
                                     {{ $step }}
                                 @endif
@@ -155,7 +170,7 @@
                         امتحانات
                     </h3>
                     <p class="mb-5 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                        تمام امتحاناتی که در هفته پیش رو را  دارید ، ثبت کنید.
+                        تمام امتحاناتی که در هفته پیش رو را دارید، ثبت کنید.
                     </p>
 
                     @if($canEdit)
@@ -163,19 +178,59 @@
                             <div class="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 mb-4">
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
-                                        نام درس
+                                        درس
                                     </label>
-                                    <input
-                                        type="text"
-                                        wire:model="examForm.subject"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                        placeholder="مثال: ریاضی"
-                                    >
+                                    @if(count($availableSubjects) > 0)
+                                        <select
+                                            wire:model.live="examForm.cc_subject_id"
+                                            class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
+                                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+                                                   dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40">
+                                            <option value="">انتخاب درس...</option>
+                                            @foreach($availableSubjects as $subject)
+                                                <option value="{{ $subject['id'] }}">
+                                                    {{ $subject['name'] }}
+                                                    ({{ $subject['type'] === 'general' ? 'عمومی' : 'تخصصی' }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <input
+                                            type="text"
+                                            wire:model="examForm.subject"
+                                            class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
+                                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+                                                   dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                            placeholder="مثال: ریاضی"
+                                        >
+                                    @endif
                                     @error('examForm.subject')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                                     @enderror
+                                </div>
+                                {{-- انتخاب فصل --}}
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
+                                        فصل
+                                    </label>
+                                    @if(count($availableChapters) > 0)
+                                        <select
+                                            wire:model="examForm.cc_chapter_id"
+                                            class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
+                                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+                                                   dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40">
+                                            <option value="">انتخاب فصل...</option>
+                                            @foreach($availableChapters as $chapter)
+                                                <option value="{{ $chapter['id'] }}">{{ $chapter['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <select disabled
+                                                class="w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2.5 text-sm text-slate-400 shadow-sm
+                                                   dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed">
+                                            <option value="">ابتدا درس را انتخاب کنید</option>
+                                        </select>
+                                    @endif
                                 </div>
 
                                 <div>
@@ -190,6 +245,8 @@
                                                focus:border-blue-500 focus:ring-2 focus:ring-blue-100
                                                dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
                                         placeholder="انتخاب تاریخ"
+                                        @if($minDate) data-jdp-min-date="{{ $minDate }}" @endif
+                                        @if($maxDate) data-jdp-max-date="{{ $maxDate }}" @endif
                                     >
                                     @error('examForm.exam_date')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
@@ -245,10 +302,9 @@
                                     <div class="space-x-1 space-x-reverse">
                                         <span class="text-muted">امتحان ({{ jalali($exam['exam_date'])->format('Y/m/d') }}) :</span>
                                         <span class="font-medium">{{ $exam['subject'] }}
-
                                             <span class="text-slate-500 dark:text-slate-300">
- ({{ $exam['part_count'] }} پارت)
-                                        </span>
+                                                   ({{ $exam['part_count'] }} پارت - {{ $exam['time_per_part'] }} دقیقه)
+                                            </span>
                                         </span>
 
 
@@ -259,7 +315,20 @@
                                             wire:click="deleteExam({{ $exam['id'] }})"
                                             class="text-red-500 transition hover:text-red-600"
                                         >
-                                            <i class="material-symbols-outlined text-base">حذف</i>
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="w-5 h-5"
+                                                 viewBox="0 0 24 24"
+                                                 fill="none"
+                                                 stroke="red"
+                                                 stroke-width="2"
+                                                 stroke-linecap="round"
+                                                 stroke-linejoin="round">
+                                                <path d="M3 6h18"/>
+                                                <path d="M8 6V4h8v2"/>
+                                                <path d="M6 6l1 16h10l1-16"/>
+                                                <path d="M10 11v6"/>
+                                                <path d="M14 11v6"/>
+                                            </svg>
                                         </button>
                                     @endif
                                 </div>
@@ -286,19 +355,59 @@
                             <div class="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 mb-4">
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
-                                        نام درس
+                                        درس
                                     </label>
-                                    <input
-                                        type="text"
-                                        wire:model="qaForm.subject"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                        placeholder="مثال: فیزیک"
-                                    >
+                                    @if(count($availableSubjects) > 0)
+                                        <select
+                                            wire:model.live="qaForm.cc_subject_id"
+                                            class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
+                                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+                                                   dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40">
+                                            <option value="">انتخاب درس...</option>
+                                            @foreach($availableSubjects as $subject)
+                                                <option value="{{ $subject['id'] }}">
+                                                    {{ $subject['name'] }}
+                                                    ({{ $subject['type'] === 'general' ? 'عمومی' : 'تخصصی' }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <input
+                                            type="text"
+                                            wire:model="qaForm.subject"
+                                            class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
+                                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+                                                   dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                            placeholder="مثال: فیزیک"
+                                        >
+                                    @endif
                                     @error('qaForm.subject')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                                     @enderror
+                                </div>
+                                {{-- انتخاب فصل --}}
+                                <div>
+                                    <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
+                                        فصل
+                                    </label>
+                                    @if(count($availableChapters) > 0)
+                                        <select
+                                            wire:model="qaForm.cc_chapter_id"
+                                            class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
+                                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+                                                   dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40">
+                                            <option value="">انتخاب فصل...</option>
+                                            @foreach($availableChapters as $chapter)
+                                                <option value="{{ $chapter['id'] }}">{{ $chapter['name'] }}</option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <select disabled
+                                                class="w-full rounded-lg border border-slate-200 bg-slate-100 px-3 py-2.5 text-sm text-slate-400 shadow-sm
+                                                   dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500 cursor-not-allowed">
+                                            <option value="">ابتدا درس را انتخاب کنید</option>
+                                        </select>
+                                    @endif
                                 </div>
 
                                 <div>
@@ -313,6 +422,8 @@
                                                focus:border-blue-500 focus:ring-2 focus:ring-blue-100
                                                dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
                                         placeholder="انتخاب تاریخ"
+                                        @if($minDate) data-jdp-min-date="{{ $minDate }}" @endif
+                                        @if($maxDate) data-jdp-max-date="{{ $maxDate }}" @endif
                                     >
                                     @error('qaForm.qa_date')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
@@ -368,7 +479,7 @@
                                         <span class="text-muted">پرسش و پاسخ کلاسی ({{ jalali($qa['qa_date'])->format('Y/m/d') }}) :</span>
                                         <span class="font-medium">{{ $qa['subject'] }}
                                          <span class="text-slate-500 dark:text-slate-300">
-                                          (پارت{{ $qa['part_count'] }})
+                                          ({{ $qa['part_count'] }} پارت - {{ $qa['time_per_part'] }} دقیقه)
                                         </span>
                                         </span>
 
@@ -380,7 +491,20 @@
                                             wire:click="deleteQa({{ $qa['id'] }})"
                                             class="text-red-500 transition hover:text-red-600"
                                         >
-                                             <i class="material-symbols-outlined text-base">حذف</i>
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="w-5 h-5"
+                                                 viewBox="0 0 24 24"
+                                                 fill="none"
+                                                 stroke="red"
+                                                 stroke-width="2"
+                                                 stroke-linecap="round"
+                                                 stroke-linejoin="round">
+                                                <path d="M3 6h18"/>
+                                                <path d="M8 6V4h8v2"/>
+                                                <path d="M6 6l1 16h10l1-16"/>
+                                                <path d="M10 11v6"/>
+                                                <path d="M14 11v6"/>
+                                            </svg>
 
                                         </button>
                                     @endif
@@ -408,16 +532,32 @@
                             <div class="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 mb-4">
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
-                                        نام درس
+                                        درس
                                     </label>
-                                    <input
-                                        type="text"
-                                        wire:model="assignmentForm.subject"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                        placeholder="مثال: شیمی"
-                                    >
+                                    @if(count($availableSubjects) > 0)
+                                        <select
+                                            wire:model.live="assignmentForm.cc_subject_id"
+                                            class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
+                                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+                                                   dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40">
+                                            <option value="">انتخاب درس...</option>
+                                            @foreach($availableSubjects as $subject)
+                                                <option value="{{ $subject['id'] }}">
+                                                    {{ $subject['name'] }}
+                                                    ({{ $subject['type'] === 'general' ? 'عمومی' : 'تخصصی' }})
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    @else
+                                        <input
+                                            type="text"
+                                            wire:model="assignmentForm.subject"
+                                            class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
+                                                   focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+                                                   dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                            placeholder="مثال: شیمی"
+                                        >
+                                    @endif
                                     @error('assignmentForm.subject')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                                     @enderror
@@ -425,7 +565,8 @@
 
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
-                                        تاریخ
+                                        تاریخ تحویل
+
                                     </label>
                                     <input
                                         type="text"
@@ -435,6 +576,8 @@
                                                focus:border-blue-500 focus:ring-2 focus:ring-blue-100
                                                dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
                                         placeholder="انتخاب تاریخ"
+                                        @if($minDate) data-jdp-min-date="{{ $minDate }}" @endif
+                                        @if($maxDate) data-jdp-max-date="{{ $maxDate }}" @endif
                                     >
                                     @error('assignmentForm.due_date')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
@@ -487,10 +630,10 @@
                                 <div
                                     class="flex items-center justify-between rounded-xl bg-violet-50 px-3 py-2.5 text-xs sm:text-sm text-slate-800 dark:bg-slate-800/80 dark:text-slate-50">
                                     <div class="space-x-1 space-x-reverse">
-                                        <span class="text-muted">پرسش و پاسخ کلاسی ({{ jalali($assignment['due_date'])->format('Y/m/d') }}) :</span>
+                                        <span class="text-muted">تکلیف ({{ jalali($assignment['due_date'])->format('Y/m/d') }}) :</span>
                                         <span class="font-medium">{{ $assignment['subject'] }}
                                          <span class="text-slate-500 dark:text-slate-300">
-                                          (پارت{{ $assignment['part_count'] }})
+                                          ({{ $assignment['part_count'] }} پارت - {{ $assignment['time_per_part'] }} دقیقه)
                                         </span>
                                         </span>
 
@@ -502,7 +645,20 @@
                                             wire:click="deleteAssignment({{ $assignment['id'] }})"
                                             class="text-red-500 transition hover:text-red-600"
                                         >
-                                             <i class="material-symbols-outlined text-base">حذف</i>
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="w-5 h-5"
+                                                 viewBox="0 0 24 24"
+                                                 fill="none"
+                                                 stroke="red"
+                                                 stroke-width="2"
+                                                 stroke-linecap="round"
+                                                 stroke-linejoin="round">
+                                                <path d="M3 6h18"/>
+                                                <path d="M8 6V4h8v2"/>
+                                                <path d="M6 6l1 16h10l1-16"/>
+                                                <path d="M10 11v6"/>
+                                                <path d="M14 11v6"/>
+                                            </svg>
                                         </button>
                                     @endif
                                 </div>
@@ -570,7 +726,7 @@
                                     class="border-b border-dashed border-slate-200 py-1 text-xs sm:text-sm last:border-b-0 dark:border-slate-700 text-white">
                                     {{ $exam['subject'] }}
                                     –
-                                    {{ $exam['part_count'] }} پارت
+                                    {{ $exam['part_count'] }} پارت ({{ $exam['time_per_part'] }} دقیقه)
                                     –
                                     {{ jalali($exam['exam_date'])->format('Y/m/d') }}
                                 </div>
@@ -589,10 +745,10 @@
                             </h4>
                             @forelse($qas as $qa)
                                 <div
-                                    class="border-b border-dashed border-slate-200 py-1 text-xs sm:text-sm last:border-b-0 dark:border-slate-70 text-white">
+                                    class="border-b border-dashed border-slate-200 py-1 text-xs sm:text-sm last:border-b-0 dark:border-slate-700 text-white">
                                     {{ $qa['subject'] }}
                                     –
-                                    {{ $qa['part_count'] }} پارت
+                                    {{ $qa['part_count'] }} پارت ({{ $qa['time_per_part'] }} دقیقه)
                                     –
                                     {{ jalali($qa['qa_date'])->format('Y/m/d') }}
                                 </div>
@@ -614,7 +770,7 @@
                                     class="border-b border-dashed border-slate-200 py-1 text-xs sm:text-sm last:border-b-0 dark:border-slate-700">
                                     {{ $assignment['subject'] }}
                                     –
-                                    {{ $assignment['part_count'] }} پارت
+                                    {{ $assignment['part_count'] }} پارت ({{ $assignment['time_per_part'] }} دقیقه)
                                     –
                                     {{ jalali($assignment['due_date'])->format('Y/m/d') }}
                                 </div>
@@ -698,7 +854,8 @@
         </div>
     </div>
     @push('script')
-        <script type="text/javascript" src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+        <script type="text/javascript"
+                src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
         <script>
             (function () {
                 function startJalaliDatepicker() {
@@ -710,6 +867,12 @@
                 document.addEventListener('DOMContentLoaded', startJalaliDatepicker);
                 document.addEventListener('livewire:navigated', startJalaliDatepicker);
                 document.addEventListener('livewire:initialized', startJalaliDatepicker);
+                // Re-init datepicker on Livewire updates (step changes)
+                document.addEventListener('livewire:init', () => {
+                    Livewire.hook('morph.updated', () => {
+                        setTimeout(startJalaliDatepicker, 100);
+                    });
+                });
             })();
         </script>
     @endpush

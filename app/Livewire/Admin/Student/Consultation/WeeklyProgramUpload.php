@@ -22,6 +22,8 @@ use App\Models\CcField;
 use App\Models\CcSubject;
 use App\Models\CcChapter;
 use App\Models\CcTopic;
+use App\Models\WeeklyProgramExamDay;
+use Morilog\Jalali\Jalalian;
 
 class WeeklyProgramUpload extends Component
 {
@@ -81,6 +83,27 @@ class WeeklyProgramUpload extends Component
     public string $dailyReadingDescription = '';
     public int $dailyReadingDuration = 20;
     public ?int $editingDailyReadingPartId = null;
+
+
+    // Part A: Comprehensive Exam Day (آزمون جامع)
+    public bool $showExamDayConfirmModal = false;
+    public ?int $examDayToToggle = null;
+    public int $partsCountForExamDay = 0;
+    public bool $showExamPartModal = false;
+    public ?int $editingExamPartId = null;
+    public array $examPartForm = [
+        'exam_name' => '',
+        'duration_minutes' => 60,
+        'description' => '',
+    ];
+
+    // Part D: Pre-session distribution modals
+    public bool $showDistributeHomeworkModal = false;
+    public bool $showDistributeExamModal = false;
+    public bool $showDistributeQaModal = false;
+    public array $distributionPreview = [];
+    public string $distributionType = ''; // 'homework', 'exam', 'qa'
+
     protected function messages()
     {
         return [
@@ -645,7 +668,7 @@ class WeeklyProgramUpload extends Component
         $this->validate([
             'partForm.cc_subject_id' => 'required|exists:cc_subjects,id',
             'partForm.duration_minutes' => 'required|integer|min:1',
-            'partForm.part_type' => 'required|in:test,descriptive,video',
+            'partForm.part_type' => 'required|in:test,descriptive,video,topic_exam',
         ], [
             'partForm.cc_subject_id.required' => 'انتخاب درس الزامی است.',
             'partForm.duration_minutes.required' => 'مدت زمان الزامی است.',
@@ -1134,6 +1157,632 @@ class WeeklyProgramUpload extends Component
             'tomorrowName' => ClassSchedule::getDayName($tomorrowDayOfWeek),
         ];
     }
+
+    // ==================== Part A: Comprehensive Exam Day ====================
+
+    /**
+     * Toggle comprehensive exam day
+     */
+    public function toggleExamDay(int $dayIndex): void
+    {
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        $weeklyProgram = WeeklyProgram::find($this->weeklyProgramId);
+        if (!$weeklyProgram) return;
+
+        $isCurrentlyExamDay = $weeklyProgram->isExamDay($dayIndex);
+
+        if ($isCurrentlyExamDay) {
+            // Remove exam day
+            WeeklyProgramExamDay::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_index', $dayIndex)
+                ->delete();
+            // Remove rest day if it was also set
+            WeeklyProgramRestDay::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_index', $dayIndex)
+                ->delete();
+            $this->loadExistingParts();
+            $this->dispatch('success', 'حالت آزمون جامع برداشته شد.');
+            return;
+        }
+
+        // Check if parts exist
+        $partsCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('day_of_week', $dayIndex)
+            ->count();
+
+        if ($partsCount > 0) {
+            $this->examDayToToggle = $dayIndex;
+            $this->partsCountForExamDay = $partsCount;
+            $this->showExamDayConfirmModal = true;
+        } else {
+            $this->examDayToToggle = $dayIndex;
+            $this->confirmExamDay();
+        }
+    }
+
+    /**
+     * Confirm setting day as comprehensive exam day
+     */
+    public function confirmExamDay(): void
+    {
+        $dayIndex = $this->examDayToToggle;
+        if ($dayIndex === null) return;
+
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        // Delete all existing parts for this day
+        ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('day_of_week', $dayIndex)
+            ->delete();
+
+        // Remove rest day if it was set
+        WeeklyProgramRestDay::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('day_index', $dayIndex)
+            ->delete();
+
+        // Add exam day
+        WeeklyProgramExamDay::updateOrCreate([
+            'weekly_program_id' => $this->weeklyProgramId,
+            'day_index' => $dayIndex,
+        ]);
+
+        $this->loadExistingParts();
+        $this->closeExamDayConfirmModal();
+        $this->dispatch('success', 'روز آزمون جامع با موفقیت ثبت شد.');
+    }
+
+    public function closeExamDayConfirmModal(): void
+    {
+        $this->showExamDayConfirmModal = false;
+        $this->examDayToToggle = null;
+        $this->partsCountForExamDay = 0;
+    }
+
+    /**
+     * Open exam part modal for comprehensive exam day
+     */
+    public function openExamPartModal(int $dayIndex): void
+    {
+        $this->selectedDay = $dayIndex;
+        $this->editingExamPartId = null;
+        $this->examPartForm = [
+            'exam_name' => '',
+            'duration_minutes' => 60,
+            'description' => '',
+        ];
+        $this->showExamPartModal = true;
+    }
+
+    /**
+     * Edit an exam part in comprehensive exam mode
+     */
+    public function editExamPart(int $partId): void
+    {
+        $part = ProgramPart::find($partId);
+        if (!$part) return;
+
+        $this->editingExamPartId = $partId;
+        $this->selectedDay = $part->day_of_week;
+        $this->examPartForm = [
+            'exam_name' => $part->lesson_name,
+            'duration_minutes' => $part->duration_minutes,
+            'description' => $part->description,
+        ];
+        $this->showExamPartModal = true;
+    }
+
+    public function closeExamPartModal(): void
+    {
+        $this->showExamPartModal = false;
+        $this->editingExamPartId = null;
+        $this->examPartForm = [
+            'exam_name' => '',
+            'duration_minutes' => 60,
+            'description' => '',
+        ];
+    }
+
+    /**
+     * Save comprehensive exam part + auto-create analysis part
+     */
+    public function saveExamPart(): void
+    {
+        $this->validate([
+            'examPartForm.exam_name' => 'required|string|max:255',
+            'examPartForm.duration_minutes' => 'required|integer|min:1',
+        ], [
+            'examPartForm.exam_name.required' => 'نام آزمون الزامی است.',
+            'examPartForm.duration_minutes.required' => 'مدت زمان الزامی است.',
+            'examPartForm.duration_minutes.min' => 'مدت زمان باید حداقل ۱ دقیقه باشد.',
+        ]);
+
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        $partDate = Carbon::parse($this->start_date)->addDays($this->selectedDay);
+
+        if ($this->editingExamPartId) {
+            // Edit existing exam part
+            $part = ProgramPart::find($this->editingExamPartId);
+            if (!$part) return;
+
+            $part->update([
+                'lesson_name' => $this->examPartForm['exam_name'],
+                'duration_minutes' => $this->examPartForm['duration_minutes'],
+                'description' => $this->examPartForm['description'],
+            ]);
+
+            // Also update the corresponding analysis part if it exists
+            $analysisPart = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $this->selectedDay)
+                ->where('part_type', 'exam_analysis')
+                ->where('part_order', $part->part_order + 1)
+                ->first();
+
+            if ($analysisPart) {
+                $analysisPart->update([
+                    'lesson_name' => 'تحلیل آزمون: ' . $this->examPartForm['exam_name'],
+                    'duration_minutes' => $this->examPartForm['duration_minutes'],
+                    'description' => 'تحلیل آزمون - ' . $this->examPartForm['description'],
+                ]);
+            }
+        } else {
+            // Check max 10 parts
+            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $this->selectedDay)
+                ->count();
+
+            if ($existingCount >= 9) { // 9 because we add 2 parts (exam + analysis)
+                $this->dispatch('warning', 'فضای کافی برای افزودن آزمون و تحلیل وجود ندارد.');
+                return;
+            }
+
+            // Create exam part
+            ProgramPart::create([
+                'weekly_program_id' => $this->weeklyProgramId,
+                'lesson_name' => $this->examPartForm['exam_name'],
+                'part_date' => $partDate,
+                'day_of_week' => $this->selectedDay,
+                'part_order' => $existingCount + 1,
+                'description' => $this->examPartForm['description'],
+                'duration_minutes' => $this->examPartForm['duration_minutes'],
+                'test_count' => null,
+                'part_type' => 'comprehensive_exam',
+                'lesson_type' => 'specialized',
+            ]);
+
+            // Auto-create analysis part
+            ProgramPart::create([
+                'weekly_program_id' => $this->weeklyProgramId,
+                'lesson_name' => 'تحلیل آزمون: ' . $this->examPartForm['exam_name'],
+                'part_date' => $partDate,
+                'day_of_week' => $this->selectedDay,
+                'part_order' => $existingCount + 2,
+                'description' => 'تحلیل آزمون - ' . $this->examPartForm['description'],
+                'duration_minutes' => $this->examPartForm['duration_minutes'],
+                'test_count' => null,
+                'part_type' => 'exam_analysis',
+                'lesson_type' => 'specialized',
+            ]);
+        }
+
+        $this->loadExistingParts();
+        $this->closeExamPartModal();
+        $this->dispatch('success', 'آزمون و تحلیل آزمون با موفقیت ذخیره شد.');
+    }
+
+    /**
+     * Delete exam part and its corresponding analysis part
+     */
+    public function deleteExamPart(int $partId): void
+    {
+        $part = ProgramPart::find($partId);
+        if (!$part) return;
+
+        $dayIndex = $part->day_of_week;
+        $partOrder = $part->part_order;
+
+        // If it's an exam, delete the analysis too
+        if ($part->part_type === 'comprehensive_exam') {
+            ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $dayIndex)
+                ->where('part_type', 'exam_analysis')
+                ->where('part_order', $partOrder + 1)
+                ->delete();
+        }
+
+        // If it's an analysis, also delete the exam
+        if ($part->part_type === 'exam_analysis') {
+            ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $dayIndex)
+                ->where('part_type', 'comprehensive_exam')
+                ->where('part_order', $partOrder - 1)
+                ->delete();
+        }
+
+        $part->delete();
+
+        // Reorder remaining parts
+        $remainingParts = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('day_of_week', $dayIndex)
+            ->orderBy('part_order')
+            ->get();
+
+        foreach ($remainingParts as $idx => $rPart) {
+            $rPart->update(['part_order' => $idx + 1]);
+        }
+
+        $this->loadExistingParts();
+        $this->dispatch('success', 'آزمون و تحلیل آزمون حذف شد.');
+    }
+
+    // ==================== Part D: Pre-session Distribution ====================
+
+    /**
+     * Compute homework distribution preview
+     */
+    public function previewHomeworkDistribution(): void
+    {
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
+            ->with('assignments')
+            ->latest()
+            ->first();
+
+        if (!$preSessions || $preSessions->assignments->isEmpty()) {
+            $this->dispatch('warning', 'تکلیفی برای توزیع وجود ندارد.');
+            return;
+        }
+
+        $startDate = Carbon::parse($this->start_date);
+        $weekDates = [];
+        $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+
+        for ($i = 0; $i < 8; $i++) {
+            $date = $startDate->copy()->addDays($i);
+            $jalaliDate = jdate($date);
+            $dayOfWeek = $jalaliDate->getDayOfWeek();
+            $weekDates[$i] = [
+                'date' => $date,
+                'day_name' => $jalaliDayNames[$dayOfWeek],
+                'day_of_week' => $dayOfWeek,
+                'jalali_date' => $jalaliDate->format('Y/m/d'),
+                'is_friday' => $dayOfWeek === 6,
+            ];
+        }
+
+        // Find Friday index in the program
+        $fridayIndex = null;
+        foreach ($weekDates as $idx => $wd) {
+            if ($wd['is_friday']) {
+                $fridayIndex = $idx;
+                break;
+            }
+        }
+
+        $preview = [];
+        foreach ($preSessions->assignments as $assignment) {
+            $dueDate = Carbon::parse($assignment->due_date);
+            $targetDayIndex = null;
+
+            if ($fridayIndex !== null) {
+                $fridayDate = $weekDates[$fridayIndex]['date'];
+                if ($dueDate->gte($fridayDate)) {
+                    // Deadline is on or after Friday -> place on Friday
+                    $targetDayIndex = $fridayIndex;
+                } else {
+                    // Deadline is before Friday -> place one day before deadline
+                    $oneDayBefore = $dueDate->copy()->subDay();
+                    for ($i = 0; $i < 8; $i++) {
+                        if ($weekDates[$i]['date']->isSameDay($oneDayBefore)) {
+                            $targetDayIndex = $i;
+                            break;
+                        }
+                    }
+                }
+            } else {
+                // No Friday in range -> place one day before deadline
+                $oneDayBefore = $dueDate->copy()->subDay();
+                for ($i = 0; $i < 8; $i++) {
+                    if ($weekDates[$i]['date']->isSameDay($oneDayBefore)) {
+                        $targetDayIndex = $i;
+                        break;
+                    }
+                }
+            }
+
+            // If no exact match found, find closest day before deadline
+            if ($targetDayIndex === null) {
+                for ($i = 7; $i >= 0; $i--) {
+                    if ($weekDates[$i]['date']->lt($dueDate)) {
+                        $targetDayIndex = $i;
+                        break;
+                    }
+                }
+            }
+
+            if ($targetDayIndex === null) $targetDayIndex = 0;
+
+            for ($p = 0; $p < $assignment->part_count; $p++) {
+                $preview[] = [
+                    'type' => 'homework',
+                    'subject' => $assignment->subject,
+                    'cc_subject_id' => $assignment->cc_subject_id,
+                    'day_index' => $targetDayIndex,
+                    'day_name' => $weekDates[$targetDayIndex]['day_name'],
+                    'jalali_date' => $weekDates[$targetDayIndex]['jalali_date'],
+                    'duration_minutes' => $assignment->time_per_part,
+                    'description' => 'تکلیف: ' . $assignment->subject . ' (تحویل: ' . jdate($dueDate)->format('Y/m/d') . ')',
+                ];
+            }
+        }
+
+        $this->distributionPreview = $preview;
+        $this->distributionType = 'homework';
+        $this->showDistributeHomeworkModal = true;
+    }
+
+    /**
+     * Compute exam distribution preview
+     */
+    public function previewExamDistribution(): void
+    {
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
+            ->with('exams')
+            ->latest()
+            ->first();
+
+        if (!$preSessions || $preSessions->exams->isEmpty()) {
+            $this->dispatch('warning', 'امتحانی برای توزیع وجود ندارد.');
+            return;
+        }
+
+        $startDate = Carbon::parse($this->start_date);
+        $weekDates = [];
+        $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+
+        for ($i = 0; $i < 8; $i++) {
+            $date = $startDate->copy()->addDays($i);
+            $jalaliDate = jdate($date);
+            $dayOfWeek = $jalaliDate->getDayOfWeek();
+            $weekDates[$i] = [
+                'date' => $date,
+                'day_name' => $jalaliDayNames[$dayOfWeek],
+                'jalali_date' => $jalaliDate->format('Y/m/d'),
+            ];
+        }
+
+        $preview = [];
+        foreach ($preSessions->exams as $exam) {
+            $examDate = Carbon::parse($exam->exam_date);
+            $partCount = $exam->part_count;
+
+            // Distribute evenly from start to day before exam
+            $availableDays = [];
+            for ($i = 0; $i < 8; $i++) {
+                if ($weekDates[$i]['date']->lt($examDate)) {
+                    $weeklyProgram = WeeklyProgram::find($this->weeklyProgramId);
+                    if (!$weeklyProgram || (!$weeklyProgram->isRestDay($i) && !$weeklyProgram->isExamDay($i))) {
+                        $availableDays[] = $i;
+                    }
+                }
+            }
+
+            if (empty($availableDays)) {
+                $availableDays = [0]; // fallback
+            }
+
+            // Distribute parts across available days
+            $partsPerDay = [];
+            for ($p = 0; $p < $partCount; $p++) {
+                $dayIdx = $availableDays[$p % count($availableDays)];
+                if (!isset($partsPerDay[$dayIdx])) $partsPerDay[$dayIdx] = 0;
+                $partsPerDay[$dayIdx]++;
+            }
+
+            foreach ($partsPerDay as $dayIdx => $count) {
+                for ($c = 0; $c < $count; $c++) {
+                    $chapterInfo = '';
+                    if ($exam->cc_chapter_id) {
+                        $chapter = CcChapter::find($exam->cc_chapter_id);
+                        if ($chapter) $chapterInfo = ' - فصل: ' . $chapter->name;
+                    }
+                    $preview[] = [
+                        'type' => 'exam',
+                        'subject' => $exam->subject,
+                        'cc_subject_id' => $exam->cc_subject_id,
+                        'cc_chapter_id' => $exam->cc_chapter_id ?? null,
+                        'day_index' => $dayIdx,
+                        'day_name' => $weekDates[$dayIdx]['day_name'],
+                        'jalali_date' => $weekDates[$dayIdx]['jalali_date'],
+                        'duration_minutes' => $exam->time_per_part,
+                        'description' => 'مطالعه امتحان: ' . $exam->subject . $chapterInfo . ' (تاریخ امتحان: ' . jdate($examDate)->format('Y/m/d') . ')',
+                    ];
+                }
+            }
+        }
+
+        $this->distributionPreview = $preview;
+        $this->distributionType = 'exam';
+        $this->showDistributeExamModal = true;
+    }
+
+    /**
+     * Compute QA distribution preview
+     */
+    public function previewQaDistribution(): void
+    {
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
+            ->with('qas')
+            ->latest()
+            ->first();
+
+        if (!$preSessions || $preSessions->qas->isEmpty()) {
+            $this->dispatch('warning', 'پرسش و پاسخی برای توزیع وجود ندارد.');
+            return;
+        }
+
+        $startDate = Carbon::parse($this->start_date);
+        $weekDates = [];
+        $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+
+        for ($i = 0; $i < 8; $i++) {
+            $date = $startDate->copy()->addDays($i);
+            $jalaliDate = jdate($date);
+            $dayOfWeek = $jalaliDate->getDayOfWeek();
+            $weekDates[$i] = [
+                'date' => $date,
+                'day_name' => $jalaliDayNames[$dayOfWeek],
+                'jalali_date' => $jalaliDate->format('Y/m/d'),
+            ];
+        }
+
+        $preview = [];
+        foreach ($preSessions->qas as $qa) {
+            $qaDate = Carbon::parse($qa->qa_date);
+            // One day before the specified date
+            $targetDate = $qaDate->copy()->subDay();
+            $targetDayIndex = null;
+
+            for ($i = 0; $i < 8; $i++) {
+                if ($weekDates[$i]['date']->isSameDay($targetDate)) {
+                    $targetDayIndex = $i;
+                    break;
+                }
+            }
+
+            // If no exact match, find closest day before
+            if ($targetDayIndex === null) {
+                for ($i = 7; $i >= 0; $i--) {
+                    if ($weekDates[$i]['date']->lte($targetDate)) {
+                        $targetDayIndex = $i;
+                        break;
+                    }
+                }
+            }
+
+            if ($targetDayIndex === null) $targetDayIndex = 0;
+
+            for ($p = 0; $p < $qa->part_count; $p++) {
+                $chapterInfo = '';
+                if ($qa->cc_chapter_id ?? null) {
+                    $chapter = CcChapter::find($qa->cc_chapter_id);
+                    if ($chapter) $chapterInfo = ' - فصل: ' . $chapter->name;
+                }
+                $preview[] = [
+                    'type' => 'qa',
+                    'subject' => $qa->subject,
+                    'cc_subject_id' => $qa->cc_subject_id ?? null,
+                    'cc_chapter_id' => $qa->cc_chapter_id ?? null,
+                    'day_index' => $targetDayIndex,
+                    'day_name' => $weekDates[$targetDayIndex]['day_name'],
+                    'jalali_date' => $weekDates[$targetDayIndex]['jalali_date'],
+                    'duration_minutes' => $qa->time_per_part,
+                    'description' => 'پرسش و پاسخ: ' . $qa->subject . $chapterInfo . ' (تاریخ: ' . jdate($qaDate)->format('Y/m/d') . ')',
+                ];
+            }
+        }
+
+        $this->distributionPreview = $preview;
+        $this->distributionType = 'qa';
+        $this->showDistributeQaModal = true;
+    }
+
+    /**
+     * Apply distribution to weekly program
+     */
+    public function applyDistribution(): void
+    {
+        if (empty($this->distributionPreview)) {
+            $this->dispatch('warning', 'پیش‌نمایشی برای اعمال وجود ندارد.');
+            return;
+        }
+
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        $startDate = Carbon::parse($this->start_date);
+
+        foreach ($this->distributionPreview as $item) {
+            $dayIndex = $item['day_index'];
+            $partDate = $startDate->copy()->addDays($dayIndex);
+
+            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $dayIndex)
+                ->count();
+
+            if ($existingCount >= 10) {
+                continue; // Skip if day is full
+            }
+
+            $partType = 'descriptive';
+            if ($item['type'] === 'exam') {
+                $partType = 'test';
+            }
+
+            $lessonName = $item['subject'];
+            $lessonType = 'specialized';
+
+            // Try to get lesson type from cc_subject
+            if (!empty($item['cc_subject_id'])) {
+                $subject = CcSubject::find($item['cc_subject_id']);
+                if ($subject) {
+                    $lessonName = $subject->name;
+                    $lessonType = $subject->type;
+                }
+            }
+
+            ProgramPart::create([
+                'weekly_program_id' => $this->weeklyProgramId,
+                'lesson_name' => $lessonName,
+                'part_date' => $partDate,
+                'day_of_week' => $dayIndex,
+                'part_order' => $existingCount + 1,
+                'description' => $item['description'],
+                'duration_minutes' => $item['duration_minutes'],
+                'test_count' => null,
+                'part_type' => $partType,
+                'lesson_type' => $lessonType,
+                'cc_subject_id' => $item['cc_subject_id'] ?? null,
+                'cc_chapter_id' => $item['cc_chapter_id'] ?? null,
+            ]);
+        }
+
+        $this->loadExistingParts();
+        $this->closeDistributionModal();
+        $this->dispatch('success', 'پارت‌ها با موفقیت در برنامه اعمال شدند.');
+    }
+
+    public function closeDistributionModal(): void
+    {
+        $this->showDistributeHomeworkModal = false;
+        $this->showDistributeExamModal = false;
+        $this->showDistributeQaModal = false;
+        $this->distributionPreview = [];
+        $this->distributionType = '';
+    }
+
     public function render()
     {
         $student = Student::with(['user.personalInformation', 'advisor', 'supporter'])->find($this->studentId);
@@ -1162,8 +1811,9 @@ class WeeklyProgramUpload extends Component
             $dayOfWeek = $jalaliDate->getDayOfWeek(); // 0 = شنبه، 6 = جمعه
             $dayName = $jalaliDayNames[$dayOfWeek];
 
-            // Check if this day is a rest day
+            // Check if this day is a rest day or exam day
             $isRestDay = $weeklyProgram ? $weeklyProgram->isRestDay($i) : false;
+            $isExamDay = $weeklyProgram ? $weeklyProgram->isExamDay($i) : false;
 
             $weekDays[] = [
                 'index' => $i,
@@ -1174,6 +1824,8 @@ class WeeklyProgramUpload extends Component
                 'total_hours' => round($dayParts->sum('duration_minutes') / 60, 1),
                 'total_tests' => $dayParts->sum('test_count') ?? 0,
                 'is_rest_day' => $isRestDay,
+                'is_exam_day' => $isExamDay,
+
             ];
         }
 

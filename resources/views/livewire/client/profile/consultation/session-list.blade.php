@@ -345,7 +345,7 @@
 
         {{-- Modal تایید پیش‌جلسه --}}
         <div x-show="showPreSessionModal" x-cloak x-transition.opacity
-             class="fixed inset-0 z-50 overflow-y-auto">
+             class="fixed inset-0 z-50 overflow-y-auto ">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div x-show="showPreSessionModal"
                      x-transition:enter="transition ease-out duration-300 transform"
@@ -354,7 +354,7 @@
                      x-transition:leave="transition ease-in duration-200 transform"
                      x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                      x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     class="relative w-full max-w-md my-20 overflow-hidden transition-all transform bg-background border border-border rounded-2xl shadow-2xl z-20">
+                     class="relative w-full max-w-md my-20 overflow-hidden transition-all transform bg-secondary border border-border rounded-2xl shadow-2xl z-20">
 
                     <div class="relative p-4">
                         <button type="button" wire:click="closePreSessionModal"

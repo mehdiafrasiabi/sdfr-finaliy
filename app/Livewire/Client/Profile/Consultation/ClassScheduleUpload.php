@@ -9,10 +9,12 @@ use App\Models\CcGrade;
 use App\Models\CcField;
 use App\Models\PersonalInformation;
 use App\Models\Student;
+use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 
 class ClassScheduleUpload extends Component
 {
+    use SEOTools;
     // مودال انتخاب درس
     public bool $showModal = false;
     public ?int $selectedDay = null;
@@ -61,8 +63,13 @@ class ClassScheduleUpload extends Component
 
         // بارگذاری درس‌ها بر اساس پایه و رشته
         $this->loadSubjects();
+        $this->seoConfig();
     }
 
+    public function seoConfig()
+    {
+        $this->seo()->setTitle('برنامه هفتگی');
+    }
     protected function loadSubjects(): void
     {
         if (!$this->studentGrade || !$this->studentField) {
