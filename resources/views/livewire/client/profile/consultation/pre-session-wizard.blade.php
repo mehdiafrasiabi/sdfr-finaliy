@@ -2,23 +2,52 @@
     <div class="container mx-auto px-3 sm:px-4 max-w-4xl">
 
         @push('link')
-            <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
+            <link rel="preload" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+            <link rel="preload" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js" as="script">
             <style>
-                [x-cloak] {
-                    display: none !important;
+                /* Dark mode for jalali datepicker */
+                .dark .jalali-datepicker,
+                [data-theme="dark"] .jalali-datepicker {
+                    background-color: #1e293b !important;
+                    border-color: #334155 !important;
+                    color: #e2e8f0 !important;
+                    box-shadow: 0 10px 25px rgba(0,0,0,.4) !important;
                 }
-
-                .wizard-header-gradient {
-                    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 40%, #0f172a 100%);
+                .dark .jalali-datepicker .jdp-header,
+                [data-theme="dark"] .jalali-datepicker .jdp-header {
+                    background: linear-gradient(135deg, #1d4ed8, #2563eb) !important;
+                    color: #fff !important;
                 }
-
-                .wizard-card-shadow {
-                    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18),
-                    0 10px 20px rgba(15, 23, 42, 0.06);
+                .dark .jalali-datepicker .jdp-body td,
+                [data-theme="dark"] .jalali-datepicker .jdp-body td {
+                    color: #cbd5e1 !important;
                 }
-
-                .wizard-step-connector {
-                    transition: background-color 0.2s ease, opacity 0.2s ease;
+                .dark .jalali-datepicker .jdp-body td:hover,
+                [data-theme="dark"] .jalali-datepicker .jdp-body td:hover {
+                    background: #334155 !important;
+                    color: #fff !important;
+                }
+                .dark .jalali-datepicker .jdp-body td.jdp-today,
+                [data-theme="dark"] .jalali-datepicker .jdp-body td.jdp-today {
+                    background: #2563eb !important;
+                    color: #fff !important;
+                }
+                .dark .jalali-datepicker .jdp-body td.jdp-selected,
+                [data-theme="dark"] .jalali-datepicker .jdp-body td.jdp-selected {
+                    background: #3b82f6 !important;
+                    color: #fff !important;
+                }
+                .dark .jalali-datepicker .jdp-footer,
+                [data-theme="dark"] .jalali-datepicker .jdp-footer {
+                    border-color: #334155 !important;
+                }
+                .dark .jalali-datepicker .jdp-body th,
+                [data-theme="dark"] .jalali-datepicker .jdp-body th {
+                    color: #94a3b8 !important;
+                }
+                .dark .jalali-datepicker .jdp-nav button,
+                [data-theme="dark"] .jalali-datepicker .jdp-nav button {
+                    color: #e2e8f0 !important;
                 }
             </style>
         @endpush
@@ -253,32 +282,74 @@
                                     @enderror
                                 </div>
 
-                                <div>
+                                <div x-data="{ count: $wire.entangle('examForm.part_count') }" x-init="if(!count || count < 1) count = 1">
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
                                         تعداد پارت (پیشنهادی جهت مطالعه امتحان فوق)
                                     </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        wire:model="examForm.part_count"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                    >
+                                    <div class="flex items-center gap-1">
+                                        <button type="button" @click="count++"
+                                                class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-green-50 hover:border-green-300 hover:text-green-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-green-900/20 dark:hover:border-green-700">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        </button>
+
+                                        <input type="number" min="1"
+                                               x-model.number="count"
+                                               @input="if(count < 1) count = 1"
+                                               class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40">
+                                        <button type="button" @click="if(count > 1) count--"
+                                                class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-red-50 hover:border-red-300 hover:text-red-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-red-900/20 dark:hover:border-red-700">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <div>
+                                <div x-data="{
+                                        totalMinutes: $wire.entangle('examForm.time_per_part'),
+                                        hours: 0,
+                                        minutes: 0,
+                                        init() {
+                                            let val = parseInt(this.totalMinutes) || 0;
+                                            this.hours = Math.floor(val / 60);
+                                            this.minutes = val % 60;
+                                        },
+                                        update() {
+                                            let h = Math.min(Math.max(parseInt(this.hours) || 0, 0), 24);
+                                            let m = Math.min(Math.max(parseInt(this.minutes) || 0, 0), 59);
+                                            this.hours = h;
+                                            this.minutes = m;
+                                            this.totalMinutes = (h * 60) + m;
+                                        }
+                                    }" x-init="init()">
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
-                                        زمان هر پارت (دقیقه)
+                                        زمان هر پارت
                                     </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        wire:model="examForm.time_per_part"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                    >
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1">
+                                            <div class="relative">
+                                                <input type="number" min="0" max="59"
+                                                       x-model.number="minutes"
+                                                       @input="update()"
+                                                       class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                                       placeholder="0">
+                                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 dark:text-slate-500">دقیقه</span>
+                                            </div>
+                                        </div>
+                                        <span class="text-lg font-bold text-slate-400 dark:text-slate-500">:</span>
+
+                                        <div class="flex-1">
+                                            <div class="relative">
+                                                <input type="number" min="0" max="24"
+                                                       x-model.number="hours"
+                                                       @input="update()"
+                                                       class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                                       placeholder="0">
+                                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 dark:text-slate-500">ساعت</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-1 text-[10px] text-slate-400 dark:text-slate-500" x-show="totalMinutes > 0">
+                                        مجموع: <span x-text="totalMinutes"></span> دقیقه
+                                    </div>
                                 </div>
                             </div>
 
@@ -430,32 +501,74 @@
                                     @enderror
                                 </div>
 
-                                <div>
+                                <div x-data="{ count: $wire.entangle('qaForm.part_count') }" x-init="if(!count || count < 1) count = 1">
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
                                         تعداد پارت (پیشنهادی جهت آمادگی در فعالیت فوق)
                                     </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        wire:model="qaForm.part_count"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                    >
+                                    <div class="flex items-center gap-1">
+
+                                        <button type="button" @click="count++"
+                                                class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-green-50 hover:border-green-300 hover:text-green-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-green-900/20 dark:hover:border-green-700">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        </button>
+                                        <input type="number" min="1"
+                                               x-model.number="count"
+                                               @input="if(count < 1) count = 1"
+                                               class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40">
+                                        <button type="button" @click="if(count > 1) count--"
+                                                class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-red-50 hover:border-red-300 hover:text-red-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-red-900/20 dark:hover:border-red-700">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <div>
+                                <div x-data="{
+                                        totalMinutes: $wire.entangle('qaForm.time_per_part'),
+                                        hours: 0,
+                                        minutes: 0,
+                                        init() {
+                                            let val = parseInt(this.totalMinutes) || 0;
+                                            this.hours = Math.floor(val / 60);
+                                            this.minutes = val % 60;
+                                        },
+                                        update() {
+                                            let h = Math.min(Math.max(parseInt(this.hours) || 0, 0), 24);
+                                            let m = Math.min(Math.max(parseInt(this.minutes) || 0, 0), 59);
+                                            this.hours = h;
+                                            this.minutes = m;
+                                            this.totalMinutes = (h * 60) + m;
+                                        }
+                                    }" x-init="init()">
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
-                                        زمان هر پارت (دقیقه)
+                                        زمان هر پارت
                                     </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        wire:model="qaForm.time_per_part"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                    >
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1">
+                                            <div class="relative">
+                                                <input type="number" min="0" max="59"
+                                                       x-model.number="minutes"
+                                                       @input="update()"
+                                                       class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                                       placeholder="0">
+                                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 dark:text-slate-500">دقیقه</span>
+                                            </div>
+                                        </div>
+                                        <span class="text-lg font-bold text-slate-400 dark:text-slate-500">:</span>
+
+                                        <div class="flex-1">
+                                            <div class="relative">
+                                                <input type="number" min="0" max="24"
+                                                       x-model.number="hours"
+                                                       @input="update()"
+                                                       class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                                       placeholder="0">
+                                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 dark:text-slate-500">ساعت</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-1 text-[10px] text-slate-400 dark:text-slate-500" x-show="totalMinutes > 0">
+                                        مجموع: <span x-text="totalMinutes"></span> دقیقه
+                                    </div>
                                 </div>
                             </div>
 
@@ -584,32 +697,74 @@
                                     @enderror
                                 </div>
 
-                                <div>
+                                <div x-data="{ count: $wire.entangle('assignmentForm.part_count') }" x-init="if(!count || count < 1) count = 1">
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
                                         تعداد پارت (پیشنهادی جهت مطالعه انجام تکالیف فوق)
                                     </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        wire:model="assignmentForm.part_count"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                    >
+                                    <div class="flex items-center gap-1">
+                                        <button type="button" @click="count++"
+                                                class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-green-50 hover:border-green-300 hover:text-green-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-green-900/20 dark:hover:border-green-700">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                        </button>
+
+                                        <input type="number" min="1"
+                                               x-model.number="count"
+                                               @input="if(count < 1) count = 1"
+                                               class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40">
+                                        <button type="button" @click="if(count > 1) count--"
+                                                class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-red-50 hover:border-red-300 hover:text-red-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-red-900/20 dark:hover:border-red-700">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                        </button>
+                                    </div>
                                 </div>
 
-                                <div>
+                                <div x-data="{
+                                        totalMinutes: $wire.entangle('assignmentForm.time_per_part'),
+                                        hours: 0,
+                                        minutes: 0,
+                                        init() {
+                                            let val = parseInt(this.totalMinutes) || 0;
+                                            this.hours = Math.floor(val / 60);
+                                            this.minutes = val % 60;
+                                        },
+                                        update() {
+                                            let h = Math.min(Math.max(parseInt(this.hours) || 0, 0), 24);
+                                            let m = Math.min(Math.max(parseInt(this.minutes) || 0, 0), 59);
+                                            this.hours = h;
+                                            this.minutes = m;
+                                            this.totalMinutes = (h * 60) + m;
+                                        }
+                                    }" x-init="init()">
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
-                                        زمان هر پارت (دقیقه)
+                                        زمان هر پارت
                                     </label>
-                                    <input
-                                        type="number"
-                                        min="1"
-                                        wire:model="assignmentForm.time_per_part"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                    >
+                                    <div class="flex items-center gap-2">
+                                        <div class="flex-1">
+                                            <div class="relative">
+                                                <input type="number" min="0" max="59"
+                                                       x-model.number="minutes"
+                                                       @input="update()"
+                                                       class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                                       placeholder="0">
+                                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 dark:text-slate-500">دقیقه</span>
+                                            </div>
+                                        </div>
+                                        <span class="text-lg font-bold text-slate-400 dark:text-slate-500">:</span>
+
+                                        <div class="flex-1">
+                                            <div class="relative">
+                                                <input type="number" min="0" max="24"
+                                                       x-model.number="hours"
+                                                       @input="update()"
+                                                       class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
+                                                       placeholder="0">
+                                                <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 dark:text-slate-500">ساعت</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-1 text-[10px] text-slate-400 dark:text-slate-500" x-show="totalMinutes > 0">
+                                        مجموع: <span x-text="totalMinutes"></span> دقیقه
+                                    </div>
                                 </div>
                             </div>
 
@@ -853,14 +1008,17 @@
             </div>
         </div>
     </div>
+
     @push('script')
         <script type="text/javascript"
                 src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
         <script>
             (function () {
+                let dpReady = false;
                 function startJalaliDatepicker() {
                     if (typeof jalaliDatepicker !== 'undefined') {
                         jalaliDatepicker.startWatch();
+                        dpReady = true;
                     }
                 }
 
@@ -870,8 +1028,17 @@
                 // Re-init datepicker on Livewire updates (step changes)
                 document.addEventListener('livewire:init', () => {
                     Livewire.hook('morph.updated', () => {
-                        setTimeout(startJalaliDatepicker, 100);
+                        requestAnimationFrame(() => startJalaliDatepicker());
                     });
+                });
+                // Observe input changes for Livewire binding
+                document.addEventListener('change', function(e) {
+                    if (e.target && e.target.hasAttribute('data-jdp')) {
+                        let model = e.target.getAttribute('wire:model') || e.target.getAttribute('wire:model.live');
+                        if (model) {
+                            e.target.dispatchEvent(new Event('input', { bubbles: true }));
+                        }
+                    }
                 });
             })();
         </script>

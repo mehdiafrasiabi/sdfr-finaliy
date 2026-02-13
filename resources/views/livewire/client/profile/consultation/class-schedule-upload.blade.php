@@ -92,7 +92,7 @@
                                         <div class="flex items-center gap-3">
                                         <span class="inline-flex items-center justify-center w-10 h-10 rounded-full {{ $day['is_complete'] ? 'bg-green-100 dark:bg-green-900/30 text-green-600' : ($day['is_mandatory'] ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted') }} font-bold text-sm">
 
-                                               <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                               <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                           d="M8 3v2m8-2v2M4 8h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>
                                                     <text x="12" y="17" text-anchor="middle" font-size="9.5" font-weight="800"
@@ -121,56 +121,103 @@
 
                                     <!-- پارت‌ها -->
                                     <div class="p-4">
-                                        <div class="-mx-4 px-4 overflow-x-auto md:overflow-x-visible">
-                                            <div class="flex gap-3 md:grid md:grid-cols-5 md:gap-3 min-w-max md:min-w-0">
-
+                                        @php
+                                            $filledParts = collect($day['parts'])->where('is_filled', true);
+                                            $nextUnlocked = collect($day['parts'])->where('is_filled', false)->where('is_unlocked', true)->first();
+                                        @endphp
+                                        {{-- Desktop: grid layout --}}
+                                        <div class="hidden md:grid md:grid-cols-5 md:gap-3">
                                             @foreach($day['parts'] as $partInfo)
-                                                    <div class="w-44 md:w-auto flex-shrink-0 md:flex-shrink">
-                                                @if($partInfo['is_filled'])
-                                                    <!-- پارت پر شده -->
+                                                <div>
+                                                    @if($partInfo['is_filled'])
+                                                        <div class="relative group">
+                                                            <button
+                                                                @if(!$isFinalized)
+                                                                    wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
+                                                                @endif
+                                                                class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all {{ !$isFinalized ? 'hover:border-green-400 hover:shadow-md cursor-pointer' : '' }}">
+                                                                <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
+                                                                <div class="font-bold text-sm text-foreground truncate">{{ $partInfo['part']->lesson_name }}</div>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-500 mx-auto mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                                </svg>
+                                                            </button>
+                                                            @if(!$isFinalized)
+                                                                <button wire:click="deletePart({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
+                                                                        wire:confirm="آیا مطمئنید؟ پارت‌های بعدی هم حذف خواهند شد."
+                                                                        class="absolute -top-2 -left-2 w-6 h-6 bg-red-500 text-white rounded-full items-center justify-center text-xs hidden group-hover:flex shadow-lg">
+                                                                    &times;
+                                                                </button>
+                                                            @endif
+                                                        </div>
+                                                    @elseif($partInfo['is_unlocked'])
+                                                        <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
+                                                                class="w-full rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3 text-center transition-all hover:border-primary hover:bg-primary/10 hover:shadow-md cursor-pointer">
+                                                            <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                                            </svg>
+                                                            <div class="text-xs text-primary mt-1 font-semibold">افزودن</div>
+                                                        </button>
+                                                    @else
+                                                        <div class="w-full rounded-xl border border-border bg-background/50 p-3 text-center opacity-40">
+                                                            <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-muted mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                                            </svg>
+                                                            <div class="text-xs text-muted mt-1">قفل</div>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+
+                                        {{-- Mobile: add button first + horizontal scroll for filled items --}}
+                                        <div class="flex md:hidden gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 snap-x snap-mandatory" style="-ms-overflow-style:none;scrollbar-width:none;">
+                                            {{-- Add button always first --}}
+                                            @if(!$isFinalized && $nextUnlocked)
+                                                <div class="w-28 flex-shrink-0 snap-start">
+                                                    <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $nextUnlocked['order'] }})"
+                                                            class="w-full h-full min-h-[88px] rounded-xl border-2 border-dashed border-primary/50 bg-primary/5 p-3 text-center transition-all active:bg-primary/10">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-primary mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                                        </svg>
+                                                        <div class="text-xs text-primary mt-1 font-bold">افزودن</div>
+                                                    </button>
+                                                </div>
+                                            @endif
+
+                                            {{-- Filled parts --}}
+                                            @foreach($filledParts as $partInfo)
+                                                <div class="w-32 flex-shrink-0 snap-start mt-2">
                                                     <div class="relative group">
                                                         <button
                                                             @if(!$isFinalized)
                                                                 wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
                                                             @endif
-                                                            class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all {{ !$isFinalized ? 'hover:border-green-400 hover:shadow-md cursor-pointer' : '' }}">
-                                                            <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
-                                                            <div class="font-bold text-sm text-foreground truncate">{{ $partInfo['part']->lesson_name }}</div>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-500 mx-auto mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all {{ !$isFinalized ? 'active:border-green-400 cursor-pointer' : '' }}">
+                                                            <div class="text-[10px] text-muted mb-0.5">پارت {{ $partInfo['order'] }}</div>
+                                                            <div class="font-bold text-xs text-foreground truncate">{{ $partInfo['part']->lesson_name }}</div>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-green-500 mx-auto mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                                             </svg>
                                                         </button>
                                                         @if(!$isFinalized)
                                                             <button wire:click="deletePart({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
                                                                     wire:confirm="آیا مطمئنید؟ پارت‌های بعدی هم حذف خواهند شد."
-                                                                    class="absolute -top-2 -left-2 w-6 h-6 bg-red-500 text-white rounded-full items-center justify-center text-xs hidden group-hover:flex shadow-lg">
+                                                                    class="absolute -top-2 -left-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] shadow-lg">
                                                                 &times;
                                                             </button>
                                                         @endif
                                                     </div>
-                                                @elseif($partInfo['is_unlocked'])
-                                                    <!-- پارت باز (قابل پر شدن) -->
-                                                    <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
-                                                            class="w-full rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3 text-center transition-all hover:border-primary hover:bg-primary/10 hover:shadow-md cursor-pointer">
-                                                        <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                                        </svg>
-                                                        <div class="text-xs text-primary mt-1 font-semibold">افزودن</div>
-                                                    </button>
-                                                @else
-                                                    <!-- پارت قفل شده -->
-                                                    <div class="w-full rounded-xl border border-border bg-background/50 p-3 text-center opacity-40">
-                                                        <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-muted mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                                        </svg>
-                                                        <div class="text-xs text-muted mt-1">قفل</div>
-                                                    </div>
-                                                @endif
-                                                    </div>
+                                                </div>
                                             @endforeach
-                                            </div>
+                                            {{-- Show empty state if no parts and finalized --}}
+                                            @if($filledParts->isEmpty() && ($isFinalized || !$nextUnlocked))
+                                                <div class="w-full text-center py-3 text-xs text-muted">
+                                                    پارتی ثبت نشده
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

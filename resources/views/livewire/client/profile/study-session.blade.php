@@ -523,11 +523,8 @@
                                                             @endif
                                                         </td>
 
-                                                        <td class="px-3 py-3 text-center text-foreground">
-
-                                                             {{ $part->duration_minutes % 60 }}
-                                                            :
-                                                            {{ floor($part->duration_minutes / 60) }}
+                                                        <td class="px-3 py-3 text-center text-foreground" dir="ltr">
+                                                            {{ floor($part->duration_minutes / 60) }}:{{ str_pad($part->duration_minutes % 60, 2, '0', STR_PAD_LEFT) }}
                                                         </td>
 
                                                         <td class="px-3 py-3 text-center">

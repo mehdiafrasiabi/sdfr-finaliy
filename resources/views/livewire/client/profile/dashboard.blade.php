@@ -1,6 +1,7 @@
 <div class="max-w-7xl space-y-8 px-4 mx-auto">
+    {{-- Update Notification Overlay --}}
+    <livewire:client.profile.update-notification />
     @push('link')
-        <link rel="stylesheet" href="/client/assets/css/apexcharts.css"/>
         <style>
             /* ==================== Variables ==================== */
             :root {
@@ -434,12 +435,12 @@
                     @endif
 
                     <!-- Dashboard Title -->
-                    <div class="section-title">
-                        <div class="section-title-dots">
-                            <div class="dot dot-1"></div>
-                            <div class="dot dot-2"></div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-1">
+                            <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                            <div class="w-2 h-2 bg-foreground rounded-full"></div>
                         </div>
-                        <h2 class="font-black text-foreground text-xl">داشبورد</h2>
+                        <div class="font-black text-foreground">پیشخوان</div>
                     </div>
 
                     <!-- Support & Advisor Cards -->

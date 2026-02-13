@@ -1,9 +1,154 @@
 <div>
     <div class="container-xxl flex-grow-1 container-p-y bg-body text-body" dir="rtl">
 
+        {{-- D1: Modal پیش‌نمایش روزخوانی/پیش‌خوانی هفتگی --}}
+        @if($showWeeklyReadingsPreview)
+            <div class="modal fade show d-block" tabindex="-1"
+                 style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
+                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content shadow-lg border-0">
+                        <div class="modal-header text-white"
+                             style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);">
+                            <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                <i class="material-symbols-outlined">auto_fix_high</i>
+                                پیش‌نمایش روزخوانی و پیش‌خوانی هفتگی
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" wire:click="closeWeeklyReadingsPreview"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            @if(count($weeklyReadingsPreview) > 0)
+                                <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
+                                    <i class="material-symbols-outlined">info</i>
+                                    <span class="small">
+                                    @if(collect($weeklyReadingsPreview)->where('duration_minutes', 0)->count() > 0)
+                                            <strong>توجه:</strong> برخی پارت‌ها تایم ۰ دارند. بعد از ثبت، تایم آنها را تنظیم کنید.
+                                        @else
+                                            تایم‌ها بر اساس آخرین جلسه مشاوره تنظیم شده‌اند.
+                                        @endif
+                                </span>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-sm align-middle mb-0">
+                                        <thead>
+                                        <tr class="text-muted-2">
+                                            <th>#</th>
+                                            <th>نوع</th>
+                                            <th>درس</th>
+                                            <th class="text-center">روز</th>
+                                            <th class="text-center">تاریخ</th>
+                                            <th class="text-center">دقیقه</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($weeklyReadingsPreview as $idx => $item)
+                                            <tr>
+                                                <td class="text-center">{{ $idx + 1 }}</td>
+                                                <td>
+                                                    @if($item['type'] === 'daily')
+                                                        <span class="badge bg-primary-subtle text-primary">روزخوانی</span>
+                                                    @else
+                                                        <span class="badge bg-info-subtle text-info">پیش‌خوانی</span>
+                                                    @endif
+                                                </td>
+                                                <td class="fw-semibold">{{ $item['subject'] }}</td>
+                                                <td class="text-center"><span class="badge bg-body-tertiary text-body border rounded-pill">{{ $item['day_name'] }}</span></td>
+                                                <td class="text-center">{{ $item['jalali_date'] }}</td>
+                                                <td class="text-center">
+                                                <span class="{{ $item['duration_minutes'] == 0 ? 'text-warning fw-bold' : '' }}">
+                                                    {{ $item['duration_minutes'] }}
+                                                </span>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <p class="text-muted-2 text-center">موردی برای نمایش وجود ندارد.</p>
+                            @endif
+                        </div>
+
+                        <div class="modal-footer bg-body-tertiary">
+                            <button type="button" class="btn btn-outline-secondary" wire:click="closeWeeklyReadingsPreview">
+                                انصراف
+                            </button>
+                            @if(count($weeklyReadingsPreview) > 0)
+                                <button type="button" class="btn btn-success" wire:click="applyWeeklyReadings">
+                                <span wire:loading.remove wire:target="applyWeeklyReadings">
+                                    <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
+                                    ثبت در برنامه
+                                </span>
+                                    <span wire:loading wire:target="applyWeeklyReadings">در حال ثبت...</span>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- D2: Modal انتخاب روز برای امتحان کلاسی --}}
+        @if($showExamDaySelectModal)
+            <div class="modal fade show d-block" tabindex="-1"
+                 style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content shadow-lg border-0">
+                        <div class="modal-header text-white"
+                             style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);">
+                            <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                <i class="material-symbols-outlined">event</i>
+                                انتخاب روز برای امتحان کلاسی
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" wire:click="closeExamDaySelectModal"></button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <p class="fw-semibold mb-1">درس: {{ $examDaySelectData['subject'] ?? '' }}</p>
+                                <p class="small text-muted-2 mb-0">
+                                    {{ $examDaySelectData['part_count'] ?? 0 }} پارت -
+                                    {{ $examDaySelectData['time_per_part'] ?? 0 }} دقیقه هر پارت
+                                </p>
+                            </div>
+
+                            <label class="form-label fw-semibold">روز مورد نظر را انتخاب کنید:</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @if(isset($weekDays))
+                                    @foreach($weekDays as $day)
+                                        @if(!$day['is_rest_day'])
+                                            <button type="button"
+                                                    wire:click="$set('examDaySelectTarget', {{ $day['index'] }})"
+                                                    class="btn btn-sm {{ $examDaySelectTarget === $day['index'] ? 'btn-primary' : 'btn-outline-primary' }}">
+                                                {{ $day['name'] }} ({{ $day['jalali_date'] }})
+                                            </button>
+                                        @endif
+                                    @endforeach
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="modal-footer bg-body-tertiary">
+                            <button type="button" class="btn btn-outline-secondary" wire:click="closeExamDaySelectModal">
+                                انصراف
+                            </button>
+                            <button type="button" class="btn btn-warning text-white" wire:click="applyExamToDay"
+                                {{ $examDaySelectTarget === null ? 'disabled' : '' }}>
+                            <span wire:loading.remove wire:target="applyExamToDay">
+                                <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
+                                ثبت در برنامه
+                            </span>
+                                <span wire:loading wire:target="applyExamToDay">در حال ثبت...</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
         @push('link')
 
-            <style>
+        <style>
                 [x-cloak] {
                     display: none !important;
                 }
@@ -322,14 +467,14 @@
 
             <div class="card-body">
                 <div class="row g-3">
-                    <div class="col-6 col-md-2">
-                        <a href="#"
-                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
-                            <i class="material-symbols-outlined d-block mb-2 text-primary">assessment</i>
-                            <span class="small d-block fw-semibold">کارنامه وضعیت</span>
-                            <span class="small text-muted-2">گزارش کلی</span>
-                        </a>
-                    </div>
+{{--                    <div class="col-6 col-md-2">--}}
+{{--                        <a href="#"--}}
+{{--                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">--}}
+{{--                            <i class="material-symbols-outlined d-block mb-2 text-primary">assessment</i>--}}
+{{--                            <span class="small d-block fw-semibold">کارنامه وضعیت</span>--}}
+{{--                            <span class="small text-muted-2">گزارش کلی</span>--}}
+{{--                        </a>--}}
+{{--                    </div>--}}
 
                     <div class="col-6 col-md-2">
                         <a href="{{ route('admin.student.studySession.detail', $student->id) }}"
@@ -417,27 +562,36 @@
                                                     <th>زمان هر پارت</th>
 
                                                     <th>تاریخ آزمون</th>
+                                                    <th class="text-center">ثبت در برنامه</th>
+
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                @foreach($preSession->exams as $exam)
+                                                @foreach($preSession->exams as $examIdx => $exam)
                                                     <tr>
                                                         <td class="fw-semibold">{{ $exam->subject }}</td>
                                                         <td>{{ $exam->part_count }} پارت</td>
                                                         <td>{{ $exam->time_per_part }} دقیقه</td>
                                                         <td>{{ jalali($exam->exam_date)->format('%d %B %Y') }}</td>
+                                                        <td class="text-center">
+                                                            <button wire:click="openExamDaySelect({{ $examIdx }})"
+                                                                    class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
+                                                                <i class="material-symbols-outlined" style="font-size: 14px;">event</i>
+                                                                انتخاب روز
+                                                            </button>
+                                                        </td>
                                                     </tr>
                                                 @endforeach
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div class="mt-3">
-                                            <button wire:click="previewExamDistribution"
-                                                    class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
-                                                <i class="material-symbols-outlined" style="font-size: 16px;">auto_fix_high</i>
-                                                نشستن خودکار در برنامه
-                                            </button>
-                                        </div>
+{{--                                        <div class="mt-3">--}}
+{{--                                            <button wire:click="previewExamDistribution"--}}
+{{--                                                    class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">--}}
+{{--                                                <i class="material-symbols-outlined" style="font-size: 16px;">auto_fix_high</i>--}}
+{{--                                                نشستن خودکار در برنامه--}}
+{{--                                            </button>--}}
+{{--                                        </div>--}}
                                     @else
                                         <p class="text-muted-2 small mb-0">هیچ امتحانی ثبت نشده است</p>
                                     @endif
@@ -585,7 +739,17 @@
                             <th class="text-center" style="width: 100px;">آزمون جامع</th>
 
                             <th class="text-center" style="width: 110px;">ساعت</th>
-                            @for($i = 1; $i <= 10; $i++)
+                            @php
+                                $maxPartsInWeek = 10;
+                                if(isset($weekDays)) {
+                                    foreach($weekDays as $wd) {
+                                        $c = count($wd['parts']);
+                                        if($c >= $maxPartsInWeek) $maxPartsInWeek = $c + 1;
+                                    }
+                                }
+                                $maxPartsInWeek = max($maxPartsInWeek, 10);
+                            @endphp
+                            @for($i = 1; $i <= $maxPartsInWeek; $i++)
                                 <th class="text-center">پلن {{ $i }}</th>
                             @endfor
                             <th class="text-center" style="width: 95px;">تست روز</th>
@@ -647,7 +811,7 @@
                                 </td>
 
                                 {{-- پلن‌ها --}}
-                                @for($i = 0; $i < 10; $i++)
+                                @for($i = 0; $i < $maxPartsInWeek; $i++)
                                     <td>
                                         @if($day['is_rest_day'])
                                             <div
@@ -1122,16 +1286,55 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-4">
+                            <div class="col-md-4" x-data="{
+                                    totalMinutes: $wire.entangle('partForm.duration_minutes'),
+                                    hours: 0,
+                                    minutes: 0,
+                                    init() {
+                                        let val = parseInt(this.totalMinutes) || 0;
+                                        this.hours = Math.floor(val / 60);
+                                        this.minutes = val % 60;
+                                        this.$watch('totalMinutes', (v) => {
+                                            let val = parseInt(v) || 0;
+                                            this.hours = Math.floor(val / 60);
+                                            this.minutes = val % 60;
+                                        });
+                                    },
+                                    update() {
+                                        let h = Math.min(Math.max(parseInt(this.hours) || 0, 0), 24);
+                                        let m = Math.min(Math.max(parseInt(this.minutes) || 0, 0), 59);
+                                        this.hours = h;
+                                        this.minutes = m;
+                                        this.totalMinutes = (h * 60) + m;
+                                    }
+                                }" x-init="init()">
                                 <label class="form-label fw-semibold d-flex align-items-center gap-2">
                                     <i class="material-symbols-outlined text-primary"
                                        style="font-size: 20px;">schedule</i>
-                                    مدت زمان (دقیقه) <span class="text-danger">*</span>
+                                    مدت زمان <span class="text-danger">*</span>
                                 </label>
-                                <input type="number"
-                                       min="1"
-                                       wire:model="partForm.duration_minutes"
-                                       class="form-control @error('partForm.duration_minutes') is-invalid @enderror">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="flex-fill position-relative">
+                                        <input type="number" min="0" max="24"
+                                               x-model.number="hours"
+                                               @input="update()"
+                                               class="form-control text-center @error('partForm.duration_minutes') is-invalid @enderror"
+                                               placeholder="0">
+                                        <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">ساعت</small>
+                                    </div>
+                                    <span class="fw-bold text-muted fs-5">:</span>
+                                    <div class="flex-fill position-relative">
+                                        <input type="number" min="0" max="59"
+                                               x-model.number="minutes"
+                                               @input="update()"
+                                               class="form-control text-center"
+                                               placeholder="0">
+                                        <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">دقیقه</small>
+                                    </div>
+                                </div>
+                                <small class="text-muted d-block mt-1" x-show="totalMinutes > 0">
+                                    مجموع: <span x-text="totalMinutes"></span> دقیقه
+                                </small>
                                 @error('partForm.duration_minutes')
                                 <div class="text-danger small">{{ $message }}</div>
                                 @enderror
@@ -1333,7 +1536,18 @@
                                 </div>
                             </div>
                         </div>
-
+                        {{-- دکمه ثبت خودکار روزخوانی/پیش‌خوانی کل هفته --}}
+                        <hr>
+                        <div class="d-flex justify-content-center">
+                            <button wire:click="previewWeeklyReadings"
+                                    class="btn btn-outline-success d-flex align-items-center gap-2">
+                                <i class="material-symbols-outlined" style="font-size: 20px;">auto_fix_high</i>
+                                ثبت خودکار روزخوانی و پیش‌خوانی کل هفته
+                                <span wire:loading wire:target="previewWeeklyReadings">
+                                    <span class="spinner-border spinner-border-sm"></span>
+                                </span>
+                            </button>
+                        </div>
                         {{-- نمایش پارت‌های روزخوانی/پیش‌خوانی ثبت شده امروز --}}
                         @if($weeklyProgram ?? null)
                             @php
@@ -1485,11 +1699,50 @@
                             <textarea wire:model="dailyReadingDescription" class="form-control" rows="2"></textarea>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">مدت زمان (دقیقه)</label>
-                            <input type="number" wire:model="dailyReadingDuration" class="form-control" min="1">
-                            <small class="text-muted-2">
-                                پیش‌فرض: {{ $dailyReadingType === 'daily' ? '۲۰ دقیقه (روزخوانی)' : '۱۵ دقیقه (پیش‌خوانی)' }}
+                        <div class="mb-3" x-data="{
+                                totalMinutes: $wire.entangle('dailyReadingDuration'),
+                                hours: 0,
+                                minutes: 0,
+                                init() {
+                                    let val = parseInt(this.totalMinutes) || 0;
+                                    this.hours = Math.floor(val / 60);
+                                    this.minutes = val % 60;
+                                    this.$watch('totalMinutes', (v) => {
+                                        let val = parseInt(v) || 0;
+                                        this.hours = Math.floor(val / 60);
+                                        this.minutes = val % 60;
+                                    });
+                                },
+                                update() {
+                                    let h = Math.min(Math.max(parseInt(this.hours) || 0, 0), 24);
+                                    let m = Math.min(Math.max(parseInt(this.minutes) || 0, 0), 59);
+                                    this.hours = h;
+                                    this.minutes = m;
+                                    this.totalMinutes = (h * 60) + m;
+                                }
+                            }" x-init="init()">
+                            <label class="form-label fw-semibold">مدت زمان</label>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="flex-fill position-relative">
+                                    <input type="number" min="0" max="24"
+                                           x-model.number="hours"
+                                           @input="update()"
+                                           class="form-control text-center"
+                                           placeholder="0">
+                                    <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">ساعت</small>
+                                </div>
+                                <span class="fw-bold text-muted fs-5">:</span>
+                                <div class="flex-fill position-relative">
+                                    <input type="number" min="0" max="59"
+                                           x-model.number="minutes"
+                                           @input="update()"
+                                           class="form-control text-center"
+                                           placeholder="0">
+                                    <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">دقیقه</small>
+                                </div>
+                            </div>
+                            <small class="text-muted-2 d-block mt-1">
+                                <span x-show="totalMinutes > 0"> | مجموع: <span x-text="totalMinutes"></span> دقیقه</span>
                             </small>
                         </div>
                     </div>
@@ -1580,15 +1833,54 @@
                             @enderror
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" x-data="{
+                                totalMinutes: $wire.entangle('examPartForm.duration_minutes'),
+                                hours: 0,
+                                minutes: 0,
+                                init() {
+                                    let val = parseInt(this.totalMinutes) || 0;
+                                    this.hours = Math.floor(val / 60);
+                                    this.minutes = val % 60;
+                                    this.$watch('totalMinutes', (v) => {
+                                        let val = parseInt(v) || 0;
+                                        this.hours = Math.floor(val / 60);
+                                        this.minutes = val % 60;
+                                    });
+                                },
+                                update() {
+                                    let h = Math.min(Math.max(parseInt(this.hours) || 0, 0), 24);
+                                    let m = Math.min(Math.max(parseInt(this.minutes) || 0, 0), 59);
+                                    this.hours = h;
+                                    this.minutes = m;
+                                    this.totalMinutes = (h * 60) + m;
+                                }
+                            }" x-init="init()">
                             <label class="form-label fw-semibold d-flex align-items-center gap-2">
                                 <i class="material-symbols-outlined text-primary" style="font-size: 20px;">schedule</i>
-                                مدت زمان (دقیقه) <span class="text-danger">*</span>
+                                مدت زمان <span class="text-danger">*</span>
                             </label>
-                            <input type="number"
-                                   min="1"
-                                   wire:model="examPartForm.duration_minutes"
-                                   class="form-control @error('examPartForm.duration_minutes') is-invalid @enderror">
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="flex-fill position-relative">
+                                    <input type="number" min="0" max="24"
+                                           x-model.number="hours"
+                                           @input="update()"
+                                           class="form-control text-center @error('examPartForm.duration_minutes') is-invalid @enderror"
+                                           placeholder="0">
+                                    <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">ساعت</small>
+                                </div>
+                                <span class="fw-bold text-muted fs-5">:</span>
+                                <div class="flex-fill position-relative">
+                                    <input type="number" min="0" max="59"
+                                           x-model.number="minutes"
+                                           @input="update()"
+                                           class="form-control text-center"
+                                           placeholder="0">
+                                    <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">دقیقه</small>
+                                </div>
+                            </div>
+                            <small class="text-muted d-block mt-1" x-show="totalMinutes > 0">
+                                مجموع: <span x-text="totalMinutes"></span> دقیقه
+                            </small>
                             @error('examPartForm.duration_minutes')
                             <div class="text-danger small">{{ $message }}</div>
                             @enderror
