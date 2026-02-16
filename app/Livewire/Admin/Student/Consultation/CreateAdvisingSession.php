@@ -1,126 +1,46 @@
 <?php
-
-
 namespace App\Livewire\Admin\Student\Consultation;
-
-
 use App\Models\Student;
-
-
 use App\Models\AdvisingSession;
-
-
 use App\Models\AdvisingPreSession;
-
-
 use App\Services\NotificationService;
 use Illuminate\Support\Facades\Validator;
-
-
 use Livewire\Component;
-
-
 use Livewire\WithPagination;
-
-
 use Carbon\Carbon;
 use Morilog\Jalali\Jalalian;
-
-
 class CreateAdvisingSession extends Component
-
-
 {
-
-
     use WithPagination;
-
-
     public $studentId = null;
-
-
     public $title;
-
-
     public $description;
-
-
     public $activation_date;
-
-
     public $session_time;
-
-
     public $location_type = 'online';
-
-
     public $skyroom_link;
-
-
     // ویرایش جلسه
-
     public $editingSessionId = null;
-
-
     public $result_status = null;
-
-
     protected function messages()
-
-
     {
-
-
         return [
-
-
             'title.required' => 'وارد کردن عنوان جلسه الزامی است.',
-
-
             'title.max' => 'عنوان جلسه نباید بیشتر از ۲۵۵ کاراکتر باشد.',
-
-
             'description.string' => 'فرمت توضیحات صحیح نیست.',
-
-
             'activation_date.required' => 'تاریخ برگزاری جلسه الزامی است.',
-
-
             'activation_date.date' => 'فرمت تاریخ صحیح نیست.',
-
-
             'session_time.required' => 'ساعت برگزاری جلسه الزامی است.',
-
-
             'location_type.required' => 'محل برگزاری الزامی است.',
-
-
             'location_type.in' => 'محل برگزاری معتبر نیست.',
-
-
             'skyroom_link.required_if' => 'لینک جلسه آنلاین الزامی است.',
-
-
             'skyroom_link.url' => 'فرمت لینک صحیح نیست.',
-
-
         ];
-
-
     }
-
-
     public function mount(Student $student)
-
-
     {
-
-
         $this->studentId = $student->id;
-
-
     }
-
 
     public function createSession()
     {
@@ -131,13 +51,10 @@ class CreateAdvisingSession extends Component
             'session_time' => 'required',
             'location_type' => 'required|in:in_person,online',
         ];
-
         if ($this->location_type === 'online') {
             $rules['skyroom_link'] = 'required|url';
         }
-
         $this->validate($rules, $this->messages());
-
         $session = AdvisingSession::create([
             'student_id' => $this->studentId,
             'advisor_id' => auth()->id(),
@@ -150,115 +67,61 @@ class CreateAdvisingSession extends Component
             'status' => 'inactive',
             'is_active' => false,
         ]);
-
         AdvisingPreSession::create([
             'advising_session_id' => $session->id,
             'student_id' => $this->studentId,
             'title' => $this->title,
             'status' => 'pending',
         ]);
-
         // ارسال نوتیفیکیشن به دانش‌آموز
-
         $this->sendSessionCreatedNotification($session);
-
-
         $this->reset(['title', 'description', 'activation_date', 'session_time', 'skyroom_link', 'editingSessionId']);
-
         $this->location_type = 'online';
-
-
         $this->dispatch('success', 'جلسه مشاوره و پیش‌جلسه با موفقیت ایجاد شد.');
-
     }
-
-
     /**
      * ارسال نوتیفیکیشن هنگام ایجاد جلسه مشاوره
      */
-
     protected function sendSessionCreatedNotification(AdvisingSession $session): void
-
     {
-
         $student = Student::with('user')->find($this->studentId);
-
         if (!$student || !$student->user) {
-
             return;
-
         }
-
-
         $studentName = $student->user->name ?? 'دانش آموز';
-
         $jalaliDate = Jalalian::fromDateTime($session->activation_date)->format('Y/m/d');
-
         $sessionTime = Carbon::parse($session->session_time)->format('H:i');
-
-
         if ($session->location_type === 'online') {
-
             $message = "{$studentName} عزیز\nجلسه مشاوره شما در تاریخ {$jalaliDate} و در ساعت {$sessionTime} به آدرس ({$session->skyroom_link}) برگزار خواهد شد.\nبا تشکر";
-
         } else {
-
             $message = "{$studentName} عزیز\nجلسه مشاوره شما در تاریخ {$jalaliDate} و در ساعت {$sessionTime} برگزار خواهد شد.\nبا تشکر";
-
         }
-
-
         NotificationService::sendToStudent(
-
             $this->studentId,
-
             'جلسه مشاوره جدید',
-
             $message
-
         );
     }
 
-
     // ویرایش جلسه
-
     public function editSession($sessionId)
-
     {
-
         $session = AdvisingSession::find($sessionId);
-
-
         if (!$session) {
-
             $this->dispatch('warning', 'جلسه یافت نشد.');
-
             return;
-
         }
-
-
         $this->editingSessionId = $session->id;
-
         $this->title = $session->title;
-
         $this->description = $session->description;
-
         $this->activation_date = $session->activation_date->format('Y-m-d');
-
         $this->session_time = $session->session_time ? Carbon::parse($session->session_time)->format('H:i') : null;
-
         $this->location_type = $session->location_type;
-
         $this->skyroom_link = $session->skyroom_link;
-
     }
-
-
     public function updateSession()
     {
         if (!$this->editingSessionId) return;
-
         $rules = [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -266,19 +129,15 @@ class CreateAdvisingSession extends Component
             'session_time' => 'required',
             'location_type' => 'required|in:in_person,online',
         ];
-
         if ($this->location_type === 'online') {
             $rules['skyroom_link'] = 'required|url';
         }
-
         $this->validate($rules, $this->messages());
-
         $session = AdvisingSession::find($this->editingSessionId);
         if (!$session) {
             $this->dispatch('warning', 'جلسه یافت نشد.');
             return;
         }
-
         $session->update([
             'title' => $this->title,
             'description' => $this->description,
@@ -287,133 +146,56 @@ class CreateAdvisingSession extends Component
             'location_type' => $this->location_type,
             'skyroom_link' => $this->location_type === 'online' ? $this->skyroom_link : null,
         ]);
-
         // ارسال نوتیفیکیشن تغییر جلسه به دانش‌آموز
-
         $this->sendSessionUpdatedNotification();
-
-
         $this->reset(['title', 'description', 'activation_date', 'session_time', 'skyroom_link', 'editingSessionId']);
-
         $this->location_type = 'online';
-
-
         $this->dispatch('success', 'جلسه مشاوره با موفقیت ویرایش شد.');
-
     }
-
-
     /**
      * ارسال نوتیفیکیشن هنگام ویرایش جلسه مشاوره
      */
-
     protected function sendSessionUpdatedNotification(): void
-
     {
-
         $student = Student::with('user')->find($this->studentId);
-
         if (!$student || !$student->user) {
-
             return;
-
         }
-
-
         $studentName = $student->user->name ?? 'دانش آموز';
-
-
         $message = "{$studentName} عزیز\nجلسه مشاوره شما تغییر یافت. برای اطلاعات بیشتر به بخش اتاق مشاوره مراجعه کنید.\nبا تشکر";
-
-
         NotificationService::sendToStudent(
-
             $this->studentId,
-
             'تغییر جلسه مشاوره',
-
             $message
-
         );
     }
-
-
     public function cancelEdit()
-
     {
-
         $this->reset(['title', 'description', 'activation_date', 'session_time', 'skyroom_link', 'editingSessionId']);
-
         $this->location_type = 'online';
-
     }
-
-
     // به‌روزرسانی وضعیت نتیجه جلسه
-
-
     public function updateResultStatus($sessionId, $status)
-
-
     {
-
-
         $session = AdvisingSession::find($sessionId);
-
-
         if ($session) {
-
-
             $session->update([
-
-
                 'result_status' => $status,
-
-
                 'status' => 'completed',
-
-
             ]);
-
-
             $this->dispatch('success', 'وضعیت جلسه با موفقیت ثبت شد.');
-
-
         }
-
-
     }
-
-
     // حذف جلسه
-
-
     public function deleteSession($id)
-
-
     {
-
-
         $session = AdvisingSession::find($id);
-
-
         if ($session) {
-
-
             $session->delete();
-
-
             $this->dispatch('success', 'جلسه مشاوره حذف شد.');
-
-
         } else {
-
-
             $this->dispatch('warning', 'جلسه مورد نظر یافت نشد.');
-
-
         }
-
 
     }
 
@@ -423,48 +205,21 @@ class CreateAdvisingSession extends Component
             $this->skyroom_link = null;
         }
     }
-
-
     public function render()
-
-
     {
-
-
         $student = Student::with(['user.personalInformation'])->find($this->studentId);
-
-
         $sessions = AdvisingSession::where('student_id', $this->studentId)
             ->with('preSession')
             ->orderBy('created_at', 'desc')
             ->paginate(10);
-
-
         // فعال‌سازی خودکار جلسات
-
-
         foreach ($sessions as $session) {
-
-
             $session->activateIfNeeded();
-
-
         }
-
-
         return view('livewire.admin.student.consultation.create-advising-session', [
-
-
             'student' => $student,
-
-
             'sessions' => $sessions,
-
-
         ])->layout('layouts.admin.app');
 
-
     }
-
-
 }

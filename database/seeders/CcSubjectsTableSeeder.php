@@ -1174,6 +1174,116 @@ class CcSubjectsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:52:54',
                 'updated_at' => '2026-02-08 19:52:54',
             ),
+            105 => 
+            array (
+                'id' => 147,
+                'cc_grade_id' => 12,
+                'cc_field_id' => NULL,
+                'name' => 'آمادگی دفاعی',
+                'type' => 'general',
+                'order' => 0,
+                'created_at' => '2026-02-16 14:54:44',
+                'updated_at' => '2026-02-16 14:54:44',
+            ),
+            106 => 
+            array (
+                'id' => 148,
+                'cc_grade_id' => 12,
+                'cc_field_id' => NULL,
+                'name' => 'ریاضی',
+                'type' => 'specialized',
+                'order' => 1,
+                'created_at' => '2026-02-16 14:54:59',
+                'updated_at' => '2026-02-16 14:54:59',
+            ),
+            107 => 
+            array (
+                'id' => 149,
+                'cc_grade_id' => 12,
+                'cc_field_id' => NULL,
+                'name' => 'علوم تجربی',
+                'type' => 'specialized',
+                'order' => 2,
+                'created_at' => '2026-02-16 14:55:11',
+                'updated_at' => '2026-02-16 14:55:11',
+            ),
+            108 => 
+            array (
+                'id' => 150,
+                'cc_grade_id' => 12,
+                'cc_field_id' => NULL,
+                'name' => 'انگلیسی',
+                'type' => 'general',
+                'order' => 3,
+                'created_at' => '2026-02-16 14:55:26',
+                'updated_at' => '2026-02-16 14:55:26',
+            ),
+            109 => 
+            array (
+                'id' => 151,
+                'cc_grade_id' => 12,
+                'cc_field_id' => NULL,
+                'name' => 'مطالعات اجتماعی',
+                'type' => 'general',
+                'order' => 4,
+                'created_at' => '2026-02-16 14:55:40',
+                'updated_at' => '2026-02-16 14:55:40',
+            ),
+            110 => 
+            array (
+                'id' => 152,
+                'cc_grade_id' => 12,
+                'cc_field_id' => NULL,
+                'name' => 'فارسی',
+                'type' => 'specialized',
+                'order' => 5,
+                'created_at' => '2026-02-16 14:55:51',
+                'updated_at' => '2026-02-16 14:55:51',
+            ),
+            111 => 
+            array (
+                'id' => 153,
+                'cc_grade_id' => 12,
+                'cc_field_id' => NULL,
+                'name' => 'عربی',
+                'type' => 'specialized',
+                'order' => 6,
+                'created_at' => '2026-02-16 14:56:02',
+                'updated_at' => '2026-02-16 14:56:02',
+            ),
+            112 => 
+            array (
+                'id' => 154,
+                'cc_grade_id' => 12,
+                'cc_field_id' => NULL,
+                'name' => 'پیام‌های آسمان',
+                'type' => 'general',
+                'order' => 7,
+                'created_at' => '2026-02-16 14:56:16',
+                'updated_at' => '2026-02-16 14:56:16',
+            ),
+            113 => 
+            array (
+                'id' => 155,
+                'cc_grade_id' => 12,
+                'cc_field_id' => NULL,
+                'name' => 'هوش و استعداد تحلیلی',
+                'type' => 'specialized',
+                'order' => 8,
+                'created_at' => '2026-02-16 14:56:32',
+                'updated_at' => '2026-02-16 14:56:32',
+            ),
+            114 => 
+            array (
+                'id' => 156,
+                'cc_grade_id' => 12,
+                'cc_field_id' => NULL,
+                'name' => 'قرآن',
+                'type' => 'general',
+                'order' => 9,
+                'created_at' => '2026-02-16 14:56:53',
+                'updated_at' => '2026-02-16 14:56:53',
+            ),
         ));
         
         

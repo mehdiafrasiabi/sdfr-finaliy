@@ -74,11 +74,11 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                                 <div class="text-sm text-muted leading-relaxed space-y-1">
-                                    <p>- از شنبه تا چهارشنبه <strong class="text-foreground">حداقل 3 پارت</strong> باید ثبت شود.</p>
-                                    <p>- پنجشنبه و جمعه اختیاری است.</p>
-                                    <p>- هر روز حداکثر 5 پارت قابل ثبت است.</p>
-                                    <p>- پارت‌ها باید به ترتیب پر شوند.</p>
-                                    <p>- پس از ثبت نهایی، امکان تغییر وجود نخواهد داشت.</p>
+                                    <p>- تمام روزهای هفته اختیاری هستند و الزامی برای تکمیل شنبه تا چهارشنبه وجود ندارد.</p>
+                                    <p>- برای ثبت نهایی کافی است <strong class="text-foreground">حداقل یک پارت</strong> ثبت کرده باشید.</p>
+                                    <p>- هر روز حداکثر 5 پارت قابل ثبت است و پارت‌ها باید به ترتیب پر شوند.</p>
+                                    <p>- با کلیک روی هر پارت ثبت‌شده می‌توانید آن را ویرایش کنید.</p>
+                                    <p>- در هر زمان می‌توانید پارت‌ها را ویرایش کنید و دوباره ثبت نهایی بزنید.</p>
                                 </div>
                             </div>
                         </div>
@@ -102,16 +102,12 @@
                                         </span>
                                             <div>
                                                 <span class="font-bold text-foreground">{{ $day['name'] }}</span>
-                                                @if($day['is_mandatory'])
-                                                    <span class="text-xs text-red-500 mr-2">(اجباری)</span>
-                                                @else
-                                                    <span class="text-xs text-muted mr-2">(اختیاری)</span>
-                                                @endif
+                                                <span class="text-xs text-muted mr-2">(اختیاری)</span>
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <span class="text-sm text-muted">{{ $day['filled_count'] }} / {{ \App\Models\ClassSchedule::MAX_PARTS_PER_DAY }}</span>
-                                            @if($day['is_complete'] && $day['is_mandatory'])
+                                            @if($day['filled_count'] > 0)
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                 </svg>
@@ -131,24 +127,19 @@
                                                 <div>
                                                     @if($partInfo['is_filled'])
                                                         <div class="relative group">
-                                                            <button
-                                                                @if(!$isFinalized)
-                                                                    wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
-                                                                @endif
-                                                                class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all {{ !$isFinalized ? 'hover:border-green-400 hover:shadow-md cursor-pointer' : '' }}">
+                                                            <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
+                                                                    class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all hover:border-green-400 hover:shadow-md cursor-pointer">
                                                                 <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
                                                                 <div class="font-bold text-sm text-foreground truncate">{{ $partInfo['part']->lesson_name }}</div>
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-500 mx-auto mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                                                 </svg>
                                                             </button>
-                                                            @if(!$isFinalized)
-                                                                <button wire:click="deletePart({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
-                                                                        wire:confirm="آیا مطمئنید؟ پارت‌های بعدی هم حذف خواهند شد."
-                                                                        class="absolute -top-2 -left-2 w-6 h-6 bg-red-500 text-white rounded-full items-center justify-center text-xs hidden group-hover:flex shadow-lg">
-                                                                    &times;
-                                                                </button>
-                                                            @endif
+                                                            <button wire:click="deletePart({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
+                                                                    wire:confirm="آیا مطمئنید؟ پارت‌های بعدی هم حذف خواهند شد."
+                                                                    class="absolute -top-2 -left-2 w-6 h-6 bg-red-500 text-white rounded-full items-center justify-center text-xs hidden group-hover:flex shadow-lg">
+                                                                &times;
+                                                            </button>
                                                         </div>
                                                     @elseif($partInfo['is_unlocked'])
                                                         <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
@@ -175,7 +166,7 @@
                                         {{-- Mobile: add button first + horizontal scroll for filled items --}}
                                         <div class="flex md:hidden gap-3 overflow-x-auto scrollbar-hide -mx-4 px-4 snap-x snap-mandatory" style="-ms-overflow-style:none;scrollbar-width:none;">
                                             {{-- Add button always first --}}
-                                            @if(!$isFinalized && $nextUnlocked)
+                                            @if($nextUnlocked)
                                                 <div class="w-28 flex-shrink-0 snap-start">
                                                     <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $nextUnlocked['order'] }})"
                                                             class="w-full h-full min-h-[88px] rounded-xl border-2 border-dashed border-primary/50 bg-primary/5 p-3 text-center transition-all active:bg-primary/10">
@@ -191,24 +182,18 @@
                                             @foreach($filledParts as $partInfo)
                                                 <div class="w-32 flex-shrink-0 snap-start mt-2">
                                                     <div class="relative group">
-                                                        <button
-                                                            @if(!$isFinalized)
-                                                                wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
-                                                            @endif
-                                                            class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all {{ !$isFinalized ? 'active:border-green-400 cursor-pointer' : '' }}">
-                                                            <div class="text-[10px] text-muted mb-0.5">پارت {{ $partInfo['order'] }}</div>
+                                                        <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
+                                                                class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all active:border-green-400 cursor-pointer">                                                            <div class="text-[10px] text-muted mb-0.5">پارت {{ $partInfo['order'] }}</div>
                                                             <div class="font-bold text-xs text-foreground truncate">{{ $partInfo['part']->lesson_name }}</div>
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-green-500 mx-auto mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                                             </svg>
                                                         </button>
-                                                        @if(!$isFinalized)
-                                                            <button wire:click="deletePart({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
-                                                                    wire:confirm="آیا مطمئنید؟ پارت‌های بعدی هم حذف خواهند شد."
-                                                                    class="absolute -top-2 -left-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] shadow-lg">
-                                                                &times;
-                                                            </button>
-                                                        @endif
+                                                        <button wire:click="deletePart({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
+                                                                wire:confirm="آیا مطمئنید؟ پارت‌های بعدی هم حذف خواهند شد."
+                                                                class="absolute -top-2 -left-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] shadow-lg">
+                                                            &times;
+                                                        </button>
                                                     </div>
                                                 </div>
                                             @endforeach
@@ -225,13 +210,12 @@
                         </div>
 
                         <!-- دکمه ثبت نهایی -->
-                        @if(!$isFinalized)
                             <div dir="rtl" class="flex items-center justify-between gap-4">
                                 <a href="{{ route('client.profile.consultation.sessions') }}">
 
                                 </a>
 
-                                <button wire:click="finalizeSchedule"
+                                <button wire:click="openFinalizeModal"
                                         @if(!$canFinalize) disabled @endif
                                         class="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm transition-colors
                                         {{ $canFinalize
@@ -243,14 +227,40 @@
                                     ثبت نهایی برنامه کلاسی
                                 </button>
                             </div>
-                        @endif
-
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- مودال انتخاب درس -->
+        @if($showFinalizeModal)
+            <div class="fixed inset-0 z-50 overflow-y-auto" x-transition.opacity>
+                <div class="flex items-center justify-center min-h-screen px-4">
+                    <div class="relative w-full max-w-md overflow-hidden transition-all transform bg-background border border-border rounded-2xl shadow-2xl z-20" dir="rtl">
+                        <div class="p-5 border-b border-border">
+                            <h3 class="font-bold text-foreground text-lg">تایید ثبت نهایی / به‌روزرسانی برنامه</h3>
+                        </div>
+                        <div class="p-5 space-y-2 text-sm text-muted">
+                            <p>آیا از ثبت نهایی برنامه کلاسی مطمئن هستید؟</p>
+                            <p>در آینده هم می‌توانید ویرایش کنید و دوباره ثبت نهایی بزنید.</p>
+                        </div>
+                        <div class="flex items-center gap-x-3 border-t border-border p-4">
+                            <button wire:click="closeFinalizeModal"
+                                    class="w-full rounded-xl border border-border py-3 px-4 text-foreground hover:bg-secondary transition-colors">
+                                انصراف
+                            </button>
+                            <button wire:click="finalizeSchedule"
+                                    class="w-full rounded-xl bg-green-500 hover:bg-green-600 text-white py-3 px-4 transition-colors">
+                                بله، ثبت نهایی شود
+                            </button>
+                        </div>
+                    </div>
+
+                    <div wire:click="closeFinalizeModal"
+                         class="fixed inset-0 bg-secondary/80 cursor-pointer transition-all z-10"></div>
+                </div>
+            </div>
+        @endif
         @if($showModal)
             <div class="fixed inset-0 z-50 overflow-y-auto" x-transition.opacity>
                 <div class="flex items-center justify-center min-h-screen px-4">

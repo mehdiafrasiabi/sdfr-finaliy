@@ -21,14 +21,13 @@ class ClassSchedule extends Model
     // حداکثر پارت در هر روز
     const MAX_PARTS_PER_DAY = 5;
 
-    // حداقل پارت مورد نیاز برای هر روز اجباری
-    const MIN_REQUIRED_PARTS = 3;
+    // حداقل پارت مورد نیاز برای ثبت نهایی کل برنامه
+    const MIN_REQUIRED_PARTS = 1;
 
-    // روزهای اجباری (شنبه تا چهارشنبه = 0 تا 4)
-    const MANDATORY_DAYS = [0, 1, 2, 3, 4];
-
-    // روزهای اختیاری (پنجشنبه و جمعه = 5 و 6)
-    const OPTIONAL_DAYS = [5, 6];
+    // روزهای اجباری (غیرفعال)
+    const MANDATORY_DAYS = [];
+    // روزهای اختیاری (همه روزها)
+    const OPTIONAL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 
     public function student(): BelongsTo
     {
@@ -51,13 +50,7 @@ class ClassSchedule extends Model
     public function canFinalize(): bool
     {
         // شنبه تا چهارشنبه باید حداقل 3 پارت داشته باشند
-        foreach (self::MANDATORY_DAYS as $day) {
-            $count = $this->parts()->where('day_of_week', $day)->count();
-            if ($count < self::MIN_REQUIRED_PARTS) {
-                return false;
-            }
-        }
-        return true;
+        return $this->parts()->count() >= self::MIN_REQUIRED_PARTS;
     }
 
     /**

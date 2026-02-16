@@ -20,7 +20,7 @@ class ClassScheduleUpload extends Component
     public ?int $selectedDay = null;
     public ?int $selectedPart = null;
     public ?int $selectedSubjectId = null;
-
+    public bool $showFinalizeModal = false;
     // وضعیت برنامه
     public ?int $classScheduleId = null;
     public bool $isFinalized = false;
@@ -109,12 +109,6 @@ class ClassScheduleUpload extends Component
 
     public function openPartModal(int $dayOfWeek, int $partOrder): void
     {
-        if ($this->isFinalized) {
-            $this->dispatch('warning', 'برنامه کلاسی نهایی شده و قابل تغییر نیست.');
-            return;
-        }
-
-        $student = Student::where('user_id', auth()->id())->first();
         $schedule = $this->classScheduleId ? ClassSchedule::find($this->classScheduleId) : null;
 
         // بررسی ترتیب پر شدن: پارت قبلی باید پر شده باشد
@@ -151,10 +145,6 @@ class ClassScheduleUpload extends Component
 
     public function savePart(): void
     {
-        if ($this->isFinalized) {
-            $this->dispatch('warning', 'برنامه کلاسی نهایی شده و قابل تغییر نیست.');
-            return;
-        }
 
         if (!$this->selectedSubjectId) {
             $this->dispatch('warning', 'لطفاً یک درس انتخاب کنید.');
@@ -199,10 +189,7 @@ class ClassScheduleUpload extends Component
 
     public function deletePart(int $dayOfWeek, int $partOrder): void
     {
-        if ($this->isFinalized) {
-            $this->dispatch('warning', 'برنامه کلاسی نهایی شده و قابل تغییر نیست.');
-            return;
-        }
+
 
         if (!$this->classScheduleId) {
             return;
@@ -223,12 +210,8 @@ class ClassScheduleUpload extends Component
         $this->dispatch('success', 'پارت حذف شد.');
     }
 
-    public function finalizeSchedule(): void
+    public function openFinalizeModal(): void
     {
-        if ($this->isFinalized) {
-            $this->dispatch('warning', 'برنامه کلاسی قبلاً نهایی شده است.');
-            return;
-        }
 
         if (!$this->classScheduleId) {
             $this->dispatch('warning', 'ابتدا باید حداقل یک پارت ثبت کنید.');
@@ -236,34 +219,42 @@ class ClassScheduleUpload extends Component
         }
 
         $schedule = ClassSchedule::find($this->classScheduleId);
-        if (!$schedule) {
+        if (!$schedule || !$schedule->canFinalize()) {
+            $this->dispatch('warning', 'برای ثبت نهایی باید حداقل یک پارت ثبت شده باشد.');
             return;
         }
 
-        // بررسی شرایط ثبت نهایی
-        $errors = [];
-        foreach (ClassSchedule::MANDATORY_DAYS as $day) {
-            $count = $schedule->parts()->where('day_of_week', $day)->count();
-            if ($count < ClassSchedule::MIN_REQUIRED_PARTS) {
-                $dayName = ClassSchedule::getDayName($day);
-                $errors[] = "روز {$dayName} حداقل " . ClassSchedule::MIN_REQUIRED_PARTS . " پارت نیاز دارد (فعلی: {$count})";
-            }
-        }
+        $this->showFinalizeModal = true;
+    }
 
-        if (!empty($errors)) {
-            foreach ($errors as $error) {
-                $this->dispatch('warning', $error);
-            }
+    public function closeFinalizeModal(): void
+    {
+        $this->showFinalizeModal = false;
+    }
+
+    public function finalizeSchedule(): void
+    {
+        if (!$this->classScheduleId) {
+            $this->dispatch('warning', 'ابتدا باید حداقل یک پارت ثبت کنید.');
             return;
         }
 
+        $schedule = ClassSchedule::find($this->classScheduleId);
+        if (!$schedule || !$schedule->canFinalize()) {
+            $this->dispatch('warning', 'برای ثبت نهایی باید حداقل یک پارت ثبت شده باشد.');
+            return;
+        }
+        $wasFinalized = (bool) $schedule->is_finalized;
         $schedule->update([
             'is_finalized' => true,
             'finalized_at' => now(),
         ]);
 
         $this->isFinalized = true;
-        $this->dispatch('success', 'برنامه کلاسی با موفقیت نهایی شد.');
+        $this->showFinalizeModal = false;
+        $this->dispatch('success', $wasFinalized
+            ? 'تغییرات برنامه کلاسی با موفقیت به‌روزرسانی و نهایی شد.'
+            : 'برنامه کلاسی با موفقیت نهایی شد.');
     }
 
     public function closeModal(): void
@@ -290,18 +281,14 @@ class ClassScheduleUpload extends Component
                     ? $schedule->parts->where('day_of_week', $d)->where('part_order', $p)->first()
                     : null;
 
-                // آیا این پارت قابل باز شدن است؟
-                $isUnlocked = false;
-                if (!$this->isFinalized) {
-                    if ($p === 1) {
-                        $isUnlocked = true;
-                    } else {
-                        // پارت قبلی باید پر شده باشد
-                        $prevPart = $schedule
-                            ? $schedule->parts->where('day_of_week', $d)->where('part_order', $p - 1)->first()
-                            : null;
-                        $isUnlocked = $prevPart !== null;
-                    }
+                if ($p === 1) {
+                    $isUnlocked = true;
+                } else {
+                    // پارت قبلی باید پر شده باشد
+                    $prevPart = $schedule
+                        ? $schedule->parts->where('day_of_week', $d)->where('part_order', $p - 1)->first()
+                        : null;
+                    $isUnlocked = $prevPart !== null;
                 }
 
                 $dayParts[] = [
@@ -312,18 +299,15 @@ class ClassScheduleUpload extends Component
                 ];
             }
 
-            $isMandatory = in_array($d, ClassSchedule::MANDATORY_DAYS);
             $filledCount = collect($dayParts)->where('is_filled', true)->count();
 
             $days[] = [
                 'day_of_week' => $d,
                 'name' => ClassSchedule::getDayName($d),
                 'parts' => $dayParts,
-                'is_mandatory' => $isMandatory,
                 'filled_count' => $filledCount,
-                'is_complete' => $isMandatory
-                    ? $filledCount >= ClassSchedule::MIN_REQUIRED_PARTS
-                    : true,
+                'is_mandatory' => false,
+                'is_complete' => $filledCount > 0,
             ];
         }
 

@@ -113,10 +113,10 @@
                                 </div>
                             </div>
                             <div class="grid sm:grid-cols-2 gap-5">
-                                <!-- نام و نام خانوادگی -->
+                                <!-- نام -->
                                 <div class="space-y-2">
                                     <label for="name" class="flex items-center gap-1 font-bold text-sm text-foreground">
-                                        نام و نام خانوادگی
+                                        نام
                                         <span class="text-red-500">*</span>
                                     </label>
                                     <input
@@ -125,7 +125,7 @@
                                         name="name"
                                         wire:model="name"
                                         class="form-input w-full h-12 !ring-2 !ring-transparent focus:!ring-primary !ring-offset-0 bg-secondary border-0 rounded-xl text-sm text-foreground px-4 transition-all"
-                                        placeholder="مثال: علی احمدی"
+                                        placeholder="مثال: علی"
                                     />
                                     @error('name')
                                     <p class="flex items-center gap-1 font-medium text-xs text-red-500 mt-1">
@@ -136,7 +136,29 @@
                                     </p>
                                     @enderror
                                 </div>
-
+                                <!-- نام خانوادگی -->
+                                <div class="space-y-2">
+                                    <label for="name_full" class="flex items-center gap-1 font-bold text-sm text-foreground">
+                                        نام خانوادگی
+                                        <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="name_full"
+                                        name="nameFull"
+                                        wire:model="nameFull"
+                                        class="form-input w-full h-12 !ring-2 !ring-transparent focus:!ring-primary !ring-offset-0 bg-secondary border-0 rounded-xl text-sm text-foreground px-4 transition-all"
+                                        placeholder="مثال: احمدی"
+                                    />
+                                    @error('nameFull')
+                                    <p class="flex items-center gap-1 font-medium text-xs text-red-500 mt-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                        </svg>
+                                        {{$message}}
+                                    </p>
+                                    @enderror
+                                </div>
                                 <!-- نام پدر -->
                                 <div class="space-y-2">
                                     <label for="father_name" class="flex items-center gap-1 font-bold text-sm text-foreground">

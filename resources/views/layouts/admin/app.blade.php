@@ -4,11 +4,9 @@
     {!! SEO::generate() !!}
     @include('layouts.admin.link')
     <link rel="stylesheet" href="/admin/assets/css/bootstrap-icons.min.css">
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
     <link href="/admin/assets/css/select2.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="dark">
 <div class="page-layout">
     <!-- begin::NexLink Page Header -->
     <livewire:admin.layout.menu/>
@@ -66,13 +64,13 @@
 <script src="/admin/assets/libs/global/global.min.js"></script>
 <script src="/admin/assets/js/appSettings.js"></script>
 <script src="/admin/assets/js/main.js"></script>
-<script src="/admin/js/jquery-3.6.0.min.js"></script>
+<script src="/admin/assets/js/jquery-3.6.0.min.js"></script>
 <script src="/admin/assets/libs/apexcharts/apexcharts.min.js">
 </script>
 <script src="/admin/assets/libs/datatables/datatables.min.js">
 </script>
-<script src="/admin/js/persian-date.min.js"></script>
-<script src="/admin/js/persian-datepicker-2.min.js"></script>
+<script src="/admin/assets/js/persian-date.min.js"></script>
+<script src="/admin/assets/js/persian-datepicker-2.min.js"></script>
 
 <script src="/admin/assets/js/dashboard/dashboard.js"></script>
 <script src="/admin/assets/js/plugins/todolist.js"></script>

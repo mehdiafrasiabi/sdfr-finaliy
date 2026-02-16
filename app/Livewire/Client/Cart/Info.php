@@ -26,6 +26,7 @@ class Info extends Component
     public $province = '';
     public $name;
     public $address;
+    public $nameFull;
     public $placeOfBirth;
     public $fName;
     public $codeMell;
@@ -108,6 +109,7 @@ class Info extends Component
             : 'required|in:math,experimental,human';
         $validator = Validator::make($formData, [
             'name' => 'required|string|max:35',
+            'nameFull' => 'required|string|max:35',
             'address' => 'required|string|max:200',
             'placeOfBirth' => 'required|string|max:35',
             'fName' => 'required|string|max:35',
@@ -122,6 +124,7 @@ class Info extends Component
             'photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
             'name.required' => 'وارد کردن نام الزامی است.',
+            'nameFull.required' => 'وارد کردن نام خانوادگی الزامی است.',
             'address.required' => 'وارد کردن آدرس الزامی است.',
             'placeOfBirth.required' => 'محل تولد الزامی است.',
             'fName.required' => 'نام پدر الزامی است.',
@@ -154,6 +157,7 @@ class Info extends Component
         // ذخیره اطلاعات هویتی
         $personalInfo = \App\Models\PersonalInformation::query()->create([
             'name' => $formData['name'],
+            'name_full' => $formData['nameFull'],
             'address' => $formData['address'],
             'place_of_birth' => $formData['placeOfBirth'],
             'father_name' => $formData['fName'],

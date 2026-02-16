@@ -212,7 +212,7 @@
 
                     <!-- Bottom Navigation Bar -->
 
-                    <nav class="bg-background/95 backdrop-blur-xl border-t border-border shadow-lg shadow-black/10">
+                    <nav class="bg-background/95 backdrop-blur-xl border-t border-border shadow-lg shadow-black/10 ">
 
                         <div class="flex items-center justify-around h-16 px-2 max-w-lg mx-auto"
                              style="padding-bottom: env(safe-area-inset-bottom);">
@@ -300,7 +300,7 @@
                             <!-- سرویس‌ها (Center Button with Favicon) -->
                             <button type="button"
                                     x-on:click="servicesOpen = !servicesOpen"
-                                    class="relative flex items-center justify-center -mt-6 services-btn">
+                                    class="relative flex items-center justify-center -mt-12 services-btn">
 
                                 <div class="w-14 h-14 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40 transition-all duration-300 services-circle"
                                      :class="servicesOpen ? 'rotate-45 scale-110' : ''">

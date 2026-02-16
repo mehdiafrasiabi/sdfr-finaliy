@@ -27,7 +27,53 @@
 
 
 
+    <!-- Banners Section -->
+    <div class="banners-wrapper transition-all duration-300 ease-out overflow-hidden"
+         :class="{
+             'max-h-0 opacity-0': bannersHidden,
+             'max-h-40 opacity-100': !bannersHidden
+         }">
 
+        <!-- PWA Banner -->
+        <div id="pwaBanner" dir="rtl" class="w-full relative z-20" x-show="!pwaBannerClosed">
+            <div class="w-full border-b border-slate-200/60 dark:border-slate-700/60
+               bg-gradient-to-l from-blue-700 via-blue-600 to-indigo-700
+               dark:from-slate-900 dark:via-slate-900 dark:to-slate-800
+               text-white">
+                <div
+                    class="max-w-6xl mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 text-center md:text-right">
+                        <div
+                            class="shrink-0 w-10 h-10 rounded-2xl bg-white/15 dark:bg-white/10 flex items-center justify-center shadow-inner">
+                            <span class="text-xl">📱</span>
+                        </div>
+                        <div>
+                            <p class="font-extrabold text-base sm:text-lg md:text-xl leading-snug">
+                                همین حالا <span class="text-yellow-300">SDFR</span> رو روی موبایلت داشته باش
+                            </p>
+                            <p class="text-xs sm:text-sm text-white/80 dark:text-white/70 mt-0.5">
+                                نصب سریع، دسترسی راحت، تجربه بهتر ✨
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <button id="installApp" type="button"
+                                class="group relative overflow-hidden rounded-full px-4 sm:px-5 py-2 text-sm font-bold
+                                       bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98]
+                                       shadow-md shadow-emerald-500/30 transition">
+                            <span class="relative z-10">نصب اپلیکیشن</span>
+                        </button>
+                        <button @click="pwaBannerClosed = true" type="button"
+                                class="rounded-full px-4 sm:px-5 py-2 text-sm font-bold
+                                       bg-rose-500 hover:bg-rose-400 active:scale-[0.98]
+                                       shadow-md shadow-rose-500/25 transition">
+                            بستن
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- ANDROID Modal -->
     <div id="pwaAndroidModal" class="hidden fixed inset-0 z-50">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
@@ -165,7 +211,320 @@
 
 
 @include('layouts.client.script')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const mainContentContainer = document.getElementById('mainContentContainer');
+        const logoImage = document.getElementById('logoImage');
+        const comingSoonText = document.getElementById('comingSoonText');
 
+        // Simulate content loading time
+        setTimeout(() => {
+            // Hide loading overlay
+            loadingOverlay.classList.add('hidden');
+
+            // Show main content container
+            mainContentContainer.classList.add('visible');
+
+            // Start the "Coming Soon" animation after the loading screen fades out
+            setTimeout(() => {
+                logoImage.style.opacity = 1;
+                logoImage.style.transform = 'translateY(0)';
+
+                setTimeout(() => {
+                    comingSoonText.style.opacity = 1;
+                    comingSoonText.style.transform = 'scale(1)';
+                }, 1500); // Start "Coming Soon" animation after 1.5 seconds
+            }, 1000); // Wait for loading overlay to fully fade out (1 second transition)
+
+        }, 3000); // Simulate 3 seconds of loading time
+    });
+
+    function checkInternetSpeed() {
+        const imageAddr = "/client/loading.png";
+        let startTime, endTime;
+        const downloadSize = 56119;
+        const download = new Image();
+
+        download.onload = function () {
+            endTime = new Date().getTime();
+            const duration = (endTime - startTime) / 1000;
+            const bitsLoaded = downloadSize * 8;
+            const speedBps = (bitsLoaded / duration).toFixed(2);
+            const speedKbps = (speedBps / 1024).toFixed(2);
+
+            let animationDuration = 3000; // پیش‌فرض 3 ثانیه
+            if (speedKbps > 500) animationDuration = 1000; // اینترنت سریع
+            else if (speedKbps > 100) animationDuration = 2000; // اینترنت متوسط
+
+            const rocket = document.querySelector('.rocket');
+            rocket.style.animationDuration = `${animationDuration}ms`;
+            rocket.style.animationIterationCount = 1; // فقط یک بار حرکت
+            rocket.addEventListener('animationend', () => {
+                rocket.style.display = 'none'; // مخفی کردن موشک بعد از انیمیشن
+            });
+        };
+
+        startTime = new Date().getTime();
+        download.src = imageAddr + "?t=" + startTime;
+    }
+
+    window.onload = checkInternetSpeed;
+
+    //remove wire:snapshot form tags in client
+
+    let attrs = [
+        'snapshot',
+        'effects',
+        // 'id'
+    ];
+
+    function snapKill() {
+        document.querySelectorAll('div').forEach(function (element) {
+            for (let i in attrs) {
+                if (element.getAttribute(`wire:${attrs[i]}`) !== null) {
+                    element.removeAttribute(`wire:${attrs[i]}`);
+                }
+            }
+        });
+    }
+
+    window.addEventListener('load', (ev) => {
+        snapKill();
+    });
+</script>
+
+<script>
+    function collapseGuide(key) {
+        return {
+            open: false,
+
+            init() {
+                const saved = localStorage.getItem(key);
+                this.open = saved !== null ? saved === 'true' : true;
+            },
+
+            toggle() {
+                this.open = !this.open;
+                localStorage.setItem(key, this.open);
+            }
+        }
+    }
+</script>
+
+<script>
+    (function () {
+        const modal = () => document.getElementById('video-modal');
+        const container = () => document.getElementById('video-container');
+        const titleEl = () => document.getElementById('video-modal-title');
+
+        function openVideo({url, title}) {
+            const m = modal();
+            const c = container();
+            if (!m || !c) return;
+
+            c.innerHTML = '';
+
+            // بهترین روش برای آپارات: iframe
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            iframe.setAttribute('allowfullscreen', 'true');
+            iframe.setAttribute('allow', 'autoplay; encrypted-media');
+            iframe.className = 'w-full h-full';
+            iframe.style.border = '0';
+            c.appendChild(iframe);
+
+            if (titleEl() && title) titleEl().textContent = title;
+
+            m.classList.remove('hidden');
+            m.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeVideo() {
+            const m = modal();
+            const c = container();
+            if (!m || !c) return;
+
+            m.classList.add('hidden');
+            m.classList.remove('flex');
+            c.innerHTML = '';
+            document.body.style.overflow = '';
+        }
+
+        // کلیک روی دکمه‌های باز کردن (حتی بعد از navigate)
+        document.addEventListener('click', (e) => {
+            const openBtn = e.target.closest('[data-video-url]');
+            if (openBtn) {
+                const url = openBtn.getAttribute('data-video-url');
+                const title = openBtn.getAttribute('data-video-title') || 'ویدیو راهنما';
+                if (url) openVideo({url, title});
+                return;
+            }
+
+            // بستن مدال
+            if (e.target.closest('[data-close-video]')) {
+                closeVideo();
+                return;
+            }
+        });
+
+        // ESC برای بستن
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeVideo();
+        });
+
+        // Livewire v3: بعد از navigate اگر مدال باز مونده بود، ببند
+        document.addEventListener('livewire:navigated', () => {
+            closeVideo();
+        });
+
+        // برای استفاده در جاهای دیگه (اختیاری)
+        window.openVideoModal = (url, title = 'ویدیو راهنما') => openVideo({url, title});
+        window.closeVideoModal = closeVideo;
+    })();
+</script>
+<script>
+    const banner = document.getElementById('pwaBanner');
+    const installBtn = document.getElementById('installApp');
+    const closeBanner = document.getElementById('closeBanner');
+
+    const androidModal = document.getElementById('pwaAndroidModal');
+    const iosModal = document.getElementById('pwaIOSModal');
+
+    // اگر این صفحه بنر/دکمه‌ها رو نداره، کل اسکریپت رو بی‌خیال شو
+    if (!banner || !installBtn || !androidModal || !iosModal) {
+        console.warn('PWA elements not found on this page.');
+    } else {
+
+        let deferredPrompt = null;
+
+        const LS_KEY_DISMISS = 'pwa_banner_dismiss_until';
+        const LS_KEY_INSTALLED = 'pwa_installed';
+
+        function isDismissedNow() {
+            const until = Number(localStorage.getItem(LS_KEY_DISMISS) || 0);
+            return Date.now() < until;
+        }
+
+        function dismissForDays(days) {
+            const until = Date.now() + (days * 24 * 60 * 60 * 1000);
+            localStorage.setItem(LS_KEY_DISMISS, String(until));
+        }
+
+        function setInstalled() {
+            localStorage.setItem(LS_KEY_INSTALLED, 'true');
+        }
+
+        function isInstalledSaved() {
+            return localStorage.getItem(LS_KEY_INSTALLED) === 'true';
+        }
+
+        const isInStandaloneMode =
+            (window.matchMedia('(display-mode: standalone)').matches) ||
+            (window.navigator.standalone) ||
+            document.referrer.startsWith('android-app://');
+
+        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isAndroid = /Android/i.test(navigator.userAgent);
+
+        function isMobile() {
+            return window.matchMedia('(max-width: 1024px)').matches;
+        }
+
+        function openModal(type) {
+            if (type === 'android') androidModal.classList.remove('hidden');
+            if (type === 'ios') iosModal.classList.remove('hidden');
+            document.documentElement.classList.add('overflow-hidden');
+        }
+
+        function closeModal(type) {
+            if (type === 'android') androidModal.classList.add('hidden');
+            if (type === 'ios') iosModal.classList.add('hidden');
+            document.documentElement.classList.remove('overflow-hidden');
+        }
+
+        async function triggerInstallPrompt() {
+            if (!deferredPrompt) {
+                alert('متاسفانه مرورگر شما از نصب خودکار پشتیبانی نمی‌کند.');
+                return;
+            }
+
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+
+            if (outcome === 'accepted') {
+                setInstalled();
+                banner.classList.add('hidden');
+            }
+
+            deferredPrompt = null;
+        }
+
+        function canShowBanner() {
+            if (isInStandaloneMode) return false;
+            if (isInstalledSaved()) return false;
+            if (isDismissedNow()) return false;
+            return true;
+        }
+
+        window.addEventListener('load', () => {
+            if (!canShowBanner()) return;
+            setTimeout(() => banner.classList.remove('hidden'), 800);
+        });
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            if (canShowBanner()) {
+                banner.classList.remove('hidden');
+            }
+        });
+
+        // ✅ اینجا هم null-safe
+        if (closeBanner) {
+            closeBanner.addEventListener('click', () => {
+                dismissForDays(7);
+                banner.classList.add('hidden');
+            });
+        }
+
+        installBtn.addEventListener('click', async () => {
+            if (isIOS) {
+                openModal('ios');
+                return;
+            }
+
+            if (isAndroid && isMobile()) {
+                openModal('android');
+                return;
+            }
+
+            await triggerInstallPrompt();
+        });
+
+        window.addEventListener('appinstalled', () => {
+            setInstalled();
+            banner.classList.add('hidden');
+            deferredPrompt = null;
+        });
+
+        document.querySelectorAll('[data-close-modal]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const type = e.currentTarget.getAttribute('data-close-modal');
+                closeModal(type);
+            });
+        });
+
+        document.querySelectorAll('[data-understood="android"]').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                closeModal('android');
+                await triggerInstallPrompt();
+            });
+        });
+    }
+</script>
 
 </body>
 
