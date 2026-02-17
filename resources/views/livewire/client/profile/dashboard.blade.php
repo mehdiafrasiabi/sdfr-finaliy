@@ -517,7 +517,7 @@
                                     <div class="program-item">
                                         <div class="flex items-start justify-between gap-4">
                                             <div class="flex items-start gap-3 flex-1">
-                                                <div class="flex items-center justify-center w-8 h-8 bg-foreground/10 rounded-lg flex-shrink-0 font-bold text-sm">
+                                                <div class="flex items-center justify-center w-8 h-8 bg-foreground/10 rounded-lg flex-shrink-0 font-bold text-sm text-success">
                                                     {{ $index + 1 }}
                                                 </div>
                                                 <div class="flex-1 space-y-2">

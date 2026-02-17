@@ -14,6 +14,7 @@ use App\Livewire\Admin\Student\Reports\ReportDaily as StudentReportDaily;
 use App\Livewire\Admin\Student\Reports\ReportMissing as ReportMissingIndex;
 use App\Livewire\Admin\Student\StudySession\Index as StudentStudySessionIndex;
 use App\Livewire\Admin\Student\StudySession\Show as StudentStudySessionShow;
+use App\Livewire\Admin\ContactDocumentation\Index as ContactDocumentationIndex;
 use Illuminate\Support\Facades\Route;
 
 
@@ -33,8 +34,6 @@ Route::name('admin.')->group(function () {
             ->middleware('admin.permission:admin.dashboard.view');
 
 
-
-
         // مدیریت دانش‌آموزان
 
         Route::get('/student', StudentIndex::class)->name('student.index')
@@ -42,7 +41,6 @@ Route::name('admin.')->group(function () {
 
         Route::get('/studentReportDay', StudentReportDaily::class)->name('reportStudentDay')
             ->middleware('admin.permission:admin.daily-report.view');
-
 
 
         // اعلان‌ها
@@ -80,7 +78,10 @@ Route::name('admin.')->group(function () {
             ->middleware('admin.permission:admin.weekly-program.upload');
 
 
+        // مستندات تماس
 
+        Route::get('/contact-documentation', ContactDocumentationIndex::class)->name('contact-documentation.index')
+            ->middleware('admin.permission:admin.contact-documentation.view');
         // گزارش‌های ارسال نشده
 
         Route::get('/report-not-send', ReportMissingIndex::class)->name('reportMissing')

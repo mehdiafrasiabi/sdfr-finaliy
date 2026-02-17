@@ -115,11 +115,16 @@
                     <a aria-controls="extendedTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
                        href="#extendedTab" role="tab">
                         <svg fill="none" height="25" viewBox="0 0 24 25" width="24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M18.7491 10.2096V9.50497C18.7491 5.63623 15.7274 2.5 12 2.5C8.27256 2.5 5.25087 5.63623 5.25087 9.50497V10.2096C5.25087 11.0552 5.00972 11.8818 4.5578 12.5854L3.45036 14.3095C2.43882 15.8843 3.21105 18.0249 4.97036 18.5229C9.57274 19.8257 14.4273 19.8257 19.0296 18.5229C20.789 18.0249 21.5612 15.8843 20.5496 14.3095L19.4422 12.5854C18.9903 11.8818 18.7491 11.0552 18.7491 10.2096Z" stroke="var(--bs-heading-color)" stroke-width="2">
+                            <path
+                                d="M18.7491 10.2096V9.50497C18.7491 5.63623 15.7274 2.5 12 2.5C8.27256 2.5 5.25087 5.63623 5.25087 9.50497V10.2096C5.25087 11.0552 5.00972 11.8818 4.5578 12.5854L3.45036 14.3095C2.43882 15.8843 3.21105 18.0249 4.97036 18.5229C9.57274 19.8257 14.4273 19.8257 19.0296 18.5229C20.789 18.0249 21.5612 15.8843 20.5496 14.3095L19.4422 12.5854C18.9903 11.8818 18.7491 11.0552 18.7491 10.2096Z"
+                                stroke="var(--bs-heading-color)" stroke-width="2">
                             </path>
-                            <path d="M7.5 19.5C8.15503 21.2478 9.92246 22.5 12 22.5C14.0775 22.5 15.845 21.2478 16.5 19.5" opacity="0.5" stroke="var(--bs-heading-color)" stroke-linecap="round" stroke-width="2">
+                            <path
+                                d="M7.5 19.5C8.15503 21.2478 9.92246 22.5 12 22.5C14.0775 22.5 15.845 21.2478 16.5 19.5"
+                                opacity="0.5" stroke="var(--bs-heading-color)" stroke-linecap="round" stroke-width="2">
                             </path>
-                            <path d="M12 6.5V10.5" opacity="0.5" stroke="var(--bs-heading-color)" stroke-linecap="round" stroke-width="2">
+                            <path d="M12 6.5V10.5" opacity="0.5" stroke="var(--bs-heading-color)" stroke-linecap="round"
+                                  stroke-width="2">
                             </path>
                         </svg>
                     </a>
@@ -130,7 +135,7 @@
         </div>
         <div class="app-tab-content">
             <div class="app-side-brands">
-                <a class="navbar-brand-text"  href="{{route('admin.dashboard.index')}}">
+                <a class="navbar-brand-text" href="{{route('admin.dashboard.index')}}">
                     NexLink
                 </a>
             </div>
@@ -235,6 +240,18 @@
                                         </span>
                                     </a>
                                 </li>
+                                <li>
+                                    <div class="menu-divider"></div>
+                                </li>
+                                <li class="menu-item">
+                                    <a class="menu-link" href="{{route('admin.contact-documentation.index')}}">
+                                        <i class="fi fi-rr-phone-call">
+                                        </i>
+                                        <span class="menu-label">
+                                            مستندات تماس
+                                        </span>
+                                    </a>
+                                </li>
                             </ul>
                         </nav>
                     </div>
@@ -259,6 +276,7 @@
                                     <div class="menu-divider">
                                     </div>
                                 </li>
+
 
                             </ul>
                         </nav>

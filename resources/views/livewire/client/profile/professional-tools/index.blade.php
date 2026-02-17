@@ -191,7 +191,7 @@
                             <div class="w-1 h-1 bg-foreground rounded-full"></div>
                             <div class="w-2 h-2 bg-foreground rounded-full"></div>
                         </div>
-                        <div class="font-black text-foreground">آجار فرانسه</div>
+                        <div class="font-black text-foreground">آچار فرانسه</div>
                     </div>
 
                     <!-- Guide Section -->

@@ -6,24 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('contact_documentations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sender_id')->constrained('admins')->onDelete('cascade');     // کسی که فایل رو فرستاده
-            $table->foreignId('receiver_id')->constrained('admins')->onDelete('cascade');   // سوپرادمین گیرنده
-            $table->string('file_path');   // مسیر فایل
-            $table->text('message')->nullable(); // پیام اختیاری
+            $table->foreignId('admin_id')->constrained('admins')->cascadeOnDelete();
+            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->enum('contact_status', ['successful', 'unsuccessful']);
+            $table->date('contact_date');
+            $table->enum('respondent', ['father', 'mother', 'student', 'other']);
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('contact_documentations');

@@ -893,7 +893,7 @@
 
                 {{-- Modal --}}
                 <div class="modal-content relative z-20 w-full max-w-md overflow-hidden rounded-3xl
-                            border-2 border-border bg-background shadow-2xl">
+                            border-2 border-border bg-secondary shadow-2xl">
 
                     {{-- Close Button --}}
                     <button

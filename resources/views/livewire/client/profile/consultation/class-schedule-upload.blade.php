@@ -236,7 +236,7 @@
         @if($showFinalizeModal)
             <div class="fixed inset-0 z-50 overflow-y-auto" x-transition.opacity>
                 <div class="flex items-center justify-center min-h-screen px-4">
-                    <div class="relative w-full max-w-md overflow-hidden transition-all transform bg-background border border-border rounded-2xl shadow-2xl z-20" dir="rtl">
+                    <div class="relative w-full max-w-md overflow-hidden transition-all transform bg-secondary border border-border rounded-2xl shadow-2xl z-20" dir="rtl">
                         <div class="p-5 border-b border-border">
                             <h3 class="font-bold text-foreground text-lg">تایید ثبت نهایی / به‌روزرسانی برنامه</h3>
                         </div>

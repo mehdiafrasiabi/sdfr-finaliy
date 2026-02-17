@@ -797,6 +797,7 @@
                         <tr>
                             <th class="text-center" style="width: 90px;">روز</th>
                             <th class="text-center" style="width: 130px;">تاریخ</th>
+                            <th class="text-center" style="width: 95px;">تست روز</th>
                             <th class="text-center" style="width: 90px;">استراحت</th>
                             <th class="text-center" style="width: 100px;">آزمون جامع</th>
 
@@ -814,7 +815,7 @@
                             @for($i = 1; $i <= $maxPartsInWeek; $i++)
                                 <th class="text-center">پلن {{ $i }}</th>
                             @endfor
-                            <th class="text-center" style="width: 95px;">تست روز</th>
+
                         </tr>
                         </thead>
 
@@ -836,6 +837,16 @@
                                     <div class="fw-semibold text-muted-2">{{ $day['jalali_date'] }}</div>
                                 </td>
 
+                                {{-- تست روز --}}
+                                <td class="text-center">
+                                    @if($day['is_rest_day'])
+                                        <span class="badge bg-success-subtle text-success fw-bold">-</span>
+                                    @else
+                                        <span class="badge bg-warning-subtle text-warning fw-bold">
+                                            {{ $day['total_tests'] }}
+                                        </span>
+                                    @endif
+                                </td>
                                 {{-- استراحت --}}
                                 <td class="text-center">
                                     <div class="form-check form-switch d-flex justify-content-center">
@@ -984,16 +995,6 @@
                                     </td>
                                 @endfor
 
-                                {{-- تست روز --}}
-                                <td class="text-center">
-                                    @if($day['is_rest_day'])
-                                        <span class="badge bg-success-subtle text-success fw-bold">-</span>
-                                    @else
-                                        <span class="badge bg-warning-subtle text-warning fw-bold">
-                                            {{ $day['total_tests'] }}
-                                        </span>
-                                    @endif
-                                </td>
 
                             </tr>
                         @endforeach
