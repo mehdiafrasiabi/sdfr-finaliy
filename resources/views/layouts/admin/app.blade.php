@@ -3,6 +3,9 @@
 <head>
     {!! SEO::generate() !!}
     @include('layouts.admin.link')
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
     <link rel="stylesheet" href="/admin/assets/css/bootstrap-icons.min.css">
     <link href="/admin/assets/css/select2.min.css" rel="stylesheet">
 </head>

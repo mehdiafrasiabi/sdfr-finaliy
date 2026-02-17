@@ -63,7 +63,7 @@
                                        shadow-md shadow-emerald-500/30 transition">
                             <span class="relative z-10">نصب اپلیکیشن</span>
                         </button>
-                        <button @click="pwaBannerClosed = true" type="button"
+                        <button id="closeBanner" type="button"
                                 class="rounded-full px-4 sm:px-5 py-2 text-sm font-bold
                                        bg-rose-500 hover:bg-rose-400 active:scale-[0.98]
                                        shadow-md shadow-rose-500/25 transition">
@@ -387,21 +387,21 @@
 <script>
     const banner = document.getElementById('pwaBanner');
     const installBtn = document.getElementById('installApp');
-    const closeBanner = document.getElementById('closeBanner');
+    const closeBannerBtn = document.getElementById('closeBanner'); // ✅ id درست
 
     const androidModal = document.getElementById('pwaAndroidModal');
     const iosModal = document.getElementById('pwaIOSModal');
 
-    // اگر این صفحه بنر/دکمه‌ها رو نداره، کل اسکریپت رو بی‌خیال شو
     if (!banner || !installBtn || !androidModal || !iosModal) {
         console.warn('PWA elements not found on this page.');
     } else {
 
         let deferredPrompt = null;
 
-        const LS_KEY_DISMISS = 'pwa_banner_dismiss_until';
+        const LS_KEY_DISMISS  = 'pwa_banner_dismiss_until';
         const LS_KEY_INSTALLED = 'pwa_installed';
 
+        // ── helpers ──────────────────────────────────────────────────────────
         function isDismissedNow() {
             const until = Number(localStorage.getItem(LS_KEY_DISMISS) || 0);
             return Date.now() < until;
@@ -420,100 +420,100 @@
             return localStorage.getItem(LS_KEY_INSTALLED) === 'true';
         }
 
+        // ── وضعیت نصب فعلی ───────────────────────────────────────────────────
         const isInStandaloneMode =
-            (window.matchMedia('(display-mode: standalone)').matches) ||
-            (window.navigator.standalone) ||
+            window.matchMedia('(display-mode: standalone)').matches ||
+            window.navigator.standalone ||
             document.referrer.startsWith('android-app://');
 
-        const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+        const isIOS     = /iPhone|iPad|iPod/i.test(navigator.userAgent);
         const isAndroid = /Android/i.test(navigator.userAgent);
 
         function isMobile() {
             return window.matchMedia('(max-width: 1024px)').matches;
         }
 
+        // ── modal helpers ─────────────────────────────────────────────────────
         function openModal(type) {
             if (type === 'android') androidModal.classList.remove('hidden');
-            if (type === 'ios') iosModal.classList.remove('hidden');
+            if (type === 'ios')     iosModal.classList.remove('hidden');
             document.documentElement.classList.add('overflow-hidden');
         }
 
         function closeModal(type) {
             if (type === 'android') androidModal.classList.add('hidden');
-            if (type === 'ios') iosModal.classList.add('hidden');
+            if (type === 'ios')     iosModal.classList.add('hidden');
             document.documentElement.classList.remove('overflow-hidden');
         }
 
+        // ── نصب واقعی ────────────────────────────────────────────────────────
         async function triggerInstallPrompt() {
             if (!deferredPrompt) {
                 alert('متاسفانه مرورگر شما از نصب خودکار پشتیبانی نمی‌کند.');
                 return;
             }
-
             deferredPrompt.prompt();
             const { outcome } = await deferredPrompt.userChoice;
-
             if (outcome === 'accepted') {
                 setInstalled();
-                banner.classList.add('hidden');
+                hideBanner();
             }
-
             deferredPrompt = null;
         }
 
+        // ── نمایش / مخفی بنر ─────────────────────────────────────────────────
+        function hideBanner() {
+            banner.classList.add('hidden');
+        }
+
         function canShowBanner() {
-            if (isInStandaloneMode) return false;
-            if (isInstalledSaved()) return false;
-            if (isDismissedNow()) return false;
+            if (isInStandaloneMode) return false;   // قبلاً نصب شده (standalone)
+            if (isInstalledSaved()) return false;   // localStorage نشان می‌دهد نصب شده
+            if (isDismissedNow())   return false;   // کاربر "بستن" زده و هنوز ۷ روز نگذشته
             return true;
         }
 
+        // ── بارگذاری اولیه ────────────────────────────────────────────────────
         window.addEventListener('load', () => {
             if (!canShowBanner()) return;
             setTimeout(() => banner.classList.remove('hidden'), 800);
         });
 
+        // ── رویداد نصب مرورگر ────────────────────────────────────────────────
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-
             if (canShowBanner()) {
                 banner.classList.remove('hidden');
             }
         });
 
-        // ✅ اینجا هم null-safe
-        if (closeBanner) {
-            closeBanner.addEventListener('click', () => {
-                dismissForDays(7);
-                banner.classList.add('hidden');
+        // ── دکمه بستن ✅ اکنون کار می‌کند ─────────────────────────────────────
+        if (closeBannerBtn) {
+            closeBannerBtn.addEventListener('click', () => {
+                dismissForDays(7);   // ۷ روز نشان نده
+                hideBanner();
             });
         }
 
+        // ── دکمه نصب ─────────────────────────────────────────────────────────
         installBtn.addEventListener('click', async () => {
-            if (isIOS) {
-                openModal('ios');
-                return;
-            }
-
-            if (isAndroid && isMobile()) {
-                openModal('android');
-                return;
-            }
-
+            if (isIOS)                  { openModal('ios');     return; }
+            if (isAndroid && isMobile()) { openModal('android'); return; }
             await triggerInstallPrompt();
         });
 
+        // ── بعد از نصب موفق ───────────────────────────────────────────────────
         window.addEventListener('appinstalled', () => {
             setInstalled();
-            banner.classList.add('hidden');
+            hideBanner();
             deferredPrompt = null;
         });
 
+        // ── بستن مودال‌ها ─────────────────────────────────────────────────────
         document.querySelectorAll('[data-close-modal]').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const type = e.currentTarget.getAttribute('data-close-modal');
-                closeModal(type);
+                closeModal(e.currentTarget.getAttribute('data-close-modal'));
             });
         });
 
@@ -523,8 +523,7 @@
                 await triggerInstallPrompt();
             });
         });
-    }
-</script>
+    }</script>
 
 </body>
 

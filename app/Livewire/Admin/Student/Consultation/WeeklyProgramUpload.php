@@ -24,6 +24,8 @@ use App\Models\CcChapter;
 use App\Models\CcTopic;
 use App\Models\WeeklyProgramExamDay;
 use Morilog\Jalali\Jalalian;
+use App\Models\ClassificationProject;
+use App\Models\StudentClassification;
 
 class WeeklyProgramUpload extends Component
 {
@@ -111,6 +113,14 @@ class WeeklyProgramUpload extends Component
     public bool $showExamDaySelectModal = false;
     public array $examDaySelectData = [];
     public ?int $examDaySelectTarget = null;
+    // Classification Modal (طبقه‌بندی)
+    public bool $showClassificationModal = false;
+    public array $classificationTopics = [];
+    public ?string $classificationProjectName = null;
+
+    // Zero-time warning modal
+    public bool $showZeroTimeWarningModal = false;
+    public int $zeroTimePartsCount = 0;
     protected function messages()
     {
         return [
@@ -865,9 +875,136 @@ class WeeklyProgramUpload extends Component
     public function finalSave(): void
     {
         $this->saveProgram();
+        // Check for 0-time parts before confirming
+        if ($this->weeklyProgramId) {
+            $zeroCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('duration_minutes', 0)
+                ->count();
+
+            if ($zeroCount > 0) {
+                $this->zeroTimePartsCount = $zeroCount;
+                $this->showZeroTimeWarningModal = true;
+                return;
+            }
+        }
+
         $this->dispatch('success', 'برنامه هفتگی با موفقیت ذخیره شد.');
     }
 
+    public function forceFinalSave(): void
+    {
+        $this->showZeroTimeWarningModal = false;
+        $this->dispatch('success', 'برنامه هفتگی با موفقیت ذخیره شد.');
+    }
+    public function closeZeroTimeWarningModal(): void
+    {
+        $this->showZeroTimeWarningModal = false;
+    }
+
+    public function openClassificationModal(): void
+    {
+        $student = Student::find($this->studentId);
+        $userId = $student?->user_id;
+
+        // Find last active project, fallback to most recent
+        $project = ClassificationProject::active()->latest('start_at')->first()
+            ?? ClassificationProject::orderBy('end_at', 'desc')->first();
+
+        $this->classificationProjectName = $project?->name ?? null;
+        $this->classificationTopics = [];
+
+        if ($project && $userId) {
+            $classifications = StudentClassification::where('user_id', $userId)
+                ->where('classification_project_id', $project->id)
+                ->with(['topic.chapter.subject'])
+                ->get();
+
+            $this->classificationTopics = $classifications->map(function ($c) {
+                return [
+                    'id'           => $c->id,
+                    'topic_id'     => $c->cc_topic_id,
+                    'topic_name'   => $c->topic?->name ?? 'نامشخص',
+                    'chapter_name' => $c->topic?->chapter?->name ?? '',
+                    'subject_name' => $c->topic?->chapter?->subject?->name ?? '',
+                    'rating'       => $c->rating,
+                    'rating_label' => $c->ratingLabel,
+                    'rating_color' => $c->ratingColor,
+                ];
+            })->toArray();
+        }
+
+        $this->showClassificationModal = true;
+    }
+
+    public function closeClassificationModal(): void
+    {
+        $this->showClassificationModal = false;
+    }
+
+    public function selectClassificationTopic(int $topicId): void
+    {
+        $this->showClassificationModal = false;
+
+        $topic = CcTopic::with(['chapter.subject.grade.educationLevel'])->find($topicId);
+        if (!$topic) return;
+
+        $chapter = $topic->chapter;
+        $subject = $chapter?->subject;
+        $grade   = $subject?->grade;
+        $educationLevel = $grade?->educationLevel;
+
+        // Reset form
+        $this->partForm = array_merge($this->partForm, [
+            'education_level_id' => '',
+            'cc_grade_id'        => '',
+            'cc_field_id'        => '',
+            'cc_subject_id'      => '',
+            'cc_chapter_id'      => '',
+            'cc_topic_id'        => '',
+            'lesson_name'        => '',
+            'description'        => '',
+        ]);
+
+        if ($educationLevel) {
+            $this->partForm['education_level_id'] = $educationLevel->id;
+            $this->grades = CcGrade::where('education_level_id', $educationLevel->id)->ordered()->get()->toArray();
+        }
+        if ($grade) {
+            $this->partForm['cc_grade_id'] = $grade->id;
+            $this->partForm['grade'] = $grade->level ?? '';
+            $this->subjects = CcSubject::where('cc_grade_id', $grade->id)->ordered()->get()->toArray();
+            $this->fields = CcField::where('cc_grade_id', $grade->id)->get()->toArray();
+        }
+        if ($subject) {
+            $this->partForm['cc_subject_id'] = $subject->id;
+            $this->partForm['lesson_name'] = $subject->name;
+            $this->chapters = CcChapter::where('cc_subject_id', $subject->id)->ordered()->get()->toArray();
+        }
+        if ($chapter) {
+            $this->partForm['cc_chapter_id'] = $chapter->id;
+            $this->topics = CcTopic::where('cc_chapter_id', $chapter->id)->ordered()->get()->toArray();
+        }
+        $this->partForm['cc_topic_id'] = $topic->id;
+
+        $path = collect([$subject?->name, $chapter?->name, $topic->name])->filter()->join(' > ');
+        $this->partForm['description'] = $path;
+
+        $this->editingPartId = null;
+        $this->showPartModal = true;
+        $this->dispatch('modal-opened');
+    }
+
+    public function reorderParts(array $partIds, int $dayIndex): void
+    {
+        if (!$this->weeklyProgramId) return;
+
+        foreach ($partIds as $index => $partId) {
+            ProgramPart::where('id', $partId)
+                ->where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $dayIndex)
+                ->update(['part_order' => $index + 1]);
+        }
+    }
     /**
      * Toggle rest day - show confirmation if parts exist
      */

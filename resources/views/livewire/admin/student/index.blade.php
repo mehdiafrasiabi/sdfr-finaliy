@@ -79,8 +79,7 @@
                                         <th data-dt-column="2">پدر</th>
                                         <th data-dt-column="3">مادر</th>
                                         <th data-dt-column="4">پایه + رشته</th>
-                                        <th data-dt-column="5">  </th>
-                                    </tr>
+=                                    </tr>
                                     </thead>
 
                                     <tbody>
@@ -137,21 +136,6 @@
                                                 @elseif($student->user->personalInformation->field == 'human')
                                                     انسانی
                                                 @endif
-                                            </td>
-                                            <td>
-                                                <div class="btn-group float-end">
-                                                    <button class="btn btn-white btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
-                                                        <i class="fi fi-rr-menu-dots">
-                                                        </i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <a class="dropdown-item" href="javascript:void(0);">
-                                                                ویرایش کنید
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
                                             </td>
                                         </tr>
                                     @empty

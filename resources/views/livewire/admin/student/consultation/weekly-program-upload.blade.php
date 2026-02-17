@@ -270,11 +270,18 @@
 
                 /* plan cell boxes */
                 .plan-box {
-                    height: 104px;
+                    min-height: 104px;
                     border-radius: 14px;
                     border: 1px solid var(--ui-border);
                     transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
-                    background: var(--bs-body-bg);
+                    overflow: visible;
+                }
+
+                /* Exam day parts should auto-size */
+                .plan-box.border-danger,
+                .plan-box.border-warning {
+                    min-height: 104px;
+                    height: auto;
                 }
 
                 .plan-box.clickable {
@@ -403,7 +410,30 @@
                     min-width: 180px; /* نذار تنگ‌تر از این بشه */
                 }
 
-            </style>
+                /* Drag handle hover */
+                .drag-handle:hover {
+                    color: var(--bs-primary) !important;
+                    cursor: grab;
+                }
+
+                .drag-handle:active {
+                    cursor: grabbing;
+                }
+
+                /* Sortable ghost/chosen states */
+                .sortable-ghost-cell {
+                    opacity: 0.35;
+                    background: rgba(37, 99, 235, .06) !important;
+                    border: 2px dashed rgba(37, 99, 235, .4) !important;
+                }
+
+                .sortable-chosen-cell .plan-box {
+                    box-shadow: 0 8px 24px rgba(37, 99, 235, .25) !important;
+                    border-color: rgba(37, 99, 235, .5) !important;
+                    transform: scale(1.02);
+                }
+
+        </style>
         @endpush
 
         {{-- هدر صفحه --}}
@@ -456,7 +486,47 @@
         </div>
 
         {{-- دسترسی سریع --}}
-        <div class="card mb-4 ui-card">
+        <div class="card mb-4 ui-card" x-data="{
+            iframeModal: false,
+            iframeUrl: '',
+            iframeTitle: '',
+            iframeColor: '#2563eb',
+            openIframe(url, title, color) {
+                this.iframeUrl = url;
+                this.iframeTitle = title;
+                this.iframeColor = color || '#2563eb';
+                this.iframeModal = true;
+            }
+        }">
+            {{-- Iframe Modal --}}
+            <template x-teleport="body">
+                <div x-show="iframeModal" x-cloak
+                     style="position:fixed;inset:0;z-index:1080;background:rgba(2,6,23,.65);backdrop-filter:blur(4px);"
+                     @keydown.escape.window="iframeModal=false">
+                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;">
+                        <div style="width:100%;max-width:1200px;height:90vh;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35);display:flex;flex-direction:column;background:var(--bs-body-bg);">
+                            <div class="d-flex align-items-center justify-content-between px-4 py-3 text-white"
+                                 :style="'background:'+iframeColor">
+                                <h5 class="mb-0 d-flex align-items-center gap-2 fw-bold">
+                                    <i class="material-symbols-outlined">open_in_new</i>
+                                    <span x-text="iframeTitle"></span>
+                                </h5>
+                                <div class="d-flex align-items-center gap-2">
+                                    <a :href="iframeUrl" target="_blank"
+                                       class="btn btn-sm btn-light btn-outline-light opacity-75 d-flex align-items-center gap-1">
+                                        <i class="material-symbols-outlined" style="font-size:16px;">open_in_new</i>
+                                        باز کردن در تب جدید
+                                    </a>
+                                    <button @click="iframeModal=false" class="btn-close btn-close-white"></button>
+                                </div>
+                            </div>
+                            <div style="flex:1;overflow:hidden;">
+                                <iframe :src="iframeUrl" style="width:100%;height:100%;border:0;" loading="lazy"></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </template>
             <div class="card-header d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-2">
                     <i class="material-symbols-outlined text-primary">bolt</i>
@@ -467,18 +537,9 @@
 
             <div class="card-body">
                 <div class="row g-3">
-{{--                    <div class="col-6 col-md-2">--}}
-{{--                        <a href="#"--}}
-{{--                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">--}}
-{{--                            <i class="material-symbols-outlined d-block mb-2 text-primary">assessment</i>--}}
-{{--                            <span class="small d-block fw-semibold">کارنامه وضعیت</span>--}}
-{{--                            <span class="small text-muted-2">گزارش کلی</span>--}}
-{{--                        </a>--}}
-{{--                    </div>--}}
-
                     <div class="col-6 col-md-2">
-                        <a href="{{ route('admin.student.studySession.detail', $student->id) }}"
-                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
+                        <a href="#"
+                           @click.prevent="openIframe('{{ route('admin.student.studySession.detail', $student->id) }}', 'ساعت مطالعه', 'linear-gradient(135deg,#059669,#10b981)')"                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
                             <i class="material-symbols-outlined d-block mb-2 text-success">schedule</i>
                             <span class="small d-block fw-semibold">ساعت مطالعه</span>
                             <span class="small text-muted-2">جلسات مطالعه</span>
@@ -486,8 +547,8 @@
                     </div>
 
                     <div class="col-6 col-md-2">
-                        <a href="{{ route('admin.student.reportDailyActivities.detail', $student->id) }}"
-                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
+                        <a href="#"
+                           @click.prevent="openIframe('{{ route('admin.student.reportDailyActivities.detail', $student->id) }}', 'گزارش فعالیت روزانه', 'linear-gradient(135deg,#0891b2,#06b6d4)')"                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
                             <i class="material-symbols-outlined d-block mb-2 text-info">summarize</i>
                             <span class="small d-block fw-semibold">گزارش</span>
                             <span class="small text-muted-2">فعالیت روزانه</span>
@@ -496,6 +557,7 @@
 
                     <div class="col-6 col-md-2">
                         <a href="#"
+                           @click.prevent="openIframe('{{ route('admin.typed-exams.index') }}', 'آزمون‌ها', 'linear-gradient(135deg,#d97706,#f59e0b)')"
                            class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
                             <i class="material-symbols-outlined d-block mb-2 text-warning">quiz</i>
                             <span class="small d-block fw-semibold">آزمون‌ها</span>
@@ -504,7 +566,7 @@
                     </div>
 
                     <div class="col-6 col-md-2">
-                        <a href="#"
+                        <a href="#" wire:click.prevent="openClassificationModal"
                            class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
                             <i class="material-symbols-outlined d-block mb-2 text-secondary">category</i>
                             <span class="small d-block fw-semibold">طبقه‌بندی</span>
@@ -758,8 +820,9 @@
 
                         <tbody>
                         @foreach($weekDays as $day)
-                            <tr class="{{ $day['is_rest_day'] ? 'table-success bg-success bg-opacity-10' : ($day['is_exam_day'] ? 'table-danger bg-danger bg-opacity-10' : '') }}">
-
+                            <tr class="{{ $day['is_rest_day'] ? 'table-success bg-success bg-opacity-10' : ($day['is_exam_day'] ? 'table-danger bg-danger bg-opacity-10' : '') }}"
+                                data-day-index="{{ $day['index'] }}"
+                                data-sortable-row="1">
                                 {{-- روز --}}
                                 <td class="text-center">
                                     <span
@@ -812,7 +875,8 @@
 
                                 {{-- پلن‌ها --}}
                                 @for($i = 0; $i < $maxPartsInWeek; $i++)
-                                    <td>
+                                    <td class="{{ (!$day['is_rest_day'] && !$day['is_exam_day'] && isset($day['parts'][$i])) ? 'plan-part-cell' : '' }}"
+                                        data-part-id="{{ (!$day['is_rest_day'] && !$day['is_exam_day'] && isset($day['parts'][$i])) ? $day['parts'][$i]->id : '' }}">
                                         @if($day['is_rest_day'])
                                             <div
                                                 class="plan-box plan-rest d-flex align-items-center justify-content-center">
@@ -870,7 +934,13 @@
                                             <div class="plan-box clickable p-3 {{ $part->color_class ?? '' }}"
                                                  wire:click="editPart({{ $part->id }})">
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                                    <span class="fw-bold small">{{ $part->lesson_name }}</span>
+                                                    <div class="d-flex align-items-center gap-1">
+                                                        <i class="material-symbols-outlined drag-handle text-muted-2"
+                                                           style="font-size:16px;cursor:grab;user-select:none;"
+                                                           title="برای جابه‌جایی بکشید"
+                                                           wire:click.stop>drag_handle</i>
+                                                        <span class="fw-bold small">{{ $part->lesson_name }}</span>
+                                                    </div>
                                                     <span class="badge bg-body-tertiary text-body border text-xs">
                                                         {{ $part->part_type_label }} {{ $part->grade_label }}
                                                     </span>
@@ -2129,9 +2199,167 @@
             </div>
         </div>
     @endif
+    {{-- Modal طبقه‌بندی --}}
+    @if($showClassificationModal)
+        <div class="modal fade show d-block" tabindex="-1"
+             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px); z-index: 1075;">
+            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header text-white"
+                         style="background: linear-gradient(135deg, #475569 0%, #64748b 50%, #94a3b8 100%);">
+                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                            <i class="material-symbols-outlined">category</i>
+                            طبقه‌بندی مباحث
+                            @if($classificationProjectName)
+                                <span class="badge bg-white bg-opacity-25 fw-normal small">{{ $classificationProjectName }}</span>
+                            @endif
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeClassificationModal"></button>
+                    </div>
 
-@push('script')
+                    <div class="modal-body">
+                        @if(count($classificationTopics) > 0)
+                            <p class="small text-muted-2 mb-3 d-flex align-items-center gap-1">
+                                <i class="material-symbols-outlined" style="font-size:16px;">info</i>
+                                برای افزودن مبحث به برنامه روی ردیف مورد نظر کلیک کنید — فرم افزودن پارت خودکار پر می‌شود.
+                            </p>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>درس</th>
+                                        <th>فصل</th>
+                                        <th>مبحث</th>
+                                        <th class="text-center">رتبه</th>
+                                        <th class="text-center">افزودن</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach($classificationTopics as $idx => $item)
+                                        <tr style="cursor:pointer;" wire:click="selectClassificationTopic({{ $item['topic_id'] }})">
+                                            <td class="text-muted-2">{{ $idx + 1 }}</td>
+                                            <td class="fw-semibold">{{ $item['subject_name'] }}</td>
+                                            <td class="small text-muted-2">{{ $item['chapter_name'] }}</td>
+                                            <td class="fw-semibold">{{ $item['topic_name'] }}</td>
+                                            <td class="text-center">
+                                                <span class="badge bg-{{ $item['rating_color'] }}-subtle text-{{ $item['rating_color'] }} fw-bold px-2">
+                                                    {{ $item['rating_label'] }}
+                                                </span>
+                                            </td>
+                                            <td class="text-center">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                        wire:click.stop="selectClassificationTopic({{ $item['topic_id'] }})">
+                                                    <i class="material-symbols-outlined" style="font-size:14px;">add_circle</i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="text-center py-5">
+                                <i class="material-symbols-outlined text-muted-2" style="font-size:64px;">category</i>
+                                <p class="text-muted-2 mt-3">
+                                    @if($classificationProjectName)
+                                        هیچ مبحثی برای این دانش‌آموز در پروژه «{{ $classificationProjectName }}» ثبت نشده است.
+                                    @else
+                                        پروژه طبقه‌بندی فعالی یافت نشد.
+                                    @endif
+                                </p>
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="modal-footer bg-body-tertiary">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="closeClassificationModal">
+                            بستن
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- Modal هشدار پارت با تایم صفر --}}
+    @if($showZeroTimeWarningModal)
+        <div class="modal fade show d-block" tabindex="-1"
+             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px); z-index: 1080;">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content shadow-lg border-0">
+                    <div class="modal-header bg-warning text-white">
+                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                            <i class="material-symbols-outlined">warning</i>
+                            هشدار — پارت‌های بدون تایم
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" wire:click="closeZeroTimeWarningModal"></button>
+                    </div>
+
+                    <div class="modal-body text-center py-4">
+                        <div class="mb-3">
+                            <i class="material-symbols-outlined text-warning" style="font-size:64px;">schedule</i>
+                        </div>
+                        <h5 class="mb-3">برنامه دارای پارت‌های بدون تایم است</h5>
+                        <p class="text-muted-2 mb-0">
+                            <strong class="text-danger">{{ $zeroTimePartsCount }}</strong> پارت با مدت زمان ۰ دقیقه در برنامه وجود دارد.
+                            <br>
+                            لطفاً ابتدا تایم پارت‌ها را تنظیم کنید یا برنامه را بدون تایید نهایی ذخیره کنید.
+                        </p>
+                    </div>
+
+                    <div class="modal-footer justify-content-center gap-2 bg-body-tertiary">
+                        <button type="button" class="btn btn-outline-secondary" wire:click="closeZeroTimeWarningModal">
+                            بازگشت و ویرایش
+                        </button>
+                        <button type="button" class="btn btn-warning text-white" wire:click="forceFinalSave">
+                            <i class="material-symbols-outlined" style="font-size:18px;">save</i>
+                            ذخیره بدون تایید نهایی
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @push('script')
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
         <script>
+            // Drag-and-drop for plan cells (reorder parts within a day)
+            function initSortableRows() {
+                document.querySelectorAll('tr[data-sortable-row]').forEach(function(row) {
+                    if (row._sortable) {
+                        row._sortable.destroy();
+                    }
+                    row._sortable = Sortable.create(row, {
+                        animation: 150,
+                        handle: '.drag-handle',
+                        draggable: '.plan-part-cell',
+                        ghostClass: 'sortable-ghost-cell',
+                        chosenClass: 'sortable-chosen-cell',
+                        onEnd: function(evt) {
+                            var dayIndex = parseInt(row.getAttribute('data-day-index'));
+                            var partIds = [];
+                            row.querySelectorAll('.plan-part-cell[data-part-id]').forEach(function(td) {
+                                var pid = td.getAttribute('data-part-id');
+                                if (pid) partIds.push(parseInt(pid));
+                            });
+                            if (partIds.length > 0) {
+                            @this.call('reorderParts', partIds, dayIndex);
+                            }
+                        }
+                    });
+                });
+            }
+
+            document.addEventListener('livewire:navigated', initSortableRows);
+            document.addEventListener('livewire:updated', function() {
+                setTimeout(initSortableRows, 100);
+            });
+
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(initSortableRows, 300);
+            });
             document.addEventListener('livewire:init', () => {
                 const select2Config = {
                     dir: "rtl",

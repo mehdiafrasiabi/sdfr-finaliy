@@ -40,6 +40,22 @@ class CreateAdvisingSession extends Component
     public function mount(Student $student)
     {
         $this->studentId = $student->id;
+        // Auto-fill title with today's Shamsi date (YYMMDD format, e.g. 041127)
+        $today = Jalalian::fromCarbon(Carbon::today());
+        $yearShort = substr((string) $today->getYear(), -2);
+        $month = str_pad((string) $today->getMonth(), 2, '0', STR_PAD_LEFT);
+        $day = str_pad((string) $today->getDay(), 2, '0', STR_PAD_LEFT);
+        $this->title = $yearShort . $month . $day;
+
+        // Auto-fill description with "برنامه برای {tomorrow}تا{tomorrow+7}"
+        $tomorrow = Jalalian::fromCarbon(Carbon::today()->addDay());
+        $endDate = Jalalian::fromCarbon(Carbon::today()->addDays(8));
+        $fmt = function (Jalalian $j): string {
+            return substr((string) $j->getYear(), -2)
+                . str_pad((string) $j->getMonth(), 2, '0', STR_PAD_LEFT)
+                . str_pad((string) $j->getDay(), 2, '0', STR_PAD_LEFT);
+        };
+        $this->description = 'برنامه برای ' . $fmt($tomorrow) . 'تا' . $fmt($endDate);
     }
 
     public function createSession()
@@ -77,6 +93,8 @@ class CreateAdvisingSession extends Component
         $this->sendSessionCreatedNotification($session);
         $this->reset(['title', 'description', 'activation_date', 'session_time', 'skyroom_link', 'editingSessionId']);
         $this->location_type = 'online';
+        $this->dispatch('jdp-session-cleared');
+
         $this->dispatch('success', 'جلسه مشاوره و پیش‌جلسه با موفقیت ایجاد شد.');
     }
     /**
@@ -118,6 +136,11 @@ class CreateAdvisingSession extends Component
         $this->session_time = $session->session_time ? Carbon::parse($session->session_time)->format('H:i') : null;
         $this->location_type = $session->location_type;
         $this->skyroom_link = $session->skyroom_link;
+
+        // Dispatch event to pre-fill the Jalali datetime picker in the browser
+        $jalaliDate = Jalalian::fromCarbon($session->activation_date)->format('Y/m/d');
+        $sessionTime = $this->session_time;
+        $this->dispatch('jdp-session-loaded', jalali_date: $jalaliDate, session_time: $sessionTime);
     }
     public function updateSession()
     {
@@ -150,6 +173,8 @@ class CreateAdvisingSession extends Component
         $this->sendSessionUpdatedNotification();
         $this->reset(['title', 'description', 'activation_date', 'session_time', 'skyroom_link', 'editingSessionId']);
         $this->location_type = 'online';
+        $this->dispatch('jdp-session-cleared');
+
         $this->dispatch('success', 'جلسه مشاوره با موفقیت ویرایش شد.');
     }
     /**
@@ -173,6 +198,8 @@ class CreateAdvisingSession extends Component
     {
         $this->reset(['title', 'description', 'activation_date', 'session_time', 'skyroom_link', 'editingSessionId']);
         $this->location_type = 'online';
+        $this->dispatch('jdp-session-cleared');
+
     }
     // به‌روزرسانی وضعیت نتیجه جلسه
     public function updateResultStatus($sessionId, $status)

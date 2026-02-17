@@ -521,7 +521,6 @@
             </table>
         </div>
     </section>
-
         {{-- نمودارها (همان SVG ولی کارت‌استایل شده شبیه دمو) --}}
         <section class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
             {{-- نوع پارت --}}

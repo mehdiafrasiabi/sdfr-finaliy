@@ -18,12 +18,6 @@
                     </button>
                     <input class="form-control form-control-fill ps-5" data-bs-target="#searchResultsModal" data-bs-toggle="modal" placeholder="هر چیزی را جستجو کنید" type="text"/>
                 </form>
-                <div class="badge-standard d-none d-lg-inline-block">
-                    لیدهای جدید امروز
-                    <span class="badge bg-primary-subtle text-primary">
-		27
-	   </span>
-                </div>
             </div>
             <div class="app-header-end">
                 <div class="px-lg-4 px-2 ps-0 d-flex align-items-center">
@@ -59,23 +53,6 @@
                 <div class="vr my-3">
                 </div>
                 <div class="d-flex align-items-center gap-sm-2 gap-0 px-lg-4 px-sm-2 px-1">
-                    <a class="btn btn-icon btn-action-gray rounded-circle waves-effect waves-light position-relative" href="email/inbox.html">
-                        <svg fill="none" height="25" viewbox="0 0 24 25" width="24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M22 11V12.5C22 17.214 22 19.5711 20.5355 21.0355C19.0711 22.5 16.714 22.5 12 22.5C7.28595 22.5 4.92893 22.5 3.46447 21.0355C2 19.5711 2 17.214 2 12.5C2 7.78595 2 5.42893 3.46447 3.96447C4.92893 2.5 7.28595 2.5 12 2.5H13.5" opacity="0.5" stroke="var(--bs-heading-color)" stroke-linecap="round" stroke-width="2">
-                            </path>
-                            <path d="M19 8.5C20.6569 8.5 22 7.15685 22 5.5C22 3.84315 20.6569 2.5 19 2.5C17.3431 2.5 16 3.84315 16 5.5C16 7.15685 17.3431 8.5 19 8.5Z" stroke="var(--bs-heading-color)" stroke-width="2">
-                            </path>
-                            <path d="M7 14.5H16" stroke="var(--bs-heading-color)" stroke-linecap="round" stroke-width="2">
-                            </path>
-                            <path d="M7 18H13" stroke="var(--bs-heading-color)" stroke-linecap="round" stroke-width="2">
-                            </path>
-                        </svg>
-                        <span class="position-absolute top-0 end-0 p-1 mt-1 me-1 bg-primary border border-3 border-light rounded-circle">
-		 <span class="visually-hidden">
-		  هشدارهای جدید
-		 </span>
-		</span>
-                    </a>
                     <div class="dropdown text-end">
                         <button aria-expanded="true" class="btn btn-icon btn-action-gray rounded-circle waves-effect waves-light" data-bs-auto-close="outside" data-bs-toggle="dropdown" type="button">
                             <svg fill="none" height="25" viewbox="0 0 24 25" width="24" xmlns="http://www.w3.org/2000/svg">
@@ -223,7 +200,7 @@
                             </div>
                         </div>
                     </div>
-                    <a class="btn btn-icon btn-action-gray rounded-circle waves-effect waves-light" href="calendar.html">
+                    <a class="btn btn-icon btn-action-gray rounded-circle waves-effect waves-light" href="#">
                         <svg fill="none" height="25" viewbox="0 0 24 25" width="24" xmlns="http://www.w3.org/2000/svg">
                             <path d="M2 12.5C2 8.72876 2 6.84315 3.17157 5.67157C4.34315 4.5 6.22876 4.5 10 4.5H14C17.7712 4.5 19.6569 4.5 20.8284 5.67157C22 6.84315 22 8.72876 22 12.5V14.5C22 18.2712 22 20.1569 20.8284 21.3284C19.6569 22.5 17.7712 22.5 14 22.5H10C6.22876 22.5 4.34315 22.5 3.17157 21.3284C2 20.1569 2 18.2712 2 14.5V12.5Z" stroke="var(--bs-heading-color)" stroke-width="2">
                             </path>
