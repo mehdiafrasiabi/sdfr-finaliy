@@ -52,7 +52,6 @@ class DatabaseSeeder extends Seeder
             CcChaptersTableSeeder::class,
             CcTopicsTableSeeder::class,
             SubjectsTableSeeder::class,
-//        CopyMathToExperimentalSeeder::class,
         ]);
     }
 }

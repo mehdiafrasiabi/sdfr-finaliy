@@ -314,13 +314,17 @@
 
                             <td>
                                 @if($canAccess && ($session->status === 'completed' || $session->status === 'active'))
+                                    @php $programComplete = $this->isProgramComplete($session->id); @endphp
+
                                     <select
                                         wire:change="updateResultStatus({{$session->id}},$event.target.value)"
                                         class="form-select form-select-sm"
                                     >
                                         <option value="">انتخاب کنید</option>
-                                        <option value="held" {{ $session->result_status === 'held' ? 'selected' : '' }}>
-                                            برگزار شد
+                                        <option value="held"
+                                            {{ $session->result_status === 'held' ? 'selected' : '' }}
+                                            {{ !$programComplete ? 'disabled' : '' }}>
+                                            برگزار شد {{ !$programComplete ? '(برنامه تکمیل نشده)' : '' }}
                                         </option>
                                         <option
                                             value="advisor_absent" {{ $session->result_status === 'advisor_absent' ? 'selected' : '' }}>
@@ -331,15 +335,19 @@
                                             دانش‌آموز غیبت داشت
                                         </option>
                                     </select>
+                                    @if(!$programComplete && !$session->result_status)
+                                        <small class="text-warning d-block mt-1" style="font-size: 10px;">
+                                            <i class="material-symbols-outlined" style="font-size: 12px; vertical-align: middle;">warning</i>
+                                            برنامه تکمیل نشده
+                                        </small>
+                                    @endif
                                 @else
                                     <span class="badge bg-label-secondary d-inline-flex align-items-center gap-1">
-                  <!-- lock icon -->
-                  <svg class="text-black" viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                        d="M17 10h-1V8a4 4 0 0 0-8 0v2H7a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6a3 3 0 0 0-3-3Zm-7-2a2 2 0 1 1 4 0v2h-4V8Zm10 11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v6Z"/>
-                  </svg>
-                  <span>قفل</span>
-                </span>
+                                <svg class="text-black" viewBox="0 0 24 24" aria-hidden="true" style="width:18px;height:18px;">
+                                            <path d="M17 10h-1V8a4 4 0 0 0-8 0v2H7a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6a3 3 0 0 0-3-3Zm-7-2a2 2 0 1 1 4 0v2h-4V8Zm10 11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v6Z"/>
+                                        </svg>
+                                        <span>قفل</span>
+                                    </span>
                                 @endif
                             </td>
 

@@ -877,6 +877,13 @@ class WeeklyProgramUpload extends Component
         $this->saveProgram();
         // Check for 0-time parts before confirming
         if ($this->weeklyProgramId) {
+            $totalParts = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)->count();
+
+            if ($totalParts === 0) {
+                $this->dispatch('warning', 'برنامه هیچ پارتی ندارد. ابتدا پارت اضافه کنید.');
+                return;
+            }
+
             $zeroCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
                 ->where('duration_minutes', 0)
                 ->count();
@@ -886,6 +893,8 @@ class WeeklyProgramUpload extends Component
                 $this->showZeroTimeWarningModal = true;
                 return;
             }
+            // All parts have time - auto-mark session result as held
+            $this->markSessionAsHeld();
         }
 
         $this->dispatch('success', 'برنامه هفتگی با موفقیت ذخیره شد.');
@@ -894,7 +903,23 @@ class WeeklyProgramUpload extends Component
     public function forceFinalSave(): void
     {
         $this->showZeroTimeWarningModal = false;
-        $this->dispatch('success', 'برنامه هفتگی با موفقیت ذخیره شد.');
+        $this->dispatch('success', 'برنامه هفتگی ذخیره شد (بدون تایید نهایی - پارت‌های بدون تایم وجود دارد).');
+    }
+
+    /**
+     * Mark the advising session result as "held" when program is complete
+     */
+    protected function markSessionAsHeld(): void
+    {
+        if (!$this->sessionId) return;
+
+        $session = AdvisingSession::find($this->sessionId);
+        if (!$session) return;
+
+        $session->update([
+            'result_status' => AdvisingSession::RESULT_HELD,
+            'status' => AdvisingSession::STATUS_COMPLETED,
+        ]);
     }
     public function closeZeroTimeWarningModal(): void
     {
@@ -940,7 +965,14 @@ class WeeklyProgramUpload extends Component
     {
         $this->showClassificationModal = false;
     }
-
+    // Classification inline add properties
+    public ?int $classificationSelectedTopicId = null;
+    public array $classificationAddForm = [
+        'day_index' => null,
+        'duration_hours' => 1,
+        'duration_minutes' => 0,
+    ];
+    public bool $showClassificationAddForm = false;
     public function selectClassificationTopic(int $topicId): void
     {
         $this->showClassificationModal = false;
@@ -993,7 +1025,101 @@ class WeeklyProgramUpload extends Component
         $this->showPartModal = true;
         $this->dispatch('modal-opened');
     }
+    /**
+     * Show inline add form for classification topic
+     */
+    public function showClassificationInlineAdd(int $topicId): void
+    {
+        $this->classificationSelectedTopicId = $topicId;
+        $this->classificationAddForm = [
+            'day_index' => null,
+            'duration_hours' => 1,
+            'duration_minutes' => 0,
+        ];
+        $this->showClassificationAddForm = true;
+    }
 
+    /**
+     * Hide inline add form
+     */
+    public function hideClassificationInlineAdd(): void
+    {
+        $this->showClassificationAddForm = false;
+        $this->classificationSelectedTopicId = null;
+    }
+
+    /**
+     * Add classification topic directly to program with selected day/time
+     */
+    public function addClassificationToProgram(): void
+    {
+        if (!$this->classificationSelectedTopicId) return;
+
+        $dayIndex = $this->classificationAddForm['day_index'];
+        if ($dayIndex === null || $dayIndex === '') {
+            $this->dispatch('warning', 'لطفاً یک روز انتخاب کنید.');
+            return;
+        }
+
+        $hours = (int) ($this->classificationAddForm['duration_hours'] ?? 0);
+        $minutes = (int) ($this->classificationAddForm['duration_minutes'] ?? 0);
+        $totalMinutes = ($hours * 60) + $minutes;
+
+        if ($totalMinutes < 1) {
+            $this->dispatch('warning', 'مدت زمان باید حداقل ۱ دقیقه باشد.');
+            return;
+        }
+
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        $topic = CcTopic::with(['chapter.subject.grade.educationLevel'])->find($this->classificationSelectedTopicId);
+        if (!$topic) return;
+
+        $chapter = $topic->chapter;
+        $subject = $chapter?->subject;
+        $grade   = $subject?->grade;
+        $educationLevel = $grade?->educationLevel;
+
+        $startDate = Carbon::parse($this->start_date);
+        $partDate = $startDate->copy()->addDays((int) $dayIndex);
+
+        $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('day_of_week', (int) $dayIndex)
+            ->count();
+
+        if ($existingCount >= 20) {
+            $this->dispatch('warning', 'حداکثر ۲۰ پارت برای هر روز مجاز است.');
+            return;
+        }
+
+        $path = collect([$subject?->name, $chapter?->name, $topic->name])->filter()->join(' > ');
+
+        ProgramPart::create([
+            'weekly_program_id' => $this->weeklyProgramId,
+            'lesson_name' => $subject?->name ?? $topic->name,
+            'part_date' => $partDate,
+            'day_of_week' => (int) $dayIndex,
+            'part_order' => $existingCount + 1,
+            'description' => $path,
+            'duration_minutes' => $totalMinutes,
+            'test_count' => null,
+            'part_type' => 'descriptive',
+            'lesson_type' => $subject?->type ?? 'specialized',
+            'grade' => $grade?->grade_number,
+            'education_level_id' => $educationLevel?->id,
+            'cc_grade_id' => $grade?->id,
+            'cc_field_id' => $subject?->cc_field_id,
+            'cc_subject_id' => $subject?->id,
+            'cc_chapter_id' => $chapter?->id,
+            'cc_topic_id' => $topic->id,
+        ]);
+
+        $this->loadExistingParts();
+        $this->hideClassificationInlineAdd();
+        $this->dispatch('success', 'مبحث با موفقیت به برنامه اضافه شد.');
+    }
     public function reorderParts(array $partIds, int $dayIndex): void
     {
         if (!$this->weeklyProgramId) return;
@@ -1005,6 +1131,89 @@ class WeeklyProgramUpload extends Component
                 ->update(['part_order' => $index + 1]);
         }
     }
+    /**
+     * Move a part from one day to another day (cross-day drag-drop)
+     */
+    public function movePartToDay(int $partId, int $targetDayIndex): void
+    {
+        if (!$this->weeklyProgramId) return;
+
+        $part = ProgramPart::where('id', $partId)
+            ->where('weekly_program_id', $this->weeklyProgramId)
+            ->first();
+
+        if (!$part) return;
+        if ($part->day_of_week === $targetDayIndex) return;
+
+        $sourceDayIndex = $part->day_of_week;
+        $startDate = Carbon::parse($this->start_date);
+
+        // Calculate new part_order for target day
+        $targetCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('day_of_week', $targetDayIndex)
+            ->count();
+
+        // Move part to target day
+        $part->update([
+            'day_of_week' => $targetDayIndex,
+            'part_date' => $startDate->copy()->addDays($targetDayIndex),
+            'part_order' => $targetCount + 1,
+        ]);
+
+        // Reorder source day parts
+        $sourceParts = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('day_of_week', $sourceDayIndex)
+            ->orderBy('part_order')
+            ->get();
+
+        foreach ($sourceParts as $idx => $sp) {
+            $sp->update(['part_order' => $idx + 1]);
+        }
+
+        $this->loadExistingParts();
+        $this->dispatch('success', 'پارت با موفقیت جابه‌جا شد.');
+    }
+
+    /**
+     * Swap two parts between days (cross-day drag onto another part)
+     */
+    public function swapParts(int $partId1, int $partId2): void
+    {
+        if (!$this->weeklyProgramId) return;
+
+        $part1 = ProgramPart::where('id', $partId1)
+            ->where('weekly_program_id', $this->weeklyProgramId)
+            ->first();
+
+        $part2 = ProgramPart::where('id', $partId2)
+            ->where('weekly_program_id', $this->weeklyProgramId)
+            ->first();
+
+        if (!$part1 || !$part2) return;
+
+        $startDate = Carbon::parse($this->start_date);
+
+        // Swap day_of_week, part_date, and part_order
+        $tempDay = $part1->day_of_week;
+        $tempOrder = $part1->part_order;
+        $tempDate = $part1->part_date;
+
+        $part1->update([
+            'day_of_week' => $part2->day_of_week,
+            'part_order' => $part2->part_order,
+            'part_date' => $part2->part_date,
+        ]);
+
+        $part2->update([
+            'day_of_week' => $tempDay,
+            'part_order' => $tempOrder,
+            'part_date' => $tempDate,
+        ]);
+
+        $this->loadExistingParts();
+        $this->dispatch('success', 'پارت‌ها با موفقیت جابه‌جا شدند.');
+    }
+
     /**
      * Toggle rest day - show confirmation if parts exist
      */
@@ -1914,7 +2123,7 @@ class WeeklyProgramUpload extends Component
                 ->where('day_of_week', $dayIndex)
                 ->count();
 
-            if ($existingCount >= 10) {
+            if ($existingCount >= 20) {
                 continue; // Skip if day is full
             }
 
@@ -1964,6 +2173,164 @@ class WeeklyProgramUpload extends Component
         $this->distributionPreview = [];
         $this->distributionType = '';
     }
+    /**
+     * Check if a pre-session exam is already registered in program parts
+     */
+    public function isExamRegistered(int $examIndex): bool
+    {
+        if (!$this->weeklyProgramId) return false;
+
+        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
+            ->with('exams')
+            ->latest()
+            ->first();
+
+        if (!$preSessions || !isset($preSessions->exams[$examIndex])) return false;
+
+        $exam = $preSessions->exams[$examIndex];
+        return ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('description', 'like', '%امتحان%' . $exam->subject . '%')
+            ->exists();
+    }
+
+    /**
+     * Check if a pre-session QA is already registered in program parts
+     */
+    public function isQaRegistered(int $qaIndex): bool
+    {
+        if (!$this->weeklyProgramId) return false;
+
+        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
+            ->with('qas')
+            ->latest()
+            ->first();
+
+        if (!$preSessions || !isset($preSessions->qas[$qaIndex])) return false;
+
+        $qa = $preSessions->qas[$qaIndex];
+        return ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('description', 'like', '%پرسش و پاسخ%' . $qa->subject . '%')
+            ->exists();
+    }
+
+    /**
+     * Check if a pre-session assignment is already registered in program parts
+     */
+    public function isAssignmentRegistered(int $assignmentIndex): bool
+    {
+        if (!$this->weeklyProgramId) return false;
+
+        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
+            ->with('assignments')
+            ->latest()
+            ->first();
+
+        if (!$preSessions || !isset($preSessions->assignments[$assignmentIndex])) return false;
+
+        $assignment = $preSessions->assignments[$assignmentIndex];
+        return ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('description', 'like', '%تکلیف%' . $assignment->subject . '%')
+            ->exists();
+    }
+
+    /**
+     * Revert (remove) parts added from a pre-session exam
+     */
+    public function revertExamParts(int $examIndex): void
+    {
+        if (!$this->weeklyProgramId) return;
+
+        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
+            ->with('exams')
+            ->latest()
+            ->first();
+
+        if (!$preSessions || !isset($preSessions->exams[$examIndex])) return;
+
+        $exam = $preSessions->exams[$examIndex];
+
+        ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('description', 'like', '%امتحان%' . $exam->subject . '%')
+            ->delete();
+
+        $this->reorderAllDays();
+        $this->loadExistingParts();
+        $this->dispatch('success', 'پارت‌های امتحان «' . $exam->subject . '» از برنامه حذف شدند.');
+    }
+
+    /**
+     * Revert (remove) parts added from a pre-session QA
+     */
+    public function revertQaParts(int $qaIndex): void
+    {
+        if (!$this->weeklyProgramId) return;
+
+        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
+            ->with('qas')
+            ->latest()
+            ->first();
+
+        if (!$preSessions || !isset($preSessions->qas[$qaIndex])) return;
+
+        $qa = $preSessions->qas[$qaIndex];
+
+        ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('description', 'like', '%پرسش و پاسخ%' . $qa->subject . '%')
+            ->delete();
+
+        $this->reorderAllDays();
+        $this->loadExistingParts();
+        $this->dispatch('success', 'پارت‌های پرسش و پاسخ «' . $qa->subject . '» از برنامه حذف شدند.');
+    }
+
+    /**
+     * Revert (remove) parts added from a pre-session assignment
+     */
+    public function revertAssignmentParts(int $assignmentIndex): void
+    {
+        if (!$this->weeklyProgramId) return;
+
+        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
+            ->with('assignments')
+            ->latest()
+            ->first();
+
+        if (!$preSessions || !isset($preSessions->assignments[$assignmentIndex])) return;
+
+        $assignment = $preSessions->assignments[$assignmentIndex];
+
+        ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('description', 'like', '%تکلیف%' . $assignment->subject . '%')
+            ->delete();
+
+        $this->reorderAllDays();
+        $this->loadExistingParts();
+        $this->dispatch('success', 'پارت‌های تکلیف «' . $assignment->subject . '» از برنامه حذف شدند.');
+    }
+
+    /**
+     * Reorder parts for all days after deletion
+     */
+    protected function reorderAllDays(): void
+    {
+        for ($i = 0; $i < 8; $i++) {
+            $dayParts = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $i)
+                ->orderBy('part_order')
+                ->get();
+
+            foreach ($dayParts as $idx => $part) {
+                $part->update(['part_order' => $idx + 1]);
+            }
+        }
+    }
+
     /**
      * D1: Preview weekly readings (daily reading + pre-reading) for entire week
      */

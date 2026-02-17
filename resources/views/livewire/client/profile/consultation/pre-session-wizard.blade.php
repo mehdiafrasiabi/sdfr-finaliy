@@ -2,52 +2,80 @@
     <div class="container mx-auto px-3 sm:px-4 max-w-4xl">
 
         @push('link')
-            <link rel="preload" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-            <link rel="preload" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js" as="script">
+
             <style>
-                /* Dark mode for jalali datepicker */
-                .dark .jalali-datepicker,
-                [data-theme="dark"] .jalali-datepicker {
-                    background-color: #1e293b !important;
-                    border-color: #334155 !important;
-                    color: #e2e8f0 !important;
-                    box-shadow: 0 10px 25px rgba(0,0,0,.4) !important;
+                /* Inline date selector styles */
+                .date-selector-grid {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 6px;
                 }
-                .dark .jalali-datepicker .jdp-header,
-                [data-theme="dark"] .jalali-datepicker .jdp-header {
-                    background: linear-gradient(135deg, #1d4ed8, #2563eb) !important;
-                    color: #fff !important;
+                .date-btn {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    min-width: 70px;
+                    padding: 8px 10px;
+                    border-radius: 10px;
+                    border: 1px solid #e2e8f0;
+                    background: #fff;
+                    cursor: pointer;
+                    transition: all .15s ease;
+                    font-size: 12px;
+                    color: #475569;
                 }
-                .dark .jalali-datepicker .jdp-body td,
-                [data-theme="dark"] .jalali-datepicker .jdp-body td {
-                    color: #cbd5e1 !important;
+                .date-btn:hover {
+                    border-color: #3b82f6;
+                    background: #eff6ff;
+                    color: #1d4ed8;
                 }
-                .dark .jalali-datepicker .jdp-body td:hover,
-                [data-theme="dark"] .jalali-datepicker .jdp-body td:hover {
-                    background: #334155 !important;
-                    color: #fff !important;
+                .date-btn.selected {
+                    border-color: #3b82f6;
+                    background: #3b82f6;
+                    color: #fff;
+                    box-shadow: 0 2px 8px rgba(59, 130, 246, .3);
                 }
-                .dark .jalali-datepicker .jdp-body td.jdp-today,
-                [data-theme="dark"] .jalali-datepicker .jdp-body td.jdp-today {
-                    background: #2563eb !important;
-                    color: #fff !important;
+
+                .date-btn .day-name {
+                    font-weight: 600;
+                    font-size: 11px;
+                    margin-bottom: 2px;
                 }
-                .dark .jalali-datepicker .jdp-body td.jdp-selected,
-                [data-theme="dark"] .jalali-datepicker .jdp-body td.jdp-selected {
-                    background: #3b82f6 !important;
-                    color: #fff !important;
+                .date-btn .day-date {
+                    font-size: 11px;
+                    opacity: .8;
                 }
-                .dark .jalali-datepicker .jdp-footer,
-                [data-theme="dark"] .jalali-datepicker .jdp-footer {
-                    border-color: #334155 !important;
+                /* Dark mode */
+                .dark .date-btn,
+                [data-theme="dark"] .date-btn {
+                    background: #1e293b;
+                    border-color: #334155;
+                    color: #cbd5e1;
                 }
-                .dark .jalali-datepicker .jdp-body th,
-                [data-theme="dark"] .jalali-datepicker .jdp-body th {
-                    color: #94a3b8 !important;
+                .dark .date-btn:hover,
+                [data-theme="dark"] .date-btn:hover {
+                    border-color: #3b82f6;
+                    background: #1e3a5f;
+                    color: #93c5fd;
                 }
-                .dark .jalali-datepicker .jdp-nav button,
-                [data-theme="dark"] .jalali-datepicker .jdp-nav button {
-                    color: #e2e8f0 !important;
+
+                .dark .date-btn.selected,
+                [data-theme="dark"] .date-btn.selected {
+                    border-color: #3b82f6;
+                    background: #2563eb;
+                    color: #fff;
+                }
+                /* Wizard card styles */
+                .wizard-card-shadow {
+                    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+                }
+                .wizard-header-gradient {
+                    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 50%, #3b82f6 100%);
+                }
+
+                .wizard-step-connector {
+                    min-width: 20px;
                 }
             </style>
         @endpush
@@ -262,21 +290,23 @@
                                     @endif
                                 </div>
 
-                                <div>
+                                <div class="md:col-span-2">
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
                                         تاریخ امتحان
+                                        @if($examForm['exam_date'])
+                                            <span class="text-blue-600 dark:text-blue-400 font-bold mr-1">{{ $examForm['exam_date'] }}</span>
+                                        @endif
                                     </label>
-                                    <input
-                                        type="text"
-                                        data-jdp
-                                        wire:model="examForm.exam_date"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                        placeholder="انتخاب تاریخ"
-                                        @if($minDate) data-jdp-min-date="{{ $minDate }}" @endif
-                                        @if($maxDate) data-jdp-max-date="{{ $maxDate }}" @endif
-                                    >
+                                    <div class="date-selector-grid">
+                                        @foreach($availableDates as $dateItem)
+                                            <button type="button"
+                                                    wire:click="$set('examForm.exam_date', '{{ $dateItem['value'] }}')"
+                                                    class="date-btn {{ $examForm['exam_date'] === $dateItem['value'] ? 'selected' : '' }}">
+                                                <span class="day-name">{{ $dateItem['day_name'] }}</span>
+                                                <span class="day-date">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
+                                            </button>
+                                        @endforeach
+                                    </div>
                                     @error('examForm.exam_date')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                                     @enderror
@@ -292,7 +322,7 @@
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                         </button>
 
-                                        <input type="number" min="1"
+                                        <input type="tel" min="1"
                                                x-model.number="count"
                                                @input="if(count < 1) count = 1"
                                                class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40">
@@ -326,7 +356,7 @@
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1">
                                             <div class="relative">
-                                                <input type="number" min="0" max="59"
+                                                <input type="tel" min="0" max="59"
                                                        x-model.number="minutes"
                                                        @input="update()"
                                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
@@ -338,7 +368,7 @@
 
                                         <div class="flex-1">
                                             <div class="relative">
-                                                <input type="number" min="0" max="24"
+                                                <input type="tel" min="0" max="24"
                                                        x-model.number="hours"
                                                        @input="update()"
                                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
@@ -481,21 +511,23 @@
                                     @endif
                                 </div>
 
-                                <div>
+                                <div class="md:col-span-2">
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
                                         تاریخ
+                                        @if($qaForm['qa_date'])
+                                            <span class="text-blue-600 dark:text-blue-400 font-bold mr-1">{{ $qaForm['qa_date'] }}</span>
+                                        @endif
                                     </label>
-                                    <input
-                                        type="text"
-                                        data-jdp
-                                        wire:model="qaForm.qa_date"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                        placeholder="انتخاب تاریخ"
-                                        @if($minDate) data-jdp-min-date="{{ $minDate }}" @endif
-                                        @if($maxDate) data-jdp-max-date="{{ $maxDate }}" @endif
-                                    >
+                                    <div class="date-selector-grid">
+                                        @foreach($availableDates as $dateItem)
+                                            <button type="button"
+                                                    wire:click="$set('qaForm.qa_date', '{{ $dateItem['value'] }}')"
+                                                    class="date-btn {{ $qaForm['qa_date'] === $dateItem['value'] ? 'selected' : '' }}">
+                                                <span class="day-name">{{ $dateItem['day_name'] }}</span>
+                                                <span class="day-date">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
+                                            </button>
+                                        @endforeach
+                                    </div>
                                     @error('qaForm.qa_date')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                                     @enderror
@@ -511,7 +543,7 @@
                                                 class="flex items-center justify-center w-10 h-10 rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:bg-green-50 hover:border-green-300 hover:text-green-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-300 dark:hover:bg-green-900/20 dark:hover:border-green-700">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                         </button>
-                                        <input type="number" min="1"
+                                        <input type="tel" min="1"
                                                x-model.number="count"
                                                @input="if(count < 1) count = 1"
                                                class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40">
@@ -545,7 +577,7 @@
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1">
                                             <div class="relative">
-                                                <input type="number" min="0" max="59"
+                                                <input type="tel" min="0" max="59"
                                                        x-model.number="minutes"
                                                        @input="update()"
                                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
@@ -557,7 +589,7 @@
 
                                         <div class="flex-1">
                                             <div class="relative">
-                                                <input type="number" min="0" max="24"
+                                                <input type="tel" min="0" max="24"
                                                        x-model.number="hours"
                                                        @input="update()"
                                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
@@ -676,22 +708,23 @@
                                     @enderror
                                 </div>
 
-                                <div>
+                                <div class="md:col-span-2">
                                     <label class="mb-1 block text-xs font-medium text-slate-700 dark:text-slate-200">
                                         تاریخ تحویل
-
+                                        @if($assignmentForm['due_date'])
+                                            <span class="text-blue-600 dark:text-blue-400 font-bold mr-1">{{ $assignmentForm['due_date'] }}</span>
+                                        @endif
                                     </label>
-                                    <input
-                                        type="text"
-                                        data-jdp
-                                        wire:model="assignmentForm.due_date"
-                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 shadow-sm outline-none transition
-                                               focus:border-blue-500 focus:ring-2 focus:ring-blue-100
-                                               dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
-                                        placeholder="انتخاب تاریخ"
-                                        @if($minDate) data-jdp-min-date="{{ $minDate }}" @endif
-                                        @if($maxDate) data-jdp-max-date="{{ $maxDate }}" @endif
-                                    >
+                                    <div class="date-selector-grid">
+                                        @foreach($availableDates as $dateItem)
+                                            <button type="button"
+                                                    wire:click="$set('assignmentForm.due_date', '{{ $dateItem['value'] }}')"
+                                                    class="date-btn {{ $assignmentForm['due_date'] === $dateItem['value'] ? 'selected' : '' }}">
+                                                <span class="day-name">{{ $dateItem['day_name'] }}</span>
+                                                <span class="day-date">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
+                                            </button>
+                                        @endforeach
+                                    </div>
                                     @error('assignmentForm.due_date')
                                     <span class="mt-1 block text-xs text-red-500">{{ $message }}</span>
                                     @enderror
@@ -707,7 +740,7 @@
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                         </button>
 
-                                        <input type="number" min="1"
+                                        <input type="tel" min="1"
                                                x-model.number="count"
                                                @input="if(count < 1) count = 1"
                                                class="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40">
@@ -741,7 +774,7 @@
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1">
                                             <div class="relative">
-                                                <input type="number" min="0" max="59"
+                                                <input type="tel" min="0" max="59"
                                                        x-model.number="minutes"
                                                        @input="update()"
                                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
@@ -753,7 +786,7 @@
 
                                         <div class="flex-1">
                                             <div class="relative">
-                                                <input type="number" min="0" max="24"
+                                                <input type="tel" min="0" max="24"
                                                        x-model.number="hours"
                                                        @input="update()"
                                                        class="w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-center text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:focus:border-blue-400 dark:focus:ring-blue-900/40"
@@ -1009,38 +1042,4 @@
         </div>
     </div>
 
-    @push('script')
-        <script type="text/javascript"
-                src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
-        <script>
-            (function () {
-                let dpReady = false;
-                function startJalaliDatepicker() {
-                    if (typeof jalaliDatepicker !== 'undefined') {
-                        jalaliDatepicker.startWatch();
-                        dpReady = true;
-                    }
-                }
-
-                document.addEventListener('DOMContentLoaded', startJalaliDatepicker);
-                document.addEventListener('livewire:navigated', startJalaliDatepicker);
-                document.addEventListener('livewire:initialized', startJalaliDatepicker);
-                // Re-init datepicker on Livewire updates (step changes)
-                document.addEventListener('livewire:init', () => {
-                    Livewire.hook('morph.updated', () => {
-                        requestAnimationFrame(() => startJalaliDatepicker());
-                    });
-                });
-                // Observe input changes for Livewire binding
-                document.addEventListener('change', function(e) {
-                    if (e.target && e.target.hasAttribute('data-jdp')) {
-                        let model = e.target.getAttribute('wire:model') || e.target.getAttribute('wire:model.live');
-                        if (model) {
-                            e.target.dispatchEvent(new Event('input', { bubbles: true }));
-                        }
-                    }
-                });
-            })();
-        </script>
-    @endpush
 </div>

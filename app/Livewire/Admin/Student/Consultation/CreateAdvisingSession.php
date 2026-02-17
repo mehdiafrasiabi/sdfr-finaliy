@@ -205,13 +205,49 @@ class CreateAdvisingSession extends Component
     public function updateResultStatus($sessionId, $status)
     {
         $session = AdvisingSession::find($sessionId);
-        if ($session) {
-            $session->update([
-                'result_status' => $status,
-                'status' => 'completed',
-            ]);
-            $this->dispatch('success', 'وضعیت جلسه با موفقیت ثبت شد.');
+        if (!$session) return;
+
+        // For "held" status, check program completeness
+        if ($status === 'held') {
+            $weeklyProgram = $session->weeklyProgram;
+            if (!$weeklyProgram) {
+                $this->dispatch('warning', 'برنامه هفتگی ایجاد نشده است. ابتدا برنامه هفتگی را ایجاد کنید.');
+                return;
+            }
+
+            $totalParts = $weeklyProgram->parts()->count();
+            if ($totalParts === 0) {
+                $this->dispatch('warning', 'برنامه هفتگی هیچ پارتی ندارد.');
+                return;
+            }
+
+            $zeroTimeParts = $weeklyProgram->parts()->where('duration_minutes', 0)->count();
+            if ($zeroTimeParts > 0) {
+                $this->dispatch('warning', "برنامه هفتگی {$zeroTimeParts} پارت بدون تایم دارد. ابتدا تایم همه پارت‌ها را تنظیم کنید.");
+                return;
+            }
         }
+        $session->update([
+            'result_status' => $status,
+            'status' => 'completed',
+        ]);
+        $this->dispatch('success', 'وضعیت جلسه با موفقیت ثبت شد.');
+    }
+    /**
+     * Check if a session's program is complete (all parts have time > 0)
+     */
+    public function isProgramComplete($sessionId): bool
+    {
+        $session = AdvisingSession::find($sessionId);
+        if (!$session) return false;
+
+        $weeklyProgram = $session->weeklyProgram;
+        if (!$weeklyProgram) return false;
+
+        $totalParts = $weeklyProgram->parts()->count();
+        if ($totalParts === 0) return false;
+
+        return $weeklyProgram->parts()->where('duration_minutes', 0)->count() === 0;
     }
     // حذف جلسه
     public function deleteSession($id)
@@ -236,7 +272,7 @@ class CreateAdvisingSession extends Component
     {
         $student = Student::with(['user.personalInformation'])->find($this->studentId);
         $sessions = AdvisingSession::where('student_id', $this->studentId)
-            ->with('preSession')
+            ->with(['preSession', 'weeklyProgram'])
             ->orderBy('created_at', 'desc')
             ->paginate(10);
         // فعال‌سازی خودکار جلسات

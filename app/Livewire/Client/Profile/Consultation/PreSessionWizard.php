@@ -545,7 +545,40 @@ class PreSessionWizard extends Component
         return redirect()->route('client.profile.consultation.sessions');
     }
 
+    /**
+     * Get available dates as buttons (Jalali) within the session range
+     */
+    public function getAvailableDates(): array
+    {
+        if (!$this->minDate || !$this->maxDate) return [];
 
+        $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+        $dates = [];
+
+        try {
+            $start = Jalalian::fromFormat('Y/m/d', $this->minDate)->toCarbon();
+            $end = Jalalian::fromFormat('Y/m/d', $this->maxDate)->toCarbon();
+
+            $current = $start->copy();
+            while ($current->lte($end)) {
+                $jalali = jdate($current);
+                $dayOfWeek = $jalali->getDayOfWeek();
+
+                $dates[] = [
+                    'value' => $jalali->format('Y/m/d'),
+                    'day_name' => $jalaliDayNames[$dayOfWeek] ?? '',
+                    'day' => $jalali->getDay(),
+                    'month_name' => $jalali->format('%B'),
+                ];
+
+                $current->addDay();
+            }
+        } catch (\Throwable $e) {
+            // Fallback if date parsing fails
+        }
+
+        return $dates;
+    }
     public function render()
     {
         $session = AdvisingSession::with(['student.user.personalInformation', 'advisor'])->find($this->sessionId);
@@ -556,9 +589,11 @@ class PreSessionWizard extends Component
             4 => 'متفرقه',
             5 => 'نمایش نهایی',
         ];
+        $availableDates = $this->getAvailableDates();
         return view('livewire.client.profile.consultation.pre-session-wizard', [
             'session' => $session,
             'stepTitles' => $stepTitles,
+            'availableDates' => $availableDates,
         ])->layout('layouts.client.app');
     }
 }

@@ -1,4 +1,330 @@
 <div>
+    @push('link')
+
+        <style>
+            [x-cloak] {
+                display: none !important;
+            }
+
+            /* ====== Theme tokens (minimal - bootstrap aware) ====== */
+            :root {
+                --ui-bg: var(--bs-body-bg);
+                --ui-card: var(--bs-body-bg);
+                --ui-border: var(--bs-border-color);
+                --ui-muted: var(--bs-secondary-color);
+                --ui-shadow: 0 10px 25px rgba(0, 0, 0, .10);
+                --ui-shadow-sm: 0 6px 16px rgba(0, 0, 0, .08);
+                --ui-radius: 16px;
+                --ui-radius-sm: 12px;
+            }
+
+            .container-p-y {
+                background: var(--ui-bg);
+                border-radius: 18px;
+            }
+
+            /* ====== Cards / headers ====== */
+            .ui-card {
+                background: var(--ui-card);
+                border: 1px solid var(--ui-border) !important;
+                border-radius: var(--ui-radius) !important;
+                box-shadow: var(--ui-shadow-sm);
+            }
+
+            .ui-card .card-header {
+                border-bottom: 1px solid var(--ui-border);
+                background: var(--bs-tertiary-bg);
+                backdrop-filter: blur(6px);
+                border-top-left-radius: var(--ui-radius);
+                border-top-right-radius: var(--ui-radius);
+            }
+
+            .ui-page-hero {
+                border-radius: 22px;
+                border: 1px solid rgba(255, 255, 255, .15);
+                box-shadow: var(--ui-shadow);
+                background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 50%, #1d4ed8 100%);
+                position: relative;
+                overflow: hidden;
+            }
+
+            .ui-page-hero:before {
+                content: "";
+                position: absolute;
+                inset: -40%;
+                background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .18), transparent 55%);
+                transform: rotate(12deg);
+            }
+
+            .ui-page-hero > .card-body {
+                position: relative;
+            }
+
+            .ui-chip {
+                background: rgba(255, 255, 255, .12);
+                border: 1px solid rgba(255, 255, 255, .18);
+                border-radius: 14px;
+            }
+
+            /* ====== Quick access tiles ====== */
+            .quick-tile {
+                background: var(--bs-body-bg);
+                border: 1px solid var(--ui-border);
+                border-radius: 16px;
+                transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+                box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
+            }
+
+            .quick-tile:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 12px 26px rgba(0, 0, 0, .12);
+                border-color: rgba(37, 99, 235, .25);
+            }
+
+            .quick-tile i {
+                font-size: 26px;
+            }
+
+            /* ====== Weekly table ====== */
+            .weekly-wrap {
+                border-radius: var(--ui-radius);
+                overflow: hidden;
+                border: 1px solid var(--ui-border);
+                box-shadow: var(--ui-shadow-sm);
+                background: var(--bs-body-bg);
+            }
+
+            .weekly-table {
+                margin-bottom: 0;
+                min-width: 1100px;
+            }
+
+            .weekly-table thead th {
+                position: sticky;
+                top: 0;
+                z-index: 2;
+                background: linear-gradient(90deg, #1d4ed8, #2563eb);
+                color: #fff;
+                border-color: rgba(255, 255, 255, .16);
+                font-weight: 700;
+                white-space: nowrap;
+                padding-top: .85rem;
+                padding-bottom: .85rem;
+            }
+
+            .weekly-table tbody td {
+                vertical-align: top;
+                background: var(--bs-body-bg);
+            }
+
+            .weekly-table tbody tr:hover td {
+                background: rgba(2, 132, 199, .03);
+            }
+
+            /* plan cell boxes */
+            .plan-box {
+                min-height: 120px;
+                border-radius: 14px;
+                border: 1px solid var(--ui-border);
+                transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+                overflow: visible;
+            }
+
+            /* Exam day parts should auto-size */
+            .plan-box.border-danger,
+            .plan-box.border-warning {
+                min-height: 120px;
+                height: auto;
+            }
+
+            .plan-box.clickable {
+                cursor: pointer;
+            }
+
+            .plan-box.clickable:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 10px 18px rgba(0, 0, 0, .12);
+                border-color: rgba(37, 99, 235, .22);
+            }
+
+            .plan-empty {
+                border-style: dashed;
+                border-color: color-mix(in srgb, var(--bs-secondary-color) 35%, transparent);
+                background: var(--bs-tertiary-bg);
+            }
+
+            .plan-rest {
+                border-color: rgba(22, 163, 74, .22);
+                background: rgba(22, 163, 74, .06);
+            }
+
+            /* badges */
+            .badge.text-xs {
+                font-size: .72rem;
+            }
+
+            /* ====== Modal ====== */
+            .modal.show .modal-dialog {
+                animation: modalSlideDown .22s ease-out;
+            }
+
+            @keyframes modalSlideDown {
+                from {
+                    transform: translateY(-24px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0);
+                    opacity: 1;
+                }
+            }
+
+            .modal-content {
+                border-radius: 18px;
+                border: 1px solid var(--ui-border);
+                overflow: hidden;
+            }
+
+            .modal-header {
+                border-bottom: 1px solid rgba(255, 255, 255, .16);
+            }
+
+            /* ====== Select2 keep normal, just align with Bootstrap ====== */
+            .select2-container {
+                width: 100% !important;
+            }
+
+            .select2-container .select2-selection--single {
+                height: calc(2.375rem + 2px);
+                border: 1px solid #ced4da;
+                border-radius: .5rem;
+                padding: .375rem .75rem;
+                display: flex;
+                align-items: center;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: 1.6;
+                padding: 0;
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: calc(2.375rem + 2px);
+                right: .35rem;
+            }
+
+            .select2-dropdown {
+                border: 1px solid rgba(15, 23, 42, .12);
+                border-radius: 12px;
+                box-shadow: 0 16px 30px rgba(15, 23, 42, .12);
+                overflow: hidden;
+            }
+
+            .select2-search--dropdown .select2-search__field {
+                border-radius: 10px;
+                border: 1px solid rgba(15, 23, 42, .12);
+            }
+
+            /* small helpers */
+            .text-muted-2 {
+                color: var(--ui-muted) !important;
+            }
+
+            /* اسکرول افقی و عمودی */
+            .weekly-scroll {
+                overflow-x: auto;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+                white-space: nowrap;
+            }
+
+            /* جدول عرض داینامیک بر اساس تعداد ستون */
+            .weekly-table {
+                min-width: 2200px;
+                table-layout: fixed;
+            }
+
+            /* سلول‌ها باکس رو خرد نکنن */
+            .weekly-table td,
+            .weekly-table th {
+                white-space: nowrap;
+                vertical-align: top;
+            }
+
+            /* هر ستون پلن یک عرض مشخص داشته باشه */
+            .weekly-table th:nth-child(n+7):nth-child(-n+30),
+            .weekly-table td:nth-child(n+7):nth-child(-n+30) {
+                width: 210px;
+                min-width: 210px;
+            }
+
+            /* باکس داخل سلول کامل جا بگیره */
+            .plan-box {
+                width: 100%;
+                min-width: 200px;
+            }
+
+            /* Cross-day drag-drop styles */
+            .drag-over-day {
+                background: rgba(37, 99, 235, .08) !important;
+                outline: 2px dashed rgba(37, 99, 235, .4);
+                outline-offset: -2px;
+            }
+
+            .drag-swap-target .plan-box {
+                outline: 2px solid rgba(234, 88, 12, .6) !important;
+                outline-offset: 2px;
+                background: rgba(234, 88, 12, .05) !important;
+            }
+
+            /* Registered badge */
+            .registered-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 4px;
+                padding: 2px 8px;
+                border-radius: 6px;
+                font-size: 11px;
+                font-weight: 600;
+            }
+
+            .registered-badge.registered {
+                background: rgba(22, 163, 74, .1);
+                color: #16a34a;
+                border: 1px solid rgba(22, 163, 74, .2);
+            }
+
+            [data-bs-theme="dark"] .registered-badge.registered {
+                background: rgba(22, 163, 74, .2);
+                color: #4ade80;
+
+            }
+
+            /* Drag handle hover */
+            .drag-handle:hover {
+                color: var(--bs-primary) !important;
+                cursor: grab;
+            }
+
+            .drag-handle:active {
+                cursor: grabbing;
+            }
+
+            /* Sortable ghost/chosen states */
+            .sortable-ghost-cell {
+                opacity: 0.35;
+                background: rgba(37, 99, 235, .06) !important;
+                border: 2px dashed rgba(37, 99, 235, .4) !important;
+            }
+
+            .sortable-chosen-cell .plan-box {
+                box-shadow: 0 8px 24px rgba(37, 99, 235, .25) !important;
+                border-color: rgba(37, 99, 235, .5) !important;
+                transform: scale(1.02);
+            }
+
+        </style>
+    @endpush
     <div class="container-xxl flex-grow-1 container-p-y bg-body text-body" dir="rtl">
 
         {{-- D1: Modal پیش‌نمایش روزخوانی/پیش‌خوانی هفتگی --}}
@@ -13,7 +339,8 @@
                                 <i class="material-symbols-outlined">auto_fix_high</i>
                                 پیش‌نمایش روزخوانی و پیش‌خوانی هفتگی
                             </h5>
-                            <button type="button" class="btn-close btn-close-white" wire:click="closeWeeklyReadingsPreview"></button>
+                            <button type="button" class="btn-close btn-close-white"
+                                    wire:click="closeWeeklyReadingsPreview"></button>
                         </div>
 
                         <div class="modal-body">
@@ -22,7 +349,8 @@
                                     <i class="material-symbols-outlined">info</i>
                                     <span class="small">
                                     @if(collect($weeklyReadingsPreview)->where('duration_minutes', 0)->count() > 0)
-                                            <strong>توجه:</strong> برخی پارت‌ها تایم ۰ دارند. بعد از ثبت، تایم آنها را تنظیم کنید.
+                                            <strong>توجه:</strong> برخی پارت‌ها تایم ۰ دارند. بعد از ثبت، تایم آنها را
+                                            تنظیم کنید.
                                         @else
                                             تایم‌ها بر اساس آخرین جلسه مشاوره تنظیم شده‌اند.
                                         @endif
@@ -46,16 +374,20 @@
                                                 <td class="text-center">{{ $idx + 1 }}</td>
                                                 <td>
                                                     @if($item['type'] === 'daily')
-                                                        <span class="badge bg-primary-subtle text-primary">روزخوانی</span>
+                                                        <span
+                                                            class="badge bg-primary-subtle text-primary">روزخوانی</span>
                                                     @else
                                                         <span class="badge bg-info-subtle text-info">پیش‌خوانی</span>
                                                     @endif
                                                 </td>
                                                 <td class="fw-semibold">{{ $item['subject'] }}</td>
-                                                <td class="text-center"><span class="badge bg-body-tertiary text-body border rounded-pill">{{ $item['day_name'] }}</span></td>
+                                                <td class="text-center"><span
+                                                        class="badge bg-body-tertiary text-body border rounded-pill">{{ $item['day_name'] }}</span>
+                                                </td>
                                                 <td class="text-center">{{ $item['jalali_date'] }}</td>
                                                 <td class="text-center">
-                                                <span class="{{ $item['duration_minutes'] == 0 ? 'text-warning fw-bold' : '' }}">
+                                                <span
+                                                    class="{{ $item['duration_minutes'] == 0 ? 'text-warning fw-bold' : '' }}">
                                                     {{ $item['duration_minutes'] }}
                                                 </span>
                                                 </td>
@@ -70,7 +402,8 @@
                         </div>
 
                         <div class="modal-footer bg-body-tertiary">
-                            <button type="button" class="btn btn-outline-secondary" wire:click="closeWeeklyReadingsPreview">
+                            <button type="button" class="btn btn-outline-secondary"
+                                    wire:click="closeWeeklyReadingsPreview">
                                 انصراف
                             </button>
                             @if(count($weeklyReadingsPreview) > 0)
@@ -100,7 +433,8 @@
                                 <i class="material-symbols-outlined">event</i>
                                 انتخاب روز برای امتحان کلاسی
                             </h5>
-                            <button type="button" class="btn-close btn-close-white" wire:click="closeExamDaySelectModal"></button>
+                            <button type="button" class="btn-close btn-close-white"
+                                    wire:click="closeExamDaySelectModal"></button>
                         </div>
 
                         <div class="modal-body">
@@ -129,7 +463,8 @@
                         </div>
 
                         <div class="modal-footer bg-body-tertiary">
-                            <button type="button" class="btn btn-outline-secondary" wire:click="closeExamDaySelectModal">
+                            <button type="button" class="btn btn-outline-secondary"
+                                    wire:click="closeExamDaySelectModal">
                                 انصراف
                             </button>
                             <button type="button" class="btn btn-warning text-white" wire:click="applyExamToDay"
@@ -146,295 +481,7 @@
             </div>
         @endif
 
-        @push('link')
 
-        <style>
-                [x-cloak] {
-                    display: none !important;
-                }
-
-                /* ====== Theme tokens (minimal - bootstrap aware) ====== */
-                :root {
-                    --ui-bg: var(--bs-body-bg);
-                    --ui-card: var(--bs-body-bg);
-                    --ui-border: var(--bs-border-color);
-                    --ui-muted: var(--bs-secondary-color);
-                    --ui-shadow: 0 10px 25px rgba(0, 0, 0, .10);
-                    --ui-shadow-sm: 0 6px 16px rgba(0, 0, 0, .08);
-                    --ui-radius: 16px;
-                    --ui-radius-sm: 12px;
-                }
-
-                .container-p-y {
-                    background: var(--ui-bg);
-                    border-radius: 18px;
-                }
-
-                /* ====== Cards / headers ====== */
-                .ui-card {
-                    background: var(--ui-card);
-                    border: 1px solid var(--ui-border) !important;
-                    border-radius: var(--ui-radius) !important;
-                    box-shadow: var(--ui-shadow-sm);
-                }
-
-                .ui-card .card-header {
-                    border-bottom: 1px solid var(--ui-border);
-                    background: var(--bs-tertiary-bg);
-                    backdrop-filter: blur(6px);
-                    border-top-left-radius: var(--ui-radius);
-                    border-top-right-radius: var(--ui-radius);
-                }
-
-                .ui-page-hero {
-                    border-radius: 22px;
-                    border: 1px solid rgba(255, 255, 255, .15);
-                    box-shadow: var(--ui-shadow);
-                    background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 50%, #1d4ed8 100%);
-                    position: relative;
-                    overflow: hidden;
-                }
-
-                .ui-page-hero:before {
-                    content: "";
-                    position: absolute;
-                    inset: -40%;
-                    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .18), transparent 55%);
-                    transform: rotate(12deg);
-                }
-
-                .ui-page-hero > .card-body {
-                    position: relative;
-                }
-
-                .ui-chip {
-                    background: rgba(255, 255, 255, .12);
-                    border: 1px solid rgba(255, 255, 255, .18);
-                    border-radius: 14px;
-                }
-
-                /* ====== Quick access tiles ====== */
-                .quick-tile {
-                    background: var(--bs-body-bg);
-                    border: 1px solid var(--ui-border);
-                    border-radius: 16px;
-                    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-                    box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
-                }
-
-                .quick-tile:hover {
-                    transform: translateY(-2px);
-                    box-shadow: 0 12px 26px rgba(0, 0, 0, .12);
-                    border-color: rgba(37, 99, 235, .25);
-                }
-
-                .quick-tile i {
-                    font-size: 26px;
-                }
-
-                /* ====== Weekly table ====== */
-                .weekly-wrap {
-                    border-radius: var(--ui-radius);
-                    overflow: hidden;
-                    border: 1px solid var(--ui-border);
-                    box-shadow: var(--ui-shadow-sm);
-                    background: var(--bs-body-bg);
-                }
-
-                .weekly-table {
-                    margin-bottom: 0;
-                    min-width: 1100px;
-                }
-
-                .weekly-table thead th {
-                    position: sticky;
-                    top: 0;
-                    z-index: 2;
-                    background: linear-gradient(90deg, #1d4ed8, #2563eb);
-                    color: #fff;
-                    border-color: rgba(255, 255, 255, .16);
-                    font-weight: 700;
-                    white-space: nowrap;
-                    padding-top: .85rem;
-                    padding-bottom: .85rem;
-                }
-
-                .weekly-table tbody td {
-                    vertical-align: top;
-                    background: var(--bs-body-bg);
-                }
-
-                .weekly-table tbody tr:hover td {
-                    background: rgba(2, 132, 199, .03);
-                }
-
-                /* plan cell boxes */
-                .plan-box {
-                    min-height: 104px;
-                    border-radius: 14px;
-                    border: 1px solid var(--ui-border);
-                    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
-                    overflow: visible;
-                }
-
-                /* Exam day parts should auto-size */
-                .plan-box.border-danger,
-                .plan-box.border-warning {
-                    min-height: 104px;
-                    height: auto;
-                }
-
-                .plan-box.clickable {
-                    cursor: pointer;
-                }
-
-                .plan-box.clickable:hover {
-                    transform: translateY(-1px);
-                    box-shadow: 0 10px 18px rgba(0, 0, 0, .12);
-                    border-color: rgba(37, 99, 235, .22);
-                }
-
-                .plan-empty {
-                    border-style: dashed;
-                    border-color: color-mix(in srgb, var(--bs-secondary-color) 35%, transparent);
-                    background: var(--bs-tertiary-bg);
-                }
-
-                .plan-rest {
-                    border-color: rgba(22, 163, 74, .22);
-                    background: rgba(22, 163, 74, .06);
-                }
-
-                /* badges */
-                .badge.text-xs {
-                    font-size: .72rem;
-                }
-
-                /* ====== Modal ====== */
-                .modal.show .modal-dialog {
-                    animation: modalSlideDown .22s ease-out;
-                }
-
-                @keyframes modalSlideDown {
-                    from {
-                        transform: translateY(-24px);
-                        opacity: 0;
-                    }
-                    to {
-                        transform: translateY(0);
-                        opacity: 1;
-                    }
-                }
-
-                .modal-content {
-                    border-radius: 18px;
-                    border: 1px solid var(--ui-border);
-                    overflow: hidden;
-                }
-
-                .modal-header {
-                    border-bottom: 1px solid rgba(255, 255, 255, .16);
-                }
-
-                /* ====== Select2 keep normal, just align with Bootstrap ====== */
-                .select2-container {
-                    width: 100% !important;
-                }
-
-                .select2-container .select2-selection--single {
-                    height: calc(2.375rem + 2px);
-                    border: 1px solid #ced4da;
-                    border-radius: .5rem;
-                    padding: .375rem .75rem;
-                    display: flex;
-                    align-items: center;
-                }
-
-                .select2-container--default .select2-selection--single .select2-selection__rendered {
-                    line-height: 1.6;
-                    padding: 0;
-                }
-
-                .select2-container--default .select2-selection--single .select2-selection__arrow {
-                    height: calc(2.375rem + 2px);
-                    right: .35rem;
-                }
-
-                .select2-dropdown {
-                    border: 1px solid rgba(15, 23, 42, .12);
-                    border-radius: 12px;
-                    box-shadow: 0 16px 30px rgba(15, 23, 42, .12);
-                    overflow: hidden;
-                }
-
-                .select2-search--dropdown .select2-search__field {
-                    border-radius: 10px;
-                    border: 1px solid rgba(15, 23, 42, .12);
-                }
-
-                /* small helpers */
-                .text-muted-2 {
-                    color: var(--ui-muted) !important;
-                }
-                /* اسکرول افقی درست و تمیز */
-                .weekly-scroll{
-                    overflow-x: auto;
-                    overflow-y: hidden;
-                    -webkit-overflow-scrolling: touch;
-                    white-space: nowrap;
-                }
-
-                /* جدول از حداقل عرض کمتر نشه تا باکس‌ها کامل دیده بشن */
-                .weekly-table{
-                    min-width: 1800px; /* بسته به تعداد ستون‌ها تنظیم کن */
-                    table-layout: fixed; /* مهم: سلول‌ها هم اندازه و ثابت */
-                }
-
-                /* سلول‌ها باکس رو خرد نکنن */
-                .weekly-table td,
-                .weekly-table th{
-                    white-space: nowrap;
-                    vertical-align: top;
-                }
-
-                /* هر ستون پلن یک عرض مشخص داشته باشه */
-                .weekly-table th:nth-child(n+6):nth-child(-n+15),
-                .weekly-table td:nth-child(n+6):nth-child(-n+15){
-                    width: 190px; /* عرض هر پلن */
-                    min-width: 190px;
-                }
-
-                /* باکس داخل سلول کامل جا بگیره */
-                .plan-box{
-                    width: 100%;
-                    min-width: 180px; /* نذار تنگ‌تر از این بشه */
-                }
-
-                /* Drag handle hover */
-                .drag-handle:hover {
-                    color: var(--bs-primary) !important;
-                    cursor: grab;
-                }
-
-                .drag-handle:active {
-                    cursor: grabbing;
-                }
-
-                /* Sortable ghost/chosen states */
-                .sortable-ghost-cell {
-                    opacity: 0.35;
-                    background: rgba(37, 99, 235, .06) !important;
-                    border: 2px dashed rgba(37, 99, 235, .4) !important;
-                }
-
-                .sortable-chosen-cell .plan-box {
-                    box-shadow: 0 8px 24px rgba(37, 99, 235, .25) !important;
-                    border-color: rgba(37, 99, 235, .5) !important;
-                    transform: scale(1.02);
-                }
-
-        </style>
-        @endpush
 
         {{-- هدر صفحه --}}
         <div class="card mb-4 ui-page-hero border-0 text-white">
@@ -503,8 +550,10 @@
                 <div x-show="iframeModal" x-cloak
                      style="position:fixed;inset:0;z-index:1080;background:rgba(2,6,23,.65);backdrop-filter:blur(4px);"
                      @keydown.escape.window="iframeModal=false">
-                    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;">
-                        <div style="width:100%;max-width:1200px;height:90vh;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35);display:flex;flex-direction:column;background:var(--bs-body-bg);">
+                    <div
+                        style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;">
+                        <div
+                            style="width:100%;max-width:1200px;height:90vh;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35);display:flex;flex-direction:column;background:var(--bs-body-bg);">
                             <div class="d-flex align-items-center justify-content-between px-4 py-3 text-white"
                                  :style="'background:'+iframeColor">
                                 <h5 class="mb-0 d-flex align-items-center gap-2 fw-bold">
@@ -521,7 +570,8 @@
                                 </div>
                             </div>
                             <div style="flex:1;overflow:hidden;">
-                                <iframe :src="iframeUrl" style="width:100%;height:100%;border:0;" loading="lazy"></iframe>
+                                <iframe :src="iframeUrl" style="width:100%;height:100%;border:0;"
+                                        loading="lazy"></iframe>
                             </div>
                         </div>
                     </div>
@@ -539,7 +589,8 @@
                 <div class="row g-3">
                     <div class="col-6 col-md-2">
                         <a href="#"
-                           @click.prevent="openIframe('{{ route('admin.student.studySession.detail', $student->id) }}', 'ساعت مطالعه', 'linear-gradient(135deg,#059669,#10b981)')"                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
+                           @click.prevent="openIframe('{{ route('admin.student.studySession.detail', $student->id) }}', 'ساعت مطالعه', 'linear-gradient(135deg,#059669,#10b981)')"
+                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
                             <i class="material-symbols-outlined d-block mb-2 text-success">schedule</i>
                             <span class="small d-block fw-semibold">ساعت مطالعه</span>
                             <span class="small text-muted-2">جلسات مطالعه</span>
@@ -548,7 +599,8 @@
 
                     <div class="col-6 col-md-2">
                         <a href="#"
-                           @click.prevent="openIframe('{{ route('admin.student.reportDailyActivities.detail', $student->id) }}', 'گزارش فعالیت روزانه', 'linear-gradient(135deg,#0891b2,#06b6d4)')"                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
+                           @click.prevent="openIframe('{{ route('admin.student.reportDailyActivities.detail', $student->id) }}', 'گزارش فعالیت روزانه', 'linear-gradient(135deg,#0891b2,#06b6d4)')"
+                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
                             <i class="material-symbols-outlined d-block mb-2 text-info">summarize</i>
                             <span class="small d-block fw-semibold">گزارش</span>
                             <span class="small text-muted-2">فعالیت روزانه</span>
@@ -624,8 +676,7 @@
                                                     <th>زمان هر پارت</th>
 
                                                     <th>تاریخ آزمون</th>
-                                                    <th class="text-center">ثبت در برنامه</th>
-
+                                                    <th class="text-center">وضعیت</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
@@ -636,24 +687,33 @@
                                                         <td>{{ $exam->time_per_part }} دقیقه</td>
                                                         <td>{{ jalali($exam->exam_date)->format('%d %B %Y') }}</td>
                                                         <td class="text-center">
-                                                            <button wire:click="openExamDaySelect({{ $examIdx }})"
-                                                                    class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
-                                                                <i class="material-symbols-outlined" style="font-size: 14px;">event</i>
-                                                                انتخاب روز
-                                                            </button>
+                                                            @if($this->isExamRegistered($examIdx))
+                                                                <span class="registered-badge registered">
+                                                                    <i class="material-symbols-outlined"
+                                                                       style="font-size: 14px;">check_circle</i>
+                                                                    ثبت شده
+                                                                </span>
+                                                                <button wire:click="revertExamParts({{ $examIdx }})"
+                                                                        wire:confirm="آیا از حذف پارت‌های این امتحان از برنامه اطمینان دارید؟"
+                                                                        class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 mt-1">
+                                                                    <i class="material-symbols-outlined"
+                                                                       style="font-size: 14px;">undo</i>
+                                                                    بازگرداندن
+                                                                </button>
+                                                            @else
+                                                                <button wire:click="openExamDaySelect({{ $examIdx }})"
+                                                                        class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
+                                                                    <i class="material-symbols-outlined"
+                                                                       style="font-size: 14px;">event</i>
+                                                                    انتخاب روز
+                                                                </button>
+                                                            @endif
                                                         </td>
                                                     </tr>
                                                 @endforeach
                                                 </tbody>
                                             </table>
                                         </div>
-{{--                                        <div class="mt-3">--}}
-{{--                                            <button wire:click="previewExamDistribution"--}}
-{{--                                                    class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">--}}
-{{--                                                <i class="material-symbols-outlined" style="font-size: 16px;">auto_fix_high</i>--}}
-{{--                                                نشستن خودکار در برنامه--}}
-{{--                                            </button>--}}
-{{--                                        </div>--}}
                                     @else
                                         <p class="text-muted-2 small mb-0">هیچ امتحانی ثبت نشده است</p>
                                     @endif
@@ -680,26 +740,43 @@
                                                     <th>تعداد پارت</th>
                                                     <th>زمان هر پارت</th>
                                                     <th>تاریخ</th>
+                                                    <th class="text-center">وضعیت</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                @foreach($preSession->qas as $qa)
+                                                @foreach($preSession->qas as $qaIdx => $qa)
                                                     <tr>
                                                         <td class="fw-semibold">{{ $qa->subject }}</td>
                                                         <td>{{ $qa->part_count }} پارت</td>
                                                         <td>{{ $qa->time_per_part }} دقیقه</td>
                                                         <td>{{ jalali($qa->qa_date)->format('%d %B %Y') }}</td>
+                                                        <td class="text-center">
+                                                            @if($this->isQaRegistered($qaIdx))
+                                                                <span class="registered-badge registered">
+                                                                    <i class="material-symbols-outlined"
+                                                                       style="font-size: 14px;">check_circle</i>
+                                                                    ثبت شده
+                                                                </span>
+                                                                <button wire:click="revertQaParts({{ $qaIdx }})"
+                                                                        wire:confirm="آیا از حذف پارت‌های پرسش و پاسخ از برنامه اطمینان دارید؟"
+                                                                        class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 mt-1">
+                                                                    <i class="material-symbols-outlined"
+                                                                       style="font-size: 14px;">undo</i>
+                                                                    بازگرداندن
+                                                                </button>
+                                                            @else
+                                                                <button wire:click="previewQaDistribution"
+                                                                        class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1">
+                                                                    <i class="material-symbols-outlined"
+                                                                       style="font-size: 14px;">auto_fix_high</i>
+                                                                    ثبت در برنامه
+                                                                </button>
+                                                            @endif
+                                                        </td>
                                                     </tr>
                                                 @endforeach
                                                 </tbody>
                                             </table>
-                                        </div>
-                                        <div class="mt-3">
-                                            <button wire:click="previewQaDistribution"
-                                                    class="btn btn-sm btn-outline-info d-flex align-items-center gap-1">
-                                                <i class="material-symbols-outlined" style="font-size: 16px;">auto_fix_high</i>
-                                                نشستن خودکار در برنامه
-                                            </button>
                                         </div>
                                     @else
                                         <p class="text-muted-2 small mb-0">هیچ پرسش و پاسخ کلاسی ثبت نشده است</p>
@@ -727,26 +804,44 @@
                                                     <th>تعداد پارت</th>
                                                     <th>زمان هر پارت</th>
                                                     <th>مهلت انجام</th>
+                                                    <th class="text-center">وضعیت</th>
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                @foreach($preSession->assignments as $assignment)
+                                                @foreach($preSession->assignments as $assignmentIdx => $assignment)
                                                     <tr>
                                                         <td class="fw-semibold">{{ $assignment->subject }}</td>
                                                         <td>{{ $assignment->part_count }} پارت</td>
                                                         <td>{{ $assignment->time_per_part }} دقیقه</td>
                                                         <td>{{ jalali($assignment->due_date)->format('%d %B %Y') }}</td>
+                                                        <td class="text-center">
+                                                            @if($this->isAssignmentRegistered($assignmentIdx))
+                                                                <span class="registered-badge registered">
+                                                                    <i class="material-symbols-outlined"
+                                                                       style="font-size: 14px;">check_circle</i>
+                                                                    ثبت شده
+                                                                </span>
+                                                                <button
+                                                                    wire:click="revertAssignmentParts({{ $assignmentIdx }})"
+                                                                    wire:confirm="آیا از حذف پارت‌های تکلیف از برنامه اطمینان دارید؟"
+                                                                    class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 mt-1">
+                                                                    <i class="material-symbols-outlined"
+                                                                       style="font-size: 14px;">undo</i>
+                                                                    بازگرداندن
+                                                                </button>
+                                                            @else
+                                                                <button wire:click="previewHomeworkDistribution"
+                                                                        class="btn btn-sm btn-outline-warning d-inline-flex align-items-center gap-1">
+                                                                    <i class="material-symbols-outlined"
+                                                                       style="font-size: 14px;">auto_fix_high</i>
+                                                                    ثبت در برنامه
+                                                                </button>
+                                                            @endif
+                                                        </td>
                                                     </tr>
                                                 @endforeach
                                                 </tbody>
                                             </table>
-                                        </div>
-                                        <div class="mt-3">
-                                            <button wire:click="previewHomeworkDistribution"
-                                                    class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1">
-                                                <i class="material-symbols-outlined" style="font-size: 16px;">auto_fix_high</i>
-                                                نشستن خودکار در برنامه
-                                            </button>
                                         </div>
                                     @else
                                         <p class="text-muted-2 small mb-0">هیچ تکلیفی ثبت نشده است</p>
@@ -807,7 +902,7 @@
                                 if(isset($weekDays)) {
                                     foreach($weekDays as $wd) {
                                         $c = count($wd['parts']);
-                                        if($c >= $maxPartsInWeek) $maxPartsInWeek = $c + 1;
+     if($c >= $maxPartsInWeek) $maxPartsInWeek = $c + 2;
                                     }
                                 }
                                 $maxPartsInWeek = max($maxPartsInWeek, 10);
@@ -903,18 +998,21 @@
                                             {{-- Comprehensive exam day mode --}}
                                             @if(isset($day['parts'][$i]))
                                                 @php $part = $day['parts'][$i]; @endphp
-                                                <div class="plan-box clickable p-3 {{ $part->part_type === 'exam_analysis' ? 'bg-warning bg-opacity-10 border-warning' : 'bg-danger bg-opacity-10 border-danger' }}"
-                                                     wire:click="editExamPart({{ $part->id }})">
+                                                <div
+                                                    class="plan-box clickable p-3 {{ $part->part_type === 'exam_analysis' ? 'bg-warning bg-opacity-10 border-warning' : 'bg-danger bg-opacity-10 border-danger' }}"
+                                                    wire:click="editExamPart({{ $part->id }})">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                         <span class="fw-bold small">{{ $part->lesson_name }}</span>
-                                                        <span class="badge {{ $part->part_type === 'exam_analysis' ? 'bg-warning' : 'bg-danger' }} text-white text-xs">
+                                                        <span
+                                                            class="badge {{ $part->part_type === 'exam_analysis' ? 'bg-warning' : 'bg-danger' }} text-white text-xs">
                                                             {{ $part->part_type_label }}
                                                         </span>
                                                     </div>
                                                     <p class="small mb-2 text-muted-2">{{ Str::limit($part->description, 55) }}</p>
                                                     <div class="d-flex flex-wrap gap-2 small text-muted-2">
                                                         <span class="d-flex align-items-center gap-1">
-                                                            <i class="material-symbols-outlined" style="font-size: 14px;">schedule</i>
+                                                            <i class="material-symbols-outlined"
+                                                               style="font-size: 14px;">schedule</i>
                                                             {{ $part->duration_minutes }} دقیقه
                                                         </span>
                                                     </div>
@@ -922,20 +1020,23 @@
                                                         <button class="btn btn-sm btn-outline-danger"
                                                                 wire:click.stop="deleteExamPart({{ $part->id }})"
                                                                 wire:confirm="آیا از حذف این آزمون اطمینان دارید؟">
-                                                            <i class="material-symbols-outlined" style="font-size: 14px;">delete</i>
+                                                            <i class="material-symbols-outlined"
+                                                               style="font-size: 14px;">delete</i>
                                                         </button>
                                                     </div>
                                                 </div>
                                             @elseif($i === count($day['parts']))
-                                                <div class="plan-box plan-empty d-flex align-items-center justify-content-center clickable"
-                                                     wire:click="openExamPartModal({{ $day['index'] }})">
+                                                <div
+                                                    class="plan-box plan-empty d-flex align-items-center justify-content-center clickable"
+                                                    wire:click="openExamPartModal({{ $day['index'] }})">
                                                     <div class="text-center">
                                                         <i class="material-symbols-outlined text-danger">add</i>
                                                         <div class="small text-danger mt-1">افزودن آزمون</div>
                                                     </div>
                                                 </div>
                                             @else
-                                                <div class="plan-box plan-empty d-flex align-items-center justify-content-center"></div>
+                                                <div
+                                                    class="plan-box plan-empty d-flex align-items-center justify-content-center"></div>
                                             @endif
 
                                         @elseif(isset($day['parts'][$i]))
@@ -1143,8 +1244,9 @@
                                 </div>
                             </div>
                             @if(count($globalSearchResults) > 0)
-                                <div class="list-group position-absolute w-100 mt-1 shadow-lg rounded-3 overflow-auto border"
-                                     style="z-index: 1060; max-height: 280px;">
+                                <div
+                                    class="list-group position-absolute w-100 mt-1 shadow-lg rounded-3 overflow-auto border"
+                                    style="z-index: 1060; max-height: 280px;">
                                     @foreach($globalSearchResults as $index => $result)
                                         <button type="button"
                                                 wire:click="selectGlobalResult({{ $index }})"
@@ -1225,7 +1327,8 @@
 
                         {{-- رشته و درس --}}
                         <div class="row g-3 mb-3">
-                            <div class="col-md-4" wire:ignore.self id="field-select-wrapper" style="{{ !(count($fields) > 0 && $partForm['cc_grade_id']) ? 'display:none;' : '' }}">
+                            <div class="col-md-4" wire:ignore.self id="field-select-wrapper"
+                                 style="{{ !(count($fields) > 0 && $partForm['cc_grade_id']) ? 'display:none;' : '' }}">
                                 <label class="form-label fw-semibold d-flex align-items-center gap-2">
                                     رشته
                                     <span wire:loading wire:target="partForm.cc_field_id">
@@ -1391,7 +1494,8 @@
                                                @input="update()"
                                                class="form-control text-center @error('partForm.duration_minutes') is-invalid @enderror"
                                                placeholder="0">
-                                        <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">ساعت</small>
+                                        <small class="position-absolute top-50 translate-middle-y text-muted"
+                                               style="left:8px;font-size:10px;">ساعت</small>
                                     </div>
                                     <span class="fw-bold text-muted fs-5">:</span>
                                     <div class="flex-fill position-relative">
@@ -1400,7 +1504,8 @@
                                                @input="update()"
                                                class="form-control text-center"
                                                placeholder="0">
-                                        <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">دقیقه</small>
+                                        <small class="position-absolute top-50 translate-middle-y text-muted"
+                                               style="left:8px;font-size:10px;">دقیقه</small>
                                     </div>
                                 </div>
                                 <small class="text-muted d-block mt-1" x-show="totalMinutes > 0">
@@ -1510,7 +1615,8 @@
                             <i class="material-symbols-outlined">menu_book</i>
                             برنامه کلاسی دانش‌آموز
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" wire:click="closeClassScheduleModal"></button>
+                        <button type="button" class="btn-close btn-close-white"
+                                wire:click="closeClassScheduleModal"></button>
                     </div>
 
                     <div class="modal-body">
@@ -1519,9 +1625,14 @@
                             <table class="table table-bordered table-hover align-middle mb-0">
                                 <thead>
                                 <tr>
-                                    <th class="text-center" style="background: linear-gradient(90deg, #7c3aed, #a855f7); color: #fff; width: 110px;">روز</th>
+                                    <th class="text-center"
+                                        style="background: linear-gradient(90deg, #7c3aed, #a855f7); color: #fff; width: 110px;">
+                                        روز
+                                    </th>
                                     @for($p = 1; $p <= 5; $p++)
-                                        <th class="text-center" style="background: linear-gradient(90deg, #7c3aed, #a855f7); color: #fff;">پارت {{ $p }}</th>
+                                        <th class="text-center"
+                                            style="background: linear-gradient(90deg, #7c3aed, #a855f7); color: #fff;">
+                                            پارت {{ $p }}</th>
                                     @endfor
                                 </tr>
                                 </thead>
@@ -1529,7 +1640,8 @@
                                 @for($d = 0; $d < 7; $d++)
                                     <tr>
                                         <td class="text-center">
-                                            <span class="badge {{ in_array($d, [5, 6]) ? 'bg-secondary' : 'bg-primary' }} rounded-pill px-3 py-2 fw-bold">
+                                            <span
+                                                class="badge {{ in_array($d, [5, 6]) ? 'bg-secondary' : 'bg-primary' }} rounded-pill px-3 py-2 fw-bold">
                                                 {{ \App\Models\ClassSchedule::getDayName($d) }}
                                             </span>
                                         </td>
@@ -1539,7 +1651,8 @@
                                             @endphp
                                             <td class="text-center">
                                                 @if($part)
-                                                    <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2">
+                                                    <span
+                                                        class="badge bg-success-subtle text-success rounded-pill px-3 py-2">
                                                         {{ $part->lesson_name }}
                                                     </span>
                                                 @else
@@ -1562,14 +1675,16 @@
                                 <div class="card border-primary">
                                     <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
                                         <i class="material-symbols-outlined">today</i>
-                                        <span class="fw-bold">ثبت روزخوانی - {{ $classScheduleData['todayName'] ?? '' }}</span>
+                                        <span
+                                            class="fw-bold">ثبت روزخوانی - {{ $classScheduleData['todayName'] ?? '' }}</span>
                                     </div>
                                     <div class="card-body">
                                         @if(isset($classScheduleData['todayParts']) && $classScheduleData['todayParts']->count() > 0)
                                             <div class="d-flex flex-wrap gap-2">
                                                 @foreach($classScheduleData['todayParts'] as $todayPart)
-                                                    <button wire:click="openDailyReadingModal('daily', {{ $todayPart->cc_subject_id }})"
-                                                            class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+                                                    <button
+                                                        wire:click="openDailyReadingModal('daily', {{ $todayPart->cc_subject_id }})"
+                                                        class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
                                                         <i class="material-symbols-outlined" style="font-size: 16px;">add_circle</i>
                                                         ثبت روزخوانی {{ $todayPart->lesson_name }}
                                                     </button>
@@ -1587,14 +1702,16 @@
                                 <div class="card border-info">
                                     <div class="card-header bg-info text-white d-flex align-items-center gap-2">
                                         <i class="material-symbols-outlined">upcoming</i>
-                                        <span class="fw-bold">ثبت پیش‌خوانی - {{ $classScheduleData['tomorrowName'] ?? '' }}</span>
+                                        <span
+                                            class="fw-bold">ثبت پیش‌خوانی - {{ $classScheduleData['tomorrowName'] ?? '' }}</span>
                                     </div>
                                     <div class="card-body">
                                         @if(isset($classScheduleData['tomorrowParts']) && $classScheduleData['tomorrowParts']->count() > 0)
                                             <div class="d-flex flex-wrap gap-2">
                                                 @foreach($classScheduleData['tomorrowParts'] as $tomorrowPart)
-                                                    <button wire:click="openDailyReadingModal('pre', {{ $tomorrowPart->cc_subject_id }})"
-                                                            class="btn btn-outline-info btn-sm d-flex align-items-center gap-1">
+                                                    <button
+                                                        wire:click="openDailyReadingModal('pre', {{ $tomorrowPart->cc_subject_id }})"
+                                                        class="btn btn-outline-info btn-sm d-flex align-items-center gap-1">
                                                         <i class="material-symbols-outlined" style="font-size: 16px;">add_circle</i>
                                                         ثبت پیش‌خوانی {{ $tomorrowPart->lesson_name }}
                                                     </button>
@@ -1666,7 +1783,8 @@
                                                 <td class="fw-semibold">{{ $rPart->lesson_name }}</td>
                                                 <td>
                                                     @if(str_contains($rPart->description, 'روزخوانی'))
-                                                        <span class="badge bg-primary-subtle text-primary">روزخوانی</span>
+                                                        <span
+                                                            class="badge bg-primary-subtle text-primary">روزخوانی</span>
                                                     @else
                                                         <span class="badge bg-info-subtle text-info">پیش‌خوانی</span>
                                                     @endif
@@ -1677,12 +1795,14 @@
                                                     <div class="d-flex justify-content-center gap-1">
                                                         <button wire:click="editDailyReadingPart({{ $rPart->id }})"
                                                                 class="btn btn-sm btn-outline-warning" title="ویرایش">
-                                                            <i class="material-symbols-outlined" style="font-size: 16px;">edit</i>
+                                                            <i class="material-symbols-outlined"
+                                                               style="font-size: 16px;">edit</i>
                                                         </button>
                                                         <button wire:click="deleteDailyReadingPart({{ $rPart->id }})"
                                                                 wire:confirm="آیا از حذف این پارت اطمینان دارید؟"
                                                                 class="btn btn-sm btn-outline-danger" title="حذف">
-                                                            <i class="material-symbols-outlined" style="font-size: 16px;">delete</i>
+                                                            <i class="material-symbols-outlined"
+                                                               style="font-size: 16px;">delete</i>
                                                         </button>
                                                     </div>
                                                 </td>
@@ -1716,7 +1836,8 @@
                             <i class="material-symbols-outlined">warning</i>
                             برنامه کلاسی
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" wire:click="closeNoScheduleModal"></button>
+                        <button type="button" class="btn-close btn-close-white"
+                                wire:click="closeNoScheduleModal"></button>
                     </div>
 
                     <div class="modal-body text-center py-4">
@@ -1756,13 +1877,16 @@
                             {{ $editingDailyReadingPartId ? 'ویرایش' : 'ثبت' }}
                             {{ $dailyReadingType === 'daily' ? 'روزخوانی' : 'پیش‌خوانی' }}
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" wire:click="closeDailyReadingModal"></button>
+                        <button type="button" class="btn-close btn-close-white"
+                                wire:click="closeDailyReadingModal"></button>
                     </div>
 
                     <div class="modal-body">
                         <div class="mb-3">
                             <label class="form-label fw-semibold">درس</label>
-                            <input type="text" class="form-control" value="{{ \App\Models\CcSubject::find($dailyReadingSubjectId)?->name ?? '' }}" disabled>
+                            <input type="text" class="form-control"
+                                   value="{{ \App\Models\CcSubject::find($dailyReadingSubjectId)?->name ?? '' }}"
+                                   disabled>
                         </div>
 
                         <div class="mb-3">
@@ -1800,7 +1924,8 @@
                                            @input="update()"
                                            class="form-control text-center"
                                            placeholder="0">
-                                    <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">ساعت</small>
+                                    <small class="position-absolute top-50 translate-middle-y text-muted"
+                                           style="left:8px;font-size:10px;">ساعت</small>
                                 </div>
                                 <span class="fw-bold text-muted fs-5">:</span>
                                 <div class="flex-fill position-relative">
@@ -1809,11 +1934,13 @@
                                            @input="update()"
                                            class="form-control text-center"
                                            placeholder="0">
-                                    <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">دقیقه</small>
+                                    <small class="position-absolute top-50 translate-middle-y text-muted"
+                                           style="left:8px;font-size:10px;">دقیقه</small>
                                 </div>
                             </div>
                             <small class="text-muted-2 d-block mt-1">
-                                <span x-show="totalMinutes > 0"> | مجموع: <span x-text="totalMinutes"></span> دقیقه</span>
+                                <span x-show="totalMinutes > 0"> | مجموع: <span
+                                        x-text="totalMinutes"></span> دقیقه</span>
                             </small>
                         </div>
                     </div>
@@ -1822,7 +1949,9 @@
                         <button type="button" class="btn btn-outline-secondary" wire:click="closeDailyReadingModal">
                             انصراف
                         </button>
-                        <button type="button" class="btn {{ $dailyReadingType === 'daily' ? 'btn-primary' : 'btn-info text-white' }}" wire:click="saveDailyReading">
+                        <button type="button"
+                                class="btn {{ $dailyReadingType === 'daily' ? 'btn-primary' : 'btn-info text-white' }}"
+                                wire:click="saveDailyReading">
                             <span wire:loading.remove wire:target="saveDailyReading">ذخیره</span>
                             <span wire:loading wire:target="saveDailyReading">در حال ذخیره...</span>
                         </button>
@@ -1886,7 +2015,8 @@
                             <i class="material-symbols-outlined">{{ $editingExamPartId ? 'edit' : 'add_circle' }}</i>
                             {{ $editingExamPartId ? 'ویرایش آزمون' : 'افزودن آزمون جامع' }}
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" wire:click="closeExamPartModal"></button>
+                        <button type="button" class="btn-close btn-close-white"
+                                wire:click="closeExamPartModal"></button>
                     </div>
 
                     <div class="modal-body">
@@ -1937,7 +2067,8 @@
                                            @input="update()"
                                            class="form-control text-center @error('examPartForm.duration_minutes') is-invalid @enderror"
                                            placeholder="0">
-                                    <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">ساعت</small>
+                                    <small class="position-absolute top-50 translate-middle-y text-muted"
+                                           style="left:8px;font-size:10px;">ساعت</small>
                                 </div>
                                 <span class="fw-bold text-muted fs-5">:</span>
                                 <div class="flex-fill position-relative">
@@ -1946,7 +2077,8 @@
                                            @input="update()"
                                            class="form-control text-center"
                                            placeholder="0">
-                                    <small class="position-absolute top-50 translate-middle-y text-muted" style="left:8px;font-size:10px;">دقیقه</small>
+                                    <small class="position-absolute top-50 translate-middle-y text-muted"
+                                           style="left:8px;font-size:10px;">دقیقه</small>
                                 </div>
                             </div>
                             <small class="text-muted d-block mt-1" x-show="totalMinutes > 0">
@@ -1959,7 +2091,8 @@
 
                         <div class="mb-3">
                             <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                <i class="material-symbols-outlined text-secondary" style="font-size: 20px;">description</i>
+                                <i class="material-symbols-outlined text-secondary"
+                                   style="font-size: 20px;">description</i>
                                 توضیحات
                             </label>
                             <textarea wire:model="examPartForm.description"
@@ -2000,14 +2133,16 @@
                             <i class="material-symbols-outlined">assignment</i>
                             پیش‌نمایش توزیع تکالیف در برنامه
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" wire:click="closeDistributionModal"></button>
+                        <button type="button" class="btn-close btn-close-white"
+                                wire:click="closeDistributionModal"></button>
                     </div>
 
                     <div class="modal-body">
                         @if(count($distributionPreview) > 0)
                             <div class="alert alert-info small">
                                 <i class="material-symbols-outlined" style="font-size: 16px;">info</i>
-                                پارت‌های زیر بر اساس قوانین توزیع تکالیف محاسبه شده‌اند. با کلیک روی «اعمال» در برنامه ثبت می‌شوند.
+                                پارت‌های زیر بر اساس قوانین توزیع تکالیف محاسبه شده‌اند. با کلیک روی «اعمال» در برنامه
+                                ثبت می‌شوند.
                             </div>
                             <div class="weekly-scroll">
                                 <table class="table table-sm table-bordered align-middle">
@@ -2026,7 +2161,9 @@
                                         <tr>
                                             <td class="text-center">{{ $idx + 1 }}</td>
                                             <td class="fw-semibold">{{ $item['subject'] }}</td>
-                                            <td class="text-center"><span class="badge bg-primary rounded-pill">{{ $item['day_name'] }}</span></td>
+                                            <td class="text-center"><span
+                                                    class="badge bg-primary rounded-pill">{{ $item['day_name'] }}</span>
+                                            </td>
                                             <td class="text-center">{{ $item['jalali_date'] }}</td>
                                             <td class="text-center">{{ $item['duration_minutes'] }}</td>
                                             <td class="small">{{ $item['description'] }}</td>
@@ -2071,7 +2208,8 @@
                             <i class="material-symbols-outlined">school</i>
                             پیش‌نمایش توزیع امتحانات در برنامه
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" wire:click="closeDistributionModal"></button>
+                        <button type="button" class="btn-close btn-close-white"
+                                wire:click="closeDistributionModal"></button>
                     </div>
 
                     <div class="modal-body">
@@ -2097,7 +2235,9 @@
                                         <tr>
                                             <td class="text-center">{{ $idx + 1 }}</td>
                                             <td class="fw-semibold">{{ $item['subject'] }}</td>
-                                            <td class="text-center"><span class="badge bg-info rounded-pill">{{ $item['day_name'] }}</span></td>
+                                            <td class="text-center"><span
+                                                    class="badge bg-info rounded-pill">{{ $item['day_name'] }}</span>
+                                            </td>
                                             <td class="text-center">{{ $item['jalali_date'] }}</td>
                                             <td class="text-center">{{ $item['duration_minutes'] }}</td>
                                             <td class="small">{{ $item['description'] }}</td>
@@ -2142,7 +2282,8 @@
                             <i class="material-symbols-outlined">forum</i>
                             پیش‌نمایش توزیع پرسش و پاسخ در برنامه
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" wire:click="closeDistributionModal"></button>
+                        <button type="button" class="btn-close btn-close-white"
+                                wire:click="closeDistributionModal"></button>
                     </div>
 
                     <div class="modal-body">
@@ -2168,7 +2309,9 @@
                                         <tr>
                                             <td class="text-center">{{ $idx + 1 }}</td>
                                             <td class="fw-semibold">{{ $item['subject'] }}</td>
-                                            <td class="text-center"><span class="badge bg-success rounded-pill">{{ $item['day_name'] }}</span></td>
+                                            <td class="text-center"><span
+                                                    class="badge bg-success rounded-pill">{{ $item['day_name'] }}</span>
+                                            </td>
                                             <td class="text-center">{{ $item['jalali_date'] }}</td>
                                             <td class="text-center">{{ $item['duration_minutes'] }}</td>
                                             <td class="small">{{ $item['description'] }}</td>
@@ -2212,17 +2355,19 @@
                             <i class="material-symbols-outlined">category</i>
                             طبقه‌بندی مباحث
                             @if($classificationProjectName)
-                                <span class="badge bg-white bg-opacity-25 fw-normal small">{{ $classificationProjectName }}</span>
+                                <span
+                                    class="badge bg-white bg-opacity-25 fw-normal small">{{ $classificationProjectName }}</span>
                             @endif
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" wire:click="closeClassificationModal"></button>
+                        <button type="button" class="btn-close btn-close-white"
+                                wire:click="closeClassificationModal"></button>
                     </div>
 
                     <div class="modal-body">
                         @if(count($classificationTopics) > 0)
                             <p class="small text-muted-2 mb-3 d-flex align-items-center gap-1">
                                 <i class="material-symbols-outlined" style="font-size:16px;">info</i>
-                                برای افزودن مبحث به برنامه روی ردیف مورد نظر کلیک کنید — فرم افزودن پارت خودکار پر می‌شود.
+                                برای افزودن مبحث به برنامه روی «اضافه کردن» کلیک کنید و روز و زمان را انتخاب نمایید.
                             </p>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
@@ -2233,28 +2378,89 @@
                                         <th>فصل</th>
                                         <th>مبحث</th>
                                         <th class="text-center">رتبه</th>
-                                        <th class="text-center">افزودن</th>
+                                        <th class="text-center">عملیات</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     @foreach($classificationTopics as $idx => $item)
-                                        <tr style="cursor:pointer;" wire:click="selectClassificationTopic({{ $item['topic_id'] }})">
+                                        <tr>
                                             <td class="text-muted-2">{{ $idx + 1 }}</td>
                                             <td class="fw-semibold">{{ $item['subject_name'] }}</td>
                                             <td class="small text-muted-2">{{ $item['chapter_name'] }}</td>
                                             <td class="fw-semibold">{{ $item['topic_name'] }}</td>
                                             <td class="text-center">
-                                                <span class="badge bg-{{ $item['rating_color'] }}-subtle text-{{ $item['rating_color'] }} fw-bold px-2">
+                                                <span
+                                                    class="badge bg-{{ $item['rating_color'] }}-subtle text-{{ $item['rating_color'] }} fw-bold px-2">
                                                     {{ $item['rating_label'] }}
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary"
-                                                        wire:click.stop="selectClassificationTopic({{ $item['topic_id'] }})">
-                                                    <i class="material-symbols-outlined" style="font-size:14px;">add_circle</i>
-                                                </button>
+                                                <div class="d-flex gap-1 justify-content-center">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary"
+                                                            wire:click.stop="showClassificationInlineAdd({{ $item['topic_id'] }})">
+                                                        <i class="material-symbols-outlined" style="font-size:14px;">add_circle</i>
+                                                        اضافه کردن به برنامه
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                            wire:click.stop="selectClassificationTopic({{ $item['topic_id'] }})">
+                                                        <i class="material-symbols-outlined" style="font-size:14px;">edit</i>
+                                                    </button>
+                                                </div>
                                             </td>
                                         </tr>
+                                        {{-- Inline add form --}}
+                                        @if($showClassificationAddForm && $classificationSelectedTopicId === $item['topic_id'])
+                                            <tr class="bg-body-tertiary">
+                                                <td colspan="6">
+                                                    <div class="p-3 rounded-3 border" style="border-color: var(--ui-border) !important;">
+                                                        <div class="row g-3 align-items-end">
+                                                            <div class="col-md-4">
+                                                                <label class="form-label small fw-semibold mb-1">انتخاب روز</label>
+                                                                <select class="form-select form-select-sm"
+                                                                        wire:model="classificationAddForm.day_index">
+                                                                    <option value="">انتخاب کنید...</option>
+                                                                    @foreach($weekDays as $wd)
+                                                                        @if(!$wd['is_rest_day'])
+                                                                            <option value="{{ $wd['index'] }}">
+                                                                                {{ $wd['name'] }} ({{ $wd['jalali_date'] }})
+                                                                            </option>
+                                                                        @endif
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <label class="form-label small fw-semibold mb-1">ساعت</label>
+                                                                <input type="number" min="0" max="24"
+                                                                       class="form-control form-control-sm text-center"
+                                                                       wire:model="classificationAddForm.duration_hours"
+                                                                       placeholder="0">
+                                                            </div>
+                                                            <div class="col-md-2">
+                                                                <label class="form-label small fw-semibold mb-1">دقیقه</label>
+                                                                <input type="number" min="0" max="59"
+                                                                       class="form-control form-control-sm text-center"
+                                                                       wire:model="classificationAddForm.duration_minutes"
+                                                                       placeholder="0">
+                                                            </div>
+                                                            <div class="col-md-4 d-flex gap-2">
+                                                                <button type="button" class="btn btn-sm btn-success flex-fill"
+                                                                        wire:click="addClassificationToProgram">
+                                                                    <span wire:loading.remove wire:target="addClassificationToProgram">
+                                                                        <i class="material-symbols-outlined" style="font-size:14px;">check</i>
+                                                                        ثبت نهایی
+                                                                    </span>
+                                                                    <span wire:loading wire:target="addClassificationToProgram">در حال ثبت...</span>
+                                                                </button>
+                                                                <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                        wire:click="hideClassificationInlineAdd">
+                                                                    <i class="material-symbols-outlined" style="font-size:14px;">close</i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        @endif
                                     @endforeach
                                     </tbody>
                                 </table>
@@ -2264,7 +2470,8 @@
                                 <i class="material-symbols-outlined text-muted-2" style="font-size:64px;">category</i>
                                 <p class="text-muted-2 mt-3">
                                     @if($classificationProjectName)
-                                        هیچ مبحثی برای این دانش‌آموز در پروژه «{{ $classificationProjectName }}» ثبت نشده است.
+                                        هیچ مبحثی برای این دانش‌آموز در پروژه «{{ $classificationProjectName }}» ثبت
+                                        نشده است.
                                     @else
                                         پروژه طبقه‌بندی فعالی یافت نشد.
                                     @endif
@@ -2294,7 +2501,8 @@
                             <i class="material-symbols-outlined">warning</i>
                             هشدار — پارت‌های بدون تایم
                         </h5>
-                        <button type="button" class="btn-close btn-close-white" wire:click="closeZeroTimeWarningModal"></button>
+                        <button type="button" class="btn-close btn-close-white"
+                                wire:click="closeZeroTimeWarningModal"></button>
                     </div>
 
                     <div class="modal-body text-center py-4">
@@ -2303,7 +2511,8 @@
                         </div>
                         <h5 class="mb-3">برنامه دارای پارت‌های بدون تایم است</h5>
                         <p class="text-muted-2 mb-0">
-                            <strong class="text-danger">{{ $zeroTimePartsCount }}</strong> پارت با مدت زمان ۰ دقیقه در برنامه وجود دارد.
+                            <strong class="text-danger">{{ $zeroTimePartsCount }}</strong> پارت با مدت زمان ۰ دقیقه در
+                            برنامه وجود دارد.
                             <br>
                             لطفاً ابتدا تایم پارت‌ها را تنظیم کنید یا برنامه را بدون تایید نهایی ذخیره کنید.
                         </p>
@@ -2324,9 +2533,11 @@
     @endif
 
     @push('script')
-        <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+        <script src="/admin/assets/js/Sortable.min.js"></script>
         <script>
-            // Drag-and-drop for plan cells (reorder parts within a day)
+            // Cross-day drag-and-drop system
+            let draggedPartId = null;
+            let draggedFromDayIndex = null;
             function initSortableRows() {
                 document.querySelectorAll('tr[data-sortable-row]').forEach(function(row) {
                     if (row._sortable) {
@@ -2338,17 +2549,56 @@
                         draggable: '.plan-part-cell',
                         ghostClass: 'sortable-ghost-cell',
                         chosenClass: 'sortable-chosen-cell',
+                        group: 'weeklyParts',
+                        onStart: function(evt) {
+                            var cell = evt.item;
+                            draggedPartId = cell.getAttribute('data-part-id') ? parseInt(cell.getAttribute('data-part-id')) : null;
+                            draggedFromDayIndex = parseInt(row.getAttribute('data-day-index'));
+                        },
                         onEnd: function(evt) {
-                            var dayIndex = parseInt(row.getAttribute('data-day-index'));
-                            var partIds = [];
-                            row.querySelectorAll('.plan-part-cell[data-part-id]').forEach(function(td) {
-                                var pid = td.getAttribute('data-part-id');
-                                if (pid) partIds.push(parseInt(pid));
-                            });
-                            if (partIds.length > 0) {
-                            @this.call('reorderParts', partIds, dayIndex);
+                            var targetRow = evt.to;
+                            var targetDayIndex = parseInt(targetRow.getAttribute('data-day-index'));
+                            var sourceDayIndex = draggedFromDayIndex;
+
+                            if (sourceDayIndex === targetDayIndex) {
+                                // Same day - reorder within day
+                                var partIds = [];
+                                targetRow.querySelectorAll('.plan-part-cell[data-part-id]').forEach(function(td) {
+                                    var pid = td.getAttribute('data-part-id');
+                                    if (pid) partIds.push(parseInt(pid));
+                                });
+                                if (partIds.length > 0) {
+                                @this.call('reorderParts', partIds, targetDayIndex);
+                                }
+                            } else if (draggedPartId) {
+                                // Cross-day move: check if dropped on another part (swap) or empty area (move)
+                                var dropTargetCell = evt.related;
+                                var targetPartId = dropTargetCell ? dropTargetCell.getAttribute('data-part-id') : null;
+
+                                if (targetPartId && parseInt(targetPartId) !== draggedPartId) {
+                                    // Swap parts
+                                @this.call('swapParts', draggedPartId, parseInt(targetPartId));
+                                } else {
+                                    // Move to day
+                                @this.call('movePartToDay', draggedPartId, targetDayIndex);
+                                }
                             }
+
+                            draggedPartId = null;
+                            draggedFromDayIndex = null;
                         }
+                    });
+                });
+                // Add drop zone visual feedback
+                document.querySelectorAll('tr[data-sortable-row]').forEach(function(row) {
+                    row.addEventListener('dragover', function() {
+                        row.classList.add('drag-over-day');
+                    });
+                    row.addEventListener('dragleave', function() {
+                        row.classList.remove('drag-over-day');
+                    });
+                    row.addEventListener('drop', function() {
+                        row.classList.remove('drag-over-day');
                     });
                 });
             }

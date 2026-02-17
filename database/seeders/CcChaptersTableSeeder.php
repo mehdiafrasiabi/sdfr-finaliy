@@ -4609,6 +4609,186 @@ class CcChaptersTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:38:50',
                 'updated_at' => '2026-02-16 15:38:50',
             ),
+            459 => 
+            array (
+                'id' => 484,
+                'cc_subject_id' => 150,
+                'name' => 'Personality',
+                'order' => 0,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:10:04',
+                'updated_at' => '2026-02-17 18:10:04',
+            ),
+            460 => 
+            array (
+                'id' => 485,
+                'cc_subject_id' => 150,
+                'name' => 'Travel',
+                'order' => 1,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:10:11',
+                'updated_at' => '2026-02-17 18:10:11',
+            ),
+            461 => 
+            array (
+                'id' => 486,
+                'cc_subject_id' => 150,
+                'name' => 'Festivals and Ceremonies',
+                'order' => 2,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:10:17',
+                'updated_at' => '2026-02-17 18:10:17',
+            ),
+            462 => 
+            array (
+                'id' => 487,
+                'cc_subject_id' => 150,
+                'name' => 'Services',
+                'order' => 3,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:10:23',
+                'updated_at' => '2026-02-17 18:10:23',
+            ),
+            463 => 
+            array (
+                'id' => 488,
+                'cc_subject_id' => 150,
+                'name' => 'Media',
+                'order' => 4,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:10:29',
+                'updated_at' => '2026-02-17 18:10:29',
+            ),
+            464 => 
+            array (
+                'id' => 489,
+                'cc_subject_id' => 150,
+                'name' => 'Health and Injuries',
+                'order' => 5,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:10:37',
+                'updated_at' => '2026-02-17 18:10:37',
+            ),
+            465 => 
+            array (
+                'id' => 490,
+                'cc_subject_id' => 151,
+                'name' => 'فصل اول:سیارۀ ما، زمین',
+                'order' => 0,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:19:39',
+                'updated_at' => '2026-02-17 18:19:39',
+            ),
+            466 => 
+            array (
+                'id' => 491,
+                'cc_subject_id' => 151,
+                'name' => 'فصل دوم:سنگ‌کره، آب‌کره، هوا کره',
+                'order' => 1,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:19:46',
+                'updated_at' => '2026-02-17 18:19:46',
+            ),
+            467 => 
+            array (
+                'id' => 492,
+                'cc_subject_id' => 151,
+                'name' => 'فصل سوم:زیست‌کره، تنوع شگفت‌انگیز',
+                'order' => 2,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:19:56',
+                'updated_at' => '2026-02-17 18:19:56',
+            ),
+            468 => 
+            array (
+                'id' => 493,
+                'cc_subject_id' => 151,
+                'name' => 'فصل چهارم:ساکنان سیارۀ زمین',
+                'order' => 3,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:20:06',
+                'updated_at' => '2026-02-17 18:20:06',
+            ),
+            469 => 
+            array (
+                'id' => 494,
+                'cc_subject_id' => 151,
+                'name' => 'فصل پنجم:عصر یکپارچگی و شکوفایی',
+                'order' => 4,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:20:14',
+                'updated_at' => '2026-02-17 18:20:14',
+            ),
+            470 => 
+            array (
+                'id' => 495,
+                'cc_subject_id' => 151,
+                'name' => 'فصل ششم:ایران از عهد نادرشاه تا ناصرالدین شاه',
+                'order' => 5,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:20:28',
+                'updated_at' => '2026-02-17 18:20:28',
+            ),
+            471 => 
+            array (
+                'id' => 496,
+                'cc_subject_id' => 151,
+                'name' => 'فصل هفتم:ایران در عصر مشروطه',
+                'order' => 6,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:20:37',
+                'updated_at' => '2026-02-17 18:20:37',
+            ),
+            472 => 
+            array (
+                'id' => 497,
+                'cc_subject_id' => 151,
+                'name' => 'فصل هشتم:سقوط حکومت شاهنشاهی و شکل‌گیری نظام جمهوری اسلامی',
+                'order' => 7,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:20:49',
+                'updated_at' => '2026-02-17 18:20:49',
+            ),
+            473 => 
+            array (
+                'id' => 498,
+                'cc_subject_id' => 151,
+                'name' => 'فصل نهم:فرهنگ و هویت',
+                'order' => 8,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:20:58',
+                'updated_at' => '2026-02-17 18:20:58',
+            ),
+            474 => 
+            array (
+                'id' => 499,
+                'cc_subject_id' => 151,
+                'name' => 'فصل دهم:خانواده و جامعه',
+                'order' => 9,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:21:08',
+                'updated_at' => '2026-02-17 18:21:08',
+            ),
+            475 => 
+            array (
+                'id' => 500,
+                'cc_subject_id' => 151,
+                'name' => 'فصل یازدهم:حکومت و مردم',
+                'order' => 10,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:21:17',
+                'updated_at' => '2026-02-17 18:21:17',
+            ),
+            476 => 
+            array (
+                'id' => 501,
+                'cc_subject_id' => 151,
+                'name' => 'فصل دوازدهم:بهره‌وری',
+                'order' => 11,
+                'is_active' => 1,
+                'created_at' => '2026-02-17 18:21:28',
+                'updated_at' => '2026-02-17 18:21:28',
+            ),
         ));
         
         
