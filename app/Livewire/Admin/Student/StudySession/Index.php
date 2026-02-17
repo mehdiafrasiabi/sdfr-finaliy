@@ -48,7 +48,8 @@ class Index extends Component
             ->with([
                 'payment.order.orderItems.product',
                 'payment.order.user',
-                'user.personalInformation' // اضافه شد
+                'user.personalInformation',
+                'user.profile'
             ])
             ->where('supporter_id', $adminId);        // فقط دانش‌آموزان مربوط به همین پشتیبان
 

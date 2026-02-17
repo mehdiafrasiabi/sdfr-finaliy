@@ -30,7 +30,7 @@
     direction: ltr; /* consistent scrollLeft across browsers */
     gap: 15px;
     overflow-x: auto;
-    padding: 10px 0;
+    padding: 1px 0 10px;
     scrollbar-width: none;
     -ms-overflow-style: none;
     scroll-behavior: smooth;

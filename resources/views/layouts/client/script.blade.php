@@ -16,7 +16,7 @@
         run();
 
         // هر 60 ثانیه
-        setInterval(run, 8000);
+        setInterval(run, 3000);
 
         // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)
         circle.addEventListener("animationend", (e) => {

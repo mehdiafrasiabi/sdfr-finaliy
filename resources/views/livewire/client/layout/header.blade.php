@@ -424,7 +424,6 @@
 
                 <!-- Menu Content -->
                 <div class="overflow-y-auto h-full pb-20">
-                    @if(\Illuminate\Support\Facades\Auth::check())
                         <div class="p-4 space-y-2">
 
                             <!-- بخش اول - لینک‌های سریع -->
@@ -517,102 +516,104 @@
                                               d="M15.75 19.5L8.25 12l7.5-7.5"/>
                                     </svg>
                                 </a>
+
+                                <a href="{{route('client.about-us')}}" wire:navigate @click="closeMenu()"
+                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                 xmlns="http://www.w3.org/2000/svg"
+                                                 class="w-6 h-6 text-blue-600 dark:text-blue-400">
+
+                                                <!-- سر نفر جلو -->
+                                                <path d="M15 11C16.6569 11 18 9.65685 18 8C18 6.34315 16.6569 5 15 5C13.3431 5 12 6.34315 12 8C12 9.65685 13.3431 11 15 11Z"
+                                                      stroke="currentColor" stroke-width="1.5"
+                                                      stroke-linecap="round" stroke-linejoin="round"/>
+
+                                                <!-- بدن نفر جلو -->
+                                                <path d="M10 20C10 17.7909 12.2386 16 15 16C17.7614 16 20 17.7909 20 20"
+                                                      stroke="currentColor" stroke-width="1.5"
+                                                      stroke-linecap="round" stroke-linejoin="round"/>
+
+                                                <!-- سر نفر عقب -->
+                                                <path d="M9 10C10.3807 10 11.5 8.88071 11.5 7.5C11.5 6.11929 10.3807 5 9 5C7.61929 5 6.5 6.11929 6.5 7.5C6.5 8.88071 7.61929 10 9 10Z"
+                                                      stroke="currentColor" stroke-width="1.5"
+                                                      stroke-linecap="round" stroke-linejoin="round"/>
+
+                                                <!-- بدن نفر عقب -->
+                                                <path d="M4 19C4 17.067 5.79086 15.5 8 15.5C8.76835 15.5 9.48983 15.678 10.1 16"
+                                                      stroke="currentColor" stroke-width="1.5"
+                                                      stroke-linecap="round" stroke-linejoin="round"/>
+
+                                            </svg>
+
+                                        </div>
+                                        <span class="text-sm font-semibold text-foreground">درباره ما</span>
+                                    </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="2" stroke="currentColor"
+                                         class="w-5 h-5 text-muted group-hover:text-foreground transition-colors">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M15.75 19.5L8.25 12l7.5-7.5"/>
+                                    </svg>
+                                </a>
+
+                                <a href="{{route('client.terms')}}" wire:navigate @click="closeMenu()"
+                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                 xmlns="http://www.w3.org/2000/svg"
+                                                 class="w-6 h-6 text-blue-600 dark:text-blue-400">
+                                                <path d="M8 2H14L20 8V20C20 21.105 19.105 22 18 22H8C6.895 22 6 21.105 6 20V4C6 2.895 6.895 2 8 2Z"
+                                                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M14 2V8H20"
+                                                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M9 14.5L10.5 16L13.5 13"
+                                                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M9 10.5H15"
+                                                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+
+                                        </div>
+                                        <span class="text-sm font-semibold text-foreground">قوانین و مقررات</span>
+                                    </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="2" stroke="currentColor"
+                                         class="w-5 h-5 text-muted group-hover:text-foreground transition-colors">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M15.75 19.5L8.25 12l7.5-7.5"/>
+                                    </svg>
+                                </a>
+
+                                <a href="{{route('client.contact-us')}}" wire:navigate @click="closeMenu()"
+                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
+                                    <div class="flex items-center gap-3">
+                                        <div
+                                            class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                                 xmlns="http://www.w3.org/2000/svg"
+                                                 class="w-6 h-6 text-blue-600 dark:text-blue-400">
+                                                <path d="M4 6.5H20C21.105 6.5 22 7.395 22 8.5V17.5C22 18.605 21.105 19.5 20 19.5H4C2.895 19.5 2 18.605 2 17.5V8.5C2 7.395 2.895 6.5 4 6.5Z"
+                                                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                                <path d="M3.5 8.5L12 14.25L20.5 8.5"
+                                                      stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                            </svg>
+
+                                        </div>
+                                        <span class="text-sm font-semibold text-foreground">ارتباط با ما</span>
+                                    </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="2" stroke="currentColor"
+                                         class="w-5 h-5 text-muted group-hover:text-foreground transition-colors">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M15.75 19.5L8.25 12l7.5-7.5"/>
+                                    </svg>
+                                </a>
                             </div>
                         </div>
-                    @else
-
-                        <!-- بخش اول - لینک‌های سریع -->
-                        <div class="space-y-1 pb-3 border-b border-border">
-                            <a href="{{route('client.home')}}" wire:navigate @click="closeMenu()"
-                               class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                             xmlns="http://www.w3.org/2000/svg"
-                                             class="w-5 h-5 text-blue-600 dark:text-blue-400">
-                                            <path
-                                                d="M9.02 2.84016L3.63 7.04016C2.73 7.74016 2 9.23016 2 10.3602V17.7702C2 20.0902 3.89 21.9902 6.21 21.9902H17.79C20.11 21.9902 22 20.0902 22 17.7802V10.5002C22 9.29016 21.19 7.74016 20.2 7.05016L14.02 2.72016C12.62 1.74016 10.37 1.79016 9.02 2.84016Z"
-                                                stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                                stroke-linejoin="round"/>
-                                            <path d="M12 17.9902V14.9902" stroke="currentColor" stroke-width="1.5"
-                                                  stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </div>
-                                    <span class="text-sm font-semibold text-foreground">صفحه اصلی</span>
-                                </div>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                     stroke="currentColor"
-                                     class="w-5 h-5 text-muted group-hover:text-foreground transition-colors">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M15.75 19.5L8.25 12l7.5-7.5"/>
-                                </svg>
-                            </a>
-
-                            <a href="{{route('client.shop')}}" wire:navigate @click="closeMenu()"
-                               class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round"
-                                             class="w-5 h-5 text-blue-600 dark:text-blue-400">
-                                            <polyline points="21 8 21 21 3 21 3 8"></polyline>
-                                            <rect x="1" y="3" width="22" height="5"></rect>
-                                            <line x1="10" y1="12" x2="14" y2="12"></line>
-                                        </svg>
-                                    </div>
-                                    <span
-                                        class="text-sm font-semibold text-foreground">فروشگاه سال تحصیلی ۱۴۰۴-۱۴۰۵</span>
-                                </div>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                     stroke="currentColor"
-                                     class="w-5 h-5 text-muted group-hover:text-foreground transition-colors">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M15.75 19.5L8.25 12l7.5-7.5"/>
-                                </svg>
-                            </a>
-
-                            <a href="{{route('client.blog')}}" wire:navigate @click="closeMenu()"
-                               class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                             class="w-5 h-5 text-blue-600 dark:text-blue-400"
-                                             xmlns="http://www.w3.org/2000/svg">
-                                            <path
-                                                d="M21.9299 6.76001L18.5599 20.29C18.3199 21.3 17.4199 22 16.3799 22H3.23989C1.72989 22 0.649901 20.5199 1.0999 19.0699L5.30989 5.55005C5.59989 4.61005 6.46991 3.95996 7.44991 3.95996H19.7499C20.6999 3.95996 21.4899 4.53997 21.8199 5.33997C22.0099 5.76997 22.0499 6.26001 21.9299 6.76001Z"
-                                                stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"/>
-                                            <path d="M16 22H20.78C22.07 22 23.08 20.91 22.99 19.62L22 6"
-                                                  stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                                                  stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M9.67993 6.38049L10.7199 2.06055" stroke="currentColor"
-                                                  stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                                                  stroke-linejoin="round"/>
-                                            <path d="M16.3799 6.38977L17.3199 2.0498" stroke="currentColor"
-                                                  stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                                                  stroke-linejoin="round"/>
-                                            <path d="M7.69995 12H15.7" stroke="currentColor" stroke-width="1.5"
-                                                  stroke-miterlimit="10" stroke-linecap="round"
-                                                  stroke-linejoin="round"/>
-                                            <path d="M6.69995 16H14.7" stroke="currentColor" stroke-width="1.5"
-                                                  stroke-miterlimit="10" stroke-linecap="round"
-                                                  stroke-linejoin="round"/>
-                                        </svg>
-                                    </div>
-                                    <span class="text-sm font-semibold text-foreground">مقالات</span>
-                                </div>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                     stroke="currentColor"
-                                     class="w-5 h-5 text-muted group-hover:text-foreground transition-colors">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M15.75 19.5L8.25 12l7.5-7.5"/>
-                                </svg>
-                            </a>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>

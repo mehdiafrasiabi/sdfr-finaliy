@@ -33,7 +33,8 @@ class Index extends Component
             ->with([
                 'payment.order.orderItems.product',
                 'payment.order.user',
-                'user.personalInformation'
+                'user.personalInformation',
+                'user.profile'
             ])
             ->withCount([
                 'reportdaily as unread_student_replies_count' => function (Builder $query) {

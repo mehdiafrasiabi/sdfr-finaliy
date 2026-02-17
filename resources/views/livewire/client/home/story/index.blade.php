@@ -37,7 +37,7 @@
 
     @if($stories->count() > 0)
 
-        <section class="py-4">
+        <section>
 
             <h2 class="sr-only">استوری های SDFR</h2>
 
