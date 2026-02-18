@@ -1,11 +1,11 @@
 <div>
-    @push('link')
+    @assets
         <style>
             [x-cloak] {
                 display: none !important;
             }
         </style>
-    @endpush
+    @endassets
 
     <div class="max-w-7xl space-y-14 px-4 mx-auto" x-data="{ showPreSessionModal: @entangle('showPreSessionModal') }">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
@@ -241,7 +241,7 @@
                                             <!-- پایین باکس: دکمه‌ها -->
                                             <div class="mt-2 pt-3 border-t border-border flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 md:gap-3">
                                                 @if($session->canFillPreSession() && $session->preSession && $session->preSession->status !== 'completed')
-                                                    <button wire:click="openPreSessionModal({{ $session->id }})"
+                                                    <button wire:click="openPreSessionModal({{$session->id}})"
                                                             class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold text-sm transition-colors">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -401,8 +401,7 @@
                     </div>
                 </div>
 
-                <div x-show="showPreSessionModal" wire:click="closePreSessionModal"
-                     class="fixed inset-0 bg-secondary/80 cursor-pointer transition-all z-10"></div>
+                <div x-show="showPreSessionModal" wire:click="closePreSessionModal" class="fixed inset-0 bg-secondary/80 cursor-pointer transition-all z-10"></div>
             </div>
         </div>
     </div>

@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-slate-50 dark:bg-slate-950 py-6 sm:py-10" dir="rtl">
     <div class="container mx-auto px-3 sm:px-4 max-w-4xl">
 
-        @push('link')
+        @assets
 
             <style>
                 /* Inline date selector styles */
@@ -78,7 +78,7 @@
                     min-width: 20px;
                 }
             </style>
-        @endpush
+            @endassets
 
         {{-- HEADER --}}
         <div

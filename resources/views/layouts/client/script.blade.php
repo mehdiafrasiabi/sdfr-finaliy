@@ -1,6 +1,5 @@
-<script src="/client/assets/js/dependencies/alpinejs.min.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    document.addEventListener("livewire:navigated", () => {
         const circle = document.querySelector(".services-circle");
         if (!circle) return;
 
@@ -16,7 +15,7 @@
         run();
 
         // هر 60 ثانیه
-        setInterval(run, 3000);
+        setInterval(run, 8000);
 
         // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)
         circle.addEventListener("animationend", (e) => {
@@ -27,137 +26,13 @@
     });
 </script>
 
-<script>
-    // ⭐ این تابع باید قبل از Alpine.js لود بشه
-    function mobileMenuHandler() {
-        return {
-            offcanvasOpen: false,
-            profileModalOpen: false,
-            desktopProfileOpen: false,
-            isScrolled: false,
-            isMobile: false,
-            pwaBannerClosed: false,
-            bannersHidden: false,
-            isClosingMenu: false,
 
-            init() {
-                this.checkMobile();
-                this.checkScroll();
-
-                window.addEventListener('scroll', () => this.checkScroll(), {passive: true});
-
-                // Watch برای قفل اسکرول
-                this.$watch('offcanvasOpen', (value) => {
-                    if (value) {
-                        document.body.style.overflow = 'hidden';
-                    } else {
-                        document.body.style.overflow = '';
-                    }
-                });
-
-                this.$watch('profileModalOpen', (value) => {
-                    if (value) {
-                        document.body.style.overflow = 'hidden';
-                    } else {
-                        document.body.style.overflow = '';
-                    }
-                });
-
-                this.$watch('desktopProfileOpen', (value) => {
-                    if (value) {
-                        document.body.style.overflow = 'hidden';
-                    } else {
-                        document.body.style.overflow = '';
-                    }
-                });
-            },
-
-            checkMobile() {
-                this.isMobile = window.innerWidth < 1024;
-            },
-
-            checkScroll() {
-                this.isScrolled = window.scrollY > 50;
-            },
-
-            handleResize() {
-                this.checkMobile();
-                if (!this.isMobile && this.offcanvasOpen) {
-                    this.closeMenu();
-                }
-                if (!this.isMobile && this.profileModalOpen) {
-                    this.profileModalOpen = false;
-                }
-                if (this.isMobile && this.desktopProfileOpen) {
-                    this.desktopProfileOpen = false;
-                }
-            },
-
-            toggleMenu() {
-                if (this.offcanvasOpen) {
-                    this.closeMenu();
-                } else {
-                    this.openMenu();
-                }
-            },
-
-            openMenu() {
-                this.profileModalOpen = false;
-                this.desktopProfileOpen = false;
-
-                if (!this.isScrolled) {
-                    this.bannersHidden = true;
-                }
-
-                this.offcanvasOpen = true;
-            },
-
-            openProfileModal() {
-                if (this.offcanvasOpen) {
-                    this.closeMenu();
-                }
-
-                this.profileModalOpen = true;
-            },
-
-            closeMenu() {
-                if (this.isClosingMenu) return;
-                this.isClosingMenu = true;
-
-                this.offcanvasOpen = false;
-
-                if (!this.isScrolled) {
-                    setTimeout(() => {
-                        this.bannersHidden = false;
-                        this.isClosingMenu = false;
-                    }, 350);
-                } else {
-                    this.isClosingMenu = false;
-                }
-            },
-
-            scrollToTop() {
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
-            }
-        }
-    }
-
-    // در app.js خط 9
-    const darkModeToggle = document.getElementById('dark-mode-button');
-    if (darkModeToggle) { // ⭐ چک کن که null نباشه
-        darkModeToggle.checked = something;
-    }
-</script>
-<script src="/client/assets/js/dependencies/swiper-bundle.min.js"></script>
-<script src="/client/assets/js/dependencies/plyr.min.js"></script>
-<script src="/client/assets/js/app.js"></script>
-<script type="text/javascript" src="/client/assets/css/toast/toastify-js.js"></script>
-<script src="/client/assets/js/story-player/story-player.js"></script>
-
-<script>
+<script src="/client/assets/js/dependencies/swiper-bundle.min.js" data-navigate-once></script>
+<script src="/client/assets/js/dependencies/plyr.min.js" data-navigate-once></script>
+<script src="/client/assets/js/app.js" data-navigate-once></script>
+<script src="/client/assets/css/toast/toastify-js.js" data-navigate-once></script>
+<script src="/client/assets/js/story-player/story-player.js" data-navigate-once></script>
+<script data-navigate-once>
     /**
      * Toast System - سیستم مرکزی نمایش پیام‌های Toast
      * سازگار با dispatch های قدیمی و جدید
@@ -244,36 +119,48 @@
 
     // Success Toast - سبز
     window.addEventListener('success', function (event) {
-        const message = typeof event.detail === 'string' ? event.detail : event.detail[0];
-        showToast(message, 'success', 3000);
+        if (!event.detail) return;
+        const message = typeof event.detail === 'string'
+            ? event.detail
+            : (Array.isArray(event.detail) ? event.detail[0] : event.detail);
+        if (message) showToast(message, 'success', 3000);
     });
 
     // Warning/Error Toast - قرمز
     window.addEventListener('warning', function (event) {
-        const message = typeof event.detail === 'string' ? event.detail : event.detail[0];
-        showToast(message, 'error', 3000);
+        if (!event.detail) return;
+        const message = typeof event.detail === 'string'
+            ? event.detail
+            : (Array.isArray(event.detail) ? event.detail[0] : event.detail);
+        if (message) showToast(message, 'error', 3000);
     });
 
     // Error Toast (برای dispatch('error', 'message'))
     window.addEventListener('error', function (event) {
-        const message = typeof event.detail === 'string' ? event.detail : event.detail[0];
-        showToast(message, 'error', 3000);
+        if (!event.detail) return;
+        const message = typeof event.detail === 'string'
+            ? event.detail
+            : (Array.isArray(event.detail) ? event.detail[0] : event.detail);
+        if (message) showToast(message, 'error', 3000);
     });
-
     // Info Toast
-    window.addEventListener('info', function (event) {
-        const message = typeof event.detail === 'string' ? event.detail : event.detail[0];
-        showToast(message, 'info', 3000);
-    });
 
+    window.addEventListener('info', function (event) {
+        if (!event.detail) return;
+        const message = typeof event.detail === 'string'
+            ? event.detail
+            : (Array.isArray(event.detail) ? event.detail[0] : event.detail);
+        if (message) showToast(message, 'info', 3000);
+    });
     // Add to Cart Toast
+
     window.addEventListener('add-to-cart', function (event) {
-        const message = event.detail
+        if (!event.detail) return;
+        const message = typeof event.detail === 'string'
             ? (typeof event.detail === 'string' ? event.detail : event.detail[0])
             : 'با موفقیت به سبد خرید شما اضافه شد';
-        showToast(message, 'success', 4000);
+        if (message) showToast(message, 'add-to-cart', 3000);
     });
-
     /**
      * Event Listener برای Toast های جدید با فرمت Object
      * مثال: dispatch('show-toast', { type: 'success', message: 'پیام' })
@@ -286,7 +173,7 @@
     /**
      * Livewire Hook برای نمایش Toast بعد از بارگذاری صفحه
      */
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('livewire:navigated', function() {
         if (typeof Livewire !== 'undefined') {
             Livewire.on('toast', (data) => {
                 const params = Array.isArray(data) ? data[0] : data;
@@ -302,8 +189,6 @@
     window.toast = showToast;
 </script>
 
-
-@stack('script')
 @php
 
     $generalSettings = \App\Models\GeneralSetting::first();
@@ -315,3 +200,4 @@
     {!! $generalSettings->footer_scripts !!}
 
 @endif
+@stack('script')

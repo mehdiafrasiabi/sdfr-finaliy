@@ -112,7 +112,7 @@
                             <!-- tabs:contents:tabTwo -->
 
                             <div class="blur-overlay">
-                                <img src="/client/soon2.png" alt="بزودی">
+                                <img src="/client/assets/images/soon/soon.png" alt="بزودی">
                             </div>
 
                         </div>

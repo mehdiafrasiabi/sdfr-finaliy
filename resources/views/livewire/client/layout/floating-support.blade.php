@@ -20,7 +20,7 @@
 
                 $hasAny = $mobile || $phone || $telegramUrl || $whatsappDigits;
             @endphp
-            @push('link')
+            @assets
                 <style>
                     /* قطره های خیلی ملایم زیر دکمه */
                     .droplet {
@@ -88,7 +88,7 @@
                         }
                     }
                 </style>
-            @endpush
+            @endassets
             @if($hasAny)
                 <div data-support-widget class="fixed bottom-6 right-6 z-50">
                     <!-- Popup -->
@@ -283,7 +283,7 @@
                 </div>
 
                 @once
-                    @push('script')
+                    @script
                         <script>
                             (() => {
                                 const TRANSITION_MS = 200;
@@ -387,7 +387,7 @@
                                 });
                             })();
                         </script>
-                    @endpush
+                        @endscript
                 @endonce
             @endif
         @endif

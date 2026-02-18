@@ -28,7 +28,6 @@ use App\Livewire\Client\Profile\Financial as ProfileFinancial;
 use App\Livewire\Client\Profile\Installment\Installment as ProfileInstallment;
 use App\Livewire\Client\Profile\Installment\InstallmentDetail as ProfileInstallmentDetail;
 use App\Livewire\Client\Profile\Notification as ProfileNotification;
-use App\Livewire\Client\Profile\PersonalInformation as ProfilePersonalInformation;
 use App\Livewire\Client\Profile\ProfessionalTools\Index as ProfessionalToolsIndex;
 use App\Livewire\Client\Profile\ProfessionalTools\PomodoroTimer as ProfessionalToolsPomodoroTimer;
 use App\Livewire\Client\Profile\Report as ProfileReport;
@@ -91,7 +90,6 @@ Route::name('client.')->group(function () {
             Route::get('/installment',ProfileInstallment::class)->name('installment');
             Route::get('/installmentDetail',ProfileInstallmentDetail::class)->name('installmentDetail');
             Route::get('/plan',ProfilePlan::class)->name('plan');
-            Route::get('/personalInformation',ProfilePersonalInformation::class)->name('personal');
             Route::get('/report',ProfileReport::class)->name('report');
             Route::get('/ProfessionalTools',ProfessionalToolsIndex::class)->name('professionalTools.index');
             Route::get('/ProfessionalTools/pomodoro',ProfessionalToolsPomodoroTimer::class)->name('professionalTools.pomodoro');

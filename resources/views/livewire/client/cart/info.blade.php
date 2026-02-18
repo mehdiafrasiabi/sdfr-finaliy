@@ -1,5 +1,5 @@
 <div x-data="{ modalOpen: false }">
-    @push('link')
+    @assets
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
         <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
         <style>
@@ -49,7 +49,7 @@
                 padding: 0.5rem 1rem !important;
             }
         </style>
-    @endpush
+    @endassets
 
     <!-- container -->
     <div class="max-w-7xl space-y-14 px-4 mx-auto">
@@ -615,7 +615,7 @@
             <!-- end cart:detail -->
         </div>
     </div>
-        @push('script')
+    @script
             <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
             <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
@@ -657,6 +657,6 @@
                 document.addEventListener('livewire:navigated', initCartInfoUi);
                 document.addEventListener('livewire:initialized', initCartInfoUi);
             </script>
-        @endpush
+    @endscript
 
 </div>

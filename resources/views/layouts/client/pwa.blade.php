@@ -7,7 +7,7 @@
 <!-- iOS -->
 <meta name="apple-mobile-web-app-title" content="SDFR">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 
 <!-- Windows  -->
 <meta name="msapplication-navbutton-color" content="#2A69CF">
@@ -53,3 +53,13 @@
 <!-- Manifest.json  -->
 <link href="/manifest.json" rel="manifest">
 
+{{-- توی pwa.blade.php اضافه کن --}}
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(reg => console.log('SW registered'))
+                .catch(err => console.log('SW failed:', err));
+        });
+    }
+</script>

@@ -27,19 +27,7 @@ class Index extends Component
         $this->seo()
             ->setTitle('دانش آموزان');
     }
-    public function exportExcel()
-    {
-        $admin = auth()->user();
-        $adminId = $admin->id;
-        $adminName = $admin->name ?: 'admin'; // اگر نام نبود، fallback
 
-        $fileName = Str::slug($adminName) . '_students_' . now()->format('Ymd_His') . '.xlsx';
-
-        return Excel::download(
-            new StudentsByAdminExport($adminId),
-            $fileName
-        );
-    }
     public function render()
     {
         $adminId = auth()->id(); // گرفتن ID پشتیبان لاگین شده

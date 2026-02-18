@@ -1,5 +1,5 @@
 <div>
-    @push('link')
+    @assets
         <style>
             @font-face {
                 font-family: 'Digital';
@@ -375,7 +375,7 @@
                 animation: spin 1s linear infinite;
             }
         </style>
-    @endpush
+    @endassets
 
     <div class="container mx-auto px-4 max-w-7xl pb-10" dir="rtl">
 
@@ -900,58 +900,48 @@
 
     </div>
 
-    @push('script')
+        @script
         <script>
-            function projectTimer(targetDate, type) {
-                return {
-                    days: 0,
-                    hours: 0,
-                    minutes: 0,
-                    seconds: 0,
-                    interval: null,
+            // این بعد از هر navigate دوباره اجرا میشه
+            Alpine.data('projectTimer', (targetDate, type) => ({
+                days: 0,
+                hours: 0,
+                minutes: 0,
+                seconds: 0,
+                interval: null,
 
-                    init() {
-                        this.updateTimer();
-                        this.interval = setInterval(() => this.updateTimer(), 1000);
-                    },
+                init() {
+                    this.updateTimer();
+                    this.interval = setInterval(() => this.updateTimer(), 1000);
+                },
 
-                    updateTimer() {
-                        const target = new Date(targetDate).getTime();
-                        const now = new Date().getTime();
-                        const diff = target - now;
+                updateTimer() {
+                    const target = new Date(targetDate).getTime();
+                    const now = new Date().getTime();
+                    const diff = target - now;
 
-                        if (diff <= 0) {
-                            this.days = 0;
-                            this.hours = 0;
-                            this.minutes = 0;
-                            this.seconds = 0;
-
-                            if (this.interval) {
-                                clearInterval(this.interval);
-                            }
-
-                            // Refresh page when timer ends
-                            if (type === 'upcoming' || type === 'active') {
-                                setTimeout(() => {
-                                    window.location.reload();
-                                }, 1000);
-                            }
-                            return;
+                    if (diff <= 0) {
+                        this.days = 0;
+                        this.hours = 0;
+                        this.minutes = 0;
+                        this.seconds = 0;
+                        if (this.interval) clearInterval(this.interval);
+                        if (type === 'upcoming' || type === 'active') {
+                            setTimeout(() => window.location.reload(), 1000);
                         }
-
-                        this.days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                        this.hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                        this.minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                        this.seconds = Math.floor((diff % (1000 * 60)) / 1000);
-                    },
-
-                    destroy() {
-                        if (this.interval) {
-                            clearInterval(this.interval);
-                        }
+                        return;
                     }
+
+                    this.days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    this.hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    this.minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    this.seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                },
+
+                destroy() {
+                    if (this.interval) clearInterval(this.interval);
                 }
-            }
+            }));
         </script>
-    @endpush
+        @endscript
 </div>

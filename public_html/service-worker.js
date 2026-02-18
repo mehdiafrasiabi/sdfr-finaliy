@@ -1,6 +1,6 @@
 // service-worker.js - در مسیر public قرار بده
 
-const CACHE_NAME = 'sdfrApp - v1';
+const CACHE_NAME = 'sdfrApp-v2';
 const urlsToCache = [
     '/',
     '/manifest.json',
@@ -25,7 +25,7 @@ const urlsToCache = [
     '/client/assets/css/custom-pagination2.css',
     '/client/assets/css/fonts.css',
     // اگر فایل CSS یا JS مهم داری اینجا اضافه کن
-    '/client/assets/js/app.css',
+    '/client/assets/js/app.js',
     '/client/assets/js/dependencies/plyr.min.js',
     '/client/assets/js/dependencies/swiper-bundle.min.js',
     '/client/assets/js/story-player/story-player.js',

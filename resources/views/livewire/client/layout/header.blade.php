@@ -1028,8 +1028,4 @@
         </div>
     </div>
 
-    @push('script')
-
-
-    @endpush
 </div>

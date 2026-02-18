@@ -3,7 +3,7 @@
     dir="rtl"
     x-data="{ tab: 'grid' }"
 >
-    @push('link')
+     @assets
         <style>
             [x-cloak] {
                 display: none !important;
@@ -42,7 +42,7 @@
                 background-image: none;
             }
         </style>
-    @endpush
+    @endassets
 
     {{-- هدر برنامه (استایل شبیه دمو) --}}
     <section

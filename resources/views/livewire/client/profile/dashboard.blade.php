@@ -1,7 +1,7 @@
 <div class="max-w-7xl space-y-8 px-4 mx-auto">
     {{-- Update Notification Overlay --}}
     <livewire:client.profile.update-notification />
-    @push('link')
+    @assets
         <style>
             /* ==================== Variables ==================== */
             :root {
@@ -394,7 +394,7 @@
                 }
             }
         </style>
-    @endpush
+    @endassets
 
     <div class="dashboard-container">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">

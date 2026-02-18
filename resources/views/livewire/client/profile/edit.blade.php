@@ -1,5 +1,5 @@
 <div>
-    @push('link')
+    @assets
         <!-- Tom Select CSS -->
         <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
         <style>
@@ -80,7 +80,7 @@
             }
         </style>
 
-    @endpush
+    @endassets
 
     <div class="max-w-7xl space-y-14 px-4 mx-auto">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
@@ -690,7 +690,7 @@
         </div>
     </div>
 
-    @push('script')
+    @script
         <!-- Tom Select JS -->
         <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
         <script>
@@ -743,5 +743,5 @@
                 });
             });
         </script>
-    @endpush
+        @endscript
 </div>

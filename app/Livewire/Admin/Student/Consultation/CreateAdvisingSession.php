@@ -1,6 +1,7 @@
 <?php
 namespace App\Livewire\Admin\Student\Consultation;
 use App\Models\Student;
+use App\Models\User;
 use App\Models\AdvisingSession;
 use App\Models\AdvisingPreSession;
 use App\Services\NotificationService;
@@ -37,9 +38,12 @@ class CreateAdvisingSession extends Component
             'skyroom_link.url' => 'فرمت لینک صحیح نیست.',
         ];
     }
-    public function mount(Student $student)
+    public function mount(User $student)
     {
-        $this->studentId = $student->id;
+        if (!$student->student) {
+            abort(404, 'Student not found');
+        }
+        $this->studentId = $student->student->id;
         // Auto-fill title with today's Shamsi date (YYMMDD format, e.g. 041127)
         $today = Jalalian::fromCarbon(Carbon::today());
         $yearShort = substr((string) $today->getYear(), -2);

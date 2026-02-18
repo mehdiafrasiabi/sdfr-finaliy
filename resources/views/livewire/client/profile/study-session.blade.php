@@ -1,6 +1,6 @@
 <div dir="rtl">
 
-    @push('link')
+    @assets
         <style>
             @font-face {
                 font-family: 'Digital';
@@ -116,7 +116,7 @@
                 transform: translateY(-2px);
             }
         </style>
-    @endpush
+        @endassets
 
 
     <div class="max-w-7xl mx-auto px-4 py-6">
@@ -1100,7 +1100,7 @@
     </div>
 
 
-    @push('script')
+    @script
         <script>
             window.addEventListener('request-permissions', async () => {
                 try {
@@ -1146,6 +1146,6 @@
             });
         </script>
 
-    @endpush
+    @endscript
 
 </div>

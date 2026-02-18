@@ -1,17 +1,128 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl" class="dark">
-
-
 <head>
-    {{--    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>--}}
+    <script>
+        function mobileMenuHandler() {
+            return {
+                offcanvasOpen: false,
+                profileModalOpen: false,
+                desktopProfileOpen: false,
+                isScrolled: false,
+                isMobile: false,
+                pwaBannerClosed: false,
+                bannersHidden: false,
+                isClosingMenu: false,
 
+                init() {
+                    this.checkMobile();
+                    this.checkScroll();
+
+                    window.addEventListener('scroll', () => this.checkScroll(), {passive: true});
+
+                    // Watch برای قفل اسکرول
+                    this.$watch('offcanvasOpen', (value) => {
+                        if (value) {
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    });
+
+                    this.$watch('profileModalOpen', (value) => {
+                        if (value) {
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    });
+
+                    this.$watch('desktopProfileOpen', (value) => {
+                        if (value) {
+                            document.body.style.overflow = 'hidden';
+                        } else {
+                            document.body.style.overflow = '';
+                        }
+                    });
+                },
+
+                checkMobile() {
+                    this.isMobile = window.innerWidth < 1024;
+                },
+
+                checkScroll() {
+                    this.isScrolled = window.scrollY > 50;
+                },
+
+                handleResize() {
+                    this.checkMobile();
+                    if (!this.isMobile && this.offcanvasOpen) {
+                        this.closeMenu();
+                    }
+                    if (!this.isMobile && this.profileModalOpen) {
+                        this.profileModalOpen = false;
+                    }
+                    if (this.isMobile && this.desktopProfileOpen) {
+                        this.desktopProfileOpen = false;
+                    }
+                },
+
+                toggleMenu() {
+                    if (this.offcanvasOpen) {
+                        this.closeMenu();
+                    } else {
+                        this.openMenu();
+                    }
+                },
+
+                openMenu() {
+                    this.profileModalOpen = false;
+                    this.desktopProfileOpen = false;
+
+                    if (!this.isScrolled) {
+                        this.bannersHidden = true;
+                    }
+
+                    this.offcanvasOpen = true;
+                },
+
+                openProfileModal() {
+                    if (this.offcanvasOpen) {
+                        this.closeMenu();
+                    }
+
+                    this.profileModalOpen = true;
+                },
+
+                closeMenu() {
+                    if (this.isClosingMenu) return;
+                    this.isClosingMenu = true;
+
+                    this.offcanvasOpen = false;
+
+                    if (!this.isScrolled) {
+                        setTimeout(() => {
+                            this.bannersHidden = false;
+                            this.isClosingMenu = false;
+                        }, 350);
+                    } else {
+                        this.isClosingMenu = false;
+                    }
+                },
+
+                scrollToTop() {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }
+    </script>
     @include('layouts.client.link')
     @include('layouts.client.pwa')
-    <!-- برای iOS -->
-
     {!! SEO::generate() !!}
-
-
+    <link rel="preload" href="/client/assets/images/theme/intro/header.png" as="image">
+    <link rel="preload" href="/client/assets/images/favicon.svg" as="image">
 </head>
 
 <body class="dark">
@@ -28,52 +139,54 @@
 
 
     <!-- Banners Section -->
-    <div class="banners-wrapper transition-all duration-300 ease-out overflow-hidden"
-         :class="{
-             'max-h-0 opacity-0': bannersHidden,
-             'max-h-40 opacity-100': !bannersHidden
-         }">
+{{--    <div class="banners-wrapper transition-all duration-300 ease-out overflow-hidden"--}}
+{{--         x-data="{ bannersHidden: false, pwaBannerClosed: false }"--}}
+{{--         :class="{--}}
+{{--         'max-h-0 opacity-0': bannersHidden,--}}
+{{--         'max-h-40 opacity-100': !bannersHidden--}}
+{{--     }">--}}
 
-        <!-- PWA Banner -->
-        <div id="pwaBanner" dir="rtl" class="w-full relative z-20" x-show="!pwaBannerClosed">
-            <div class="w-full border-b border-slate-200/60 dark:border-slate-700/60
-               bg-gradient-to-l from-blue-700 via-blue-600 to-indigo-700
-               dark:from-slate-900 dark:via-slate-900 dark:to-slate-800
-               text-white">
-                <div
-                    class="max-w-6xl mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row items-center justify-between gap-3">
-                    <div class="flex items-center gap-3 text-center md:text-right">
-                        <div
-                            class="shrink-0 w-10 h-10 rounded-2xl bg-white/15 dark:bg-white/10 flex items-center justify-center shadow-inner">
-                            <span class="text-xl">📱</span>
-                        </div>
-                        <div>
-                            <p class="font-extrabold text-base sm:text-lg md:text-xl leading-snug">
-                                همین حالا <span class="text-yellow-300">SDFR</span> رو روی موبایلت داشته باش
-                            </p>
-                            <p class="text-xs sm:text-sm text-white/80 dark:text-white/70 mt-0.5">
-                                نصب سریع، دسترسی راحت، تجربه بهتر ✨
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 sm:gap-3">
-                        <button id="installApp" type="button"
-                                class="group relative overflow-hidden rounded-full px-4 sm:px-5 py-2 text-sm font-bold
-                                       bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98]
-                                       shadow-md shadow-emerald-500/30 transition">
-                            <span class="relative z-10">نصب اپلیکیشن</span>
-                        </button>
-                        <button id="closeBanner" type="button"
-                                class="rounded-full px-4 sm:px-5 py-2 text-sm font-bold
-                                       bg-rose-500 hover:bg-rose-400 active:scale-[0.98]
-                                       shadow-md shadow-rose-500/25 transition">
-                            بستن
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
+{{--    <!-- PWA Banner -->--}}
+{{--        <div id="pwaBanner" dir="rtl" class="w-full relative z-20" x-show="!pwaBannerClosed">--}}
+{{--            <div class="w-full border-b border-slate-200/60 dark:border-slate-700/60--}}
+{{--               bg-gradient-to-l from-blue-700 via-blue-600 to-indigo-700--}}
+{{--               dark:from-slate-900 dark:via-slate-900 dark:to-slate-800--}}
+{{--               text-white">--}}
+{{--                <div--}}
+{{--                    class="max-w-6xl mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row items-center justify-between gap-3">--}}
+{{--                    <div class="flex items-center gap-3 text-center md:text-right">--}}
+{{--                        <div--}}
+{{--                            class="shrink-0 w-10 h-10 rounded-2xl bg-white/15 dark:bg-white/10 flex items-center justify-center shadow-inner">--}}
+{{--                            <span class="text-xl">📱</span>--}}
+{{--                        </div>--}}
+{{--                        <div>--}}
+{{--                            <p class="font-extrabold text-base sm:text-lg md:text-xl leading-snug">--}}
+{{--                                همین حالا <span class="text-yellow-300">SDFR</span> رو روی موبایلت داشته باش--}}
+{{--                            </p>--}}
+{{--                            <p class="text-xs sm:text-sm text-white/80 dark:text-white/70 mt-0.5">--}}
+{{--                                نصب سریع، دسترسی راحت، تجربه بهتر ✨--}}
+{{--                            </p>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                    <div class="flex items-center gap-2 sm:gap-3">--}}
+{{--                        <button id="installApp" type="button"--}}
+{{--                                class="group relative overflow-hidden rounded-full px-4 sm:px-5 py-2 text-sm font-bold--}}
+{{--                                       bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98]--}}
+{{--                                       shadow-md shadow-emerald-500/30 transition">--}}
+{{--                            <span class="relative z-10">نصب اپلیکیشن</span>--}}
+{{--                        </button>--}}
+{{--                        <button id="closeBanner" type="button"--}}
+{{--                                class="rounded-full px-4 sm:px-5 py-2 text-sm font-bold--}}
+{{--                                       bg-rose-500 hover:bg-rose-400 active:scale-[0.98]--}}
+{{--                                       shadow-md shadow-rose-500/25 transition">--}}
+{{--                            بستن--}}
+{{--                        </button>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
+{{--        </div>--}}
+{{--    </div>--}}
     <!-- ANDROID Modal -->
     <div id="pwaAndroidModal" class="hidden fixed inset-0 z-50">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
@@ -211,72 +324,12 @@
 
 
 @include('layouts.client.script')
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const mainContentContainer = document.getElementById('mainContentContainer');
-        const logoImage = document.getElementById('logoImage');
-        const comingSoonText = document.getElementById('comingSoonText');
-
-        // Simulate content loading time
-        setTimeout(() => {
-            // Hide loading overlay
-            loadingOverlay.classList.add('hidden');
-
-            // Show main content container
-            mainContentContainer.classList.add('visible');
-
-            // Start the "Coming Soon" animation after the loading screen fades out
-            setTimeout(() => {
-                logoImage.style.opacity = 1;
-                logoImage.style.transform = 'translateY(0)';
-
-                setTimeout(() => {
-                    comingSoonText.style.opacity = 1;
-                    comingSoonText.style.transform = 'scale(1)';
-                }, 1500); // Start "Coming Soon" animation after 1.5 seconds
-            }, 1000); // Wait for loading overlay to fully fade out (1 second transition)
-
-        }, 3000); // Simulate 3 seconds of loading time
-    });
-
-    function checkInternetSpeed() {
-        const imageAddr = "/client/loading.png";
-        let startTime, endTime;
-        const downloadSize = 56119;
-        const download = new Image();
-
-        download.onload = function () {
-            endTime = new Date().getTime();
-            const duration = (endTime - startTime) / 1000;
-            const bitsLoaded = downloadSize * 8;
-            const speedBps = (bitsLoaded / duration).toFixed(2);
-            const speedKbps = (speedBps / 1024).toFixed(2);
-
-            let animationDuration = 3000; // پیش‌فرض 3 ثانیه
-            if (speedKbps > 500) animationDuration = 1000; // اینترنت سریع
-            else if (speedKbps > 100) animationDuration = 2000; // اینترنت متوسط
-
-            const rocket = document.querySelector('.rocket');
-            rocket.style.animationDuration = `${animationDuration}ms`;
-            rocket.style.animationIterationCount = 1; // فقط یک بار حرکت
-            rocket.addEventListener('animationend', () => {
-                rocket.style.display = 'none'; // مخفی کردن موشک بعد از انیمیشن
-            });
-        };
-
-        startTime = new Date().getTime();
-        download.src = imageAddr + "?t=" + startTime;
-    }
-
-    window.onload = checkInternetSpeed;
-
+<script data-navigate-once>
     //remove wire:snapshot form tags in client
 
     let attrs = [
         'snapshot',
         'effects',
-        // 'id'
     ];
 
     function snapKill() {
@@ -288,7 +341,6 @@
             }
         });
     }
-
     window.addEventListener('load', (ev) => {
         snapKill();
     });
@@ -384,7 +436,7 @@
         window.closeVideoModal = closeVideo;
     })();
 </script>
-<script>
+<script data-navigate-once>
     const banner = document.getElementById('pwaBanner');
     const installBtn = document.getElementById('installApp');
     const closeBannerBtn = document.getElementById('closeBanner'); // ✅ id درست

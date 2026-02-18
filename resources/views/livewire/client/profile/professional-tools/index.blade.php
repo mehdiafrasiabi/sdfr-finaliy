@@ -1,5 +1,5 @@
 <div>
-    @push('link')
+    @assets
         <style>
             /* ===== استایل‌های کارت ابزارها ===== */
             .tool-card {
@@ -174,7 +174,7 @@
                 }
             }
         </style>
-    @endpush
+    @endassets
 
     <div class="max-w-7xl space-y-6 px-4 mx-auto">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">

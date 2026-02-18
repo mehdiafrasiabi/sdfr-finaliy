@@ -22,7 +22,7 @@
                          class="rounded-2xl border border-border bg-primary  overflow-hidden transition-all">
                         <!-- HEADER -->
                         <button @click="toggle"
-                                class="w-full flex items-center justify-between px-4 md:px-6 py-4                                   transition">
+                                class="w-full flex items-center justify-between px-4 md:px-6 py-4 transition">
                             <!-- title -->
                             <div class="flex items-center gap-2">
                                 <svg class="w-5 h-5 text-white dark:text-white" fill="currentColor" viewBox="0 0 24 24">

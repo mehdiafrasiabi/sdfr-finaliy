@@ -3,7 +3,7 @@
     class="min-h-screen bg-background text-foreground pb-28 sm:pb-32"
     dir="rtl"
 >
-    @push('link')
+    @assets
         <style>
             [x-cloak] {
                 display: none !important;
@@ -343,7 +343,7 @@
                 }
             }
         </style>
-    @endpush
+    @endassets
 
     <div class="container mx-auto px-4 max-w-7xl pt-4 sm:pt-6 pb-24">
 

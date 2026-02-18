@@ -1,6 +1,6 @@
 <div>
 
-    @push('link')
+    @assets
 
         <style>
             .part-box {
@@ -29,7 +29,7 @@
                 }
             }
         </style>
-    @endpush
+    @endassets
 
 
     <div class="max-w-7xl space-y-6 px-4 mx-auto">

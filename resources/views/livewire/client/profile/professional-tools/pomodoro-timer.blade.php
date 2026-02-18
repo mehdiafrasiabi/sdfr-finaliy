@@ -1,5 +1,5 @@
 <div class="max-w-7xl space-y-14 px-4 mx-auto">
-    @push('link')
+    @assets
         <style>
             @font-face {
                 font-family: 'Digital';
@@ -28,7 +28,7 @@
                 text-shadow: 0 0 8px rgba(255, 150, 0, 0.7);
             }
         </style>
-    @endpush
+    @endassets
     <canvas id="confetti-canvas"></canvas>
     <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
         <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
@@ -176,7 +176,7 @@
     </div>
 
 
-    @push('script')
+    @script
         <script>
             // Confetti Animation
             function startConfetti() {
@@ -302,5 +302,5 @@
                 });
             });
         </script>
-    @endpush
+    @endscript
 </div>
