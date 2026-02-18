@@ -27,7 +27,7 @@
                     <div class="flex flex-col items-stretch gap-2 sm:items-end">
                         <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
                            class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-red-500 px-4 py-2 text-xs sm:text-sm font-medium
-                            text-muted-foreground shadow-sm transition hover:bg-muted/80 hover:text-foreground focus:outline-none focus:ring-2
+                            text-muted shadow-sm transition hover:bg-muted/80 hover:text-foreground focus:outline-none focus:ring-2
                             focus:ring-border focus:ring-offset-2 focus:ring-offset-background">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -60,7 +60,7 @@
                                 @elseif($currentStep > $step)
                                     bg-emerald-500 text-white shadow-sm ring-1 ring-emerald-300/70
                                 @else
-                                    bg-muted text-muted-foreground ring-1 ring-border
+                                    bg-muted text-muted ring-1 ring-border
                                 @endif"
                             >
                                 @if($currentStep > $step)
@@ -77,7 +77,7 @@
                             <span class="mr-2 hidden text-[11px] sm:inline-block sm:text-xs
                                 @if($currentStep === $step) font-medium text-blue-600
                                 @elseif($currentStep > $step) text-emerald-600
-                                @else text-muted-foreground
+                                @else text-muted
                                 @endif">
                                 {{ $title }}
                             </span>
@@ -100,7 +100,7 @@
                 </div>
 
                 {{-- عنوان مرحله روی موبایل --}}
-                <div class="mt-3 text-xs text-muted-foreground sm:hidden">
+                <div class="mt-3 text-xs text-muted sm:hidden">
                     <span class="font-medium text-foreground">{{ $stepTitles[$currentStep] ?? '' }}</span>
                 </div>
             </div>
@@ -127,7 +127,7 @@
                 {{-- ===== مرحله ۱: امتحانات ===== --}}
                 @if($currentStep === 1)
                     <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">امتحانات</h3>
-                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">
+                    <p class="mb-5 text-xs sm:text-sm text-muted">
                         تمام امتحاناتی که در هفته پیش رو را دارید، ثبت کنید.
                     </p>
 
@@ -162,7 +162,7 @@
                                             @endforeach
                                         </select>
                                     @else
-                                        <select disabled class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted-foreground shadow-sm cursor-not-allowed">
+                                        <select disabled class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted shadow-sm cursor-not-allowed">
                                             <option value="">ابتدا درس را انتخاب کنید</option>
                                         </select>
                                     @endif
@@ -183,7 +183,7 @@
                                                     class="flex flex-col items-center justify-center min-w-[70px] px-2.5 py-2 rounded-xl border text-xs transition-all duration-150
                                                         {{ $examForm['exam_date'] === $dateItem['value']
                                                             ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30'
-                                                            : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:bg-blue-500/15' }}">
+                                                            : 'border-border bg-background text-muted hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:bg-blue-500/15' }}">
                                                 <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
                                                 <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
                                             </button>
@@ -217,15 +217,15 @@
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1 relative">
                                             <input type="tel" min="0" max="59" x-model.number="minutes" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">دقیقه</span>
+                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">دقیقه</span>
                                         </div>
-                                        <span class="text-lg font-bold text-muted-foreground">:</span>
+                                        <span class="text-lg font-bold text-muted">:</span>
                                         <div class="flex-1 relative">
                                             <input type="tel" min="0" max="24" x-model.number="hours" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">ساعت</span>
+                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">ساعت</span>
                                         </div>
                                     </div>
-                                    <div class="mt-1 text-[10px] text-muted-foreground" x-show="totalMinutes > 0">
+                                    <div class="mt-1 text-[10px] text-muted" x-show="totalMinutes > 0">
                                         مجموع: <span x-text="totalMinutes"></span> دقیقه
                                     </div>
                                 </div>
@@ -242,9 +242,9 @@
                             @foreach($exams as $exam)
                                 <div class="flex items-center justify-between rounded-xl bg-blue-500/10 dark:bg-blue-500/15 px-3 py-2.5 text-xs sm:text-sm text-foreground">
                                     <div class="space-x-1 space-x-reverse">
-                                        <span class="text-muted-foreground">امتحان ({{ jalali($exam['exam_date'])->format('Y/m/d') }}) :</span>
+                                        <span class="text-muted">امتحان ({{ jalali($exam['exam_date'])->format('Y/m/d') }}) :</span>
                                         <span class="font-medium">{{ $exam['subject'] }}
-                                            <span class="text-muted-foreground">({{ $exam['part_count'] }} پارت - {{ $exam['time_per_part'] }} دقیقه)</span>
+                                            <span class="text-muted">({{ $exam['part_count'] }} پارت - {{ $exam['time_per_part'] }} دقیقه)</span>
                                         </span>
                                     </div>
                                     @if($canEdit)
@@ -258,14 +258,14 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="py-4 text-center text-xs text-muted-foreground">هیچ امتحانی ثبت نشده است.</p>
+                        <p class="py-4 text-center text-xs text-muted">هیچ امتحانی ثبت نشده است.</p>
                     @endif
                 @endif
 
                 {{-- ===== مرحله ۲: پرسش و پاسخ ===== --}}
                 @if($currentStep === 2)
                     <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">پرسش و پاسخ کلاسی</h3>
-                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">پرسش و پاسخ‌های کلاسی هفته پیش رو را ثبت کنید.</p>
+                    <p class="mb-5 text-xs sm:text-sm text-muted">پرسش و پاسخ‌های کلاسی هفته پیش رو را ثبت کنید.</p>
 
                     @if($canEdit)
                         <div class="mb-6 rounded-xl bg-muted/50 dark:bg-muted/30 px-3 py-4 sm:px-4 sm:py-5">
@@ -296,7 +296,7 @@
                                             @endforeach
                                         </select>
                                     @else
-                                        <select disabled class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted-foreground shadow-sm cursor-not-allowed">
+                                        <select disabled class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted shadow-sm cursor-not-allowed">
                                             <option value="">ابتدا درس را انتخاب کنید</option>
                                         </select>
                                     @endif
@@ -316,7 +316,7 @@
                                                     class="flex flex-col items-center justify-center min-w-[70px] px-2.5 py-2 rounded-xl border text-xs transition-all duration-150
                                                         {{ $qaForm['qa_date'] === $dateItem['value']
                                                             ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30'
-                                                            : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:bg-blue-500/15' }}">
+                                                            : 'border-border bg-background text-muted hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:bg-blue-500/15' }}">
                                                 <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
                                                 <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
                                             </button>
@@ -348,15 +348,15 @@
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1 relative">
                                             <input type="tel" min="0" max="59" x-model.number="minutes" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">دقیقه</span>
+                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">دقیقه</span>
                                         </div>
-                                        <span class="text-lg font-bold text-muted-foreground">:</span>
+                                        <span class="text-lg font-bold text-muted">:</span>
                                         <div class="flex-1 relative">
                                             <input type="tel" min="0" max="24" x-model.number="hours" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">ساعت</span>
+                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">ساعت</span>
                                         </div>
                                     </div>
-                                    <div class="mt-1 text-[10px] text-muted-foreground" x-show="totalMinutes > 0">
+                                    <div class="mt-1 text-[10px] text-muted" x-show="totalMinutes > 0">
                                         مجموع: <span x-text="totalMinutes"></span> دقیقه
                                     </div>
                                 </div>
@@ -373,9 +373,9 @@
                             @foreach($qas as $qa)
                                 <div class="flex items-center justify-between rounded-xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 py-2.5 text-xs sm:text-sm text-foreground">
                                     <div class="space-x-1 space-x-reverse">
-                                        <span class="text-muted-foreground">پرسش و پاسخ کلاسی ({{ jalali($qa['qa_date'])->format('Y/m/d') }}) :</span>
+                                        <span class="text-muted">پرسش و پاسخ کلاسی ({{ jalali($qa['qa_date'])->format('Y/m/d') }}) :</span>
                                         <span class="font-medium">{{ $qa['subject'] }}
-                                            <span class="text-muted-foreground">({{ $qa['part_count'] }} پارت - {{ $qa['time_per_part'] }} دقیقه)</span>
+                                            <span class="text-muted">({{ $qa['part_count'] }} پارت - {{ $qa['time_per_part'] }} دقیقه)</span>
                                         </span>
                                     </div>
                                     @if($canEdit)
@@ -389,14 +389,14 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="py-4 text-center text-xs text-muted-foreground">هیچ پرسش و پاسخی ثبت نشده است.</p>
+                        <p class="py-4 text-center text-xs text-muted">هیچ پرسش و پاسخی ثبت نشده است.</p>
                     @endif
                 @endif
 
                 {{-- ===== مرحله ۳: تکالیف ===== --}}
                 @if($currentStep === 3)
                     <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">تکالیف</h3>
-                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">تکالیف هفته پیش رو را ثبت کنید.</p>
+                    <p class="mb-5 text-xs sm:text-sm text-muted">تکالیف هفته پیش رو را ثبت کنید.</p>
 
                     @if($canEdit)
                         <div class="mb-6 rounded-xl bg-muted/50 dark:bg-muted/30 px-3 py-4 sm:px-4 sm:py-5">
@@ -431,7 +431,7 @@
                                                     class="flex flex-col items-center justify-center min-w-[70px] px-2.5 py-2 rounded-xl border text-xs transition-all duration-150
                                                         {{ $assignmentForm['due_date'] === $dateItem['value']
                                                             ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30'
-                                                            : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:bg-blue-500/15' }}">
+                                                            : 'border-border bg-background text-muted hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:bg-blue-500/15' }}">
                                                 <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
                                                 <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
                                             </button>
@@ -463,15 +463,15 @@
                                     <div class="flex items-center gap-2">
                                         <div class="flex-1 relative">
                                             <input type="tel" min="0" max="59" x-model.number="minutes" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">دقیقه</span>
+                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">دقیقه</span>
                                         </div>
-                                        <span class="text-lg font-bold text-muted-foreground">:</span>
+                                        <span class="text-lg font-bold text-muted">:</span>
                                         <div class="flex-1 relative">
                                             <input type="tel" min="0" max="24" x-model.number="hours" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground pointer-events-none">ساعت</span>
+                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">ساعت</span>
                                         </div>
                                     </div>
-                                    <div class="mt-1 text-[10px] text-muted-foreground" x-show="totalMinutes > 0">
+                                    <div class="mt-1 text-[10px] text-muted" x-show="totalMinutes > 0">
                                         مجموع: <span x-text="totalMinutes"></span> دقیقه
                                     </div>
                                 </div>
@@ -488,9 +488,9 @@
                             @foreach($assignments as $assignment)
                                 <div class="flex items-center justify-between rounded-xl bg-violet-500/10 dark:bg-violet-500/15 px-3 py-2.5 text-xs sm:text-sm text-foreground">
                                     <div class="space-x-1 space-x-reverse">
-                                        <span class="text-muted-foreground">تکلیف ({{ jalali($assignment['due_date'])->format('Y/m/d') }}) :</span>
+                                        <span class="text-muted">تکلیف ({{ jalali($assignment['due_date'])->format('Y/m/d') }}) :</span>
                                         <span class="font-medium">{{ $assignment['subject'] }}
-                                            <span class="text-muted-foreground">({{ $assignment['part_count'] }} پارت - {{ $assignment['time_per_part'] }} دقیقه)</span>
+                                            <span class="text-muted">({{ $assignment['part_count'] }} پارت - {{ $assignment['time_per_part'] }} دقیقه)</span>
                                         </span>
                                     </div>
                                     @if($canEdit)
@@ -504,14 +504,14 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="py-4 text-center text-xs text-muted-foreground">هیچ تکلیفی ثبت نشده است.</p>
+                        <p class="py-4 text-center text-xs text-muted">هیچ تکلیفی ثبت نشده است.</p>
                     @endif
                 @endif
 
                 {{-- ===== مرحله ۴: متفرقه ===== --}}
                 @if($currentStep === 4)
                     <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">متفرقه</h3>
-                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">
+                    <p class="mb-5 text-xs sm:text-sm text-muted">
                         هر توضیح یا نکته دیگری که می‌خواهید به مشاور بگویید را اینجا بنویسید.
                     </p>
 
@@ -535,7 +535,7 @@
                 {{-- ===== مرحله ۵: خلاصه ===== --}}
                 @if($currentStep === 5)
                     <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">خلاصه پیش‌جلسه</h3>
-                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">
+                    <p class="mb-5 text-xs sm:text-sm text-muted">
                         تمام اطلاعاتی که ثبت کرده‌اید در بخش‌های زیر نمایش داده شده است.
                     </p>
 
@@ -547,7 +547,7 @@
                                     {{ $exam['subject'] }} – {{ $exam['part_count'] }} پارت ({{ $exam['time_per_part'] }} دقیقه) – {{ jalali($exam['exam_date'])->format('Y/m/d') }}
                                 </div>
                             @empty
-                                <p class="text-xs text-muted-foreground">ثبت نشده</p>
+                                <p class="text-xs text-muted">ثبت نشده</p>
                             @endforelse
                         </div>
 
@@ -558,7 +558,7 @@
                                     {{ $qa['subject'] }} – {{ $qa['part_count'] }} پارت ({{ $qa['time_per_part'] }} دقیقه) – {{ jalali($qa['qa_date'])->format('Y/m/d') }}
                                 </div>
                             @empty
-                                <p class="text-xs text-muted-foreground">ثبت نشده</p>
+                                <p class="text-xs text-muted">ثبت نشده</p>
                             @endforelse
                         </div>
 
@@ -569,7 +569,7 @@
                                     {{ $assignment['subject'] }} – {{ $assignment['part_count'] }} پارت ({{ $assignment['time_per_part'] }} دقیقه) – {{ jalali($assignment['due_date'])->format('Y/m/d') }}
                                 </div>
                             @empty
-                                <p class="text-xs text-muted-foreground">ثبت نشده</p>
+                                <p class="text-xs text-muted">ثبت نشده</p>
                             @endforelse
                         </div>
 
@@ -578,7 +578,7 @@
                             @if($miscDescription)
                                 <p class="text-xs sm:text-sm text-foreground">{{ $miscDescription }}</p>
                             @else
-                                <p class="text-xs text-muted-foreground">ثبت نشده</p>
+                                <p class="text-xs text-muted">ثبت نشده</p>
                             @endif
                         </div>
                     </div>

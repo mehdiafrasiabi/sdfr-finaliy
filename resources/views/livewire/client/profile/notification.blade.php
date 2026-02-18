@@ -221,7 +221,7 @@
                                 <!-- محتوای پیام -->
 
                                 <div class="bg-muted rounded-xl p-4 md:p-5 border border-border" style="background-color: #2b2b31">
-                                    <p class="text-xs md:text-sm text-muted-foreground leading-relaxed text-right whitespace-pre-line">
+                                    <p class="text-xs md:text-sm text-muted leading-relaxed text-right whitespace-pre-line">
 
                                         {{ $notif->body }}
                                     </p>
@@ -245,7 +245,7 @@
                                  alt="پیامی وجود ندارد"/>
                             <div class="text-center space-y-2">
                                 <h2 class="font-bold text-lg md:text-xl text-foreground">پیامی وجود ندارد</h2>
-                                <p class="text-muted-foreground text-xs md:text-sm">در حال حاضر پیامی در این بخش برای
+                                <p class="text-muted text-xs md:text-sm">در حال حاضر پیامی در این بخش برای
                                     شما وجود ندارد.</p>
                             </div>
                         </div>

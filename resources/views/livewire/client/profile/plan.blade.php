@@ -195,7 +195,7 @@
 
                                                             <!-- پایین باکس: دکمه‌ها (مشاهده برنامه + دراپ‌داون) -->
                                                             <div class="mt-2 pt-3 border-t border-border flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 md:gap-3">
-                                                                <a href="{{ route('client.profile.consultation.weekly-program', $program->id) }}"
+                                                                <a wire:navigate href="{{ route('client.profile.consultation.weekly-program', $program->id) }}"
                                                                    class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
                                                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>

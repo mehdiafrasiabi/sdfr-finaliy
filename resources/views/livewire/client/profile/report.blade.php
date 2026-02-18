@@ -81,7 +81,7 @@
                                 <li>
                                     <button type="button"
                                             class="flex items-center gap-x-2 relative rounded-full py-2 px-4 transition-colors"
-                                            :class="activeTab === 'submit' ? 'text-foreground bg-background' : 'text-muted-foreground'"
+                                            :class="activeTab === 'submit' ? 'text-foreground bg-background' : 'text-muted'"
                                             @click="activeTab = 'submit'">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
@@ -92,7 +92,7 @@
                                 <li>
                                     <button type="button"
                                             class="flex items-center gap-x-2 relative rounded-full py-2 px-4 transition-colors"
-                                            :class="activeTab === 'history' ? 'text-foreground bg-background' : 'text-muted-foreground'"
+                                            :class="activeTab === 'history' ? 'text-foreground bg-background' : 'text-muted'"
                                             @click="activeTab = 'history'">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
@@ -121,7 +121,7 @@
                                             <div class="flex items-center justify-between mb-3">
                                                 <div>
                                                     <h4 class="font-bold {{ $day['is_rest_day'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground' }}">{{ $day['name'] }}</h4>
-                                                    <p class="text-xs text-muted-foreground">{{ $day['jalali_date'] }}</p>
+                                                    <p class="text-xs text-muted">{{ $day['jalali_date'] }}</p>
                                                 </div>
 
                                                 @if($day['is_rest_day'])
@@ -160,11 +160,11 @@
                                             @else
                                                 <div class="space-y-2 mb-4">
                                                     <div class="flex items-center justify-between text-sm">
-                                                        <span class="text-muted-foreground">تعداد پارت:</span>
+                                                        <span class="text-muted">تعداد پارت:</span>
                                                         <span class="font-medium text-foreground">{{ count($day['parts']) }}</span>
                                                     </div>
                                                     <div class="flex items-center justify-between text-sm">
-                                                        <span class="text-muted-foreground">تعداد تست:</span>
+                                                        <span class="text-muted">تعداد تست:</span>
                                                         <span class="font-medium text-foreground">{{ $day['total_tests'] }}</span>
                                                     </div>
                                                 </div>
@@ -179,7 +179,7 @@
                                                 @elseif($day['is_locked'])
                                                     <div class="text-center text-red-500 text-sm font-medium py-2">مهلت تمام شده</div>
                                                 @else
-                                                    <div class="text-center text-muted-foreground text-sm py-2">در انتظار</div>
+                                                    <div class="text-center text-muted text-sm py-2">در انتظار</div>
                                                 @endif
                                             @endif
                                         </div>
@@ -212,7 +212,7 @@
                                     <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="empty"/>
                                     <div class="text-center space-y-2">
                                         <h2 class="font-bold text-xl text-foreground">جلسه مشاوره برگزار شده‌ای وجود ندارد</h2>
-                                        <p class="text-muted-foreground text-sm">پس از برگزاری جلسه مشاوره، برنامه هفتگی در اینجا نمایش داده می‌شود.</p>
+                                        <p class="text-muted text-sm">پس از برگزاری جلسه مشاوره، برنامه هفتگی در اینجا نمایش داده می‌شود.</p>
                                     </div>
                                 </div>
                             @endif
@@ -238,7 +238,7 @@
                                                         <div>
                                                             <h3 class="text-base sm:text-lg font-black text-foreground">{{ $report->day_name }}</h3>
                                                             <div class="flex items-center gap-2 mt-0.5">
-                                                                <p class="text-xs sm:text-sm text-muted-foreground">{{ jdate($report->report_date)->format('Y/m/d') }}</p>
+                                                                <p class="text-xs sm:text-sm text-muted">{{ jdate($report->report_date)->format('Y/m/d') }}</p>
                                                                 @if($report->is_compensatory)
                                                                     <span class="inline-flex items-center gap-1 bg-amber-500/20 text-amber-600 dark:text-amber-400 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold">
                                                                         <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -285,11 +285,11 @@
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                                                                 </svg>
                                                             </div>
-                                                            <span class="text-xs text-muted-foreground font-semibold">پارت خوانده</span>
+                                                            <span class="text-xs text-muted font-semibold">پارت خوانده</span>
                                                         </div>
                                                         <div class="flex items-baseline gap-1.5">
                                                             <span class="text-2xl sm:text-3xl font-black text-green-600">{{ $report->read_parts_count }}</span>
-                                                            <span class="text-sm text-muted-foreground font-medium">/</span>
+                                                            <span class="text-sm text-muted font-medium">/</span>
                                                             <span class="text-base text-foreground font-bold">{{ $report->total_parts }}</span>
                                                         </div>
                                                     </div>
@@ -301,7 +301,7 @@
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
                                                                 </svg>
                                                             </div>
-                                                            <span class="text-xs text-muted-foreground font-semibold">تست زده</span>
+                                                            <span class="text-xs text-muted font-semibold">تست زده</span>
                                                         </div>
                                                         <div class="text-2xl sm:text-3xl font-black text-blue-600">{{ $report->total_tests }}</div>
                                                     </div>
@@ -313,11 +313,11 @@
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                                                                 </svg>
                                                             </div>
-                                                            <span class="text-xs text-muted-foreground font-semibold">گوشی</span>
+                                                            <span class="text-xs text-muted font-semibold">گوشی</span>
                                                         </div>
                                                         <div class="flex items-baseline gap-1">
                                                             <span class="text-2xl sm:text-3xl font-black text-amber-600">{{ $report->phone_hours }}</span>
-                                                            <span class="text-xs text-muted-foreground font-medium">ساعت</span>
+                                                            <span class="text-xs text-muted font-medium">ساعت</span>
                                                         </div>
                                                     </div>
 
@@ -330,7 +330,7 @@
                                                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                                                 </svg>
                                                             </div>
-                                                            <span class="text-xs text-muted-foreground font-semibold">امتیاز</span>
+                                                            <span class="text-xs text-muted font-semibold">امتیاز</span>
                                                         </div>
                                                         <span class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-black px-3 py-1.5 rounded-lg
                                                             {{ $report->rating >= 3 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
@@ -355,7 +355,7 @@
                                                             </div>
                                                             <div class="flex-1">
                                                                 <h4 class="text-sm sm:text-base font-black text-primary mb-1">نظر مشاور</h4>
-                                                                <p class="text-xs sm:text-sm text-muted-foreground">مشاور شما پاسخی برای این گزارش ثبت کرده است</p>
+                                                                <p class="text-xs sm:text-sm text-muted">مشاور شما پاسخی برای این گزارش ثبت کرده است</p>
                                                             </div>
                                                         </div>
                                                         <button type="button" wire:click="openReplyModal({{ $report->id }})"
@@ -371,13 +371,13 @@
                                                     <div class="bg-muted/30 rounded-xl p-4 border border-border">
                                                         <div class="flex items-center gap-3">
                                                             <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/50">
-                                                                <svg class="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                                 </svg>
                                                             </div>
                                                             <div>
                                                                 <p class="text-sm font-semibold text-foreground">در انتظار بررسی</p>
-                                                                <p class="text-xs text-muted-foreground mt-0.5">مشاور هنوز نظری ثبت نکرده است</p>
+                                                                <p class="text-xs text-muted mt-0.5">مشاور هنوز نظری ثبت نکرده است</p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -394,13 +394,13 @@
                             @else
                                 <div class="flex flex-col items-center justify-center py-16 sm:py-20">
                                     <div class="mb-6 flex h-20 w-20 sm:h-24 sm:w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-blue-500/10">
-                                        <svg class="w-10 h-10 sm:w-12 sm:h-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <svg class="w-10 h-10 sm:w-12 sm:h-12 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                         </svg>
                                     </div>
                                     <div class="text-center space-y-2">
                                         <h2 class="font-black text-xl sm:text-2xl text-foreground">گزارشی ثبت نشده است</h2>
-                                        <p class="text-muted-foreground text-sm sm:text-base max-w-md">گزارش‌های روزانه ارسال شده شما در اینجا نمایش داده می‌شود.</p>
+                                        <p class="text-muted text-sm sm:text-base max-w-md">گزارش‌های روزانه ارسال شده شما در اینجا نمایش داده می‌شود.</p>
                                     </div>
                                 </div>
                             @endif
@@ -431,9 +431,9 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <h3 class="text-base sm:text-lg font-bold text-foreground">ثبت گزارش روزانه</h3>
-                            <p class="text-xs sm:text-sm text-muted-foreground">{{ $selectedDay['name'] }} - {{ $selectedDay['jalali_short'] }}</p>
+                            <p class="text-xs sm:text-sm text-muted">{{ $selectedDay['name'] }} - {{ $selectedDay['jalali_short'] }}</p>
                         </div>
-                        <button type="button" wire:click="closeReportModal" class="text-muted-foreground hover:text-foreground transition-all p-1">
+                        <button type="button" wire:click="closeReportModal" class="text-muted hover:text-foreground transition-all p-1">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -447,7 +447,7 @@
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
                             <label class="font-semibold text-foreground text-sm sm:text-base">پارت‌های خوانده شده:</label>
-                            <span class="text-xs sm:text-sm text-muted-foreground">
+                            <span class="text-xs sm:text-sm text-muted">
                                 <span class="font-medium text-green-600">{{ count($selectedParts) }}</span> / {{ count($selectedDay['parts']) }}
                             </span>
                         </div>
@@ -471,7 +471,7 @@
 
                                     <div wire:click="togglePart({{ $part->id }})"
                                          class="flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 {{ !$partHasStudyHours ? 'cursor-not-allowed' : 'cursor-pointer' }}">
-                                        <div class="mt-0.5 shrink-0 {{ in_array($part->id, $selectedParts) ? 'text-green-500' : (!$partHasStudyHours ? 'text-red-400' : 'text-muted-foreground') }}">
+                                        <div class="mt-0.5 shrink-0 {{ in_array($part->id, $selectedParts) ? 'text-green-500' : (!$partHasStudyHours ? 'text-red-400' : 'text-muted') }}">
                                             @if(in_array($part->id, $selectedParts))
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
                                                     <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>
@@ -488,16 +488,16 @@
                                         </div>
 
                                         <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold {{ !$partHasStudyHours ? 'text-muted-foreground' : 'text-foreground' }} text-sm sm:text-base line-clamp-1">{{ $part->lesson_name }}</h4>
+                                            <h4 class="font-semibold {{ !$partHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm sm:text-base line-clamp-1">{{ $part->lesson_name }}</h4>
                                             <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1">
                                                 @if($part->ccSubject)
-                                                    <span class="text-[10px] sm:text-xs text-muted-foreground bg-background px-1.5 py-0.5 rounded">{{ $part->ccSubject->name }}</span>
+                                                    <span class="text-[10px] sm:text-xs text-muted bg-background px-1.5 py-0.5 rounded">{{ $part->ccSubject->name }}</span>
                                                 @endif
                                                 @if($part->ccTopic)
                                                     <span class="text-[10px] sm:text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded">{{ $part->ccTopic->name }}</span>
                                                 @endif
                                             </div>
-                                            <div class="flex items-center gap-2 mt-1.5 text-xs text-muted-foreground">
+                                            <div class="flex items-center gap-2 mt-1.5 text-xs text-muted">
                                                 <span class="flex items-center gap-1">
                                                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -505,7 +505,7 @@
                                                     {{ $part->duration_minutes }} دقیقه
                                                 </span>
                                                 @if($part->test_count)
-                                                    <span class="text-muted-foreground/50">•</span>
+                                                    <span class="text-muted/50">•</span>
                                                     <span class="flex items-center gap-1">
                                                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -520,7 +520,7 @@
                                     @if(in_array($part->id, $selectedParts))
                                         <div class="px-3 sm:px-3.5 pb-3 sm:pb-3.5 space-y-2.5 border-t border-border/50" wire:click.stop>
                                             <div>
-                                                <label class="text-xs text-muted-foreground block mb-1.5">امتیاز این پارت:</label>
+                                                <label class="text-xs text-muted block mb-1.5">امتیاز این پارت:</label>
                                                 <div class="flex items-center gap-1">
                                                     @for($s = 1; $s <= 4; $s++)
                                                         <button type="button" wire:click="setPartRating({{ $part->id }}, {{ $s }})"
@@ -544,7 +544,7 @@
                                             </div>
                                             @if($part->test_count)
                                                 <div>
-                                                    <label class="text-xs text-muted-foreground block mb-1">تعداد تست زده شده:</label>
+                                                    <label class="text-xs text-muted block mb-1">تعداد تست زده شده:</label>
                                                     <input type="number" wire:model="testsDone.{{ $part->id }}" min="0" max="{{ $part->test_count }}"
                                                            class="w-full h-9 sm:h-10 rounded-lg border border-border bg-background text-foreground text-sm px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                                            placeholder="از {{ $part->test_count }} تست">
@@ -560,7 +560,7 @@
                     {{-- Phone Hours --}}
                     <div class="space-y-2">
                         <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
-                            <svg class="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                             </svg>
                             ساعت استفاده از گوشی (غیر درسی):
@@ -574,7 +574,7 @@
                     {{-- Description --}}
                     <div class="space-y-2">
                         <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
-                            <svg class="w-4 h-4 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                             </svg>
                             توضیحات (اختیاری):
@@ -614,7 +614,7 @@
                                     </span>
                                 </div>
                             @else
-                                <span class="text-muted-foreground text-xs sm:text-sm">ابتدا پارت‌ها را امتیازدهی کنید</span>
+                                <span class="text-muted text-xs sm:text-sm">ابتدا پارت‌ها را امتیازدهی کنید</span>
                             @endif
                         </div>
                     </div>
@@ -658,12 +658,12 @@
                     <div class="flex items-center justify-between">
                         <div>
                             <h3 class="text-lg font-bold text-foreground">ثبت پارت جبرانی</h3>
-                            <p class="text-sm text-muted-foreground">
+                            <p class="text-sm text-muted">
                                 @if($compensatoryStep === 1) مرحله ۱: پارت های خوانده شده را انتخاب کنید
                                 @else مرحله ۲: جزئیات گزارش را وارد کنید @endif
                             </p>
                         </div>
-                        <button type="button" wire:click="closeCompensatoryModal" class="text-muted-foreground hover:text-foreground transition-all">
+                        <button type="button" wire:click="closeCompensatoryModal" class="text-muted hover:text-foreground transition-all">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
@@ -696,7 +696,7 @@
                                 @endif
 
                                 <div class="flex items-start gap-3">
-                                    <div class="mt-1 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'text-green-500' : (!$compPartHasStudyHours ? 'text-red-400' : 'text-muted-foreground') }}">
+                                    <div class="mt-1 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'text-green-500' : (!$compPartHasStudyHours ? 'text-red-400' : 'text-muted') }}">
                                         @if(in_array($missed['part']->id, $selectedCompensatoryParts))
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
                                                 <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>
@@ -717,9 +717,9 @@
                                                 {{ $missed['day_name'] }} - {{ $missed['jalali_date'] }}
                                             </span>
                                         </div>
-                                        <h4 class="font-medium {{ !$compPartHasStudyHours ? 'text-muted-foreground' : 'text-foreground' }} text-sm">{{ $missed['part']->lesson_name }}</h4>
+                                        <h4 class="font-medium {{ !$compPartHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm">{{ $missed['part']->lesson_name }}</h4>
                                         @if($missed['part']->ccSubject || $missed['part']->ccTopic)
-                                            <p class="text-xs text-muted-foreground mt-1">
+                                            <p class="text-xs text-muted mt-1">
                                                 {{ $missed['part']->ccSubject->name ?? '' }}
                                                 @if($missed['part']->ccTopic) - {{ $missed['part']->ccTopic->name }} @endif
                                             </p>
@@ -740,7 +740,7 @@
                                                 <span class="text-foreground font-medium">{{ $missed['part']->lesson_name }}</span>
                                                 @if($missed['part']->test_count)
                                                     <div class="flex items-center gap-2" wire:click.stop>
-                                                        <label class="text-xs text-muted-foreground">تست زده:</label>
+                                                        <label class="text-xs text-muted">تست زده:</label>
                                                         <input type="number" wire:model="compensatoryTestsDone.{{ $missed['part']->id }}"
                                                                min="0" max="{{ $missed['part']->test_count }}"
                                                                class="w-20 h-8 rounded-lg border border-border bg-secondary text-foreground text-sm px-2 text-center"
@@ -749,7 +749,7 @@
                                                 @endif
                                             </div>
                                             <div wire:click.stop>
-                                                <label class="text-xs text-muted-foreground block mb-1.5">امتیاز:</label>
+                                                <label class="text-xs text-muted block mb-1.5">امتیاز:</label>
                                                 <div class="flex items-center gap-1">
                                                     @for($s = 1; $s <= 4; $s++)
                                                         <button type="button" wire:click="setCompensatoryPartRating({{ $missed['part']->id }}, {{ $s }})"
@@ -797,7 +797,7 @@
 
                 {{-- Footer --}}
                 <div class="sticky bottom-0 bg-secondary border-t border-border px-6 py-4 flex items-center justify-between">
-                    <p class="text-sm text-muted-foreground">
+                    <p class="text-sm text-muted">
                         انتخاب شده: <span class="font-medium text-green-600">{{ count($selectedCompensatoryParts) }}</span>
                         از <span class="font-medium">{{ count($missedParts) }}</span> پارت
                     </p>

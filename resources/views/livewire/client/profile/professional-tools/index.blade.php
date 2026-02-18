@@ -111,11 +111,11 @@
                                         </div>
                                         <div>
                                             <h3 class="font-bold text-foreground text-base sm:text-lg">تایمر پومودورو</h3>
-                                            <p class="text-xs text-muted-foreground">مدیریت زمان مطالعه</p>
+                                            <p class="text-xs text-muted">مدیریت زمان مطالعه</p>
                                         </div>
                                     </div>
 
-                                    <p class="text-sm text-muted-foreground leading-relaxed">
+                                    <p class="text-sm text-muted leading-relaxed">
                                         با تکنیک پومودورو 25 دقیقه تمرکز کامل داشته باشید و بعد از هر جلسه 5 دقیقه استراحت کنید.
                                     </p>
 
@@ -139,7 +139,7 @@
                             <div class="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-gray-600/5 opacity-100 pointer-events-none rounded-2xl"></div>
 
                             <div class="relative z-10 flex items-start gap-4">
-                                <div class="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg text-muted-foreground
+                                <div class="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg text-muted
                                             bg-gradient-to-br from-gray-500/10 to-gray-600/10
                                             transition-all duration-300 group-hover:scale-105">
                                     02
@@ -160,15 +160,15 @@
                                                     بزودی
                                                 </span>
                                             </div>
-                                            <p class="text-xs text-muted-foreground">افزایش سرعت پاسخگویی</p>
+                                            <p class="text-xs text-muted">افزایش سرعت پاسخگویی</p>
                                         </div>
                                     </div>
 
-                                    <p class="text-sm text-muted-foreground leading-relaxed">
+                                    <p class="text-sm text-muted leading-relaxed">
                                         با تمرین‌های سرعتی مهارت پاسخگویی سریع و دقیق خود را در آزمون‌ها تقویت کنید.
                                     </p>
 
-                                    <button disabled class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-2.5 bg-muted/20 text-muted-foreground rounded-xl font-semibold text-sm cursor-not-allowed">
+                                    <button disabled class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-2.5 bg-muted/20 text-muted rounded-xl font-semibold text-sm cursor-not-allowed">
                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"/>
                                         </svg>
@@ -187,7 +187,7 @@
                             <div class="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-gray-600/5 opacity-100 pointer-events-none rounded-2xl"></div>
 
                             <div class="relative z-10 flex items-start gap-4">
-                                <div class="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg text-muted-foreground
+                                <div class="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg text-muted
                                             bg-gradient-to-br from-gray-500/10 to-gray-600/10
                                             transition-all duration-300 group-hover:scale-105">
                                     03
@@ -208,15 +208,15 @@
                                                     بزودی
                                                 </span>
                                             </div>
-                                            <p class="text-xs text-muted-foreground">تحلیل نقاط قوت و ضعف</p>
+                                            <p class="text-xs text-muted">تحلیل نقاط قوت و ضعف</p>
                                         </div>
                                     </div>
 
-                                    <p class="text-sm text-muted-foreground leading-relaxed">
+                                    <p class="text-sm text-muted leading-relaxed">
                                         تحلیل دقیق تست های زده شده خود را در این بخش ثبت می کنید تا در بازه های جمع بندی بهترین منبع مروری از نقاط قوت و ضعف تان داشته باشید.
                                     </p>
 
-                                    <button disabled class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-2.5 bg-muted/20 text-muted-foreground rounded-xl font-semibold text-sm cursor-not-allowed">
+                                    <button disabled class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-2.5 bg-muted/20 text-muted rounded-xl font-semibold text-sm cursor-not-allowed">
                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"/>
                                         </svg>
@@ -235,7 +235,7 @@
                             <div class="absolute inset-0 bg-gradient-to-br from-gray-500/5 to-gray-600/5 opacity-100 pointer-events-none rounded-2xl"></div>
 
                             <div class="relative z-10 flex items-start gap-4">
-                                <div class="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg text-muted-foreground
+                                <div class="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg text-muted
                                             bg-gradient-to-br from-gray-500/10 to-gray-600/10
                                             transition-all duration-300 group-hover:scale-105">
                                     04
@@ -256,15 +256,15 @@
                                                     بزودی
                                                 </span>
                                             </div>
-                                            <p class="text-xs text-muted-foreground">یادداشت و مرور مطالب</p>
+                                            <p class="text-xs text-muted">یادداشت و مرور مطالب</p>
                                         </div>
                                     </div>
 
-                                    <p class="text-sm text-muted-foreground leading-relaxed">
+                                    <p class="text-sm text-muted leading-relaxed">
                                         نکات مهم و خلاصه‌های درسی خود را یادداشت کنید و هر زمان که خواستید مرور کنید.
                                     </p>
 
-                                    <button disabled class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-2.5 bg-muted/20 text-muted-foreground rounded-xl font-semibold text-sm cursor-not-allowed">
+                                    <button disabled class="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-6 py-2.5 bg-muted/20 text-muted rounded-xl font-semibold text-sm cursor-not-allowed">
                                         <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z"/>
                                         </svg>

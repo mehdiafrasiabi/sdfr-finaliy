@@ -92,7 +92,7 @@
                                                     ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
                                                     : ($day['is_mandatory']
                                                         ? 'bg-primary/10 text-primary'
-                                                        : 'bg-secondary text-muted-foreground') }}">
+                                                        : 'bg-secondary text-muted') }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                           d="M8 3v2m8-2v2M4 8h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>
@@ -103,11 +103,11 @@
                                             </span>
                                             <div>
                                                 <span class="font-bold text-foreground">{{ $day['name'] }}</span>
-                                                <span class="text-xs text-muted-foreground mr-2">(اختیاری)</span>
+                                                <span class="text-xs text-muted mr-2">(اختیاری)</span>
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-2">
-                                            <span class="text-sm text-muted-foreground">{{ $day['filled_count'] }} / {{ \App\Models\ClassSchedule::MAX_PARTS_PER_DAY }}</span>
+                                            <span class="text-sm text-muted">{{ $day['filled_count'] }} / {{ \App\Models\ClassSchedule::MAX_PARTS_PER_DAY }}</span>
                                             @if($day['filled_count'] > 0)
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -131,7 +131,7 @@
                                                         <div class="relative group">
                                                             <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
                                                                     class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all hover:border-green-400 hover:shadow-md cursor-pointer">
-                                                                <div class="text-xs text-muted-foreground mb-1">پارت {{ $partInfo['order'] }}</div>
+                                                                <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
                                                                 <div class="font-bold text-sm text-foreground truncate">{{ $partInfo['part']->lesson_name }}</div>
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-green-500 mx-auto mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -146,7 +146,7 @@
                                                     @elseif($partInfo['is_unlocked'])
                                                         <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
                                                                 class="w-full rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3 text-center transition-all hover:border-primary hover:bg-primary/10 hover:shadow-md cursor-pointer">
-                                                            <div class="text-xs text-muted-foreground mb-1">پارت {{ $partInfo['order'] }}</div>
+                                                            <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                                             </svg>
@@ -154,11 +154,11 @@
                                                         </button>
                                                     @else
                                                         <div class="w-full rounded-xl border border-border bg-secondary p-3 text-center opacity-40">
-                                                            <div class="text-xs text-muted-foreground mb-1">پارت {{ $partInfo['order'] }}</div>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-muted-foreground mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-muted mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                                             </svg>
-                                                            <div class="text-xs text-muted-foreground mt-1">قفل</div>
+                                                            <div class="text-xs text-muted mt-1">قفل</div>
                                                         </div>
                                                     @endif
                                                 </div>
@@ -184,7 +184,7 @@
                                                     <div class="relative group">
                                                         <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
                                                                 class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all active:border-green-400 cursor-pointer">
-                                                            <div class="text-[10px] text-muted-foreground mb-0.5">پارت {{ $partInfo['order'] }}</div>
+                                                            <div class="text-[10px] text-muted mb-0.5">پارت {{ $partInfo['order'] }}</div>
                                                             <div class="font-bold text-xs text-foreground truncate">{{ $partInfo['part']->lesson_name }}</div>
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-green-500 mx-auto mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
@@ -200,7 +200,7 @@
                                             @endforeach
 
                                             @if($filledParts->isEmpty() && ($isFinalized || !$nextUnlocked))
-                                                <div class="w-full text-center py-3 text-xs text-muted-foreground">
+                                                <div class="w-full text-center py-3 text-xs text-muted">
                                                     پارتی ثبت نشده
                                                 </div>
                                             @endif
@@ -217,7 +217,7 @@
                                     class="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm transition-colors
                                     {{ $canFinalize
                                         ? 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/30'
-                                        : 'bg-muted text-muted-foreground cursor-not-allowed' }}">
+                                        : 'bg-muted text-muted cursor-not-allowed' }}">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
@@ -238,7 +238,7 @@
                         <div class="p-5 border-b border-border">
                             <h3 class="font-bold text-foreground text-lg">تایید ثبت نهایی / به‌روزرسانی برنامه</h3>
                         </div>
-                        <div class="p-5 space-y-2 text-sm text-muted-foreground bg-secondary">
+                        <div class="p-5 space-y-2 text-sm text-muted bg-secondary">
                             <p>آیا از ثبت نهایی برنامه کلاسی مطمئن هستید؟</p>
                             <p>در آینده هم می‌توانید ویرایش کنید و دوباره ثبت نهایی بزنید.</p>
                         </div>
@@ -269,7 +269,7 @@
                             <h3 class="font-bold text-foreground text-lg">
                                 انتخاب درس - {{ \App\Models\ClassSchedule::getDayName($selectedDay) }} (پارت {{ $selectedPart }})
                             </h3>
-                            <button wire:click="closeModal" class="text-muted-foreground hover:text-red-500 transition-colors">
+                            <button wire:click="closeModal" class="text-muted hover:text-red-500 transition-colors">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
@@ -279,7 +279,7 @@
                         {{-- بدنه --}}
                         <div class="p-6 bg-secondary">
                             @if(count($subjects) > 0)
-                                <p class="text-sm text-muted-foreground mb-4">یک درس را انتخاب کنید:</p>
+                                <p class="text-sm text-muted mb-4">یک درس را انتخاب کنید:</p>
                                 <div class="space-y-2 max-h-80 overflow-y-auto">
                                     @foreach($subjects as $subject)
                                         <button wire:click="$set('selectedSubjectId', {{ $subject->id }})"
@@ -298,10 +298,10 @@
                                 </div>
                             @else
                                 <div class="text-center py-8">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-muted-foreground mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-muted mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                                     </svg>
-                                    <p class="text-muted-foreground">درسی یافت نشد. لطفاً اطلاعات شخصی (پایه و رشته) خود را تکمیل کنید.</p>
+                                    <p class="text-muted">درسی یافت نشد. لطفاً اطلاعات شخصی (پایه و رشته) خود را تکمیل کنید.</p>
                                 </div>
                             @endif
                         </div>
