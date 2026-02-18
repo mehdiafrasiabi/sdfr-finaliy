@@ -13,6 +13,7 @@ use App\Models\CcGrade;
 use App\Models\CcField;
 use App\Models\CcSubject;
 use App\Models\CcChapter;
+use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Validator;
 use Morilog\Jalali\Jalalian;
 use Livewire\Component;
@@ -20,6 +21,7 @@ use Carbon\Carbon;
 
 class PreSessionWizard extends Component
 {
+    use SEOTools;
     public $sessionId;
     public $preSession;
     public $canEdit = true;
@@ -110,6 +112,13 @@ class PreSessionWizard extends Component
 
         // Set date constraints based on consultation period
         $this->setDateConstraints($session);
+        $this->seoConfig();
+    }
+
+    public function seoConfig()
+    {
+        $this->seo()
+            ->setTitle('پیش جلسه مشاوره');
     }
     /**
      * Load subjects based on student's personal information (grade + field)

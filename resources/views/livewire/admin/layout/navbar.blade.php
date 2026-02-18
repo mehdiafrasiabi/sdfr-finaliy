@@ -1,5 +1,28 @@
 <div>
-    <!-- begin::NexLink Page Header -->
+    @php
+        $admin = auth('admin')->user();
+        $adminName = $admin?->name ?? 'ادمین';
+        $adminEmail = $admin?->email ?? '-';
+        $roleMap = [
+            'super admin' => 'مدیر کل',
+            'مشاور تحصیلی' => 'مشاور تحصیلی',
+            'academic support' => 'پشتیبان تحصیلی',
+            'academic_advisor' => 'مشاور تحصیلی',
+            'product admin' => 'مدیر محصولات',
+            'order admin' => 'مدیر سفارشات',
+            'payment admin' => 'مدیر پرداخت',
+            'user admin' => 'مدیر کاربران',
+            'story admin' => 'مدیر استوری',
+            'student admin' => 'مدیر دانش‌آموزان',
+            'map admin' => 'مدیر نقشه',
+            'contactUs admin' => 'مدیر تماس با ما',
+            'payment_method admin' => 'مدیر درگاه پرداخت',
+        ];
+        $adminRoleKey = $admin?->roles?->first()?->name;
+        $adminRole = $roleMap[$adminRoleKey] ?? ($adminRoleKey ?: 'مدیر');
+    @endphp
+
+        <!-- begin::NexLink Page Header -->
     <header class="app-header">
         <div class="app-header-inner">
             <button aria-label="app toggler" class="app-toggler" type="button">
@@ -231,12 +254,12 @@
                     <a aria-expanded="true" class="d-flex align-items-center py-2" data-bs-auto-close="outside" data-bs-toggle="dropdown" href="#">
                         <div class="text-end me-2 d-none d-lg-inline-block">
                             <div class="fw-bold text-dark">
-                                امیرارسلان رهنما
+                                  {{ $adminName }}
                             </div>
                             <small class="text-body d-block lh-sm">
                                 <i class="fi fi-rr-angle-down text-3xs me-1">
                                 </i>
-                                مدیر
+                                {{ $adminRole }}
                             </small>
                         </div>
                         <div class="avatar avatar-sm rounded-circle avatar-status-success">
@@ -250,10 +273,10 @@
                             </div>
                             <div class="ms-2">
                                 <div class="fw-bold text-dark">
-                                    امیرارسلان رهنما
+                                      {{ $adminName }}
                                 </div>
                                 <small class="text-body d-block lh-sm">
-                                    robert@gmail.com
+                                    {{ $adminEmail }}
                                 </small>
                             </div>
                         </li>

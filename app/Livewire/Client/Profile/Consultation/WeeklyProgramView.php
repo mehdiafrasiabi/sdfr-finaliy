@@ -6,6 +6,7 @@ namespace App\Livewire\Client\Profile\Consultation;
 
 use App\Models\WeeklyProgram;
 use App\Models\Student;
+use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 use Carbon\Carbon;
 use App\Models\WeeklyProgramRestDay;
@@ -13,6 +14,7 @@ use App\Models\WeeklyProgramRestDay;
 class WeeklyProgramView extends Component
 
 {
+    use SEOTools;
 
     public $programId;
 
@@ -22,9 +24,14 @@ class WeeklyProgramView extends Component
     {
 
         $this->programId = $program->id;
-
+        $this->seoConfig();
     }
 
+    public function seoConfig()
+    {
+        $this->seo()
+            ->setTitle('برنامه درسی');
+    }
 
     public function render()
 
