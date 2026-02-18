@@ -29,7 +29,7 @@
                             </div>
                             <!-- دکمه افزودن برنامه کلاسی -->
                             @if($student && $student->advisor_id && $student->supporter_id)
-                                <a wire:ignore href="{{ route('client.profile.consultation.class-schedule') }}"
+                                <a wire:navigate href="{{ route('client.profile.consultation.class-schedule') }}"
                                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors shadow-lg shadow-primary/20">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
@@ -356,15 +356,7 @@
                      x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                      class="relative w-full max-w-md my-20 overflow-hidden transition-all transform bg-secondary border border-border rounded-2xl shadow-2xl z-20">
 
-                    <div class="relative p-4">
-                        <button type="button" wire:click="closePreSessionModal"
-                                class="absolute left-4 text-muted focus:outline-none hover:text-error">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                 stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-                            </svg>
-                        </button>
-                    </div>
+
 
                     <hr class="border-border">
 

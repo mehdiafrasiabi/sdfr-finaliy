@@ -396,7 +396,7 @@
         </style>
     @endassets
 
-    <div class="dashboard-container">
+    <div>
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
             <!-- Sidebar -->
             <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">

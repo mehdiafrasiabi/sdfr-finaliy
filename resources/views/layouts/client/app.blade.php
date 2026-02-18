@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl" class="dark">
 <head>
+    <meta name="color-scheme" content="dark">
+    <style>
+        :root { color-scheme: dark; }
+
+    </style>
     <script>
         function mobileMenuHandler() {
             return {

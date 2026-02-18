@@ -1,122 +1,14 @@
 <div dir="rtl">
 
     @assets
-        <style>
-            @font-face {
-                font-family: 'Digital';
-                src: url('/client/assets/fonts/digital-7.ttf') format('truetype');
-            }
-
-            [x-cloak] {
-                display: none !important;
-            }
-
-            /* Digital clock */
-            .digital-clock {
-                font-family: 'Digital', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-                font-size: clamp(40px, 6vw, 56px);
-                letter-spacing: 2px;
-                line-height: 1;
-                color: #f59e0b;
-                text-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
-            }
-
-            .timer-shell {
-                background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(2, 6, 23, 0.95) 100%);
-                border: 1px solid rgba(148, 163, 184, 0.18);
-                min-height: 230px;
-            }
-
-            .dark .timer-shell {
-                background: linear-gradient(135deg, rgba(2, 6, 23, 0.92) 0%, rgba(15, 23, 42, 0.92) 100%);
-                border-color: rgba(148, 163, 184, 0.20);
-            }
-
-            .soft-surface {
-                background: rgba(255, 255, 255, 0.92);
-                border: 1px solid rgba(15, 23, 42, 0.08);
-            }
-
-            .dark .soft-surface {
-                background: rgba(2, 6, 23, 0.55);
-                border-color: rgba(148, 163, 184, 0.16);
-            }
-
-            .sticky-safe {
-                position: sticky;
-                top: 12px;
-                z-index: 40;
-            }
-
-            .sticky-safe .timer-shell {
-                box-shadow: 0 18px 40px rgba(0, 0, 0, .14);
-            }
-
-            .dark .sticky-safe .timer-shell {
-                box-shadow: 0 18px 40px rgba(0, 0, 0, .40);
-            }
-
-            .day-divider {
-                border-top: 1px dashed rgba(148, 163, 184, 0.35);
-            }
-
-            .spinner {
-                width: 14px;
-                height: 14px;
-                border: 2px solid rgba(255, 255, 255, .35);
-                border-top-color: rgba(255, 255, 255, .95);
-                border-radius: 999px;
-                animation: spin .7s linear infinite;
-            }
-
-            @keyframes spin {
-                to {
-                    transform: rotate(360deg);
-                }
-            }
-
-            .live-dot {
-                width: 8px;
-                height: 8px;
-                border-radius: 999px;
-                background: rgba(148, 163, 184, 0.55);
-                box-shadow: 0 0 10px rgba(148, 163, 184, 0.25);
-            }
-
-            .live-dot.on {
-                background: rgba(52, 211, 153, 0.95);
-                box-shadow: 0 0 14px rgba(52, 211, 153, 0.45);
-            }
-
-            .star-btn {
-                transition: transform 0.15s ease, color 0.15s ease;
-            }
-
-            .star-btn:hover {
-                transform: scale(1.2);
-            }
-
-            .star-btn.active {
-                color: #f59e0b;
-            }
-
-            .star-btn.inactive {
-                color: #d1d5db;
-            }
-
-            .dark .star-btn.inactive {
-                color: #4b5563;
-            }
-
-            .part-type-btn {
-                transition: all 0.2s ease;
-            }
-
-            .part-type-btn:hover {
-                transform: translateY(-2px);
-            }
-        </style>
-        @endassets
+    <style>
+        @font-face {
+            font-family: 'Digital';
+            src: url('/client/assets/fonts/digital-7.ttf') format('truetype');
+        }
+        [x-cloak] { display: none !important; }
+    </style>
+    @endassets
 
 
     <div class="max-w-7xl mx-auto px-4 py-6">
@@ -133,6 +25,7 @@
                     makeupModal: @entangle('showMakeupModal'),
                     feedbackModal: @entangle('showFeedbackModal')
                  }">
+
                 {{-- Header --}}
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4 mb-6">
                     <div class="flex items-center gap-2">
@@ -144,16 +37,6 @@
                             ثبت ساعت مطالعه بر اساس برنامه
                         </div>
                     </div>
-
-                    <a wire:navigate href="{{ route('client.profile.professionalTools.index') }}"
-                       class="inline-flex items-center justify-center gap-x-1.5 h-10 rounded-full border border-border bg-background/60 backdrop-blur px-5 sm:px-6 text-xs font-semibold text-muted hover:text-foreground hover:bg-background transition ms-auto w-full sm:w-auto">
-                        <span>بازگشت</span>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                             stroke-width="1.5" stroke="currentColor" class="size-5">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3"/>
-                        </svg>
-                    </a>
                 </div>
 
                 <!-- Guide Section -->
@@ -168,14 +51,12 @@
                         class="w-full flex items-center justify-between px-4 md:px-6 py-4 transition">
 
                         <div class="flex items-center gap-2">
-                            <svg class="w-5 h-5 text-white dark:text-white"
-                                 fill="currentColor" viewBox="0 0 24 24">
-                                <path
-                                    d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
                             </svg>
 
-                            <span class="font-black text-white dark:text-white text-blue-300 md:text-lg">
-               راهنمای ثبت ساعت مطالعه
+                            <span class="font-black text-white text-blue-300 md:text-lg">
+                                راهنمای ثبت ساعت مطالعه
                             </span>
                         </div>
 
@@ -183,8 +64,7 @@
                             class="w-5 h-5 text-white transition-transform duration-300"
                             :class="open && 'rotate-180'"
                             fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                  stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </button>
 
@@ -203,7 +83,8 @@
                             <div class="relative w-full md:w-[280px] shrink-0 order-2 md:order-1">
                                 <img
                                     src="/client/assets/images/blog/sdfr.jpg"
-                                    class="w-full h-[200px] md:h-[180px] object-cover rounded-xl">
+                                    class="w-full h-[200px] md:h-[180px] object-cover rounded-xl"
+                                    alt="راهنمای ثبت ساعت مطالعه">
 
                                 <button
                                     type="button"
@@ -221,29 +102,34 @@
                                 </button>
                             </div>
 
-                            <div
-                                class="flex-1 text-right text-sm md:text-base  text-white dark:text-white leading-7 order-1 md:order-2">
+                            <div class="flex-1 text-right text-sm md:text-base text-white leading-7 order-1 md:order-2">
                                 دانش‌آموز عزیز سلام، قبل از شروع مطالعه موارد زیر را با دقت بخوانید:
                                 <br>• استفاده از آخرین نسخه مرورگر کروم الزامی است.
                                 <br>• حتماً قبل از خروج ثبت نهایی انجام شود.
-                                <br>• می‌توانید هر زمان که بخواهید ساعت مطالعه  خارج از چارچوب برنامه ثبت کنید.
+                                <br>• می‌توانید هر زمان که بخواهید ساعت مطالعه خارج از چارچوب برنامه ثبت کنید.
                                 <br>• پس از پایان هر جلسه، حتماً بازخورد خود را ثبت کنید.
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <br>
 
                 @if($weeklyProgram)
 
                     {{-- تایمر یکپارچه (عادی + اضافه بر سازمان) --}}
-                    <div class="sticky-safe" wire:key="timer-unified"
-                         wire:poll.visible.1000ms="{{ $makeupTimerRunning ? 'tickMakeup' : 'tick' }}">
+                    <div
+                        class="sticky top-3 z-40"
+                        wire:key="timer-unified"
+                        wire:poll.visible.1000ms="{{ $makeupTimerRunning ? 'tickMakeup' : 'tick' }}">
 
                         @if($makeupTimerRunning || $makeupPausedAtTs)
                             {{-- حالت اضافه بر سازمان (بنفش) --}}
-                            <section class="timer-shell rounded-3xl p-4 sm:p-6 text-white relative overflow-hidden"
-                                     style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.95) 0%, rgba(109, 40, 217, 0.95) 100%);">
+                            <section
+                                class="rounded-3xl p-4 sm:p-6 text-white relative overflow-hidden border border-white/15
+                                       bg-gradient-to-br from-violet-500/95 to-purple-700/95
+                                       shadow-[0_18px_40px_rgba(0,0,0,.14)] dark:shadow-[0_18px_40px_rgba(0,0,0,.40)]">
+
                                 <div class="pointer-events-none absolute -top-20 -left-20 w-72 h-72 rounded-full bg-violet-400/20 blur-3xl"></div>
                                 <div class="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-purple-400/20 blur-3xl"></div>
 
@@ -251,22 +137,24 @@
                                     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                                         <div class="space-y-1">
                                             <div class="text-sm text-violet-100 font-extrabold tracking-tight flex items-center gap-2">
-
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                      stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-
-                                            </svg>
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                                                </svg>
                                                 تایمر مطالعه جبرانی
                                             </div>
+
                                             <div class="text-[11px] text-violet-100/90 leading-5">
                                                 <span class="{{ $makeupTimerRunning ? 'text-emerald-200' : 'text-orange-200' }} font-semibold">
-
                                                     {{ $makeupTimerRunning ? 'در حال اجرا' : 'متوقف' }}
                                                 </span>
                                             </div>
+
                                             <div class="mt-1 inline-flex items-center gap-2 text-[10px] text-violet-100/80">
-                                                <span class="live-dot {{ $makeupTimerRunning ? 'on' : '' }}"></span>
+                                                <span
+                                                    class="w-2 h-2 rounded-full bg-slate-300/55 shadow-[0_0_10px_rgba(148,163,184,.25)]
+                                                           {{ $makeupTimerRunning ? 'bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.45)]' : '' }}">
+                                                </span>
                                                 <span>{{ $makeupTimerRunning ? 'زنده' : 'متوقف' }}</span>
                                             </div>
                                         </div>
@@ -274,24 +162,34 @@
                                         <div class="flex flex-wrap items-center gap-2 justify-end">
                                             @if($makeupTimerRunning)
                                                 <button wire:click="pauseMakeup"
-                                                        class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300/50 font-semibold text-xs transition">
+                                                        class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500
+                                                               focus:outline-none focus:ring-2 focus:ring-orange-300/50
+                                                               font-semibold text-xs transition">
                                                     توقف
                                                 </button>
                                             @elseif($makeupPausedAtTs)
                                                 <button wire:click="resumeMakeup"
-                                                        class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 font-semibold text-xs transition">
+                                                        class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500
+                                                               focus:outline-none focus:ring-2 focus:ring-emerald-300/50
+                                                               font-semibold text-xs transition">
                                                     ادامه
                                                 </button>
                                             @endif
 
                                             <button wire:click="cancelMakeup"
-                                                    class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 focus:outline-none focus:ring-2 focus:ring-white/20 font-semibold text-xs transition">                                                لغو
+                                                    class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15
+                                                           focus:outline-none focus:ring-2 focus:ring-white/20
+                                                           font-semibold text-xs transition">
+                                                لغو
                                             </button>
                                         </div>
                                     </div>
 
                                     <div class="text-center">
-                                        <div class="digital-clock" style="color: #c4b5fd;">
+                                        <div
+                                            class="font-['Digital',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation_Mono','Courier_New',monospace]
+                                                   text-[clamp(40px,6vw,56px)] tracking-[2px] leading-none
+                                                   text-violet-200 [text-shadow:0_0_12px_rgba(196,181,253,.35)]">
                                             {{ $this->formatClock($makeupRemainingSeconds) }}
                                         </div>
                                         <div class="mt-1 text-[11px] text-violet-100/80">زمان باقی‌مانده</div>
@@ -311,9 +209,15 @@
                                     </div>
                                 </div>
                             </section>
+
                         @else
                             {{-- حالت عادی (طلایی/نارنجی) --}}
-                            <section class="timer-shell rounded-3xl p-4 sm:p-6 text-white relative overflow-hidden">
+                            <section
+                                class="rounded-3xl p-4 sm:p-6 text-white relative overflow-hidden border border-slate-300/20
+                                       bg-gradient-to-br from-slate-900/95 to-slate-950/95
+                                       dark:from-slate-950/90 dark:to-slate-900/90
+                                       shadow-[0_18px_40px_rgba(0,0,0,.14)] dark:shadow-[0_18px_40px_rgba(0,0,0,.40)]">
+
                                 <div class="pointer-events-none absolute -top-20 -left-20 w-72 h-72 rounded-full bg-amber-500/10 blur-3xl"></div>
                                 <div class="pointer-events-none absolute -bottom-24 -right-24 w-72 h-72 rounded-full bg-emerald-500/10 blur-3xl"></div>
 
@@ -333,8 +237,12 @@
                                                     هیچ پارت فعالی انتخاب نشده — از لیست پایین یک پارت را شروع کن.
                                                 @endif
                                             </div>
+
                                             <div class="mt-1 inline-flex items-center gap-2 text-[10px] text-slate-200/80">
-                                                <span class="live-dot {{ ($currentPartId && $isRunning) ? 'on' : '' }}"></span>
+                                                <span
+                                                    class="w-2 h-2 rounded-full bg-slate-300/55 shadow-[0_0_10px_rgba(148,163,184,.25)]
+                                                           {{ ($currentPartId && $isRunning) ? 'bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.45)]' : '' }}">
+                                                </span>
                                                 <span>{{ ($currentPartId && $isRunning) ? 'زنده' : 'آماده' }}</span>
                                             </div>
                                         </div>
@@ -342,19 +250,25 @@
                                         <div class="flex flex-wrap items-center gap-2 justify-end">
                                             @if($currentPartId && $isRunning)
                                                 <button wire:click="pausePart"
-                                                        class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300/50 font-semibold text-xs transition inline-flex items-center gap-2">
+                                                        class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500
+                                                               focus:outline-none focus:ring-2 focus:ring-orange-300/50
+                                                               font-semibold text-xs transition inline-flex items-center gap-2">
                                                     توقف
                                                 </button>
                                             @elseif($currentPartId && !$isRunning && $pausedAtTs)
                                                 <button wire:click="resumePart"
-                                                        class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 font-semibold text-xs transition inline-flex items-center gap-2">
+                                                        class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500
+                                                               focus:outline-none focus:ring-2 focus:ring-emerald-300/50
+                                                               font-semibold text-xs transition inline-flex items-center gap-2">
                                                     ادامه
                                                 </button>
                                             @endif
 
                                             @if($currentPartId)
                                                 <button wire:click="cancelPart"
-                                                        class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 focus:outline-none focus:ring-2 focus:ring-white/20 font-semibold text-xs transition inline-flex items-center gap-2">
+                                                        class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15
+                                                               focus:outline-none focus:ring-2 focus:ring-white/20
+                                                               font-semibold text-xs transition inline-flex items-center gap-2">
                                                     لغو
                                                 </button>
                                             @endif
@@ -362,7 +276,10 @@
                                     </div>
 
                                     <div class="text-center">
-                                        <div class="digital-clock">
+                                        <div
+                                            class="font-['Digital',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation_Mono','Courier_New',monospace]
+                                                   text-[clamp(40px,6vw,56px)] tracking-[2px] leading-none
+                                                   text-amber-500 [text-shadow:0_0_12px_rgba(245,158,11,.35)]">
                                             {{ $this->formatClock($currentPartId ? $remainingSeconds : 0) }}
                                         </div>
                                         <div class="mt-1 text-[11px] text-slate-200/80">
@@ -393,42 +310,46 @@
                         <div class="mt-4">
                             <button wire:click="openMakeupModal"
                                     wire:loading.attr="disabled"
-                                    class="w-full sm:w-auto px-6 h-12 rounded-2xl bg-gradient-to-l from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-sm transition shadow-lg shadow-violet-500/25 inline-flex items-center justify-center gap-2">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     stroke-width="2"
+                                    class="w-full sm:w-auto px-6 h-12 rounded-2xl bg-gradient-to-l from-violet-600 to-indigo-600
+                                           hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-sm transition
+                                           shadow-lg shadow-violet-500/25 inline-flex items-center justify-center gap-2
+                                           disabled:opacity-60 disabled:cursor-not-allowed">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                                      stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                                 </svg>
-                                <span>ثبت ساعت مطالعه خارج از چارچوب برنامه </span>
-                                <span wire:loading wire:target="openMakeupModal" class="spinner"></span>
+
+                                <span>ثبت ساعت مطالعه خارج از چارچوب برنامه</span>
+
+                                <span wire:loading wire:target="openMakeupModal"
+                                      class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                             </button>
                         </div>
                     @endif
 
                     {{-- ابزارها --}}
-                    <section class="mt-5 bg-secondary rounded-3xl p-4 sm:p-5 ">
-                        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between ">
+                    <section class="mt-5 bg-secondary rounded-3xl p-4 sm:p-5">
+                        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                             <div>
                                 <div class="font-black text-foreground">برنامه مطالعاتی من</div>
                                 <div class="text-xs text-muted mt-1">بر اساس آخرین جلسه مشاوره برگزار شده</div>
                             </div>
 
                             <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
-                                <div
-                                    class="inline-flex rounded-full border border-border bg-background/70 backdrop-blur p-1 overflow-x-auto">
+                                <div class="inline-flex rounded-full border border-border bg-secondary/70 backdrop-blur p-1 overflow-x-auto">
                                     <button wire:click="$set('dayFilter','all')"
                                             class="px-4 h-9 rounded-full text-xs font-semibold transition whitespace-nowrap
-          {{ $dayFilter==='all' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
+                                            {{ $dayFilter==='all' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
                                         همه
                                     </button>
                                     <button wire:click="$set('dayFilter','today')"
                                             class="px-4 h-9 rounded-full text-xs font-semibold transition whitespace-nowrap
-          {{ $dayFilter==='today' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
+                                            {{ $dayFilter==='today' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
                                         امروز
                                     </button>
                                     <button wire:click="$set('dayFilter','upcoming')"
                                             class="px-4 h-9 rounded-full text-xs font-semibold transition whitespace-nowrap
-          {{ $dayFilter==='upcoming' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
+                                            {{ $dayFilter==='upcoming' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
                                         از امروز به بعد
                                     </button>
                                 </div>
@@ -464,15 +385,16 @@
                                     {{-- هدر روز --}}
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center gap-2">
-                                            <span
-                                                class="w-2 h-2 rounded-full {{ $day['is_rest_day'] ? 'bg-emerald-500' : 'bg-primary' }}"></span>
-                                            <span
-                                                class="font-black text-sm {{ $day['is_rest_day'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground' }}">{{ $day['name'] }}</span>
+                                            <span class="w-2 h-2 rounded-full {{ $day['is_rest_day'] ? 'bg-emerald-500' : 'bg-primary' }}"></span>
+                                            <span class="font-black text-sm {{ $day['is_rest_day'] ? 'text-emerald-600 dark:text-emerald-400' : 'text-foreground' }}">
+                                                {{ $day['name'] }}
+                                            </span>
                                             <span class="text-xs text-muted">{{ $day['jalali_date'] }}</span>
 
                                             @if($day['is_rest_day'])
-                                                <span
-                                                    class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">روز استراحت</span>
+                                                <span class="px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold">
+                                                    روز استراحت
+                                                </span>
                                             @endif
                                         </div>
 
@@ -486,21 +408,19 @@
                                     </div>
 
                                     @if($day['is_rest_day'])
-                                        <div
-                                            class="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-secondary bg-emerald-50/50 dark:bg-emerald-900/10 p-8 text-center">
-                                            <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-1">روز
-                                                استراحت</h4>
-                                            <p class="text-sm text-emerald-600/80 dark:text-emerald-400/70">امروز نیازی
-                                                به مطالعه نیست. استراحت کن و انرژی بگیر!</p>
+                                        <div class="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-secondary p-8 text-center">
+                                            <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-1">روز استراحت</h4>
+                                            <p class="text-sm text-emerald-600/80 dark:text-emerald-400/70">
+                                                امروز نیازی به مطالعه نیست. استراحت کن و انرژی بگیر!
+                                            </p>
                                         </div>
 
                                     @elseif($day['parts_count'] > 0)
 
-                                        <div
-                                            class="overflow-x-auto rounded-3xl border border-border bg-background shadow-sm">
+                                        <div class="overflow-x-auto rounded-3xl border border-border bg-secondary shadow-sm">
                                             <table class="w-full min-w-[720px] text-xs sm:text-[13px]">
                                                 <thead class="sticky top-0 z-10">
-                                                <tr class="bg-slate-50/90 dark:bg-slate-800/70 backdrop-blur text-slate-700 dark:text-slate-200">
+                                                <tr class="bg-secondary/90 dark:bg-secondary/70 backdrop-blur text-foreground/80">
                                                     <th class="px-3 py-3 text-right">درس</th>
                                                     <th class="px-3 py-3 text-center">مدت</th>
                                                     <th class="px-3 py-3 text-center">نوع</th>
@@ -510,11 +430,9 @@
 
                                                 <tbody class="divide-y divide-border">
                                                 @foreach($day['parts']->sortBy('part_order') as $part)
-                                                    <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40">
+                                                    <tr class="hover:bg-secondary/60 transition">
                                                         <td class="px-3 py-3 text-foreground">
-                                                            <div class="font-semibold">
-                                                                {{ $part->lesson_name }}
-                                                            </div>
+                                                            <div class="font-semibold">{{ $part->lesson_name }}</div>
 
                                                             @if($part->description)
                                                                 <div class="text-[11px] text-muted mt-1">
@@ -528,36 +446,33 @@
                                                         </td>
 
                                                         <td class="px-3 py-3 text-center">
-                                                            <span
-                                                                class="px-2 py-1 rounded-full text-[10px]
+                                                            <span class="px-2 py-1 rounded-full text-[10px]
                                                                 {{ $part->part_type === 'test' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : '' }}
                                                                 {{ $part->part_type === 'descriptive' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : '' }}
                                                                 {{ $part->part_type === 'video' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : '' }}">
                                                                 {{ $part->part_type_label }}
                                                             </span>
-                                                            <span
-                                                                class="ms-1 px-2 py-1 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+
+                                                            <span class="ms-1 px-2 py-1 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
                                                                 {{ $part->lesson_type_label }}
                                                             </span>
                                                         </td>
+
                                                         <td class="px-3 py-3 text-left">
                                                             @if($this->isPartCompleted($part->id))
-                                                                <span
-                                                                    class="text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">✓ تکمیل شده</span>
+                                                                <span class="text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">✓ تکمیل شده</span>
                                                             @elseif($currentPartId == $part->id)
-                                                                <span
-                                                                    class="text-blue-600 dark:text-blue-400 font-bold text-[11px]">در حال مطالعه...</span>
+                                                                <span class="text-blue-600 dark:text-blue-400 font-bold text-[11px]">در حال مطالعه...</span>
                                                             @else
                                                                 <button wire:click="startPart({{ $part->id }})"
                                                                         wire:loading.attr="disabled"
                                                                         wire:target="startPart({{ $part->id }})"
-                                                                        class="px-4 h-9 rounded-full bg-primary hover:bg-primary/90 text-white text-[11px] font-semibold transition disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
+                                                                        class="px-4 h-9 rounded-full bg-primary hover:bg-primary/90 text-white text-[11px] font-semibold transition
+                                                                               disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
                                                                     {{ $currentPartId || $makeupTimerRunning ? 'disabled' : '' }}>
-                                                                    <span wire:loading.remove
-                                                                          wire:target="startPart({{ $part->id }})">شروع</span>
-                                                                    <span wire:loading
-                                                                          wire:target="startPart({{ $part->id }})"
-                                                                          class="spinner"></span>
+                                                                    <span wire:loading.remove wire:target="startPart({{ $part->id }})">شروع</span>
+                                                                    <span wire:loading wire:target="startPart({{ $part->id }})"
+                                                                          class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                                                                 </button>
                                                             @endif
                                                         </td>
@@ -567,39 +482,38 @@
                                             </table>
                                         </div>
 
-                                        {{-- جلسات جبرانی امروز - نمایش زیر همان روز --}}
+                                        {{-- جلسات جبرانی امروز --}}
                                         @if($day['date'] === now()->toDateString() && $this->todayMakeupSessions->isNotEmpty())
-                                            <div class="mt-4 soft-surface rounded-2xl p-4">
+                                            <div class="mt-4 rounded-2xl p-4 bg-secondary border border-border">
                                                 <div class="flex items-center gap-2 mb-3">
                                                     <span class="w-2 h-2 rounded-full bg-violet-500"></span>
-                                                    <h4 class="font-bold text-foreground text-sm">جلسات  خارج از چارچوب برنامه
-                                                        امروز</h4>
-                                                    <span
-                                                        class="px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-[10px] font-bold">
+                                                    <h4 class="font-bold text-foreground text-sm">جلسات خارج از چارچوب برنامه امروز</h4>
+                                                    <span class="px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-[10px] font-bold">
                                                         {{ $this->todayMakeupSessions->count() }}
                                                     </span>
                                                 </div>
 
                                                 <div class="space-y-2">
                                                     @foreach($this->todayMakeupSessions as $makeup)
-                                                        <div
-                                                            class="rounded-xl border border-border bg-background/50 p-3 flex items-center gap-3">
+                                                        <div class="rounded-xl border border-border bg-secondary/60 p-3 flex items-center gap-3">
                                                             <div class="flex-1">
-                                                                <div
-                                                                    class="font-semibold text-foreground text-sm">{{ $makeup->ccTopic?->name ?? '-' }}</div>
+                                                                <div class="font-semibold text-foreground text-sm">
+                                                                    {{ $makeup->ccTopic?->name ?? '-' }}
+                                                                </div>
+
                                                                 <div class="flex items-center gap-2 text-[11px] mt-1">
-                                                                    <span
-                                                                        class="px-2 py-0.5 rounded-full text-[10px] font-bold
+                                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold
                                                                         {{ $makeup->part_type === 'test' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : '' }}
                                                                         {{ $makeup->part_type === 'descriptive' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : '' }}
                                                                         {{ $makeup->part_type === 'video' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : '' }}">
                                                                         {{ $makeup->part_type_label }}
                                                                     </span>
+
                                                                     <span class="text-muted">
                                                                         {{ floor($makeup->duration_seconds / 3600) }}:{{ str_pad(floor(($makeup->duration_seconds % 3600) / 60), 2, '0', STR_PAD_LEFT) }}
                                                                     </span>
-                                                                    <span
-                                                                        class="px-2 py-0.5 rounded-full text-[10px] font-bold
+
+                                                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold
                                                                         {{ $makeup->status === 'pending' ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400' : '' }}
                                                                         {{ $makeup->status === 'approved' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' : '' }}
                                                                         {{ $makeup->status === 'rejected' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : '' }}">
@@ -614,20 +528,19 @@
                                         @endif
 
                                     @else
-                                        <div
-                                            class="rounded-2xl border border-border bg-slate-50/50 dark:bg-slate-900/20 p-6 text-center">
+                                        <div class="rounded-2xl border border-border bg-secondary p-6 text-center">
                                             <p class="text-sm text-muted">برنامه‌ای برای این روز تنظیم نشده است.</p>
                                         </div>
                                     @endif
-                                    <div class="day-divider"></div>
+
+                                    <div class="border-t border-dashed border-slate-300/35 dark:border-slate-600/35"></div>
                                 @endif
                             @endforeach
                         </div>
                     @endif
 
                 @else
-                    <div
-                        class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 text-center">
+                    <div class="bg-secondary border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 text-center">
                         <h3 class="text-lg font-bold text-yellow-800 dark:text-yellow-300 mb-2">برنامه‌ای یافت نشد</h3>
                         <p class="text-sm text-yellow-700 dark:text-yellow-400">
                             هنوز جلسه مشاوره‌ای برگزار نشده یا برنامه‌ای برای شما تنظیم نشده است.
@@ -641,14 +554,12 @@
                 <div x-cloak x-show="permissionModal"
                      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                      x-transition>
-                    <div
-                        class="w-full max-w-md mx-4 bg-background dark:bg-zinc-900 border border-border rounded-2xl shadow-2xl"
-                        @click.away="permissionModal = false">
+                    <div class="w-full max-w-md mx-4 bg-secondary border border-border rounded-2xl shadow-2xl"
+                         @click.away="permissionModal = false">
 
                         <div class="flex items-center justify-between px-6 py-4 border-b border-border">
                             <h3 class="text-base font-bold text-foreground">درخواست دسترسی</h3>
-                            <button type="button" @click="permissionModal = false"
-                                    class="text-muted hover:text-foreground transition-all">
+                            <button type="button" @click="permissionModal = false" class="text-muted hover:text-foreground transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -657,10 +568,8 @@
                         </div>
 
                         <div class="px-6 py-5 space-y-4">
-                            <div
-                                class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
-                                <h4 class="font-semibold text-sm text-blue-800 dark:text-blue-300 mb-2">چرا این
-                                    دسترسی‌ها نیاز است؟</h4>
+                            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+                                <h4 class="font-semibold text-sm text-blue-800 dark:text-blue-300 mb-2">چرا این دسترسی‌ها نیاز است؟</h4>
                                 <ul class="text-xs text-blue-700 dark:text-blue-400 space-y-2 list-disc list-inside">
                                     <li>دسترسی به صدا برای پخش الارم هنگام پایان تایمر</li>
                                     <li>دسترسی به نوتیفیکیشن برای یادآوری‌های مطالعه</li>
@@ -669,8 +578,7 @@
                             </div>
                         </div>
 
-                        <div
-                            class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl">
+                        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl">
                             <button type="button"
                                     class="px-6 h-11 rounded-full bg-primary text-white font-semibold hover:bg-primary/90 transition"
                                     wire:click="permissionUnderstood">
@@ -685,39 +593,36 @@
                 <div x-cloak x-show="finishModal"
                      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                      x-transition>
-                    <div
-                        class="w-full max-w-md mx-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-2 border-green-500 rounded-3xl shadow-2xl"
-                        @click.away="finishModal = false">
+                    <div class="w-full max-w-md mx-4 bg-secondary border-2 border-green-500 rounded-3xl shadow-2xl"
+                         @click.away="finishModal = false">
 
                         <div class="px-6 py-8 text-center space-y-4">
                             <div class="flex justify-center">
-                                <div
-                                    class="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center animate-bounce">
+                                <div class="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center animate-bounce">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                          stroke-width="3" stroke="white" class="w-10 h-10">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="M4.5 12.75l6 6 9-13.5"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
                                     </svg>
                                 </div>
                             </div>
 
                             <div class="space-y-2">
                                 <h3 class="text-2xl font-black text-green-600 dark:text-green-400">آفرین!</h3>
-                                <p class="text-lg font-bold text-green-700 dark:text-green-300">تایم مطالعه به پایان
-                                    رسید</p>
-                                <p class="text-sm text-green-600 dark:text-green-400">آیا می‌خواهید این پارت را ثبت
-                                    کنید؟</p>
+                                <p class="text-lg font-bold text-green-700 dark:text-green-300">تایم مطالعه به پایان رسید</p>
+                                <p class="text-sm text-green-600 dark:text-green-400">آیا می‌خواهید این پارت را ثبت کنید؟</p>
                             </div>
 
                             <div class="flex items-center justify-center gap-3 pt-4">
-                                <button type="button" @click="finishModal = false"
-                                        wire:click="closeFinishModal"
-                                        class="px-6 h-11 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                                <button type="button" @click="finishModal = false" wire:click="closeFinishModal"
+                                        class="px-6 h-11 rounded-full border-2 border-gray-300 dark:border-gray-600
+                                               text-gray-700 dark:text-gray-300 font-semibold
+                                               hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                                     بستن
                                 </button>
-                                <button type="button"
-                                        wire:click="savePart"
-                                        class="px-8 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white font-semibold transition transform hover:scale-105">
+
+                                <button type="button" wire:click="savePart"
+                                        class="px-8 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white font-semibold transition
+                                               transform hover:scale-105">
                                     ثبت پارت
                                 </button>
                             </div>
@@ -725,43 +630,41 @@
                     </div>
                 </div>
 
-                {{-- مودال پایان جبرانی (جداگانه) --}}
+
+                {{-- مودال پایان جبرانی --}}
                 <div x-cloak x-show="makeupFinishModal"
                      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                      x-transition>
-                    <div
-                        class="w-full max-w-md mx-4 bg-gradient-to-br from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 border-2 border-violet-500 rounded-3xl shadow-2xl"
-                        @click.away="makeupFinishModal = false">
+                    <div class="w-full max-w-md mx-4 bg-secondary border-2 border-violet-500 rounded-3xl shadow-2xl"
+                         @click.away="makeupFinishModal = false">
 
                         <div class="px-6 py-8 text-center space-y-4">
                             <div class="flex justify-center">
-                                <div
-                                    class="w-16 h-16 rounded-full bg-violet-500 flex items-center justify-center animate-bounce">
+                                <div class="w-16 h-16 rounded-full bg-violet-500 flex items-center justify-center animate-bounce">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                          stroke-width="3" stroke="white" class="w-10 h-10">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="M4.5 12.75l6 6 9-13.5"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
                                     </svg>
                                 </div>
                             </div>
 
                             <div class="space-y-2">
                                 <h3 class="text-2xl font-black text-violet-600 dark:text-violet-400">عالی!</h3>
-                                <p class="text-lg font-bold text-violet-700 dark:text-violet-300">تایمر مطالعه اضافه بر سازمان به پایان
-                                    رسید</p>
+                                <p class="text-lg font-bold text-violet-700 dark:text-violet-300">تایمر مطالعه اضافه بر سازمان به پایان رسید</p>
                                 <p class="text-sm text-violet-600 dark:text-violet-400">آیا می‌خواهید این جلسه را ثبت کنید؟</p>
-
                             </div>
 
                             <div class="flex items-center justify-center gap-3 pt-4">
-                                <button type="button" @click="makeupFinishModal = false"
-                                        wire:click="closeMakeupFinishModal"
-                                        class="px-6 h-11 rounded-full border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-semibold hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                                <button type="button" @click="makeupFinishModal = false" wire:click="closeMakeupFinishModal"
+                                        class="px-6 h-11 rounded-full border-2 border-gray-300 dark:border-gray-600
+                                               text-gray-700 dark:text-gray-300 font-semibold
+                                               hover:bg-gray-100 dark:hover:bg-gray-800 transition">
                                     بستن
                                 </button>
-                                <button type="button"
-                                        wire:click="saveMakeupSession"
-                                        class="px-8 h-11 rounded-full bg-violet-500 hover:bg-violet-600 text-white font-semibold transition transform hover:scale-105">
+
+                                <button type="button" wire:click="saveMakeupSession"
+                                        class="px-8 h-11 rounded-full bg-violet-500 hover:bg-violet-600 text-white font-semibold transition
+                                               transform hover:scale-105">
                                     ثبت جلسه
                                 </button>
                             </div>
@@ -769,23 +672,24 @@
                     </div>
                 </div>
 
+
                 {{-- مودال بازخورد --}}
                 <div x-cloak x-show="feedbackModal"
                      class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                      x-transition>
-                    <div
-                        class="w-full max-w-md mx-4 bg-background dark:bg-zinc-900 border border-border rounded-2xl shadow-2xl">
+                    <div class="w-full max-w-md mx-4 bg-secondary border border-border rounded-2xl shadow-2xl">
 
                         <div class="flex items-center justify-between px-6 py-4 border-b border-border">
                             <h3 class="text-base font-bold text-foreground">بازخورد جلسه مطالعه</h3>
                         </div>
 
                         <div class="px-6 py-5 space-y-5">
-                            {{-- نمایش اطلاعات کامل مسیر مبحث --}}
+
                             @if($pendingFeedbackPartName)
                                 <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
                                     <div class="flex items-center gap-2 mb-2">
-                                        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full {{ $pendingFeedbackType === 'part' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400' }}">
+                                        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full
+                                            {{ $pendingFeedbackType === 'part' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' : 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400' }}">
                                             {{ $pendingFeedbackType === 'part' ? 'پارت برنامه' : 'اضافه بر سازمان' }}
                                         </span>
                                     </div>
@@ -797,11 +701,13 @@
 
                             <div class="text-center">
                                 <p class="text-sm text-muted mb-4">لطفاً کیفیت جلسه مطالعه خود را امتیاز دهید</p>
+
                                 <div class="flex items-center justify-center gap-1.5 mb-2" dir="ltr">
                                     @for($i = 1; $i <= 10; $i++)
                                         <button type="button"
                                                 wire:click="setFeedbackRating({{ $i }})"
-                                                class="star-btn {{ $feedbackRating >= $i ? 'active' : 'inactive' }} focus:outline-none">
+                                                class="focus:outline-none transition-transform duration-150 hover:scale-125
+                                                       {{ $feedbackRating >= $i ? 'text-amber-500' : 'text-gray-300 dark:text-gray-600' }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
                                                  fill="currentColor" class="w-7 h-7">
                                                 <path fill-rule="evenodd"
@@ -814,11 +720,11 @@
 
                                 @if($feedbackRating > 0)
                                     <div class="text-xs font-bold mt-2
-                        {{ $feedbackRating >= 9 ? 'text-emerald-600 dark:text-emerald-400' : '' }}
-                        {{ $feedbackRating >= 7 && $feedbackRating < 9 ? 'text-blue-600 dark:text-blue-400' : '' }}
-                        {{ $feedbackRating >= 5 && $feedbackRating < 7 ? 'text-yellow-600 dark:text-yellow-400' : '' }}
-                        {{ $feedbackRating >= 3 && $feedbackRating < 5 ? 'text-orange-600 dark:text-orange-400' : '' }}
-                        {{ $feedbackRating < 3 ? 'text-red-600 dark:text-red-400' : '' }}">
+                                        {{ $feedbackRating >= 9 ? 'text-emerald-600 dark:text-emerald-400' : '' }}
+                                        {{ $feedbackRating >= 7 && $feedbackRating < 9 ? 'text-blue-600 dark:text-blue-400' : '' }}
+                                        {{ $feedbackRating >= 5 && $feedbackRating < 7 ? 'text-yellow-600 dark:text-yellow-400' : '' }}
+                                        {{ $feedbackRating >= 3 && $feedbackRating < 5 ? 'text-orange-600 dark:text-orange-400' : '' }}
+                                        {{ $feedbackRating < 3 ? 'text-red-600 dark:text-red-400' : '' }}">
                                         @if($feedbackRating >= 9)
                                             عالی
                                         @elseif($feedbackRating >= 7)
@@ -836,42 +742,39 @@
                             </div>
 
                             <div>
-                                <label class="block text-xs font-semibold text-foreground mb-1.5">توضیحات
-                                    (اختیاری)</label>
+                                <label class="block text-xs font-semibold text-foreground mb-1.5">توضیحات (اختیاری)</label>
                                 <textarea wire:model="feedbackComment"
                                           rows="3"
-                                          class="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                                          class="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-sm text-foreground
+                                                 focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
                                           placeholder="نظر یا پیشنهادی دارید؟"></textarea>
                             </div>
                         </div>
 
-                        <div
-                            class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl">
+                        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl">
                             <button type="button" wire:click="submitFeedback" wire:loading.attr="disabled"
-                                    class="px-6 h-11 rounded-full bg-primary text-white font-semibold hover:bg-primary/90 transition disabled:opacity-60 inline-flex items-center gap-2"
+                                    class="px-6 h-11 rounded-full bg-primary text-white font-semibold hover:bg-primary/90 transition
+                                           disabled:opacity-60 inline-flex items-center gap-2"
                                 {{ $feedbackRating < 1 ? 'disabled' : '' }}>
                                 <span wire:loading.remove wire:target="submitFeedback">ثبت بازخورد</span>
-                                <span wire:loading wire:target="submitFeedback" class="spinner"></span>
+                                <span wire:loading wire:target="submitFeedback"
+                                      class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                             </button>
                         </div>
                     </div>
                 </div>
 
+
                 {{-- مودال مطالعه جبرانی --}}
                 <div x-cloak x-show="makeupModal"
                      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                      x-transition>
-                    <div
-                        class="w-full max-w-lg mx-4 bg-background dark:bg-zinc-900 border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
-                        @click.away="makeupModal = false">
+                    <div class="w-full max-w-lg mx-4 bg-secondary border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
+                         @click.away="makeupModal = false">
 
-                        <div
-                            class="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-background dark:bg-zinc-900 z-10 rounded-t-2xl">
-                            <h3 class="text-base font-bold text-foreground">
-                                ثبت ساعت مطالعه خارج از چارچوب برنامه
-                            </h3>
-                            <button type="button" wire:click="closeMakeupModal"
-                                    class="text-muted hover:text-foreground transition-all">
+                        <div class="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-secondary z-10 rounded-t-2xl">
+                            <h3 class="text-base font-bold text-foreground">ثبت ساعت مطالعه خارج از چارچوب برنامه</h3>
+                            <button type="button" wire:click="closeMakeupModal" class="text-muted hover:text-foreground transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
@@ -880,13 +783,15 @@
                         </div>
 
                         <div class="px-6 py-5 space-y-5">
+
                             {{-- جستجوی سریع --}}
                             <div>
-                                <label class="block text-xs font-semibold text-foreground mb-1.5">جستجوی سریع
-                                    مبحث</label>
+                                <label class="block text-xs font-semibold text-foreground mb-1.5">جستجوی سریع مبحث</label>
+
                                 <div class="relative">
                                     <input type="text" wire:model.live.debounce.300ms="makeupSearch"
-                                           class="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 pe-10"
+                                           class="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-sm text-foreground
+                                                  focus:outline-none focus:ring-2 focus:ring-primary/30 pe-10"
                                            placeholder="نام مبحث را جستجو کنید...">
                                     <div class="absolute left-3 top-1/2 -translate-y-1/2">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -895,25 +800,27 @@
                                                   d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
                                         </svg>
                                     </div>
+
                                     <span wire:loading wire:target="makeupSearch"
                                           class="absolute right-3 top-1/2 -translate-y-1/2">
-                        <span class="spinner border-primary/30 border-t-primary"></span>
-                    </span>
+                                        <span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></span>
+                                    </span>
                                 </div>
 
                                 {{-- نتایج جستجو --}}
                                 <div wire:loading wire:target="makeupSearch" class="mt-2 text-center py-4">
-                                    <span class="spinner border-primary/30 border-t-primary inline-block"></span>
+                                    <span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></span>
                                     <span class="text-xs text-muted mr-2">در حال جستجو...</span>
                                 </div>
 
                                 <div wire:loading.remove wire:target="makeupSearch">
                                     @if(mb_strlen($makeupSearch) >= 2 && $this->searchResults->isNotEmpty())
-                                        <div class="mt-2 rounded-xl border border-border bg-background shadow-lg max-h-60 overflow-y-auto">
+                                        <div class="mt-2 rounded-xl border border-border bg-secondary shadow-lg max-h-60 overflow-y-auto">
                                             @foreach($this->searchResults as $result)
                                                 <button type="button"
                                                         wire:click="selectSearchTopic({{ $result->id }})"
-                                                        class="w-full text-right px-4 py-3 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50 transition border-b border-border last:border-b-0">
+                                                        class="w-full text-right px-4 py-3 text-sm hover:bg-secondary/60 transition
+                                                               border-b border-border last:border-b-0">
                                                     <div class="font-semibold text-foreground">{{ $result->name }}</div>
                                                     <div class="text-[11px] text-muted leading-5">
                                                         {{ $result->chapter?->subject?->grade?->name ?? '' }}
@@ -936,14 +843,16 @@
                                 <p class="text-[11px] text-muted mb-3">یا از فیلترهای زیر استفاده کنید:</p>
 
                                 <div class="space-y-3 mb-3">
-                                    {{-- نمایش رشته (فقط نمایش، بدون select) --}}
+
                                     @if($this->fields->isNotEmpty())
                                         <div>
                                             <label class="block text-[11px] font-semibold text-foreground mb-1">رشته</label>
-                                            <div class="w-full rounded-xl border border-border bg-slate-50 dark:bg-slate-800/50 px-4 py-2.5 text-sm text-foreground">
+                                            <div class="w-full rounded-xl border border-border bg-secondary px-4 py-2.5 text-sm text-foreground">
                                                 <div class="flex items-center gap-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-primary">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5" />
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                         stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-primary">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                              d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"/>
                                                     </svg>
                                                     <span class="font-semibold">{{ $this->fields->first()->name ?? 'نامشخص' }}</span>
                                                 </div>
@@ -951,11 +860,10 @@
                                         </div>
                                     @endif
 
-                                    {{-- انتخاب پایه (فقط پایه‌های مجاز رشته خودش) --}}
                                     <div>
                                         <label class="block text-[11px] font-semibold text-foreground mb-1">پایه تحصیلی</label>
                                         <select wire:model.live="makeupGradeId"
-                                                class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                                                class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
                                             <option value="">انتخاب پایه...</option>
                                             @foreach($this->grades as $grade)
                                                 <option value="{{ $grade->id }}">{{ $grade->name }}</option>
@@ -971,16 +879,11 @@
                                     <div class="mb-3" wire:loading.class="opacity-50" wire:target="makeupGradeId">
                                         <label class="block text-[11px] font-semibold text-foreground mb-1">درس</label>
                                         <select wire:model.live="makeupSubjectId"
-                                                class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                                                class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
                                             <option value="">انتخاب درس...</option>
                                             @foreach($this->subjects as $subject)
                                                 <option value="{{ $subject->id }}">
-                                                    {{ $subject->name }}
-                                                    @if($subject->type === 'general')
-                                                        (عمومی)
-                                                    @else
-                                                        (تخصصی)
-                                                    @endif
+                                                    {{ $subject->name }} {{ $subject->type === 'general' ? '(عمومی)' : '(تخصصی)' }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -991,7 +894,7 @@
                                     <div class="mb-3" wire:loading.class="opacity-50" wire:target="makeupSubjectId">
                                         <label class="block text-[11px] font-semibold text-foreground mb-1">فصل</label>
                                         <select wire:model.live="makeupChapterId"
-                                                class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                                                class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
                                             <option value="">انتخاب فصل...</option>
                                             @foreach($this->chapters as $chapter)
                                                 <option value="{{ $chapter->id }}">{{ $chapter->name }}</option>
@@ -1004,7 +907,7 @@
                                     <div class="mb-3" wire:loading.class="opacity-50" wire:target="makeupChapterId">
                                         <label class="block text-[11px] font-semibold text-foreground mb-1">مبحث</label>
                                         <select wire:model.live="makeupTopicId"
-                                                class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                                                class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
                                             <option value="">انتخاب مبحث...</option>
                                             @foreach($this->topics as $topic)
                                                 <option value="{{ $topic->id }}">{{ $topic->name }}</option>
@@ -1012,14 +915,18 @@
                                         </select>
                                     </div>
                                 @endif
-                            </div>                            {{-- انتخاب نوع پارت --}}
+                            </div>
+
+                            {{-- انتخاب نوع پارت --}}
                             <div class="border-t border-border pt-4">
                                 <label class="block text-xs font-semibold text-foreground mb-2">نوع مطالعه</label>
                                 <div class="grid grid-cols-3 gap-2">
                                     <button type="button"
                                             wire:click="$set('makeupPartType', 'test')"
-                                            class="part-type-btn px-4 py-3 rounded-xl border-2 transition text-sm font-semibold
-                                {{ $makeupPartType === 'test' ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'border-border bg-background text-muted hover:border-blue-300' }}">
+                                            class="px-4 py-3 rounded-xl border-2 text-sm font-semibold transition transform hover:-translate-y-0.5
+                                            {{ $makeupPartType === 'test'
+                                                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+                                                : 'border-border bg-secondary text-muted hover:border-blue-300' }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                              stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-1">
                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -1030,8 +937,10 @@
 
                                     <button type="button"
                                             wire:click="$set('makeupPartType', 'descriptive')"
-                                            class="part-type-btn px-4 py-3 rounded-xl border-2 transition text-sm font-semibold
-                                {{ $makeupPartType === 'descriptive' ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' : 'border-border bg-background text-muted hover:border-purple-300' }}">
+                                            class="px-4 py-3 rounded-xl border-2 text-sm font-semibold transition transform hover:-translate-y-0.5
+                                            {{ $makeupPartType === 'descriptive'
+                                                ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
+                                                : 'border-border bg-secondary text-muted hover:border-purple-300' }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                              stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-1">
                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -1042,8 +951,10 @@
 
                                     <button type="button"
                                             wire:click="$set('makeupPartType', 'video')"
-                                            class="part-type-btn px-4 py-3 rounded-xl border-2 transition text-sm font-semibold
-                                {{ $makeupPartType === 'video' ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400' : 'border-border bg-background text-muted hover:border-orange-300' }}">
+                                            class="px-4 py-3 rounded-xl border-2 text-sm font-semibold transition transform hover:-translate-y-0.5
+                                            {{ $makeupPartType === 'video'
+                                                ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400'
+                                                : 'border-border bg-secondary text-muted hover:border-orange-300' }}">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                              stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-1">
                                             <path stroke-linecap="round" stroke-linejoin="round"
@@ -1060,36 +971,37 @@
                                     <div>
                                         <label class="block text-[10px] text-muted mb-1">ساعت</label>
                                         <input type="number" min="0" max="12" wire:model="makeupDurationHours"
-                                               class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                                               class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
                                     </div>
                                     <div>
                                         <label class="block text-[10px] text-muted mb-1">دقیقه</label>
                                         <input type="number" min="0" max="59" wire:model="makeupDurationMinutes"
-                                               class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                                               class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-xs font-semibold text-foreground mb-1.5">یادداشت
-                                    (اختیاری)</label>
+                                <label class="block text-xs font-semibold text-foreground mb-1.5">یادداشت (اختیاری)</label>
                                 <textarea wire:model="makeupNote" rows="2"
-                                          class="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                                          class="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
                                           placeholder="توضیحات..."></textarea>
                             </div>
                         </div>
 
-                        <div
-                            class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl sticky bottom-0">
+                        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl sticky bottom-0">
                             <button type="button" wire:click="closeMakeupModal"
-                                    class="px-5 h-10 rounded-full border border-border text-foreground font-semibold text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                                    class="px-5 h-10 rounded-full border border-border text-foreground font-semibold text-sm hover:bg-secondary/60 transition">
                                 انصراف
                             </button>
+
                             <button type="button" wire:click="startMakeupTimer" wire:loading.attr="disabled"
-                                    class="px-6 h-10 rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold text-sm transition disabled:opacity-60 inline-flex items-center gap-2"
+                                    class="px-6 h-10 rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold text-sm transition
+                                           disabled:opacity-60 inline-flex items-center gap-2"
                                 {{ !$makeupTopicId ? 'disabled' : '' }}>
                                 <span wire:loading.remove wire:target="startMakeupTimer">شروع تایمر</span>
-                                <span wire:loading wire:target="startMakeupTimer" class="spinner"></span>
+                                <span wire:loading wire:target="startMakeupTimer"
+                                      class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                             </button>
                         </div>
                     </div>
@@ -1101,51 +1013,48 @@
 
 
     @script
-        <script>
-            window.addEventListener('request-permissions', async () => {
-                try {
-                    if ('Notification' in window && Notification.permission !== 'granted') {
-                        await Notification.requestPermission();
-                    }
-
-                    const testAudio = new Audio('/client/sounds/Alarmclock.ogg');
-                    testAudio.volume = 0.01;
-                    await testAudio.play();
-                    testAudio.pause();
-
-                @this.call('onPermissionsGranted')
-                    ;
-                } catch (error) {
-                    console.warn('Permission request error:', error);
+    <script>
+        window.addEventListener('request-permissions', async () => {
+            try {
+                if ('Notification' in window && Notification.permission !== 'granted') {
+                    await Notification.requestPermission();
                 }
-            });
 
-            window.addEventListener('play-alarm', () => {
-                try {
-                    const audio = new Audio('/client/sounds/Alarmclock.ogg');
-                    audio.volume = 1;
-                    audio.play().catch(e => console.warn("Sound play blocked:", e));
+                const testAudio = new Audio('/client/sounds/Alarmclock.ogg');
+                testAudio.volume = 0.01;
+                await testAudio.play();
+                testAudio.pause();
 
-                    if ('Notification' in window && Notification.permission === 'granted') {
-                        new Notification('⏰ زمان مطالعه به پایان رسید!', {
-                            body: 'پارت مطالعاتی شما با موفقیت تکمیل شد.',
-                            icon: '/favicon.ico',
-                            badge: '/favicon.ico'
-                        });
-                    }
-                } catch (error) {
-                    console.warn('Alarm error:', error);
-                }
-            });
+            @this.call('onPermissionsGranted');
+            } catch (error) {
+                console.warn('Permission request error:', error);
+            }
+        });
 
-            window.addEventListener('livewire:initialized', () => {
+        window.addEventListener('play-alarm', () => {
+            try {
+                const audio = new Audio('/client/sounds/Alarmclock.ogg');
+                audio.volume = 1;
+                audio.play().catch(e => console.warn("Sound play blocked:", e));
+
                 if ('Notification' in window && Notification.permission === 'granted') {
-                @this.call('onPermissionsGranted')
-                    ;
+                    new Notification('⏰ زمان مطالعه به پایان رسید!', {
+                        body: 'پارت مطالعاتی شما با موفقیت تکمیل شد.',
+                        icon: '/favicon.ico',
+                        badge: '/favicon.ico'
+                    });
                 }
-            });
-        </script>
+            } catch (error) {
+                console.warn('Alarm error:', error);
+            }
+        });
 
+        window.addEventListener('livewire:initialized', () => {
+            if ('Notification' in window && Notification.permission === 'granted') {
+            @this.call('onPermissionsGranted');
+            }
+        });
+    </script>
     @endscript
 
 </div>

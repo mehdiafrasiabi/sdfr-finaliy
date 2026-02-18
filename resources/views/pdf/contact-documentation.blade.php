@@ -15,6 +15,7 @@
     <style>
         @if(!empty($fontPath))
         @@font-face {
+
             font-family: 'PersianFont';
             src: url('file://{{ $fontPath }}') format('truetype');
         }

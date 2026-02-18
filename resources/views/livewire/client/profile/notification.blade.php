@@ -121,7 +121,7 @@
                                 'supporter' => 'border-r-purple-500',
                             ];
                             $categoryBgColors = [
-                                'announcement' => 'bg-blue-100 dark:bg-blue-900/30',
+                               'announcement' => 'bg-blue-500/15',
                                 'special' => 'bg-orange-100 dark:bg-orange-900/30',
                                 'advisor' => 'bg-green-100 dark:bg-green-900/30',
                                 'supporter' => 'bg-purple-100 dark:bg-purple-900/30',
@@ -220,20 +220,16 @@
 
                                 <!-- محتوای پیام -->
 
-                                <div class="bg-gray-50 dark:bg-gray-900/50 rounded-xl p-4 md:p-5 border border-gray-100 dark:border-gray-700">
-                                    <p class="text-xs md:text-sm text-gray-700 dark:text-gray-300 leading-relaxed text-right whitespace-pre-line">
+                                <div class="bg-muted rounded-xl p-4 md:p-5 border border-border" style="background-color: #2b2b31">
+                                    <p class="text-xs md:text-sm text-muted-foreground leading-relaxed text-right whitespace-pre-line">
+
                                         {{ $notif->body }}
                                     </p>
                                 </div>
                                 <!-- Footer: زمان خوانده شدن -->
                                 @if($recipient->is_read && $recipient->read_at)
-{{--                                    <div class="mt-3 md:mt-4 flex justify-end gap-5">--}}
-{{--                                        <span class=" font-extrabold text-muted dark:bg-blue-500 dark:text-white rounded-full" style="    padding: 5px 4px 5px 11px">--}}
-{{--                                            خوانده شده در {{ \Morilog\Jalali\Jalalian::fromDateTime($recipient->read_at)->format('H:i - Y/m/d') }}--}}
-{{--                                        </span>--}}
-{{--                                    </div>--}}
                                     <div class="mt-3 md:mt-4 flex justify-end gap-5">
-                                        <span class="text-[12px] md:text-based h-11 inline-flex items-center justify-center gap-2 bg-primary rounded-full text-white px-4 mr-auto">
+                                        <span class="text-[12px] md:text-based h-11 inline-flex items-center justify-center gap-2 bg-primary rounded-full text-primary-foreground px-4 mr-auto">
                                             خوانده شده در {{ \Morilog\Jalali\Jalalian::fromDateTime($recipient->read_at)->format('H:i - Y/m/d') }}
                                         </span>
                                     </div>

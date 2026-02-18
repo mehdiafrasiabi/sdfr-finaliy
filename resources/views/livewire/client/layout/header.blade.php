@@ -249,12 +249,21 @@
                                             <div class="flex items-center justify-around">
                                                 <!-- Coins -->
                                                 <div class="flex items-center gap-2">
-                                                    <span class="text-lg">🪙</span>
+                                                    <span class="text-lg">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-yellow-500">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0
+           1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12
+           c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182
+           s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0
+           9 9 0 0 1 18 0Z"></path>
+                                    </svg>
+                                                    </span>
                                                     <span class="text-xs font-bold text-orange-500">0 سکه</span>
                                                 </div>
                                                 <!-- Vision -->
                                                 <div class="flex items-center gap-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
 
                                                         <path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z" stroke-linecap="round" stroke-linejoin="round"></path>
 
@@ -681,7 +690,7 @@
                                         @endif
                                     </div>
                                 </div>
-                                <h3 class="text-white font-bold text-lg mb-1">{{ auth()->user()->name ?? '-' }}</h3>
+                                <h3 class="text-white font-bold text-lg mb-1">{{ auth()->user()->name ??''}}</h3>
                                 <span class="text-white/70 text-sm">{{ auth()->user()->mobile ?? '-' }}</span>
                             </div>
 
@@ -700,7 +709,16 @@
                                     <div class="flex items-center gap-2.5">
                                         <div
                                             class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                                            <span class="text-xl">🪙</span>
+                                            <span class="text-xl">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-yellow-500">
+
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0
+           1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12
+           c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182
+           s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0
+           9 9 0 0 1 18 0Z"></path>
+                                    </svg>
+                                            </span>
                                         </div>
                                         <div>
                                             <p class="text-sm font-bold text-orange-500">0 سکه</p>
@@ -714,10 +732,13 @@
                                     <div class="flex items-center gap-2.5">
                                         <div
                                             class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-blue-600">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
 
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z">
-                                                </path>
+                                                <path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z" stroke-linecap="round" stroke-linejoin="round"></path>
+
+                                                <path d="M12 12C12 10.3431 13.3431 9 15 9H20C20.5523 9 21 9.44772 21 10V14C21 14.5523 20.5523 15 20 15H15C13.3431 15 12 13.6569 12 12Z" stroke-linecap="round" stroke-linejoin="round"></path>
+
+                                                <path d="M15 12L15.1 12" stroke-linecap="round" stroke-linejoin="round"></path>
                                             </svg>
                                         </div>
                                         <div>
