@@ -1008,6 +1008,13 @@
                                                             {{ $part->part_type_label }}
                                                         </span>
                                                     </div>
+                                                    @if($part->source_type && $part->source_type !== 'normal')
+                                                        <div class="mb-1">
+                                                            <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
+                                                                {{ $part->source_type_label }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
                                                     <p class="small mb-2 text-muted-2">{{ Str::limit($part->description, 55) }}</p>
                                                     <div class="d-flex flex-wrap gap-2 small text-muted-2">
                                                         <span class="d-flex align-items-center gap-1">
@@ -1057,7 +1064,13 @@
                                                         {{ $part->part_type_label }} {{ $part->grade_label }}
                                                     </span>
                                                 </div>
-
+                                                @if($part->source_type && $part->source_type !== 'normal')
+                                                    <div class="mb-1">
+                                                        <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
+                                                            {{ $part->source_type_label }}
+                                                        </span>
+                                                    </div>
+                                                @endif
                                                 <p class="small mb-2 text-muted-2">
                                                     {{ Str::limit($part->description, 55) }}
                                                 </p>
@@ -2400,10 +2413,6 @@
                                                             wire:click.stop="showClassificationInlineAdd({{ $item['topic_id'] }})">
                                                         <i class="material-symbols-outlined" style="font-size:14px;">add_circle</i>
                                                         اضافه کردن به برنامه
-                                                    </button>
-                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                                                            wire:click.stop="selectClassificationTopic({{ $item['topic_id'] }})">
-                                                        <i class="material-symbols-outlined" style="font-size:14px;">edit</i>
                                                     </button>
                                                 </div>
                                             </td>

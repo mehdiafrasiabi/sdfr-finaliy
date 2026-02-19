@@ -26,7 +26,7 @@ use App\Models\WeeklyProgramExamDay;
 use Morilog\Jalali\Jalalian;
 use App\Models\ClassificationProject;
 use App\Models\StudentClassification;
-
+use App\Models\ProgramPartSource;
 class WeeklyProgramUpload extends Component
 {
     use WithPagination;
@@ -63,10 +63,11 @@ class WeeklyProgramUpload extends Component
         'duration_minutes' => 60,
         'test_count' => null,
         'part_type' => 'descriptive',
+        'program_part_source_id' => null,
         'lesson_type' => 'specialized',
         'grade' => '',
     ];
-
+    public $partSources = [];
     public $grades = [];
     public $fields = [];
     public $subjects = [];
@@ -761,6 +762,7 @@ class WeeklyProgramUpload extends Component
                 'duration_minutes' => $this->partForm['duration_minutes'],
                 'test_count' => $this->partForm['test_count'],
                 'part_type' => $this->partForm['part_type'],
+                'source_type' => ProgramPart::SOURCE_NORMAL,
                 'lesson_type' => $lessonType,
                 'grade' => $gradeValue,
                 'education_level_id' => $this->partForm['education_level_id'] ?: null,
@@ -973,58 +975,7 @@ class WeeklyProgramUpload extends Component
         'duration_minutes' => 0,
     ];
     public bool $showClassificationAddForm = false;
-    public function selectClassificationTopic(int $topicId): void
-    {
-        $this->showClassificationModal = false;
 
-        $topic = CcTopic::with(['chapter.subject.grade.educationLevel'])->find($topicId);
-        if (!$topic) return;
-
-        $chapter = $topic->chapter;
-        $subject = $chapter?->subject;
-        $grade   = $subject?->grade;
-        $educationLevel = $grade?->educationLevel;
-
-        // Reset form
-        $this->partForm = array_merge($this->partForm, [
-            'education_level_id' => '',
-            'cc_grade_id'        => '',
-            'cc_field_id'        => '',
-            'cc_subject_id'      => '',
-            'cc_chapter_id'      => '',
-            'cc_topic_id'        => '',
-            'lesson_name'        => '',
-            'description'        => '',
-        ]);
-
-        if ($educationLevel) {
-            $this->partForm['education_level_id'] = $educationLevel->id;
-            $this->grades = CcGrade::where('education_level_id', $educationLevel->id)->ordered()->get()->toArray();
-        }
-        if ($grade) {
-            $this->partForm['cc_grade_id'] = $grade->id;
-            $this->partForm['grade'] = $grade->level ?? '';
-            $this->subjects = CcSubject::where('cc_grade_id', $grade->id)->ordered()->get()->toArray();
-            $this->fields = CcField::where('cc_grade_id', $grade->id)->get()->toArray();
-        }
-        if ($subject) {
-            $this->partForm['cc_subject_id'] = $subject->id;
-            $this->partForm['lesson_name'] = $subject->name;
-            $this->chapters = CcChapter::where('cc_subject_id', $subject->id)->ordered()->get()->toArray();
-        }
-        if ($chapter) {
-            $this->partForm['cc_chapter_id'] = $chapter->id;
-            $this->topics = CcTopic::where('cc_chapter_id', $chapter->id)->ordered()->get()->toArray();
-        }
-        $this->partForm['cc_topic_id'] = $topic->id;
-
-        $path = collect([$subject?->name, $chapter?->name, $topic->name])->filter()->join(' > ');
-        $this->partForm['description'] = $path;
-
-        $this->editingPartId = null;
-        $this->showPartModal = true;
-        $this->dispatch('modal-opened');
-    }
     /**
      * Show inline add form for classification topic
      */
@@ -1106,6 +1057,7 @@ class WeeklyProgramUpload extends Component
             'duration_minutes' => $totalMinutes,
             'test_count' => null,
             'part_type' => 'descriptive',
+            'source_type' => ProgramPart::SOURCE_CLASSIFICATION,
             'lesson_type' => $subject?->type ?? 'specialized',
             'grade' => $grade?->grade_number,
             'education_level_id' => $educationLevel?->id,
@@ -1459,6 +1411,9 @@ class WeeklyProgramUpload extends Component
                 'duration_minutes' => $this->dailyReadingDuration,
                 'test_count' => null,
                 'part_type' => 'descriptive',
+                'source_type' => $this->dailyReadingType === 'daily'
+                    ? ProgramPart::SOURCE_DAILY_READING
+                    : ProgramPart::SOURCE_PRE_READING,
                 'lesson_type' => $subject->type ?? 'specialized',
                 'cc_subject_id' => $subject->id,
             ]);
@@ -1745,6 +1700,7 @@ class WeeklyProgramUpload extends Component
                 'duration_minutes' => $this->examPartForm['duration_minutes'],
                 'test_count' => null,
                 'part_type' => 'comprehensive_exam',
+                'source_type' => ProgramPart::SOURCE_COMPREHENSIVE_EXAM,
                 'lesson_type' => 'specialized',
             ]);
 
@@ -1759,6 +1715,7 @@ class WeeklyProgramUpload extends Component
                 'duration_minutes' => $this->examPartForm['duration_minutes'],
                 'test_count' => null,
                 'part_type' => 'exam_analysis',
+                'source_type' => ProgramPart::SOURCE_COMPREHENSIVE_EXAM,
                 'lesson_type' => 'specialized',
             ]);
         }
@@ -2131,7 +2088,13 @@ class WeeklyProgramUpload extends Component
             if ($item['type'] === 'exam') {
                 $partType = 'test';
             }
-
+            // Determine source_type based on distribution type
+            $sourceType = match ($item['type']) {
+                'homework' => ProgramPart::SOURCE_HOMEWORK,
+                'exam' => ProgramPart::SOURCE_EXAM,
+                'qa' => ProgramPart::SOURCE_CLASS_QA,
+                default => ProgramPart::SOURCE_NORMAL,
+            };
             $lessonName = $item['subject'];
             $lessonType = 'specialized';
 
@@ -2154,6 +2117,7 @@ class WeeklyProgramUpload extends Component
                 'duration_minutes' => $item['duration_minutes'],
                 'test_count' => null,
                 'part_type' => $partType,
+                'source_type' => $sourceType,
                 'lesson_type' => $lessonType,
                 'cc_subject_id' => $item['cc_subject_id'] ?? null,
                 'cc_chapter_id' => $item['cc_chapter_id'] ?? null,
@@ -2190,7 +2154,11 @@ class WeeklyProgramUpload extends Component
 
         $exam = $preSessions->exams[$examIndex];
         return ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-            ->where('description', 'like', '%امتحان%' . $exam->subject . '%')
+            ->where('source_type', ProgramPart::SOURCE_EXAM)
+            ->where(function ($q) use ($exam) {
+                $q->where('description', 'like', '%' . $exam->subject . '%')
+                    ->orWhere('lesson_name', $exam->subject);
+            })
             ->exists();
     }
 
@@ -2211,8 +2179,11 @@ class WeeklyProgramUpload extends Component
 
         $qa = $preSessions->qas[$qaIndex];
         return ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-            ->where('description', 'like', '%پرسش و پاسخ%' . $qa->subject . '%')
-            ->exists();
+            ->where('source_type', ProgramPart::SOURCE_CLASS_QA)
+            ->where(function ($q) use ($qa) {
+                $q->where('description', 'like', '%' . $qa->subject . '%')
+                    ->orWhere('lesson_name', $qa->subject);
+            })            ->exists();
     }
 
     /**
@@ -2232,8 +2203,11 @@ class WeeklyProgramUpload extends Component
 
         $assignment = $preSessions->assignments[$assignmentIndex];
         return ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-            ->where('description', 'like', '%تکلیف%' . $assignment->subject . '%')
-            ->exists();
+            ->where('source_type', ProgramPart::SOURCE_HOMEWORK)
+            ->where(function ($q) use ($assignment) {
+                $q->where('description', 'like', '%' . $assignment->subject . '%')
+                    ->orWhere('lesson_name', $assignment->subject);
+            })            ->exists();
     }
 
     /**
@@ -2254,8 +2228,11 @@ class WeeklyProgramUpload extends Component
         $exam = $preSessions->exams[$examIndex];
 
         ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-            ->where('description', 'like', '%امتحان%' . $exam->subject . '%')
-            ->delete();
+            ->where('source_type', ProgramPart::SOURCE_EXAM)
+            ->where(function ($q) use ($exam) {
+                $q->where('description', 'like', '%' . $exam->subject . '%')
+                    ->orWhere('lesson_name', $exam->subject);
+            })            ->delete();
 
         $this->reorderAllDays();
         $this->loadExistingParts();
@@ -2280,8 +2257,11 @@ class WeeklyProgramUpload extends Component
         $qa = $preSessions->qas[$qaIndex];
 
         ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-            ->where('description', 'like', '%پرسش و پاسخ%' . $qa->subject . '%')
-            ->delete();
+            ->where('source_type', ProgramPart::SOURCE_CLASS_QA)
+            ->where(function ($q) use ($qa) {
+                $q->where('description', 'like', '%' . $qa->subject . '%')
+                    ->orWhere('lesson_name', $qa->subject);
+            })            ->delete();
 
         $this->reorderAllDays();
         $this->loadExistingParts();
@@ -2306,8 +2286,11 @@ class WeeklyProgramUpload extends Component
         $assignment = $preSessions->assignments[$assignmentIndex];
 
         ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-            ->where('description', 'like', '%تکلیف%' . $assignment->subject . '%')
-            ->delete();
+            ->where('source_type', ProgramPart::SOURCE_HOMEWORK)
+            ->where(function ($q) use ($assignment) {
+                $q->where('description', 'like', '%' . $assignment->subject . '%')
+                    ->orWhere('lesson_name', $assignment->subject);
+            })            ->delete();
 
         $this->reorderAllDays();
         $this->loadExistingParts();
@@ -2487,6 +2470,9 @@ class WeeklyProgramUpload extends Component
                 'duration_minutes' => $item['duration_minutes'],
                 'test_count' => null,
                 'part_type' => 'descriptive',
+                'source_type' => $item['type'] === 'daily'
+                    ? ProgramPart::SOURCE_DAILY_READING
+                    : ProgramPart::SOURCE_PRE_READING,
                 'lesson_type' => $subject?->type ?? 'specialized',
                 'cc_subject_id' => $item['cc_subject_id'],
             ]);
@@ -2568,6 +2554,7 @@ class WeeklyProgramUpload extends Component
                 'duration_minutes' => $data['time_per_part'],
                 'test_count' => null,
                 'part_type' => 'descriptive',
+                     'source_type' => ProgramPart::SOURCE_EXAM,
                 'lesson_type' => $subject?->type ?? 'specialized',
                 'cc_subject_id' => $data['cc_subject_id'],
             ]);

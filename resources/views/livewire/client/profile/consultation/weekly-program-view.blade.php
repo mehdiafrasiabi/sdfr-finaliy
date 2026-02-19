@@ -174,17 +174,23 @@
                                        {{ $day['is_rest_day'] ? 'bg-emerald-50/30 dark:bg-emerald-900/10' : '' }}">
 
                             @if($day['is_rest_day'])
-                                <div class="text-center py-20">
-                                    <div class="text-3xl mb-2">🌿</div>
-                                    <div class="text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-1">روز استراحت!</div>
-                                    <p class="text-[11px] text-emerald-600/80 dark:text-emerald-400/70">از امروز خود لذت ببرید</p>
+                                <div class="flex flex-col items-center justify-center py-6">
+                                    <div class="rounded-2xl bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 p-5 w-full text-center">
+                                        <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mb-3">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-emerald-600 dark:text-emerald-400">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="text-sm font-bold text-emerald-700 dark:text-emerald-400 mb-1">روز استراحت</div>
+                                        <p class="text-[11px] text-emerald-600/80 dark:text-emerald-400/70">از امروز خود لذت ببرید</p>
+                                    </div>
                                 </div>
                             @else
                                 <div class="space-y-2">
                                     @forelse($day['parts'] as $part)
                                         <div class="rounded-xl border border-border bg-muted/30 p-2 text-[11px] leading-relaxed shadow-sm
                                                         transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_6px_16px_rgba(15,23,42,0.12)]
-                                                        {{ $part->color_class }}" style="background-color: #2b2b31;">
+                                                        min-h-[130px]" style="background-color: #2b2b31;">
                                             <div class="truncate text-[12px] font-semibold text-foreground" title="{{ $part->lesson_name }}">
                                                 {{ $part->lesson_name }}
                                             </div>
@@ -203,9 +209,11 @@
                                             </div>
 
                                             @if($part->description)
-                                                <div class="mt-1 truncate text-[11px] text-muted" title="{{ $part->description }}">
+                                                <div class="mt-1 text-[11px] text-muted h-[32px] overflow-hidden" title="{{ $part->description }}">
                                                     {{ Str::limit($part->description, 100) }}
                                                 </div>
+                                            @else
+                                                <div class="mt-1 h-[32px]"></div>
                                             @endif
 
                                             <div class="mt-1 flex flex-wrap items-center gap-1">
@@ -223,7 +231,10 @@
                                                     @elseif($part->grade == 11) یازدهم
                                                     @elseif($part->grade == 12) دوازدهم
                                                     @endif
-                                                    </span>
+                                                </span>
+                                                    @if($part->source_type && $part->source_type !== 'normal')
+                                                        <span class="rounded-full px-2 py-0.5 text-[10px] font-medium {{ $part->source_type_tw_class }}">{{ $part->source_type_label }}</span>
+                                                    @endif
                                             </div>
                                         </div>
                                     @empty
@@ -272,6 +283,7 @@
                     <th class="px-3 py-2 text-center">نوع پارت</th>
                     <th class="px-3 py-2 text-center">نوع درس</th>
                     <th class="px-3 py-2 text-center">پایه</th>
+                    <th class="px-3 py-2 text-center">منبع</th>
                 </tr>
                 </thead>
 
@@ -291,8 +303,14 @@
                             {{ $partDayName }}
                             <span class="block text-[10px] text-muted/70">{{ $partJalaliDate->format('m/d') }}</span>
                         </td>
-                        <td class="px-3 py-2 text-[11px] font-medium text-foreground">{{ $part->lesson_name }}</td>
-                        <td class="px-3 py-2 text-[11px] text-muted">{{ $part->description ?? '-' }}</td>
+                        <td class="px-3 py-2 text-[11px] font-medium text-foreground">{{ $part->lesson_name }}@if($part->ccChapter)({{ $part->ccChapter->name }})@endif</td>
+                        <td class="px-3 py-2 text-[11px] text-muted max-w-[200px]">
+                            @if($part->ccTopic)
+                                <span class="text-primary font-medium">{{ $part->ccTopic->name }}</span>
+                                @if($part->description) - @endif
+                            @endif
+                            {{ Str::limit($part->description, 100) ?? '-' }}
+                        </td>
                         <td class="px-3 py-2 text-center text-[11px] text-foreground">{{ $part->duration_minutes }} دقیقه</td>
                         <td class="px-3 py-2 text-center text-[11px] text-foreground">{{ $part->test_count ?? '-' }}</td>
                         <td class="px-3 py-2 text-center">
@@ -317,6 +335,13 @@
                             @elseif($part->grade == 12) دوازدهم
                             @endif
                         </td>
+                        <td class="px-3 py-2 text-center">
+                            @if($part->source_type && $part->source_type !== 'normal')
+                                <span class="rounded-full px-2 py-1 text-[10px] font-medium {{ $part->source_type_tw_class }}">{{ $part->source_type_label }}</span>
+                            @else
+                                <span class="text-[10px] text-muted">عادی</span>
+                            @endif
+                        </td>
                     </tr>
                 @endforeach
                 </tbody>
@@ -325,7 +350,7 @@
     </section>
 
     {{-- نمودارها --}}
-    <section class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-3">
+    <section class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
 
         {{-- نوع پارت --}}
         <div class="rounded-2xl border border-border bg-secondary p-4 shadow-sm">
@@ -421,6 +446,36 @@
                 <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-cyan-500"></span>دهم ({{ $stats['grade10Parts'] }})</span>
                 <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-lime-500"></span>یازدهم ({{ $stats['grade11Parts'] }})</span>
                 <span class="flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-rose-500"></span>دوازدهم ({{ $stats['grade12Parts'] }})</span>
+            </div>
+        </div>
+        {{-- منبع پارت --}}
+        <div class="rounded-2xl border border-border bg-secondary p-4 shadow-sm">
+            <h3 class="mb-3 text-center text-sm font-semibold text-foreground">توزیع منبع پارت</h3>
+            <div class="flex items-center justify-center">
+                <div class="relative h-32 w-32 sm:h-36 sm:w-36">
+                    <svg viewBox="0 0 36 36" class="h-full w-full">
+                        <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e5e7eb" stroke-width="3"/>
+                        @if(count($sourceTypeStats) > 0)
+                            @php $srcOffset = 25; @endphp
+                            @foreach($sourceTypeStats as $stat)
+                                @if($stat['percent'] > 0)
+                                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke="{{ $stat['color'] }}" stroke-width="3"
+                                            stroke-dasharray="{{ $stat['percent'] }} {{ 100 - $stat['percent'] }}"
+                                            stroke-dashoffset="{{ $srcOffset }}" class="origin-center -rotate-90 transform"/>
+                                    @php $srcOffset -= $stat['percent']; @endphp
+                                @endif
+                            @endforeach
+                        @endif
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-3 flex flex-wrap justify-center gap-3 text-[11px] text-muted">
+                @foreach($sourceTypeStats as $stat)
+                    <span class="flex items-center gap-1">
+                        <span class="h-2 w-2 rounded-full" style="background-color: {{ $stat['color'] }}"></span>
+                        {{ $stat['label'] }} ({{ $stat['count'] }})
+                    </span>
+                @endforeach
             </div>
         </div>
     </section>

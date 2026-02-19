@@ -177,7 +177,7 @@ class Report extends Component
             $jalaliDate = jdate($date);
             $actualDayOfWeek = $jalaliDate->getDayOfWeek();
 
-            $parts = $this->currentProgram->parts()->where('day_of_week', $i)->orderBy('part_order')->get();
+            $parts = $this->currentProgram->parts()->where('day_of_week', $i)->with(['ccSubject', 'ccChapter', 'ccTopic'])->orderBy('part_order')->get();
             $isRestDay = in_array($i, $this->restDays);
 
             // بررسی گزارش موجود

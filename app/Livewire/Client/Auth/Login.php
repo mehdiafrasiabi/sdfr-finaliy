@@ -21,7 +21,7 @@ class Login extends Component
 
     public $mobile = '';
     public $password = '';
-    public $rememberMe = false;
+    public $rememberMe = true;
     public $showPassword = false;
 
     public $otpMobile = '';
@@ -149,7 +149,7 @@ class Login extends Component
             $recallerName = Auth::getRecallerName();
             $recaller = Cookie::get($recallerName);
             if ($recaller) {
-                Cookie::queue($recallerName, $recaller, 43200);
+                Cookie::queue($recallerName, $recaller, config('auth.expiration'));
             }
         }
 

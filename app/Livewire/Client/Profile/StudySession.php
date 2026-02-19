@@ -157,6 +157,8 @@ class StudySession extends Component
 
         if ($this->weeklyProgram) {
             $this->programParts = ProgramPart::where('weekly_program_id', $this->weeklyProgram->id)
+                ->with(['ccSubject', 'ccChapter', 'ccTopic'])
+
                 ->orderBy('part_date')
                 ->orderBy('part_order')
                 ->get();

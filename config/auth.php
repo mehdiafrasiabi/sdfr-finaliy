@@ -144,10 +144,10 @@ return [
    |
    | This option controls the duration in minutes for which the "remember me"
    | cookies remain valid. When a user logs in with "remember me" checked,
-   | their session will persist for this duration. Default is 30 days (43200 minutes).
+    | their session will persist for this duration. Default is 365 days (525600 minutes).
    |
    */
 
-    'expiration' => env('AUTH_EXPIRATION', 43200), // 30 days in minutes
+    'expiration' => env('AUTH_EXPIRATION', 525600), // 365 days in minutes
 
 ];

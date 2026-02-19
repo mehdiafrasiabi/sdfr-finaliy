@@ -227,8 +227,13 @@
                                             <div class="text-sm text-slate-100 font-extrabold tracking-tight">تایمر مطالعه</div>
                                             <div class="text-[11px] text-slate-200/90 leading-5">
                                                 @if($currentPartId)
+                                                    @php $activePart = $programParts->firstWhere('id', $currentPartId); @endphp
                                                     <span class="text-white font-semibold">پارت:</span>
-                                                    <span class="text-slate-100">{{ $programParts->firstWhere('id', $currentPartId)?->lesson_name ?? '—' }}</span>
+                                                    <span class="text-slate-100">{{ $activePart?->lesson_name ?? '—' }}@if($activePart?->ccChapter)({{ $activePart->ccChapter->name }})@endif</span>
+                                                    @if($activePart?->ccTopic)
+                                                        <span class="mx-1 text-slate-400">></span>
+                                                        <span class="text-slate-200">{{ $activePart->ccTopic->name }}</span>
+                                                    @endif
                                                     <span class="mx-2 text-slate-400">&bull;</span>
                                                     <span class="{{ $isRunning ? 'text-emerald-200' : 'text-orange-200' }} font-semibold">
                                                         {{ $isRunning ? 'در حال اجرا' : 'متوقف' }}
@@ -347,16 +352,17 @@
                                             {{ $dayFilter==='today' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
                                         امروز
                                     </button>
-                                    <button wire:click="$set('dayFilter','upcoming')"
-                                            class="px-4 h-9 rounded-full text-xs font-semibold transition whitespace-nowrap
-                                            {{ $dayFilter==='upcoming' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
-                                        از امروز به بعد
-                                    </button>
                                 </div>
 
                                 <button wire:click="toggleProgram"
-                                        class="px-5 h-10 rounded-full bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition w-full sm:w-auto">
-                                    {{ $showProgram ? 'مخفی کردن برنامه' : 'نمایش برنامه' }}
+                                        wire:loading.attr="disabled"
+                                        wire:target="toggleProgram"
+                                        class="px-5 h-10 rounded-full bg-primary hover:bg-primary/90 text-white text-xs font-semibold transition w-full sm:w-auto
+                                               disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2">
+                                    <span wire:loading.remove wire:target="toggleProgram">{{ $showProgram ? 'مخفی کردن برنامه' : 'نمایش برنامه' }}</span>
+                                    <span wire:loading wire:target="toggleProgram"
+                                          class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                    <span wire:loading wire:target="toggleProgram" class="text-xs">در حال بارگذاری...</span>
                                 </button>
                             </div>
                         </div>
@@ -375,9 +381,7 @@
                                     $showDay = true;
                                     if ($dayFilter === 'today') {
                                         $showDay = $day['date'] === now()->toDateString();
-                                    } elseif ($dayFilter === 'upcoming') {
-                                        $showDay = \Carbon\Carbon::parse($day['date'])->gte(now()->startOfDay());
-                                    }
+                                                                        }
                                 @endphp
 
                                 @if($showDay)
@@ -432,11 +436,14 @@
                                                 @foreach($day['parts']->sortBy('part_order') as $part)
                                                     <tr class="hover:bg-secondary/60 transition">
                                                         <td class="px-3 py-3 text-foreground">
-                                                            <div class="font-semibold">{{ $part->lesson_name }}</div>
+                                                            <div class="font-semibold">{{ $part->lesson_name }}@if($part->ccChapter)<span class="text-muted font-normal">({{ $part->ccChapter->name }})</span>@endif</div>
 
+                                                            @if($part->ccTopic)
+                                                                <div class="text-[11px] text-primary mt-0.5">{{ $part->ccTopic->name }}</div>
+                                                            @endif
                                                             @if($part->description)
-                                                                <div class="text-[11px] text-muted mt-1">
-                                                                    {{ $part->description }}
+                                                                <div class="text-[11px] text-muted mt-0.5">
+                                                                    {{ Str::limit($part->description, 100) }}
                                                                 </div>
                                                             @endif
                                                         </td>
@@ -446,16 +453,24 @@
                                                         </td>
 
                                                         <td class="px-3 py-3 text-center">
-                                                            <span class="px-2 py-1 rounded-full text-[10px]
-                                                                {{ $part->part_type === 'test' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : '' }}
-                                                                {{ $part->part_type === 'descriptive' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : '' }}
-                                                                {{ $part->part_type === 'video' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : '' }}">
-                                                                {{ $part->part_type_label }}
-                                                            </span>
+                                                            <div class="flex flex-wrap items-center justify-center gap-1">
+                                                                <span class="px-2 py-1 rounded-full text-[10px]
+                                                                    {{ $part->part_type === 'test' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : '' }}
+                                                                    {{ $part->part_type === 'descriptive' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : '' }}
+                                                                    {{ $part->part_type === 'video' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : '' }}">
+                                                                    {{ $part->part_type_label }}
+                                                                </span>
 
-                                                            <span class="ms-1 px-2 py-1 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
-                                                                {{ $part->lesson_type_label }}
-                                                            </span>
+                                                                <span class="px-2 py-1 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+                                                                    {{ $part->lesson_type_label }}
+                                                                </span>
+
+                                                                @if($part->source_type && $part->source_type !== 'normal')
+                                                                    <span class="px-2 py-1 rounded-full text-[10px] font-medium {{ $part->source_type_tw_class }}">
+                                                                        {{ $part->source_type_label }}
+                                                                    </span>
+                                                                @endif
+                                                            </div>
                                                         </td>
 
                                                         <td class="px-3 py-3 text-left">

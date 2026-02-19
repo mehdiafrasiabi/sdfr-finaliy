@@ -488,14 +488,14 @@
                                         </div>
 
                                         <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold {{ !$partHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm sm:text-base line-clamp-1">{{ $part->lesson_name }}</h4>
+                                            <h4 class="font-semibold {{ !$partHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm sm:text-base line-clamp-1">{{ $part->lesson_name }}@if($part->ccChapter)<span class="font-normal text-muted">({{ $part->ccChapter->name }})</span>@endif</h4>
                                             <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1">
-                                                @if($part->ccSubject)
-                                                    <span class="text-[10px] sm:text-xs text-muted bg-background px-1.5 py-0.5 rounded">{{ $part->ccSubject->name }}</span>
-                                                @endif
                                                 @if($part->ccTopic)
                                                     <span class="text-[10px] sm:text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded">{{ $part->ccTopic->name }}</span>
                                                 @endif
+                                                    @if($part->source_type && $part->source_type !== 'normal')
+                                                        <span class="text-[10px] sm:text-xs rounded-full px-2 py-0.5 font-medium {{ $part->source_type_tw_class }}">{{ $part->source_type_label }}</span>
+                                                    @endif
                                             </div>
                                             <div class="flex items-center gap-2 mt-1.5 text-xs text-muted">
                                                 <span class="flex items-center gap-1">
@@ -717,13 +717,15 @@
                                                 {{ $missed['day_name'] }} - {{ $missed['jalali_date'] }}
                                             </span>
                                         </div>
-                                        <h4 class="font-medium {{ !$compPartHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm">{{ $missed['part']->lesson_name }}</h4>
-                                        @if($missed['part']->ccSubject || $missed['part']->ccTopic)
-                                            <p class="text-xs text-muted mt-1">
-                                                {{ $missed['part']->ccSubject->name ?? '' }}
-                                                @if($missed['part']->ccTopic) - {{ $missed['part']->ccTopic->name }} @endif
-                                            </p>
-                                        @endif
+                                        <h4 class="font-medium {{ !$compPartHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm">{{ $missed['part']->lesson_name }}@if($missed['part']->ccChapter)<span class="font-normal text-muted">({{ $missed['part']->ccChapter->name }})</span>@endif</h4>
+                                        <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                                            @if($missed['part']->ccTopic)
+                                                <span class="text-[10px] sm:text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded">{{ $missed['part']->ccTopic->name }}</span>
+                                            @endif
+                                            @if($missed['part']->source_type && $missed['part']->source_type !== 'normal')
+                                                <span class="text-[10px] sm:text-xs rounded-full px-2 py-0.5 font-medium {{ $missed['part']->source_type_tw_class }}">{{ $missed['part']->source_type_label }}</span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -737,8 +739,16 @@
                                     @if(in_array($missed['part']->id, $selectedCompensatoryParts))
                                         <div class="pb-3 border-b border-amber-200/50 dark:border-amber-800/50 last:border-0 last:pb-0">
                                             <div class="flex items-center justify-between text-sm mb-2">
-                                                <span class="text-foreground font-medium">{{ $missed['part']->lesson_name }}</span>
-                                                @if($missed['part']->test_count)
+<span class="text-foreground font-medium">
+                                                    {{ $missed['part']->lesson_name }}@if($missed['part']->ccChapter)<span class="font-normal text-muted">({{ $missed['part']->ccChapter->name }})</span>@endif
+    @if($missed['part']->ccTopic)
+        <span class="text-xs text-primary font-normal mx-1">></span>
+        <span class="text-xs text-primary font-normal">{{ $missed['part']->ccTopic->name }}</span>
+    @endif
+    @if($missed['part']->source_type && $missed['part']->source_type !== 'normal')
+        <span class="text-[10px] rounded-full px-2 py-0.5 font-medium ms-1 {{ $missed['part']->source_type_tw_class }}">{{ $missed['part']->source_type_label }}</span>
+    @endif
+                                                </span>                                                @if($missed['part']->test_count)
                                                     <div class="flex items-center gap-2" wire:click.stop>
                                                         <label class="text-xs text-muted">تست زده:</label>
                                                         <input type="number" wire:model="compensatoryTestsDone.{{ $missed['part']->id }}"

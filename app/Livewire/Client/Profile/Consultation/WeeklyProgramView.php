@@ -37,7 +37,7 @@ class WeeklyProgramView extends Component
 
     {
 
-        $program = WeeklyProgram::with(['parts.lesson', 'student.user.personalInformation', 'advisor'])
+        $program = WeeklyProgram::with(['parts.lesson', 'parts.ccSubject', 'parts.ccChapter', 'parts.ccTopic', 'student.user.personalInformation', 'advisor'])
             ->find($this->programId);
 
 
@@ -115,7 +115,40 @@ class WeeklyProgramView extends Component
             'lessonType' => $program->getLessonTypeStats(),
             'grade' => $program->getGradeStats(),
         ];
-
+        // آمار نوع منبع برای نمودار
+        $sourceTypeColors = [
+            'normal' => '#3B82F6',
+            'class_qa' => '#06B6D4',
+            'exam' => '#F59E0B',
+            'homework' => '#EF4444',
+            'daily_reading' => '#10B981',
+            'pre_reading' => '#14B8A6',
+            'classification' => '#64748B',
+            'comprehensive_exam' => '#6B7280',
+        ];
+        $sourceTypeLabels = [
+            'normal' => 'عادی',
+            'class_qa' => 'پرسش و پاسخ کلاسی',
+            'exam' => 'امتحانات',
+            'homework' => 'تکالیف',
+            'daily_reading' => 'روزخوانی',
+            'pre_reading' => 'پیش‌خوانی',
+            'classification' => 'طبقه‌بندی',
+            'comprehensive_exam' => 'آزمون جامع',
+        ];
+        $allParts = $program->parts;
+        $sourceTypeCounts = $allParts->groupBy('source_type')->map->count();
+        $totalSourceParts = $allParts->count();
+        $sourceTypeStats = [];
+        foreach ($sourceTypeCounts as $type => $count) {
+            $sourceTypeStats[] = [
+                'type' => $type,
+                'count' => $count,
+                'percent' => $totalSourceParts > 0 ? round(($count / $totalSourceParts) * 100, 1) : 0,
+                'color' => $sourceTypeColors[$type] ?? '#3B82F6',
+                'label' => $sourceTypeLabels[$type] ?? 'عادی',
+            ];
+        }
         // نام مشاور و پشتیبان از دانش‌آموز
         $student = $program->student;
         $advisorName = $student?->advisor?->name ?? '-';

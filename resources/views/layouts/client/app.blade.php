@@ -4,7 +4,6 @@
     <meta name="color-scheme" content="dark">
     <style>
         :root { color-scheme: dark; }
-
     </style>
     <script>
         function mobileMenuHandler() {
@@ -131,10 +130,7 @@
 </head>
 
 <body class="dark">
-
 <!-- container -->
-
-
 <div class="flex flex-col min-h-screen bg-background">
 
     {{--    <div id="loadingOverlay">--}}
