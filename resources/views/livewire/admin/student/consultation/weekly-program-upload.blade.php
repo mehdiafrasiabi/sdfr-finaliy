@@ -386,10 +386,10 @@
                                                 </td>
                                                 <td class="text-center">{{ $item['jalali_date'] }}</td>
                                                 <td class="text-center">
-                                                <span
-                                                    class="{{ $item['duration_minutes'] == 0 ? 'text-warning fw-bold' : '' }}">
-                                                    {{ $item['duration_minutes'] }}
-                                                </span>
+                                                    <input type="number"
+                                                           wire:model.lazy="weeklyReadingsPreview.{{ $idx }}.duration_minutes"
+                                                           class="form-control form-control-sm text-center mx-auto {{ $item['duration_minutes'] == 0 ? 'border-warning' : '' }}"
+                                                           min="0" max="120" style="width: 75px;">
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -1679,64 +1679,6 @@
                             </table>
                         </div>
 
-                        <hr>
-
-                        {{-- بخش روزخوانی و پیش‌خوانی --}}
-                        <div class="row g-4">
-                            {{-- روزخوانی - پارت‌های امروز --}}
-                            <div class="col-md-6">
-                                <div class="card border-primary">
-                                    <div class="card-header bg-primary text-white d-flex align-items-center gap-2">
-                                        <i class="material-symbols-outlined">today</i>
-                                        <span
-                                            class="fw-bold">ثبت روزخوانی - {{ $classScheduleData['todayName'] ?? '' }}</span>
-                                    </div>
-                                    <div class="card-body">
-                                        @if(isset($classScheduleData['todayParts']) && $classScheduleData['todayParts']->count() > 0)
-                                            <div class="d-flex flex-wrap gap-2">
-                                                @foreach($classScheduleData['todayParts'] as $todayPart)
-                                                    <button
-                                                        wire:click="openDailyReadingModal('daily', {{ $todayPart->cc_subject_id }})"
-                                                        class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
-                                                        <i class="material-symbols-outlined" style="font-size: 16px;">add_circle</i>
-                                                        ثبت روزخوانی {{ $todayPart->lesson_name }}
-                                                    </button>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <p class="text-muted-2 small mb-0">پارتی برای امروز ثبت نشده است.</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-
-                            {{-- پیش‌خوانی - پارت‌های فردا --}}
-                            <div class="col-md-6">
-                                <div class="card border-info">
-                                    <div class="card-header bg-info text-white d-flex align-items-center gap-2">
-                                        <i class="material-symbols-outlined">upcoming</i>
-                                        <span
-                                            class="fw-bold">ثبت پیش‌خوانی - {{ $classScheduleData['tomorrowName'] ?? '' }}</span>
-                                    </div>
-                                    <div class="card-body">
-                                        @if(isset($classScheduleData['tomorrowParts']) && $classScheduleData['tomorrowParts']->count() > 0)
-                                            <div class="d-flex flex-wrap gap-2">
-                                                @foreach($classScheduleData['tomorrowParts'] as $tomorrowPart)
-                                                    <button
-                                                        wire:click="openDailyReadingModal('pre', {{ $tomorrowPart->cc_subject_id }})"
-                                                        class="btn btn-outline-info btn-sm d-flex align-items-center gap-1">
-                                                        <i class="material-symbols-outlined" style="font-size: 16px;">add_circle</i>
-                                                        ثبت پیش‌خوانی {{ $tomorrowPart->lesson_name }}
-                                                    </button>
-                                                @endforeach
-                                            </div>
-                                        @else
-                                            <p class="text-muted-2 small mb-0">پارتی برای فردا ثبت نشده است.</p>
-                                        @endif
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                         {{-- دکمه ثبت خودکار روزخوانی/پیش‌خوانی کل هفته --}}
                         <hr>
                         <div class="d-flex justify-content-center">

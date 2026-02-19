@@ -489,6 +489,7 @@
 
                                         <div class="flex-1 min-w-0">
                                             <h4 class="font-semibold {{ !$partHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm sm:text-base line-clamp-1">{{ $part->lesson_name }}@if($part->ccChapter)<span class="font-normal text-muted">({{ $part->ccChapter->name }})</span>@endif</h4>
+
                                             <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1">
                                                 @if($part->ccTopic)
                                                     <span class="text-[10px] sm:text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded">{{ $part->ccTopic->name }}</span>
@@ -739,16 +740,17 @@
                                     @if(in_array($missed['part']->id, $selectedCompensatoryParts))
                                         <div class="pb-3 border-b border-amber-200/50 dark:border-amber-800/50 last:border-0 last:pb-0">
                                             <div class="flex items-center justify-between text-sm mb-2">
-<span class="text-foreground font-medium">
+                                                <span class="text-foreground font-medium">
                                                     {{ $missed['part']->lesson_name }}@if($missed['part']->ccChapter)<span class="font-normal text-muted">({{ $missed['part']->ccChapter->name }})</span>@endif
-    @if($missed['part']->ccTopic)
-        <span class="text-xs text-primary font-normal mx-1">></span>
-        <span class="text-xs text-primary font-normal">{{ $missed['part']->ccTopic->name }}</span>
-    @endif
-    @if($missed['part']->source_type && $missed['part']->source_type !== 'normal')
-        <span class="text-[10px] rounded-full px-2 py-0.5 font-medium ms-1 {{ $missed['part']->source_type_tw_class }}">{{ $missed['part']->source_type_label }}</span>
-    @endif
-                                                </span>                                                @if($missed['part']->test_count)
+                                                    @if($missed['part']->ccTopic)
+                                                        <span class="text-xs text-primary font-normal mx-1">></span>
+                                                        <span class="text-xs text-primary font-normal">{{ $missed['part']->ccTopic->name }}</span>
+                                                    @endif
+                                                    @if($missed['part']->source_type && $missed['part']->source_type !== 'normal')
+                                                        <span class="text-[10px] rounded-full px-2 py-0.5 font-medium ms-1 {{ $missed['part']->source_type_tw_class }}">{{ $missed['part']->source_type_label }}</span>
+                                                    @endif
+                                                </span>
+                                                @if($missed['part']->test_count)
                                                     <div class="flex items-center gap-2" wire:click.stop>
                                                         <label class="text-xs text-muted">تست زده:</label>
                                                         <input type="number" wire:model="compensatoryTestsDone.{{ $missed['part']->id }}"
@@ -837,5 +839,77 @@
             </div>
         </div>
     @endif
+    {{-- ===== Reply Modal ===== --}}
+    @if($replyModalOpen)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+             wire:click.self="closeReplyModal">
 
+            <div class="w-full max-w-lg bg-secondary border border-border rounded-2xl shadow-2xl"
+                 wire:keydown.escape.window="closeReplyModal">
+
+                {{-- Header --}}
+                <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+                    <h3 class="text-lg font-bold text-foreground">نظر مشاور</h3>
+                    <button type="button" wire:click="closeReplyModal" class="text-muted hover:text-foreground transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="px-6 py-5 space-y-4">
+                    {{-- Advisor Comment --}}
+                    <div class="bg-primary/10 border border-primary/20 rounded-xl p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20">
+                                <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
+                                </svg>
+                            </div>
+                            <span class="font-bold text-primary text-sm">نظر مشاور</span>
+                        </div>
+                        <p class="text-sm text-foreground leading-7 whitespace-pre-line">{{ $advisorCommentPreview }}</p>
+                    </div>
+
+                    {{-- Student Reply --}}
+                    @if($studentReplyPreview)
+                        <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20">
+                                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"/>
+                                    </svg>
+                                </div>
+                                <span class="font-bold text-green-600 text-sm">پاسخ شما</span>
+                            </div>
+                            <p class="text-sm text-foreground leading-7 whitespace-pre-line">{{ $studentReplyPreview }}</p>
+                        </div>
+                    @else
+                        <div class="space-y-2">
+                            <label class="font-semibold text-foreground text-sm">پاسخ شما (اختیاری):</label>
+                            <textarea wire:model="studentReplyInput" rows="3"
+                                      class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                      placeholder="پاسخ خود را بنویسید..."></textarea>
+                            @error('studentReplyInput')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Footer --}}
+                <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
+                    <button type="button" wire:click="closeReplyModal"
+                            class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-muted/50 transition-all text-sm font-medium">
+                        بستن
+                    </button>
+                    @if(!$studentReplyPreview)
+                        <button type="button" wire:click="saveStudentReply" wire:loading.attr="disabled"
+                                class="px-5 py-2.5 rounded-xl bg-primary text-white hover:bg-primary/90 transition-all disabled:opacity-50 text-sm font-semibold">
+                            <span wire:loading.remove wire:target="saveStudentReply">ثبت پاسخ</span>
+                            <span wire:loading wire:target="saveStudentReply">در حال ثبت...</span>
+                        </button>
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

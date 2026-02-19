@@ -234,6 +234,7 @@
                                                         <span class="mx-1 text-slate-400">></span>
                                                         <span class="text-slate-200">{{ $activePart->ccTopic->name }}</span>
                                                     @endif
+
                                                     <span class="mx-2 text-slate-400">&bull;</span>
                                                     <span class="{{ $isRunning ? 'text-emerald-200' : 'text-orange-200' }} font-semibold">
                                                         {{ $isRunning ? 'در حال اجرا' : 'متوقف' }}
@@ -342,16 +343,17 @@
 
                             <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
                                 <div class="inline-flex rounded-full border border-border bg-secondary/70 backdrop-blur p-1 overflow-x-auto">
-                                    <button wire:click="$set('dayFilter','all')"
-                                            class="px-4 h-9 rounded-full text-xs font-semibold transition whitespace-nowrap
-                                            {{ $dayFilter==='all' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
-                                        همه
-                                    </button>
                                     <button wire:click="$set('dayFilter','today')"
                                             class="px-4 h-9 rounded-full text-xs font-semibold transition whitespace-nowrap
                                             {{ $dayFilter==='today' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
                                         امروز
                                     </button>
+                                    <button wire:click="$set('dayFilter','all')"
+                                            class="px-4 h-9 rounded-full text-xs font-semibold transition whitespace-nowrap
+                                            {{ $dayFilter==='all' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
+                                        همه
+                                    </button>
+
                                 </div>
 
                                 <button wire:click="toggleProgram"
@@ -434,16 +436,16 @@
 
                                                 <tbody class="divide-y divide-border">
                                                 @foreach($day['parts']->sortBy('part_order') as $part)
-                                                    <tr class="hover:bg-secondary/60 transition">
+                                                    <tr class="hover:bg-secondary/60 transition {{ in_array($part->part_type, ['comprehensive_exam', 'exam_analysis']) ? 'bg-red-50/50 dark:bg-red-900/10' : '' }}">
                                                         <td class="px-3 py-3 text-foreground">
-                                                            <div class="font-semibold">{{ $part->lesson_name }}@if($part->ccChapter)<span class="text-muted font-normal">({{ $part->ccChapter->name }})</span>@endif</div>
+                                                            <div class="font-semibold {{ in_array($part->part_type, ['comprehensive_exam', 'exam_analysis']) ? 'text-red-700 dark:text-red-400' : '' }}">{{ $part->lesson_name }}@if($part->ccChapter)<span class="text-muted font-normal">({{ $part->ccChapter->name }})</span>@endif</div>
 
                                                             @if($part->ccTopic)
                                                                 <div class="text-[11px] text-primary mt-0.5">{{ $part->ccTopic->name }}</div>
                                                             @endif
                                                             @if($part->description)
                                                                 <div class="text-[11px] text-muted mt-0.5">
-                                                                    {{ Str::limit($part->description, 100) }}
+                                                                    {{ Str::limit($part->description, 300) }}
                                                                 </div>
                                                             @endif
                                                         </td>
@@ -457,7 +459,9 @@
                                                                 <span class="px-2 py-1 rounded-full text-[10px]
                                                                     {{ $part->part_type === 'test' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : '' }}
                                                                     {{ $part->part_type === 'descriptive' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : '' }}
-                                                                    {{ $part->part_type === 'video' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : '' }}">
+                                                                    {{ $part->part_type === 'comprehensive_exam' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' : '' }}
+                                                                    {{ $part->part_type === 'exam_analysis' ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : '' }}
+                                                                    {{ !in_array($part->part_type, ['test','descriptive','comprehensive_exam','exam_analysis']) ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400' : '' }}">
                                                                     {{ $part->part_type_label }}
                                                                 </span>
 
@@ -567,7 +571,7 @@
 
                 {{-- مودال دسترسی --}}
                 <div x-cloak x-show="permissionModal"
-                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                     class="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                      x-transition>
                     <div class="w-full max-w-md mx-4 bg-secondary border border-border rounded-2xl shadow-2xl"
                          @click.away="permissionModal = false">
@@ -606,7 +610,7 @@
 
                 {{-- مودال پایان پارت عادی --}}
                 <div x-cloak x-show="finishModal"
-                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                     class="fixed inset-0 z-[75] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                      x-transition>
                     <div class="w-full max-w-md mx-4 bg-secondary border-2 border-green-500 rounded-3xl shadow-2xl"
                          @click.away="finishModal = false">
@@ -648,7 +652,7 @@
 
                 {{-- مودال پایان جبرانی --}}
                 <div x-cloak x-show="makeupFinishModal"
-                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                     class="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
                      x-transition>
                     <div class="w-full max-w-md mx-4 bg-secondary border-2 border-violet-500 rounded-3xl shadow-2xl"
                          @click.away="makeupFinishModal = false">
@@ -782,7 +786,7 @@
 
                 {{-- مودال مطالعه جبرانی --}}
                 <div x-cloak x-show="makeupModal"
-                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+                     class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm "
                      x-transition>
                     <div class="w-full max-w-lg mx-4 bg-secondary border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
                          @click.away="makeupModal = false">

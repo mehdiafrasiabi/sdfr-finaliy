@@ -116,6 +116,7 @@ class WeeklyProgramView extends Component
             'grade' => $program->getGradeStats(),
         ];
         // آمار نوع منبع برای نمودار
+        // آمار نوع منبع برای نمودار
         $sourceTypeColors = [
             'normal' => '#3B82F6',
             'class_qa' => '#06B6D4',
@@ -159,6 +160,7 @@ class WeeklyProgramView extends Component
             'weekDays' => $weekDays,
             'stats' => $stats,
             'chartStats' => $chartStats,
+            'sourceTypeStats' => $sourceTypeStats,
             'advisorName' => $advisorName,
             'supporterName' => $supporterName,
         ])->layout('layouts.client.app');

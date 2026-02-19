@@ -76,7 +76,7 @@ class ProgramPart extends Model
             default => 'نامشخص',
         };
     }
-    // نمایش منبع پارت فارسی
+
     public function getSourceTypeLabelAttribute(): string
     {
         return match ($this->source_type) {
@@ -123,6 +123,7 @@ class ProgramPart extends Model
             default => 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300',
         };
     }
+
     // نمایش پایه فارسی
     public function getGradeLabelAttribute(): string
     {
