@@ -91,7 +91,7 @@ class StudySession extends Component
 
     public function mount()
     {
-        $this->permissionGranted = (bool) session('study_permission_granted', false);
+        $this->permissionGranted = (bool)session('study_permission_granted', false);
         $this->loadStudentGradeField();
         $this->loadLatestProgram();
         $this->restoreTimerState();
@@ -107,7 +107,7 @@ class StudySession extends Component
         $personalInfo = PersonalInformation::where('user_id', $user->id)->first();
         if (!$personalInfo) return;
 
-        $this->studentGradeNumber = $personalInfo->grade ? (int) $personalInfo->grade : null;
+        $this->studentGradeNumber = $personalInfo->grade ? (int)$personalInfo->grade : null;
         $this->studentFieldSlug = $personalInfo->field;
 
         // تبدیل slug رشته به ID
@@ -164,6 +164,7 @@ class StudySession extends Component
 
             $this->restDays = WeeklyProgramRestDay::where('weekly_program_id', $this->weeklyProgram->id)
                 ->pluck('day_index')
+                ->map(fn($d) => (int)$d)
                 ->toArray();
 
             $this->loadCompletedParts();
@@ -300,7 +301,7 @@ class StudySession extends Component
         }
 
         $this->currentPartId = $partId;
-        $this->targetSeconds = (int) $part->duration_minutes * 60;
+        $this->targetSeconds = (int)$part->duration_minutes * 60;
 
         $nowTs = now()->timestamp;
         $this->startedAt = now();
@@ -588,14 +589,14 @@ class StudySession extends Component
 
     public function setFeedbackRating($rating)
     {
-        $this->feedbackRating = (int) $rating;
+        $this->feedbackRating = (int)$rating;
     }
 
     // ============ مطالعه جبرانی ============
 
     public function canRecordMakeup(): bool
     {
-        return (bool) $this->weeklyProgram;
+        return (bool)$this->weeklyProgram;
     }
 
     private function getTodayDayIndex(): int
@@ -657,7 +658,7 @@ class StudySession extends Component
             return;
         }
 
-        $this->makeupTargetSeconds = ((int) $this->makeupDurationHours * 3600) + ((int) $this->makeupDurationMinutes * 60);
+        $this->makeupTargetSeconds = ((int)$this->makeupDurationHours * 3600) + ((int)$this->makeupDurationMinutes * 60);
 
         if ($this->makeupTargetSeconds < 60) {
             $this->dispatch('error', 'مدت زمان باید حداقل ۱ دقیقه باشد.');
@@ -1056,13 +1057,17 @@ class StudySession extends Component
         $days = [];
         $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
         $startDate = $this->weeklyProgram->start_date;
-
+        $freshParts = ProgramPart::where('weekly_program_id', $this->weeklyProgram->id)
+            ->with(['ccSubject', 'ccChapter', 'ccTopic'])
+            ->orderBy('part_date')
+            ->orderBy('part_order')
+            ->get();
         for ($i = 0; $i < 8; $i++) {
             $date = Carbon::parse($startDate)->addDays($i);
             $jalaliDate = jdate($date);
             $dayOfWeek = $jalaliDate->getDayOfWeek();
             $isRestDay = in_array($i, $this->restDays);
-            $dayParts = collect($this->programParts)->filter(fn($p) => $p->day_of_week === $i);
+            $dayParts = $freshParts->filter(fn($p) => (int)$p->day_of_week === $i);
 
             $days[] = [
                 'index' => $i,
@@ -1081,7 +1086,7 @@ class StudySession extends Component
 
     public function isRestDay(int $dayIndex): bool
     {
-        return in_array($dayIndex, $this->restDays);
+        return in_array($dayIndex, array_map('intval', $this->restDays));
     }
 
     public function render()

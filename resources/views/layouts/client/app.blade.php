@@ -133,19 +133,13 @@
 <!-- container -->
 <div class="flex flex-col min-h-screen bg-background">
 
-    {{--    <div id="loadingOverlay">--}}
-    {{--        <img src="/client/loading.png" alt="SDFR Loading Logo" class="loading-logo rounded-xl">--}}
-    {{--    </div>--}}
-
-
-
     <!-- Banners Section -->
-{{--    <div class="banners-wrapper transition-all duration-300 ease-out overflow-hidden"--}}
-{{--         x-data="{ bannersHidden: false, pwaBannerClosed: false }"--}}
-{{--         :class="{--}}
-{{--         'max-h-0 opacity-0': bannersHidden,--}}
-{{--         'max-h-40 opacity-100': !bannersHidden--}}
-{{--     }">--}}
+    <div class="banners-wrapper transition-all duration-300 ease-out overflow-hidden"
+         x-data="{ bannersHidden: false, pwaBannerClosed: false }"
+         :class="{
+         'max-h-0 opacity-0': bannersHidden,
+         'max-h-40 opacity-100': !bannersHidden
+     }">
 
 
 {{--    <!-- PWA Banner -->--}}
@@ -187,7 +181,7 @@
 {{--                </div>--}}
 {{--            </div>--}}
 {{--        </div>--}}
-{{--    </div>--}}
+    </div>
     <!-- ANDROID Modal -->
     <div id="pwaAndroidModal" class="hidden fixed inset-0 z-50">
         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>

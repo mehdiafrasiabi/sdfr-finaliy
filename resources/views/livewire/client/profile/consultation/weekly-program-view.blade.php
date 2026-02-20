@@ -213,7 +213,7 @@
                                                     @if($part->test_count)
                                                         <span class="flex items-center gap-1">
                         <i class="fas fa-tasks text-[10px]"></i>
-                        {{ $part->test_count }}
+                  {{ $part->test_count }}   تست
                     </span>
                                                     @endif
                                                 </div>
@@ -226,7 +226,25 @@
                                                 @else
                                                     <div class="mt-1 h-[32px]"></div>
                                                 @endif
-
+                                                {{-- فصل و مبحث --}}
+                                                @if($part->ccChapter || $part->ccTopic)
+                                                    <div class="mt-1 flex flex-col gap-0.5 text-[10px] text-muted border-t border-border/50 pt-1">
+                                                        @if($part->ccChapter)
+                                                            <span class="flex items-center gap-1">
+                                                                <i class="fas fa-bookmark text-[9px] text-violet-400"></i>
+                                                                <span class="font-medium text-violet-600 dark:text-violet-300">فصل:</span>
+                                                                <span class="truncate">{{ $part->ccChapter->name }}</span>
+                                                            </span>
+                                                        @endif
+                                                        @if($part->ccTopic)
+                                                            <span class="flex items-center gap-1">
+                                                                <i class="fas fa-tag text-[9px] text-sky-400"></i>
+                                                                <span class="font-medium text-sky-600 dark:text-sky-300">مبحث:</span>
+                                                                <span class="truncate">{{ $part->ccTopic->name }}</span>
+                                                            </span>
+                                                        @endif
+                                                    </div>
+                                                @endif
                                                 {{-- بج‌ها --}}
                                                 <div class="mt-1 flex flex-wrap items-center gap-1">
                                                     @if($part->part_type === 'test')
@@ -286,7 +304,25 @@
                                                             {{ Str::limit($part->description, 300) }}
                                                         </div>
                                                     @endif
-
+                                                    {{-- فصل و مبحث --}}
+                                                    @if($part->ccChapter || $part->ccTopic)
+                                                        <div class="mt-1 flex flex-col gap-0.5 text-[10px] text-muted border-t border-red-200/50 dark:border-red-700/30 pt-1">
+                                                            @if($part->ccChapter)
+                                                                <span class="flex items-center gap-1">
+                                                                    <i class="fas fa-bookmark text-[9px] text-red-400"></i>
+                                                                    <span class="font-medium text-red-600 dark:text-red-300">فصل:</span>
+                                                                    <span class="truncate text-red-700/80 dark:text-red-300/80">{{ $part->ccChapter->name }}</span>
+                                                                </span>
+                                                            @endif
+                                                            @if($part->ccTopic)
+                                                                <span class="flex items-center gap-1">
+                                                                    <i class="fas fa-tag text-[9px] text-red-400"></i>
+                                                                    <span class="font-medium text-red-600 dark:text-red-300">مبحث:</span>
+                                                                    <span class="truncate text-red-700/80 dark:text-red-300/80">{{ $part->ccTopic->name }}</span>
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                    @endif
                                                     <div class="mt-2 flex flex-wrap items-center gap-1">
                                                         <span class="rounded-full bg-red-200 dark:bg-red-800/60 px-2 py-0.5 text-[10px] font-medium text-red-700 dark:text-red-200">آزمون جامع</span>
                                                         <span class="rounded-full bg-red-100 dark:bg-red-900/40 px-2 py-0.5 text-[10px] text-red-600 dark:text-red-300">
@@ -329,13 +365,32 @@
                                                     @if($part->test_count)
                                                         <div class="mt-1 flex items-center gap-1 text-[11px] text-orange-600 dark:text-orange-400">
                                                             <i class="fas fa-tasks text-[10px]"></i>
-                                                            <span>{{ $part->test_count }} تست</span>
+                                                            <span>{{ $part->test_count }}   تست</span>
                                                         </div>
                                                     @endif
 
                                                     @if($part->description)
                                                         <div class="mt-1 text-[11px] text-orange-700/70 dark:text-orange-400/70 line-clamp-2" title="{{ $part->description }}">
                                                             {{ Str::limit($part->description, 300) }}
+                                                        </div>
+                                                    @endif
+                                                    {{-- فصل و مبحث --}}
+                                                    @if($part->ccChapter || $part->ccTopic)
+                                                        <div class="mt-1 flex flex-col gap-0.5 text-[10px] text-muted border-t border-orange-200/50 dark:border-orange-700/30 pt-1">
+                                                            @if($part->ccChapter)
+                                                                <span class="flex items-center gap-1">
+                                                                    <i class="fas fa-bookmark text-[9px] text-orange-400"></i>
+                                                                    <span class="font-medium text-orange-600 dark:text-orange-300">فصل:</span>
+                                                                    <span class="truncate text-orange-700/80 dark:text-orange-300/80">{{ $part->ccChapter->name }}</span>
+                                                                </span>
+                                                            @endif
+                                                            @if($part->ccTopic)
+                                                                <span class="flex items-center gap-1">
+                                                                    <i class="fas fa-tag text-[9px] text-orange-400"></i>
+                                                                    <span class="font-medium text-orange-600 dark:text-orange-300">مبحث:</span>
+                                                                    <span class="truncate text-orange-700/80 dark:text-orange-300/80">{{ $part->ccTopic->name }}</span>
+                                                                </span>
+                                                            @endif
                                                         </div>
                                                     @endif
 

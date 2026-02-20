@@ -786,20 +786,6 @@ class WeeklyProgramUpload extends Component
                 return;
             }
 
-            // چک ترتیب پلن‌ها - نباید جای خالی قبل از پلن فعلی وجود داشته باشد
-            $existingOrders = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-                ->where('day_of_week', $this->selectedDay)
-                ->pluck('part_order')
-                ->sort()
-                ->values()
-                ->toArray();
-            for ($i = 1; $i <= $existingCount; $i++) {
-                if (!in_array($i, $existingOrders)) {
-                    $this->dispatch('warning', "ابتدا باید پلن {$i} را پر کنید. نمی‌توانید با پلن خالی، پلن بعدی را پر کنید.");
-                    return;
-                }
-            }
-
             ProgramPart::create([
                 'weekly_program_id' => $this->weeklyProgramId,
                 'lesson_id' => null,
@@ -2070,7 +2056,6 @@ class WeeklyProgramUpload extends Component
         }
 
         $startDate = Carbon::parse($this->start_date);
-
         foreach ($this->distributionPreview as $item) {
             $dayIndex = $item['day_index'];
             $partDate = $startDate->copy()->addDays($dayIndex);

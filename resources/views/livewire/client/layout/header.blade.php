@@ -51,7 +51,7 @@
                 <!-- Desktop Header -->
                 <div class="hidden lg:flex items-center gap-8 h-20">
                     <div class="flex items-center gap-3">
-                        <a href="{{route('client.home')}}" class="inline-flex items-center gap-2 text-primary">
+                        <a href="{{route('client.home')}}" class="inline-flex items-center gap-2 text-primary" wire:ignore>
                             <img src="/client/assets/images/theme/intro/header.png" width="90px" alt="Logo">
                         </a>
                     </div>
@@ -375,7 +375,7 @@
                     </div>
 
                     <!-- لوگو - وسط -->
-                    <a href="{{route('client.home')}}" class="absolute left-1/2 -translate-x-1/2">
+                    <a href="{{route('client.home')}}" class="absolute left-1/2 -translate-x-1/2" wire:ignore>
                         <img src="/client/assets/images/theme/intro/header.png" width="90px" alt="Logo">
                     </a>
 

@@ -1,22 +1,18 @@
 // service-worker.js - در مسیر public قرار بده
 
-const CACHE_NAME = 'sdfrApp-v2';
+const CACHE_NAME = 'sdfrApp-v3';
 const urlsToCache = [
     '/',
     '/manifest.json',
     '/client/load.png',
     '/client/load.svg',
     '/client/loading.png',
-    '/client/assets/images/avatars/s.webp',
-    '/client/assets/images/avatars/d.webp',
-    '/client/assets/images/avatars/f.webp',
-    '/client/assets/images/avatars/r.webp',
     '/client/assets/images/avatars/01.jpeg',
-    '/client/assets/logoPwa/logoMobile.png',
-    '/client/assets/logoPwa/logoMobile2.png',
-    '/client/assets/logoPwa/logoMobile3.png',
-    '/client/assets/logoPwa/logoMobile4.png',
-    '/client/assets/logoPwa/logoMobile5.png',
+    '/client/assets/logoPwa/logo.png',
+    '/client/assets/logoPwa/logo16.png',
+    '/client/assets/logoPwa/logo32.png',
+    '/client/assets/logoPwa/logo48.png',
+    '/client/assets/logoPwa/logo57.png',
     '/client/assets/css/dependencies/plyr.min.css',
     '/client/assets/css/dependencies/swiper-bundle.min.css',
     '/client/assets/css/apexcharts.css',
@@ -35,14 +31,16 @@ const urlsToCache = [
 
 // نصب Service Worker
 self.addEventListener('install', (event) => {
-    console.log('✅ Service Worker installing...');
     event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then((cache) => {
-                console.log('📦 Caching files');
-                return cache.addAll(urlsToCache);
-            })
-            .then(() => self.skipWaiting()) // فوری فعال بشه
+        caches.open(CACHE_NAME).then((cache) => {
+            // به جای addAll، هر فایل رو جداگانه اضافه کن
+            const promises = urlsToCache.map(url =>
+                cache.add(url).catch(err => {
+                    console.warn('⚠️ Failed to cache:', url, err);
+                })
+            );
+            return Promise.all(promises);
+        }).then(() => self.skipWaiting())
     );
 });
 
@@ -74,7 +72,7 @@ self.addEventListener('fetch', (event) => {
             .catch(() => {
                 // اگر آفلاین بود و صفحه HTML بود، صفحه آفلاین نشون بده
                 if (event.request.destination === 'document') {
-                    return caches.match('/');
+                    return caches.match('/offline.html');
                 }
             })
     );
