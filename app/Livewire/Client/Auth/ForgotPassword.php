@@ -5,6 +5,7 @@ namespace App\Livewire\Client\Auth;
 use App\Models\User;
 use App\Models\Otp;
 use App\Notifications\SendOtpToUser;
+use App\Traits\NormalizesDigits;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -14,7 +15,7 @@ use Livewire\Component;
 
 class ForgotPassword extends Component
 {
-    use SEOTools;
+    use SEOTools,NormalizesDigits;
 
     public $step = 1;
 
@@ -102,6 +103,8 @@ class ForgotPassword extends Component
     public function sendCode()
     {
         $this->isLoading = true;
+        $this->mobile = $this->convertToEnglishDigits($this->mobile);
+        $this->code = $this->convertToEnglishDigits($this->code);
         $this->errorMessage = '';
 
         $validator = Validator::make([
@@ -188,6 +191,9 @@ class ForgotPassword extends Component
     public function verifyCode()
     {
         $this->isLoading = true;
+        $this->mobile = $this->convertToEnglishDigits($this->mobile);
+        $this->code = $this->convertToEnglishDigits($this->code);
+
         $this->errorMessage = '';
 
         $validator = Validator::make([

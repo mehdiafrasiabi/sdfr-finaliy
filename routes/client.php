@@ -4,7 +4,6 @@ use App\Http\Controllers\FileDownloadController;
 use App\Livewire\Client\AboutUs\Index as AboutUs;
 use App\Livewire\Client\Auth\ForgotPassword as ForgotPassword;
 use App\Livewire\Client\Auth\Login as authLogin;
-use App\Livewire\Client\Auth\LoginOtp;
 use App\Livewire\Client\Auth\Signup as authSignup;
 use App\Livewire\Client\Blog\Weblog\Index as WeblogIndex;
 use App\Livewire\Client\Blog\Weblog\Show;
@@ -69,7 +68,6 @@ Route::name('client.')->group(function () {
     Route::middleware('guest')->group(function () {
         Route::get('/login', authLogin::class)->name('auth.login');
         Route::get('/sign-up', authSignup::class)->name('auth.signup');
-        Route::get('/login-sms', LoginOtp::class)->name('auth.otp');
         Route::get('/forgot-password',ForgotPassword::class)->name('auth.forgotPassword');
     });
 

@@ -481,7 +481,165 @@
             </div>
         @endif
 
+        {{-- Modal آرشیو جلسه قبلی - برنامه درسی --}}
+        @if($showPrevProgramModal)
+            <div class="modal fade show d-block" tabindex="-1"
+                 style="background: rgba(2, 6, 23, 0.65); backdrop-filter: blur(4px); z-index: 1080;">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content shadow-lg border-0">
+                        <div class="modal-header text-white"
+                             style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);">
+                            <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                <i class="material-symbols-outlined">history</i>
+                                برنامه درسی جلسه قبلی
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white"
+                                    wire:click="closePrevProgramModal"></button>
+                        </div>
 
+                        <div class="modal-body">
+                            @if(count($prevSessionParts) > 0)
+                                <div class="alert alert-warning d-flex align-items-center gap-2 mb-3 small">
+                                    <i class="material-symbols-outlined">info</i>
+                                    <span>برای کپی کردن پارت به برنامه جدید، روی دکمه «انتخاب برای کپی» کلیک کنید، سپس روز مقصد را انتخاب کرده و ثبت کنید.</span>
+                                </div>
+
+                                @if($copyingPrevPartId !== null)
+                                    <div class="card mb-3 border-warning bg-warning bg-opacity-10">
+                                        <div class="card-body py-2">
+                                            <div class="d-flex align-items-center gap-3 flex-wrap">
+                                                <div class="fw-semibold text-warning d-flex align-items-center gap-1">
+                                                    <i class="material-symbols-outlined">content_copy</i>
+                                                    @php $copyingPart = collect($prevSessionParts)->firstWhere('id', $copyingPrevPartId); @endphp
+                                                    در حال کپی: {{ $copyingPart['lesson_name'] ?? '' }}
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 flex-wrap">
+                                                    <label class="form-label mb-0 small fw-semibold">روز مقصد:</label>
+                                                    <select wire:model.live="copyPrevPartTargetDay" class="form-select form-select-sm" style="width:auto;">
+                                                        <option value="">انتخاب روز</option>
+                                                        @foreach($weekDays as $day)
+                                                            @if(!$day['is_rest_day'])
+                                                                <option value="{{ $day['index'] }}">{{ $day['name'] }} ({{ $day['jalali_date'] }})</option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                    <button wire:click="copyPrevPartToProgram"
+                                                            class="btn btn-sm btn-warning text-white"
+                                                        {{ $copyPrevPartTargetDay === null ? 'disabled' : '' }}>
+                                                        <span wire:loading.remove wire:target="copyPrevPartToProgram">
+                                                            <i class="material-symbols-outlined" style="font-size:16px;">check</i>
+                                                            ثبت
+                                                        </span>
+                                                        <span wire:loading wire:target="copyPrevPartToProgram">...</span>
+                                                    </button>
+                                                    <button wire:click="selectPrevPartForCopy({{ $copyingPrevPartId }})"
+                                                            class="btn btn-sm btn-outline-secondary">
+                                                        لغو
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle mb-0">
+                                        <thead class="bg-body-tertiary">
+                                        <tr>
+                                            <th class="text-center" style="width:40px;">#</th>
+                                            <th>درس</th>
+                                            <th class="text-center">روز</th>
+                                            <th class="text-center">تایم</th>
+                                            <th class="text-center">نوع</th>
+                                            <th class="text-center">ستاره گزارش</th>
+                                            <th class="text-center">میانگین</th>
+                                            <th class="text-center">عملیات</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($prevSessionParts as $idx => $pPart)
+                                            <tr class="{{ $copyingPrevPartId === $pPart['id'] ? 'table-warning' : '' }}">
+                                                <td class="text-center text-muted-2">{{ $idx + 1 }}</td>
+                                                <td>
+                                                    <div class="fw-semibold">{{ $pPart['lesson_name'] }}</div>
+                                                    @if($pPart['description'])
+                                                        <div class="small text-muted-2">{{ Str::limit($pPart['description'], 50) }}</div>
+                                                    @endif
+                                                    @if($pPart['source_type'] && $pPart['source_type'] !== 'normal')
+                                                        <span class="badge bg-{{ $pPart['source_type_color'] }}-subtle text-{{ $pPart['source_type_color'] }} small mt-1">{{ $pPart['source_type_label'] }}</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-body-tertiary text-body border rounded-pill small">{{ $pPart['day_name'] }}</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="small fw-semibold">{{ $pPart['duration_minutes'] }} دقیقه</span>
+                                                    @if($pPart['test_count'])
+                                                        <div class="small text-muted-2">{{ $pPart['test_count'] }} تست</div>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-body-tertiary text-body border small">{{ $pPart['part_type_label'] }}</span>
+                                                    @if($pPart['grade_label'])
+                                                        <div class="small text-muted-2">{{ $pPart['grade_label'] }}</div>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    @if($pPart['report_rating'] !== null)
+                                                        <div class="d-flex align-items-center justify-content-center gap-1">
+                                                            @for($s = 1; $s <= 10; $s++)
+                                                                <i class="material-symbols-outlined"
+                                                                   style="font-size:14px;color:{{ $s <= $pPart['report_rating'] ? '#f59e0b' : 'var(--bs-secondary-color)' }};">
+                                                                    {{ $s <= $pPart['report_rating'] ? 'star' : 'star_border' }}
+                                                                </i>
+                                                            @endfor
+                                                        </div>
+                                                        <div class="small text-muted-2">{{ $pPart['report_rating'] }}/10</div>
+                                                    @else
+                                                        <span class="text-muted-2 small">ثبت نشده</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    @if($pPart['avg_label'])
+                                                        <span class="badge bg-{{ $pPart['avg_color'] }}-subtle text-{{ $pPart['avg_color'] }} fw-bold px-2 py-1">
+                                                            {{ $pPart['avg_label'] }}
+                                                        </span>
+                                                    @else
+                                                        <span class="text-muted-2 small">-</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    <button wire:click="selectPrevPartForCopy({{ $pPart['id'] }})"
+                                                            class="btn btn-sm {{ $copyingPrevPartId === $pPart['id'] ? 'btn-warning text-white' : 'btn-outline-warning' }} d-inline-flex align-items-center gap-1">
+                                                        <i class="material-symbols-outlined" style="font-size:15px;">
+                                                            {{ $copyingPrevPartId === $pPart['id'] ? 'check_circle' : 'content_copy' }}
+                                                        </i>
+                                                        {{ $copyingPrevPartId === $pPart['id'] ? 'انتخاب شد' : 'کپی' }}
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div class="text-center py-5">
+                                    <i class="material-symbols-outlined text-muted-2" style="font-size:48px;">inbox</i>
+                                    <p class="text-muted-2 mt-2">برنامه‌ای برای جلسه قبلی ثبت نشده است</p>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="modal-footer bg-body-tertiary">
+                            <button type="button" class="btn btn-outline-secondary"
+                                    wire:click="closePrevProgramModal">
+                                بستن
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         {{-- هدر صفحه --}}
         <div class="card mb-4 ui-page-hero border-0 text-white">
@@ -631,6 +789,48 @@
                             <i class="material-symbols-outlined d-block mb-2 text-danger">menu_book</i>
                             <span class="small d-block fw-semibold">برنامه کلاسی</span>
                             <span class="small text-muted-2">مشاهده برنامه</span>
+                        </a>
+                    </div>
+                </div>
+
+                {{-- ارشیو جلسه قبلی --}}
+                <hr class="my-3">
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <i class="material-symbols-outlined text-warning">history</i>
+                    <h6 class="mb-0 fw-bold">ارشیو جلسه قبلی</h6>
+                    <small class="text-muted-2">داده‌های جلسه برگزار شده قبلی</small>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6 col-md-4">
+                        <a href="#" wire:click.prevent="openPrevProgramModal"
+                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100"
+                           style="border-color: rgba(234, 179, 8, .25);">
+                            <i class="material-symbols-outlined d-block mb-2 text-warning">calendar_today</i>
+                            <span class="small d-block fw-semibold">برنامه درسی</span>
+                            <span class="small text-muted-2">جلسه قبلی</span>
+                            <span wire:loading wire:target="openPrevProgramModal" class="d-block mt-1">
+                                <span class="spinner-border spinner-border-sm text-warning"></span>
+                            </span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <a href="#"
+                           @click.prevent="openIframe('{{ route('admin.student.reportDailyActivities.detail', $student->id) }}', 'گزارش فعالیت - جلسه قبلی', 'linear-gradient(135deg,#7c3aed,#a855f7)')"
+                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100"
+                           style="border-color: rgba(124, 58, 237, .25);">
+                            <i class="material-symbols-outlined d-block mb-2 text-purple" style="color:#7c3aed;">summarize</i>
+                            <span class="small d-block fw-semibold">گزارش</span>
+                            <span class="small text-muted-2">جلسه قبلی</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <a href="#"
+                           @click.prevent="openIframe('{{ route('admin.student.studySession.detail', $student->id) }}', 'ساعت مطالعه - جلسه قبلی', 'linear-gradient(135deg,#059669,#10b981)')"
+                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100"
+                           style="border-color: rgba(5, 150, 105, .25);">
+                            <i class="material-symbols-outlined d-block mb-2 text-success">schedule</i>
+                            <span class="small d-block fw-semibold">ساعت مطالعه</span>
+                            <span class="small text-muted-2">جلسه قبلی</span>
                         </a>
                     </div>
                 </div>
@@ -1679,95 +1879,130 @@
                             </table>
                         </div>
 
-                        {{-- دکمه ثبت خودکار روزخوانی/پیش‌خوانی کل هفته --}}
+                        {{-- دکمه‌های پیش‌خوانی و روزخوانی --}}
                         <hr>
-                        <div class="d-flex justify-content-center">
-                            <button wire:click="previewWeeklyReadings"
-                                    class="btn btn-outline-success d-flex align-items-center gap-2">
-                                <i class="material-symbols-outlined" style="font-size: 20px;">auto_fix_high</i>
-                                ثبت خودکار روزخوانی و پیش‌خوانی کل هفته
-                                <span wire:loading wire:target="previewWeeklyReadings">
-                                    <span class="spinner-border spinner-border-sm"></span>
-                                </span>
-                            </button>
-                        </div>
-                        {{-- نمایش پارت‌های روزخوانی/پیش‌خوانی ثبت شده امروز --}}
-                        @if($weeklyProgram ?? null)
-                            @php
-                                $startDate = \Carbon\Carbon::parse($start_date);
-                                $today = \Carbon\Carbon::today();
-                                $todayIdx = null;
-                                for ($i = 0; $i < 8; $i++) {
-                                    if ($startDate->copy()->addDays($i)->isSameDay($today)) {
-                                        $todayIdx = $i;
-                                        break;
-                                    }
-                                }
-                                $readingParts = $todayIdx !== null
-                                    ? \App\Models\ProgramPart::where('weekly_program_id', $weeklyProgram->id)
-                                        ->where('day_of_week', $todayIdx)
-                                        ->where(function($q) {
-                                            $q->where('description', 'like', '%روزخوانی%')
-                                              ->orWhere('description', 'like', '%پیش‌خوانی%');
-                                        })
-                                        ->orderBy('part_order')
-                                        ->get()
-                                    : collect();
-                            @endphp
-
-                            @if($readingParts->count() > 0)
-                                <hr>
-                                <h6 class="fw-bold mb-3 d-flex align-items-center gap-2">
-                                    <i class="material-symbols-outlined text-success">check_circle</i>
-                                    پارت‌های روزخوانی/پیش‌خوانی ثبت شده امروز
-                                </h6>
-                                <div class="weekly-scroll">
-                                    <table class="table table-sm align-middle mb-0">
-                                        <thead>
-                                        <tr class="text-muted-2">
-                                            <th>درس</th>
-                                            <th>نوع</th>
-                                            <th>مدت (دقیقه)</th>
-                                            <th>توضیحات</th>
-                                            <th class="text-center">عملیات</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($readingParts as $rPart)
-                                            <tr>
-                                                <td class="fw-semibold">{{ $rPart->lesson_name }}</td>
-                                                <td>
-                                                    @if(str_contains($rPart->description, 'روزخوانی'))
-                                                        <span
-                                                            class="badge bg-primary-subtle text-primary">روزخوانی</span>
-                                                    @else
-                                                        <span class="badge bg-info-subtle text-info">پیش‌خوانی</span>
-                                                    @endif
-                                                </td>
-                                                <td>{{ $rPart->duration_minutes }}</td>
-                                                <td class="small">{{ $rPart->description }}</td>
-                                                <td class="text-center">
-                                                    <div class="d-flex justify-content-center gap-1">
-                                                        <button wire:click="editDailyReadingPart({{ $rPart->id }})"
-                                                                class="btn btn-sm btn-outline-warning" title="ویرایش">
-                                                            <i class="material-symbols-outlined"
-                                                               style="font-size: 16px;">edit</i>
-                                                        </button>
-                                                        <button wire:click="deleteDailyReadingPart({{ $rPart->id }})"
-                                                                wire:confirm="آیا از حذف این پارت اطمینان دارید؟"
-                                                                class="btn btn-sm btn-outline-danger" title="حذف">
-                                                            <i class="material-symbols-outlined"
-                                                               style="font-size: 16px;">delete</i>
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
+                        <div class="mb-3">
+                            <p class="small text-muted-2 mb-2 d-flex align-items-center gap-1">
+                                <i class="material-symbols-outlined" style="font-size:16px;">auto_fix_high</i>
+                                پیش‌خوانی و روزخوانی بر اساس برنامه کلاسی و تایم‌های جلسه قبلی محاسبه می‌شوند.
+                            </p>
+                            {{-- بارگذاری پیش‌نمایش ابتدا --}}
+                            @if(empty($weeklyReadingsPreview))
+                                <div class="d-flex justify-content-center">
+                                    <button wire:click="previewWeeklyReadings"
+                                            class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                                        <i class="material-symbols-outlined" style="font-size:18px;">refresh</i>
+                                        بارگذاری پیش‌نمایش خودکار
+                                        <span wire:loading wire:target="previewWeeklyReadings">
+                                            <span class="spinner-border spinner-border-sm"></span>
+                                        </span>
+                                    </button>
                                 </div>
+                            @else
+                                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                    {{-- روزخوانی --}}
+                                    @if($this->hasDailyReadings())
+                                        <button wire:click="revertDailyReadings"
+                                                wire:confirm="آیا از حذف تمام روزخوانی‌های برنامه اطمینان دارید؟"
+                                                class="btn btn-outline-danger d-flex align-items-center gap-2">
+                                            <span wire:loading.remove wire:target="revertDailyReadings">
+                                                <i class="material-symbols-outlined" style="font-size:18px;">undo</i>
+                                                بازگرداندن روزخوانی
+                                            </span>
+                                            <span wire:loading wire:target="revertDailyReadings">در حال حذف...</span>
+                                        </button>
+                                    @else
+                                        <button wire:click="applyOnlyDailyReadings"
+                                                class="btn btn-outline-primary d-flex align-items-center gap-2">
+                                            <span wire:loading.remove wire:target="applyOnlyDailyReadings">
+                                                <i class="material-symbols-outlined" style="font-size:18px;">today</i>
+                                                افزودن روزخوانی
+                                            </span>
+                                            <span wire:loading wire:target="applyOnlyDailyReadings">در حال ثبت...</span>
+                                        </button>
+                                    @endif
+                                    {{-- پیش‌خوانی --}}
+                                    @if($this->hasPreReadings())
+                                        <button wire:click="revertPreReadings"
+                                                wire:confirm="آیا از حذف تمام پیش‌خوانی‌های برنامه اطمینان دارید؟"
+                                                class="btn btn-outline-danger d-flex align-items-center gap-2">
+                                            <span wire:loading.remove wire:target="revertPreReadings">
+                                                <i class="material-symbols-outlined" style="font-size:18px;">undo</i>
+                                                بازگرداندن پیش‌خوانی
+                                            </span>
+                                            <span wire:loading wire:target="revertPreReadings">در حال حذف...</span>
+                                        </button>
+                                    @else
+                                        <button wire:click="applyOnlyPreReadings"
+                                                class="btn btn-outline-info d-flex align-items-center gap-2">
+                                            <span wire:loading.remove wire:target="applyOnlyPreReadings">
+                                                <i class="material-symbols-outlined" style="font-size:18px;">upcoming</i>
+                                                افزودن پیش‌خوانی
+                                            </span>
+                                            <span wire:loading wire:target="applyOnlyPreReadings">در حال ثبت...</span>
+                                        </button>
+                                    @endif
+
+                                    {{-- هر دو با هم --}}
+                                    <button wire:click="applyWeeklyReadings"
+                                            class="btn btn-outline-success d-flex align-items-center gap-2">
+                                        <span wire:loading.remove wire:target="applyWeeklyReadings">
+                                            <i class="material-symbols-outlined" style="font-size:18px;">auto_fix_high</i>
+                                            افزودن هر دو
+                                        </span>
+                                        <span wire:loading wire:target="applyWeeklyReadings">در حال ثبت...</span>
+                                    </button>
+                                </div>
+
+                                {{-- نمایش باکس‌های هر روز - پارت‌های ثبت شده --}}
+                                @if($weeklyProgram)
+                                    <hr>
+                                    <h6 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                                        <i class="material-symbols-outlined text-primary">view_week</i>
+                                        روزخوانی و پیش‌خوانی ثبت‌شده در برنامه (به تفکیک روز)
+                                    </h6>
+                                    <div class="row g-2">
+                                        @foreach($weekDays as $day)
+                                            @if(!$day['is_rest_day'] && !$day['is_exam_day'])
+                                                @php
+                                                    $dayReadingParts = \App\Models\ProgramPart::where('weekly_program_id', $weeklyProgram->id)
+                                                        ->where('day_of_week', $day['index'])
+                                                        ->whereIn('source_type', ['daily_reading', 'pre_reading'])
+                                                        ->orderBy('part_order')
+                                                        ->get();
+                                                @endphp
+                                                <div class="col-md-6 col-lg-4 col-xl-3">
+                                                    <div class="border rounded-3 p-2 h-100"
+                                                         style="background: var(--bs-body-bg); border-color: var(--ui-border) !important;">
+                                                        <div class="fw-semibold small mb-2 d-flex align-items-center gap-1">
+                                                            <span class="badge bg-primary rounded-pill">{{ $day['name'] }}</span>
+                                                            <span class="text-muted-2">{{ $day['jalali_date'] }}</span>
+                                                        </div>
+                                                        @if($dayReadingParts->isEmpty())
+                                                            <p class="text-muted-2 small mb-0">ثبت نشده</p>
+                                                        @else
+                                                            @foreach($dayReadingParts as $rp)
+                                                                <div class="d-flex align-items-center gap-1 mb-1 p-1 rounded-2"
+                                                                     style="background: var(--bs-tertiary-bg);">
+                                                                    @if($rp->source_type === 'daily_reading')
+                                                                        <span class="badge bg-primary-subtle text-primary flex-shrink-0" style="font-size:10px;">روزخوانی</span>
+                                                                    @else
+                                                                        <span class="badge bg-info-subtle text-info flex-shrink-0" style="font-size:10px;">پیش‌خوانی</span>
+                                                                    @endif
+                                                                    <span class="small fw-semibold text-truncate flex-fill" title="{{ $rp->lesson_name }}">{{ $rp->lesson_name }}</span>
+                                                                    <span class="small text-muted-2 flex-shrink-0">{{ $rp->duration_minutes }}دق</span>
+                                                                </div>
+                                                            @endforeach
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                @endif
+                                        @endforeach
+
+                                    </div>
+                                @endif
                             @endif
-                        @endif
+                        </div>
                     </div>
 
                     <div class="modal-footer bg-body-tertiary">

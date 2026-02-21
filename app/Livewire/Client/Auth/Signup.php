@@ -3,6 +3,7 @@
 namespace App\Livewire\Client\Auth;
 
 use App\Notifications\SendOtpToUser;
+use App\Traits\NormalizesDigits;
 use App\Traits\UploadFile;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
@@ -18,7 +19,7 @@ use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 class Signup extends Component
 {
-    use SEOTools, WithFileUploads, UploadFile;
+    use SEOTools, WithFileUploads, UploadFile,NormalizesDigits;
 
     public $currentStep = 1;
     public $sendSmsError = '';
@@ -128,6 +129,7 @@ class Signup extends Component
     public function goToStep2()
     {
         $this->isLoading = true;
+        $this->mobile = $this->convertToEnglishDigits($this->mobile);
 
         $validator = Validator::make([
             'name' => $this->name,
@@ -165,6 +167,7 @@ class Signup extends Component
     public function goToStep3()
     {
         $this->isLoading = true;
+        $this->mobile = $this->convertToEnglishDigits($this->mobile);
 
         $rules = [
             'mobile' => ['required', 'regex:/^09[0-9]{9}$/', 'unique:users,mobile'],
@@ -261,6 +264,8 @@ class Signup extends Component
     public function verifyAndRegister()
     {
         $this->isLoading = true;
+        $this->mobile = $this->convertToEnglishDigits($this->mobile);
+
         $this->codeErrorMessage = '';
 
         if (!$this->isPasswordValid()) {

@@ -142,9 +142,19 @@
                                     </svg>
                                     شماره موبایل
                                 </label>
-                                <input type="tel" wire:model.live="mobile" maxlength="11" dir="ltr"
-                                       class="form-input w-full py-3 px-4 rounded-xl border border-border bg-secondary text-foreground focus:outline-none @error('mobile') border-red-500 @enderror"
-                                       placeholder="09123456789">
+                                <input
+                                    wire:model.live="mobile"
+                                    class="form-input w-full py-3 px-4 rounded-xl border border-border bg-secondary text-foreground focus:outline-none @error('mobile') border-red-500 @enderror"
+                                    maxlength="11"
+                                    dir="ltr"
+                                    x-on:input="$event.target.value = $event.target.value.replace(/[۰-۹٠-٩]/g,
+                                                    d => '٠١٢٣٤٥٦٧٨٩'.includes(d)
+                                                        ? '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]
+                                                        : '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString()
+                                                )"
+                                    type="tel"
+                                    inputmode="numeric"
+                                />
                                 @error('mobile')
                                 <p class="mt-1 text-xs text-red-500 flex items-center gap-1">
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

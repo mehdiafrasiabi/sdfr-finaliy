@@ -123,7 +123,12 @@ class WeeklyProgramUpload extends Component
     // Zero-time warning modal
     public bool $showZeroTimeWarningModal = false;
     public int $zeroTimePartsCount = 0;
-
+    // ==================== آرشیو جلسه قبلی ====================
+    public bool $showPrevProgramModal = false;
+    public array $prevSessionParts = [];
+    public ?int $prevSessionProgramId = null;
+    public ?int $copyingPrevPartId = null;
+    public ?int $copyPrevPartTargetDay = null;
     protected function messages()
     {
         return [
@@ -2390,8 +2395,7 @@ class WeeklyProgramUpload extends Component
         }
 
         $this->weeklyReadingsPreview = $preview;
-        $this->showClassScheduleModal = false;
-        $this->showWeeklyReadingsPreview = true;
+        // مودال برنامه کلاسی باز می‌ماند و دکمه‌های افزودن نمایش داده می‌شوند
     }
 
     /**
@@ -2443,13 +2447,15 @@ class WeeklyProgramUpload extends Component
         $startDate = Carbon::parse($this->start_date);
 
         foreach ($this->weeklyReadingsPreview as $item) {
+            // پارت‌هایی که تایم صفر دارند ثبت نمی‌شوند
+            if ((int)$item['duration_minutes'] === 0) continue;
             $dayIndex = $item['day_index'];
             $partDate = $startDate->copy()->addDays($dayIndex);
 
             $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
                 ->where('day_of_week', $dayIndex)
                 ->count();
-
+            if ($existingCount >= 20) continue;
             $subject = CcSubject::with('grade.educationLevel')->find($item['cc_subject_id']);
             ProgramPart::create([
                 'weekly_program_id' => $this->weeklyProgramId,
@@ -2476,6 +2482,7 @@ class WeeklyProgramUpload extends Component
         $this->loadExistingParts();
         $this->showWeeklyReadingsPreview = false;
         $this->weeklyReadingsPreview = [];
+        $this->showClassScheduleModal = false;
         $this->dispatch('success', 'روزخوانی و پیش‌خوانی هفتگی با موفقیت ثبت شد.');
     }
 
@@ -2572,7 +2579,362 @@ class WeeklyProgramUpload extends Component
         $this->examDaySelectData = [];
         $this->examDaySelectTarget = null;
     }
+// ==================== آرشیو جلسه قبلی ====================
 
+    /**
+     * باز کردن مودال برنامه درسی جلسه قبلی
+     */
+    public function openPrevProgramModal(): void
+    {
+        $session = AdvisingSession::find($this->sessionId);
+        if (!$session) {
+            $this->dispatch('warning', 'جلسه فعلی یافت نشد.');
+            return;
+        }
+
+        // جلسه برگزار شده قبلی همین دانش‌آموز
+        $prevSession = AdvisingSession::where('student_id', $this->studentId)
+            ->where('result_status', AdvisingSession::RESULT_HELD)
+            ->where('id', '!=', $this->sessionId)
+            ->latest()
+            ->first();
+
+        if (!$prevSession) {
+            $this->dispatch('warning', 'جلسه قبلی برگزار شده‌ای یافت نشد.');
+            return;
+        }
+
+        $prevProgram = WeeklyProgram::where('advising_session_id', $prevSession->id)
+            ->with(['parts.studyPartSessions.feedback'])
+            ->first();
+
+        if (!$prevProgram) {
+            $this->dispatch('warning', 'برنامه جلسه قبلی یافت نشد.');
+            return;
+        }
+
+        $this->prevSessionProgramId = $prevProgram->id;
+
+        $this->prevSessionParts = $prevProgram->parts()
+            ->whereNotIn('source_type', ['comprehensive_exam', 'exam_analysis'])
+            ->orderBy('day_of_week')
+            ->orderBy('part_order')
+            ->get()
+            ->map(function ($part) {
+                // رتبه‌بندی از گزارش مطالعه (SessionFeedback)
+                $sessions = $part->studyPartSessions()->with('feedback')->get();
+                $feedbackRatings = $sessions->pluck('feedback.rating')->filter()->values();
+
+                $planRating = null;
+                $reportRating = $feedbackRatings->isNotEmpty() ? round($feedbackRatings->avg()) : null;
+                $avgRating = $reportRating;
+
+                // برچسب میانگین
+                $avgLabel = null;
+                $avgColor = null;
+                if ($avgRating !== null) {
+                    if ($avgRating >= 8) {
+                        $avgLabel = 'عالی';
+                        $avgColor = 'success';
+                    } elseif ($avgRating >= 5) {
+                        $avgLabel = 'مطالعه با کیفیت';
+                        $avgColor = 'info';
+                    } else {
+                        $avgLabel = 'مطالعه بی‌کیفیت';
+                        $avgColor = 'danger';
+                    }
+                }
+
+                return [
+                    'id' => $part->id,
+                    'lesson_name' => $part->lesson_name,
+                    'description' => $part->description,
+                    'duration_minutes' => $part->duration_minutes,
+                    'test_count' => $part->test_count,
+                    'part_type' => $part->part_type,
+                    'part_type_label' => $part->part_type_label,
+                    'source_type' => $part->source_type,
+                    'source_type_label' => $part->source_type_label,
+                    'source_type_color' => $part->source_type_color,
+                    'grade_label' => $part->grade_label,
+                    'day_of_week' => $part->day_of_week,
+                    'day_name' => $part->day_name,
+                    'cc_subject_id' => $part->cc_subject_id,
+                    'cc_chapter_id' => $part->cc_chapter_id,
+                    'cc_topic_id' => $part->cc_topic_id,
+                    'cc_grade_id' => $part->cc_grade_id,
+                    'cc_field_id' => $part->cc_field_id,
+                    'education_level_id' => $part->education_level_id,
+                    'grade' => $part->grade,
+                    'grade_label_attr' => $part->grade_label,
+                    'lesson_type' => $part->lesson_type,
+                    'plan_rating' => $planRating,
+                    'report_rating' => $reportRating,
+                    'avg_rating' => $avgRating,
+                    'avg_label' => $avgLabel,
+                    'avg_color' => $avgColor,
+                    'study_sessions_count' => $sessions->count(),
+                ];
+            })->toArray();
+
+        $this->copyingPrevPartId = null;
+        $this->copyPrevPartTargetDay = null;
+        $this->showPrevProgramModal = true;
+    }
+
+    public function closePrevProgramModal(): void
+    {
+        $this->showPrevProgramModal = false;
+        $this->prevSessionParts = [];
+        $this->copyingPrevPartId = null;
+        $this->copyPrevPartTargetDay = null;
+    }
+
+    /**
+     * انتخاب پارت جلسه قبلی برای کپی
+     */
+    public function selectPrevPartForCopy(int $partId): void
+    {
+        if ($this->copyingPrevPartId === $partId) {
+            // دوباره کلیک = لغو انتخاب
+            $this->copyingPrevPartId = null;
+            $this->copyPrevPartTargetDay = null;
+        } else {
+            $this->copyingPrevPartId = $partId;
+            $this->copyPrevPartTargetDay = null;
+        }
+    }
+
+    /**
+     * کپی پارت جلسه قبلی به برنامه جاری
+     */
+    public function copyPrevPartToProgram(): void
+    {
+        if (!$this->copyingPrevPartId || $this->copyPrevPartTargetDay === null) {
+            $this->dispatch('warning', 'لطفاً پارت و روز مقصد را انتخاب کنید.');
+            return;
+        }
+
+        $part = collect($this->prevSessionParts)->firstWhere('id', $this->copyingPrevPartId);
+        if (!$part) return;
+
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        $dayIndex = (int) $this->copyPrevPartTargetDay;
+        $startDate = Carbon::parse($this->start_date);
+        $partDate = $startDate->copy()->addDays($dayIndex);
+
+        $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('day_of_week', $dayIndex)
+            ->count();
+
+        if ($existingCount >= 20) {
+            $this->dispatch('warning', 'حداکثر ۲۰ پارت برای هر روز مجاز است.');
+            return;
+        }
+
+        ProgramPart::create([
+            'weekly_program_id' => $this->weeklyProgramId,
+            'lesson_name' => $part['lesson_name'],
+            'part_date' => $partDate,
+            'day_of_week' => $dayIndex,
+            'part_order' => $existingCount + 1,
+            'description' => $part['description'],
+            'duration_minutes' => $part['duration_minutes'],
+            'test_count' => $part['test_count'],
+            'part_type' => $part['part_type'],
+            'source_type' => ProgramPart::SOURCE_NORMAL,
+            'lesson_type' => $part['lesson_type'],
+            'grade' => $part['grade'],
+            'education_level_id' => $part['education_level_id'],
+            'cc_grade_id' => $part['cc_grade_id'],
+            'cc_field_id' => $part['cc_field_id'],
+            'cc_subject_id' => $part['cc_subject_id'],
+            'cc_chapter_id' => $part['cc_chapter_id'],
+            'cc_topic_id' => $part['cc_topic_id'],
+        ]);
+
+        $this->loadExistingParts();
+        $this->copyingPrevPartId = null;
+        $this->copyPrevPartTargetDay = null;
+        $this->dispatch('success', 'پارت «' . $part['lesson_name'] . '» به برنامه اضافه شد.');
+    }
+
+    // ==================== روزخوانی / پیش‌خوانی جداگانه ====================
+
+    /**
+     * اعمال فقط روزخوانی‌ها در برنامه
+     */
+    public function applyOnlyDailyReadings(): void
+    {
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        if (empty($this->weeklyReadingsPreview)) {
+            $this->dispatch('warning', 'ابتدا پیش‌نمایش را بارگذاری کنید.');
+            return;
+        }
+
+        $startDate = Carbon::parse($this->start_date);
+        $added = 0;
+
+        foreach ($this->weeklyReadingsPreview as $item) {
+            if ($item['type'] !== 'daily') continue;
+            if ((int)$item['duration_minutes'] === 0) continue;
+
+            $dayIndex = $item['day_index'];
+            $partDate = $startDate->copy()->addDays($dayIndex);
+
+            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $dayIndex)
+                ->count();
+
+            if ($existingCount >= 20) continue;
+
+            $subject = CcSubject::with('grade.educationLevel')->find($item['cc_subject_id']);
+            ProgramPart::create([
+                'weekly_program_id' => $this->weeklyProgramId,
+                'lesson_name' => $item['subject'],
+                'part_date' => $partDate,
+                'day_of_week' => $dayIndex,
+                'part_order' => $existingCount + 1,
+                'description' => $item['description'],
+                'duration_minutes' => $item['duration_minutes'],
+                'test_count' => null,
+                'part_type' => 'descriptive',
+                'source_type' => ProgramPart::SOURCE_DAILY_READING,
+                'lesson_type' => $subject?->type ?? 'specialized',
+                'cc_subject_id' => $item['cc_subject_id'],
+                'cc_grade_id' => $subject?->grade?->id,
+                'cc_field_id' => $subject?->cc_field_id,
+                'grade' => $subject?->grade?->grade_number,
+                'education_level_id' => $subject?->grade?->educationLevel?->id,
+            ]);
+            $added++;
+        }
+
+        $this->loadExistingParts();
+        if ($added > 0) {
+            $this->dispatch('success', $added . ' روزخوانی با موفقیت به برنامه اضافه شد.');
+        } else {
+            $this->dispatch('warning', 'هیچ روزخوانی‌ای برای اضافه کردن وجود ندارد (یا تایم همه صفر است).');
+        }
+    }
+
+    /**
+     * اعمال فقط پیش‌خوانی‌ها در برنامه
+     */
+    public function applyOnlyPreReadings(): void
+    {
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        if (empty($this->weeklyReadingsPreview)) {
+            $this->dispatch('warning', 'ابتدا پیش‌نمایش را بارگذاری کنید.');
+            return;
+        }
+
+        $startDate = Carbon::parse($this->start_date);
+        $added = 0;
+
+        foreach ($this->weeklyReadingsPreview as $item) {
+            if ($item['type'] !== 'pre') continue;
+            if ((int)$item['duration_minutes'] === 0) continue;
+
+            $dayIndex = $item['day_index'];
+            $partDate = $startDate->copy()->addDays($dayIndex);
+
+            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $dayIndex)
+                ->count();
+
+            if ($existingCount >= 20) continue;
+
+            $subject = CcSubject::with('grade.educationLevel')->find($item['cc_subject_id']);
+            ProgramPart::create([
+                'weekly_program_id' => $this->weeklyProgramId,
+                'lesson_name' => $item['subject'],
+                'part_date' => $partDate,
+                'day_of_week' => $dayIndex,
+                'part_order' => $existingCount + 1,
+                'description' => $item['description'],
+                'duration_minutes' => $item['duration_minutes'],
+                'test_count' => null,
+                'part_type' => 'descriptive',
+                'source_type' => ProgramPart::SOURCE_PRE_READING,
+                'lesson_type' => $subject?->type ?? 'specialized',
+                'cc_subject_id' => $item['cc_subject_id'],
+                'cc_grade_id' => $subject?->grade?->id,
+                'cc_field_id' => $subject?->cc_field_id,
+                'grade' => $subject?->grade?->grade_number,
+                'education_level_id' => $subject?->grade?->educationLevel?->id,
+            ]);
+            $added++;
+        }
+
+        $this->loadExistingParts();
+        if ($added > 0) {
+            $this->dispatch('success', $added . ' پیش‌خوانی با موفقیت به برنامه اضافه شد.');
+        } else {
+            $this->dispatch('warning', 'هیچ پیش‌خوانی‌ای برای اضافه کردن وجود ندارد (یا تایم همه صفر است).');
+        }
+    }
+
+    /**
+     * بازگرداندن (حذف) تمام روزخوانی‌های برنامه
+     */
+    public function revertDailyReadings(): void
+    {
+        if (!$this->weeklyProgramId) return;
+
+        $deleted = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('source_type', ProgramPart::SOURCE_DAILY_READING)
+            ->delete();
+
+        $this->loadExistingParts();
+        $this->dispatch('success', 'روزخوانی‌ها از برنامه حذف شدند.');
+    }
+
+    /**
+     * بازگرداندن (حذف) تمام پیش‌خوانی‌های برنامه
+     */
+    public function revertPreReadings(): void
+    {
+        if (!$this->weeklyProgramId) return;
+
+        $deleted = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('source_type', ProgramPart::SOURCE_PRE_READING)
+            ->delete();
+
+        $this->loadExistingParts();
+        $this->dispatch('success', 'پیش‌خوانی‌ها از برنامه حذف شدند.');
+    }
+
+    /**
+     * بررسی وجود روزخوانی در برنامه
+     */
+    public function hasDailyReadings(): bool
+    {
+        if (!$this->weeklyProgramId) return false;
+        return ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('source_type', ProgramPart::SOURCE_DAILY_READING)
+            ->exists();
+    }
+
+    /**
+     * بررسی وجود پیش‌خوانی در برنامه
+     */
+    public function hasPreReadings(): bool
+    {
+        if (!$this->weeklyProgramId) return false;
+        return ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('source_type', ProgramPart::SOURCE_PRE_READING)
+            ->exists();
+    }
     public function render()
     {
         $student = Student::with(['user.personalInformation', 'advisor', 'supporter'])->find($this->studentId);

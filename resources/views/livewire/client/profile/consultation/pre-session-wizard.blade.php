@@ -2,16 +2,13 @@
     <div class="container mx-auto px-3 sm:px-4 max-w-4xl">
 
         {{-- HEADER --}}
-        <div class="overflow-hidden rounded-2xl border bg-secondary border-border bg-card shadow-[0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+        <div class="overflow-hidden rounded-2xl border bg-secondary border-border shadow-[0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
             <div class="bg-gradient-to-br from-blue-700 via-blue-600 to-blue-400 px-5 py-6 sm:px-7 sm:py-7">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         <h1 class="text-xl sm:text-2xl font-bold text-white mb-1">
-                            پیش‌جلسه مشاوره  ({{ $session->title }})
+                            پیش‌جلسه مشاوره ({{ $session->title }})
                         </h1>
-                        <p class="text-sm text-blue-100">
-
-                        </p>
                         <p class="mt-3 text-xs sm:text-sm text-blue-100/90">
                             تاریخ جلسه:
                             <span class="font-semibold">
@@ -27,8 +24,8 @@
                     <div class="flex flex-col items-stretch gap-2 sm:items-end">
                         <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
                            class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-red-500 px-4 py-2 text-xs sm:text-sm font-medium
-                            text-muted shadow-sm transition hover:bg-muted/80 hover:text-foreground focus:outline-none focus:ring-2
-                            focus:ring-border focus:ring-offset-2 focus:ring-offset-background">
+                            text-white shadow-sm transition hover:bg-red-600 focus:outline-none focus:ring-2
+                            focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-background">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                             </svg>
@@ -51,7 +48,6 @@
                 <div class="flex items-center justify-between gap-1 sm:gap-2">
                     @foreach($stepTitles as $step => $title)
                         <div class="flex items-center {{ $step < $totalSteps ? 'flex-1' : '' }}">
-                            {{-- Circle --}}
                             <button
                                 wire:click="goToStep({{ $step }})"
                                 class="relative flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full text-xs font-bold transition-all
@@ -60,29 +56,25 @@
                                 @elseif($currentStep > $step)
                                     bg-emerald-500 text-white shadow-sm ring-1 ring-emerald-300/70
                                 @else
-                                    bg-muted text-muted ring-1 ring-border
-                                @endif"
-                            >
+                                    bg-muted text-muted-foreground ring-1 ring-border
+                                @endif">
                                 @if($currentStep > $step)
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/>
-                                        <circle cx="12" cy="12" r="3"/>
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20 6L9 17l-5-5"/>
                                     </svg>
                                 @else
                                     {{ $step }}
                                 @endif
                             </button>
 
-                            {{-- Title --}}
                             <span class="mr-2 hidden text-[11px] sm:inline-block sm:text-xs
                                 @if($currentStep === $step) font-medium text-blue-600
                                 @elseif($currentStep > $step) text-emerald-600
-                                @else text-muted
+                                @else text-muted-foreground
                                 @endif">
                                 {{ $title }}
                             </span>
 
-                            {{-- Connector --}}
                             @if($step < $totalSteps)
                                 <div class="mr-2 flex-1 min-w-[20px]">
                                     <div class="h-1 rounded-full bg-border overflow-hidden">
@@ -99,8 +91,7 @@
                     @endforeach
                 </div>
 
-                {{-- عنوان مرحله روی موبایل --}}
-                <div class="mt-3 text-xs text-muted sm:hidden">
+                <div class="mt-3 text-xs text-muted-foreground sm:hidden">
                     <span class="font-medium text-foreground">{{ $stepTitles[$currentStep] ?? '' }}</span>
                 </div>
             </div>
@@ -108,15 +99,12 @@
             {{-- STEP CONTENT --}}
             <div class="bg-card p-4 sm:p-6 border-t border-border rounded-b-2xl">
 
-                {{-- هشدار عدم امکان ویرایش --}}
                 @if(!$canEdit)
-                    <div class="mb-6 flex items-start gap-2 rounded-xl border border-amber-200/80 bg-amber-500/10 px-3 py-3 text-xs text-amber-700 dark:border-amber-500/40 dark:text-amber-300">
-                        <span class="mt-0.5">
-<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M12 9v4m0 4h.01M10.29 3.86l-7.4 12.82A1 1 0 003.75 18h16.5a1 1 0 00.86-1.32l-7.4-12.82a1 1 0 00-1.72 0z"/>
-</svg>
-                        </span>
+                    <div class="mb-6 flex items-start gap-2 rounded-xl border border-amber-200/80 bg-amber-50 dark:bg-amber-500/10 px-3 py-3 text-xs text-amber-700 dark:border-amber-500/40 dark:text-amber-300">
+                        <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M12 9v4m0 4h.01M10.29 3.86l-7.4 12.82A1 1 0 003.75 18h16.5a1 1 0 00.86-1.32l-7.4-12.82a1 1 0 00-1.72 0z"/>
+                        </svg>
                         <p>
                             زمان ویرایش پیش‌جلسه به پایان رسیده است.
                             <span class="font-medium">فقط می‌توانید اطلاعات ثبت شده را مشاهده کنید.</span>
@@ -127,9 +115,7 @@
                 {{-- ===== مرحله ۱: امتحانات ===== --}}
                 @if($currentStep === 1)
                     <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">امتحانات</h3>
-                    <p class="mb-5 text-xs sm:text-sm text-muted">
-                        تمام امتحاناتی که در هفته پیش رو را دارید، ثبت کنید.
-                    </p>
+                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">تمام امتحاناتی که در هفته پیش رو دارید را ثبت کنید.</p>
 
                     @if($canEdit)
                         <div class="mb-6 rounded-xl bg-muted/50 dark:bg-muted/30 px-3 py-4 sm:px-4 sm:py-5">
@@ -139,7 +125,7 @@
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-foreground">درس</label>
                                     @if(count($availableSubjects) > 0)
-                                        <select wire:model.live="examForm.cc_subject_id" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:bg-background dark:text-foreground">
+                                        <select wire:model.live="examForm.cc_subject_id" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
                                             <option value="">انتخاب درس...</option>
                                             @foreach($availableSubjects as $subject)
                                                 <option value="{{ $subject['id'] }}">{{ $subject['name'] }} ({{ $subject['type'] === 'general' ? 'عمومی' : 'تخصصی' }})</option>
@@ -162,8 +148,8 @@
                                             @endforeach
                                         </select>
                                     @else
-                                        <select disabled class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted shadow-sm cursor-not-allowed">
-                                            <option value="">ابتدا درس را انتخاب کنید</option>
+                                        <select disabled class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted-foreground shadow-sm cursor-not-allowed">
+                                            <option>ابتدا درس را انتخاب کنید</option>
                                         </select>
                                     @endif
                                 </div>
@@ -183,7 +169,7 @@
                                                     class="flex flex-col items-center justify-center min-w-[70px] px-2.5 py-2 rounded-xl border text-xs transition-all duration-150
                                                         {{ $examForm['exam_date'] === $dateItem['value']
                                                             ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30'
-                                                            : 'border-border bg-background text-muted hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:bg-blue-500/15' }}">
+                                                            : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600' }}">
                                                 <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
                                                 <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
                                             </button>
@@ -194,45 +180,34 @@
 
                                 {{-- تعداد پارت --}}
                                 <div x-data="{ count: $wire.entangle('examForm.part_count') }" x-init="if(!count || count < 1) count = 1">
-                                    <label class="mb-1 block text-xs font-medium text-foreground">تعداد پارت (پیشنهادی جهت مطالعه امتحان فوق)</label>
+                                    <label class="mb-1 block text-xs font-medium text-foreground">تعداد پارت (پیشنهادی جهت مطالعه امتحان)</label>
                                     <div class="flex items-center gap-1">
-                                        <button type="button" @click="count++" class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-green-500/10 hover:border-green-500 hover:text-green-600 dark:hover:bg-green-500/15">
+                                        <button type="button" @click="count++"
+                                                class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-green-500/10 hover:border-green-500 hover:text-green-600">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                         </button>
-                                        <input type="tel" min="1" x-model.number="count" @input="if(count < 1) count = 1" class="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
-                                        <button type="button" @click="if(count > 1) count--" class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-red-500/10 hover:border-red-500 hover:text-red-600 dark:hover:bg-red-500/15">
+                                        <input type="tel" min="1" x-model.number="count" @input="if(count < 1) count = 1"
+                                               class="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                        <button type="button" @click="if(count > 1) count--"
+                                                class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-red-500/10 hover:border-red-500 hover:text-red-600">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
                                         </button>
                                     </div>
                                 </div>
 
                                 {{-- زمان هر پارت --}}
-                                <div x-data="{
-                                    totalMinutes: $wire.entangle('examForm.time_per_part'),
-                                    hours: 0, minutes: 0,
-                                    init() { let val = parseInt(this.totalMinutes)||0; this.hours=Math.floor(val/60); this.minutes=val%60; },
-                                    update() { let h=Math.min(Math.max(parseInt(this.hours)||0,0),24); let m=Math.min(Math.max(parseInt(this.minutes)||0,0),59); this.hours=h; this.minutes=m; this.totalMinutes=(h*60)+m; }
-                                }" x-init="init()">
-                                    <label class="mb-1 block text-xs font-medium text-foreground">زمان هر پارت</label>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 relative">
-                                            <input type="tel" min="0" max="59" x-model.number="minutes" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">دقیقه</span>
-                                        </div>
-                                        <span class="text-lg font-bold text-muted">:</span>
-                                        <div class="flex-1 relative">
-                                            <input type="tel" min="0" max="24" x-model.number="hours" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">ساعت</span>
-                                        </div>
-                                    </div>
-                                    <div class="mt-1 text-[10px] text-muted" x-show="totalMinutes > 0">
-                                        مجموع: <span x-text="totalMinutes"></span> دقیقه
-                                    </div>
-                                </div>
+                                @include('livewire.client.profile.consultation.partials.time-picker', [
+                                    'wireModel' => 'examForm.time_per_part',
+                                    'xDataKey' => 'examTimePicker',
+                                ])
                             </div>
 
-                            <button wire:click="addExam" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-background">
-                                افزودن امتحان
+                            <button wire:click="addExam"
+                                    wire:loading.attr="disabled"
+                                    wire:target="addExam"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60">
+                                <span wire:loading.remove wire:target="addExam">افزودن امتحان</span>
+                                <span wire:loading wire:target="addExam" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                             </button>
                         </div>
                     @endif
@@ -241,14 +216,16 @@
                         <div class="space-y-2">
                             @foreach($exams as $exam)
                                 <div class="flex items-center justify-between rounded-xl bg-blue-500/10 dark:bg-blue-500/15 px-3 py-2.5 text-xs sm:text-sm text-foreground">
-                                    <div class="space-x-1 space-x-reverse">
-                                        <span class="text-muted">امتحان ({{ jalali($exam['exam_date'])->format('Y/m/d') }}) :</span>
-                                        <span class="font-medium">{{ $exam['subject'] }}
-                                            <span class="text-muted">({{ $exam['part_count'] }} پارت - {{ $exam['time_per_part'] }} دقیقه)</span>
-                                        </span>
+                                    <div>
+                                        {{-- باگ: date از دیتابیس gregorian هست، مستقیم به jalali تبدیل میکنیم --}}
+                                        <span class="text-muted-foreground">امتحان ({{ \Morilog\Jalali\Jalalian::fromCarbon(
+    \Carbon\Carbon::parse($exam['exam_date'], 'UTC')->setTimezone('Asia/Tehran')
+)->format('Y/m/d') }}) :</span>
+                                        <span class="font-medium mr-1">{{ $exam['subject'] }}</span>
+                                        <span class="text-muted-foreground">({{ $exam['part_count'] }} پارت - {{ $exam['time_per_part'] }} دقیقه)</span>
                                     </div>
                                     @if($canEdit)
-                                        <button wire:click="deleteExam({{ $exam['id'] }})" class="text-red-500 transition hover:text-red-600">
+                                        <button wire:click="deleteExam({{ $exam['id'] }})" class="text-red-500 transition hover:text-red-600 mr-2 shrink-0">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/><path d="M10 11v6"/><path d="M14 11v6"/>
                                             </svg>
@@ -258,14 +235,14 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="py-4 text-center text-xs text-muted">هیچ امتحانی ثبت نشده است.</p>
+                        <p class="py-4 text-center text-xs text-muted-foreground">هیچ امتحانی ثبت نشده است.</p>
                     @endif
                 @endif
 
                 {{-- ===== مرحله ۲: پرسش و پاسخ ===== --}}
                 @if($currentStep === 2)
                     <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">پرسش و پاسخ کلاسی</h3>
-                    <p class="mb-5 text-xs sm:text-sm text-muted">پرسش و پاسخ‌های کلاسی هفته پیش رو را ثبت کنید.</p>
+                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">پرسش و پاسخ‌های کلاسی هفته پیش رو را ثبت کنید.</p>
 
                     @if($canEdit)
                         <div class="mb-6 rounded-xl bg-muted/50 dark:bg-muted/30 px-3 py-4 sm:px-4 sm:py-5">
@@ -296,8 +273,8 @@
                                             @endforeach
                                         </select>
                                     @else
-                                        <select disabled class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted shadow-sm cursor-not-allowed">
-                                            <option value="">ابتدا درس را انتخاب کنید</option>
+                                        <select disabled class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted-foreground shadow-sm cursor-not-allowed">
+                                            <option>ابتدا درس را انتخاب کنید</option>
                                         </select>
                                     @endif
                                 </div>
@@ -316,7 +293,7 @@
                                                     class="flex flex-col items-center justify-center min-w-[70px] px-2.5 py-2 rounded-xl border text-xs transition-all duration-150
                                                         {{ $qaForm['qa_date'] === $dateItem['value']
                                                             ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30'
-                                                            : 'border-border bg-background text-muted hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:bg-blue-500/15' }}">
+                                                            : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600' }}">
                                                 <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
                                                 <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
                                             </button>
@@ -326,44 +303,30 @@
                                 </div>
 
                                 <div x-data="{ count: $wire.entangle('qaForm.part_count') }" x-init="if(!count || count < 1) count = 1">
-                                    <label class="mb-1 block text-xs font-medium text-foreground">تعداد پارت (پیشنهادی جهت آمادگی در فعالیت فوق)</label>
+                                    <label class="mb-1 block text-xs font-medium text-foreground">تعداد پارت (پیشنهادی جهت آمادگی)</label>
                                     <div class="flex items-center gap-1">
-                                        <button type="button" @click="count++" class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-green-500/10 hover:border-green-500 hover:text-green-600 dark:hover:bg-green-500/15">
+                                        <button type="button" @click="count++" class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-green-500/10 hover:border-green-500 hover:text-green-600">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                         </button>
                                         <input type="tel" min="1" x-model.number="count" @input="if(count < 1) count = 1" class="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
-                                        <button type="button" @click="if(count > 1) count--" class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-red-500/10 hover:border-red-500 hover:text-red-600 dark:hover:bg-red-500/15">
+                                        <button type="button" @click="if(count > 1) count--" class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-red-500/10 hover:border-red-500 hover:text-red-600">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
                                         </button>
                                     </div>
                                 </div>
 
-                                <div x-data="{
-                                    totalMinutes: $wire.entangle('qaForm.time_per_part'),
-                                    hours: 0, minutes: 0,
-                                    init() { let val = parseInt(this.totalMinutes)||0; this.hours=Math.floor(val/60); this.minutes=val%60; },
-                                    update() { let h=Math.min(Math.max(parseInt(this.hours)||0,0),24); let m=Math.min(Math.max(parseInt(this.minutes)||0,0),59); this.hours=h; this.minutes=m; this.totalMinutes=(h*60)+m; }
-                                }" x-init="init()">
-                                    <label class="mb-1 block text-xs font-medium text-foreground">زمان هر پارت</label>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 relative">
-                                            <input type="tel" min="0" max="59" x-model.number="minutes" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">دقیقه</span>
-                                        </div>
-                                        <span class="text-lg font-bold text-muted">:</span>
-                                        <div class="flex-1 relative">
-                                            <input type="tel" min="0" max="24" x-model.number="hours" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">ساعت</span>
-                                        </div>
-                                    </div>
-                                    <div class="mt-1 text-[10px] text-muted" x-show="totalMinutes > 0">
-                                        مجموع: <span x-text="totalMinutes"></span> دقیقه
-                                    </div>
-                                </div>
+                                @include('livewire.client.profile.consultation.partials.time-picker', [
+                                    'wireModel' => 'qaForm.time_per_part',
+                                    'xDataKey' => 'qaTimePicker',
+                                ])
                             </div>
 
-                            <button wire:click="addQa" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-background">
-                                افزودن پرسش و پاسخ
+                            <button wire:click="addQa"
+                                    wire:loading.attr="disabled"
+                                    wire:target="addQa"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60">
+                                <span wire:loading.remove wire:target="addQa">افزودن پرسش و پاسخ</span>
+                                <span wire:loading wire:target="addQa" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                             </button>
                         </div>
                     @endif
@@ -372,14 +335,15 @@
                         <div class="space-y-2">
                             @foreach($qas as $qa)
                                 <div class="flex items-center justify-between rounded-xl bg-emerald-500/10 dark:bg-emerald-500/15 px-3 py-2.5 text-xs sm:text-sm text-foreground">
-                                    <div class="space-x-1 space-x-reverse">
-                                        <span class="text-muted">پرسش و پاسخ کلاسی ({{ jalali($qa['qa_date'])->format('Y/m/d') }}) :</span>
-                                        <span class="font-medium">{{ $qa['subject'] }}
-                                            <span class="text-muted">({{ $qa['part_count'] }} پارت - {{ $qa['time_per_part'] }} دقیقه)</span>
-                                        </span>
+                                    <div>
+                                        <span class="text-muted-foreground">پرسش و پاسخ ({{ \Morilog\Jalali\Jalalian::fromCarbon(
+    \Carbon\Carbon::parse($qa['qa_date'], 'UTC')->setTimezone('Asia/Tehran')
+)->format('Y/m/d') }}) :</span>
+                                        <span class="font-medium mr-1">{{ $qa['subject'] }}</span>
+                                        <span class="text-muted-foreground">({{ $qa['part_count'] }} پارت - {{ $qa['time_per_part'] }} دقیقه)</span>
                                     </div>
                                     @if($canEdit)
-                                        <button wire:click="deleteQa({{ $qa['id'] }})" class="text-red-500 transition hover:text-red-600">
+                                        <button wire:click="deleteQa({{ $qa['id'] }})" class="text-red-500 transition hover:text-red-600 mr-2 shrink-0">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/><path d="M10 11v6"/><path d="M14 11v6"/>
                                             </svg>
@@ -389,14 +353,14 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="py-4 text-center text-xs text-muted">هیچ پرسش و پاسخی ثبت نشده است.</p>
+                        <p class="py-4 text-center text-xs text-muted-foreground">هیچ پرسش و پاسخی ثبت نشده است.</p>
                     @endif
                 @endif
 
                 {{-- ===== مرحله ۳: تکالیف ===== --}}
                 @if($currentStep === 3)
                     <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">تکالیف</h3>
-                    <p class="mb-5 text-xs sm:text-sm text-muted">تکالیف هفته پیش رو را ثبت کنید.</p>
+                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">تکالیف هفته پیش رو را ثبت کنید.</p>
 
                     @if($canEdit)
                         <div class="mb-6 rounded-xl bg-muted/50 dark:bg-muted/30 px-3 py-4 sm:px-4 sm:py-5">
@@ -431,7 +395,7 @@
                                                     class="flex flex-col items-center justify-center min-w-[70px] px-2.5 py-2 rounded-xl border text-xs transition-all duration-150
                                                         {{ $assignmentForm['due_date'] === $dateItem['value']
                                                             ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30'
-                                                            : 'border-border bg-background text-muted hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:bg-blue-500/15' }}">
+                                                            : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600' }}">
                                                 <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
                                                 <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
                                             </button>
@@ -441,44 +405,30 @@
                                 </div>
 
                                 <div x-data="{ count: $wire.entangle('assignmentForm.part_count') }" x-init="if(!count || count < 1) count = 1">
-                                    <label class="mb-1 block text-xs font-medium text-foreground">تعداد پارت (پیشنهادی جهت مطالعه انجام تکالیف فوق)</label>
+                                    <label class="mb-1 block text-xs font-medium text-foreground">تعداد پارت (پیشنهادی جهت انجام تکالیف)</label>
                                     <div class="flex items-center gap-1">
-                                        <button type="button" @click="count++" class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-green-500/10 hover:border-green-500 hover:text-green-600 dark:hover:bg-green-500/15">
+                                        <button type="button" @click="count++" class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-green-500/10 hover:border-green-500 hover:text-green-600">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                                         </button>
                                         <input type="tel" min="1" x-model.number="count" @input="if(count < 1) count = 1" class="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
-                                        <button type="button" @click="if(count > 1) count--" class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-red-500/10 hover:border-red-500 hover:text-red-600 dark:hover:bg-red-500/15">
+                                        <button type="button" @click="if(count > 1) count--" class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-red-500/10 hover:border-red-500 hover:text-red-600">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
                                         </button>
                                     </div>
                                 </div>
 
-                                <div x-data="{
-                                    totalMinutes: $wire.entangle('assignmentForm.time_per_part'),
-                                    hours: 0, minutes: 0,
-                                    init() { let val = parseInt(this.totalMinutes)||0; this.hours=Math.floor(val/60); this.minutes=val%60; },
-                                    update() { let h=Math.min(Math.max(parseInt(this.hours)||0,0),24); let m=Math.min(Math.max(parseInt(this.minutes)||0,0),59); this.hours=h; this.minutes=m; this.totalMinutes=(h*60)+m; }
-                                }" x-init="init()">
-                                    <label class="mb-1 block text-xs font-medium text-foreground">زمان هر پارت</label>
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 relative">
-                                            <input type="tel" min="0" max="59" x-model.number="minutes" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">دقیقه</span>
-                                        </div>
-                                        <span class="text-lg font-bold text-muted">:</span>
-                                        <div class="flex-1 relative">
-                                            <input type="tel" min="0" max="24" x-model.number="hours" @input="update()" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 pl-10 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="0">
-                                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] text-muted pointer-events-none">ساعت</span>
-                                        </div>
-                                    </div>
-                                    <div class="mt-1 text-[10px] text-muted" x-show="totalMinutes > 0">
-                                        مجموع: <span x-text="totalMinutes"></span> دقیقه
-                                    </div>
-                                </div>
+                                @include('livewire.client.profile.consultation.partials.time-picker', [
+                                    'wireModel' => 'assignmentForm.time_per_part',
+                                    'xDataKey' => 'assignmentTimePicker',
+                                ])
                             </div>
 
-                            <button wire:click="addAssignment" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-background">
-                                افزودن تکلیف
+                            <button wire:click="addAssignment"
+                                    wire:loading.attr="disabled"
+                                    wire:target="addAssignment"
+                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60">
+                                <span wire:loading.remove wire:target="addAssignment">افزودن تکلیف</span>
+                                <span wire:loading wire:target="addAssignment" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                             </button>
                         </div>
                     @endif
@@ -487,14 +437,16 @@
                         <div class="space-y-2">
                             @foreach($assignments as $assignment)
                                 <div class="flex items-center justify-between rounded-xl bg-violet-500/10 dark:bg-violet-500/15 px-3 py-2.5 text-xs sm:text-sm text-foreground">
-                                    <div class="space-x-1 space-x-reverse">
-                                        <span class="text-muted">تکلیف ({{ jalali($assignment['due_date'])->format('Y/m/d') }}) :</span>
-                                        <span class="font-medium">{{ $assignment['subject'] }}
-                                            <span class="text-muted">({{ $assignment['part_count'] }} پارت - {{ $assignment['time_per_part'] }} دقیقه)</span>
-                                        </span>
+                                    <div>
+                                        <span class="text-muted-foreground">تکلیف (                                        {{ \Morilog\Jalali\Jalalian::fromCarbon(
+    \Carbon\Carbon::parse($assignment['due_date'], 'UTC')->setTimezone('Asia/Tehran')
+)->format('Y/m/d') }}) :</span>
+
+                                        <span class="font-medium mr-1">{{ $assignment['subject'] }}</span>
+                                        <span class="text-muted-foreground">({{ $assignment['part_count'] }} پارت - {{ $assignment['time_per_part'] }} دقیقه)</span>
                                     </div>
                                     @if($canEdit)
-                                        <button wire:click="deleteAssignment({{ $assignment['id'] }})" class="text-red-500 transition hover:text-red-600">
+                                        <button wire:click="deleteAssignment({{ $assignment['id'] }})" class="text-red-500 transition hover:text-red-600 mr-2 shrink-0">
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/><path d="M10 11v6"/><path d="M14 11v6"/>
                                             </svg>
@@ -504,14 +456,14 @@
                             @endforeach
                         </div>
                     @else
-                        <p class="py-4 text-center text-xs text-muted">هیچ تکلیفی ثبت نشده است.</p>
+                        <p class="py-4 text-center text-xs text-muted-foreground">هیچ تکلیفی ثبت نشده است.</p>
                     @endif
                 @endif
 
                 {{-- ===== مرحله ۴: متفرقه ===== --}}
                 @if($currentStep === 4)
                     <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">متفرقه</h3>
-                    <p class="mb-5 text-xs sm:text-sm text-muted">
+                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">
                         هر توضیح یا نکته دیگری که می‌خواهید به مشاور بگویید را اینجا بنویسید.
                     </p>
 
@@ -526,8 +478,12 @@
                     </div>
 
                     @if($canEdit)
-                        <button wire:click="saveMiscellaneous" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-background">
-                            ذخیره توضیحات
+                        <button wire:click="saveMiscellaneous"
+                                wire:loading.attr="disabled"
+                                wire:target="saveMiscellaneous"
+                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60">
+                            <span wire:loading.remove wire:target="saveMiscellaneous">ذخیره توضیحات</span>
+                            <span wire:loading wire:target="saveMiscellaneous" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                         </button>
                     @endif
                 @endif
@@ -535,41 +491,45 @@
                 {{-- ===== مرحله ۵: خلاصه ===== --}}
                 @if($currentStep === 5)
                     <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">خلاصه پیش‌جلسه</h3>
-                    <p class="mb-5 text-xs sm:text-sm text-muted">
-                        تمام اطلاعاتی که ثبت کرده‌اید در بخش‌های زیر نمایش داده شده است.
-                    </p>
+                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">تمام اطلاعاتی که ثبت کرده‌اید در بخش‌های زیر نمایش داده شده است.</p>
 
                     <div class="space-y-4 sm:space-y-6">
                         <div class="rounded-xl border border-border bg-muted/30 dark:bg-muted/20 p-3 sm:p-4">
                             <h4 class="mb-3 text-xs sm:text-sm font-bold text-blue-600">امتحانات ({{ count($exams) }} مورد)</h4>
                             @forelse($exams as $exam)
-                                <div class="border-b border-dashed border-border py-1 text-xs sm:text-sm last:border-b-0 text-foreground">
-                                    {{ $exam['subject'] }} – {{ $exam['part_count'] }} پارت ({{ $exam['time_per_part'] }} دقیقه) – {{ jalali($exam['exam_date'])->format('Y/m/d') }}
+                                <div class="border-b border-dashed border-border py-1.5 text-xs sm:text-sm last:border-b-0 text-foreground">
+                                    {{ $exam['subject'] }} – {{ $exam['part_count'] }} پارت ({{ $exam['time_per_part'] }} دقیقه) –
+                                    {{ \Morilog\Jalali\Jalalian::fromCarbon(
+    \Carbon\Carbon::parse($exam['exam_date'], 'UTC')->setTimezone('Asia/Tehran')
+)->format('Y/m/d') }}
                                 </div>
                             @empty
-                                <p class="text-xs text-muted">ثبت نشده</p>
+                                <p class="text-xs text-muted-foreground">ثبت نشده</p>
                             @endforelse
                         </div>
 
                         <div class="rounded-xl border border-border bg-muted/30 dark:bg-muted/20 p-3 sm:p-4">
                             <h4 class="mb-3 text-xs sm:text-sm font-bold text-emerald-600">پرسش و پاسخ ({{ count($qas) }} مورد)</h4>
                             @forelse($qas as $qa)
-                                <div class="border-b border-dashed border-border py-1 text-xs sm:text-sm last:border-b-0 text-foreground">
-                                    {{ $qa['subject'] }} – {{ $qa['part_count'] }} پارت ({{ $qa['time_per_part'] }} دقیقه) – {{ jalali($qa['qa_date'])->format('Y/m/d') }}
+                                <div class="border-b border-dashed border-border py-1.5 text-xs sm:text-sm last:border-b-0 text-foreground">
+                                    {{ $qa['subject'] }} – {{ $qa['part_count'] }} پارت ({{ $qa['time_per_part'] }} دقیقه) –
+                                    {{ \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($qa['qa_date'], 'UTC')->setTimezone('Asia/Tehran'))->format('Y/m/d') }}
                                 </div>
                             @empty
-                                <p class="text-xs text-muted">ثبت نشده</p>
+                                <p class="text-xs text-muted-foreground">ثبت نشده</p>
                             @endforelse
                         </div>
 
                         <div class="rounded-xl border border-border bg-muted/30 dark:bg-muted/20 p-3 sm:p-4">
                             <h4 class="mb-3 text-xs sm:text-sm font-bold text-violet-600">تکالیف ({{ count($assignments) }} مورد)</h4>
                             @forelse($assignments as $assignment)
-                                <div class="border-b border-dashed border-border py-1 text-xs sm:text-sm last:border-b-0 text-foreground">
-                                    {{ $assignment['subject'] }} – {{ $assignment['part_count'] }} پارت ({{ $assignment['time_per_part'] }} دقیقه) – {{ jalali($assignment['due_date'])->format('Y/m/d') }}
+                                <div class="border-b border-dashed border-border py-1.5 text-xs sm:text-sm last:border-b-0 text-foreground">
+                                    {{ $assignment['subject'] }} – {{ $assignment['part_count'] }} پارت ({{ $assignment['time_per_part'] }} دقیقه) –
+                                    {{ \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($assignment['due_date'], 'UTC')->setTimezone('Asia/Tehran'))->format('Y/m/d') }}
+
                                 </div>
                             @empty
-                                <p class="text-xs text-muted">ثبت نشده</p>
+                                <p class="text-xs text-muted-foreground">ثبت نشده</p>
                             @endforelse
                         </div>
 
@@ -578,7 +538,7 @@
                             @if($miscDescription)
                                 <p class="text-xs sm:text-sm text-foreground">{{ $miscDescription }}</p>
                             @else
-                                <p class="text-xs text-muted">ثبت نشده</p>
+                                <p class="text-xs text-muted-foreground">ثبت نشده</p>
                             @endif
                         </div>
                     </div>
@@ -587,9 +547,9 @@
                 {{-- دکمه‌های ناوبری --}}
                 <div class="mt-8 border-t border-border pt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-
                         @if($currentStep > 1)
-                            <button wire:click="prevStep" class="inline-flex items-center justify-center rounded-lg bg-muted px-5 py-2 text-xs sm:text-sm font-medium text-foreground shadow-sm transition hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-border focus:ring-offset-2 focus:ring-offset-background">
+                            <button wire:click="prevStep"
+                                    class="inline-flex items-center justify-center rounded-lg bg-muted px-5 py-2 text-xs sm:text-sm font-medium text-foreground shadow-sm transition hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-border">
                                 مرحله قبل
                             </button>
                         @endif
@@ -597,16 +557,22 @@
 
                     <div class="flex justify-end">
                         @if($currentStep < $totalSteps)
-                            <button wire:click="nextStep" class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-background">
+                            <button wire:click="nextStep"
+                                    class="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400">
                                 مرحله بعد
                             </button>
                         @else
                             @if($canEdit)
-                                <button wire:click="finalSubmit" class="inline-flex items-center justify-center rounded-lg bg-emerald-600 px-5 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-background">
-                                    ثبت نهایی پیش‌جلسه
+                                <button wire:click="finalSubmit"
+                                        wire:loading.attr="disabled"
+                                        wire:target="finalSubmit"
+                                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-5 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 disabled:opacity-60">
+                                    <span wire:loading.remove wire:target="finalSubmit">ثبت نهایی پیش‌جلسه</span>
+                                    <span wire:loading wire:target="finalSubmit" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                                 </button>
                             @else
-                                <a href="{{ route('client.profile.consultation.sessions') }}" class="inline-flex items-center justify-center rounded-lg bg-muted px-5 py-2 text-xs sm:text-sm font-medium text-foreground shadow-sm transition hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-border focus:ring-offset-2 focus:ring-offset-background">
+                                <a href="{{ route('client.profile.consultation.sessions') }}"
+                                   class="inline-flex items-center justify-center rounded-lg bg-muted px-5 py-2 text-xs sm:text-sm font-medium text-foreground shadow-sm transition hover:bg-muted/80">
                                     بازگشت به لیست جلسات
                                 </a>
                             @endif

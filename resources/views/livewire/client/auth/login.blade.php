@@ -123,9 +123,18 @@
                                 شماره موبایل
                             </label>
                             <div class="relative">
-                                <input type="tel" wire:model.live="mobile" maxlength="11" dir="ltr"
-                                       class="form-input w-full py-3 px-4 pl-12 rounded-xl border border-border bg-secondary text-foreground focus:outline-none @error('mobile') border-red-500 @enderror"
-                                       placeholder="09123456789">
+                                <input
+                                    wire:model.live="mobile"
+                                    class="form-input w-full py-3 px-4 pl-12 rounded-xl border border-border bg-secondary text-foreground focus:outline-none @error('mobile') border-red-500 @enderror"
+
+                                    x-on:input="$event.target.value = $event.target.value.replace(/[۰-۹٠-٩]/g,
+                                                    d => '٠١٢٣٤٥٦٧٨٩'.includes(d)
+                                                        ? '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]
+                                                        : '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString()
+                                                )"
+                                    type="tel"
+                                    inputmode="numeric"
+                                />
                                 <div class="absolute input-icon top-1/2 transform -translate-y-1/2 text-muted">
                                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>

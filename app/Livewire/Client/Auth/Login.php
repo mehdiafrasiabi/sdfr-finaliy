@@ -5,6 +5,7 @@ namespace App\Livewire\Client\Auth;
 use App\Models\Otp;
 use App\Models\User;
 use App\Notifications\SendOtpToUser;
+use App\Traits\NormalizesDigits;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Cookie;
 
 class Login extends Component
 {
-    use SEOTools;
+    use SEOTools,NormalizesDigits;
 
     public $loginMethod = 'password';
 
@@ -159,6 +160,9 @@ class Login extends Component
     public function sendOtp()
     {
         $this->isLoading = true;
+        $this->otpMobile = $this->convertToEnglishDigits($this->otpMobile);
+        $this->otpCode = $this->convertToEnglishDigits($this->otpCode);
+
         $this->errorMessage = '';
 
         $validator = Validator::make([
@@ -233,6 +237,9 @@ class Login extends Component
     public function verifyOtp()
     {
         $this->isLoading = true;
+        $this->otpMobile = $this->convertToEnglishDigits($this->otpMobile);
+        $this->otpCode = $this->convertToEnglishDigits($this->otpCode);
+
         $this->errorMessage = '';
 
         $validator = Validator::make([
