@@ -1,32 +1,3 @@
-<script>
-    document.addEventListener("livewire:navigated", () => {
-        const circle = document.querySelector(".services-circle");
-        if (!circle) return;
-
-        const run = () => {
-            // اگر وسط انیمیشن بود، دوباره از اول شروع کن
-            circle.classList.remove("is-bouncing");
-            // ری‌فلو برای ریست شدن انیمیشن
-            void circle.offsetWidth;
-            circle.classList.add("is-bouncing");
-        };
-
-        // اجرای اولیه (اختیاری)
-        run();
-
-        // هر 60 ثانیه
-        setInterval(run, 8000);
-
-        // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)
-        circle.addEventListener("animationend", (e) => {
-            if (e.animationName === "servicesBounceUpDown") {
-                circle.classList.remove("is-bouncing");
-            }
-        });
-    });
-</script>
-
-
 <script src="/client/assets/js/dependencies/swiper-bundle.min.js" data-navigate-once></script>
 <script src="/client/assets/js/dependencies/plyr.min.js" data-navigate-once></script>
 <script src="/client/assets/js/app.js" data-navigate-once></script>

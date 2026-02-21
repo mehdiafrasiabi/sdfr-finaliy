@@ -127,6 +127,25 @@
     {!! SEO::generate() !!}
     <link rel="preload" href="/client/assets/images/theme/intro/header.png" as="image">
     <link rel="preload" href="/client/assets/images/favicon.svg" as="image">
+    {{-- Keyframe Animations --}}
+    <style>
+        @keyframes slideInUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 0.7; }
+            50%       { opacity: 0.3; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to   { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+    </style>
 </head>
 
 <body class="dark">
@@ -142,45 +161,45 @@
      }">
 
 
-{{--    <!-- PWA Banner -->--}}
-{{--        <div id="pwaBanner" dir="rtl" class="w-full relative z-20" x-show="!pwaBannerClosed">--}}
-{{--            <div class="w-full border-b border-slate-200/60 dark:border-slate-700/60--}}
-{{--               bg-gradient-to-l from-blue-700 via-blue-600 to-indigo-700--}}
-{{--               dark:from-slate-900 dark:via-slate-900 dark:to-slate-800--}}
-{{--               text-white">--}}
-{{--                <div--}}
-{{--                    class="max-w-6xl mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row items-center justify-between gap-3">--}}
-{{--                    <div class="flex items-center gap-3 text-center md:text-right">--}}
-{{--                        <div--}}
-{{--                            class="shrink-0 w-10 h-10 rounded-2xl bg-white/15 dark:bg-white/10 flex items-center justify-center shadow-inner">--}}
-{{--                            <span class="text-xl">📱</span>--}}
-{{--                        </div>--}}
-{{--                        <div>--}}
-{{--                            <p class="font-extrabold text-base sm:text-lg md:text-xl leading-snug">--}}
-{{--                                همین حالا <span class="text-yellow-300">SDFR</span> رو روی موبایلت داشته باش--}}
-{{--                            </p>--}}
-{{--                            <p class="text-xs sm:text-sm text-white/80 dark:text-white/70 mt-0.5">--}}
-{{--                                نصب سریع، دسترسی راحت، تجربه بهتر ✨--}}
-{{--                            </p>--}}
-{{--                        </div>--}}
-{{--                    </div>--}}
-{{--                    <div class="flex items-center gap-2 sm:gap-3">--}}
-{{--                        <button id="installApp" type="button"--}}
-{{--                                class="group relative overflow-hidden rounded-full px-4 sm:px-5 py-2 text-sm font-bold--}}
-{{--                                       bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98]--}}
-{{--                                       shadow-md shadow-emerald-500/30 transition">--}}
-{{--                            <span class="relative z-10">نصب اپلیکیشن</span>--}}
-{{--                        </button>--}}
-{{--                        <button id="closeBanner" type="button"--}}
-{{--                                class="rounded-full px-4 sm:px-5 py-2 text-sm font-bold--}}
-{{--                                       bg-rose-500 hover:bg-rose-400 active:scale-[0.98]--}}
-{{--                                       shadow-md shadow-rose-500/25 transition">--}}
-{{--                            بستن--}}
-{{--                        </button>--}}
-{{--                    </div>--}}
-{{--                </div>--}}
-{{--            </div>--}}
-{{--        </div>--}}
+    <!-- PWA Banner -->
+        <div id="pwaBanner" dir="rtl" class="w-full relative z-20" x-show="!pwaBannerClosed">
+            <div class="w-full border-b border-slate-200/60 dark:border-slate-700/60
+               bg-gradient-to-l from-blue-700 via-blue-600 to-indigo-700
+               dark:from-slate-900 dark:via-slate-900 dark:to-slate-800
+               text-white">
+                <div
+                    class="max-w-6xl mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row items-center justify-between gap-3">
+                    <div class="flex items-center gap-3 text-center md:text-right">
+                        <div
+                            class="shrink-0 w-10 h-10 rounded-2xl bg-white/15 dark:bg-white/10 flex items-center justify-center shadow-inner">
+                            <span class="text-xl">📱</span>
+                        </div>
+                        <div>
+                            <p class="font-extrabold text-base sm:text-lg md:text-xl leading-snug">
+                                همین حالا <span class="text-yellow-300">SDFR</span> رو روی موبایلت داشته باش
+                            </p>
+                            <p class="text-xs sm:text-sm text-white/80 dark:text-white/70 mt-0.5">
+                                نصب سریع، دسترسی راحت، تجربه بهتر ✨
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 sm:gap-3">
+                        <button id="installApp" type="button"
+                                class="group relative overflow-hidden rounded-full px-4 sm:px-5 py-2 text-sm font-bold
+                                       bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98]
+                                       shadow-md shadow-emerald-500/30 transition">
+                            <span class="relative z-10">نصب اپلیکیشن</span>
+                        </button>
+                        <button id="closeBanner" type="button"
+                                class="rounded-full px-4 sm:px-5 py-2 text-sm font-bold
+                                       bg-rose-500 hover:bg-rose-400 active:scale-[0.98]
+                                       shadow-md shadow-rose-500/25 transition">
+                            بستن
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
     <!-- ANDROID Modal -->
     <div id="pwaAndroidModal" class="hidden fixed inset-0 z-50">
@@ -319,6 +338,33 @@
 
 
 @include('layouts.client.script')
+<script>
+    document.addEventListener("livewire:navigated", () => {
+        const circle = document.querySelector(".services-circle");
+        if (!circle) return;
+
+        const run = () => {
+            // اگر وسط انیمیشن بود، دوباره از اول شروع کن
+            circle.classList.remove("is-bouncing");
+            // ری‌فلو برای ریست شدن انیمیشن
+            void circle.offsetWidth;
+            circle.classList.add("is-bouncing");
+        };
+
+        // اجرای اولیه (اختیاری)
+        run();
+
+        // هر 60 ثانیه
+        setInterval(run, 8000);
+
+        // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)
+        circle.addEventListener("animationend", (e) => {
+            if (e.animationName === "servicesBounceUpDown") {
+                circle.classList.remove("is-bouncing");
+            }
+        });
+    });
+</script>
 <script data-navigate-once>
     //remove wire:snapshot form tags in client
 
@@ -571,25 +617,7 @@
             });
         });
     }</script>
-{{-- Keyframe Animations --}}
-<style>
-    @keyframes slideInUp {
-        from { opacity: 0; transform: translateY(40px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes blink {
-        0%, 100% { opacity: 0.7; }
-        50%       { opacity: 0.3; }
-    }
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to   { opacity: 1; }
-    }
-    @keyframes slideUp {
-        from { opacity: 0; transform: translateY(30px) scale(0.95); }
-        to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-</style>
+
 </body>
 
 </html>

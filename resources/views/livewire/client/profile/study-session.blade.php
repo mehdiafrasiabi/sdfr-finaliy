@@ -54,10 +54,7 @@
                             <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
                             </svg>
-
-                            <span class="font-black text-white text-blue-300 md:text-lg">
-                                راهنمای ثبت ساعت مطالعه
-                            </span>
+                            <span class="font-black text-white md:text-lg">راهنمای ثبت ساعت مطالعه</span>
                         </div>
 
                         <svg
@@ -93,8 +90,7 @@
                                     allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
                                     data-video-title="راهنمای ثبت ساعت مطالعه"
                                     class="absolute inset-0 flex items-center justify-center">
-                                    <span
-                                        class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60 flex items-center justify-center shadow-lg transition">
+                                    <span class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60 flex items-center justify-center shadow-lg transition">
                                         <svg class="w-7 h-7 text-blue-600 mr-1" fill="currentColor" viewBox="0 0 24 24">
                                             <path d="M8 5v14l11-7z"/>
                                         </svg>
@@ -117,11 +113,11 @@
 
                 @if($weeklyProgram)
 
-                    {{-- تایمر یکپارچه (عادی + اضافه بر سازمان) --}}
+                    {{-- تایمر یکپارچه --}}
                     <div
                         class="sticky top-3 z-40"
                         wire:key="timer-unified"
-                        wire:poll.visible.1000ms="{{ $makeupTimerRunning ? 'tickMakeup' : 'tick' }}">
+                        wire:poll.1000ms="syncTimers">
 
                         @if($makeupTimerRunning || $makeupPausedAtTs)
                             {{-- حالت اضافه بر سازمان (بنفش) --}}
@@ -151,10 +147,7 @@
                                             </div>
 
                                             <div class="mt-1 inline-flex items-center gap-2 text-[10px] text-violet-100/80">
-                                                <span
-                                                    class="w-2 h-2 rounded-full bg-slate-300/55 shadow-[0_0_10px_rgba(148,163,184,.25)]
-                                                           {{ $makeupTimerRunning ? 'bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.45)]' : '' }}">
-                                                </span>
+                                                <span class="w-2 h-2 rounded-full {{ $makeupTimerRunning ? 'bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.45)]' : 'bg-slate-300/55' }}"></span>
                                                 <span>{{ $makeupTimerRunning ? 'زنده' : 'متوقف' }}</span>
                                             </div>
                                         </div>
@@ -162,32 +155,34 @@
                                         <div class="flex flex-wrap items-center gap-2 justify-end">
                                             @if($makeupTimerRunning)
                                                 <button wire:click="pauseMakeup"
-                                                        class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500
-                                                               focus:outline-none focus:ring-2 focus:ring-orange-300/50
-                                                               font-semibold text-xs transition">
-                                                    توقف
+                                                        wire:loading.attr="disabled"
+                                                        wire:target="pauseMakeup"
+                                                        class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300/50 font-semibold text-xs transition disabled:opacity-60 inline-flex items-center gap-2">
+                                                    <span wire:loading.remove wire:target="pauseMakeup">توقف</span>
+                                                    <span wire:loading wire:target="pauseMakeup" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                                                 </button>
                                             @elseif($makeupPausedAtTs)
                                                 <button wire:click="resumeMakeup"
-                                                        class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500
-                                                               focus:outline-none focus:ring-2 focus:ring-emerald-300/50
-                                                               font-semibold text-xs transition">
-                                                    ادامه
+                                                        wire:loading.attr="disabled"
+                                                        wire:target="resumeMakeup"
+                                                        class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 font-semibold text-xs transition disabled:opacity-60 inline-flex items-center gap-2">
+                                                    <span wire:loading.remove wire:target="resumeMakeup">ادامه</span>
+                                                    <span wire:loading wire:target="resumeMakeup" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                                                 </button>
                                             @endif
 
                                             <button wire:click="cancelMakeup"
-                                                    class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15
-                                                           focus:outline-none focus:ring-2 focus:ring-white/20
-                                                           font-semibold text-xs transition">
-                                                لغو
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="cancelMakeup"
+                                                    class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 focus:outline-none focus:ring-2 focus:ring-white/20 font-semibold text-xs transition disabled:opacity-60 inline-flex items-center gap-2">
+                                                <span wire:loading.remove wire:target="cancelMakeup">لغو</span>
+                                                <span wire:loading wire:target="cancelMakeup" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                                             </button>
                                         </div>
                                     </div>
 
                                     <div class="text-center">
-                                        <div
-                                            class="font-['Digital',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation_Mono','Courier_New',monospace]
+                                        <div class="font-['Digital',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation_Mono','Courier_New',monospace]
                                                    text-[clamp(40px,6vw,56px)] tracking-[2px] leading-none
                                                    text-violet-200 [text-shadow:0_0_12px_rgba(196,181,253,.35)]">
                                             {{ $this->formatClock($makeupRemainingSeconds) }}
@@ -201,7 +196,6 @@
                                                  style="width: {{ $makeupTargetSeconds > 0 ? ($makeupLiveSeconds / $makeupTargetSeconds * 100) : 0 }}%">
                                             </div>
                                         </div>
-
                                         <div class="flex items-center justify-between text-[10px] text-violet-100/80">
                                             <span>مصرف‌شده: <span class="text-violet-100 font-semibold">{{ $this->formatClock($makeupLiveSeconds) }}</span></span>
                                             <span>کل: <span class="text-violet-100 font-semibold">{{ $this->formatClock($makeupTargetSeconds) }}</span></span>
@@ -211,7 +205,7 @@
                             </section>
 
                         @else
-                            {{-- حالت عادی (طلایی/نارنجی) --}}
+                            {{-- حالت عادی (طلایی/تاریک) --}}
                             <section
                                 class="rounded-3xl p-4 sm:p-6 text-white relative overflow-hidden border border-slate-300/20
                                        bg-gradient-to-br from-slate-900/95 to-slate-950/95
@@ -234,7 +228,6 @@
                                                         <span class="mx-1 text-slate-400">></span>
                                                         <span class="text-slate-200">{{ $activePart->ccTopic->name }}</span>
                                                     @endif
-
                                                     <span class="mx-2 text-slate-400">&bull;</span>
                                                     <span class="{{ $isRunning ? 'text-emerald-200' : 'text-orange-200' }} font-semibold">
                                                         {{ $isRunning ? 'در حال اجرا' : 'متوقف' }}
@@ -245,10 +238,7 @@
                                             </div>
 
                                             <div class="mt-1 inline-flex items-center gap-2 text-[10px] text-slate-200/80">
-                                                <span
-                                                    class="w-2 h-2 rounded-full bg-slate-300/55 shadow-[0_0_10px_rgba(148,163,184,.25)]
-                                                           {{ ($currentPartId && $isRunning) ? 'bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.45)]' : '' }}">
-                                                </span>
+                                                <span class="w-2 h-2 rounded-full {{ ($currentPartId && $isRunning) ? 'bg-emerald-400 shadow-[0_0_14px_rgba(52,211,153,.45)]' : 'bg-slate-300/55' }}"></span>
                                                 <span>{{ ($currentPartId && $isRunning) ? 'زنده' : 'آماده' }}</span>
                                             </div>
                                         </div>
@@ -256,34 +246,36 @@
                                         <div class="flex flex-wrap items-center gap-2 justify-end">
                                             @if($currentPartId && $isRunning)
                                                 <button wire:click="pausePart"
-                                                        class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500
-                                                               focus:outline-none focus:ring-2 focus:ring-orange-300/50
-                                                               font-semibold text-xs transition inline-flex items-center gap-2">
-                                                    توقف
+                                                        wire:loading.attr="disabled"
+                                                        wire:target="pausePart"
+                                                        class="px-4 h-10 rounded-full bg-orange-500/90 hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-300/50 font-semibold text-xs transition disabled:opacity-60 inline-flex items-center gap-2">
+                                                    <span wire:loading.remove wire:target="pausePart">توقف</span>
+                                                    <span wire:loading wire:target="pausePart" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                                                 </button>
                                             @elseif($currentPartId && !$isRunning && $pausedAtTs)
                                                 <button wire:click="resumePart"
-                                                        class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500
-                                                               focus:outline-none focus:ring-2 focus:ring-emerald-300/50
-                                                               font-semibold text-xs transition inline-flex items-center gap-2">
-                                                    ادامه
+                                                        wire:loading.attr="disabled"
+                                                        wire:target="resumePart"
+                                                        class="px-4 h-10 rounded-full bg-emerald-500/90 hover:bg-emerald-500 focus:outline-none focus:ring-2 focus:ring-emerald-300/50 font-semibold text-xs transition disabled:opacity-60 inline-flex items-center gap-2">
+                                                    <span wire:loading.remove wire:target="resumePart">ادامه</span>
+                                                    <span wire:loading wire:target="resumePart" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                                                 </button>
                                             @endif
 
                                             @if($currentPartId)
                                                 <button wire:click="cancelPart"
-                                                        class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15
-                                                               focus:outline-none focus:ring-2 focus:ring-white/20
-                                                               font-semibold text-xs transition inline-flex items-center gap-2">
-                                                    لغو
+                                                        wire:loading.attr="disabled"
+                                                        wire:target="cancelPart"
+                                                        class="px-4 h-10 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 focus:outline-none focus:ring-2 focus:ring-white/20 font-semibold text-xs transition disabled:opacity-60 inline-flex items-center gap-2">
+                                                    <span wire:loading.remove wire:target="cancelPart">لغو</span>
+                                                    <span wire:loading wire:target="cancelPart" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                                                 </button>
                                             @endif
                                         </div>
                                     </div>
 
                                     <div class="text-center">
-                                        <div
-                                            class="font-['Digital',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation_Mono','Courier_New',monospace]
+                                        <div class="font-['Digital',ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,'Liberation_Mono','Courier_New',monospace]
                                                    text-[clamp(40px,6vw,56px)] tracking-[2px] leading-none
                                                    text-amber-500 [text-shadow:0_0_12px_rgba(245,158,11,.35)]">
                                             {{ $this->formatClock($currentPartId ? $remainingSeconds : 0) }}
@@ -316,19 +308,19 @@
                         <div class="mt-4">
                             <button wire:click="openMakeupModal"
                                     wire:loading.attr="disabled"
+                                    wire:target="openMakeupModal"
                                     class="w-full sm:w-auto px-6 h-12 rounded-2xl bg-gradient-to-l from-violet-600 to-indigo-600
                                            hover:from-violet-700 hover:to-indigo-700 text-white font-bold text-sm transition
                                            shadow-lg shadow-violet-500/25 inline-flex items-center justify-center gap-2
                                            disabled:opacity-60 disabled:cursor-not-allowed">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                                     stroke="currentColor" class="w-5 h-5">
+                                     stroke="currentColor" class="w-5 h-5" wire:loading.remove wire:target="openMakeupModal">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                                 </svg>
-
-                                <span>ثبت ساعت مطالعه خارج از چارچوب برنامه</span>
-
+                                <span wire:loading.remove wire:target="openMakeupModal">ثبت ساعت مطالعه خارج از چارچوب برنامه</span>
                                 <span wire:loading wire:target="openMakeupModal"
-                                      class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                      class="inline-block w-4 h-4 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                <span wire:loading wire:target="openMakeupModal" class="text-xs">در حال بارگذاری...</span>
                             </button>
                         </div>
                     @endif
@@ -353,7 +345,6 @@
                                             {{ $dayFilter==='all' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
                                         همه
                                     </button>
-
                                 </div>
 
                                 <button wire:click="toggleProgram"
@@ -373,7 +364,7 @@
                     {{-- لیست برنامه --}}
                     @if($showProgram)
 
-                        @php $programDays = $this->getProgramDays();@endphp
+                        @php $programDays = $this->getProgramDays(); @endphp
 
                         <div class="mt-5 space-y-7">
 
@@ -383,7 +374,7 @@
                                     $showDay = true;
                                     if ($dayFilter === 'today') {
                                         $showDay = $day['date'] === now()->toDateString();
-                                                                        }
+                                    }
                                 @endphp
 
                                 @if($showDay)
@@ -438,15 +429,15 @@
                                                 @foreach($day['parts']->sortBy('part_order') as $part)
                                                     <tr class="hover:bg-secondary/60 transition {{ in_array($part->part_type, ['comprehensive_exam', 'exam_analysis']) ? 'bg-red-50/50 dark:bg-red-900/10' : '' }}">
                                                         <td class="px-3 py-3 text-foreground">
-                                                            <div class="font-semibold {{ in_array($part->part_type, ['comprehensive_exam', 'exam_analysis']) ? 'text-red-700 dark:text-red-400' : '' }}">{{ $part->lesson_name }}@if($part->ccChapter)<span class="text-muted font-normal">({{ $part->ccChapter->name }})</span>@endif</div>
+                                                            <div class="font-semibold {{ in_array($part->part_type, ['comprehensive_exam', 'exam_analysis']) ? 'text-red-700 dark:text-red-400' : '' }}">
+                                                                {{ $part->lesson_name }}@if($part->ccChapter)<span class="text-muted font-normal">({{ $part->ccChapter->name }})</span>@endif
+                                                            </div>
 
                                                             @if($part->ccTopic)
                                                                 <div class="text-[11px] text-primary mt-0.5">{{ $part->ccTopic->name }}</div>
                                                             @endif
                                                             @if($part->description)
-                                                                <div class="text-[11px] text-muted mt-0.5">
-                                                                    {{ Str::limit($part->description, 300) }}
-                                                                </div>
+                                                                <div class="text-[11px] text-muted mt-0.5">{{ Str::limit($part->description, 300) }}</div>
                                                             @endif
                                                         </td>
 
@@ -640,9 +631,14 @@
                                 </button>
 
                                 <button type="button" wire:click="savePart"
+                                        wire:loading.attr="disabled"
+                                        wire:target="savePart"
                                         class="px-8 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white font-semibold transition
-                                               transform hover:scale-105">
-                                    ثبت پارت
+                                               transform hover:scale-105 disabled:opacity-60 inline-flex items-center gap-2">
+                                    <span wire:loading.remove wire:target="savePart">ثبت پارت</span>
+                                    <span wire:loading wire:target="savePart"
+                                          class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                    <span wire:loading wire:target="savePart" class="text-xs">در حال ثبت...</span>
                                 </button>
                             </div>
                         </div>
@@ -682,9 +678,14 @@
                                 </button>
 
                                 <button type="button" wire:click="saveMakeupSession"
+                                        wire:loading.attr="disabled"
+                                        wire:target="saveMakeupSession"
                                         class="px-8 h-11 rounded-full bg-violet-500 hover:bg-violet-600 text-white font-semibold transition
-                                               transform hover:scale-105">
-                                    ثبت جلسه
+                                               transform hover:scale-105 disabled:opacity-60 inline-flex items-center gap-2">
+                                    <span wire:loading.remove wire:target="saveMakeupSession">ثبت جلسه</span>
+                                    <span wire:loading wire:target="saveMakeupSession"
+                                          class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                    <span wire:loading wire:target="saveMakeupSession" class="text-xs">در حال ثبت...</span>
                                 </button>
                             </div>
                         </div>
@@ -744,16 +745,11 @@
                                         {{ $feedbackRating >= 5 && $feedbackRating < 7 ? 'text-yellow-600 dark:text-yellow-400' : '' }}
                                         {{ $feedbackRating >= 3 && $feedbackRating < 5 ? 'text-orange-600 dark:text-orange-400' : '' }}
                                         {{ $feedbackRating < 3 ? 'text-red-600 dark:text-red-400' : '' }}">
-                                        @if($feedbackRating >= 9)
-                                            عالی
-                                        @elseif($feedbackRating >= 7)
-                                            خوب
-                                        @elseif($feedbackRating >= 5)
-                                            متوسط
-                                        @elseif($feedbackRating >= 3)
-                                            ضعیف
-                                        @else
-                                            خیلی ضعیف
+                                        @if($feedbackRating >= 9) عالی
+                                        @elseif($feedbackRating >= 7) خوب
+                                        @elseif($feedbackRating >= 5) متوسط
+                                        @elseif($feedbackRating >= 3) ضعیف
+                                        @else خیلی ضعیف
                                         @endif
                                         ({{ $feedbackRating }}/10)
                                     </div>
@@ -771,13 +767,16 @@
                         </div>
 
                         <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl">
-                            <button type="button" wire:click="submitFeedback" wire:loading.attr="disabled"
+                            <button type="button" wire:click="submitFeedback"
+                                    wire:loading.attr="disabled"
+                                    wire:target="submitFeedback"
                                     class="px-6 h-11 rounded-full bg-primary text-white font-semibold hover:bg-primary/90 transition
                                            disabled:opacity-60 inline-flex items-center gap-2"
                                 {{ $feedbackRating < 1 ? 'disabled' : '' }}>
                                 <span wire:loading.remove wire:target="submitFeedback">ثبت بازخورد</span>
                                 <span wire:loading wire:target="submitFeedback"
                                       class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                <span wire:loading wire:target="submitFeedback" class="text-xs">در حال ثبت...</span>
                             </button>
                         </div>
                     </div>
@@ -786,7 +785,7 @@
 
                 {{-- مودال مطالعه جبرانی --}}
                 <div x-cloak x-show="makeupModal"
-                     class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm "
+                     class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
                      x-transition>
                     <div class="w-full max-w-lg mx-4 bg-secondary border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
                          @click.away="makeupModal = false">
@@ -826,7 +825,6 @@
                                     </span>
                                 </div>
 
-                                {{-- نتایج جستجو --}}
                                 <div wire:loading wire:target="makeupSearch" class="mt-2 text-center py-4">
                                     <span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-primary/30 border-t-primary animate-spin"></span>
                                     <span class="text-xs text-muted mr-2">در حال جستجو...</span>
@@ -862,7 +860,6 @@
                                 <p class="text-[11px] text-muted mb-3">یا از فیلترهای زیر استفاده کنید:</p>
 
                                 <div class="space-y-3 mb-3">
-
                                     @if($this->fields->isNotEmpty())
                                         <div>
                                             <label class="block text-[11px] font-semibold text-foreground mb-1">رشته</label>
@@ -1014,13 +1011,16 @@
                                 انصراف
                             </button>
 
-                            <button type="button" wire:click="startMakeupTimer" wire:loading.attr="disabled"
+                            <button type="button" wire:click="startMakeupTimer"
+                                    wire:loading.attr="disabled"
+                                    wire:target="startMakeupTimer"
                                     class="px-6 h-10 rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold text-sm transition
                                            disabled:opacity-60 inline-flex items-center gap-2"
                                 {{ !$makeupTopicId ? 'disabled' : '' }}>
                                 <span wire:loading.remove wire:target="startMakeupTimer">شروع تایمر</span>
                                 <span wire:loading wire:target="startMakeupTimer"
                                       class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                <span wire:loading wire:target="startMakeupTimer" class="text-xs">در حال شروع...</span>
                             </button>
                         </div>
                     </div>
@@ -1033,20 +1033,31 @@
 
     @script
     <script>
+        // اگر قبلاً دسترسی داده شده، مستقیم به Livewire اطلاع بده
+        window.addEventListener('livewire:initialized', () => {
+            if ('Notification' in window && Notification.permission === 'granted') {
+            @this.call('onPermissionsGranted');
+            }
+        });
+
+        // وقتی کاربر روی "متوجه شدم" کلیک کرد
         window.addEventListener('request-permissions', async () => {
             try {
                 if ('Notification' in window && Notification.permission !== 'granted') {
                     await Notification.requestPermission();
                 }
 
+                // تست صدا برای unlock کردن audio context
                 const testAudio = new Audio('/client/sounds/Alarmclock.ogg');
                 testAudio.volume = 0.01;
                 await testAudio.play();
                 testAudio.pause();
 
-            @this.call('onPermissionsGranted');
             } catch (error) {
                 console.warn('Permission request error:', error);
+            } finally {
+                // در هر صورت (با یا بدون خطا) دسترسی رو granted در نظر بگیر
+            @this.call('onPermissionsGranted');
             }
         });
 
@@ -1068,10 +1079,14 @@
             }
         });
 
-        window.addEventListener('livewire:initialized', () => {
-            if ('Notification' in window && Notification.permission === 'granted') {
-            @this.call('onPermissionsGranted');
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+            @this.call('syncTimers');
             }
+        });
+
+        window.addEventListener('focus', () => {
+        @this.call('syncTimers');
         });
     </script>
     @endscript

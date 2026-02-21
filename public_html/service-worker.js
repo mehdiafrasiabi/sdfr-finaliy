@@ -1,6 +1,8 @@
-// service-worker.js - در مسیر public قرار بده
+// public/service-worker.js
 
-const CACHE_NAME = 'sdfrApp-v3';
+const CACHE_NAME = 'sdfrApp-v4'; // نسخه رو عوض کن تا کلاینت‌ها SW جدید بگیرن
+const STATIC_CACHE = CACHE_NAME + ':static';
+
 const urlsToCache = [
     '/',
     '/manifest.json',
@@ -20,60 +22,96 @@ const urlsToCache = [
     '/client/assets/css/custom-pagination.css',
     '/client/assets/css/custom-pagination2.css',
     '/client/assets/css/fonts.css',
-    // اگر فایل CSS یا JS مهم داری اینجا اضافه کن
     '/client/assets/js/app.js',
     '/client/assets/js/dependencies/plyr.min.js',
     '/client/assets/js/dependencies/swiper-bundle.min.js',
     '/client/assets/js/story-player/story-player.js',
     '/client/assets/js/story-player/styles.css',
-
 ];
 
-// نصب Service Worker
+// نصب
 self.addEventListener('install', (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => {
-            // به جای addAll، هر فایل رو جداگانه اضافه کن
-            const promises = urlsToCache.map(url =>
-                cache.add(url).catch(err => {
-                    console.warn('⚠️ Failed to cache:', url, err);
-                })
+        caches.open(STATIC_CACHE).then(async (cache) => {
+            await Promise.all(
+                urlsToCache.map((url) =>
+                    cache.add(url).catch((err) => console.warn('⚠️ Failed to cache:', url, err))
+                )
             );
-            return Promise.all(promises);
         }).then(() => self.skipWaiting())
     );
 });
 
 // فعال‌سازی
 self.addEventListener('activate', (event) => {
-    console.log('✅ Service Worker activated');
     event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cache) => {
-                    if (cache !== CACHE_NAME) {
-                        console.log('🗑️ Deleting old cache:', cache);
-                        return caches.delete(cache);
-                    }
-                })
-            );
-        }).then(() => self.clients.claim())
+        caches.keys().then((keys) =>
+            Promise.all(keys.map((k) => (k !== STATIC_CACHE ? caches.delete(k) : null)))
+        ).then(() => self.clients.claim())
     );
 });
 
-// استراتژی Cache First (برای فایل‌های استاتیک)
 self.addEventListener('fetch', (event) => {
-    event.respondWith(
-        caches.match(event.request)
-            .then((response) => {
-                // اگر در Cache بود برگردون، وگرنه از شبکه بگیر
-                return response || fetch(event.request);
+    const req = event.request;
+    const url = new URL(req.url);
+
+    // فقط همون origin خودمون
+    if (url.origin !== self.location.origin) return;
+
+    // ✅ 1) هرچی غیر GET هست اصلاً دست نزن (POST/PUT/...)
+    if (req.method !== 'GET') return;
+
+    // ✅ 2) Livewire endpoints رو کامل exclude کن
+    if (url.pathname.startsWith('/livewire')) return;
+
+    // ✅ 3) مسیرهای حساس سشن/لاگین/لاگ‌اوت رو هم exclude کن (اینا رو طبق پروژه‌ت تنظیم کن)
+    const bypassPrefixes = [
+        '/logout',
+        '/sign-in',
+        '/admin',
+        '/manager',
+        '/profile', // چون start_url و scope شما اینجاست
+    ];
+    // اگر client شما زیر /profile هست و صفحاتش داینامیکه، بهتره HTML ها network-first باشن (پایین‌تر)
+    // اینجا صرفاً مثال بود. می‌تونی این قسمت رو حذف کنی.
+
+    // ✅ 4) برای فایل‌های استاتیک Cache First
+    const isStaticAsset =
+        url.pathname.startsWith('/client/assets/') ||
+        url.pathname === '/manifest.json' ||
+        url.pathname.endsWith('.css') ||
+        url.pathname.endsWith('.js') ||
+        url.pathname.endsWith('.png') ||
+        url.pathname.endsWith('.jpg') ||
+        url.pathname.endsWith('.jpeg') ||
+        url.pathname.endsWith('.svg') ||
+        url.pathname.endsWith('.woff') ||
+        url.pathname.endsWith('.woff2');
+
+    if (isStaticAsset) {
+        event.respondWith(
+            caches.match(req).then((cached) => {
+                if (cached) return cached;
+                return fetch(req).then((res) => {
+                    const copy = res.clone();
+                    caches.open(STATIC_CACHE).then((cache) => cache.put(req, copy));
+                    return res;
+                });
             })
-            .catch(() => {
-                // اگر آفلاین بود و صفحه HTML بود، صفحه آفلاین نشون بده
-                if (event.request.destination === 'document') {
-                    return caches.match('/offline.html');
-                }
-            })
-    );
+        );
+        return;
+    }
+
+    // ✅ 5) برای HTML / صفحات: Network First (تا session/CSRF/Livewire قاطی نکنه)
+    if (req.mode === 'navigate' || req.destination === 'document') {
+        event.respondWith(
+            fetch(req)
+                .then((res) => res)
+                .catch(() => caches.match('/offline.html'))
+        );
+        return;
+    }
+
+    // ✅ fallback
+    event.respondWith(fetch(req).catch(() => caches.match(req)));
 });
