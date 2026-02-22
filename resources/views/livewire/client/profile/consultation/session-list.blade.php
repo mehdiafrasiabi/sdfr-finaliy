@@ -137,9 +137,11 @@
                                 @foreach($sessions as $session)
                                     @php
                                         $isExpanded = in_array($session->id, $expandedSessions ?? []);
+                                        $isLocked   = in_array($session->id, $lockedSessionIds ?? []);
                                     @endphp
 
-                                    <div class="bg-secondary border border-border rounded-2xl overflow-hidden flex flex-col">
+                                    <div class="bg-secondary border border-border rounded-2xl overflow-hidden flex flex-col
+                                                {{ $isLocked ? 'opacity-75' : '' }}">
 
                                         <!-- Main Box -->
                                         <div class="p-4 flex-1 flex flex-col gap-4">
@@ -148,15 +150,31 @@
                                             <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                                                 <!-- راست: آیکن و عنوان و تاریخ -->
                                                 <div class="flex items-center gap-4">
-                                                    <div class="flex-shrink-0 w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-full flex items-center justify-center">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                                        </svg>
+                                                    <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center
+                                                                {{ $isLocked ? 'bg-gray-200 dark:bg-gray-700' : 'bg-purple-100 dark:bg-purple-900/30' }}">
+                                                        @if($isLocked)
+                                                            <!-- آیکن قفل -->
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                                            </svg>
+                                                        @else
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                            </svg>
+                                                        @endif
                                                     </div>
 
                                                     <div class="flex-1" style="margin-right: 10px">
-                                                        <h3 class="font-bold text-foreground text-lg">
+                                                        <h3 class="font-bold text-foreground text-lg flex items-center gap-2">
                                                             {{ $session->title }}
+                                                            @if($isLocked)
+                                                                <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-xs rounded-full">
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                                                    </svg>
+                                                                    قفل شده
+                                                                </span>
+                                                            @endif
                                                         </h3>
 
                                                         <p class="text-sm text-muted mt-1">
@@ -216,7 +234,7 @@
                                                             @endif
 
                                                             <!-- وضعیت پیش‌جلسه -->
-                                                            @if($session->preSession)
+                                                            @if(!$isLocked && $session->preSession)
                                                                 @if($session->preSession->status === 'completed')
                                                                     <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-400 text-xs rounded-full">
                                                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -234,39 +252,62 @@
                                                                 @endif
                                                             @endif
                                                         </div>
+                                                        <!-- پیام قفل بودن جلسه -->
+                                                        @if($isLocked)
+                                                            <div class="mt-3 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-800/50 rounded-lg px-3 py-2">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                                                </svg>
+                                                                <span>
+                                                                    این جلسه قفل است. پس از مشخص شدن نتیجه جلسه قبلی، این جلسه برای شما باز می‌شود.
+                                                                </span>
+                                                            </div>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
 
                                             <!-- پایین باکس: دکمه‌ها -->
                                             <div class="mt-2 pt-3 border-t border-border flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-2 md:gap-3">
-                                                @if($session->canFillPreSession() && $session->preSession && $session->preSession->status !== 'completed')
-                                                    <button wire:click="openPreSessionModal({{$session->id}})"
-                                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold text-sm transition-colors">
+                                                @if($isLocked)
+                                                    {{-- جلسه قفل است: نمایش دکمه غیر فعال --}}
+                                                    <button disabled
+                                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 rounded-xl font-semibold text-sm cursor-not-allowed opacity-60">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                                        </svg>
-                                                        پر کردن پیش‌جلسه
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>                                                        </svg>
+                                                        جلسه قفل است
                                                     </button>
-                                                @elseif($session->preSession)
-                                                    <a wire:ignore href="{{ route('client.profile.consultation.pre-session', $session->id) }}"
-                                                       class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-500 hover:bg-slate-600 text-white rounded-xl font-semibold text-sm transition-colors">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                                        </svg>
-                                                        مشاهده پیش‌جلسه
-                                                    </a>
-                                                @endif
+                                                @else
+                                                    {{-- جلسه باز است: نمایش دکمه‌های معمولی --}}
+                                                    @if($session->canFillPreSession() && $session->preSession && $session->preSession->status !== 'completed')
+                                                        <button wire:click="openPreSessionModal({{$session->id}})"
+                                                                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold text-sm transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                                            </svg>
+                                                            پر کردن پیش‌جلسه
+                                                        </button>
+                                                    @elseif($session->preSession)
+                                                        <a wire:ignore href="{{ route('client.profile.consultation.pre-session', $session->id) }}"
+                                                           class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-500 hover:bg-slate-600 text-white rounded-xl font-semibold text-sm transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                                            </svg>
+                                                            مشاهده پیش‌جلسه
+                                                        </a>
+                                                    @endif
 
-                                                @if($session->skyroom_link && $session->is_active)
-                                                    <a wire:ignore href="{{ $session->skyroom_link }}" target="_blank"
-                                                       class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
-                                                        </svg>
-                                                        ورود به جلسه
-                                                    </a>
+
+                                                    @if($session->skyroom_link && $session->is_active)
+                                                        <a wire:ignore href="{{ $session->skyroom_link }}" target="_blank"
+                                                           class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                                            </svg>
+                                                            ورود به جلسه
+                                                        </a>
+                                                    @endif
                                                 @endif
 
                                                 <!-- دکمه دراپ‌داون -->

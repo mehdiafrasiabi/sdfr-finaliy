@@ -68,13 +68,33 @@ class SessionList extends Component
         $student = Student::where('user_id', $user->id)->first();
         $sessions = collect();
         $weeklyPrograms = collect();
-
+        $lockedSessionIds = [];
         if ($student) {
+            // Get ALL sessions in chronological order (asc) to determine locking
+            $allSessionsOrdered = AdvisingSession::where('student_id', $student->id)
+                ->orderBy('activation_date', 'asc')
+                ->orderBy('id', 'asc')
+                ->get();
+
+            // Determine which sessions are locked:
+            // - Session 0 (earliest): always unlocked
+            // - Session N: locked if session N-1 has no result_status
+            foreach ($allSessionsOrdered as $index => $session) {
+                if ($index === 0) {
+                    continue; // first session always unlocked
+                }
+                $prevSession = $allSessionsOrdered[$index - 1];
+                if ($prevSession->result_status === null) {
+                    $lockedSessionIds[] = $session->id;
+                }
+            }
+
+            // Paginate for display (desc order for display)
             $sessions = AdvisingSession::where('student_id', $student->id)
                 ->with(['preSession', 'advisor', 'weeklyProgram'])
-                ->orderBy('activation_date', 'desc')
+                ->orderBy('activation_date', 'desc')->latest()
                 ->paginate(10);
-            // فعال‌سازی خودکار جلسات
+            // Auto-activate sessions
             foreach ($sessions as $session) {
                 $session->activateIfNeeded();
             }
@@ -90,6 +110,7 @@ class SessionList extends Component
             'sessions' => $sessions,
             'weeklyPrograms' => $weeklyPrograms,
             'student' => $student,
+            'lockedSessionIds' => $lockedSessionIds,
         ])->layout('layouts.client.app');
     }
 }

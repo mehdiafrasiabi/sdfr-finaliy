@@ -983,16 +983,89 @@
 
                             <div class="border-t border-border pt-4">
                                 <label class="block text-xs font-semibold text-foreground mb-2">مدت زمان مطالعه</label>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-[10px] text-muted mb-1">ساعت</label>
-                                        <input type="number" min="0" max="12" wire:model="makeupDurationHours"
-                                               class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+
+                                <div
+                                    x-data="{
+            hours: @entangle('makeupDurationHours'),
+            minutes: @entangle('makeupDurationMinutes'),
+            incrementHours()   { if(this.hours < 24)  { this.hours++;   } },
+            decrementHours()   { if(this.hours > 0)   { this.hours--;   } },
+            incrementMinutes() { if(this.minutes < 59) { this.minutes++; } },
+            decrementMinutes() { if(this.minutes > 0)  { this.minutes--; } },
+            setHours(h)   { this.hours   = Math.min(Math.max(parseInt(h)||0, 0), 24); },
+            setMinutes(m) { this.minutes = Math.min(Math.max(parseInt(m)||0, 0), 59); },
+            get totalMinutes() { return (this.hours * 60) + this.minutes; }
+        }"
+                                    class="flex items-center gap-3 justify-start"
+                                    dir="ltr"
+                                >
+                                    {{-- ساعت --}}
+                                    <div class="flex flex-col items-center gap-1">
+                                        <button type="button" @click="incrementHours"
+                                                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
+                       hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-600 transition active:scale-95">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        </button>
+
+                                        <input type="number" min="0" max="24"
+                                               x-model.number="hours"
+                                               @input="setHours($event.target.value)"
+                                               class="w-16 h-12 rounded-xl border border-border bg-secondary text-foreground font-bold text-lg text-center
+                       shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
+                       [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                               placeholder="0">
+
+                                        <button type="button" @click="decrementHours"
+                                                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
+                       hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-600 transition active:scale-95">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        </button>
+
+                                        <span class="text-[10px] text-muted font-medium">ساعت</span>
                                     </div>
-                                    <div>
-                                        <label class="block text-[10px] text-muted mb-1">دقیقه</label>
-                                        <input type="number" min="0" max="59" wire:model="makeupDurationMinutes"
-                                               class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+
+                                    {{-- جداکننده --}}
+                                    <div class="text-2xl font-black text-muted pb-5">:</div>
+
+                                    {{-- دقیقه --}}
+                                    <div class="flex flex-col items-center gap-1">
+                                        <button type="button" @click="incrementMinutes"
+                                                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
+                       hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-600 transition active:scale-95">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                            </svg>
+                                        </button>
+
+                                        <input type="number" min="0" max="59"
+                                               x-model.number="minutes"
+                                               @input="setMinutes($event.target.value)"
+                                               class="w-16 h-12 rounded-xl border border-border bg-secondary text-foreground font-bold text-lg text-center
+                       shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
+                       [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                               placeholder="30">
+
+                                        <button type="button" @click="decrementMinutes"
+                                                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
+                       hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-600 transition active:scale-95">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                            </svg>
+                                        </button>
+
+                                        <span class="text-[10px] text-muted font-medium">دقیقه</span>
+                                    </div>
+
+                                    {{-- نمایش مجموع --}}
+                                    <div class="pb-5 mr-1" x-show="totalMinutes > 0">
+                                        <div class="flex flex-col items-center justify-center bg-blue-500/10 rounded-xl px-3 py-2 border border-blue-200 dark:border-blue-500/30">
+                                            <span class="text-blue-700 dark:text-blue-400 font-bold text-sm" x-text="totalMinutes"></span>
+                                            <span class="text-blue-600/70 dark:text-blue-400/70 text-[10px]">دقیقه</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
