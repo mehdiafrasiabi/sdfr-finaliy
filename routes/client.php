@@ -12,6 +12,7 @@ use App\Livewire\Client\Cart\Info as cartInfo;
 use App\Livewire\Client\ContactUs\Index as ContactUs;
 use App\Livewire\Client\Course\Index as CourseIndex;
 use App\Livewire\Client\Home\Index as HomeIndex;
+use App\Livewire\Client\Download\Index as DownloadIndex;
 use App\Livewire\Client\Payment\Callback as PaymentCallback;
 use App\Livewire\Client\Product\Index as ProductIndex;
 use App\Livewire\Client\Profile\plan as ProfilePlan;
@@ -51,7 +52,7 @@ Route::name('client.')->group(function () {
         ->name('secure.download');
 
     Route::get('/', HomeIndex::class)->name('home');
-
+    Route::get('/download', DownloadIndex::class)->name('download');
     Route::get('/shop',ShopIndex::class)->name('shop');
     Route::get('/product/{p_code}/{slug?}', ProductIndex::class)->name('product');
 

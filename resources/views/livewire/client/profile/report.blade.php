@@ -105,6 +105,26 @@
 
                         {{-- Tab: Submit --}}
                         <div x-show="activeTab === 'submit'" class="space-y-6">
+                            {{-- Compensatory Section --}}
+                            @if(count($missedParts) > 0)
+                                <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5">
+                                    <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+                                        <div>
+                                            <h3 class="font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+                                                    <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
+                                                </svg>
+                                                پارت های جبرانی
+                                            </h3>
+                                            <p class="text-sm text-amber-700 dark:text-amber-300 mt-1">{{ count($missedParts) }} پارت از دست رفته دارید</p>
+                                        </div>
+                                        <button type="button" wire:click="openCompensatoryModal"
+                                                class="bg-amber-500 hover:bg-amber-600 text-white rounded-xl px-4 py-2 font-semibold text-sm transition-all">
+                                            ثبت پارت جبرانی
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
                             @if($currentSession && $currentProgram)
 
                                 {{-- Week Days Grid --}}
@@ -185,27 +205,6 @@
                                         </div>
                                     @endforeach
                                 </div>
-
-                                {{-- Compensatory Section --}}
-                                @if(count($missedParts) > 0)
-                                    <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl p-5">
-                                        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
-                                            <div>
-                                                <h3 class="font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
-                                                        <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
-                                                    </svg>
-                                                    پارت های جبرانی
-                                                </h3>
-                                                <p class="text-sm text-amber-700 dark:text-amber-300 mt-1">{{ count($missedParts) }} پارت از دست رفته دارید</p>
-                                            </div>
-                                            <button type="button" wire:click="openCompensatoryModal"
-                                                    class="bg-amber-500 hover:bg-amber-600 text-white rounded-xl px-4 py-2 font-semibold text-sm transition-all">
-                                                ثبت پارت جبرانی
-                                            </button>
-                                        </div>
-                                    </div>
-                                @endif
 
                             @else
                                 <div class="flex flex-col items-center justify-center py-12 space-y-4">
@@ -648,7 +647,7 @@
 
     {{-- ===== Compensatory Modal ===== --}}
     @if($showCompensatoryModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+        <div class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
              wire:click.self="closeCompensatoryModal">
 
             <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-secondary border border-border rounded-2xl shadow-2xl"

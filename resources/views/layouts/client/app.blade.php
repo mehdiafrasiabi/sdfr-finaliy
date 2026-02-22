@@ -127,146 +127,14 @@
     {!! SEO::generate() !!}
     <link rel="preload" href="/client/assets/images/theme/intro/header.png" as="image">
     <link rel="preload" href="/client/assets/images/favicon.svg" as="image">
-    {{-- Keyframe Animations --}}
-    <style>
-        @keyframes slideInUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 0.7; }
-            50%       { opacity: 0.3; }
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to   { opacity: 1; }
-        }
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px) scale(0.95); }
-            to   { opacity: 1; transform: translateY(0) scale(1); }
-        }
-    </style>
 </head>
 
 <body class="dark">
 <!-- container -->
 <div class="flex flex-col min-h-screen bg-background">
 
-    <!-- Banners Section -->
-    <div class="banners-wrapper transition-all duration-300 ease-out overflow-hidden"
-         x-data="{ bannersHidden: false, pwaBannerClosed: false }"
-         :class="{
-         'max-h-0 opacity-0': bannersHidden,
-         'max-h-40 opacity-100': !bannersHidden
-     }">
 
 
-    <!-- PWA Banner -->
-        <div id="pwaBanner" dir="rtl" class="w-full relative z-20" x-show="!pwaBannerClosed">
-            <div class="w-full border-b border-slate-200/60 dark:border-slate-700/60
-               bg-gradient-to-l from-blue-700 via-blue-600 to-indigo-700
-               dark:from-slate-900 dark:via-slate-900 dark:to-slate-800
-               text-white">
-                <div
-                    class="max-w-6xl mx-auto px-4 py-3 md:py-4 flex flex-col md:flex-row items-center justify-between gap-3">
-                    <div class="flex items-center gap-3 text-center md:text-right">
-                        <div
-                            class="shrink-0 w-10 h-10 rounded-2xl bg-white/15 dark:bg-white/10 flex items-center justify-center shadow-inner">
-                            <span class="text-xl">📱</span>
-                        </div>
-                        <div>
-                            <p class="font-extrabold text-base sm:text-lg md:text-xl leading-snug">
-                                همین حالا <span class="text-yellow-300">SDFR</span> رو روی موبایلت داشته باش
-                            </p>
-                            <p class="text-xs sm:text-sm text-white/80 dark:text-white/70 mt-0.5">
-                                نصب سریع، دسترسی راحت، تجربه بهتر ✨
-                            </p>
-                        </div>
-                    </div>
-                    <div class="flex items-center gap-2 sm:gap-3">
-                        <button id="installApp" type="button"
-                                class="group relative overflow-hidden rounded-full px-4 sm:px-5 py-2 text-sm font-bold
-                                       bg-emerald-500 hover:bg-emerald-400 active:scale-[0.98]
-                                       shadow-md shadow-emerald-500/30 transition">
-                            <span class="relative z-10">نصب اپلیکیشن</span>
-                        </button>
-                        <button id="closeBanner" type="button"
-                                class="rounded-full px-4 sm:px-5 py-2 text-sm font-bold
-                                       bg-rose-500 hover:bg-rose-400 active:scale-[0.98]
-                                       shadow-md shadow-rose-500/25 transition">
-                            بستن
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- ANDROID Modal -->
-    <div id="pwaAndroidModal" class="hidden fixed inset-0 z-50">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-
-        <div class="relative mx-auto w-[92%] max-w-lg mt-16 sm:mt-24 rounded-2xl overflow-hidden
-              bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-2xl">
-            <div class="p-5 sm:p-6">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <p class="text-lg sm:text-xl font-extrabold">نصب اپلیکیشن روی اندروید</p>
-                        <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-7">
-                            1) روی دکمه <b>«فهمیدم»</b> بزن.<br>
-                            2) پنجره‌ی نصب مرورگر باز میشه.<br>
-                            3) گزینه <b>Install</b> یا <b>Add</b> رو بزن تا اپ نصب بشه ✅
-                        </p>
-                    </div>
-                    <button type="button" data-close-modal="android"
-                            class="shrink-0 rounded-xl px-3 py-1.5 text-sm font-bold
-                       bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition">
-                        بستن
-                    </button>
-                </div>
-
-                <div class="mt-5 flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
-                    <button type="button" data-understood="android"
-                            class="rounded-xl px-4 py-2 font-bold bg-emerald-500 hover:bg-emerald-400 text-white transition">
-                        فهمیدم ✅
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- IOS Modal -->
-    <div id="pwaIOSModal" class="hidden fixed inset-0 z-50">
-        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
-
-        <div class="relative mx-auto w-[92%] max-w-lg mt-16 sm:mt-24 rounded-2xl overflow-hidden
-              bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 shadow-2xl">
-            <div class="p-5 sm:p-6">
-                <div class="flex items-start justify-between gap-3">
-                    <div>
-                        <p class="text-lg sm:text-xl font-extrabold">نصب روی iPhone / iPad</p>
-                        <p class="mt-2 text-sm sm:text-base text-slate-600 dark:text-slate-300 leading-7">
-                            iOS نصب خودکار نداره. برای نصب:<br>
-                            1) پایین Safari روی دکمه <b>Share</b> بزن (آیکن مربع با فلش بالا).<br>
-                            2) گزینه <b>Add to Home Screen</b> رو انتخاب کن.<br>
-                            3) روی <b>Add</b> بزن ✅
-                        </p>
-                    </div>
-                    <button type="button" data-close-modal="ios"
-                            class="shrink-0 rounded-xl px-3 py-1.5 text-sm font-bold
-                       bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 transition">
-                        بستن
-                    </button>
-                </div>
-
-                <div class="mt-5 flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
-                    <button type="button" data-close-modal="ios"
-                            class="rounded-xl px-4 py-2 font-bold bg-emerald-500 hover:bg-emerald-400 text-white transition">
-                        فهمیدم ✅
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <!-- Loading Overlay برای نصب -->
@@ -338,33 +206,6 @@
 
 
 @include('layouts.client.script')
-<script>
-    document.addEventListener("livewire:navigated", () => {
-        const circle = document.querySelector(".services-circle");
-        if (!circle) return;
-
-        const run = () => {
-            // اگر وسط انیمیشن بود، دوباره از اول شروع کن
-            circle.classList.remove("is-bouncing");
-            // ری‌فلو برای ریست شدن انیمیشن
-            void circle.offsetWidth;
-            circle.classList.add("is-bouncing");
-        };
-
-        // اجرای اولیه (اختیاری)
-        run();
-
-        // هر 60 ثانیه
-        setInterval(run, 8000);
-
-        // بعد از پایان انیمیشن کلاس پاک شود (تمیزتر)
-        circle.addEventListener("animationend", (e) => {
-            if (e.animationName === "servicesBounceUpDown") {
-                circle.classList.remove("is-bouncing");
-            }
-        });
-    });
-</script>
 <script data-navigate-once>
     //remove wire:snapshot form tags in client
 
@@ -477,147 +318,26 @@
         window.closeVideoModal = closeVideo;
     })();
 </script>
-<script data-navigate-once>
-    const banner = document.getElementById('pwaBanner');
-    const installBtn = document.getElementById('installApp');
-    const closeBannerBtn = document.getElementById('closeBanner'); // ✅ id درست
 
-    const androidModal = document.getElementById('pwaAndroidModal');
-    const iosModal = document.getElementById('pwaIOSModal');
-
-    if (!banner || !installBtn || !androidModal || !iosModal) {
-        console.warn('PWA elements not found on this page.');
-    } else {
-
-        let deferredPrompt = null;
-
-        const LS_KEY_DISMISS  = 'pwa_banner_dismiss_until';
-        const LS_KEY_INSTALLED = 'pwa_installed';
-
-        // ── helpers ──────────────────────────────────────────────────────────
-        function isDismissedNow() {
-            const until = Number(localStorage.getItem(LS_KEY_DISMISS) || 0);
-            return Date.now() < until;
-        }
-
-        function dismissForDays(days) {
-            const until = Date.now() + (days * 24 * 60 * 60 * 1000);
-            localStorage.setItem(LS_KEY_DISMISS, String(until));
-        }
-
-        function setInstalled() {
-            localStorage.setItem(LS_KEY_INSTALLED, 'true');
-        }
-
-        function isInstalledSaved() {
-            return localStorage.getItem(LS_KEY_INSTALLED) === 'true';
-        }
-
-        // ── وضعیت نصب فعلی ───────────────────────────────────────────────────
-        const isInStandaloneMode =
-            window.matchMedia('(display-mode: standalone)').matches ||
-            window.navigator.standalone ||
-            document.referrer.startsWith('android-app://');
-
-        const isIOS     = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-        const isAndroid = /Android/i.test(navigator.userAgent);
-
-        function isMobile() {
-            return window.matchMedia('(max-width: 1024px)').matches;
-        }
-
-        // ── modal helpers ─────────────────────────────────────────────────────
-        function openModal(type) {
-            if (type === 'android') androidModal.classList.remove('hidden');
-            if (type === 'ios')     iosModal.classList.remove('hidden');
-            document.documentElement.classList.add('overflow-hidden');
-        }
-
-        function closeModal(type) {
-            if (type === 'android') androidModal.classList.add('hidden');
-            if (type === 'ios')     iosModal.classList.add('hidden');
-            document.documentElement.classList.remove('overflow-hidden');
-        }
-
-        // ── نصب واقعی ────────────────────────────────────────────────────────
-        async function triggerInstallPrompt() {
-            if (!deferredPrompt) {
-                alert('متاسفانه مرورگر شما از نصب خودکار پشتیبانی نمی‌کند.');
-                return;
-            }
-            deferredPrompt.prompt();
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                setInstalled();
-                hideBanner();
-            }
-            deferredPrompt = null;
-        }
-
-        // ── نمایش / مخفی بنر ─────────────────────────────────────────────────
-        function hideBanner() {
-            banner.classList.add('hidden');
-        }
-
-        function canShowBanner() {
-            if (isInStandaloneMode) return false;   // قبلاً نصب شده (standalone)
-            if (isInstalledSaved()) return false;   // localStorage نشان می‌دهد نصب شده
-            if (isDismissedNow())   return false;   // کاربر "بستن" زده و هنوز ۷ روز نگذشته
-            return true;
-        }
-
-        // ── بارگذاری اولیه ────────────────────────────────────────────────────
-        window.addEventListener('load', () => {
-            if (!canShowBanner()) return;
-            setTimeout(() => banner.classList.remove('hidden'), 800);
-        });
-
-        // ── رویداد نصب مرورگر ────────────────────────────────────────────────
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            if (canShowBanner()) {
-                banner.classList.remove('hidden');
-            }
-        });
-
-        // ── دکمه بستن ✅ اکنون کار می‌کند ─────────────────────────────────────
-        if (closeBannerBtn) {
-            closeBannerBtn.addEventListener('click', () => {
-                dismissForDays(7);   // ۷ روز نشان نده
-                hideBanner();
-            });
-        }
-
-        // ── دکمه نصب ─────────────────────────────────────────────────────────
-        installBtn.addEventListener('click', async () => {
-            if (isIOS)                  { openModal('ios');     return; }
-            if (isAndroid && isMobile()) { openModal('android'); return; }
-            await triggerInstallPrompt();
-        });
-
-        // ── بعد از نصب موفق ───────────────────────────────────────────────────
-        window.addEventListener('appinstalled', () => {
-            setInstalled();
-            hideBanner();
-            deferredPrompt = null;
-        });
-
-        // ── بستن مودال‌ها ─────────────────────────────────────────────────────
-        document.querySelectorAll('[data-close-modal]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                closeModal(e.currentTarget.getAttribute('data-close-modal'));
-            });
-        });
-
-        document.querySelectorAll('[data-understood="android"]').forEach(btn => {
-            btn.addEventListener('click', async () => {
-                closeModal('android');
-                await triggerInstallPrompt();
-            });
-        });
-    }</script>
-
+{{-- Keyframe Animations --}}
+<style>
+    @keyframes slideInUp {
+        from { opacity: 0; transform: translateY(40px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes blink {
+        0%, 100% { opacity: 0.7; }
+        50%       { opacity: 0.3; }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(30px) scale(0.95); }
+        to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+</style>
 </body>
 
 </html>

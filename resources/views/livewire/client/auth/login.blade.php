@@ -126,12 +126,6 @@
                                 <input
                                     wire:model.live="mobile"
                                     class="form-input w-full py-3 px-4 pl-12 rounded-xl border border-border bg-secondary text-foreground focus:outline-none @error('mobile') border-red-500 @enderror"
-
-                                    x-on:input="$event.target.value = $event.target.value.replace(/[۰-۹٠-٩]/g,
-                                                    d => '٠١٢٣٤٥٦٧٨٩'.includes(d)
-                                                        ? '0123456789'['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]
-                                                        : '۰۱۲۳۴۵۶۷۸۹'.indexOf(d).toString()
-                                                )"
                                     type="tel"
                                     inputmode="numeric"
                                 />

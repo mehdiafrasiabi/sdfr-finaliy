@@ -621,6 +621,53 @@
                                               d="M15.75 19.5L8.25 12l7.5-7.5"/>
                                     </svg>
                                 </a>
+                                <a href="{{route('client.download')}}" wire:navigate @click="closeMenu()"
+                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                                            <svg
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="w-6 h-6 text-blue-600 dark:text-blue-400"
+                                            >
+                                                <path
+                                                    d="M6.5 3.5H10.5C11.052 3.5 11.5 3.948 11.5 4.5V8.5C11.5 9.052 11.052 9.5 10.5 9.5H6.5C5.948 9.5 5.5 9.052 5.5 8.5V4.5C5.5 3.948 5.948 3.5 6.5 3.5Z"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.5"
+                                                    stroke-linejoin="round"
+                                                />
+                                                <path
+                                                    d="M13.5 3.5H17.5C18.052 3.5 18.5 3.948 18.5 4.5V8.5C18.5 9.052 18.052 9.5 17.5 9.5H13.5C12.948 9.5 12.5 9.052 12.5 8.5V4.5C12.5 3.948 12.948 3.5 13.5 3.5Z"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.5"
+                                                    stroke-linejoin="round"
+                                                />
+                                                <path
+                                                    d="M6.5 14.5H10.5C11.052 14.5 11.5 14.948 11.5 15.5V19.5C11.5 20.052 11.052 20.5 10.5 20.5H6.5C5.948 20.5 5.5 20.052 5.5 19.5V15.5C5.5 14.948 5.948 14.5 6.5 14.5Z"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.5"
+                                                    stroke-linejoin="round"
+                                                />
+                                                <path
+                                                    d="M13.5 14.5H17.5C18.052 14.5 18.5 14.948 18.5 15.5V19.5C18.5 20.052 18.052 20.5 17.5 20.5H13.5C12.948 20.5 12.5 20.052 12.5 19.5V15.5C12.5 14.948 12.948 14.5 13.5 14.5Z"
+                                                    stroke="currentColor"
+                                                    stroke-width="1.5"
+                                                    stroke-linejoin="round"
+                                                />
+                                            </svg>
+                                        </div>
+                                        <span class="text-sm font-semibold text-foreground">نصب SDFR</span>
+                                    </div>
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                         stroke-width="2" stroke="currentColor"
+                                         class="w-5 h-5 text-muted group-hover:text-foreground transition-colors">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                              d="M15.75 19.5L8.25 12l7.5-7.5"/>
+                                    </svg>
+                                </a>
                             </div>
                         </div>
                 </div>
@@ -1037,16 +1084,7 @@
         @endif
 
         <!-- Scroll to Top Button -->
-        <div class="fixed bottom-24 left-6 z-30 lg:hidden transition-all duration-300"
-             :class="(isScrolled && !offcanvasOpen && !profileModalOpen) ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'">
-            <button @click="scrollToTop()"
-                    class="w-12 h-12 rounded-full bg-slate-800 dark:bg-slate-700 text-white shadow-lg flex items-center justify-center hover:bg-slate-700 dark:hover:bg-slate-600 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                     stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/>
-                </svg>
-            </button>
-        </div>
+
     </div>
 
 </div>
