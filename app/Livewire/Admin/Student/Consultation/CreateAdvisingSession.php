@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Livewire\Admin\Student\Consultation;
+
 use App\Models\Student;
 use App\Models\User;
 use App\Models\AdvisingSession;
@@ -10,9 +12,11 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Carbon\Carbon;
 use Morilog\Jalali\Jalalian;
+
 class CreateAdvisingSession extends Component
 {
     use WithPagination;
+
     public $studentId = null;
     public $title;
     public $description;
@@ -23,6 +27,7 @@ class CreateAdvisingSession extends Component
     // ویرایش جلسه
     public $editingSessionId = null;
     public $result_status = null;
+
     protected function messages()
     {
         return [
@@ -38,28 +43,24 @@ class CreateAdvisingSession extends Component
             'skyroom_link.url' => 'فرمت لینک صحیح نیست.',
         ];
     }
+
     public function mount(User $student)
     {
         if (!$student->student) {
             abort(404, 'Student not found');
         }
         $this->studentId = $student->student->id;
-        // Auto-fill title with today's Shamsi date (YYMMDD format, e.g. 041127)
-        $today = Jalalian::fromCarbon(Carbon::today());
-        $yearShort = substr((string) $today->getYear(), -2);
-        $month = str_pad((string) $today->getMonth(), 2, '0', STR_PAD_LEFT);
-        $day = str_pad((string) $today->getDay(), 2, '0', STR_PAD_LEFT);
-        $this->title = $yearShort . $month . $day;
+        $this->initDefaults();
+    }
 
-        // Auto-fill description with "برنامه برای {tomorrow}تا{tomorrow+7}"
-        $tomorrow = Jalalian::fromCarbon(Carbon::today()->addDay());
-        $endDate = Jalalian::fromCarbon(Carbon::today()->addDays(8));
-        $fmt = function (Jalalian $j): string {
-            return substr((string) $j->getYear(), -2)
-                . str_pad((string) $j->getMonth(), 2, '0', STR_PAD_LEFT)
-                . str_pad((string) $j->getDay(), 2, '0', STR_PAD_LEFT);
-        };
-        $this->description = 'برنامه برای ' . $fmt($tomorrow) . 'تا' . $fmt($endDate);
+    protected function initDefaults(): void
+    {
+        // Auto-fill description
+        $this->description = 'جلسه مشاوره فردی';
+
+        // Auto-fill date/time with today
+        $this->activation_date = Carbon::today()->format('Y-m-d');
+        $this->session_time = Carbon::now()->format('H:i');
     }
 
     public function createSession()
@@ -97,10 +98,10 @@ class CreateAdvisingSession extends Component
         $this->sendSessionCreatedNotification($session);
         $this->reset(['title', 'description', 'activation_date', 'session_time', 'skyroom_link', 'editingSessionId']);
         $this->location_type = 'online';
-        $this->dispatch('jdp-session-cleared');
-
+        $this->initDefaults();
         $this->dispatch('success', 'جلسه مشاوره و پیش‌جلسه با موفقیت ایجاد شد.');
     }
+
     /**
      * ارسال نوتیفیکیشن هنگام ایجاد جلسه مشاوره
      */
@@ -146,6 +147,7 @@ class CreateAdvisingSession extends Component
         $sessionTime = $this->session_time;
         $this->dispatch('jdp-session-loaded', jalali_date: $jalaliDate, session_time: $sessionTime);
     }
+
     public function updateSession()
     {
         if (!$this->editingSessionId) return;
@@ -177,10 +179,10 @@ class CreateAdvisingSession extends Component
         $this->sendSessionUpdatedNotification();
         $this->reset(['title', 'description', 'activation_date', 'session_time', 'skyroom_link', 'editingSessionId']);
         $this->location_type = 'online';
-        $this->dispatch('jdp-session-cleared');
-
+        $this->initDefaults();
         $this->dispatch('success', 'جلسه مشاوره با موفقیت ویرایش شد.');
     }
+
     /**
      * ارسال نوتیفیکیشن هنگام ویرایش جلسه مشاوره
      */
@@ -198,13 +200,14 @@ class CreateAdvisingSession extends Component
             $message
         );
     }
+
     public function cancelEdit()
     {
         $this->reset(['title', 'description', 'activation_date', 'session_time', 'skyroom_link', 'editingSessionId']);
         $this->location_type = 'online';
-        $this->dispatch('jdp-session-cleared');
-
+        $this->initDefaults();
     }
+
     // به‌روزرسانی وضعیت نتیجه جلسه
     public function updateResultStatus($sessionId, $status)
     {
@@ -237,6 +240,7 @@ class CreateAdvisingSession extends Component
         ]);
         $this->dispatch('success', 'وضعیت جلسه با موفقیت ثبت شد.');
     }
+
     /**
      * Check if a session's program is complete (all parts have time > 0)
      */
@@ -253,6 +257,7 @@ class CreateAdvisingSession extends Component
 
         return $weeklyProgram->parts()->where('duration_minutes', 0)->count() === 0;
     }
+
     // حذف جلسه
     public function deleteSession($id)
     {
@@ -272,6 +277,7 @@ class CreateAdvisingSession extends Component
             $this->skyroom_link = null;
         }
     }
+
     public function render()
     {
         $student = Student::with(['user.personalInformation'])->find($this->studentId);

@@ -119,7 +119,37 @@
                             </div>
                         </div>
                         <!-- End Guide Section -->
-
+                        <!-- فیلتر جلسات -->
+                        <div class="flex flex-wrap gap-2" dir="rtl">
+                            <button wire:click="$set('statusFilter', 'all')"
+                                    class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors
+                                           {{ $statusFilter === 'all'
+                                               ? 'bg-primary text-primary-foreground shadow-md'
+                                               : 'bg-secondary text-foreground border border-border hover:bg-secondary/80' }}">
+                                همه جلسات
+                            </button>
+                            <button wire:click="$set('statusFilter', 'completed')"
+                                    class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors
+                                           {{ $statusFilter === 'completed'
+                                               ? 'bg-emerald-500 text-white shadow-md'
+                                               : 'bg-secondary text-foreground border border-border hover:bg-secondary/80' }}">
+                                جلسات برگزار شده
+                            </button>
+                            <button wire:click="$set('statusFilter', 'pending')"
+                                    class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors
+                                           {{ $statusFilter === 'pending'
+                                               ? 'bg-slate-500 text-white shadow-md'
+                                               : 'bg-secondary text-foreground border border-border hover:bg-secondary/80' }}">
+                                جلسات در انتظار برگزاری
+                            </button>
+                            <button wire:click="$set('statusFilter', 'cancelled')"
+                                    class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors
+                                           {{ $statusFilter === 'cancelled'
+                                               ? 'bg-red-500 text-white shadow-md'
+                                               : 'bg-secondary text-foreground border border-border hover:bg-secondary/80' }}">
+                                جلسات لغو شده توسط مشاور یا دانش‌آموز
+                            </button>
+                        </div>
                         <!-- لیست جلسات به صورت کارت -->
                         @if($sessions->isEmpty())
                             <div class="flex flex-col items-center justify-center space-y-12 py-16">

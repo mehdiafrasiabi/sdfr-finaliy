@@ -25,13 +25,10 @@ class Index extends Component
     public $studentSearch = '';
     public $selectedStudents = [];
 
-    // Modal 2: Schedule Configuration
+    // Modal 2: Schedule Configuration (per-student)
     public $showScheduleModal = false;
-    public $selectedDay = '';
-    public $selectedHour = '08';
-    public $selectedMinute = '00';
-    public $autoLocationType = 'online';
-    public $autoSkyroomLink = '';
+
+    public $studentSchedules = []; // keyed by student ID: ['day','hour','minute','location_type','skyroom_link']
 
     public function mount()
     {
@@ -82,11 +79,16 @@ class Index extends Component
             return;
         }
         $this->showStudentSelectModal = false;
-        $this->selectedDay = '';
-        $this->selectedHour = '08';
-        $this->selectedMinute = '00';
-        $this->autoLocationType = 'online';
-        $this->autoSkyroomLink = '';
+        $this->studentSchedules = [];
+        foreach ($this->selectedStudents as $studentId) {
+            $this->studentSchedules[$studentId] = [
+                'day'           => '',
+                'hour'          => '08',
+                'minute'        => '00',
+                'location_type' => 'online',
+                'skyroom_link'  => '',
+            ];
+        }
         $this->showScheduleModal = true;
     }
 
@@ -105,33 +107,29 @@ class Index extends Component
 
     public function createAutoSessions()
     {
-        $this->validate([
-            'selectedDay'     => 'required|in:0,1,2,3,4,5,6',
-            'selectedHour'    => 'required|integer|between:0,23',
-            'selectedMinute'  => 'required|integer|between:0,59',
-            'autoLocationType' => 'required|in:in_person,online',
-        ], [
-            'selectedDay.required'      => 'انتخاب روز هفته الزامی است.',
-            'selectedDay.in'            => 'روز انتخابی معتبر نیست.',
-            'selectedHour.required'     => 'ساعت الزامی است.',
-            'selectedMinute.required'   => 'دقیقه الزامی است.',
-            'autoLocationType.required' => 'محل برگزاری الزامی است.',
-        ]);
+        // Build per-student validation rules
+        $rules    = [];
+        $messages = [];
+        foreach ($this->selectedStudents as $studentId) {
+            $rules["studentSchedules.{$studentId}.day"]           = 'required|in:0,1,2,3,4,5,6';
+            $rules["studentSchedules.{$studentId}.hour"]          = 'required|integer|between:0,23';
+            $rules["studentSchedules.{$studentId}.minute"]        = 'required|integer|between:0,59';
+            $rules["studentSchedules.{$studentId}.location_type"] = 'required|in:in_person,online';
 
-        if ($this->autoLocationType === 'online' && empty($this->autoSkyroomLink)) {
-            $this->addError('autoSkyroomLink', 'لینک جلسه آنلاین الزامی است.');
-            return;
+            $schedule = $this->studentSchedules[$studentId] ?? [];
+            if (($schedule['location_type'] ?? 'online') === 'online') {
+                $rules["studentSchedules.{$studentId}.skyroom_link"] = 'required|url';
+                $messages["studentSchedules.{$studentId}.skyroom_link.required"] = 'لینک جلسه آنلاین الزامی است.';
+                $messages["studentSchedules.{$studentId}.skyroom_link.url"]      = 'لینک وارد شده معتبر نیست.';
+            }
+
+            $messages["studentSchedules.{$studentId}.day.required"] = 'انتخاب روز هفته الزامی است.';
+            $messages["studentSchedules.{$studentId}.day.in"]       = 'روز انتخابی معتبر نیست.';
         }
+        $this->validate($rules, $messages);
 
-        $sessionTime = sprintf('%02d:%02d', (int)$this->selectedHour, (int)$this->selectedMinute);
-        $targetDay = (int) $this->selectedDay;
-
-        // Find the next occurrence of the selected weekday (including today if it matches)
-        $today = Carbon::today();
-        $daysUntilTarget = ($targetDay - $today->dayOfWeek + 7) % 7;
-        $firstDate = $today->copy()->addDays($daysUntilTarget);
-
-        $adminId = auth()->id();
+        $adminId      = auth()->id();
+        $today        = Carbon::today();
         $totalCreated = 0;
         $studentCount = count($this->selectedStudents);
 
@@ -139,26 +137,35 @@ class Index extends Component
             $student = Student::with('user.personalInformation')->find($studentId);
             if (!$student) continue;
 
+            $schedule    = $this->studentSchedules[$studentId];
+            $targetDay   = (int) $schedule['day'];
+            $sessionTime = sprintf('%02d:%02d', (int)$schedule['hour'], (int)$schedule['minute']);
+            $locationType = $schedule['location_type'];
+            $skyroomLink  = $locationType === 'online' ? $schedule['skyroom_link'] : null;
+
+            $daysUntilTarget = ($targetDay - $today->dayOfWeek + 7) % 7;
+            $firstDate       = $today->copy()->addDays($daysUntilTarget);
+
             for ($i = 0; $i < 4; $i++) {
                 $sessionDate = $firstDate->copy()->addWeeks($i);
-                $jalali = Jalalian::fromCarbon($sessionDate);
+                $jalali      = Jalalian::fromCarbon($sessionDate);
 
                 $yearShort = substr((string) $jalali->getYear(), -2);
                 $month     = str_pad((string) $jalali->getMonth(), 2, '0', STR_PAD_LEFT);
                 $day       = str_pad((string) $jalali->getDay(), 2, '0', STR_PAD_LEFT);
-                $title = $yearShort . $month . $day;
+                $title     = $yearShort . $month . $day;
 
                 $session = AdvisingSession::create([
-                    'student_id'   => $student->id,
-                    'advisor_id'   => $adminId,
-                    'title'        => $title,
-                    'description'  => 'جلسه مشاوره فردی',
+                    'student_id'      => $student->id,
+                    'advisor_id'      => $adminId,
+                    'title'           => $title,
+                    'description'     => 'جلسه مشاوره فردی',
                     'activation_date' => $sessionDate->format('Y-m-d'),
-                    'session_time' => $sessionTime,
-                    'location_type' => $this->autoLocationType,
-                    'skyroom_link' => $this->autoLocationType === 'online' ? $this->autoSkyroomLink : null,
-                    'status'       => 'inactive',
-                    'is_active'    => false,
+                    'session_time'    => $sessionTime,
+                    'location_type'   => $locationType,
+                    'skyroom_link'    => $skyroomLink,
+                    'status'          => 'inactive',
+                    'is_active'       => false,
                 ]);
 
                 AdvisingPreSession::create([
@@ -175,7 +182,8 @@ class Index extends Component
         }
 
         $this->showScheduleModal = false;
-        $this->selectedStudents = [];
+        $this->selectedStudents  = [];
+        $this->studentSchedules  = [];
         $this->dispatch('success', "{$totalCreated} جلسه برای {$studentCount} دانش‌آموز با موفقیت ثبت شد.");
     }
 

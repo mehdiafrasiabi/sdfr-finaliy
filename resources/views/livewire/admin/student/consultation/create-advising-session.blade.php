@@ -1,6 +1,7 @@
 <div>
     @push('link')
         <link rel="stylesheet" href="/admin/assets/css/jalalidatepicker.min.css">
+
         <style>
             /* ---- Dark/Light tokens (works with Bootstrap) ---- */
             :root{
@@ -118,19 +119,11 @@
                                 <div class="invalid-feedback d-block">{{ $message }}</div>
                                 @enderror
                             </div>
-                            {{-- توضیحات --}}
+                            {{-- توضیحات (خودکار: جلسه مشاوره فردی) --}}
                             <div class="mb-3">
                                 <label class="form-label">توضیحات جلسه</label>
-                                <textarea
-                                    name="description"
-                                    wire:model="description"
-                                    rows="3"
-                                    class="form-control @error('description') is-invalid @enderror"
-                                    placeholder="توضیحات مربوط به جلسه..."
-                                ></textarea>
-                                @error('description')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                                @enderror
+                                <div class="form-control bg-body-tertiary text-muted-2" style="min-height:38px;">جلسه مشاوره فردی</div>
+
                             </div>
                             {{-- تاریخ و ساعت --}}
                             {{-- تاریخ و ساعت برگزاری (ترکیبی با تقویم شمسی) --}}

@@ -129,6 +129,10 @@ class WeeklyProgramUpload extends Component
     public ?int $prevSessionProgramId = null;
     public ?int $copyingPrevPartId = null;
     public ?int $copyPrevPartTargetDay = null;
+    // Part C: Multi-select and copy parts between days
+    public bool $partSelectMode = false;
+    public array $selectedPartIds = [];
+    public ?int $copyTargetDay = null;
     protected function messages()
     {
         return [
@@ -1261,6 +1265,10 @@ class WeeklyProgramUpload extends Component
 
         if ($schedule) {
             $this->showClassScheduleModal = true;
+            // بارگذاری خودکار پیش‌نمایش روزخوانی/پیش‌خوانی
+            if (empty($this->weeklyReadingsPreview)) {
+                $this->previewWeeklyReadings();
+            }
         } else {
             $this->showNoScheduleModal = true;
         }
@@ -2761,6 +2769,95 @@ class WeeklyProgramUpload extends Component
         $this->copyPrevPartTargetDay = null;
         $this->dispatch('success', 'پارت «' . $part['lesson_name'] . '» به برنامه اضافه شد.');
     }
+
+    // ==================== انتخاب چندگانه و کپی پارت‌ها ====================
+
+    public function togglePartSelectMode(): void
+    {
+        $this->partSelectMode = !$this->partSelectMode;
+        if (!$this->partSelectMode) {
+            $this->selectedPartIds = [];
+            $this->copyTargetDay = null;
+        }
+    }
+
+    public function togglePartSelection(int $partId): void
+    {
+        if (in_array($partId, $this->selectedPartIds)) {
+            $this->selectedPartIds = array_values(array_filter($this->selectedPartIds, fn($id) => $id !== $partId));
+        } else {
+            $this->selectedPartIds[] = $partId;
+        }
+    }
+
+    public function clearPartSelection(): void
+    {
+        $this->selectedPartIds = [];
+        $this->copyTargetDay = null;
+        $this->partSelectMode = false;
+    }
+
+    public function copySelectedParts(): void
+    {
+        if (empty($this->selectedPartIds) || $this->copyTargetDay === null) {
+            $this->dispatch('warning', 'لطفاً پارت‌ها و روز مقصد را انتخاب کنید.');
+            return;
+        }
+
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        $dayIndex = (int) $this->copyTargetDay;
+        $startDate = Carbon::parse($this->start_date);
+        $partDate = $startDate->copy()->addDays($dayIndex);
+        $copied = 0;
+
+        foreach ($this->selectedPartIds as $partId) {
+            $part = ProgramPart::find($partId);
+            if (!$part) continue;
+
+            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $dayIndex)
+                ->count();
+
+            if ($existingCount >= 20) break;
+
+            ProgramPart::create([
+                'weekly_program_id' => $this->weeklyProgramId,
+                'lesson_name' => $part->lesson_name,
+                'part_date' => $partDate,
+                'day_of_week' => $dayIndex,
+                'part_order' => $existingCount + 1,
+                'description' => $part->description,
+                'duration_minutes' => $part->duration_minutes,
+                'test_count' => $part->test_count,
+                'part_type' => $part->part_type,
+                'source_type' => ProgramPart::SOURCE_NORMAL,
+                'lesson_type' => $part->lesson_type,
+                'grade' => $part->grade,
+                'education_level_id' => $part->education_level_id,
+                'cc_grade_id' => $part->cc_grade_id,
+                'cc_field_id' => $part->cc_field_id,
+                'cc_subject_id' => $part->cc_subject_id,
+                'cc_chapter_id' => $part->cc_chapter_id,
+                'cc_topic_id' => $part->cc_topic_id,
+            ]);
+            $copied++;
+        }
+
+        $this->loadExistingParts();
+        $this->selectedPartIds = [];
+        $this->copyTargetDay = null;
+        $this->partSelectMode = false;
+
+        if ($copied > 0) {
+            $this->dispatch('success', $copied . ' پارت با موفقیت کپی شد.');
+        } else {
+            $this->dispatch('warning', 'هیچ پارتی کپی نشد.');
+        }
+    }
+
 
     // ==================== روزخوانی / پیش‌خوانی جداگانه ====================
 

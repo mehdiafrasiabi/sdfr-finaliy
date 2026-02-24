@@ -189,25 +189,41 @@ class ClassScheduleUpload extends Component
 
     public function deletePart(int $dayOfWeek, int $partOrder): void
     {
-
-
         if (!$this->classScheduleId) {
             return;
         }
 
-        // حذف پارت
+        // حذف همین پارت
         ClassSchedulePart::where('class_schedule_id', $this->classScheduleId)
             ->where('day_of_week', $dayOfWeek)
             ->where('part_order', $partOrder)
             ->delete();
 
-        // حذف پارت‌های بعد از آن (چون باید ترتیب رعایت شود)
-        ClassSchedulePart::where('class_schedule_id', $this->classScheduleId)
+        // شیفت دادن پارت‌های بعدی به جلو
+        $nextParts = ClassSchedulePart::where('class_schedule_id', $this->classScheduleId)
             ->where('day_of_week', $dayOfWeek)
             ->where('part_order', '>', $partOrder)
-            ->delete();
+            ->orderBy('part_order')
+            ->get();
+
+        foreach ($nextParts as $part) {
+            $part->update(['part_order' => $part->part_order - 1]);
+        }
 
         $this->dispatch('success', 'پارت حذف شد.');
+    }
+
+    public function deleteAllDayParts(int $dayOfWeek): void
+    {
+        if (!$this->classScheduleId) {
+            return;
+        }
+
+        ClassSchedulePart::where('class_schedule_id', $this->classScheduleId)
+            ->where('day_of_week', $dayOfWeek)
+            ->delete();
+
+        $this->dispatch('success', 'تمامی پارت‌های این روز حذف شدند.');
     }
 
     public function openFinalizeModal(): void

@@ -387,135 +387,144 @@
         </div>
     @endif
 
-    {{-- ==================== Modal 2: تنظیم روز و ساعت ==================== --}}
+    {{-- ==================== Modal 2: تنظیم روز و ساعت (به ازای هر دانش‌آموز) ==================== --}}
     @if($showScheduleModal)
         <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.5);" wire:ignore.self>
-            <div class="modal-dialog modal-md">
+            <div class="modal-dialog modal-xl modal-dialog-scrollable" style="max-width:960px;">
                 <div class="modal-content">
                     <div class="modal-header border-bottom">
                         <h5 class="modal-title fw-bold">
                             <i class="fi fi-rr-calendar me-2"></i>
-                            تنظیم روز و ساعت جلسات
+                            تنظیم روز، ساعت و محل برگزاری جلسات
                         </h5>
                         <button type="button" class="btn-close" wire:click="closeScheduleModal"></button>
                     </div>
 
-                    <div class="modal-body">
+                    <div class="modal-body" style="max-height:70vh; overflow-y:auto;">
 
                         <!-- اطلاعیه -->
                         <div class="alert alert-info d-flex align-items-start gap-2 mb-4" role="alert">
                             <i class="fi fi-rr-info mt-1"></i>
                             <div class="small">
-                                برای هر دانش‌آموز انتخاب‌شده، <strong>۴ جلسه</strong> به صورت خودکار در روز و ساعت مشخص‌شده ثبت می‌شود.
+                                برای هر دانش‌آموز انتخاب‌شده، <strong>۴ جلسه</strong> به صورت خودکار ثبت می‌شود.
                                 هر جلسه یک هفته پس از جلسه قبلی برگزار می‌شود.
-                                عنوان هر جلسه تاریخ شمسی آن جلسه و توضیحات «جلسه مشاوره فردی» خواهد بود.
+                                روز هفته، ساعت و محل برگزاری را برای هر دانش‌آموز جداگانه تنظیم کنید.
                             </div>
                         </div>
 
                         <!-- دانش‌آموزان انتخابی -->
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">دانش‌آموزان انتخاب‌شده</label>
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach($modalStudents->whereIn('id', $selectedStudents) as $selStudent)
-                                    @php $selInfo = $selStudent->user->personalInformation ?? null; @endphp
-                                    <span class="badge bg-primary-subtle text-primary border border-primary rounded-pill px-3 py-2">
-                                    <i class="fi fi-rr-user me-1"></i>
-                                    {{ $selInfo->name ?? '-' }} {{ $selInfo->name_full ?? '' }}
-                                </span>
-                                @endforeach
-                            </div>
-                        </div>
-
-                        <!-- روز هفته -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                روز هفته
-                                <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select @error('selectedDay') is-invalid @enderror"
-                                    wire:model="selectedDay">
-                                <option value="">-- روز را انتخاب کنید --</option>
-                                <option value="6">شنبه</option>
-                                <option value="0">یکشنبه</option>
-                                <option value="1">دوشنبه</option>
-                                <option value="2">سه‌شنبه</option>
-                                <option value="3">چهارشنبه</option>
-                                <option value="4">پنج‌شنبه</option>
-                                <option value="5">جمعه</option>
-                            </select>
-                            @error('selectedDay')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <!-- ساعت و دقیقه -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                ساعت برگزاری
-                                <span class="text-danger">*</span>
-                            </label>
-                            <div class="d-flex gap-2 align-items-center">
-                                <div class="flex-fill">
-                                    <label class="form-label small text-muted">ساعت</label>
-                                    <select class="form-select @error('selectedHour') is-invalid @enderror"
-                                            wire:model="selectedHour">
-                                        @for($h = 0; $h <= 23; $h++)
-                                            <option value="{{ $h }}">{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}</option>
-                                        @endfor
-                                    </select>
-                                    @error('selectedHour')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
+                        <!-- کارت هر دانش‌آموز -->
+                        @foreach($modalStudents->whereIn('id', $selectedStudents) as $selStudent)
+                            @php
+                                $selInfo     = $selStudent->user->personalInformation ?? null;
+                                $sid         = $selStudent->id;
+                                $schedule    = $studentSchedules[$sid] ?? ['day'=>'','hour'=>'08','minute'=>'00','location_type'=>'online','skyroom_link'=>''];
+                                $isOnline    = ($schedule['location_type'] ?? 'online') === 'online';
+                            @endphp
+                            <div class="card border mb-3 shadow-sm">
+                                <div class="card-header bg-primary-subtle d-flex align-items-center gap-2 py-2">
+                                    <i class="fi fi-rr-user text-primary"></i>
+                                    <strong class="text-primary">
+                                        {{ $selInfo->name ?? '-' }} {{ $selInfo->name_full ?? '' }}
+                                    </strong>
+                                    @if($selInfo)
+                                        <small class="text-muted ms-2">
+                                            ({{ $selStudent->user->mobile ?? '' }})
+                                        </small>
+                                    @endif
                                 </div>
-                                <div class="pt-3 fw-bold text-muted">:</div>
-                                <div class="flex-fill">
-                                    <label class="form-label small text-muted">دقیقه</label>
-                                    <select class="form-select @error('selectedMinute') is-invalid @enderror"
-                                            wire:model="selectedMinute">
-                                        @foreach([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55] as $m)
-                                            <option value="{{ $m }}">{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('selectedMinute')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-                        </div>
+                                <div class="card-body">
+                                    <div class="row g-3 align-items-start">
+
+                                        <!-- روز هفته -->
+                                        <div class="col-md-3 col-6">
+                                            <label class="form-label fw-semibold small">
+                                                روز هفته <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select form-select-sm @error('studentSchedules.'.$sid.'.day') is-invalid @enderror"
+                                                    wire:model.live="studentSchedules.{{ $sid }}.day">
+                                                <option value="">-- انتخاب --</option>
+                                                <option value="6">شنبه</option>
+                                                <option value="0">یکشنبه</option>
+                                                <option value="1">دوشنبه</option>
+                                                <option value="2">سه‌شنبه</option>
+                                                <option value="3">چهارشنبه</option>
+                                                <option value="4">پنج‌شنبه</option>
+                                                <option value="5">جمعه</option>
+                                            </select>
+                                            @error('studentSchedules.'.$sid.'.day')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- ساعت -->
+                                        <div class="col-md-2 col-3">
+                                            <label class="form-label fw-semibold small">
+                                                ساعت <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select form-select-sm @error('studentSchedules.'.$sid.'.hour') is-invalid @enderror"
+                                                    wire:model="studentSchedules.{{ $sid }}.hour">
+                                                @for($h = 0; $h <= 23; $h++)
+                                                    <option value="{{ $h }}">{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}</option>
+                                                @endfor
+                                            </select>
+                                            @error('studentSchedules.'.$sid.'.hour')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <!-- دقیقه -->
+                                        <div class="col-md-2 col-3">
+                                            <label class="form-label fw-semibold small">
+                                                دقیقه <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select form-select-sm @error('studentSchedules.'.$sid.'.minute') is-invalid @enderror"
+                                                    wire:model="studentSchedules.{{ $sid }}.minute">
+                                                @foreach([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55] as $m)
+                                                    <option value="{{ $m }}">{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
+                                                @endforeach
+                                            </select>
+                                            @error('studentSchedules.'.$sid.'.minute')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
 
                         <!-- محل برگزاری -->
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">
-                                محل برگزاری
-                                <span class="text-danger">*</span>
-                            </label>
-                            <select class="form-select @error('autoLocationType') is-invalid @enderror"
-                                    wire:model.live="autoLocationType">
-                                <option value="online">مجازی (آنلاین)</option>
-                                <option value="in_person">حضوری</option>
-                            </select>
-                            @error('autoLocationType')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
+                                        <!-- محل برگزاری -->
+                                        <div class="col-md-3 col-6">
+                                            <label class="form-label fw-semibold small">
+                                                محل برگزاری <span class="text-danger">*</span>
+                                            </label>
+                                            <select class="form-select form-select-sm @error('studentSchedules.'.$sid.'.location_type') is-invalid @enderror"
+                                                    wire:model.live="studentSchedules.{{ $sid }}.location_type">
+                                                <option value="online">مجازی (آنلاین)</option>
+                                                <option value="in_person">حضوری</option>
+                                            </select>
+                                            @error('studentSchedules.'.$sid.'.location_type')
+                                            <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+
+                                        <!-- لینک آنلاین (فقط اگر مجازی انتخاب شده) -->
+                                        @if($isOnline)
+                                            <div class="col-md-10 col-12">
+                                                <label class="form-label fw-semibold small">
+                                                    لینک جلسه آنلاین <span class="text-danger">*</span>
+                                                </label>
+                                                <input type="url"
+                                                       class="form-control form-control-sm @error('studentSchedules.'.$sid.'.skyroom_link') is-invalid @enderror"
+                                                       wire:model="studentSchedules.{{ $sid }}.skyroom_link"
+                                                       placeholder="https://..." />
+                                                @error('studentSchedules.'.$sid.'.skyroom_link')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        @endif
 
                         <!-- لینک آنلاین -->
-                        @if($autoLocationType === 'online')
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold">
-                                    لینک جلسه آنلاین
-                                    <span class="text-danger">*</span>
-                                </label>
-                                <input type="url"
-                                       class="form-control @error('autoSkyroomLink') is-invalid @enderror"
-                                       wire:model="autoSkyroomLink"
-                                       placeholder="https://..." />
-                                @error('autoSkyroomLink')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                    </div>
+                                </div>
                             </div>
-                        @endif
-
+                        @endforeach
                     </div>
 
                     <div class="modal-footer border-top d-flex justify-content-between">
@@ -529,14 +538,14 @@
                             </button>
                             <button type="button" class="btn btn-success" wire:click="createAutoSessions"
                                     wire:loading.attr="disabled">
-                            <span wire:loading.remove wire:target="createAutoSessions">
-                                <i class="fi fi-rr-check me-1"></i>
-                                ثبت جلسات
-                            </span>
+                                <span wire:loading.remove wire:target="createAutoSessions">
+                                    <i class="fi fi-rr-check me-1"></i>
+                                    ثبت جلسات
+                                </span>
                                 <span wire:loading wire:target="createAutoSessions">
-                                <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-                                در حال ثبت...
-                            </span>
+                                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
+                                    در حال ثبت...
+                                </span>
                             </button>
                         </div>
                     </div>

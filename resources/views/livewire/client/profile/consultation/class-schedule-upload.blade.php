@@ -24,6 +24,7 @@
                                 </svg>
                             </a>
                         </div>
+
                         {{-- اطلاعات پایه و رشته --}}
                         <div dir="rtl" class="rounded-2xl border border-border bg-primary p-4 md:p-6">
                             <div class="flex flex-wrap items-center justify-between gap-4">
@@ -89,10 +90,10 @@
                                         <div class="flex items-center gap-3">
                                             <span class="inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm
                                                 {{ $day['is_complete']
-                                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-600'
+                                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
                                                     : ($day['is_mandatory']
                                                         ? 'bg-primary/10 text-primary'
-                                                        : 'bg-secondary text-muted') }}">
+                                                        : 'bg-muted/30 text-muted') }}">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                                           d="M8 3v2m8-2v2M4 8h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>
@@ -106,9 +107,23 @@
                                                 <span class="text-xs text-muted mr-2">(اختیاری)</span>
                                             </div>
                                         </div>
-                                        <div class="flex items-center gap-2">
+                                        <div class="flex items-center gap-3">
                                             <span class="text-sm text-muted">{{ $day['filled_count'] }} / {{ \App\Models\ClassSchedule::MAX_PARTS_PER_DAY }}</span>
+
+                                            {{-- دکمه حذف تمامی پارت‌های روز --}}
                                             @if($day['filled_count'] > 0)
+                                                <button
+                                                    wire:click="$dispatch('open-delete-day-modal', { day: {{ $day['day_of_week'] }}, name: '{{ $day['name'] }}' })"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold
+                                                           bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400
+                                                           border border-red-200 dark:border-red-800
+                                                           hover:bg-red-100 dark:hover:bg-red-900/40
+                                                           transition-all duration-200">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                                    </svg>
+                                                    حذف همه
+                                                </button>
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                 </svg>
@@ -130,6 +145,8 @@
                                                     @if($partInfo['is_filled'])
                                                         <div class="relative group">
                                                             <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
+                                                                    wire:loading.attr="disabled"
+                                                                    wire:target="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
                                                                     class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all hover:border-green-400 hover:shadow-md cursor-pointer">
                                                                 <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
                                                                 <div class="font-bold text-sm text-foreground truncate">{{ $partInfo['part']->lesson_name }}</div>
@@ -137,23 +154,34 @@
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                                                 </svg>
                                                             </button>
-                                                            <button wire:click="deletePart({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
-                                                                    wire:confirm="آیا مطمئنید؟ پارت‌های بعدی هم حذف خواهند شد."
-                                                                    class="absolute -top-2 -left-2 w-6 h-6 bg-red-500 text-white rounded-full items-center justify-center text-xs hidden group-hover:flex shadow-lg">
+                                                            {{-- دکمه حذف تک پارت --}}
+                                                            <button
+                                                                wire:click="$dispatch('open-delete-part-modal', { day: {{ $day['day_of_week'] }}, part: {{ $partInfo['order'] }}, name: '{{ $partInfo['part']->lesson_name }}' })"
+                                                                class="absolute -top-2 -left-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full items-center justify-center text-xs hidden group-hover:flex shadow-lg transition-colors">
                                                                 &times;
                                                             </button>
                                                         </div>
                                                     @elseif($partInfo['is_unlocked'])
                                                         <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
+                                                                wire:loading.attr="disabled"
+                                                                wire:target="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
                                                                 class="w-full rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3 text-center transition-all hover:border-primary hover:bg-primary/10 hover:shadow-md cursor-pointer">
                                                             <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                                            </svg>
+                                                            <div wire:loading wire:target="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})">
+                                                                <svg class="animate-spin w-6 h-6 text-primary mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                                                </svg>
+                                                            </div>
+                                                            <div wire:loading.remove wire:target="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                                                </svg>
+                                                            </div>
                                                             <div class="text-xs text-primary mt-1 font-semibold">افزودن</div>
                                                         </button>
                                                     @else
-                                                        <div class="w-full rounded-xl border border-border bg-secondary p-3 text-center opacity-40">
+                                                        <div class="w-full rounded-xl border border-border bg-secondary/50 p-3 text-center opacity-40">
                                                             <div class="text-xs text-muted mb-1">پارت {{ $partInfo['order'] }}</div>
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-muted mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
@@ -170,10 +198,20 @@
                                             @if($nextUnlocked)
                                                 <div class="w-28 flex-shrink-0 snap-start">
                                                     <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $nextUnlocked['order'] }})"
+                                                            wire:loading.attr="disabled"
+                                                            wire:target="openPartModal({{ $day['day_of_week'] }}, {{ $nextUnlocked['order'] }})"
                                                             class="w-full h-full min-h-[88px] rounded-xl border-2 border-dashed border-primary/50 bg-primary/5 p-3 text-center transition-all active:bg-primary/10">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-primary mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                                                        </svg>
+                                                        <div wire:loading wire:target="openPartModal({{ $day['day_of_week'] }}, {{ $nextUnlocked['order'] }})">
+                                                            <svg class="animate-spin w-7 h-7 text-primary mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <div wire:loading.remove wire:target="openPartModal({{ $day['day_of_week'] }}, {{ $nextUnlocked['order'] }})">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-primary mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                                            </svg>
+                                                        </div>
                                                         <div class="text-xs text-primary mt-1 font-bold">افزودن</div>
                                                     </button>
                                                 </div>
@@ -181,7 +219,7 @@
 
                                             @foreach($filledParts as $partInfo)
                                                 <div class="w-32 flex-shrink-0 snap-start mt-2">
-                                                    <div class="relative group">
+                                                    <div class="relative">
                                                         <button wire:click="openPartModal({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
                                                                 class="w-full rounded-xl border-2 border-green-300 dark:border-green-700 bg-green-50 dark:bg-green-900/20 p-3 text-center transition-all active:border-green-400 cursor-pointer">
                                                             <div class="text-[10px] text-muted mb-0.5">پارت {{ $partInfo['order'] }}</div>
@@ -190,9 +228,9 @@
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                                             </svg>
                                                         </button>
-                                                        <button wire:click="deletePart({{ $day['day_of_week'] }}, {{ $partInfo['order'] }})"
-                                                                wire:confirm="آیا مطمئنید؟ پارت‌های بعدی هم حذف خواهند شد."
-                                                                class="absolute -top-2 -left-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] shadow-lg">
+                                                        <button
+                                                            wire:click="$dispatch('open-delete-part-modal', { day: {{ $day['day_of_week'] }}, part: {{ $partInfo['order'] }}, name: '{{ $partInfo['part']->lesson_name }}' })"
+                                                            class="absolute -top-2 -left-2 w-5 h-5 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-[10px] shadow-lg transition-colors">
                                                             &times;
                                                         </button>
                                                     </div>
@@ -213,14 +251,24 @@
                         {{-- دکمه ثبت نهایی --}}
                         <div dir="rtl" class="flex items-center justify-end gap-4">
                             <button wire:click="openFinalizeModal"
+                                    wire:loading.attr="disabled"
+                                    wire:target="openFinalizeModal"
                                     @if(!$canFinalize) disabled @endif
                                     class="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm transition-colors
                                     {{ $canFinalize
                                         ? 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/30'
                                         : 'bg-muted text-muted cursor-not-allowed' }}">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
+                                <span wire:loading wire:target="openFinalizeModal">
+                                    <svg class="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                </span>
+                                <span wire:loading.remove wire:target="openFinalizeModal">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </span>
                                 ثبت نهایی برنامه کلاسی
                             </button>
                         </div>
@@ -230,26 +278,195 @@
             </div>
         </div>
 
-        {{-- مودال ثبت نهایی --}}
+        {{-- ======================================================= --}}
+        {{-- مودال تایید حذف تک پارت (Alpine.js) --}}
+        {{-- ======================================================= --}}
+        <div
+            x-data="{
+                show: false,
+                day: null,
+                part: null,
+                name: '',
+                open(e) {
+                    this.day  = e.detail.day;
+                    this.part = e.detail.part;
+                    this.name = e.detail.name;
+                    this.show = true;
+                },
+                close() { this.show = false; }
+            }"
+            @open-delete-part-modal.window="open($event)"
+            x-show="show"
+            x-cloak
+            class="fixed inset-0 z-[82] overflow-y-auto">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div
+                    x-show="show"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="relative w-full max-w-sm overflow-hidden bg-background dark:bg-zinc-900 border border-border rounded-2xl shadow-2xl z-20"
+                    dir="rtl">
+
+                    {{-- آیکون هشدار --}}
+                    <div class="p-6 text-center">
+                        <div class="w-14 h-14 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-foreground text-lg mb-2">حذف پارت</h3>
+                        <p class="text-sm text-muted">
+                            آیا از حذف درس <span class="font-bold text-foreground" x-text="`«${name}»`"></span> مطمئنید؟
+                        </p>
+                        <p class="text-xs text-muted mt-1">پارت‌های بعدی یک شماره به جلو شیفت می‌یابند.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3 border-t border-border px-5 pb-5">
+                        <button @click="close()"
+                                class="w-full rounded-xl border border-border py-2.5 px-4 text-sm font-semibold text-foreground
+                                       bg-background dark:bg-zinc-900 hover:bg-muted/50 dark:hover:bg-zinc-800
+                                       transition-colors">
+                            انصراف
+                        </button>
+                        <button
+                            @click="$wire.deletePart(day, part); close();"
+                            wire:loading.attr="disabled"
+                            wire:target="deletePart"
+                            class="w-full rounded-xl py-2.5 px-4 text-sm font-semibold text-white
+                                   bg-red-500 hover:bg-red-600 transition-colors
+                                   inline-flex items-center justify-center gap-2">
+                            <span wire:loading wire:target="deletePart">
+                                <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                            </span>
+                            <span wire:loading.remove wire:target="deletePart">حذف</span>
+                        </button>
+                    </div>
+                </div>
+                <div @click="close()" x-show="show"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     class="fixed inset-0 bg-black/50 dark:bg-black/70 cursor-pointer z-10"></div>
+            </div>
+        </div>
+
+        {{-- ======================================================= --}}
+        {{-- مودال تایید حذف تمام پارت‌های روز (Alpine.js) --}}
+        {{-- ======================================================= --}}
+        <div
+            x-data="{
+                show: false,
+                day: null,
+                name: '',
+                open(e) {
+                    this.day  = e.detail.day;
+                    this.name = e.detail.name;
+                    this.show = true;
+                },
+                close() { this.show = false; }
+            }"
+            @open-delete-day-modal.window="open($event)"
+            x-show="show"
+            x-cloak
+            class="fixed inset-0 z-[78] overflow-y-auto">
+            <div class="flex items-center justify-center min-h-screen px-4">
+                <div
+                    x-show="show"
+                    x-transition:enter="transition ease-out duration-200"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-150"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="relative w-full max-w-sm overflow-hidden bg-background dark:bg-zinc-900 border border-border rounded-2xl shadow-2xl z-20"
+                    dir="rtl">
+
+                    <div class="p-6 text-center">
+                        <div class="w-14 h-14 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-foreground text-lg mb-2">حذف تمامی پارت‌ها</h3>
+                        <p class="text-sm text-muted">
+                            آیا از حذف <strong class="text-red-500">تمامی پارت‌های</strong> روز
+                            <span class="font-bold text-foreground" x-text="`«${name}»`"></span>
+                            مطمئنید؟
+                        </p>
+                        <p class="text-xs text-muted mt-1">این عمل قابل بازگشت نیست.</p>
+                    </div>
+
+                    <div class="flex items-center gap-3 border-t border-border px-5 pb-5">
+                        <button @click="close()"
+                                class="w-full rounded-xl border border-border py-2.5 px-4 text-sm font-semibold text-foreground
+                                       bg-background dark:bg-zinc-900 hover:bg-muted/50 dark:hover:bg-zinc-800
+                                       transition-colors">
+                            انصراف
+                        </button>
+                        <button
+                            @click="$wire.deleteAllDayParts(day); close();"
+                            wire:loading.attr="disabled"
+                            wire:target="deleteAllDayParts"
+                            class="w-full rounded-xl py-2.5 px-4 text-sm font-semibold text-white
+                                   bg-red-500 hover:bg-red-600 transition-colors
+                                   inline-flex items-center justify-center gap-2">
+                            <span wire:loading wire:target="deleteAllDayParts">
+                                <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                            </span>
+                            <span wire:loading.remove wire:target="deleteAllDayParts">حذف همه</span>
+                        </button>
+                    </div>
+                </div>
+                <div @click="close()" x-show="show"
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0"
+                     x-transition:enter-end="opacity-100"
+                     class="fixed inset-0 bg-black/50 dark:bg-black/70 cursor-pointer z-10"></div>
+            </div>
+        </div>
+
+        {{-- مودال ثبت نهایی (Livewire) --}}
         @if($showFinalizeModal)
-            <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="fixed inset-0 z-[72] overflow-y-auto">
                 <div class="flex items-center justify-center min-h-screen px-4">
-                    <div class="relative w-full max-w-md overflow-hidden bg-secondary border border-border rounded-2xl shadow-2xl z-20" dir="rtl">
+                    <div class="relative w-full max-w-md overflow-hidden bg-background dark:bg-zinc-900 border border-border rounded-2xl shadow-2xl z-20" dir="rtl">
                         <div class="p-5 border-b border-border">
                             <h3 class="font-bold text-foreground text-lg">تایید ثبت نهایی / به‌روزرسانی برنامه</h3>
                         </div>
-                        <div class="p-5 space-y-2 text-sm text-muted bg-secondary">
+                        <div class="p-5 space-y-2 text-sm text-muted">
                             <p>آیا از ثبت نهایی برنامه کلاسی مطمئن هستید؟</p>
                             <p>در آینده هم می‌توانید ویرایش کنید و دوباره ثبت نهایی بزنید.</p>
                         </div>
-                        <div class="flex items-center gap-x-3 border-t border-border p-4 bg-secondary">
+                        <div class="flex items-center gap-x-3 border-t border-border p-4">
                             <button wire:click="closeFinalizeModal"
-                                    class="w-full rounded-xl border border-border py-3 px-4 text-foreground hover:bg-muted/50 transition-colors">
+                                    wire:loading.attr="disabled"
+                                    wire:target="closeFinalizeModal"
+                                    class="w-full rounded-xl border border-border py-3 px-4 text-foreground
+                                           hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors text-sm font-semibold">
                                 انصراف
                             </button>
                             <button wire:click="finalizeSchedule"
-                                    class="w-full rounded-xl bg-green-500 hover:bg-green-600 text-white py-3 px-4 transition-colors">
-                                بله، ثبت نهایی شود
+                                    wire:loading.attr="disabled"
+                                    wire:target="finalizeSchedule"
+                                    class="w-full rounded-xl bg-green-500 hover:bg-green-600 text-white py-3 px-4
+                                           transition-colors inline-flex items-center justify-center gap-2 text-sm font-semibold">
+                                <span wire:loading wire:target="finalizeSchedule">
+                                    <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                </span>
+                                <span wire:loading.remove wire:target="finalizeSchedule">بله، ثبت نهایی شود</span>
                             </button>
                         </div>
                     </div>
@@ -260,12 +477,11 @@
 
         {{-- مودال انتخاب درس --}}
         @if($showModal)
-            <div class="fixed inset-0 z-50 overflow-y-auto">
+            <div class="fixed inset-0 z-[70] overflow-y-auto">
                 <div class="flex items-center justify-center min-h-screen px-4">
-                    <div class="relative w-full max-w-md my-20 overflow-hidden bg-secondary border border-border rounded-2xl shadow-2xl z-20">
+                    <div class="relative w-full max-w-md my-20 overflow-hidden bg-background dark:bg-zinc-900 border border-border rounded-2xl shadow-2xl z-20">
 
-                        {{-- هدر --}}
-                        <div class="p-4 border-b border-border bg-secondary flex items-center justify-between">
+                        <div class="p-4 border-b border-border flex items-center justify-between">
                             <h3 class="font-bold text-foreground text-lg">
                                 انتخاب درس - {{ \App\Models\ClassSchedule::getDayName($selectedDay) }} (پارت {{ $selectedPart }})
                             </h3>
@@ -276,8 +492,7 @@
                             </button>
                         </div>
 
-                        {{-- بدنه --}}
-                        <div class="p-6 bg-secondary">
+                        <div class="p-6">
                             @if(count($subjects) > 0)
                                 <p class="text-sm text-muted mb-4">یک درس را انتخاب کنید:</p>
                                 <div class="space-y-2 max-h-80 overflow-y-auto">
@@ -286,7 +501,7 @@
                                                 class="w-full text-right px-4 py-3 rounded-xl border transition-all
                                                 {{ $selectedSubjectId == $subject->id
                                                     ? 'border-primary bg-primary/10 text-primary font-bold'
-                                                    : 'border-border bg-secondary hover:border-primary/40 hover:bg-primary/5 text-foreground' }}">
+                                                    : 'border-border bg-background dark:bg-zinc-900 hover:border-primary/40 hover:bg-primary/5 text-foreground' }}">
                                             <div class="flex items-center justify-between">
                                                 <span>{{ $subject->name }}</span>
                                                 <span class="text-xs {{ $subject->type === 'general' ? 'text-blue-500' : 'text-orange-500' }}">
@@ -301,24 +516,32 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-muted mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                                     </svg>
-                                    <p class="text-muted">درسی یافت نشد. لطفاً اطلاعات شخصی (پایه و رشته) خود را تکمیل کنید.</p>
+                                    <p class="text-muted text-sm">درسی یافت نشد. لطفاً اطلاعات شخصی (پایه و رشته) خود را تکمیل کنید.</p>
                                 </div>
                             @endif
                         </div>
 
-                        {{-- فوتر --}}
-                        <div class="flex items-center gap-x-4 border-t border-border p-4 bg-secondary">
+                        <div class="flex items-center gap-x-4 border-t border-border p-4">
                             <button wire:click="closeModal"
-                                    class="flex items-center justify-center gap-x-2 w-full bg-secondary border border-border rounded-xl text-foreground py-3 px-4 hover:bg-muted/50 transition-colors">
-                                <span class="font-bold text-sm">انصراف</span>
+                                    class="flex items-center justify-center gap-x-2 w-full border border-border rounded-xl text-foreground py-3 px-4
+                                           hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors text-sm font-semibold">
+                                انصراف
                             </button>
                             <button wire:click="savePart"
+                                    wire:loading.attr="disabled"
+                                    wire:target="savePart"
                                     @if(!$selectedSubjectId) disabled @endif
                                     class="flex items-center justify-center gap-x-2 w-full rounded-xl py-3 px-4 transition-colors
                                     {{ $selectedSubjectId
-                                        ? 'bg-primary hover:bg-primary/90 text-primary'
-                                        : 'bg-muted text-muted cursor-not-allowed' }}">
-                                <span class="font-bold text-sm text-white">ذخیره</span>
+                                        ? 'bg-primary hover:bg-primary/90'
+                                        : 'bg-muted cursor-not-allowed' }}">
+                                <span wire:loading wire:target="savePart">
+                                    <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                    </svg>
+                                </span>
+                                <span wire:loading.remove wire:target="savePart" class="font-bold text-sm text-white">ذخیره</span>
                             </button>
                         </div>
                     </div>

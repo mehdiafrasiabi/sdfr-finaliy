@@ -21,6 +21,13 @@ class SessionList extends Component
     public $showPreSessionModal = false;
     public $selectedSession = null;
 
+    // Filter: 'all' | 'completed' | 'pending' | 'cancelled'
+    public $statusFilter = 'all';
+
+    public function updatingStatusFilter()
+    {
+        $this->resetPage();
+    }
     public function openPreSessionModal($sessionId)
     {
         $session = AdvisingSession::with('preSession')->find($sessionId);
@@ -89,11 +96,18 @@ class SessionList extends Component
                 }
             }
 
-            // Paginate for display (desc order for display)
-            $sessions = AdvisingSession::where('student_id', $student->id)
-                ->with(['preSession', 'advisor', 'weeklyProgram'])
-                ->orderBy('activation_date', 'desc')->latest()
-                ->paginate(10);
+            // Paginate for display (desc order, filtered by statusFilter)
+            $sessionsQuery = AdvisingSession::where('student_id', $student->id)
+                ->with(['preSession', 'advisor', 'weeklyProgram']);
+
+            match ($this->statusFilter) {
+                'completed' => $sessionsQuery->where('result_status', AdvisingSession::RESULT_HELD),
+                'pending'   => $sessionsQuery->whereIn('status', [AdvisingSession::STATUS_INACTIVE, AdvisingSession::STATUS_ACTIVE]),
+                'cancelled' => $sessionsQuery->whereIn('result_status', [AdvisingSession::RESULT_ADVISOR_ABSENT, AdvisingSession::RESULT_STUDENT_ABSENT]),
+                default     => null,
+            };
+
+            $sessions = $sessionsQuery->orderBy('activation_date', 'desc')->orderBy('id', 'desc')->paginate(10);
             // Auto-activate sessions
             foreach ($sessions as $session) {
                 $session->activateIfNeeded();
