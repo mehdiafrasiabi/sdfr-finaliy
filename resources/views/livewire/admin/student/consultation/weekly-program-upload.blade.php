@@ -449,6 +449,7 @@
                             </div>
 
                             <label class="form-label fw-semibold">روز مورد نظر را انتخاب کنید:</label>
+
                             <div class="d-flex align-items-center gap-2 mb-2 small">
                                 <span class="d-inline-flex align-items-center gap-1"><span
                                         class="badge bg-success rounded-pill px-2">&nbsp;</span> قبل یا روز امتحان</span>

@@ -130,9 +130,20 @@ class WeeklyProgramUpload extends Component
     public ?int $copyingPrevPartId = null;
     public ?int $copyPrevPartTargetDay = null;
     // Part C: Multi-select and copy parts between days
+    // Multi-select copy from previous session
+    public array $prevSelectedPartIds = [];
+    public ?int $prevMultiCopyTargetDay = null;
+    public array $copiedFromPrevPartIds = []; // track copied parts for undo
+    // Filters for previous program modal
+    public string $prevFilterQuality = '';    // '', 'excellent', 'good', 'poor'
+    public string $prevFilterCompensatory = ''; // '', 'compensatory', 'normal'
+    public string $prevFilterStudied = '';    // '', 'studied', 'not_studied'
+    // Part C: Multi-select and copy parts between days
     public bool $partSelectMode = false;
     public array $selectedPartIds = [];
     public ?int $copyTargetDay = null;
+
+
     protected function messages()
     {
         return [
