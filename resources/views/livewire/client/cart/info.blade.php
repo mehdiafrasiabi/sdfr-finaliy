@@ -1,54 +1,62 @@
-<div x-data="{ modalOpen: false }">
+<div x-data="cartInfoForm()" x-init="init()">
     @assets
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
-        <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
-        <style>
-            /* Select2 Dark Mode Support */
-            .dark .select2-container--default .select2-selection--single {
-                background-color: hsl(var(--secondary));
-                border: 0;
-                color: hsl(var(--foreground));
-            }
-            .dark .select2-container--default .select2-selection--single .select2-selection__rendered {
-                color: hsl(var(--foreground));
-            }
-            .dark .select2-dropdown {
-                background-color: hsl(var(--background));
-                border-color: hsl(var(--border));
-            }
-            .dark .select2-container--default .select2-results__option--highlighted[aria-selected] {
-                background-color: hsl(var(--primary));
-            }
-            .dark .select2-search--dropdown .select2-search__field {
-                background-color: hsl(var(--secondary));
-                color: hsl(var(--foreground));
-                border-color: hsl(var(--border));
-            }
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+    <style>
+        /* Select2 Dark Mode Support */
+        .dark .select2-container--default .select2-selection--single {
+            background-color: hsl(var(--secondary));
+            border: 0;
+            color: hsl(var(--foreground));
+        }
+        .dark .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: hsl(var(--foreground));
+        }
+        .dark .select2-dropdown {
+            background-color: hsl(var(--background));
+            border-color: hsl(var(--border));
+        }
+        .dark .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: hsl(var(--primary));
+        }
+        .dark .select2-search--dropdown .select2-search__field {
+            background-color: hsl(var(--secondary));
+            color: hsl(var(--foreground));
+            border-color: hsl(var(--border));
+        }
 
-            /* Select2 Custom Styling */
-            .select2-container--default .select2-selection--single {
-                height: 48px !important;
-                border-radius: 0.75rem !important;
-                padding: 0 1rem;
-                display: flex;
-                align-items: center;
-            }
-            .select2-container--default .select2-selection--single .select2-selection__rendered {
-                line-height: 48px !important;
-                padding: 0 !important;
-            }
-            .select2-container--default .select2-selection--single .select2-selection__arrow {
-                height: 48px !important;
-            }
-            .select2-dropdown {
-                border-radius: 0.75rem !important;
-                border: 2px solid hsl(var(--border)) !important;
-            }
-            .select2-search--dropdown .select2-search__field {
-                border-radius: 0.5rem !important;
-                padding: 0.5rem 1rem !important;
-            }
-        </style>
+        /* Select2 Custom Styling */
+        .select2-container--default .select2-selection--single {
+            height: 48px !important;
+            border-radius: 0.75rem !important;
+            padding: 0 1rem;
+            display: flex;
+            align-items: center;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 48px !important;
+            padding: 0 !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 48px !important;
+        }
+        .select2-dropdown {
+            border-radius: 0.75rem !important;
+            border: 2px solid hsl(var(--border)) !important;
+        }
+        .select2-search--dropdown .select2-search__field {
+            border-radius: 0.5rem !important;
+            padding: 0.5rem 1rem !important;
+        }
+
+        /* جلوگیری از تداخل Select2 با datepicker */
+        .jdp-container {
+            z-index: 99999 !important;
+        }
+    </style>
     @endassets
 
     <!-- container -->
@@ -97,9 +105,9 @@
                 <!-- end alert -->
 
                 <!-- form -->
-                <form wire:submit="submit(Object.fromEntries(new FormData($event.target)))" class="space-y-8 mt-6" x-data="{ grade: @entangle('grade') }">
+                <form wire:submit="submit(Object.fromEntries(new FormData($event.target)))" class="space-y-8 mt-6">
                     <!-- بخش ۱: اطلاعات فردی -->
-                    <div class="bg-gradient-to-b from-secondary to-background rounded-2xl p-1">
+                    <div class="bg-gradient-to-b from-secondary to-background  rounded-2xl p-1">
                         <div class="bg-background rounded-2xl p-6 space-y-5">
                             <div class="flex items-center gap-3 pb-3 border-b border-border">
                                 <div class="flex items-center justify-center w-10 h-10 bg-primary/10 rounded-full text-primary">
@@ -214,18 +222,19 @@
                                         تاریخ تولد
                                         <span class="text-red-500">*</span>
                                     </label>
-                                    <div class="relative">
+                                    <div class="relative" x-ref="datePickerWrap">
                                         <input
                                             type="text"
                                             id="birth_date"
                                             data-jdp
-
+                                            autocomplete="off"
                                             dir="ltr"
-                                            name="birth_date"
-                                            wire:model.lazy="birth_date"
+                                            x-ref="birthDateInput"
+                                            readonly
                                             class="form-input w-full h-12 !ring-2 !ring-transparent focus:!ring-primary !ring-offset-0 bg-secondary border-0 rounded-xl text-sm text-foreground px-4 pr-12 transition-all"
                                             placeholder="1380/01/01"
                                         />
+                                        <input type="hidden" name="birth_date" x-ref="birthDateHidden" wire:model="birth_date" />
                                         <span class="absolute right-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                                 <path fill-rule="evenodd" d="M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75z" clip-rule="evenodd" />
@@ -275,6 +284,7 @@
                                         id="grade"
                                         name="grade"
                                         wire:model.live="grade"
+                                        x-model="grade"
                                         class="form-select w-full h-12 !ring-2 !ring-transparent focus:!ring-primary !ring-offset-0 bg-secondary border-0 rounded-xl text-sm text-foreground px-4 transition-all"
                                     >
                                         <option value="">انتخاب کنید</option>
@@ -305,16 +315,11 @@
                                         :disabled="grade === '9'"
                                         class="form-select w-full h-12 !ring-2 !ring-transparent focus:!ring-primary !ring-offset-0 bg-secondary border-0 rounded-xl text-sm text-foreground px-4 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        <option value="">
-                                            <span x-show="grade === '9'">پایه نهم رشته ندارد</span>
-                                            <span x-show="grade !== '9'">انتخاب کنید</span>
-                                        </option>
+                                        <option value="" x-text="grade === '9' ? 'پایه نهم رشته ندارد' : 'انتخاب کنید'"></option>
                                         <template x-if="grade !== '9'">
-                                            <div>
-                                                <option value="math">ریاضی</option>
-                                                <option value="experimental">تجربی</option>
-                                                <option value="human">انسانی</option>
-                                            </div>
+                                            <template x-for="opt in [{v:'math',t:'ریاضی'},{v:'experimental',t:'تجربی'},{v:'human',t:'انسانی'}]">
+                                                <option :value="opt.v" x-text="opt.t"></option>
+                                            </template>
                                         </template>
                                     </select>
                                     @error('field')
@@ -331,9 +336,7 @@
                                         </svg>
                                         دانش‌آموزان پایه نهم رشته تحصیلی ندارند
                                     </p>
-
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -363,14 +366,13 @@
                                     </label>
                                     <select
                                         id="stateId"
-                                        wire:model="province"
                                         name="province"
-                                        wire:change="getCity($event.target.value)"
+                                        x-ref="provinceSelect"
                                         class="select2-province form-select w-full h-12 !ring-2 !ring-transparent focus:!ring-primary !ring-offset-0 bg-secondary border-0 rounded-xl text-sm text-foreground px-4 transition-all"
                                     >
                                         <option value="">انتخاب کنید</option>
                                         @foreach($provinces as $item)
-                                            <option class="text-white" value="{{$item->id}}" {{$province == $item->id ? 'selected' : ''}}>
+                                            <option value="{{$item->id}}" {{$province == $item->id ? 'selected' : ''}}>
                                                 {{$item->name}}
                                             </option>
                                         @endforeach
@@ -615,48 +617,136 @@
             <!-- end cart:detail -->
         </div>
     </div>
+
     @script
-            <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        Alpine.data('cartInfoForm', () => ({
+            grade: @entangle('grade'),
+            select2Initialized: false,
 
-            <script type="text/javascript" src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+            init() {
+                this.$nextTick(() => {
+                    this.initDatepicker();
+                    this.initSelect2();
+                });
 
+                // برای Livewire navigate
+                document.addEventListener('livewire:navigated', () => {
+                    this.$nextTick(() => {
+                        this.initDatepicker();
+                        this.initSelect2();
+                    });
+                });
+            },
 
-            <script>
-                function startCartJalaliDatepicker() {
-                    if (typeof jalaliDatepicker !== 'undefined') {
-                        jalaliDatepicker.startWatch();
-                    } else {
-                        console.log('jalaliDatepicker is not loaded!');
-                    }
-                }
+            initDatepicker() {
+                if (typeof jalaliDatepicker === 'undefined') return;
 
-                function initProvinceSelect2() {
-                    const $province = $('.select2-province');
-                    if ($province.hasClass('select2-hidden-accessible')) $province.select2('destroy');
+                const input = this.$refs.birthDateInput;
+                if (!input) return;
 
-                    $province.select2({
-                        placeholder: "جستجو کنید...",
-                        allowClear: true,
-                        width: '100%',
-                        language: {
-                            noResults: () => "نتیجه‌ای یافت نشد",
-                            searching: () => "در حال جستجو..."
-                        }
-                    }).off('change').on('change', function(e) {
-                    @this.set('province', e.target.value);
+                // فقط یک بار startWatch اجرا شود
+                if (!window.__JDP_STARTED__) {
+                    window.__JDP_STARTED__ = true;
+                    jalaliDatepicker.startWatch({
+                        time: false,
+                        // هیچ minDate / maxDate اینجا نیست
                     });
                 }
 
-                function initCartInfoUi() {
-                    startCartJalaliDatepicker();
-                    initProvinceSelect2();
+                // جلوگیری از چندبار بستن listener (به خاطر livewire:navigated)
+                if (!input.dataset.jdpBound) {
+                    input.dataset.jdpBound = "1";
+
+                    input.addEventListener('change', () => {
+                        const val = input.value;
+                        if (val) {
+                            this.$refs.birthDateHidden.value = val;
+                        @this.set('birth_date', val);
+                        }
+                    });
+
+                    input.addEventListener('focus', () => {
+                        if (typeof $ !== 'undefined') {
+                            $('.select2-province').select2('close');
+                        }
+                    });
+                }
+            },
+
+            initSelect2() {
+                if (typeof $ === 'undefined' || typeof $.fn.select2 === 'undefined') return;
+
+                const $province = $(this.$refs.provinceSelect);
+                if (!$province.length) return;
+
+                // اگر قبلاً init شده، destroy کن
+                if ($province.hasClass('select2-hidden-accessible')) {
+                    $province.select2('destroy');
                 }
 
-                document.addEventListener('DOMContentLoaded', initCartInfoUi);
-                document.addEventListener('livewire:navigated', initCartInfoUi);
-                document.addEventListener('livewire:initialized', initCartInfoUi);
-            </script>
-    @endscript
+                $province.select2({
+                    placeholder: "جستجو کنید...",
+                    allowClear: true,
+                    width: '100%',
+                    dropdownAutoWidth: false,
+                    language: {
+                        noResults: () => "نتیجه‌ای یافت نشد",
+                        searching: () => "در حال جستجو..."
+                    }
+                });
 
+                // وقتی استان تغییر کرد
+                $province.off('change.cartInfo').on('change.cartInfo', (e) => {
+                    const val = e.target.value;
+                @this.set('province', val);
+                    if (val) {
+                    @this.call('getCity', val);
+                    }
+                });
+
+                // بستن dropdown وقتی روی datepicker کلیک میشه
+                $(document).off('mousedown.cartSelect2').on('mousedown.cartSelect2', (e) => {
+                    const target = e.target;
+                    // اگر کلیک روی datepicker بود، Select2 رو ببند
+                    if (target.hasAttribute('data-jdp') ||
+                        target.closest('.jdp-container') ||
+                        target.closest('[x-ref="datePickerWrap"]')) {
+                        $province.select2('close');
+                    }
+                });
+
+                this.select2Initialized = true;
+            },
+
+            destroy() {
+                if (typeof $ !== 'undefined') {
+                    $(document).off('mousedown.cartSelect2');
+                    const $province = $(this.$refs.provinceSelect);
+                    if ($province.hasClass('select2-hidden-accessible')) {
+                        $province.select2('destroy');
+                    }
+                }
+            }
+
+        }));
+    </script>
+    <script>
+        input.addEventListener('change', () => {
+            const val = input.value?.trim();
+            this.$refs.birthDateHidden.value = val;
+
+            // برای اینکه Livewire هم بفهمه
+            this.$refs.birthDateHidden.dispatchEvent(new Event('input', { bubbles: true }));
+        @this.set('birth_date', val);
+        });
+
+        input.addEventListener('input', () => {
+            const val = input.value?.trim();
+            this.$refs.birthDateHidden.value = val;
+            this.$refs.birthDateHidden.dispatchEvent(new Event('input', { bubbles: true }));
+        @this.set('birth_date', val);
+        });
+    </script>
+    @endscript
 </div>

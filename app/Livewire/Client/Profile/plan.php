@@ -40,21 +40,14 @@ class plan extends Component
         $user = Auth::user();
         $studentId = $user->student->id ?? null;
 
-
-        // برنامه‌های هفتگی که جلسه مربوطه result_status='held' دارد
-        $weeklyPrograms = collect();
-        if ($studentId) {
-            $weeklyPrograms = WeeklyProgram::where('student_id', $studentId)
-                ->with(['parts', 'advisingSession'])
-                ->whereHas('advisingSession', function ($query) {
-
-                    $query->where('result_status', 'held');
-
-                })
-                ->where('is_active', true)
-                ->orderBy('start_date', 'desc')
-                ->paginate(12);
-        }
+        $weeklyPrograms = WeeklyProgram::where('student_id', $studentId ?? 0)
+            ->with(['parts', 'advisingSession'])
+            ->whereHas('advisingSession', function ($query) {
+                $query->where('result_status', 'held');
+            })
+            ->where('is_active', true)
+            ->orderBy('start_date', 'desc')
+            ->paginate(12);
 
         return view('livewire.client.profile.plan', [
             'weeklyPrograms' => $weeklyPrograms,

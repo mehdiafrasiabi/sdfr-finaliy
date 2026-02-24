@@ -443,6 +443,8 @@
                                 <p class="small text-muted-2 mb-0">
                                     {{ $examDaySelectData['part_count'] ?? 0 }} پارت -
                                     {{ $examDaySelectData['time_per_part'] ?? 0 }} دقیقه هر پارت
+
+                                    (تاریخ تحویل:  {{ jalali($examDaySelectData['exam_date'])->format('%d %B %Y') }} )
                                 </p>
                             </div>
 
