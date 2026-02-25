@@ -2,15 +2,12 @@
     <div class="container mx-auto px-4 max-w-7xl pb-10" dir="rtl">
 
         {{-- Page Header --}}
-        <div class="mb-10 text-center">
-            <h1 class="text-3xl md:text-4xl font-black text-foreground mb-3">
-                <span class="bg-gradient-to-r from-blue-500 via-sky-500 to-purple-600 bg-clip-text text-transparent">
-                    طبقه‌بندی دروس
-                </span>
-            </h1>
-            <p class="text-sm md:text-base text-muted-foreground max-w-2xl mx-auto">
-                میزان تسلط خود را در هر مبحث مشخص کنید و نقشه راه یادگیری شخصی خود را بسازید
-            </p>
+        <div class="flex items-center gap-3">
+            <div class="flex items-center gap-1">
+                <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                <div class="w-2 h-2 bg-foreground rounded-full"></div>
+            </div>
+            <div class="font-black text-foreground">  طبقه‌بندی دروس</div>
         </div>
 
         {{-- Active Projects --}}
@@ -394,15 +391,13 @@
 
         {{-- Empty State --}}
         @if($activeProjects->count() === 0 && $upcomingProjects->count() === 0 && $endedProjects->count() === 0)
-            <div class="py-20 text-center">
-                <div class="mb-6 inline-flex h-24 w-24 items-center justify-center rounded-3xl
-                            bg-gradient-to-br from-blue-500/10 to-purple-500/10 border-2 border-border">
-                    <svg class="h-12 w-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
+
+            <div class="flex flex-col items-center justify-center py-12 space-y-4">
+                <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="empty"/>
+                <div class="text-center space-y-2">
+                    <h2 class="font-bold text-xl text-foreground">پروژه‌ای در دسترس نیست</h2>
+                    <p class="text-muted text-sm">در حال حاضر پروژه طبقه‌بندی فعالی وجود ندارد.</p>
                 </div>
-                <h3 class="mb-2 text-xl font-bold text-foreground">پروژه‌ای در دسترس نیست</h3>
-                <p class="text-sm text-muted-foreground">در حال حاضر پروژه طبقه‌بندی فعالی وجود ندارد.</p>
             </div>
         @endif
 

@@ -280,25 +280,14 @@ class Classify extends Component
                 });
 
 
-            foreach ($specializedQuery->with('chapters.topics.children')->get() as $subject) {
+            foreach ($specializedQuery->with('chapters.topics')->get() as $subject) {
+
 
                 foreach ($subject->chapters as $chapter) {
 
-                    foreach ($chapter->topics->where('is_active', true) as $topic) {
+                    foreach ($chapter->topics->where('is_active', true)->whereNull('parent_id') as $topic) {
 
-                        // If topic has subtopics, count the subtopics instead
-
-                        if ($topic->has_subtopics && $topic->children->isNotEmpty()) {
-
-                            $total += $topic->children->where('is_active', true)->count();
-
-                        } else {
-
-                            // Otherwise count the topic itself
-
-                            $total += 1;
-
-                        }
+                        $total += 1;
 
                     }
                 }
@@ -314,25 +303,15 @@ class Classify extends Component
                     ->where('type', 'general');
 
 
-                foreach ($generalQuery->with('chapters.topics.children')->get() as $subject) {
+                foreach ($generalQuery->with('chapters.topics')->get() as $subject) {
+
 
                     foreach ($subject->chapters as $chapter) {
 
-                        foreach ($chapter->topics->where('is_active', true) as $topic) {
+                        foreach ($chapter->topics->where('is_active', true)->whereNull('parent_id') as $topic) {
 
-                            // If topic has subtopics, count the subtopics instead
 
-                            if ($topic->has_subtopics && $topic->children->isNotEmpty()) {
-
-                                $total += $topic->children->where('is_active', true)->count();
-
-                            } else {
-
-                                // Otherwise count the topic itself
-
-                                $total += 1;
-
-                            }
+                            $total += 1;
 
                         }
                     }

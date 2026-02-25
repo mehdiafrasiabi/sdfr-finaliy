@@ -281,21 +281,13 @@
                                         </div>
                                     @else
                                         <!-- حالت خالی -->
-                                        <div class="flex flex-col items-center justify-center py-16 px-4">
-                                            <div class="w-20 h-20 rounded-2xl bg-slate-100 dark:bg-slate-800
-                                                        flex items-center justify-center mb-4">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                     stroke-width="1.5" stroke="currentColor"
-                                                     class="w-10 h-10 text-slate-400 dark:text-slate-500">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                          d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
-                                                </svg>
+                                        <div class="flex flex-col items-center justify-center py-12 space-y-4">
+                                            <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="empty"/>
+                                            <div class="text-center space-y-2">
+                                                <h2 class="font-bold text-xl text-foreground">برنامه‌ای وجود
+                                                    ندارد</h2>
+                                                <p class="text-muted text-sm">   هنوز برنامه‌ای برای شما ثبت نشده است.</p>
                                             </div>
-                                            <h4 class="font-bold text-slate-700 dark:text-slate-200 mb-1">برنامه‌ای وجود
-                                                ندارد</h4>
-                                            <p class="text-sm text-slate-500 dark:text-slate-400 text-center">
-                                                هنوز برنامه‌ای برای شما ثبت نشده است
-                                            </p>
                                         </div>
                                     @endif
 

@@ -270,6 +270,7 @@ class WeeklyProgramUpload extends Component
         if ($part->cc_chapter_id) {
             $this->topics = CcTopic::where('cc_chapter_id', $part->cc_chapter_id)
                 ->where('is_active', true)
+                ->whereNull('parent_id')
                 ->orderBy('order')
                 ->get();
         }
@@ -407,6 +408,7 @@ class WeeklyProgramUpload extends Component
         if ($value) {
             $this->topics = CcTopic::where('cc_chapter_id', $value)
                 ->where('is_active', true)
+                ->whereNull('parent_id')
                 ->orderBy('order')
                 ->get();
         } else {
@@ -529,11 +531,111 @@ class WeeklyProgramUpload extends Component
 
         $results = [];
         $studentFieldId = $this->getStudentFieldFilter();
+        $seen = [];
+        // 1. Search subjects matching query → show their chapters first
+        $subjectQuery = CcSubject::where('name', 'like', "%{$value}%")
+            ->with(['grade.educationLevel', 'chapters' => function ($q) {
+                $q->where('is_active', true)->orderBy('order');
+            }]);
 
-        // Search topics - filtered by student's field
-        $topics = CcTopic::where('is_active', true)
+        if ($studentFieldId) {
+            $subjectQuery->where(function ($q) use ($studentFieldId) {
+                $q->where('cc_field_id', $studentFieldId)->orWhereNull('cc_field_id');
+            });
+        }
+
+        foreach ($subjectQuery->limit(5)->get() as $subject) {
+            $grade = $subject->grade;
+            if (!$grade) continue;
+            $educationLevel = $grade->educationLevel;
+            if (!$educationLevel) continue;
+
+            foreach ($subject->chapters as $chapter) {
+                $key = 'chapter_' . $chapter->id;
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+
+                $results[] = [
+                    'type' => 'chapter',
+                    'sort' => 1,
+                    'topic_id' => null,
+                    'chapter_id' => $chapter->id,
+                    'subject_id' => $subject->id,
+                    'grade_id' => $grade->id,
+                    'field_id' => $subject->cc_field_id,
+                    'education_level_id' => $educationLevel->id,
+                    'label' => $subject->name . ' / ' . $chapter->name,
+                ];
+            }
+        }
+
+        // 2. Search chapters matching query → show topics of those chapters
+        $chapters = CcChapter::where('is_active', true)
             ->where('name', 'like', "%{$value}%")
-            ->with(['chapter.subject.grade.educationLevel', 'chapter.subject.field'])
+            ->with(['subject.grade.educationLevel', 'topics' => function ($q) {
+                $q->where('is_active', true)->whereNull('parent_id')->orderBy('order');
+            }])
+            ->whereHas('subject', function ($q) use ($studentFieldId) {
+                if ($studentFieldId) {
+                    $q->where(function ($q2) use ($studentFieldId) {
+                        $q2->where('cc_field_id', $studentFieldId)->orWhereNull('cc_field_id');
+                    });
+                }
+            })
+            ->limit(8)
+            ->get();
+
+        foreach ($chapters as $chapter) {
+            $subject = $chapter->subject;
+            if (!$subject) continue;
+            $grade = $subject->grade;
+            if (!$grade) continue;
+            $educationLevel = $grade->educationLevel;
+            if (!$educationLevel) continue;
+
+            // Add the chapter itself as navigational result
+            $chapterKey = 'chapter_' . $chapter->id;
+            if (!isset($seen[$chapterKey])) {
+                $seen[$chapterKey] = true;
+                $results[] = [
+                    'type' => 'chapter',
+                    'sort' => 1,
+                    'topic_id' => null,
+                    'chapter_id' => $chapter->id,
+                    'subject_id' => $subject->id,
+                    'grade_id' => $grade->id,
+                    'field_id' => $subject->cc_field_id,
+                    'education_level_id' => $educationLevel->id,
+                    'label' => $subject->name . ' / ' . $chapter->name,
+                ];
+            }
+
+            // Add topics of the matched chapter
+            foreach ($chapter->topics as $topic) {
+                $key = 'topic_' . $topic->id;
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+
+                $results[] = [
+                    'type' => 'topic',
+                    'sort' => 2,
+                    'topic_id' => $topic->id,
+                    'chapter_id' => $chapter->id,
+                    'subject_id' => $subject->id,
+                    'grade_id' => $grade->id,
+                    'field_id' => $subject->cc_field_id,
+                    'education_level_id' => $educationLevel->id,
+                    'label' => $subject->name . ' / ' . $chapter->name . ' / ' . $topic->name,
+                ];
+            }
+
+        }
+
+        // 3. Search topics by name directly (main topics only, no subtopics)
+        $topics = CcTopic::where('is_active', true)
+            ->whereNull('parent_id')
+            ->where('name', 'like', "%{$value}%")
+            ->with(['chapter.subject.grade.educationLevel'])
             ->whereHas('chapter.subject', function ($q) use ($studentFieldId) {
                 if ($studentFieldId) {
                     $q->where(function ($q2) use ($studentFieldId) {
@@ -545,6 +647,10 @@ class WeeklyProgramUpload extends Component
             ->get();
 
         foreach ($topics as $topic) {
+            $key = 'topic_' . $topic->id;
+            if (isset($seen[$key])) continue;
+            $seen[$key] = true;
+
             $chapter = $topic->chapter;
             if (!$chapter) continue;
             $subject = $chapter->subject;
@@ -556,79 +662,25 @@ class WeeklyProgramUpload extends Component
 
             $results[] = [
                 'type' => 'topic',
+                'sort' => 2,
                 'topic_id' => $topic->id,
                 'chapter_id' => $chapter->id,
                 'subject_id' => $subject->id,
                 'grade_id' => $grade->id,
                 'field_id' => $subject->cc_field_id,
                 'education_level_id' => $educationLevel->id,
-                'label' => $educationLevel->name . ' / ' . $grade->name . ' / ' . $subject->name . ' / ' . $chapter->name . ' / ' . $topic->name,
+                'label' => $subject->name . ' / ' . $chapter->name . ' / ' . $topic->name,
             ];
         }
 
-        // Search chapters - filtered by student's field
-        $chapters = CcChapter::where('is_active', true)
-            ->where('name', 'like', "%{$value}%")
-            ->with(['subject.grade.educationLevel', 'subject.field'])
-            ->whereHas('subject', function ($q) use ($studentFieldId) {
-                if ($studentFieldId) {
-                    $q->where(function ($q2) use ($studentFieldId) {
-                        $q2->where('cc_field_id', $studentFieldId)->orWhereNull('cc_field_id');
-                    });
-                }
-            })
-            ->limit(10)
-            ->get();
+        // Sort: chapters (sort=1) first, topics (sort=2) second
+        usort($results, fn($a, $b) => $a['sort'] <=> $b['sort']);
 
-        foreach ($chapters as $chapter) {
-            $subject = $chapter->subject;
-            if (!$subject) continue;
-            $grade = $subject->grade;
-            if (!$grade) continue;
-            $educationLevel = $grade->educationLevel;
-            if (!$educationLevel) continue;
-
-            $results[] = [
-                'type' => 'chapter',
-                'topic_id' => null,
-                'chapter_id' => $chapter->id,
-                'subject_id' => $subject->id,
-                'grade_id' => $grade->id,
-                'field_id' => $subject->cc_field_id,
-                'education_level_id' => $educationLevel->id,
-                'label' => $educationLevel->name . ' / ' . $grade->name . ' / ' . $subject->name . ' / ' . $chapter->name,
-            ];
-        }
-
-        // Search subjects - filtered by student's field
-        $subjectQuery = CcSubject::where('name', 'like', "%{$value}%")
-            ->with(['grade.educationLevel', 'field']);
-
-        if ($studentFieldId) {
-            $subjectQuery->where(function ($q) use ($studentFieldId) {
-                $q->where('cc_field_id', $studentFieldId)->orWhereNull('cc_field_id');
-            });
-        }
-
-        $subjects = $subjectQuery->limit(10)->get();
-
-        foreach ($subjects as $subject) {
-            $grade = $subject->grade;
-            if (!$grade) continue;
-            $educationLevel = $grade->educationLevel;
-            if (!$educationLevel) continue;
-
-            $results[] = [
-                'type' => 'subject',
-                'topic_id' => null,
-                'chapter_id' => null,
-                'subject_id' => $subject->id,
-                'grade_id' => $grade->id,
-                'field_id' => $subject->cc_field_id,
-                'education_level_id' => $educationLevel->id,
-                'label' => $educationLevel->name . ' / ' . $grade->name . ' / ' . $subject->name,
-            ];
-        }
+        // Remove sort key before storing
+        $results = array_map(function ($r) {
+            unset($r['sort']);
+            return $r;
+        }, $results);
 
         $this->globalSearchResults = array_slice($results, 0, 15);
     }
@@ -679,6 +731,7 @@ class WeeklyProgramUpload extends Component
         if ($result['chapter_id']) {
             $this->topics = CcTopic::where('cc_chapter_id', $result['chapter_id'])
                 ->where('is_active', true)
+                ->whereNull('parent_id')
                 ->orderBy('order')
                 ->get();
         }
