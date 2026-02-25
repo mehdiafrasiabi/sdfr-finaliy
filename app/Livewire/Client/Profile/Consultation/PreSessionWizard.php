@@ -391,6 +391,8 @@ class PreSessionWizard extends Component
         $this->qas = $this->preSession->qas()->get()->toArray();
         // بارگذاری تکالیف
         $this->assignments = $this->preSession->assignments()->get()->toArray();
+        // بارگذاری پارت‌های درخواستی ✅ اضافه شد
+        $this->requestedParts = $this->preSession->requestedParts()->get()->toArray();
         // بارگذاری متفرقه
         $misc = $this->preSession->miscellaneous;
         $this->miscDescription = $misc ? $misc->description : '';
@@ -663,7 +665,7 @@ class PreSessionWizard extends Component
         ]);
 
         $this->resetRequestedPartForm();
-        $this->loadExistingData();
+        $this->loadExistingData(); // ✅ این خط requestedParts رو refresh می‌کنه
         $this->dispatch('success', 'پارت در خواستی با موفقیت اضافه شد.');
     }
 

@@ -36,7 +36,7 @@
 --}}
     <label class="mb-2 block text-xs font-medium text-foreground">زمان هر پارت</label>
 
-    <div class="flex items-center gap-3 justify-start" dir="ltr">
+    <div class="flex items-center gap-3 justify-end" dir="ltr">
 
         {{-- ساعت --}}
         <div class="flex flex-col items-center gap-1">

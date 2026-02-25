@@ -100,9 +100,7 @@
             }
 
             .weekly-table thead th {
-                position: sticky;
-                top: 0;
-                z-index: 2;
+
                 background: linear-gradient(90deg, #1d4ed8, #2563eb);
                 color: #fff;
                 border-color: rgba(255, 255, 255, .16);
@@ -230,10 +228,9 @@
                 color: var(--ui-muted) !important;
             }
 
-            /* اسکرول افقی و عمودی */
+            /* اسکرول افقی (عمودی توسط صفحه انجام می‌شود) */
             .weekly-scroll {
                 overflow-x: auto;
-                overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
                 white-space: nowrap;
             }
@@ -256,6 +253,100 @@
             .weekly-table td:nth-child(n+7):nth-child(-n+30) {
                 width: 210px;
                 min-width: 210px;
+            }
+
+            /* ===== Sticky header (vertical page scroll) ===== */
+            .weekly-table thead th {
+                position: sticky;
+                top: 0;
+                z-index: 3;
+            }
+
+            /* ===== Sticky fixed columns (horizontal scroll, RTL) ===== */
+            /* روز */
+            .weekly-table th:nth-child(1),
+            .weekly-table td:nth-child(1) {
+                position: sticky;
+                right: 0;
+                z-index: 2;
+            }
+
+            /* تاریخ */
+            .weekly-table th:nth-child(2),
+            .weekly-table td:nth-child(2) {
+                position: sticky;
+                right: 90px;
+                z-index: 2;
+            }
+
+            /* تست روز */
+            .weekly-table th:nth-child(3),
+            .weekly-table td:nth-child(3) {
+                position: sticky;
+                right: 220px;
+                z-index: 2;
+            }
+
+            /* استراحت */
+            .weekly-table th:nth-child(4),
+            .weekly-table td:nth-child(4) {
+                position: sticky;
+                right: 315px;
+                z-index: 2;
+            }
+
+            /* آزمون جامع */
+            .weekly-table th:nth-child(5),
+            .weekly-table td:nth-child(5) {
+                position: sticky;
+                right: 405px;
+                z-index: 2;
+            }
+
+            /* ساعت */
+            .weekly-table th:nth-child(6),
+            .weekly-table td:nth-child(6) {
+                position: sticky;
+                right: 505px;
+                z-index: 2;
+            }
+
+            /* Intersection cells (sticky both top AND right) get highest z-index */
+            .weekly-table thead th:nth-child(1),
+            .weekly-table thead th:nth-child(2),
+            .weekly-table thead th:nth-child(3),
+            .weekly-table thead th:nth-child(4),
+            .weekly-table thead th:nth-child(5),
+            .weekly-table thead th:nth-child(6) {
+                z-index: 5;
+            }
+
+            /* Ensure tbody sticky cells have a solid background */
+            .weekly-table tbody td:nth-child(1),
+            .weekly-table tbody td:nth-child(2),
+            .weekly-table tbody td:nth-child(3),
+            .weekly-table tbody td:nth-child(4),
+            .weekly-table tbody td:nth-child(5),
+            .weekly-table tbody td:nth-child(6) {
+                background: var(--bs-body-bg);
+            }
+
+            .weekly-table tbody tr.table-success td:nth-child(1),
+            .weekly-table tbody tr.table-success td:nth-child(2),
+            .weekly-table tbody tr.table-success td:nth-child(3),
+            .weekly-table tbody tr.table-success td:nth-child(4),
+            .weekly-table tbody tr.table-success td:nth-child(5),
+            .weekly-table tbody tr.table-success td:nth-child(6) {
+                background: rgba(var(--bs-success-rgb), 0.1);
+            }
+
+            .weekly-table tbody tr.table-danger td:nth-child(1),
+            .weekly-table tbody tr.table-danger td:nth-child(2),
+            .weekly-table tbody tr.table-danger td:nth-child(3),
+            .weekly-table tbody tr.table-danger td:nth-child(4),
+            .weekly-table tbody tr.table-danger td:nth-child(5),
+            .weekly-table tbody tr.table-danger td:nth-child(6) {
+                background: rgba(var(--bs-danger-rgb), 0.1);
             }
 
             /* باکس داخل سلول کامل جا بگیره */
@@ -326,101 +417,6 @@
         </style>
     @endpush
     <div class="container-xxl flex-grow-1 container-p-y bg-body text-body" dir="rtl">
-
-        {{-- D1: Modal پیش‌نمایش روزخوانی/پیش‌خوانی هفتگی --}}
-        @if($showWeeklyReadingsPreview)
-            <div class="modal fade show d-block" tabindex="-1"
-                 style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content shadow-lg border-0">
-                        <div class="modal-header text-white"
-                             style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);">
-                            <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                                <i class="material-symbols-outlined">auto_fix_high</i>
-                                پیش‌نمایش روزخوانی و پیش‌خوانی هفتگی
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white"
-                                    wire:click="closeWeeklyReadingsPreview"></button>
-                        </div>
-
-                        <div class="modal-body">
-                            @if(count($weeklyReadingsPreview) > 0)
-                                <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
-                                    <i class="material-symbols-outlined">info</i>
-                                    <span class="small">
-                                    @if(collect($weeklyReadingsPreview)->where('duration_minutes', 0)->count() > 0)
-                                            <strong>توجه:</strong> برخی پارت‌ها تایم ۰ دارند. بعد از ثبت، تایم آنها را
-                                            تنظیم کنید.
-                                        @else
-                                            تایم‌ها بر اساس آخرین جلسه مشاوره تنظیم شده‌اند.
-                                        @endif
-                                </span>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table table-sm align-middle mb-0">
-                                        <thead>
-                                        <tr class="text-muted-2">
-                                            <th>#</th>
-                                            <th>نوع</th>
-                                            <th>درس</th>
-                                            <th class="text-center">روز</th>
-                                            <th class="text-center">تاریخ</th>
-                                            <th class="text-center">دقیقه</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        @foreach($weeklyReadingsPreview as $idx => $item)
-                                            <tr>
-                                                <td class="text-center">{{ $idx + 1 }}</td>
-                                                <td>
-                                                    @if($item['type'] === 'daily')
-                                                        <span
-                                                            class="badge bg-primary-subtle text-primary">روزخوانی</span>
-                                                    @else
-                                                        <span class="badge bg-info-subtle text-info">پیش‌خوانی</span>
-                                                    @endif
-                                                </td>
-                                                <td class="fw-semibold">{{ $item['subject'] }}</td>
-                                                <td class="text-center"><span
-                                                        class="badge bg-body-tertiary text-body border rounded-pill">{{ $item['day_name'] }}</span>
-                                                </td>
-                                                <td class="text-center">{{ $item['jalali_date'] }}</td>
-                                                <td class="text-center">
-                                                    <input type="number"
-                                                           wire:model.lazy="weeklyReadingsPreview.{{ $idx }}.duration_minutes"
-                                                           class="form-control form-control-sm text-center mx-auto {{ $item['duration_minutes'] == 0 ? 'border-warning' : '' }}"
-                                                           min="0" max="120" style="width: 75px;">
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                        </tbody>
-                                    </table>
-                                </div>
-                            @else
-                                <p class="text-muted-2 text-center">موردی برای نمایش وجود ندارد.</p>
-                            @endif
-                        </div>
-
-                        <div class="modal-footer bg-body-tertiary">
-                            <button type="button" class="btn btn-outline-secondary"
-                                    wire:click="closeWeeklyReadingsPreview">
-                                انصراف
-                            </button>
-                            @if(count($weeklyReadingsPreview) > 0)
-                                <button type="button" class="btn btn-success" wire:click="applyWeeklyReadings">
-                                <span wire:loading.remove wire:target="applyWeeklyReadings">
-                                    <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
-                                    ثبت در برنامه
-                                </span>
-                                    <span wire:loading wire:target="applyWeeklyReadings">در حال ثبت...</span>
-                                </button>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-
         {{-- D2: Modal انتخاب روز برای امتحان کلاسی --}}
         @if($showExamDaySelectModal)
             <div class="modal fade show d-block" tabindex="-1"
@@ -1103,7 +1099,8 @@
                                     <h6 class="fw-bold mb-3 d-flex align-items-center gap-2" style="color:#ea580c;">
                                         <i class="material-symbols-outlined">playlist_add</i>
                                         پارت در خواستی
-                                        <span class="badge rounded-pill px-3 py-2" style="background:rgba(234,88,12,.12);color:#ea580c;">
+                                        <span class="badge rounded-pill px-3 py-2"
+                                              style="background:rgba(234,88,12,.12);color:#ea580c;">
                                             {{ $preSession->requestedParts->count() }}
                                         </span>
                                     </h6>
@@ -1163,37 +1160,46 @@
             {{-- Floating copy panel --}}
             @if($partSelectMode && count($selectedPartIds) > 0)
                 <div class="card border-warning border-2 mb-3 mx-1">
-                    <div class="card-body py-2 d-flex flex-wrap align-items-center gap-3">
-                        <span class="fw-semibold text-warning d-flex align-items-center gap-1">
-                            <i class="material-symbols-outlined" style="font-size:18px;">content_copy</i>
-                            {{ count($selectedPartIds) }} پارت انتخاب شده
-                        </span>
-                        <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <label class="form-label mb-0 small fw-semibold">روز مقصد:</label>
-                            <select wire:model.live="copyTargetDay" class="form-select form-select-sm"
-                                    style="width:auto;">
-                                <option value="">انتخاب روز</option>
-                                @foreach($weekDays as $day)
-                                    @if(!$day['is_rest_day'] && !$day['is_exam_day'])
-                                        <option value="{{ $day['index'] }}">{{ $day['name'] }}({{ $day['jalali_date'] }}
-                                            )
-                                        </option>
-                                    @endif
-                                @endforeach
-                            </select>
-                            <button wire:click="copySelectedParts"
-                                    class="btn btn-sm btn-warning text-white"
-                                {{ $copyTargetDay === null ? 'disabled' : '' }}>
-                                <span wire:loading.remove wire:target="copySelectedParts">
-                                    <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i>
-                                    کپی در روز انتخابی
-                                </span>
-                                <span wire:loading wire:target="copySelectedParts">در حال کپی...</span>
-                            </button>
-                            <button wire:click="clearPartSelection" class="btn btn-sm btn-outline-secondary">
+                    <div class="card-body py-2">
+                        <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+                            <span class="fw-semibold text-warning d-flex align-items-center gap-1">
+                                <i class="material-symbols-outlined" style="font-size:18px;">content_copy</i>
+                                {{ count($selectedPartIds) }} پارت انتخاب شده
+                            </span>
+                            <button wire:click="clearPartSelection" class="btn btn-sm btn-outline-secondary ms-auto">
                                 لغو انتخاب
                             </button>
                         </div>
+                        <div class="mb-2">
+                            <label class="form-label mb-1 small fw-semibold">روزهای مقصد (می‌توانید چند روز انتخاب
+                                کنید):</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                @foreach($weekDays as $day)
+                                    @if(!$day['is_rest_day'] && !$day['is_exam_day'])
+                                        @php $isChecked = in_array((string)$day['index'], $copyTargetDays) || in_array($day['index'], $copyTargetDays); @endphp
+                                        <label
+                                            class="d-flex align-items-center gap-1 cursor-pointer border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-warning text-dark border-warning' : 'bg-body-tertiary' }}"
+                                            style="cursor:pointer;">
+                                            <input type="checkbox"
+                                                   wire:model.live="copyTargetDays"
+                                                   value="{{ $day['index'] }}"
+                                                   class="form-check-input mb-0 me-1"
+                                                   style="width:14px;height:14px;">
+                                            {{ $day['name'] }} ({{ $day['jalali_date'] }})
+                                        </label>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                        <button wire:click="copySelectedParts"
+                                class="btn btn-sm btn-warning text-white"
+                            {{ empty($copyTargetDays) ? 'disabled' : '' }}>
+                            <span wire:loading.remove wire:target="copySelectedParts">
+                                <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i>
+                                کپی در روزهای انتخابی
+                            </span>
+                            <span wire:loading wire:target="copySelectedParts">در حال کپی...</span>
+                        </button>
                     </div>
                 </div>
             @endif
@@ -2026,7 +2032,7 @@
                                 <i class="material-symbols-outlined" style="font-size:16px;">auto_fix_high</i>
                                 پیش‌خوانی و روزخوانی بر اساس برنامه کلاسی و تایم‌های جلسه قبلی محاسبه می‌شوند.
                             </p>
-                            {{-- پیش‌نمایش با جدول قابل ویرایش --}}
+                            {{-- پیش‌نمایش با جدول قابل ویرایش (یک ردیف برای هر درس) --}}
                             @if(empty($weeklyReadingsPreview))
                                 <div class="d-flex justify-content-center">
                                     <button wire:click="previewWeeklyReadings"
@@ -2039,31 +2045,32 @@
                                     </button>
                                 </div>
                             @else
-                                {{-- جدول ویرایش تایم‌ها --}}
+                                {{-- جدول ویرایش تایم‌ها - یک ردیف برای هر درس --}}
                                 <div class="d-flex align-items-center justify-content-between mb-2">
                                     <h6 class="fw-bold mb-0 d-flex align-items-center gap-1">
                                         <i class="material-symbols-outlined text-success" style="font-size:18px;">edit_note</i>
-                                        تایم‌های پیش‌خوانی و روزخوانی
+                                        تایم پیش‌خوانی و روزخوانی هر درس
                                     </h6>
                                     <button wire:click="previewWeeklyReadings"
                                             class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
                                         <i class="material-symbols-outlined" style="font-size:15px;">refresh</i>
                                         بازنشانی
-                                        <span wire:loading wire:target="previewWeeklyReadings"><span class="spinner-border spinner-border-sm"></span></span>
+                                        <span wire:loading wire:target="previewWeeklyReadings"><span
+                                                class="spinner-border spinner-border-sm"></span></span>
                                     </button>
                                 </div>
                                 <div class="alert alert-info small d-flex align-items-center gap-2 mb-2 py-2">
                                     <i class="material-symbols-outlined" style="font-size:16px;">info</i>
-                                    تایم‌ها بر اساس آخرین جلسه بارگذاری شده‌اند. درس‌هایی که تایم نداشتند با ۰ نمایش داده می‌شوند. می‌توانید قبل از ثبت ویرایش کنید.
+                                    برای هر درس <strong>یک تایم</strong> وارد کنید. این تایم برای تمام روزهایی که آن درس
+                                    قرار است خوانده شود اعمال می‌شود. اگر تایم ۰ باشد، آن درس به برنامه اضافه نمی‌شود.
                                 </div>
-                                <div class="table-responsive mb-3" style="max-height:260px;overflow-y:auto;">
+                                <div class="table-responsive mb-3" style="max-height:320px;overflow-y:auto;">
                                     <table class="table table-sm align-middle mb-0">
                                         <thead class="sticky-top bg-body-tertiary">
                                         <tr class="text-muted-2">
                                             <th>نوع</th>
                                             <th>درس</th>
-                                            <th class="text-center">روز</th>
-                                            <th class="text-center">تاریخ</th>
+                                            <th>روزهای اعمال</th>
                                             <th class="text-center" style="width:90px;">دقیقه</th>
                                         </tr>
                                         </thead>
@@ -2072,14 +2079,20 @@
                                             <tr>
                                                 <td>
                                                     @if($item['type'] === 'daily')
-                                                        <span class="badge bg-primary-subtle text-primary">روزخوانی</span>
+                                                        <span
+                                                            class="badge bg-primary-subtle text-primary">روزخوانی</span>
                                                     @else
                                                         <span class="badge bg-info-subtle text-info">پیش‌خوانی</span>
                                                     @endif
                                                 </td>
                                                 <td class="fw-semibold small">{{ $item['subject'] }}</td>
-                                                <td class="text-center"><span class="badge bg-body-tertiary text-body border rounded-pill small">{{ $item['day_name'] }}</span></td>
-                                                <td class="text-center small">{{ $item['jalali_date'] }}</td>
+                                                <td>
+                                                    <div class="d-flex flex-wrap gap-1">
+                                                        @foreach($item['day_names'] as $dn)
+                                                            <span class="badge bg-body-tertiary text-body border rounded-pill" style="font-size:10px;">{{ $dn }}</span>
+                                                        @endforeach
+                                                    </div>
+                                                </td>
                                                 <td class="text-center">
                                                     <input type="number"
                                                            wire:model.lazy="weeklyReadingsPreview.{{ $idx }}.duration_minutes"
@@ -2129,8 +2142,8 @@
                                         <button wire:click="applyOnlyPreReadings"
                                                 class="btn btn-outline-info d-flex align-items-center gap-2">
                                             <span wire:loading.remove wire:target="applyOnlyPreReadings">
-                                                <i class="material-symbols-outlined"
-                                                   style="font-size:18px;">upcoming</i>
+                                                <i class="material-symbols-outlined" style="font-size:18px;">upcoming</i>
+
                                                 افزودن پیش‌خوانی
                                             </span>
                                             <span wire:loading wire:target="applyOnlyPreReadings">در حال ثبت...</span>
@@ -2141,70 +2154,14 @@
                                     <button wire:click="applyWeeklyReadings"
                                             class="btn btn-outline-success d-flex align-items-center gap-2">
                                         <span wire:loading.remove wire:target="applyWeeklyReadings">
-                                            <i class="material-symbols-outlined"
-                                               style="font-size:18px;">auto_fix_high</i>
+                                            <i class="material-symbols-outlined" style="font-size:18px;">auto_fix_high</i>
+
                                             افزودن هر دو
                                         </span>
                                         <span wire:loading wire:target="applyWeeklyReadings">در حال ثبت...</span>
                                     </button>
                                 </div>
 
-                                {{-- نمایش باکس‌های هر روز - پارت‌های ثبت شده --}}
-                                @if($weeklyProgram)
-                                    <hr>
-                                    <h6 class="fw-bold mb-3 d-flex align-items-center gap-2">
-                                        <i class="material-symbols-outlined text-primary">view_week</i>
-                                        روزخوانی و پیش‌خوانی ثبت‌شده در برنامه (به تفکیک روز)
-                                    </h6>
-                                    <div class="row g-2">
-                                        @foreach($weekDays as $day)
-                                            @if(!$day['is_rest_day'] && !$day['is_exam_day'])
-                                                @php
-                                                    $dayReadingParts = \App\Models\ProgramPart::where('weekly_program_id', $weeklyProgram->id)
-                                                        ->where('day_of_week', $day['index'])
-                                                        ->whereIn('source_type', ['daily_reading', 'pre_reading'])
-                                                        ->orderBy('part_order')
-                                                        ->get();
-                                                @endphp
-                                                <div class="col-md-6 col-lg-4 col-xl-3">
-                                                    <div class="border rounded-3 p-2 h-100"
-                                                         style="background: var(--bs-body-bg); border-color: var(--ui-border) !important;">
-                                                        <div
-                                                            class="fw-semibold small mb-2 d-flex align-items-center gap-1">
-                                                            <span
-                                                                class="badge bg-primary rounded-pill">{{ $day['name'] }}</span>
-                                                            <span class="text-muted-2">{{ $day['jalali_date'] }}</span>
-                                                        </div>
-                                                        @if($dayReadingParts->isEmpty())
-                                                            <p class="text-muted-2 small mb-0">ثبت نشده</p>
-                                                        @else
-                                                            @foreach($dayReadingParts as $rp)
-                                                                <div
-                                                                    class="d-flex align-items-center gap-1 mb-1 p-1 rounded-2"
-                                                                    style="background: var(--bs-tertiary-bg);">
-                                                                    @if($rp->source_type === 'daily_reading')
-                                                                        <span
-                                                                            class="badge bg-primary-subtle text-primary flex-shrink-0"
-                                                                            style="font-size:10px;">روزخوانی</span>
-                                                                    @else
-                                                                        <span
-                                                                            class="badge bg-info-subtle text-info flex-shrink-0"
-                                                                            style="font-size:10px;">پیش‌خوانی</span>
-                                                                    @endif
-                                                                    <span
-                                                                        class="small fw-semibold text-truncate flex-fill"
-                                                                        title="{{ $rp->lesson_name }}">{{ $rp->lesson_name }}</span>
-                                                                    <span class="small text-muted-2 flex-shrink-0">{{ $rp->duration_minutes }}دق</span>
-                                                                </div>
-                                                            @endforeach
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            @endif
-                                        @endforeach
-
-                                    </div>
-                                @endif
                             @endif
                         </div>
                     </div>
@@ -2258,102 +2215,6 @@
         </div>
     @endif
 
-    {{-- Modal ثبت روزخوانی / پیش‌خوانی --}}
-    @if($showDailyReadingModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px); z-index: 1060;">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header text-white"
-                         style="background: {{ $dailyReadingType === 'daily' ? 'linear-gradient(135deg, #1d4ed8, #2563eb)' : 'linear-gradient(135deg, #0891b2, #06b6d4)' }};">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">{{ $dailyReadingType === 'daily' ? 'today' : 'upcoming' }}</i>
-                            {{ $editingDailyReadingPartId ? 'ویرایش' : 'ثبت' }}
-                            {{ $dailyReadingType === 'daily' ? 'روزخوانی' : 'پیش‌خوانی' }}
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeDailyReadingModal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">درس</label>
-                            <input type="text" class="form-control"
-                                   value="{{ \App\Models\CcSubject::find($dailyReadingSubjectId)?->name ?? '' }}"
-                                   disabled>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">توضیحات</label>
-                            <textarea wire:model="dailyReadingDescription" class="form-control" rows="2"></textarea>
-                        </div>
-
-                        <div class="mb-3" x-data="{
-                                totalMinutes: $wire.entangle('dailyReadingDuration'),
-                                hours: 0,
-                                minutes: 0,
-                                init() {
-                                    let val = parseInt(this.totalMinutes) || 0;
-                                    this.hours = Math.floor(val / 60);
-                                    this.minutes = val % 60;
-                                    this.$watch('totalMinutes', (v) => {
-                                        let val = parseInt(v) || 0;
-                                        this.hours = Math.floor(val / 60);
-                                        this.minutes = val % 60;
-                                    });
-                                },
-                                update() {
-                                    let h = Math.min(Math.max(parseInt(this.hours) || 0, 0), 24);
-                                    let m = Math.min(Math.max(parseInt(this.minutes) || 0, 0), 59);
-                                    this.hours = h;
-                                    this.minutes = m;
-                                    this.totalMinutes = (h * 60) + m;
-                                }
-                            }" x-init="init()">
-                            <label class="form-label fw-semibold">مدت زمان</label>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="flex-fill position-relative">
-                                    <input type="number" min="0" max="24"
-                                           x-model.number="hours"
-                                           @input="update()"
-                                           class="form-control text-center"
-                                           placeholder="0">
-                                    <small class="position-absolute top-50 translate-middle-y text-muted"
-                                           style="left:8px;font-size:10px;">ساعت</small>
-                                </div>
-                                <span class="fw-bold text-muted fs-5">:</span>
-                                <div class="flex-fill position-relative">
-                                    <input type="number" min="0" max="59"
-                                           x-model.number="minutes"
-                                           @input="update()"
-                                           class="form-control text-center"
-                                           placeholder="0">
-                                    <small class="position-absolute top-50 translate-middle-y text-muted"
-                                           style="left:8px;font-size:10px;">دقیقه</small>
-                                </div>
-                            </div>
-                            <small class="text-muted-2 d-block mt-1">
-                                <span x-show="totalMinutes > 0"> | مجموع: <span
-                                        x-text="totalMinutes"></span> دقیقه</span>
-                            </small>
-                        </div>
-                    </div>
-
-                    <div class="modal-footer bg-body-tertiary">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeDailyReadingModal">
-                            انصراف
-                        </button>
-                        <button type="button"
-                                class="btn {{ $dailyReadingType === 'daily' ? 'btn-primary' : 'btn-info text-white' }}"
-                                wire:click="saveDailyReading">
-                            <span wire:loading.remove wire:target="saveDailyReading">ذخیره</span>
-                            <span wire:loading wire:target="saveDailyReading">در حال ذخیره...</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
     {{-- Modal تایید آزمون جامع --}}
     @if($showExamDayConfirmModal)
         <div class="modal fade show d-block" tabindex="-1"

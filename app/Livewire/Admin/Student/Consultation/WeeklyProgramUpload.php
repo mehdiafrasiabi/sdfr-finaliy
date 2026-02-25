@@ -80,13 +80,6 @@ class WeeklyProgramUpload extends Component
     // Class Schedule (برنامه کلاسی)
     public bool $showClassScheduleModal = false;
     public bool $showNoScheduleModal = false;
-    public bool $showDailyReadingModal = false;
-    public ?int $dailyReadingPartId = null;
-    public ?string $dailyReadingType = null; // 'daily' or 'pre'
-    public ?int $dailyReadingSubjectId = null;
-    public string $dailyReadingDescription = '';
-    public int $dailyReadingDuration = 20;
-    public ?int $editingDailyReadingPartId = null;
 
 
     // Part A: Comprehensive Exam Day (آزمون جامع)
@@ -142,7 +135,7 @@ class WeeklyProgramUpload extends Component
     public bool $partSelectMode = false;
     public array $selectedPartIds = [];
     public ?int $copyTargetDay = null;
-
+    public array $copyTargetDays = [];
 
     protected function messages()
     {
@@ -765,7 +758,7 @@ class WeeklyProgramUpload extends Component
 
         // اول خود برنامه را ذخیره/آپدیت کن
         $this->saveProgram();
-        $partDate = Carbon::parse($this->start_date)->addDays($this->selectedDay);
+        $partDate = Carbon::parse($this->start_date)->addDays((int)$this->selectedDay);
 
         // دریافت اطلاعات درس
         $subject = CcSubject::find($this->partForm['cc_subject_id']);
@@ -1323,150 +1316,7 @@ class WeeklyProgramUpload extends Component
         $this->dispatch('success', 'نوتیفیکیشن با موفقیت ارسال شد.');
     }
 
-    /**
-     * ثبت روزخوانی یا پیش‌خوانی
-     */
 
-    public function closeDailyReadingModal(): void
-    {
-        $this->showDailyReadingModal = false;
-        $this->dailyReadingType = null;
-        $this->dailyReadingSubjectId = null;
-        $this->dailyReadingDescription = '';
-        $this->dailyReadingDuration = 20;
-        $this->editingDailyReadingPartId = null;
-    }
-
-    public function saveDailyReading(): void
-    {
-        if (!$this->dailyReadingSubjectId) {
-            $this->dispatch('warning', 'درس انتخاب نشده است.');
-            return;
-        }
-
-        // اطمینان از وجود برنامه هفتگی
-        if (!$this->weeklyProgramId) {
-            $this->saveProgram();
-        }
-
-        if (!$this->weeklyProgramId) {
-            $this->dispatch('warning', 'ابتدا باید برنامه هفتگی ایجاد شود.');
-            return;
-        }
-
-        $subject = CcSubject::with('grade.educationLevel')->find($this->dailyReadingSubjectId);
-        if (!$subject) return;
-        $grade = $subject->grade;
-        $educationLevel = $grade?->educationLevel;
-        // پیدا کردن روز امروز در برنامه هفتگی
-        $startDate = Carbon::parse($this->start_date);
-        $today = Carbon::today();
-        $todayIndex = null;
-
-        for ($i = 0; $i < 8; $i++) {
-            $dayDate = $startDate->copy()->addDays($i);
-            if ($dayDate->isSameDay($today)) {
-                $todayIndex = $i;
-                break;
-            }
-        }
-
-        // اگر امروز در محدوده برنامه نیست، از روز 0 استفاده کن
-        if ($todayIndex === null) {
-            $todayIndex = 0;
-        }
-
-        $partDate = $startDate->copy()->addDays($todayIndex);
-
-        if ($this->editingDailyReadingPartId) {
-            // ویرایش پارت موجود
-            $part = ProgramPart::find($this->editingDailyReadingPartId);
-            if ($part) {
-                $part->update([
-                    'lesson_name' => $subject->name,
-                    'description' => $this->dailyReadingDescription,
-                    'duration_minutes' => $this->dailyReadingDuration,
-                    'cc_subject_id' => $subject->id,
-                    'cc_grade_id' => $grade?->id,
-                    'cc_field_id' => $subject->cc_field_id,
-                    'grade' => $grade?->grade_number,
-                    'education_level_id' => $educationLevel?->id,
-                    'lesson_type' => $subject->type ?? 'specialized',
-                ]);
-            }
-        } else {
-            // محاسبه ترتیب پارت جدید
-            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-                ->where('day_of_week', $todayIndex)
-                ->count();
-
-            if ($existingCount >= 20) {
-                $this->dispatch('warning', 'حداکثر ۲۰ پارت برای هر روز مجاز است.');
-                $this->closeDailyReadingModal();
-                return;
-            }
-
-            ProgramPart::create([
-                'weekly_program_id' => $this->weeklyProgramId,
-                'lesson_name' => $subject->name,
-                'part_date' => $partDate,
-                'day_of_week' => $todayIndex,
-                'part_order' => $existingCount + 1,
-                'description' => $this->dailyReadingDescription,
-                'duration_minutes' => $this->dailyReadingDuration,
-                'test_count' => null,
-                'part_type' => 'descriptive',
-                'source_type' => $this->dailyReadingType === 'daily'
-                    ? ProgramPart::SOURCE_DAILY_READING
-                    : ProgramPart::SOURCE_PRE_READING,
-                'lesson_type' => $subject->type ?? 'specialized',
-                'cc_subject_id' => $subject->id,
-                'cc_grade_id' => $grade?->id,
-                'cc_field_id' => $subject->cc_field_id,
-                'grade' => $grade?->grade_number,
-                'education_level_id' => $educationLevel?->id,
-            ]);
-        }
-
-        $this->loadExistingParts();
-        $this->closeDailyReadingModal();
-        $this->dispatch('success', ($this->dailyReadingType === 'daily' ? 'روزخوانی' : 'پیش‌خوانی') . ' با موفقیت ثبت شد.');
-    }
-
-    /**
-     * ویرایش پارت روزخوانی/پیش‌خوانی
-     */
-    public function editDailyReadingPart(int $partId): void
-    {
-        $part = ProgramPart::find($partId);
-        if (!$part) return;
-
-        $this->editingDailyReadingPartId = $partId;
-        $this->dailyReadingSubjectId = $part->cc_subject_id;
-        $this->dailyReadingDescription = $part->description;
-        $this->dailyReadingDuration = $part->duration_minutes;
-
-        if (str_contains($part->description, 'روزخوانی')) {
-            $this->dailyReadingType = 'daily';
-        } else {
-            $this->dailyReadingType = 'pre';
-        }
-
-        $this->showDailyReadingModal = true;
-    }
-
-    /**
-     * حذف پارت روزخوانی/پیش‌خوانی
-     */
-    public function deleteDailyReadingPart(int $partId): void
-    {
-        $part = ProgramPart::find($partId);
-        if (!$part) return;
-
-        $part->delete();
-        $this->loadExistingParts();
-        $this->dispatch('success', 'پارت با موفقیت حذف شد.');
-    }
 
     /**
      * دریافت برنامه کلاسی برای نمایش در مودال
@@ -2331,7 +2181,8 @@ class WeeklyProgramUpload extends Component
 
     /**
      * D1: Preview weekly readings (daily reading + pre-reading) for entire week
-     */
+     *  Shows one row per unique subject+type combination (not per day)
+ */
     public function previewWeeklyReadings(): void
     {
         if (!$this->weeklyProgramId) {
@@ -2359,92 +2210,97 @@ class WeeklyProgramUpload extends Component
         // Get last session's reading durations for this student
         $lastReadingDurations = $this->getLastReadingDurations($student->id);
 
-        $preview = [];
-
+        // Unique subjects grouped by type: key = "type:cc_subject_id"
+        $uniqueSubjects = [];
         for ($i = 0; $i < 8; $i++) {
-            $date = $startDate->copy()->addDays($i);
-            $jalaliDate = jdate($date);
-            $dayOfWeek = $jalaliDate->getDayOfWeek(); // 0=شنبه تا 6=جمعه
+
 
             if ($weeklyProgram && ($weeklyProgram->isRestDay($i) || $weeklyProgram->isExamDay($i))) {
                 continue;
             }
-
+            $date = $startDate->copy()->addDays($i);
+            $jalaliDate = jdate($date);
+            $dayOfWeek = $jalaliDate->getDayOfWeek(); // 0=شنبه تا 6=جمعه
             $tomorrowDayOfWeek = ($dayOfWeek + 1) % 7;
 
             // Daily reading: today's class schedule subjects
             $todayClassParts = $schedule->parts->where('day_of_week', $dayOfWeek)->sortBy('part_order');
             foreach ($todayClassParts as $classPart) {
-                $subjectName = $classPart->lesson_name;
                 $subjectId = $classPart->cc_subject_id;
                 $duration = $lastReadingDurations['daily'][$subjectId] ?? 0;
-
-                $preview[] = [
-                    'type' => 'daily',
-                    'type_label' => 'روزخوانی',
-                    'subject' => $subjectName,
-                    'cc_subject_id' => $subjectId,
-                    'day_index' => $i,
-                    'day_name' => $jalaliDayNames[$dayOfWeek],
-                    'jalali_date' => $jalaliDate->format('Y/m/d'),
-                    'duration_minutes' => $duration,
-                    'description' => 'روزخوانی - ' . $subjectName,
-                ];
+                $key = 'daily:' . $subjectId;
+                if (!isset($uniqueSubjects[$key])) {
+                    $uniqueSubjects[$key] = [
+                        'type' => 'daily',
+                        'subject' => $classPart->lesson_name,
+                        'cc_subject_id' => $subjectId,
+                        'duration_minutes' => $lastReadingDurations['daily'][$subjectId] ?? 0,
+                        'day_indices' => [],
+                        'day_names' => [],
+                    ];
+                }
+                if (!in_array($i, $uniqueSubjects[$key]['day_indices'])) {
+                    $uniqueSubjects[$key]['day_indices'][] = $i;
+                    $uniqueSubjects[$key]['day_names'][] = $jalaliDayNames[$dayOfWeek];
+                }
             }
 
             // Pre-reading: tomorrow's class schedule subjects
             $tomorrowClassParts = $schedule->parts->where('day_of_week', $tomorrowDayOfWeek)->sortBy('part_order');
             foreach ($tomorrowClassParts as $classPart) {
-                $subjectName = $classPart->lesson_name;
                 $subjectId = $classPart->cc_subject_id;
-                $duration = $lastReadingDurations['pre'][$subjectId] ?? 0;
-
-                $preview[] = [
-                    'type' => 'pre',
-                    'type_label' => 'پیش‌خوانی',
-                    'subject' => $subjectName,
-                    'cc_subject_id' => $subjectId,
-                    'day_index' => $i,
-                    'day_name' => $jalaliDayNames[$dayOfWeek],
-                    'jalali_date' => $jalaliDate->format('Y/m/d'),
-                    'duration_minutes' => $duration,
-                    'description' => 'پیش‌خوانی - ' . $subjectName,
-                ];
+                $key = 'pre:' . $subjectId;
+                if (!isset($uniqueSubjects[$key])) {
+                    $uniqueSubjects[$key] = [
+                        'type' => 'pre',
+                        'subject' => $classPart->lesson_name,
+                        'cc_subject_id' => $subjectId,
+                        'duration_minutes' => $lastReadingDurations['pre'][$subjectId] ?? 0,
+                        'day_indices' => [],
+                        'day_names' => [],
+                    ];
+                }
+                if (!in_array($i, $uniqueSubjects[$key]['day_indices'])) {
+                    $uniqueSubjects[$key]['day_indices'][] = $i;
+                    $uniqueSubjects[$key]['day_names'][] = $jalaliDayNames[$dayOfWeek];
+                }
             }
         }
 
-        $this->weeklyReadingsPreview = $preview;
-        // مودال برنامه کلاسی باز می‌ماند و دکمه‌های افزودن نمایش داده می‌شوند
+        $this->weeklyReadingsPreview = array_values($uniqueSubjects);
+
     }
 
     /**
-     * Get last reading durations from previous sessions
+     * Get last reading durations from the most recent held advising session's program
      */
     protected function getLastReadingDurations(int $studentId): array
     {
         $result = ['daily' => [], 'pre' => []];
 
-        // Find the most recent weekly program that has reading parts
-        $lastPrograms = WeeklyProgram::where('student_id', $studentId)
-            ->where('id', '!=', $this->weeklyProgramId ?? 0)
+        // Find the last held advising session (excluding current session)
+        $lastHeldSession = AdvisingSession::where('student_id', $studentId)
+            ->where('result_status', AdvisingSession::RESULT_HELD)
+            ->when($this->sessionId, fn($q) => $q->where('id', '!=', $this->sessionId))
             ->latest()
-            ->limit(5)
-            ->pluck('id');
+            ->first();
 
-        if ($lastPrograms->isEmpty()) return $result;
+        if (!$lastHeldSession) return $result;
 
-        $readingParts = ProgramPart::whereIn('weekly_program_id', $lastPrograms)
-            ->where(function ($q) {
-                $q->where('description', 'like', '%روزخوانی%')
-                    ->orWhere('description', 'like', '%پیش‌خوانی%');
-            })
+        $lastProgram = WeeklyProgram::where('advising_session_id', $lastHeldSession->id)
+            ->where('student_id', $studentId)
+            ->first();
+
+        if (!$lastProgram) return $result;
+
+        $readingParts = ProgramPart::where('weekly_program_id', $lastProgram->id)
+            ->whereIn('source_type', [ProgramPart::SOURCE_DAILY_READING, ProgramPart::SOURCE_PRE_READING])
             ->whereNotNull('cc_subject_id')
             ->where('duration_minutes', '>', 0)
-            ->orderBy('created_at', 'desc')
             ->get();
 
         foreach ($readingParts as $part) {
-            $type = str_contains($part->description, 'روزخوانی') ? 'daily' : 'pre';
+            $type = $part->source_type === ProgramPart::SOURCE_DAILY_READING ? 'daily' : 'pre';
             if (!isset($result[$type][$part->cc_subject_id])) {
                 $result[$type][$part->cc_subject_id] = $part->duration_minutes;
             }
@@ -2454,7 +2310,7 @@ class WeeklyProgramUpload extends Component
     }
 
     /**
-     * Apply weekly readings to the program
+     * Apply weekly readings to the program (per-subject: one time → all applicable days)
      */
     public function applyWeeklyReadings(): void
     {
@@ -2468,38 +2324,44 @@ class WeeklyProgramUpload extends Component
         foreach ($this->weeklyReadingsPreview as $item) {
             // پارت‌هایی که تایم صفر دارند ثبت نمی‌شوند
             if ((int)$item['duration_minutes'] === 0) continue;
-            $dayIndex = $item['day_index'];
-            $partDate = $startDate->copy()->addDays($dayIndex);
 
-            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-                ->where('day_of_week', $dayIndex)
-                ->count();
-            if ($existingCount >= 20) continue;
+
+
             $subject = CcSubject::with('grade.educationLevel')->find($item['cc_subject_id']);
-            ProgramPart::create([
-                'weekly_program_id' => $this->weeklyProgramId,
-                'lesson_name' => $item['subject'],
-                'part_date' => $partDate,
-                'day_of_week' => $dayIndex,
-                'part_order' => $existingCount + 1,
-                'description' => $item['description'],
-                'duration_minutes' => $item['duration_minutes'],
-                'test_count' => null,
-                'part_type' => 'descriptive',
-                'source_type' => $item['type'] === 'daily'
-                    ? ProgramPart::SOURCE_DAILY_READING
-                    : ProgramPart::SOURCE_PRE_READING,
-                'lesson_type' => $subject?->type ?? 'specialized',
-                'cc_subject_id' => $item['cc_subject_id'],
-                'cc_grade_id' => $subject?->grade?->id,
-                'cc_field_id' => $subject?->cc_field_id,
-                'grade' => $subject?->grade?->grade_number,
-                'education_level_id' => $subject?->grade?->educationLevel?->id,
-            ]);
+            $sourceType = $item['type'] === 'daily'
+                ? ProgramPart::SOURCE_DAILY_READING
+                : ProgramPart::SOURCE_PRE_READING;
+            $description = ($item['type'] === 'daily' ? 'روزخوانی' : 'پیش‌خوانی') . ' - ' . $item['subject'];
+
+            foreach ($item['day_indices'] as $dayIndex) {
+                $partDate = $startDate->copy()->addDays($dayIndex);
+                $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                    ->where('day_of_week', $dayIndex)
+                    ->count();
+                if ($existingCount >= 20) continue;
+
+                ProgramPart::create([
+                    'weekly_program_id' => $this->weeklyProgramId,
+                    'lesson_name' => $item['subject'],
+                    'part_date' => $partDate,
+                    'day_of_week' => $dayIndex,
+                    'part_order' => $existingCount + 1,
+                    'description' => $description,
+                    'duration_minutes' => $item['duration_minutes'],
+                    'test_count' => null,
+                    'part_type' => 'descriptive',
+                    'source_type' => $sourceType,
+                    'lesson_type' => $subject?->type ?? 'specialized',
+                    'cc_subject_id' => $item['cc_subject_id'],
+                    'cc_grade_id' => $subject?->grade?->id,
+                    'cc_field_id' => $subject?->cc_field_id,
+                    'grade' => $subject?->grade?->grade_number,
+                    'education_level_id' => $subject?->grade?->educationLevel?->id,
+                ]);
+            }
         }
 
         $this->loadExistingParts();
-        $this->showWeeklyReadingsPreview = false;
         $this->weeklyReadingsPreview = [];
         $this->showClassScheduleModal = false;
         $this->dispatch('success', 'روزخوانی و پیش‌خوانی هفتگی با موفقیت ثبت شد.');
@@ -2789,6 +2651,8 @@ class WeeklyProgramUpload extends Component
         if (!$this->partSelectMode) {
             $this->selectedPartIds = [];
             $this->copyTargetDay = null;
+            $this->copyTargetDays = [];
+
         }
     }
 
@@ -2810,8 +2674,13 @@ class WeeklyProgramUpload extends Component
 
     public function copySelectedParts(): void
     {
-        if (empty($this->selectedPartIds) || $this->copyTargetDay === null) {
-            $this->dispatch('warning', 'لطفاً پارت‌ها و روز مقصد را انتخاب کنید.');
+        // Support both single day (copyTargetDay) and multi-day (copyTargetDays)
+        $targetDays = !empty($this->copyTargetDays)
+            ? array_map('intval', $this->copyTargetDays)
+            : ($this->copyTargetDay !== null ? [(int)$this->copyTargetDay] : []);
+
+        if (empty($this->selectedPartIds) || empty($targetDays)) {
+            $this->dispatch('warning', 'لطفاً پارت‌ها و حداقل یک روز مقصد را انتخاب کنید.');
             return;
         }
 
@@ -2819,47 +2688,51 @@ class WeeklyProgramUpload extends Component
             $this->saveProgram();
         }
 
-        $dayIndex = (int) $this->copyTargetDay;
         $startDate = Carbon::parse($this->start_date);
-        $partDate = $startDate->copy()->addDays($dayIndex);
         $copied = 0;
 
-        foreach ($this->selectedPartIds as $partId) {
-            $part = ProgramPart::find($partId);
-            if (!$part) continue;
+        foreach ($targetDays as $dayIndex) {
+            foreach ($this->selectedPartIds as $partId) {
+                $part = ProgramPart::find($partId);
+                if (!$part) continue;
 
-            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-                ->where('day_of_week', $dayIndex)
-                ->count();
+                $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                    ->where('day_of_week', $dayIndex)
+                    ->count();
 
-            if ($existingCount >= 20) break;
+                if ($existingCount >= 20) break;
 
-            ProgramPart::create([
-                'weekly_program_id' => $this->weeklyProgramId,
-                'lesson_name' => $part->lesson_name,
-                'part_date' => $partDate,
-                'day_of_week' => $dayIndex,
-                'part_order' => $existingCount + 1,
-                'description' => $part->description,
-                'duration_minutes' => $part->duration_minutes,
-                'test_count' => $part->test_count,
-                'part_type' => $part->part_type,
-                'source_type' => ProgramPart::SOURCE_NORMAL,
-                'lesson_type' => $part->lesson_type,
-                'grade' => $part->grade,
-                'education_level_id' => $part->education_level_id,
-                'cc_grade_id' => $part->cc_grade_id,
-                'cc_field_id' => $part->cc_field_id,
-                'cc_subject_id' => $part->cc_subject_id,
-                'cc_chapter_id' => $part->cc_chapter_id,
-                'cc_topic_id' => $part->cc_topic_id,
-            ]);
-            $copied++;
+                $partDate = $startDate->copy()->addDays($dayIndex);
+
+                ProgramPart::create([
+                    'weekly_program_id' => $this->weeklyProgramId,
+                    'lesson_name' => $part->lesson_name,
+                    'part_date' => $partDate,
+                    'day_of_week' => $dayIndex,
+                    'part_order' => $existingCount + 1,
+                    'description' => $part->description,
+                    'duration_minutes' => $part->duration_minutes,
+                    'test_count' => $part->test_count,
+                    'part_type' => $part->part_type,
+                    'source_type' => ProgramPart::SOURCE_NORMAL,
+                    'lesson_type' => $part->lesson_type,
+                    'grade' => $part->grade,
+                    'education_level_id' => $part->education_level_id,
+                    'cc_grade_id' => $part->cc_grade_id,
+                    'cc_field_id' => $part->cc_field_id,
+                    'cc_subject_id' => $part->cc_subject_id,
+                    'cc_chapter_id' => $part->cc_chapter_id,
+                    'cc_topic_id' => $part->cc_topic_id,
+                ]);
+                $copied++;
+            }
         }
 
         $this->loadExistingParts();
         $this->selectedPartIds = [];
         $this->copyTargetDay = null;
+        $this->copyTargetDays = [];
+
         $this->partSelectMode = false;
 
         if ($copied > 0) {
@@ -2873,7 +2746,7 @@ class WeeklyProgramUpload extends Component
     // ==================== روزخوانی / پیش‌خوانی جداگانه ====================
 
     /**
-     * اعمال فقط روزخوانی‌ها در برنامه
+     * اعمال فقط روزخوانی‌ها در برنامه (per-subject → all applicable days)
      */
     public function applyOnlyDailyReadings(): void
     {
@@ -2893,35 +2766,38 @@ class WeeklyProgramUpload extends Component
             if ($item['type'] !== 'daily') continue;
             if ((int)$item['duration_minutes'] === 0) continue;
 
-            $dayIndex = $item['day_index'];
-            $partDate = $startDate->copy()->addDays($dayIndex);
 
-            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-                ->where('day_of_week', $dayIndex)
-                ->count();
-
-            if ($existingCount >= 20) continue;
 
             $subject = CcSubject::with('grade.educationLevel')->find($item['cc_subject_id']);
-            ProgramPart::create([
-                'weekly_program_id' => $this->weeklyProgramId,
-                'lesson_name' => $item['subject'],
-                'part_date' => $partDate,
-                'day_of_week' => $dayIndex,
-                'part_order' => $existingCount + 1,
-                'description' => $item['description'],
-                'duration_minutes' => $item['duration_minutes'],
-                'test_count' => null,
-                'part_type' => 'descriptive',
-                'source_type' => ProgramPart::SOURCE_DAILY_READING,
-                'lesson_type' => $subject?->type ?? 'specialized',
-                'cc_subject_id' => $item['cc_subject_id'],
-                'cc_grade_id' => $subject?->grade?->id,
-                'cc_field_id' => $subject?->cc_field_id,
-                'grade' => $subject?->grade?->grade_number,
-                'education_level_id' => $subject?->grade?->educationLevel?->id,
-            ]);
-            $added++;
+            $description = 'روزخوانی - ' . $item['subject'];
+
+            foreach ($item['day_indices'] as $dayIndex) {
+                $partDate = $startDate->copy()->addDays($dayIndex);
+                $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                    ->where('day_of_week', $dayIndex)
+                    ->count();
+                if ($existingCount >= 20) continue;
+
+                ProgramPart::create([
+                    'weekly_program_id' => $this->weeklyProgramId,
+                    'lesson_name' => $item['subject'],
+                    'part_date' => $partDate,
+                    'day_of_week' => $dayIndex,
+                    'part_order' => $existingCount + 1,
+                    'description' => $description,
+                    'duration_minutes' => $item['duration_minutes'],
+                    'test_count' => null,
+                    'part_type' => 'descriptive',
+                    'source_type' => ProgramPart::SOURCE_DAILY_READING,
+                    'lesson_type' => $subject?->type ?? 'specialized',
+                    'cc_subject_id' => $item['cc_subject_id'],
+                    'cc_grade_id' => $subject?->grade?->id,
+                    'cc_field_id' => $subject?->cc_field_id,
+                    'grade' => $subject?->grade?->grade_number,
+                    'education_level_id' => $subject?->grade?->educationLevel?->id,
+                ]);
+                $added++;
+            }
         }
 
         $this->loadExistingParts();
@@ -2933,7 +2809,7 @@ class WeeklyProgramUpload extends Component
     }
 
     /**
-     * اعمال فقط پیش‌خوانی‌ها در برنامه
+     * اعمال فقط پیش‌خوانی‌ها در برنامه (per-subject → all applicable days)
      */
     public function applyOnlyPreReadings(): void
     {
@@ -2953,35 +2829,38 @@ class WeeklyProgramUpload extends Component
             if ($item['type'] !== 'pre') continue;
             if ((int)$item['duration_minutes'] === 0) continue;
 
-            $dayIndex = $item['day_index'];
-            $partDate = $startDate->copy()->addDays($dayIndex);
 
-            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-                ->where('day_of_week', $dayIndex)
-                ->count();
-
-            if ($existingCount >= 20) continue;
 
             $subject = CcSubject::with('grade.educationLevel')->find($item['cc_subject_id']);
-            ProgramPart::create([
-                'weekly_program_id' => $this->weeklyProgramId,
-                'lesson_name' => $item['subject'],
-                'part_date' => $partDate,
-                'day_of_week' => $dayIndex,
-                'part_order' => $existingCount + 1,
-                'description' => $item['description'],
-                'duration_minutes' => $item['duration_minutes'],
-                'test_count' => null,
-                'part_type' => 'descriptive',
-                'source_type' => ProgramPart::SOURCE_PRE_READING,
-                'lesson_type' => $subject?->type ?? 'specialized',
-                'cc_subject_id' => $item['cc_subject_id'],
-                'cc_grade_id' => $subject?->grade?->id,
-                'cc_field_id' => $subject?->cc_field_id,
-                'grade' => $subject?->grade?->grade_number,
-                'education_level_id' => $subject?->grade?->educationLevel?->id,
-            ]);
-            $added++;
+            $description = 'پیش‌خوانی - ' . $item['subject'];
+
+            foreach ($item['day_indices'] as $dayIndex) {
+                $partDate = $startDate->copy()->addDays($dayIndex);
+                $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                    ->where('day_of_week', $dayIndex)
+                    ->count();
+                if ($existingCount >= 20) continue;
+
+                ProgramPart::create([
+                    'weekly_program_id' => $this->weeklyProgramId,
+                    'lesson_name' => $item['subject'],
+                    'part_date' => $partDate,
+                    'day_of_week' => $dayIndex,
+                    'part_order' => $existingCount + 1,
+                    'description' => $description,
+                    'duration_minutes' => $item['duration_minutes'],
+                    'test_count' => null,
+                    'part_type' => 'descriptive',
+                    'source_type' => ProgramPart::SOURCE_PRE_READING,
+                    'lesson_type' => $subject?->type ?? 'specialized',
+                    'cc_subject_id' => $item['cc_subject_id'],
+                    'cc_grade_id' => $subject?->grade?->id,
+                    'cc_field_id' => $subject?->cc_field_id,
+                    'grade' => $subject?->grade?->grade_number,
+                    'education_level_id' => $subject?->grade?->educationLevel?->id,
+                ]);
+                $added++;
+            }
         }
 
         $this->loadExistingParts();

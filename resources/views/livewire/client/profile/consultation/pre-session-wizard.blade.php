@@ -202,13 +202,16 @@
                                 ])
                             </div>
 
-                            <button wire:click="addExam"
-                                    wire:loading.attr="disabled"
-                                    wire:target="addExam"
-                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60">
-                                <span wire:loading.remove wire:target="addExam">افزودن امتحان</span>
-                                <span wire:loading wire:target="addExam" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
-                            </button>
+
+                            <div class="flex justify-end gap-3 pt-4">
+                                <button wire:click="addExam"
+                                        wire:loading.attr="disabled"
+                                        wire:target="addExam"
+                                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-green-700 disabled:opacity-60">
+                                    <span wire:loading.remove wire:target="addExam">افزودن امتحان</span>
+                                    <span wire:loading wire:target="addExam" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                </button>
+                            </div>
                         </div>
                     @endif
 
@@ -321,13 +324,16 @@
                                 ])
                             </div>
 
-                            <button wire:click="addQa"
-                                    wire:loading.attr="disabled"
-                                    wire:target="addQa"
-                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60">
-                                <span wire:loading.remove wire:target="addQa">افزودن پرسش و پاسخ</span>
-                                <span wire:loading wire:target="addQa" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
-                            </button>
+
+                            <div class="flex justify-end gap-3 pt-4">
+                                <button wire:click="addQa"
+                                        wire:loading.attr="disabled"
+                                        wire:target="addQa"
+                                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-green-700 disabled:opacity-60">
+                                    <span wire:loading.remove wire:target="addQa">افزودن پرسش و پاسخ</span>
+                                    <span wire:loading wire:target="addQa" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                </button>
+                            </div>
                         </div>
                     @endif
 
@@ -423,13 +429,16 @@
                                 ])
                             </div>
 
-                            <button wire:click="addAssignment"
-                                    wire:loading.attr="disabled"
-                                    wire:target="addAssignment"
-                                    class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60">
-                                <span wire:loading.remove wire:target="addAssignment">افزودن تکلیف</span>
-                                <span wire:loading wire:target="addAssignment" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
-                            </button>
+
+                            <div class="flex justify-end gap-3 pt-4">
+                                <button wire:click="addAssignment"
+                                        wire:loading.attr="disabled"
+                                        wire:target="addAssignment"
+                                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-green-700 disabled:opacity-60">
+                                    <span wire:loading.remove wire:target="addAssignment">افزودن تکلیف</span>
+                                    <span wire:loading wire:target="addAssignment" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                </button>
+                            </div>
                         </div>
                     @endif
 
@@ -460,36 +469,8 @@
                     @endif
                 @endif
 
-                {{-- ===== مرحله ۴: متفرقه ===== --}}
-                @if($currentStep === 4)
-                    <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">متفرقه</h3>
-                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">
-                        هر توضیح یا نکته دیگری که می‌خواهید به مشاور بگویید را اینجا بنویسید.
-                    </p>
-
-                    <div class="mb-4">
-                        <textarea
-                            wire:model="miscDescription"
-                            rows="6"
-                            class="w-full rounded-xl border border-border bg-background px-3 py-3 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 {{ !$canEdit ? 'opacity-60 cursor-not-allowed' : '' }}"
-                            placeholder="توضیحات خود را اینجا بنویسید..."
-                            {{ !$canEdit ? 'disabled' : '' }}
-                        ></textarea>
-                    </div>
-
-                    @if($canEdit)
-                        <button wire:click="saveMiscellaneous"
-                                wire:loading.attr="disabled"
-                                wire:target="saveMiscellaneous"
-                                class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60">
-                            <span wire:loading.remove wire:target="saveMiscellaneous">ذخیره توضیحات</span>
-                            <span wire:loading wire:target="saveMiscellaneous" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
-                        </button>
-                    @endif
-                @endif
-
-                    {{-- ===== مرحله ۵: پارت در خواستی ===== --}}
-                @if($currentStep === 5)
+                    {{-- ===== مرحله4: پارت در خواستی ===== --}}
+                    @if($currentStep === 4)
                         <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">پارت در خواستی</h3>
                         <p class="mb-5 text-xs sm:text-sm text-muted-foreground">
                             درس‌هایی که می‌خواهید در برنامه هفتگی برای شما لحاظ شود را مشخص کنید.
@@ -582,13 +563,16 @@
                                     ])
                                 </div>
 
-                                <button wire:click="addRequestedPart"
-                                        wire:loading.attr="disabled"
-                                        wire:target="addRequestedPart"
-                                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60">
-                                    <span wire:loading.remove wire:target="addRequestedPart">افزودن پارت در خواستی</span>
-                                    <span wire:loading wire:target="addRequestedPart" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
-                                </button>
+
+                                <div class="flex justify-end gap-3 pt-4">
+                                    <button wire:click="addRequestedPart"
+                                            wire:loading.attr="disabled"
+                                            wire:target="addRequestedPart"
+                                            class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-green-700 disabled:opacity-60">
+                                        <span wire:loading.remove wire:target="addRequestedPart">افزودن پارت در خواستی</span>
+                                        <span wire:loading wire:target="addRequestedPart" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                    </button>
+                                </div>
                             </div>
                         @endif
 
@@ -618,6 +602,41 @@
                             <p class="py-4 text-center text-xs text-muted-foreground">هیچ پارت در خواستی ثبت نشده است.</p>
                         @endif
                     @endif
+
+
+                {{-- ===== مرحله5: متفرقه ===== --}}
+                @if($currentStep === 5)
+                    <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">متفرقه</h3>
+                    <p class="mb-5 text-xs sm:text-sm text-muted-foreground">
+                        هر توضیح یا نکته دیگری که می‌خواهید به مشاور بگویید را اینجا بنویسید.
+                    </p>
+
+                    <div class="mb-4">
+                        <textarea
+                            wire:model="miscDescription"
+                            rows="6"
+                            class="w-full rounded-xl border border-border bg-background px-3 py-3 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 {{ !$canEdit ? 'opacity-60 cursor-not-allowed' : '' }}"
+                            placeholder="توضیحات خود را اینجا بنویسید..."
+                            {{ !$canEdit ? 'disabled' : '' }}
+                        ></textarea>
+                    </div>
+
+                    @if($canEdit)
+
+
+                            <div class="flex justify-end gap-3 pt-4">
+                                <button wire:click="saveMiscellaneous"
+                                        wire:loading.attr="disabled"
+                                        wire:target="saveMiscellaneous"
+                                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-green-700 disabled:opacity-60">
+                                    <span wire:loading.remove wire:target="saveMiscellaneous">ذخیره توضیحات</span>
+                                    <span wire:loading wire:target="saveMiscellaneous" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                </button>
+                            </div>
+                    @endif
+                @endif
+
+
 
                     {{-- ===== مرحله ۶: خلاصه ===== --}}
                     @if($currentStep === 6)
@@ -694,7 +713,7 @@
                     <div>
                         @if($currentStep > 1)
                             <button wire:click="prevStep"
-                                    class="inline-flex items-center justify-center rounded-lg bg-muted px-5 py-2 text-xs sm:text-sm font-medium text-foreground shadow-sm transition hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-border">
+                                    class="inline-flex items-center justify-center rounded-lg bg-orange-400 px-5 py-2 text-xs sm:text-sm font-medium text-foreground shadow-sm transition hover:bg-muted/80 focus:outline-none focus:ring-2 focus:ring-border">
                                 مرحله قبل
                             </button>
                         @endif
