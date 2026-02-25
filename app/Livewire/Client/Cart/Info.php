@@ -54,10 +54,8 @@ class Info extends Component
     }
     public function getCity($value)
     {
-        $this->loadingCities = true;
         $this->cities = City::query()->where('state_id', $value)->get();
-        $this->city = ''; // Reset city when province changes
-        $this->loadingCities = false;
+        $this->city = '';
     }
 
     public function seoConfig()

@@ -1,9 +1,7 @@
 <div x-data="cartInfoForm()" x-init="init()">
     @assets
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+
     <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
     <style>
         /* Select2 Dark Mode Support */
@@ -226,6 +224,7 @@
                                         <input
                                             type="text"
                                             id="birth_date"
+                                            name="birth_date"
                                             data-jdp
                                             autocomplete="off"
                                             dir="ltr"
@@ -234,7 +233,7 @@
                                             class="form-input w-full h-12 !ring-2 !ring-transparent focus:!ring-primary !ring-offset-0 bg-secondary border-0 rounded-xl text-sm text-foreground px-4 pr-12 transition-all"
                                             placeholder="1380/01/01"
                                         />
-                                        <input type="hidden" name="birth_date" x-ref="birthDateHidden" wire:model="birth_date" />
+                                        <!-- hidden input حذف کن -->
                                         <span class="absolute right-4 top-1/2 -translate-y-1/2 text-muted pointer-events-none">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5">
                                                 <path fill-rule="evenodd" d="M5.75 2a.75.75 0 01.75.75V4h7V2.75a.75.75 0 011.5 0V4h.25A2.75 2.75 0 0118 6.75v8.5A2.75 2.75 0 0115.25 18H4.75A2.75 2.75 0 012 15.25v-8.5A2.75 2.75 0 014.75 4H5V2.75A.75.75 0 015.75 2zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75z" clip-rule="evenodd" />
@@ -364,17 +363,17 @@
                                         استان (محل سکونت)
                                         <span class="text-red-500">*</span>
                                     </label>
+                                    <!-- استان -->
                                     <select
                                         id="stateId"
                                         name="province"
-                                        x-ref="provinceSelect"
-                                        class="select2-province form-select w-full h-12 !ring-2 !ring-transparent focus:!ring-primary !ring-offset-0 bg-secondary border-0 rounded-xl text-sm text-foreground px-4 transition-all"
+                                        wire:model="province"
+                                        wire:change="getCity($event.target.value)"
+                                        class="form-select w-full h-12 !ring-2 !ring-transparent focus:!ring-primary !ring-offset-0 bg-secondary border-0 rounded-xl text-sm text-foreground px-4 transition-all"
                                     >
                                         <option value="">انتخاب کنید</option>
                                         @foreach($provinces as $item)
-                                            <option value="{{$item->id}}" {{$province == $item->id ? 'selected' : ''}}>
-                                                {{$item->name}}
-                                            </option>
+                                            <option value="{{$item->id}}">{{$item->name}}</option>
                                         @endforeach
                                     </select>
                                     @error('province')
@@ -622,19 +621,15 @@
     <script>
         Alpine.data('cartInfoForm', () => ({
             grade: @entangle('grade'),
-            select2Initialized: false,
 
             init() {
                 this.$nextTick(() => {
                     this.initDatepicker();
-                    this.initSelect2();
                 });
 
-                // برای Livewire navigate
                 document.addEventListener('livewire:navigated', () => {
                     this.$nextTick(() => {
                         this.initDatepicker();
-                        this.initSelect2();
                     });
                 });
             },
@@ -643,110 +638,23 @@
                 if (typeof jalaliDatepicker === 'undefined') return;
 
                 const input = this.$refs.birthDateInput;
-                if (!input) return;
+                if (!input || input.dataset.jdpBound) return;
 
-                // فقط یک بار startWatch اجرا شود
+                input.dataset.jdpBound = "1";
+
                 if (!window.__JDP_STARTED__) {
                     window.__JDP_STARTED__ = true;
-                    jalaliDatepicker.startWatch({
-                        time: false,
-                        // هیچ minDate / maxDate اینجا نیست
-                    });
+                    jalaliDatepicker.startWatch({ time: false });
                 }
 
-                // جلوگیری از چندبار بستن listener (به خاطر livewire:navigated)
-                if (!input.dataset.jdpBound) {
-                    input.dataset.jdpBound = "1";
-
-                    input.addEventListener('change', () => {
-                        const val = input.value;
-                        if (val) {
-                            this.$refs.birthDateHidden.value = val;
-                        @this.set('birth_date', val);
-                        }
-                    });
-
-                    input.addEventListener('focus', () => {
-                        if (typeof $ !== 'undefined') {
-                            $('.select2-province').select2('close');
-                        }
-                    });
-                }
-            },
-
-            initSelect2() {
-                if (typeof $ === 'undefined' || typeof $.fn.select2 === 'undefined') return;
-
-                const $province = $(this.$refs.provinceSelect);
-                if (!$province.length) return;
-
-                // اگر قبلاً init شده، destroy کن
-                if ($province.hasClass('select2-hidden-accessible')) {
-                    $province.select2('destroy');
-                }
-
-                $province.select2({
-                    placeholder: "جستجو کنید...",
-                    allowClear: true,
-                    width: '100%',
-                    dropdownAutoWidth: false,
-                    language: {
-                        noResults: () => "نتیجه‌ای یافت نشد",
-                        searching: () => "در حال جستجو..."
-                    }
-                });
-
-                // وقتی استان تغییر کرد
-                $province.off('change.cartInfo').on('change.cartInfo', (e) => {
-                    const val = e.target.value;
-                @this.set('province', val);
+                input.addEventListener('change', () => {
+                    const val = input.value?.trim();
                     if (val) {
-                    @this.call('getCity', val);
+                    @this.set('birth_date', val);
                     }
                 });
-
-                // بستن dropdown وقتی روی datepicker کلیک میشه
-                $(document).off('mousedown.cartSelect2').on('mousedown.cartSelect2', (e) => {
-                    const target = e.target;
-                    // اگر کلیک روی datepicker بود، Select2 رو ببند
-                    if (target.hasAttribute('data-jdp') ||
-                        target.closest('.jdp-container') ||
-                        target.closest('[x-ref="datePickerWrap"]')) {
-                        $province.select2('close');
-                    }
-                });
-
-                this.select2Initialized = true;
             },
-
-            destroy() {
-                if (typeof $ !== 'undefined') {
-                    $(document).off('mousedown.cartSelect2');
-                    const $province = $(this.$refs.provinceSelect);
-                    if ($province.hasClass('select2-hidden-accessible')) {
-                        $province.select2('destroy');
-                    }
-                }
-            }
-
         }));
-    </script>
-    <script>
-        input.addEventListener('change', () => {
-            const val = input.value?.trim();
-            this.$refs.birthDateHidden.value = val;
-
-            // برای اینکه Livewire هم بفهمه
-            this.$refs.birthDateHidden.dispatchEvent(new Event('input', { bubbles: true }));
-        @this.set('birth_date', val);
-        });
-
-        input.addEventListener('input', () => {
-            const val = input.value?.trim();
-            this.$refs.birthDateHidden.value = val;
-            this.$refs.birthDateHidden.dispatchEvent(new Event('input', { bubbles: true }));
-        @this.set('birth_date', val);
-        });
     </script>
     @endscript
 </div>

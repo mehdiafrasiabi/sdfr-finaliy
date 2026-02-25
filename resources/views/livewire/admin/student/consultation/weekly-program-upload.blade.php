@@ -1097,6 +1097,45 @@
                                     @endif
                                 </div>
                             </div>
+                            {{-- پارت در خواستی --}}
+                            <div class="col-12">
+                                <div class="ui-card p-3">
+                                    <h6 class="fw-bold mb-3 d-flex align-items-center gap-2" style="color:#ea580c;">
+                                        <i class="material-symbols-outlined">playlist_add</i>
+                                        پارت در خواستی
+                                        <span class="badge rounded-pill px-3 py-2" style="background:rgba(234,88,12,.12);color:#ea580c;">
+                                            {{ $preSession->requestedParts->count() }}
+                                        </span>
+                                    </h6>
+
+                                    @if($preSession->requestedParts->count() > 0)
+                                        <div class="weekly-scroll">
+                                            <table class="table table-sm align-middle mb-0">
+                                                <thead>
+                                                <tr class="text-muted-2">
+                                                    <th>درس</th>
+                                                    <th>تعداد پارت</th>
+                                                    <th>زمان هر پارت</th>
+                                                    <th>توضیحات</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach($preSession->requestedParts as $rp)
+                                                    <tr>
+                                                        <td class="fw-semibold">{{ $rp->subject }}</td>
+                                                        <td>{{ $rp->part_count }} پارت</td>
+                                                        <td>{{ $rp->time_per_part }} دقیقه</td>
+                                                        <td class="text-muted-2">{{ $rp->description ?? '—' }}</td>
+                                                    </tr>
+                                                @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        <p class="text-muted-2 small mb-0">هیچ پارت در خواستی ثبت نشده است</p>
+                                    @endif
+                                </div>
+                            </div>
 
                         </div>
                     </div>

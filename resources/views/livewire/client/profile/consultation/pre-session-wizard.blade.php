@@ -488,8 +488,139 @@
                     @endif
                 @endif
 
-                {{-- ===== مرحله ۵: خلاصه ===== --}}
+                    {{-- ===== مرحله ۵: پارت در خواستی ===== --}}
                 @if($currentStep === 5)
+                        <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">پارت در خواستی</h3>
+                        <p class="mb-5 text-xs sm:text-sm text-muted-foreground">
+                            درس‌هایی که می‌خواهید در برنامه هفتگی برای شما لحاظ شود را مشخص کنید.
+                        </p>
+
+                        @if($canEdit)
+                            <div class="mb-6 rounded-xl bg-muted/50 dark:bg-muted/30 px-3 py-4 sm:px-4 sm:py-5">
+                                <div class="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 mb-4">
+
+                                    {{-- درس (گروه‌بندی بر اساس پایه) --}}
+                                    <div>
+                                        <label class="mb-1 block text-xs font-medium text-foreground">درس</label>
+                                        @if(count($availableGradeSubjects) > 0)
+                                            <select wire:model.live="requestedPartForm.cc_subject_id"
+                                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                                <option value="">انتخاب درس...</option>
+                                                @foreach($availableGradeSubjects as $gradeGroup)
+                                                    <optgroup label="{{ $gradeGroup['grade_label'] }}">
+                                                        @foreach($gradeGroup['subjects'] as $subject)
+                                                            <option value="{{ $subject['id'] }}">
+                                                                {{ $subject['name'] }} ({{ $subject['type'] === 'general' ? 'عمومی' : 'تخصصی' }})
+                                                            </option>
+                                                        @endforeach
+                                                    </optgroup>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <input type="text" wire:model="requestedPartForm.subject"
+                                                   class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                                   placeholder="مثال: ریاضی">
+                                        @endif
+                                        @error('requestedPartForm.subject')<span class="mt-1 block text-xs text-red-500">{{ $message }}</span>@enderror
+                                    </div>
+
+                                    {{-- فصل (اختیاری) --}}
+                                    <div>
+                                        <label class="mb-1 block text-xs font-medium text-foreground">
+                                            فصل
+                                            <span class="text-muted-foreground font-normal">(اختیاری)</span>
+                                        </label>
+                                        @if(count($requestedPartChapters) > 0)
+                                            <select wire:model="requestedPartForm.cc_chapter_id"
+                                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                                <option value="">همه فصل‌ها...</option>
+                                                @foreach($requestedPartChapters as $chapter)
+                                                    <option value="{{ $chapter['id'] }}">{{ $chapter['name'] }}</option>
+                                                @endforeach
+                                            </select>
+                                        @else
+                                            <select disabled
+                                                    class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted-foreground shadow-sm cursor-not-allowed">
+                                                <option>ابتدا درس را انتخاب کنید</option>
+                                            </select>
+                                        @endif
+                                    </div>
+
+                                    {{-- توضیحات (اختیاری) --}}
+                                    <div class="md:col-span-2">
+                                        <label class="mb-1 block text-xs font-medium text-foreground">
+                                            توضیحات
+                                            <span class="text-muted-foreground font-normal">(اختیاری)</span>
+                                        </label>
+                                        <input type="text" wire:model="requestedPartForm.description"
+                                               class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                               placeholder="مثال: از ابتدای فصل تا مبحث مشتق">
+                                    </div>
+
+                                    {{-- تعداد پارت --}}
+                                    <div x-data="{ count: $wire.entangle('requestedPartForm.part_count') }" x-init="if(!count || count < 1) count = 1">
+                                        <label class="mb-1 block text-xs font-medium text-foreground">تعداد پارت</label>
+                                        <div class="flex items-center gap-1">
+                                            <button type="button" @click="count++"
+                                                    class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-green-500/10 hover:border-green-500 hover:text-green-600">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                            </button>
+                                            <input type="tel" min="1" x-model.number="count" @input="if(count < 1) count = 1"
+                                                   class="flex-1 rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-center text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                            <button type="button" @click="if(count > 1) count--"
+                                                    class="flex items-center justify-center w-10 h-10 rounded-lg border border-border bg-background text-foreground shadow-sm transition hover:bg-red-500/10 hover:border-red-500 hover:text-red-600">
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                            </button>
+                                        </div>
+                                        @error('requestedPartForm.part_count')<span class="mt-1 block text-xs text-red-500">{{ $message }}</span>@enderror
+                                    </div>
+
+                                    {{-- زمان هر پارت --}}
+                                    @include('livewire.client.profile.consultation.partials.time-picker', [
+                                        'wireModel' => 'requestedPartForm.time_per_part',
+                                        'xDataKey'  => 'requestedPartTimePicker',
+                                    ])
+                                </div>
+
+                                <button wire:click="addRequestedPart"
+                                        wire:loading.attr="disabled"
+                                        wire:target="addRequestedPart"
+                                        class="inline-flex items-center justify-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-xs sm:text-sm font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:opacity-60">
+                                    <span wire:loading.remove wire:target="addRequestedPart">افزودن پارت در خواستی</span>
+                                    <span wire:loading wire:target="addRequestedPart" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                </button>
+                            </div>
+                        @endif
+
+                        @if(count($requestedParts) > 0)
+                            <div class="space-y-2">
+                                @foreach($requestedParts as $rp)
+                                    <div class="flex items-start justify-between rounded-xl bg-orange-500/10 dark:bg-orange-500/15 px-3 py-2.5 text-xs sm:text-sm text-foreground">
+                                        <div class="flex-1">
+                                            <span class="font-medium">{{ $rp['subject'] }}</span>
+                                            <span class="text-muted-foreground mr-1">({{ $rp['part_count'] }} پارت - {{ $rp['time_per_part'] }} دقیقه)</span>
+                                            @if(!empty($rp['description']))
+                                                <p class="mt-0.5 text-muted-foreground">{{ $rp['description'] }}</p>
+                                            @endif
+                                        </div>
+                                        @if($canEdit)
+                                            <button wire:click="deleteRequestedPart({{ $rp['id'] }})"
+                                                    class="text-red-500 transition hover:text-red-600 mr-2 shrink-0 mt-0.5">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/><path d="M10 11v6"/><path d="M14 11v6"/>
+                                                </svg>
+                                            </button>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="py-4 text-center text-xs text-muted-foreground">هیچ پارت در خواستی ثبت نشده است.</p>
+                        @endif
+                    @endif
+
+                    {{-- ===== مرحله ۶: خلاصه ===== --}}
+                    @if($currentStep === 6)
                     <h3 class="mb-2 text-base sm:text-lg font-bold text-foreground">خلاصه پیش‌جلسه</h3>
                     <p class="mb-5 text-xs sm:text-sm text-muted-foreground">تمام اطلاعاتی که ثبت کرده‌اید در بخش‌های زیر نمایش داده شده است.</p>
 
@@ -540,6 +671,20 @@
                             @else
                                 <p class="text-xs text-muted-foreground">ثبت نشده</p>
                             @endif
+                        </div>
+                        <div class="rounded-xl border border-border bg-muted/30 dark:bg-muted/20 p-3 sm:p-4">
+                            <h4 class="mb-3 text-xs sm:text-sm font-bold text-orange-600">پارت در خواستی ({{ count($requestedParts) }} مورد)</h4>
+                            @forelse($requestedParts as $rp)
+                                <div class="border-b border-dashed border-border py-1.5 text-xs sm:text-sm last:border-b-0 text-foreground">
+                                    <span class="font-medium">{{ $rp['subject'] }}</span>
+                                    <span class="text-muted-foreground mr-1">– {{ $rp['part_count'] }} پارت ({{ $rp['time_per_part'] }} دقیقه)</span>
+                                    @if(!empty($rp['description']))
+                                        <span class="text-muted-foreground">– {{ $rp['description'] }}</span>
+                                    @endif
+                                </div>
+                            @empty
+                                <p class="text-xs text-muted-foreground">ثبت نشده</p>
+                            @endforelse
                         </div>
                     </div>
                 @endif

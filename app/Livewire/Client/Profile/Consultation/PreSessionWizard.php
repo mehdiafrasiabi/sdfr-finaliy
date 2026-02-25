@@ -11,6 +11,7 @@ use App\Models\AdvisingPreSessionMisc;
 use App\Models\Student;
 use App\Models\CcGrade;
 use App\Models\CcField;
+use App\Models\AdvisingPreSessionRequestedPart;
 use App\Models\CcSubject;
 use App\Models\CcChapter;
 use Artesaos\SEOTools\Traits\SEOTools;
@@ -28,11 +29,14 @@ class PreSessionWizard extends Component
 
     // مرحله فعلی wizard
     public $currentStep = 1;
-    public $totalSteps = 5;
+    public $totalSteps = 6;
     // Curriculum data for dropdowns
     public $availableSubjects = [];
     public $availableChapters = [];
-
+    // Subjects grouped by grade for requested parts step
+    public $availableGradeSubjects = [];
+    // Chapters for selected subject in requested part form
+    public $requestedPartChapters = [];
     // داده‌های مرحله 1 - امتحانات
     public $exams = [];
     public $examForm = [
@@ -72,6 +76,17 @@ class PreSessionWizard extends Component
     public $minDate = '';
     public $maxDate = '';
 
+//داده‌های مرحله 5 - پارت در خواستی
+    public $requestedParts = [];
+    public $requestedPartForm = [
+        'subject'       => '',
+        'cc_subject_id' => '',
+        'cc_chapter_id' => '',
+        'description'   => '',
+        'part_count'    => 1,
+        'time_per_part' => 60,
+    ];
+
     protected function messages()
     {
         return [
@@ -93,6 +108,11 @@ class PreSessionWizard extends Component
             'assignmentForm.time_per_part.required' => 'زمان هر پارت الزامی است.',
             'assignmentForm.time_per_part.min' => 'زمان هر پارت باید حداقل ۱ دقیقه باشد.',
             'assignmentForm.due_date.required' => 'تاریخ تکلیف الزامی است.',
+            'requestedPartForm.subject.required'       => 'نام درس الزامی است.',
+            'requestedPartForm.part_count.required'    => 'تعداد پارت الزامی است.',
+            'requestedPartForm.part_count.min'         => 'تعداد پارت باید حداقل ۱ باشد.',
+            'requestedPartForm.time_per_part.required' => 'زمان هر پارت الزامی است.',
+            'requestedPartForm.time_per_part.min'      => 'زمان هر پارت باید حداقل ۱ دقیقه باشد.',
         ];
     }
 
@@ -109,6 +129,8 @@ class PreSessionWizard extends Component
         }
         // Load subjects based on student's grade and field
         $this->loadStudentSubjects($session);
+        // Load subjects grouped by grade (for requested parts step)
+        $this->loadAllGradeSubjects($session);
 
         // Set date constraints based on consultation period
         $this->setDateConstraints($session);
@@ -167,6 +189,75 @@ class PreSessionWizard extends Component
                 ->get()
                 ->toArray();
         }
+    }
+    /**
+     * Load subjects grouped by grade (grade 10 up to student's current grade)
+     * Used for the "پارت در خواستی" step
+     */
+    protected function loadAllGradeSubjects(AdvisingSession $session): void
+    {
+        $student = $session->student;
+        if (!$student) return;
+
+        $user = $student->user;
+        if (!$user) return;
+        $personalInfo = $user->personalInformation;
+        if (!$personalInfo) return;
+
+        $grade = (int) $personalInfo->grade; // 10, 11, or 12
+        $field = $personalInfo->field;
+        $ccField = $field ? CcField::where('slug', $field)->where('is_active', true)->first() : null;
+
+        $gradesToLoad = [];
+        for ($g = 10; $g <= $grade; $g++) {
+            $gradesToLoad[] = $g;
+        }
+
+        $result = [];
+        foreach ($gradesToLoad as $gradeNumber) {
+            $ccGradeQuery = CcGrade::where('grade_number', $gradeNumber)
+                ->where('is_active', true);
+
+            if ($ccField) {
+                $ccGradeQuery->where('cc_field_id', $ccField->id);
+            }
+            $ccGrade = $ccGradeQuery->first();
+
+            if (!$ccGrade) {
+                // Fallback: try without field filter
+                $ccGrade = CcGrade::where('grade_number', $gradeNumber)
+                    ->where('is_active', true)
+                    ->first();
+            }
+
+            if ($ccGrade) {
+                $subjects = CcSubject::where('cc_grade_id', $ccGrade->id)
+                    ->orderBy('order')
+                    ->get()
+                    ->map(fn($s) => ['id' => $s->id, 'name' => $s->name, 'type' => $s->type ?? 'specialized'])
+                    ->toArray();
+
+                if (count($subjects) > 0) {
+                    $result[] = [
+                        'grade_number' => $gradeNumber,
+                        'grade_label'  => 'پایه ' . $this->gradeLabel($gradeNumber),
+                        'subjects'     => $subjects,
+                    ];
+                }
+            }
+        }
+
+        $this->availableGradeSubjects = $result;
+    }
+
+    private function gradeLabel(int $grade): string
+    {
+        return match($grade) {
+            10 => 'دهم',
+            11 => 'یازدهم',
+            12 => 'دوازدهم',
+            default => (string) $grade,
+        };
     }
     /**
      * Set date constraints based on the consultation session period
@@ -238,6 +329,27 @@ class PreSessionWizard extends Component
                 ->toArray();
         } else {
             $this->availableChapters = [];
+        }
+    }
+
+    /**
+     * When a subject is selected in the requested part form, load chapters
+     */
+    public function updatedRequestedPartFormCcSubjectId($value): void
+    {
+        $this->requestedPartForm['cc_chapter_id'] = '';
+        $this->requestedPartChapters = [];
+
+        if ($value) {
+            $subject = CcSubject::find($value);
+            if ($subject) {
+                $this->requestedPartForm['subject'] = $subject->name;
+            }
+            $this->requestedPartChapters = CcChapter::where('cc_subject_id', $value)
+                ->where('is_active', true)
+                ->orderBy('order')
+                ->get()
+                ->toArray();
         }
     }
 
@@ -517,6 +629,70 @@ class PreSessionWizard extends Component
         ];
     }
 
+    // ==================== مرحله 5: پارت در خواستی ====================
+
+
+    public function addRequestedPart()
+    {
+        if (!$this->canEdit) {
+            $this->dispatch('warning', 'امکان ویرایش وجود ندارد.');
+            return;
+        }
+
+        if (!empty($this->requestedPartForm['cc_subject_id']) && empty($this->requestedPartForm['subject'])) {
+            $subject = CcSubject::find($this->requestedPartForm['cc_subject_id']);
+            if ($subject) {
+                $this->requestedPartForm['subject'] = $subject->name;
+            }
+        }
+
+        $this->validate([
+            'requestedPartForm.subject'       => 'required|string|max:255',
+            'requestedPartForm.part_count'    => 'required|integer|min:1',
+            'requestedPartForm.time_per_part' => 'required|integer|min:1',
+        ], $this->messages());
+
+        AdvisingPreSessionRequestedPart::create([
+            'pre_session_id' => $this->preSession->id,
+            'subject'        => $this->requestedPartForm['subject'],
+            'cc_subject_id'  => $this->requestedPartForm['cc_subject_id'] ?: null,
+            'cc_chapter_id'  => $this->requestedPartForm['cc_chapter_id'] ?: null,
+            'description'    => $this->requestedPartForm['description'] ?: null,
+            'part_count'     => $this->requestedPartForm['part_count'],
+            'time_per_part'  => $this->requestedPartForm['time_per_part'],
+        ]);
+
+        $this->resetRequestedPartForm();
+        $this->loadExistingData();
+        $this->dispatch('success', 'پارت در خواستی با موفقیت اضافه شد.');
+    }
+
+
+    public function deleteRequestedPart($partId)
+    {
+        if (!$this->canEdit) {
+            $this->dispatch('warning', 'امکان حذف وجود ندارد.');
+            return;
+        }
+        AdvisingPreSessionRequestedPart::find($partId)?->delete();
+        $this->loadExistingData();
+        $this->dispatch('success', 'پارت در خواستی حذف شد.');
+    }
+
+
+    public function resetRequestedPartForm()
+    {
+        $this->requestedPartForm = [
+            'subject'       => '',
+            'cc_subject_id' => '',
+            'cc_chapter_id' => '',
+            'description'   => '',
+            'part_count'    => 1,
+            'time_per_part' => 60,
+        ];
+        $this->requestedPartChapters = [];
+    }
+
 
     // ==================== مرحله 4: متفرقه ====================
 
@@ -595,8 +771,9 @@ class PreSessionWizard extends Component
             1 => 'امتحانات',
             2 => 'پرسش و پاسخ کلاسی',
             3 => 'تکالیف',
-            4 => 'متفرقه',
-            5 => 'نمایش نهایی',
+            4 => 'پارت در خواستی',
+            5=> 'متفرقه',
+            6 => 'نمایش نهایی',
         ];
         $availableDates = $this->getAvailableDates();
         return view('livewire.client.profile.consultation.pre-session-wizard', [

@@ -104,6 +104,14 @@ class AdvisingPreSession extends Model
 
 
 
+    public function requestedParts(): HasMany
+
+    {
+
+        return $this->hasMany(AdvisingPreSessionRequestedPart::class, 'pre_session_id');
+
+    }
+
     // بررسی امکان ویرایش
 
     public function canEdit(): bool

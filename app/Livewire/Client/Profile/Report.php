@@ -271,7 +271,7 @@ class Report extends Component
                     ->toArray();
 
                 foreach ($day['parts'] as $part) {
-                    if (in_array($part->id, $unreadPartIds) && !in_array($part->id, $alreadyCompensatedPartIds)) {
+                    if (in_array($part->id, $unreadPartIds) && !in_array($part->id, $this->alreadyCompensatedPartIds)) {
                         $this->missedParts[] = [
                             'part' => $part,
                             'day_index' => $dayIndex,
