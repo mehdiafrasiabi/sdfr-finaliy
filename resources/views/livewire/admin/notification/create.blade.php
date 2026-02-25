@@ -51,25 +51,28 @@
                         @enderror
                     </div>
 
-                    <!-- ارسال به -->
-                    <div class="mb-3">
+                    {{--
+                           ارسال به:
+                           برای جلوگیری از loading غیرضروری، sendType با Alpine.js
+                           به‌صورت client-side مدیریت می‌شود. wire:model (بدون .live)
+                           مقدار را فقط هنگام submit فرم به Livewire می‌فرستد.
+                       --}}
+                    <div class="mb-3" x-data="{ localSendType: '{{ $sendType }}' }">
                         <label class="form-label fw-semibold">
                             ارسال به:
                             <span class="text-danger">*</span>
                         </label>
 
                         <select
-                            wire:model.live="sendType"
+                            x-model="localSendType"
+                            wire:model="sendType"
                             class="form-select"
                         >
                             <option value="all">همه دانش‌آموزان من</option>
                             <option value="single">انتخاب دانش‌آموز</option>
                         </select>
-                    </div>
-
-                    <!-- انتخاب دانش‌آموز (فقط در حالت تکی) -->
-                    @if($sendType === 'single')
-                        <div class="mb-3">
+                        <!-- انتخاب دانش‌آموز (فقط در حالت تکی) - client-side toggle -->
+                        <div x-show="localSendType === 'single'" x-cloak class="mt-3">
                             <label class="form-label fw-semibold">
                                 انتخاب دانش‌آموز:
                                 <span class="text-danger">*</span>
@@ -91,9 +94,9 @@
                             <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
                         </div>
-                    @else
-                        <!-- نمایش لیست دانش‌آموزان -->
-                        <div class="mb-3">
+
+                        <!-- نمایش لیست دانش‌آموزان (در حالت همه) - client-side toggle -->
+                        <div x-show="localSendType !== 'single'" x-cloak class="mt-3">
                             <label class="form-label text-body-secondary">
                                 دانش‌آموزان شما ({{ count($students) }} نفر):
                             </label>
@@ -114,7 +117,7 @@
                                 @endforelse
                             </div>
                         </div>
-                    @endif
+                    </div>
 
                     <!-- دکمه‌ها -->
                     <div class="d-flex gap-2">
@@ -123,18 +126,18 @@
                         </a>
 
                         <button type="submit" class="btn btn-success flex-grow-1">
-                            <span wire:loading.remove wire:target="send"
+                            <div wire:loading.remove wire:target="send"
                                   class="d-flex align-items-center justify-content-center gap-2">
                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
-  <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
-</svg>
+                                   <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+                               </svg>
                                 ثبت و ارسال
-                            </span>
+                            </div>
 
-                            <span wire:loading wire:target="send"
+                            <div
                                   class="d-flex align-items-center justify-content-center">
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                            </span>
+                                <span wire:loading wire:target="send" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            </div>
                         </button>
                     </div>
 
@@ -210,19 +213,28 @@
                                 </td>
 
                                 <td class="text-nowrap">
-                                    @php $recipient = $notif->recipients->first(); @endphp
-
-                                    @if($recipient && $recipient->is_read)
-                                        <span class="badge text-bg-success d-inline-flex align-items-center gap-1">
-                                            <i class="material-symbols-outlined"
-                                               style="font-size:16px;">check_circle</i>
-                                            خوانده شده
+                                    @if($notif->target_type === 'all_students')
+                                        @php
+                                            $readCount  = $notif->recipients->where('is_read', true)->count();
+                                            $totalCount = $notif->recipients->count();
+                                        @endphp
+                                        <span class="badge text-bg-info d-inline-flex align-items-center gap-1">
+                                            <i class="material-symbols-outlined" style="font-size:14px;">group</i>
+                                            {{ $readCount }}/{{ $totalCount }} خوانده
                                         </span>
                                     @else
-                                        <span class="badge text-bg-warning d-inline-flex align-items-center gap-1">
-                                            <i class="material-symbols-outlined" style="font-size:16px;">schedule</i>
-                                            خوانده نشده
-                                        </span>
+                                        @php $recipient = $notif->recipients->first(); @endphp
+                                        @if($recipient && $recipient->is_read)
+                                            <span class="badge text-bg-success d-inline-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size:16px;">check_circle</i>
+                                                خوانده شده
+                                            </span>
+                                        @else
+                                            <span class="badge text-bg-warning d-inline-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size:16px;">schedule</i>
+                                                خوانده نشده
+                                            </span>
+                                        @endif
                                     @endif
                                 </td>
 
@@ -232,12 +244,16 @@
                                 </td>
 
                                 <td class="text-nowrap">
-                                    @if($recipient && $recipient->is_read && $recipient->read_at)
-                                        <div>{{ jalali($recipient->read_at)->format('%d %B %Y') }}</div>
-                                        <div
-                                            class="small text-body-secondary">{{ $recipient->read_at->format('H:i') }}</div>
+                                    @if($notif->target_type === 'all_students')
+                                        <span class="text-body-secondary small">مشاهده در مودال</span>
                                     @else
-                                        <span class="text-body-secondary">-</span>
+                                        @php $recipient = $notif->recipients->first(); @endphp
+                                        @if($recipient && $recipient->is_read && $recipient->read_at)
+                                            <div>{{ jalali($recipient->read_at)->format('%d %B %Y') }}</div>
+                                            <div class="small text-body-secondary">{{ $recipient->read_at->format('H:i') }}</div>
+                                        @else
+                                            <span class="text-body-secondary">-</span>
+                                        @endif
                                     @endif
                                 </td>
 
@@ -297,7 +313,7 @@
                         <div class="row g-3 mb-3">
                             <div class="col-12 col-md-4">
                                 <div class="border rounded p-3 text-center bg-body-tertiary">
-                                    <div class="fs-3 fw-bold">{{ $recipientsList->count() }}</div>
+                                    <div class="fs-3 fw-bold">{{ count($recipientsList) }}</div>
                                     <div class="small text-body-secondary">کل گیرندگان</div>
                                 </div>
                             </div>
@@ -305,7 +321,7 @@
                             <div class="col-12 col-md-4">
                                 <div class="border rounded p-3 text-center bg-body-tertiary">
                                     <div class="fs-3 fw-bold text-success">
-                                        {{ $recipientsList->filter(fn($n) => $n->recipients->first()?->is_read)->count() }}
+                                        {{ collect($recipientsList)->where('is_read', true)->count() }}
                                     </div>
                                     <div class="small text-body-secondary">خوانده شده</div>
                                 </div>
@@ -314,7 +330,7 @@
                             <div class="col-12 col-md-4">
                                 <div class="border rounded p-3 text-center bg-body-tertiary">
                                     <div class="fs-3 fw-bold text-warning">
-                                        {{ $recipientsList->filter(fn($n) => !$n->recipients->first()?->is_read)->count() }}
+                                        {{ collect($recipientsList)->where('is_read', false)->count() }}
                                     </div>
                                     <div class="small text-body-secondary">خوانده نشده</div>
                                 </div>
@@ -334,29 +350,27 @@
                                 </thead>
 
                                 <tbody>
-                                @foreach($recipientsList as $notif)
-                                    @php $recipient = $notif->recipients->first(); @endphp
+                                @foreach($recipientsList as $recipient)
+
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td>{{ $notif->student?->user?->personalInformation?->name ?? 'نامشخص' }}</td>
+                                        <td>{{ $recipient->user?->personalInformation?->name ?? $recipient->user?->name ?? 'نامشخص' }}</td>
                                         <td>
-                                            @if($recipient && $recipient->is_read)
-                                                <span
-                                                    class="badge text-bg-success d-inline-flex align-items-center gap-1">
-                                                    <i class="material-symbols-outlined"
-                                                       style="font-size:14px;">check</i>
+                                            @if($recipient->is_read)
+                                                <span class="badge text-bg-success d-inline-flex align-items-center gap-1">
+                                                    <i class="material-symbols-outlined" style="font-size:14px;">check</i>
                                                     خوانده شده
                                                 </span>
                                             @else
-                                                <span
-                                                    class="badge text-bg-secondary d-inline-flex align-items-center gap-1">
+                                                <span class="badge text-bg-secondary d-inline-flex align-items-center gap-1">
+
                                                     <i class="material-symbols-outlined" style="font-size:14px;">schedule</i>
                                                     خوانده نشده
                                                 </span>
                                             @endif
                                         </td>
                                         <td>
-                                            @if($recipient && $recipient->is_read && $recipient->read_at)
+                                            @if($recipient->is_read && $recipient->read_at)
                                                 {{ jalali($recipient->read_at)->format('%d %B %Y - H:i') }}
                                             @else
                                                 <span class="text-body-secondary">-</span>

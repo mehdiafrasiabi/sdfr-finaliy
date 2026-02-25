@@ -27,8 +27,13 @@ class ReportDaily extends Component
     public $selectAll = false;
     public $studentsWithoutReports = [];
     public $studentsOnRestDay = [];
+    // Date navigation
+    public ?string $viewDate = null; // null = auto-detect
+    public array $notificationSentStudents = []; // track sent notifications per session
+
 
     // Comment Modal
+
     public bool $commentModalOpen = false;
     public ?int $commentReportId = null;
     public string $advisorCommentInput = '';
@@ -63,14 +68,22 @@ class ReportDaily extends Component
 
     protected function getReportDate(): Carbon
     {
-        $now = Carbon::now();
-
-        // اگر ساعت قبل از 06:00 صبح است، گزارش دیروز را نمایش بده
-        if ($now->hour < self::REPORT_CUTOFF_HOUR) {
-            return Carbon::yesterday(); // فقط یک روز عقب
+        if ($this->viewDate) {
+            return Carbon::parse($this->viewDate);
         }
 
-        // اگر ساعت بعد از 06:00 صبح است، گزارش امروز را نمایش بده
+        $now = Carbon::now();
+        if ($now->hour < self::REPORT_CUTOFF_HOUR) {
+            return Carbon::yesterday();
+        }
+        return Carbon::today();
+    }
+    protected function getEffectiveToday(): Carbon
+    {
+        $now = Carbon::now();
+        if ($now->hour < self::REPORT_CUTOFF_HOUR) {
+            return Carbon::yesterday();
+        }
         return Carbon::today();
     }
 
@@ -79,8 +92,8 @@ class ReportDaily extends Component
         $reportDate = $this->getReportDate();
 
         return [
-            'start' => $reportDate->copy()->startOfDay(), // 00:00:00 همان روز
-            'end' => $reportDate->copy()->addDay()->setHour(self::REPORT_CUTOFF_HOUR)->setMinute(0)->setSecond(0), // 06:00:00 روز بعد
+            'start' => $reportDate->copy()->startOfDay(),
+            'end' => $reportDate->copy()->addDay()->setHour(self::REPORT_CUTOFF_HOUR)->setMinute(0)->setSecond(0),
         ];
     }
 
@@ -89,7 +102,47 @@ class ReportDaily extends Component
     {
         return jdate($this->getReportDate())->format('Y/m/d');
     }
+    public function goToPrevDay(): void
+    {
+        $effectiveToday = $this->getEffectiveToday();
+        $current = $this->getReportDate();
+        $minDate = $effectiveToday->copy()->subDays(2);
 
+        $prevDay = $current->copy()->subDay();
+
+        if ($prevDay->gte($minDate)) {
+            $this->viewDate = $prevDay->format('Y-m-d');
+            $this->resetPage();
+            $this->loadStudentsWithoutReports();
+        } else {
+            $this->dispatch('warning', 'حداکثر می‌توانید ۲ روز به عقب برگردید.');
+        }
+    }
+
+    public function goToNextDay(): void
+    {
+        $effectiveToday = $this->getEffectiveToday();
+        $current = $this->getReportDate();
+
+        $nextDay = $current->copy()->addDay();
+
+        if ($nextDay->lte($effectiveToday)) {
+            if ($nextDay->isSameDay($effectiveToday)) {
+                $this->viewDate = null;
+            } else {
+                $this->viewDate = $nextDay->format('Y-m-d');
+            }
+            $this->resetPage();
+            $this->loadStudentsWithoutReports();
+        }
+    }
+
+    public function resetToToday(): void
+    {
+        $this->viewDate = null;
+        $this->resetPage();
+        $this->loadStudentsWithoutReports();
+    }
     protected function getReportDateDayName(): string
     {
         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
@@ -97,34 +150,36 @@ class ReportDaily extends Component
     }
 
     /**
-     * ✅ منطق اصلاح شده: فقط دانش‌آموزانی که جلسه برگزار شده و برنامه فعال دارند
+     * Get full name with priority: user_profiles.full_name > personal_information.name > user.name
      */
+    private function getStudentFullName(\App\Models\User $user): string
+    {
+        return $user->profile?->full_name
+            ?? $user->personalInformation?->name
+            ?? $user->name
+            ?? 'نامشخص';
+    }
     protected function loadStudentsWithoutReports()
     {
         $reportDate = $this->getReportDate();
-        $today = Carbon::today();
+        $eligibleStudents = Student::with(['user.personalInformation', 'user.profile'])
 
-        // ✅ دانش‌آموزانی که جلسه برگزار شده و برنامه فعال دارند
-        $eligibleStudents = Student::with(['user.personalInformation'])
             ->where(function ($query) {
                 $query->where('supporter_id', auth()->id())
                     ->orWhere('advisor_id', auth()->id());
             })
             ->whereHas('advisingSessions', function ($query) {
-                // ✅ جلسه باید completed باشد و result_status باید held باشد
                 $query->where('status', 'completed')
                     ->where('result_status', 'held');
             })
-            ->whereHas('weeklyPrograms', function ($query) use ($reportDate, $today) {
-                // ✅ برنامه باید is_active = true باشد
-                // ✅ و تاریخ گزارش باید بین start_date و end_date باشد
+            ->whereHas('weeklyPrograms', function ($query) use ($reportDate) {
+
                 $query->where('is_active', true)
                     ->where('start_date', '<=', $reportDate)
                     ->where('end_date', '>=', $reportDate);
             })
             ->get();
 
-        // دانش‌آموزانی که گزارش داده‌اند
         $studentsWithReports = DailyReport::where('admin_id', auth()->id())
             ->whereDate('report_date', $reportDate)
             ->pluck('student_id')
@@ -140,7 +195,8 @@ class ReportDaily extends Component
             if (!$user || !$personalInfo) continue;
 
             $studentData = [
-                'name' => $user->name,
+                'student_id' => $student->id,
+                'name' => $this->getStudentFullName($user),
                 'grade' => $personalInfo->grade ?? '-',
                 'field' => $this->getFieldLabel($personalInfo->field ?? ''),
                 'mobile' => $user->mobile ?? '-',
@@ -159,6 +215,31 @@ class ReportDaily extends Component
         $this->studentsWithoutReports = $studentsWithoutReportsFiltered;
         $this->studentsOnRestDay = $studentsOnRestDay;
     }
+    public function sendMissingReportNotification(int $studentId): void
+    {
+        if (in_array($studentId, $this->notificationSentStudents)) {
+            $this->dispatch('warning', 'نوتیفیکیشن قبلاً برای این دانش‌آموز ارسال شده است.');
+            return;
+        }
+
+        $student = Student::with(['user.personalInformation', 'user.profile'])->find($studentId);
+        if (!$student) {
+            $this->dispatch('warning', 'دانش‌آموز یافت نشد.');
+            return;
+        }
+
+        $user = $student->user;
+        $name = $this->getStudentFullName($user);
+
+        $message = "{$name} عزیز،\nشما تا الان گزارش امروز خودرا ارسال نکرده اید لطفا هرچه سریع تر اقدام کنید.\nبا تشکر";
+        $title = 'یادآوری ارسال گزارش روزانه';
+
+        NotificationService::sendToStudent($studentId, $title, $message);
+
+        $this->notificationSentStudents[] = $studentId;
+        $this->dispatch('success', "نوتیفیکیشن برای {$name} با موفقیت ارسال شد.");
+    }
+
 
     protected function getFieldLabel(string $field): string
     {
@@ -257,12 +338,12 @@ class ReportDaily extends Component
 
         DailyReportDetail::whereIn('daily_report_id', $this->selectedReports)->update(['status' => $action]);
 
-        $reports = DailyReport::with('student.user')
+        $reports = DailyReport::with(['student.user.personalInformation', 'student.user.profile'])
             ->whereIn('id', $this->selectedReports)
             ->get();
 
         foreach ($reports as $report) {
-            $studentName = $report->student?->user?->name ?? 'دانش آموز';
+            $studentName = $this->getStudentFullName($report->student->user);
             $reportDate = jdate($report->report_date)->format('Y/m/d');
 
             if ($action === 'approved') {
@@ -294,7 +375,7 @@ class ReportDaily extends Component
         $validator->validate();
         $this->resetValidation();
 
-        $report = DailyReport::with(['student.user', 'detail'])
+        $report = DailyReport::with(['student.user.personalInformation', 'student.user.profile', 'detail'])
             ->where('id', $reportId)
             ->where('admin_id', auth()->id())
             ->firstOrFail();
@@ -306,7 +387,7 @@ class ReportDaily extends Component
         }
 
         if (in_array($value, ['approved', 'rejected'])) {
-            $studentName = $report->student?->user?->name ?? 'دانش آموز';
+            $studentName = $this->getStudentFullName($report->student->user);
             $reportDate = jdate($report->report_date)->format('Y/m/d');
 
             if ($value === 'approved') {
@@ -336,7 +417,7 @@ class ReportDaily extends Component
 
     public function openCommentModal(int $reportId)
     {
-        $report = DailyReport::with(['student.user', 'feedback', 'detail'])
+        $report = DailyReport::with(['student.user.personalInformation', 'student.user.profile', 'feedback', 'detail'])
             ->where('id', $reportId)
             ->where('admin_id', auth()->id())
             ->firstOrFail();
@@ -345,7 +426,7 @@ class ReportDaily extends Component
         $this->advisorCommentInput = $report->feedback->advisor_comment ?? '';
         $this->commentStatusInput = $report->detail->status ?? 'pending';
         $this->advisorCommentReadonly = !empty($report->feedback->advisor_comment);
-        $this->commentStudentName = $report->student->user->name ?? '';
+        $this->commentStudentName = $this->getStudentFullName($report->student->user);
         $this->commentStudentReply = $report->feedback->student_reply;
         $this->commentModalOpen = true;
     }
@@ -366,7 +447,7 @@ class ReportDaily extends Component
     {
         if (!$this->commentReportId) return;
 
-        $report = DailyReport::with(['feedback', 'detail', 'student.user'])
+        $report = DailyReport::with(['feedback', 'detail', 'student.user.personalInformation', 'student.user.profile'])
             ->where('id', $this->commentReportId)
             ->where('admin_id', auth()->id())
             ->firstOrFail();
@@ -398,7 +479,7 @@ class ReportDaily extends Component
         ]);
 
         if (in_array($validated['commentStatusInput'], ['approved', 'rejected'])) {
-            $studentName = $report->student?->user?->name ?? 'دانش آموز';
+            $studentName = $this->getStudentFullName($report->student->user);
             $reportDate = jdate($report->report_date)->format('Y/m/d');
 
             if ($validated['commentStatusInput'] === 'approved') {
@@ -419,11 +500,12 @@ class ReportDaily extends Component
     public function openDetailModal(int $reportId)
     {
         $report = DailyReport::with([
-            'student.user.personalInformation', // ✅ اضافه شد
+            'student.user.personalInformation',
+            'student.user.profile',
             'weeklyProgram',
             'reportParts.programPart.ccSubject',
             'reportParts.programPart.ccTopic',
-            'reportParts.programPart.ccChapter', // ✅ اضافه شد
+            'reportParts.programPart.ccChapter',
             'detail',
             'feedback',
         ])
@@ -435,15 +517,14 @@ class ReportDaily extends Component
 
         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
 
-        // ✅ اطلاعات دانش‌آموز از personal_information
         $personalInfo = $report->student->user->personalInformation;
 
         $this->selectedReportData = [
-            'student_name' => $personalInfo->name ?? $report->student->user->name ?? 'نامشخص',
-            'student_grade' => $personalInfo->grade ?? '-', // ✅ اضافه شد
-            'student_field' => $this->getFieldLabel($personalInfo->field ?? ''), // ✅ اضافه شد
+            'student_name' => $this->getStudentFullName($report->student->user),
+            'student_grade' => $personalInfo->grade ?? '-',
+            'student_field' => $this->getFieldLabel($personalInfo->field ?? ''),
             'report_date' => jdate($report->report_date)->format('Y/m/d'),
-            'day_name' => $dayNames[$report->day_of_week] ?? '-',
+            'day_name' => $dayNames[jdate($report->report_date)->getDayOfWeek()] ?? '-',
             'phone_hours' => $report->detail->phone_hours ?? 0,
             'description' => $report->detail->description ?? '',
             'rating' => $report->detail->rating ?? 0,
@@ -452,7 +533,7 @@ class ReportDaily extends Component
             'status' => $report->detail->status ?? 'pending',
             'advisor_comment' => $report->feedback->advisor_comment ?? '',
             'student_reply' => $report->feedback->student_reply ?? '',
-            'created_at' => $report->created_at?->format('Y/m/d H:i'), // ✅ فرمت کامل
+            'created_at' => $report->created_at ? jdate($report->created_at)->format('Y/m/d H:i') : '-',
         ];
 
         // ✅ گرفتن پارت‌های برنامه برای این روز
@@ -560,7 +641,8 @@ class ReportDaily extends Component
     public function confirmLoadAllReports()
     {
         $this->allUnconfirmedReports = DailyReport::with([
-            'student.user',
+            'student.user.personalInformation',
+            'student.user.profile',
             'detail',
             'reportParts.programPart',
             'feedback',
@@ -577,7 +659,7 @@ class ReportDaily extends Component
 
                 return [
                     'id' => $report->id,
-                    'student_name' => $report->student->user->name ?? '-',
+                    'student_name' => $this->getStudentFullName($report->student->user),
                     'report_date' => jdate($report->report_date)->format('Y/m/d'),
                     'day_name' => $report->day_name,
                     'read_parts' => $readParts,
@@ -589,7 +671,7 @@ class ReportDaily extends Component
                     'rating_label' => DailyReport::RATINGS[$report->detail->rating ?? 0] ?? '-',
                     'is_compensatory' => $report->is_compensatory,
                     'description' => $report->detail->description ?? '',
-                    'created_at' => $report->created_at?->format('Y/m/d H:i'),
+                    'created_at' => $report->created_at ? jdate($report->created_at)->format('Y/m/d H:i') : '-',
                 ];
             })
             ->toArray();
@@ -622,8 +704,11 @@ class ReportDaily extends Component
     public function render()
     {
         $reportDate = $this->getReportDate();
+        $effectiveToday = $this->getEffectiveToday();
+        $minDate = $effectiveToday->copy()->subDays(2);
         $reports = DailyReport::with([
-            'student.user',
+            'student.user.personalInformation',
+            'student.user.profile',
             'weeklyProgram',
             'reportParts.programPart',
             'detail',
@@ -643,6 +728,9 @@ class ReportDaily extends Component
             'reportDateDayName' => $this->getReportDateDayName(),
             'studentsWithoutReports' => $this->studentsWithoutReports,
             'studentsOnRestDay' => $this->studentsOnRestDay,
+            'canGoBack' => $reportDate->copy()->subDay()->gte($minDate),
+            'canGoForward' => !is_null($this->viewDate),
+            'isViewingPast' => !is_null($this->viewDate),
         ])->layout('layouts.admin.app');
     }
 }

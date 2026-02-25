@@ -8,6 +8,8 @@
 
     <link rel="stylesheet" href="/admin/assets/css/bootstrap-icons.min.css">
     <link href="/admin/assets/css/select2.min.css" rel="stylesheet">
+    <link href="/admin/assets/css/jalalidatepicker.min.css" rel="stylesheet">
+
 </head>
 <body class="dark">
 <div class="page-layout">
@@ -78,6 +80,8 @@
 <script src="/admin/assets/js/dashboard/dashboard.js"></script>
 <script src="/admin/assets/js/plugins/todolist.js"></script>
 <script src="/admin/assets/js/select2.min.js"></script>
+<script src="/admin/assets/js/jalalidatepicker.min.js"></script>
+
 @include('layouts.admin.script')
 </body>
 </html>

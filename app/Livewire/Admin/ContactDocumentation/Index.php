@@ -16,6 +16,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Morilog\Jalali\Jalalian;
 use Carbon\Carbon;
 
+
 class Index extends Component
 {
     use WithPagination, WithFileUploads,SEOTools;
@@ -85,6 +86,8 @@ class Index extends Component
     {
         $this->resetForm();
         $this->showFormModal = true;
+        $this->dispatch('contactDocFormOpened', studentId: 0, contactDate: '');
+
     }
 
     // ── باز کردن فرم ویرایش ────────────────────────────────────────
@@ -99,6 +102,8 @@ class Index extends Component
         $this->respondent     = $record->respondent;
         $this->student_id     = $record->student_id;
         $this->showFormModal  = true;
+        $this->dispatch('contactDocFormOpened', studentId: (int)$this->student_id, contactDate: $this->contact_date);
+
     }
 
     // ── ذخیره (ثبت یا ویرایش) ─────────────────────────────────────

@@ -24,7 +24,6 @@ class Create extends Component
     use WithPagination;
 
 
-    public $students;
 
     public $title;
 
@@ -76,26 +75,18 @@ class Create extends Component
     ];
 
 
-    public function mount()
-
-    {
-
-        $this->loadStudents();
-
-    }
-
 
     /**
      * بارگذاری دانش‌آموزان مربوط به این مشاور/پشتیبان
      */
 
-    public function loadStudents()
+    private function getStudents()
 
     {
 
         $adminId = auth('admin')->id();
 
-        $this->students = Student::query()
+        return Student::query()
             ->where(function ($query) use ($adminId) {
 
                 $query->where('supporter_id', $adminId)
@@ -123,7 +114,7 @@ class Create extends Component
 
             // اگر هم مشاور و هم پشتیبان یکی است
 
-            return 'sdfr'; // پیام SDFR
+            return 'sdfr';
 
         } elseif ($student->advisor_id == $adminId) {
 
@@ -213,31 +204,50 @@ class Create extends Component
 
                 // ارسال به همه دانش‌آموزان
 
-                $sentCount = 0;
+                $students = $this->getStudents();
+                $sentCount = $students->count();
 
 
-                foreach ($this->students as $student) {
+                if ($sentCount === 0) {
 
-                    $category = $this->getRelationType($student);
+                    $this->dispatch('warning', 'هیچ دانش‌آموزی یافت نشد.');
 
 
-                    $notification = Notification::create([
+                    DB::rollBack();
+                    return;
+                    }
 
-                        'admin_id' => auth('admin')->id(),
+                $firstStudent = $students->first();
+                $category = $this->getRelationType($firstStudent);
+                if ($category === 'sdfr') {  $category = Notification::CATEGORY_SUPPORTER;
 
-                        'student_id' => $student->id,
+                }
 
-                        'title' => $this->title,
+                // یک رکورد اعلان برای همه دانش‌آموزان
 
-                        'body' => $this->body,
+                $notification = Notification::create([
 
-                        'category' => $category === 'sdfr' ? Notification::CATEGORY_SUPPORTER : $category,
+                    'admin_id' => auth('admin')->id(),
 
-                        'target_type' => Notification::TARGET_ALL_STUDENTS,
+                    'student_id' => null,
 
-                        'is_from_manager' => false,
+                    'title' => $this->title,
 
-                    ]);
+                    'body' => $this->body,
+
+                    'category' => $category,
+
+                    'target_type' => Notification::TARGET_ALL_STUDENTS,
+
+                    'is_from_manager' => false,
+
+                ]);
+
+
+                // ایجاد رکورد گیرنده برای هر دانش‌آموز
+
+                foreach ($students as $student) {
+
 
 
                     NotificationRecipient::create([
@@ -251,7 +261,6 @@ class Create extends Component
                     ]);
 
 
-                    $sentCount++;
 
                 }
 
@@ -304,31 +313,18 @@ class Create extends Component
 
     {
 
-        $notification = Notification::with(['recipients.user.personalInformation'])
-            ->where('admin_id', auth('admin')->id())
+        $notification = Notification::where('admin_id', auth('admin')->id())
             ->findOrFail($notificationId);
 
 
         // پیدا کردن همه پیام‌های مرتبط (با همان عنوان و متن و زمان مشابه)
 
-        $relatedNotifications = Notification::where('admin_id', auth('admin')->id())
-            ->where('title', $notification->title)
-            ->where('body', $notification->body)
-            ->where('target_type', Notification::TARGET_ALL_STUDENTS)
-            ->whereBetween('created_at', [
-
-                $notification->created_at->subSeconds(10),
-
-                $notification->created_at->addSeconds(10)
-
-            ])
-            ->with(['student.user.personalInformation', 'recipients'])
+        $this->selectedNotification = $notification;
+        $this->recipientsList = NotificationRecipient::where('notification_id', $notification->id)
+            ->with('user.personalInformation')
             ->get();
 
 
-        $this->selectedNotification = $notification;
-
-        $this->recipientsList = $relatedNotifications;
 
         $this->showRecipientsModal = true;
 
@@ -357,7 +353,7 @@ class Create extends Component
     {
 
         $adminId = auth('admin')->id();
-
+        $students = $this->getStudents();
 
         $notifications = Notification::query()
             ->where('admin_id', $adminId)
@@ -379,7 +375,7 @@ class Create extends Component
         return view('livewire.admin.notification.create', [
 
             'notifications' => $notifications,
-
+            'students' => $students,
         ])->layout('layouts.admin.app');
 
     }

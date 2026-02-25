@@ -11,7 +11,40 @@
                                 <p class="text-muted mb-0 small">
                                     {{ $reportDateDayName }} - {{ $reportDateJalali }}
                                     <span class="badge bg-info ms-2">بازه گزارش: ۰۰:۰۰ تا ۰۶:۰۰ صبح روز بعد</span>
+                                    @if($isViewingPast)
+                                        <span class="badge bg-warning text-dark ms-1">مشاهده تاریخ گذشته</span>
+                                    @endif
                                 </p>
+                                <!-- Date Navigation -->
+                                <div class="d-flex align-items-center gap-2 mt-2">
+                                    <button type="button"
+                                            wire:click="goToPrevDay"
+                                            class="btn btn-sm btn-outline-secondary"
+                                            {{ !$canGoBack ? 'disabled' : '' }}
+                                            title="روز قبل">
+                                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+                                        </svg>
+                                        روز قبل
+                                    </button>
+                                    <button type="button"
+                                            wire:click="goToNextDay"
+                                            class="btn btn-sm btn-outline-secondary"
+                                            {{ !$canGoForward ? 'disabled' : '' }}
+                                            title="روز بعد">
+                                        روز بعد
+                                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z"/>
+                                        </svg>
+                                    </button>
+                                    @if($isViewingPast)
+                                        <button type="button"
+                                                wire:click="resetToToday"
+                                                class="btn btn-sm btn-primary">
+                                            برگشت به امروز
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
                             <div class="d-flex flex-wrap gap-2">
                                 <button type="button"
@@ -196,7 +229,7 @@
                                                        wire:model.live="selectedReports">
                                             </td>
                                             <td>
-                                                <span class="fw-medium">{{ $report->student->user->personalInformation->name ?? $report->student->user->name ?? '-' }}</span>
+                                                <span class="fw-medium">{{ $report->student->user->profile?->full_name ?? $report->student->user->personalInformation?->name ?? $report->student->user->name ?? '-' }}</span>
                                             </td>
                                             <td class="text-center">
                                                 <span class="text-success fw-bold">{{ $report->read_parts_count }}</span>
@@ -226,7 +259,8 @@
                                                 @endif
                                             </td>
                                             <td class="text-center small text-muted">
-                                                {{ $report->created_at?->format('H:i') }}
+                                                {{ $report->created_at ? jdate($report->created_at)->format('H:i') : '-' }}
+
                                             </td>
                                             <td class="text-center">
                                                 <button type="button"
@@ -787,6 +821,9 @@
                                         <th class="text-nowrap text-center">شماره موبایل</th>
                                         <th class="text-nowrap text-center">شماره پدر</th>
                                         <th class="text-nowrap text-center">شماره مادر</th>
+                                        @if($studentInfoModalTitle === 'دانش‌آموزان بدون گزارش')
+                                            <th class="text-nowrap text-center">نوتیفیکیشن</th>
+                                        @endif
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -803,6 +840,29 @@
                                             <td class="text-center" dir="ltr">{{ $student['mobile'] }}</td>
                                             <td class="text-center" dir="ltr">{{ $student['father_mobile'] }}</td>
                                             <td class="text-center" dir="ltr">{{ $student['mother_mobile'] }}</td>
+                                            @if($studentInfoModalTitle === 'دانش‌آموزان بدون گزارش')
+                                                <td class="text-center">
+                                                    @php $alreadySent = in_array($student['student_id'] ?? 0, $notificationSentStudents); @endphp
+                                                    <button type="button"
+                                                            wire:click="sendMissingReportNotification({{ $student['student_id'] ?? 0 }})"
+                                                            class="btn btn-sm {{ $alreadySent ? 'btn-secondary' : 'btn-warning' }}"
+                                                            {{ $alreadySent ? 'disabled' : '' }}
+                                                            wire:loading.attr="disabled"
+                                                            wire:target="sendMissingReportNotification({{ $student['student_id'] ?? 0 }})">
+                                                        @if($alreadySent)
+                                                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                                            </svg>
+                                                            ارسال شد
+                                                        @else
+                                                            <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                                                                <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576 6.636 10.07Zm6.787-8.201L1.591 6.602l4.339 2.76 7.494-7.493Z"/>
+                                                            </svg>
+                                                            ارسال نوتیفیکیشن
+                                                        @endif
+                                                    </button>
+                                                </td>
+                                            @endif
                                         </tr>
                                     @endforeach
                                     </tbody>

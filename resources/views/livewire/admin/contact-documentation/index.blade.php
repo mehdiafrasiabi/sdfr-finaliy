@@ -221,15 +221,18 @@
                                         <label class="form-label fw-semibold">
                                             دانش‌آموز <span class="text-danger">*</span>
                                         </label>
-                                        <select wire:model="student_id"
-                                                class="form-select @error('student_id') is-invalid @enderror">
-                                            <option value="">-- انتخاب دانش‌آموز --</option>
-                                            @foreach($students as $st)
-                                                <option value="{{ $st->id }}">
-                                                    {{ $st->user?->personalInformation?->name ?? $st->user?->name ?? 'نامشخص' }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        <div wire:ignore>
+                                            <select id="student_select_cd"
+                                                    class="form-select"
+                                                    style="width: 100%">
+                                                <option value="">-- انتخاب دانش‌آموز --</option>
+                                                @foreach($students as $st)
+                                                    <option value="{{ $st->id }}">
+                                                        {{ $st->user?->personalInformation?->name ?? $st->user?->name ?? 'نامشخص' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                         @error('student_id')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
@@ -294,10 +297,16 @@
                                         <label class="form-label fw-semibold">
                                             تاریخ تماس <span class="text-danger">*</span>
                                         </label>
-                                        <input type="text" wire:model="contact_date"
-                                               class="form-control p-date-only @error('contact_date') is-invalid @enderror"
-                                               placeholder="مثال: 1403/01/15"
-                                               autocomplete="off">
+                                        <div wire:ignore>
+                                            <input type="text"
+                                                   id="contact_date_cd"
+                                                   data-jdp
+                                                   data-jdp-only-date
+                                                   class="form-control"
+                                                   placeholder="مثال: 1403/01/15"
+                                                   autocomplete="off"
+                                                   readonly>
+                                        </div>
                                         @error('contact_date')
                                         <div class="invalid-feedback d-block">{{ $message }}</div>
                                         @enderror
@@ -600,6 +609,89 @@
                 </div>
             </div>
         @endif
+        @script
+        <script>
+            /**
+             * Select2 + JalaliDatePicker برای فرم مستندات تماس
+             * این دو ابزار روی فیلدهای مجزا کار می‌کنند و با هم تداخل ندارند:
+             *  - Select2  →  فقط روی #student_select_cd (المان <select>)
+             *  - JalaliDP →  فقط روی #contact_date_cd   (المان <input>)
+             */
 
+            // هنگام باز شدن مودال (افزودن یا ویرایش)
+            $wire.on('contactDocFormOpened', function(params) {
+                var data = Array.isArray(params) ? params[0] : params;
+                var studentId   = data.studentId   || '';
+                var contactDate = data.contactDate || '';
+
+                // کمی صبر تا DOM کاملاً آپدیت شود
+                setTimeout(function() {
+                    _initStudentSelect2(studentId);
+                    _initContactDatePicker(contactDate);
+                }, 80);
+            });
+
+            // ── راه‌اندازی JalaliDatePicker یک‌بار روی همه [data-jdp] ──
+            if (typeof jalaliDatepicker !== 'undefined') {
+                jalaliDatepicker.startWatch({
+                    minDate: false,
+                    maxDate: false,
+                    time: false,
+                    changeMonth: true,
+                    changeYear: true,
+                    showTodayBtn: true,
+                    todayBtnText: 'امروز',
+                    autoClose: true
+                });
+            }
+
+            function _initStudentSelect2(studentId) {
+                var $sel = $('#student_select_cd');
+                if (!$sel.length) return;
+
+                // اگر قبلاً Select2 فعال بود، آن را از نو بساز
+                if ($sel.hasClass('select2-hidden-accessible')) {
+                    $sel.select2('destroy');
+                }
+
+                $sel.select2({
+                    placeholder: '-- انتخاب دانش‌آموز --',
+                    allowClear: true,
+                    dir: 'rtl',
+                    width: '100%',
+                    dropdownParent: $sel.closest('.modal-content'),
+                    language: {
+                        noResults: function() { return 'دانش‌آموزی یافت نشد'; },
+                        searching: function() { return 'در حال جستجو...'; }
+                    }
+                });
+
+                // مقدار جاری را ست کن
+                $sel.val(studentId ? String(studentId) : '').trigger('change.select2');
+
+                // هر بار که مقدار عوض شد به Livewire اطلاع بده
+                $sel.off('change.cdWire').on('change.cdWire', function() {
+                    var val = $(this).val();
+                    $wire.set('student_id', val ? parseInt(val) : null);
+                });
+            }
+
+            function _initContactDatePicker(contactDate) {
+                var input = document.getElementById('contact_date_cd');
+                if (!input) return;
+
+                // مقدار اولیه را ست کن
+                input.value = contactDate || '';
+
+                // حذف listener قبلی و ثبت جدید
+                input.removeEventListener('change', _onContactDateChange);
+                input.addEventListener('change', _onContactDateChange);
+            }
+
+            function _onContactDateChange(e) {
+                $wire.set('contact_date', e.target.value);
+            }
+        </script>
+        @endscript
     </div>
 </div>

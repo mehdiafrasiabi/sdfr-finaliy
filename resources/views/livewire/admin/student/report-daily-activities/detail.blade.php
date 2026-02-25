@@ -459,6 +459,7 @@
                         <th scope="col">نوع</th>
 
                         <th scope="col">وضعیت</th>
+                        <th scope="col">زمان ارسال</th>
 
                         <th scope="col">نظر</th>
 
@@ -477,12 +478,13 @@
 
                             @if(isset($item['type']) && $item['type'] === 'not_sent')
 
-                                {{-- Not Sent Day Row --}}
+                                {{-- Not Sent / Future Day Row --}}
 
-                                @php $day = $item['data']; @endphp
 
-                                <tr wire:key="not-sent-{{ $day['jalali_date'] }}" class="table-warning">
+                                @php $day = $item['data']; $isFutureDay = $day['is_future'] ?? false; @endphp
 
+
+                                <tr wire:key="not-sent-{{ $day['jalali_date'] }}" class="{{ $isFutureDay ? 'table-secondary' : 'table-warning' }}">
                                     <td>{{ $loop->iteration + $reports->firstItem() - 1 }}</td>
 
                                     <td>{{ $day['jalali_date'] }}</td>
@@ -491,22 +493,39 @@
 
                                     <td colspan="5" class="text-center text-muted">
 
-                                        <i class="material-symbols-outlined align-middle" style="font-size: 18px;">warning</i>
+                                        @if($isFutureDay)
 
-                                        گزارشی ارسال نشده
+                                            <i class="material-symbols-outlined align-middle text-secondary" style="font-size: 18px;">schedule</i>
+
+                                            هنوز به این تاریخ نرسیده‌اید
+
+                                        @else
+                                            <i class="material-symbols-outlined align-middle text-warning" style="font-size: 18px;">warning</i>
+
+                                            گزارشی ارسال نشده
+
+                                        @endif
 
                                     </td>
 
                                     <td>
 
-                                        <span class="badge bg-warning text-dark">ارسال نشده</span>
+                                        @if($isFutureDay)
+
+                                            <span class="badge bg-secondary">تاریخ آینده</span>
+
+                                        @else
+
+                                            <span class="badge bg-warning text-dark">ارسال نشده</span>
+
+                                        @endif
 
                                     </td>
 
                                     <td>-</td>
 
                                     <td>-</td>
-
+                                    <td>-</td>
                                 </tr>
 
                             @elseif(isset($item['type']) && $item['type'] === 'report')
@@ -526,7 +545,10 @@
                                     $doneTests = $report->reportParts->sum('tests_done');
 
                                     $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
-
+                                     // Check if submitted within allowed time window (00:00 ~ 06:00 next day)
+                                    $rptDateStart = \Carbon\Carbon::parse($report->report_date)->startOfDay();
+                                    $rptDateEnd = \Carbon\Carbon::parse($report->report_date)->addDay()->setHour(6)->setMinute(0)->setSecond(0);
+                                    $submittedInTime = $report->created_at && $report->created_at->between($rptDateStart, $rptDateEnd);
                                 @endphp
 
                                 <tr wire:key="report-{{ $report->id }}">
@@ -536,6 +558,7 @@
                                     <td>{{ jdate($report->report_date)->format('Y/m/d') }}</td>
 
                                     <td>{{ $dayNames[$report->day_of_week] ?? '-' }}</td>
+                                    <td>{{ $dayNames[jdate($report->report_date)->getDayOfWeek()] ?? '-' }}</td>
 
                                     <td>
 
@@ -628,7 +651,31 @@
                                         </select>
 
                                     </td>
+                                    {{-- زمان ارسال --}}
 
+                                    <td class="text-center small">
+
+                                        @if($report->created_at)
+
+                                            <div class="text-muted">{{ jdate($report->created_at)->format('H:i') }}</div>
+
+                                            @if($submittedInTime)
+
+                                                <span class="badge bg-success" style="font-size:10px;">در موعد</span>
+
+                                            @else
+
+                                                <span class="badge bg-danger" style="font-size:10px;">خارج از موعد</span>
+
+                                            @endif
+
+                                        @else
+
+                                            <span class="text-muted">-</span>
+
+                                        @endif
+
+                                    </td>
                                     <td>
 
                                         <button type="button"
@@ -688,6 +735,9 @@
                                     $doneTests = $report->reportParts->sum('tests_done');
 
                                     $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+                                     $rptDateStart2 = \Carbon\Carbon::parse($report->report_date)->startOfDay();
+                                    $rptDateEnd2 = \Carbon\Carbon::parse($report->report_date)->addDay()->setHour(6)->setMinute(0)->setSecond(0);
+                                    $submittedInTime2 = $report->created_at && $report->created_at->between($rptDateStart2, $rptDateEnd2);
 
                                 @endphp
 
@@ -697,7 +747,7 @@
 
                                     <td>{{ jdate($report->report_date)->format('Y/m/d') }}</td>
 
-                                    <td>{{ $dayNames[$report->day_of_week] ?? '-' }}</td>
+                                    <td>{{ $dayNames[jdate($report->report_date)->getDayOfWeek()] ?? '-' }}</td>
 
                                     <td>
 
@@ -791,6 +841,32 @@
 
                                     </td>
 
+                                    {{-- زمان ارسال (fallback row) --}}
+
+                                    <td class="text-center small">
+
+                                        @if($report->created_at)
+
+                                            <div class="text-muted">{{ jdate($report->created_at)->format('H:i') }}</div>
+
+                                            @if($submittedInTime2)
+
+                                                <span class="badge bg-success" style="font-size:10px;">در موعد</span>
+
+                                            @else
+
+                                                <span class="badge bg-danger" style="font-size:10px;">خارج از موعد</span>
+
+                                            @endif
+
+                                        @else
+
+                                            <span class="text-muted">-</span>
+
+                                        @endif
+
+                                    </td>
+
                                     <td>
 
                                         <button type="button"
@@ -841,7 +917,7 @@
 
                         <tr>
 
-                            <td colspan="11" class="text-center py-5">
+                            <td colspan="12" class="text-center py-5">
 
                                 <lord-icon src="https://cdn.lordicon.com/msoeawqm.json"
 
@@ -1043,7 +1119,29 @@
                                 @endif
 
                             </p>
+                            @if(isset($selectedReportData['created_at']) && $selectedReportData['created_at'] !== '-')
 
+                                <p class="small text-muted mb-0 mt-1">
+
+                                    زمان ارسال: {{ $selectedReportData['created_at'] }}
+
+                                    <span class="text-muted">(بازه مجاز: {{ $selectedReportData['submit_window_start'] ?? '' }} تا {{ $selectedReportData['submit_window_end'] ?? '' }})</span>
+                                    @if(isset($selectedReportData['submitted_in_time']))
+
+                                        @if($selectedReportData['submitted_in_time'])
+
+                                            <span class="badge bg-success ms-1">ارسال در موعد مقرر</span>
+
+                                        @else
+
+                                            <span class="badge bg-danger ms-1">ارسال خارج از موعد</span>
+
+                                        @endif
+
+                                    @endif
+                                </p>
+
+                            @endif
                         </div>
 
                         <button type="button" class="btn-close" wire:click="closeDetailModal"></button>
