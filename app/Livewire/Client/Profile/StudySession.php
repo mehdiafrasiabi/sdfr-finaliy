@@ -197,6 +197,15 @@ class StudySession extends Component
             if (isset($timerState['pausedAtTs'])) {
                 $this->pausedAtTs = $timerState['pausedAtTs'];
             }
+
+            // ✅ اگه تایمر تموم شده بود ولی ثبت نشده، مودال رو نشون بده
+            $nowTs = now()->timestamp;
+            if ($this->endsAtTs && $nowTs >= $this->endsAtTs && !$this->showFinishModal) {
+                $this->remainingSeconds = 0;
+                $this->liveSeconds = $this->targetSeconds;
+                $this->isRunning = false;
+                $this->showFinishModal = true;
+            }
         }
 
         $makeupTimerState = session('active_makeup_timer_state');
@@ -211,6 +220,15 @@ class StudySession extends Component
 
             if (isset($makeupTimerState['pausedAtTs'])) {
                 $this->makeupPausedAtTs = $makeupTimerState['pausedAtTs'];
+            }
+
+            // ✅ همینطور برای تایمر جبرانی
+            $nowTs = now()->timestamp;
+            if ($this->makeupEndsAtTs && $nowTs >= $this->makeupEndsAtTs && !$this->showMakeupFinishModal) {
+                $this->makeupRemainingSeconds = 0;
+                $this->makeupLiveSeconds = $this->makeupTargetSeconds;
+                $this->makeupTimerRunning = false;
+                $this->showMakeupFinishModal = true;
             }
         }
     }
@@ -807,55 +825,178 @@ class StudySession extends Component
         if (mb_strlen($this->makeupSearch) < 2) return collect();
 
         $term = $this->makeupSearch;
+        $results = [];
+        $seen = [];
 
-        $query = CcTopic::where('is_active', true)
-            ->where(function ($q) use ($term) {
-                $q->where('name', 'like', "%{$term}%")
-                    ->orWhereHas('chapter', fn($cq) => $cq->where('name', 'like', "%{$term}%"))
-                    ->orWhereHas('chapter.subject', fn($sq) => $sq->where('name', 'like', "%{$term}%"));
-            })
-            ->with(['chapter.subject.grade', 'chapter.subject.ccField']);
+        // 1. Search subjects → show their chapters first
+        $subjectQuery = CcSubject::where('name', 'like', "%{$term}%")
+            ->with(['grade', 'chapters' => fn($q) => $q->where('is_active', true)->orderBy('order')]);
 
-        $query->whereHas('chapter.subject', function ($sq) {
-            if (!empty($this->allowedGradeIds)) {
-                $sq->whereIn('cc_grade_id', $this->allowedGradeIds);
+        if (!empty($this->allowedGradeIds)) {
+            $subjectQuery->whereIn('cc_grade_id', $this->allowedGradeIds);
+        }
+        if ($this->studentFieldId) {
+            $subjectQuery->where(function ($q) {
+                $q->where('cc_field_id', $this->studentFieldId)->orWhereNull('cc_field_id');
+            });
+        }
+
+        foreach ($subjectQuery->limit(5)->get() as $subject) {
+            foreach ($subject->chapters as $chapter) {
+                $key = 'chapter_' . $chapter->id;
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+                $results[] = [
+                    'type'       => 'chapter',
+                    'sort'       => 1,
+                    'id'         => $chapter->id,
+                    'name'       => $chapter->name,
+                    'label'      => $subject->name . ' / ' . $chapter->name,
+                    'subject_id' => $subject->id,
+                    'chapter_id' => $chapter->id,
+                    'topic_id'   => null,
+                ];
+            }
+        }
+
+        // 2. Search chapters → show their topics
+        $chapterQuery = CcChapter::where('is_active', true)
+            ->where('name', 'like', "%{$term}%")
+            ->with(['subject.grade', 'topics' => fn($q) => $q->where('is_active', true)->whereNull('parent_id')->orderBy('order')])
+            ->whereHas('subject', function ($sq) {
+                if (!empty($this->allowedGradeIds)) {
+                    $sq->whereIn('cc_grade_id', $this->allowedGradeIds);
+                }
+                if ($this->studentFieldId) {
+                    $sq->where(function ($fq) {
+                        $fq->where('cc_field_id', $this->studentFieldId)->orWhereNull('cc_field_id');
+                    });
+                }
+            });
+
+        foreach ($chapterQuery->limit(5)->get() as $chapter) {
+            $subject = $chapter->subject;
+            if (!$subject) continue;
+
+            $chapterKey = 'chapter_' . $chapter->id;
+            if (!isset($seen[$chapterKey])) {
+                $seen[$chapterKey] = true;
+                $results[] = [
+                    'type'       => 'chapter',
+                    'sort'       => 1,
+                    'id'         => $chapter->id,
+                    'name'       => $chapter->name,
+                    'label'      => $subject->name . ' / ' . $chapter->name,
+                    'subject_id' => $subject->id,
+                    'chapter_id' => $chapter->id,
+                    'topic_id'   => null,
+                ];
             }
 
-            if ($this->studentFieldId) {
-                $sq->where(function ($fq) {
-                    $fq->where('cc_field_id', $this->studentFieldId)
-                        ->orWhereNull('cc_field_id');
-                });
+            foreach ($chapter->topics as $topic) {
+                $key = 'topic_' . $topic->id;
+                if (isset($seen[$key])) continue;
+                $seen[$key] = true;
+                $results[] = [
+                    'type'       => 'topic',
+                    'sort'       => 2,
+                    'id'         => $topic->id,
+                    'name'       => $topic->name,
+                    'label'      => $subject->name . ' / ' . $chapter->name . ' / ' . $topic->name,
+                    'subject_id' => $subject->id,
+                    'chapter_id' => $chapter->id,
+                    'topic_id'   => $topic->id,
+                ];
             }
-        });
+        }
 
-        return $query->limit(20)->get();
+        // 3. Search topics directly (main topics only)
+        $topicQuery = CcTopic::where('is_active', true)
+            ->whereNull('parent_id')
+            ->where('name', 'like', "%{$term}%")
+            ->with(['chapter.subject.grade'])
+            ->whereHas('chapter.subject', function ($sq) {
+                if (!empty($this->allowedGradeIds)) {
+                    $sq->whereIn('cc_grade_id', $this->allowedGradeIds);
+                }
+                if ($this->studentFieldId) {
+                    $sq->where(function ($fq) {
+                        $fq->where('cc_field_id', $this->studentFieldId)->orWhereNull('cc_field_id');
+                    });
+                }
+            });
+        foreach ($topicQuery->limit(10)->get() as $topic) {
+            $key = 'topic_' . $topic->id;
+            if (isset($seen[$key])) continue;
+            $seen[$key] = true;
+            $chapter = $topic->chapter;
+            if (!$chapter) continue;
+            $subject = $chapter->subject;
+            if (!$subject) continue;
+            $results[] = [
+                'type'       => 'topic',
+                'sort'       => 2,
+                'id'         => $topic->id,
+                'name'       => $topic->name,
+                'label'      => $subject->name . ' / ' . $chapter->name . ' / ' . $topic->name,
+                'subject_id' => $subject->id,
+                'chapter_id' => $chapter->id,
+                'topic_id'   => $topic->id,
+            ];
+        }
+
+        // Sort: chapters first (sort=1), topics second (sort=2)
+        usort($results, fn($a, $b) => $a['sort'] <=> $b['sort']);
+
+        return collect(array_slice($results, 0, 20));
+
     }
 
+    public function selectSearchResult($type, $id)
+    {
+        if ($type === 'chapter') {
+            $chapter = CcChapter::with(['subject.grade'])->find($id);
+            if (!$chapter) return;
+            $subject = $chapter->subject;
+            if (!$subject) return;
+
+            if (!in_array($subject->cc_grade_id, $this->allowedGradeIds ?? [])) {
+                $this->dispatch('error', 'این فصل برای پایه شما مجاز نیست.');
+                return;
+            }
+            $this->makeupGradeId   = $subject->cc_grade_id;
+            $this->makeupSubjectId = $subject->id;
+            $this->makeupChapterId = $chapter->id;
+            $this->makeupTopicId   = '';
+            $this->makeupSearch    = '';
+        } else {
+            $topic = CcTopic::with(['chapter.subject.grade'])->find($id);
+            if (!$topic) return;
+            $subjectGradeId = $topic->chapter->subject->cc_grade_id;
+            $subjectFieldId = $topic->chapter->subject->cc_field_id;
+
+            if (!in_array($subjectGradeId, $this->allowedGradeIds ?? [])) {
+                $this->dispatch('error', 'این مبحث برای پایه شما مجاز نیست.');
+                return;
+            }
+
+            if ($this->studentFieldId && $subjectFieldId && $subjectFieldId != $this->studentFieldId) {
+                $this->dispatch('error', 'این مبحث برای رشته شما مجاز نیست.');
+                return;
+            }
+
+            $this->makeupTopicId   = $topic->id;
+            $this->makeupChapterId = $topic->chapter->id;
+            $this->makeupSubjectId = $topic->chapter->subject->id;
+            $this->makeupGradeId   = $subjectGradeId;
+            $this->makeupFieldId   = $subjectFieldId ?? '';
+            $this->makeupSearch    = '';
+        }
+    }
+    // Kept for backward compatibility
     public function selectSearchTopic($topicId)
     {
-        $topic = CcTopic::with(['chapter.subject.grade', 'chapter.subject.ccField'])->find($topicId);
-        if (!$topic) return;
-
-        $subjectGradeId = $topic->chapter->subject->cc_grade_id;
-        $subjectFieldId = $topic->chapter->subject->cc_field_id;
-
-        if (!in_array($subjectGradeId, $this->allowedGradeIds ?? [])) {
-            $this->dispatch('error', 'این مبحث برای پایه شما مجاز نیست.');
-            return;
-        }
-
-        if ($this->studentFieldId && $subjectFieldId && $subjectFieldId != $this->studentFieldId) {
-            $this->dispatch('error', 'این مبحث برای رشته شما مجاز نیست.');
-            return;
-        }
-
-        $this->makeupTopicId = $topic->id;
-        $this->makeupChapterId = $topic->chapter->id;
-        $this->makeupSubjectId = $topic->chapter->subject->id;
-        $this->makeupGradeId = $subjectGradeId;
-        $this->makeupFieldId = $subjectFieldId ?? '';
-        $this->makeupSearch = '';
+        $this->selectSearchResult('topic', $topicId);
     }
 
     public function updatedMakeupGradeId()
@@ -981,8 +1122,11 @@ class StudySession extends Component
                 $this->liveSeconds = max($this->targetSeconds - $this->remainingSeconds, 0);
 
                 if ($this->remainingSeconds === 0) {
-                    $this->isRunning = false;
-                    $this->finishPart();
+                    // ✅ چک می‌کنیم مودال قبلاً باز نباشه
+                    if (!$this->showFinishModal) {
+                        $this->isRunning = false;
+                        $this->finishPart();
+                    }
                 }
             } elseif ($this->pausedAtTs) {
                 $this->remainingSeconds = max($this->endsAtTs - $this->pausedAtTs, 0);
@@ -997,8 +1141,11 @@ class StudySession extends Component
                 $this->makeupLiveSeconds = max($this->makeupTargetSeconds - $this->makeupRemainingSeconds, 0);
 
                 if ($this->makeupRemainingSeconds === 0) {
-                    $this->makeupTimerRunning = false;
-                    $this->finishMakeup();
+                    // ✅ چک می‌کنیم مودال قبلاً باز نباشه
+                    if (!$this->showMakeupFinishModal) {
+                        $this->makeupTimerRunning = false;
+                        $this->finishMakeup();
+                    }
                 }
             } elseif ($this->makeupPausedAtTs) {
                 $this->makeupRemainingSeconds = max($this->makeupEndsAtTs - $this->makeupPausedAtTs, 0);

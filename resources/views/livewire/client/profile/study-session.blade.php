@@ -804,13 +804,14 @@
 
                             {{-- جستجوی سریع --}}
                             <div>
-                                <label class="block text-xs font-semibold text-foreground mb-1.5">جستجوی سریع مبحث</label>
+                                <label class="block text-xs font-semibold text-foreground mb-1.5">جستجوی سریع</label>
+
 
                                 <div class="relative">
                                     <input type="text" wire:model.live.debounce.300ms="makeupSearch"
                                            class="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-sm text-foreground
                                                   focus:outline-none focus:ring-2 focus:ring-primary/30 pe-10"
-                                           placeholder="نام مبحث را جستجو کنید...">
+                                           placeholder="نام درس، فصل یا مبحث را جستجو کنید...">
                                     <div class="absolute left-3 top-1/2 -translate-y-1/2">
                                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                              stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-muted">
@@ -832,18 +833,31 @@
 
                                 <div wire:loading.remove wire:target="makeupSearch">
                                     @if(mb_strlen($makeupSearch) >= 2 && $this->searchResults->isNotEmpty())
-                                        <div class="mt-2 rounded-xl border border-border bg-secondary shadow-lg max-h-60 overflow-y-auto">
-                                            @foreach($this->searchResults as $result)
+                                        <p class="text-[10px] text-muted mt-1 mb-1">فصل‌ها اول، سپس مباحث نمایش داده می‌شوند</p>
+                                        <div class="mt-1 rounded-xl border border-border bg-secondary shadow-lg max-h-64 overflow-y-auto">                                            @foreach($this->searchResults as $result)
                                                 <button type="button"
-                                                        wire:click="selectSearchTopic({{ $result->id }})"
-                                                        class="w-full text-right px-4 py-3 text-sm hover:bg-secondary/60 transition
-                                                               border-b border-border last:border-b-0">
-                                                    <div class="font-semibold text-foreground">{{ $result->name }}</div>
-                                                    <div class="text-[11px] text-muted leading-5">
-                                                        {{ $result->chapter?->subject?->grade?->name ?? '' }}
-                                                        &laquo; {{ $result->chapter?->subject?->name ?? '' }}
-                                                        &laquo; {{ $result->chapter?->name ?? '' }}
-                                                        &laquo; <span class="text-primary font-medium">{{ $result->name }}</span>
+                                                        wire:click="selectSearchResult('{{ $result['type'] }}', {{ $result['id'] }})"
+                                                        class="w-full text-right px-4 py-3 text-sm hover:bg-muted/30 transition
+                                                               border-b border-border last:border-b-0 flex items-start gap-2">
+                                                    {{-- type badge --}}
+                                                    @if($result['type'] === 'chapter')
+                                                        <span class="mt-0.5 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold
+                                                                     bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300">
+                                                            فصل
+                                                        </span>
+                                                    @else
+                                                        <span class="mt-0.5 shrink-0 rounded-md px-1.5 py-0.5 text-[10px] font-bold
+                                                                     bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                                                            مبحث
+                                                        </span>
+                                                    @endif
+                                                    <div class="min-w-0">
+                                                        <div class="font-semibold text-foreground truncate">{{ $result['name'] }}</div>
+                                                        <div class="text-[11px] text-muted leading-4 truncate">{{ $result['label'] }}</div>
+                                                        @if($result['type'] === 'chapter')
+                                                            <div class="text-[10px] text-sky-500 mt-0.5">← انتخاب فصل (سپس مبحث را انتخاب کنید)</div>
+                                                        @endif
+
                                                     </div>
                                                 </button>
                                             @endforeach
