@@ -210,7 +210,7 @@
                                         <th class="text-nowrap">نام دانش‌آموز</th>
                                         <th class="text-nowrap text-center">پارت</th>
                                         <th class="text-nowrap text-center">تست</th>
-                                        <th class="text-nowrap text-center">گوشی</th>
+
                                         <th class="text-nowrap text-center">امتیاز</th>
                                         <th class="text-nowrap text-center">نوع</th>
                                         <th class="text-nowrap text-center">ساعت ثبت</th>
@@ -240,16 +240,15 @@
                                                 <span class="fw-bold">{{ $report->total_tests }}</span>
                                             </td>
                                             <td class="text-center">
-                                                {{ $report->phone_hours }}h
-                                            </td>
-                                            <td class="text-center">
-                                                @php $ratingVal = $report->rating; @endphp
-                                                <span class="badge rounded-pill
-                                                    {{ $ratingVal >= 3 ? 'bg-success' : '' }}
-                                                    {{ $ratingVal == 2 ? 'bg-primary' : '' }}
-                                                    {{ $ratingVal <= 1 ? 'bg-danger' : '' }}">
-                                                    {{ $this->getRatingLabel($ratingVal) }}
-                                                </span>
+                                                @php $ratingVal = (float)($report->rating ?? 0); @endphp
+                                                @if($ratingVal > 0)
+                                                    <span class="badge rounded-pill {{ $this->getRatingBadgeClass($ratingVal) }}">
+                                                        {{ $ratingVal }} / 10
+                                                    </span>
+                                                    <br><small class="text-muted">{{ $this->getRatingLabel($ratingVal) }}</small>
+                                                @else
+                                                    <span class="text-muted small">ثبت نشده</span>
+                                                @endif
                                             </td>
                                             <td class="text-center">
                                                 @if($report->is_compensatory)
@@ -506,14 +505,6 @@
                             <div class="col-6 col-lg-2">
                                 <div class="card border-0 shadow-sm h-100">
                                     <div class="card-body text-center py-3">
-                                        <div class="text-success fw-bold fs-4">{{ $selectedReportData['read_parts'] ?? 0 }}/{{ $selectedReportData['total_parts'] ?? 0 }}</div>
-                                        <small class="text-muted">پارت خوانده شده</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-lg-2">
-                                <div class="card border-0 shadow-sm h-100">
-                                    <div class="card-body text-center py-3">
                                         <div class="text-primary fw-bold fs-4">{{ $selectedReportData['done_tests'] ?? 0 }}/{{ $selectedReportData['total_tests'] ?? 0 }}</div>
                                         <small class="text-muted">تست زده شده</small>
                                     </div>
@@ -522,24 +513,18 @@
                             <div class="col-6 col-lg-3">
                                 <div class="card border-0 shadow-sm h-100">
                                     <div class="card-body text-center">
-                                        <div class="text-info fw-bold fs-4">{{ $selectedReportData['phone_hours'] }} ساعت</div>
-                                        <small class="text-muted">استفاده از گوشی</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-6 col-lg-3">
-                                <div class="card border-0 shadow-sm h-100">
-                                    <div class="card-body text-center">
-                                        @php $detailRating = $selectedReportData['rating'] ?? 0; @endphp
-                                        <div class="mb-1">
-                                        <span class="badge rounded-pill fs-6
-                                            {{ $detailRating >= 3 ? 'bg-success' : '' }}
-                                            {{ $detailRating == 2 ? 'bg-primary' : '' }}
-                                            {{ $detailRating <= 1 ? 'bg-danger' : '' }}">
-                                            {{ $selectedReportData['rating_label'] }}
-                                        </span>
-                                        </div>
-                                        <small class="text-muted">امتیاز کلی</small>
+                                        @php $detailRating = (float)($selectedReportData['rating'] ?? 0); @endphp
+                                        @if($detailRating > 0)
+                                            <div class="fw-bold fs-3 {{ $detailRating >= 9 ? 'text-success' : ($detailRating >= 7 ? 'text-primary' : ($detailRating >= 5 ? 'text-warning' : 'text-danger')) }}">
+                                                {{ $detailRating }} <small class="fs-6 text-muted fw-normal">/ 10</small>
+                                            </div>
+                                            <span class="badge rounded-pill {{ $this->getRatingBadgeClass($detailRating) }}">
+                                                {{ $selectedReportData['rating_label'] }}
+                                            </span>
+                                        @else
+                                            <div class="text-muted fs-5 mt-2">ثبت نشده</div>
+                                        @endif
+                                        <div><small class="text-muted">امتیاز کلی (از ثبت ساعت مطالعه)</small></div>
                                     </div>
                                 </div>
                             </div>
@@ -591,9 +576,9 @@
                                             <th class="text-center text-nowrap">نوع پارت</th>
                                             <th class="text-center text-nowrap">مدت برنامه</th>
                                             <th class="text-center text-nowrap">ثبت ساعت مطالعه</th>
-                                            <th class="text-center text-nowrap">وضعیت گزارش</th>
                                             <th class="text-center text-nowrap">تست</th>
-                                            <th class="text-center text-nowrap">امتیاز</th>
+                                            <th class="text-center text-nowrap">امتیاز مطالعه</th>
+
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -664,19 +649,6 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
-                                                    @if($part['is_read'])
-                                                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16" class="text-success">
-                                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
-                                                        </svg>
-                                                        <div><small class="text-success fw-medium">خوانده شده</small></div>
-                                                    @else
-                                                        <svg width="24" height="24" fill="currentColor" viewBox="0 0 16 16" class="text-danger">
-                                                            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
-                                                        </svg>
-                                                        <div><small class="text-danger fw-medium">خوانده نشده</small></div>
-                                                    @endif
-                                                </td>
-                                                <td class="text-center">
                                                     @if($part['test_count'] > 0)
                                                         <span class="fw-bold {{ $part['tests_done'] > 0 ? 'text-success' : 'text-muted' }}">{{ $part['tests_done'] }}</span>
                                                         <span class="text-muted">/{{ $part['test_count'] }}</span>
@@ -685,16 +657,13 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
-                                                    @if($part['part_rating'])
-                                                        <div class="d-flex justify-content-center gap-0">
-                                                            @for($s = 1; $s <= 4; $s++)
-                                                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"
-                                                                     class="{{ $s <= $part['part_rating'] ? 'text-warning' : 'text-muted' }}">
-                                                                    <path d="M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z"/>
-                                                                </svg>
-                                                            @endfor
-                                                        </div>
-                                                        <small class="text-muted">{{ $part['part_rating'] }}/4</small>
+                                                    @if($part['session_rating'])
+                                                        @php
+                                                            $sr = (float)$part['session_rating'];
+                                                            $srClass = $sr >= 9 ? 'text-success' : ($sr >= 7 ? 'text-primary' : ($sr >= 5 ? 'text-warning' : 'text-danger'));
+                                                        @endphp
+                                                        <span class="fw-bold {{ $srClass }}">{{ $sr }}</span>
+                                                        <small class="text-muted">/ 10</small>
                                                     @else
                                                         <span class="text-muted">-</span>
                                                     @endif
@@ -702,7 +671,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="9" class="text-center text-muted py-5">
+                                                <td colspan="8" class="text-center text-muted py-5">
                                                     <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16" class="mb-3 opacity-50">
                                                         <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/>
                                                     </svg>
@@ -733,7 +702,22 @@
                                 </div>
                             </div>
                         @endif
-
+                        <!-- Missed Parts Reason -->
+                        @if(!empty($selectedReportData['missed_parts_reason']))
+                            <div class="card border-0 shadow-sm border-start border-danger border-4 mb-4">
+                                <div class="card-header bg-danger bg-opacity-10 border-bottom border-danger border-opacity-25">
+                                    <h6 class="mb-0 fw-bold text-danger">
+                                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="me-2">
+                                            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+                                        </svg>
+                                        علت عدم انجام پارت
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-0">{{ $selectedReportData['missed_parts_reason'] }}</p>
+                                </div>
+                            </div>
+                        @endif
                         <!-- Advisor Comment & Student Reply -->
                         @if($selectedReportData['advisor_comment'] ?? null)
                             <div class="card border-0 shadow-sm mb-3">

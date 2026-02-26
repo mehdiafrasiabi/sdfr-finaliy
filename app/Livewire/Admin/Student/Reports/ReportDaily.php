@@ -12,6 +12,7 @@ use App\Models\AdvisingSession;
 use App\Models\StudyPartSession;
 use App\Models\PersonalInformation;
 use App\Services\NotificationService;
+use App\Models\SessionFeedback;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
@@ -78,6 +79,7 @@ class ReportDaily extends Component
         }
         return Carbon::today();
     }
+
     protected function getEffectiveToday(): Carbon
     {
         $now = Carbon::now();
@@ -102,6 +104,7 @@ class ReportDaily extends Component
     {
         return jdate($this->getReportDate())->format('Y/m/d');
     }
+
     public function goToPrevDay(): void
     {
         $effectiveToday = $this->getEffectiveToday();
@@ -143,6 +146,7 @@ class ReportDaily extends Component
         $this->resetPage();
         $this->loadStudentsWithoutReports();
     }
+
     protected function getReportDateDayName(): string
     {
         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
@@ -159,11 +163,11 @@ class ReportDaily extends Component
             ?? $user->name
             ?? 'نامشخص';
     }
+
     protected function loadStudentsWithoutReports()
     {
         $reportDate = $this->getReportDate();
         $eligibleStudents = Student::with(['user.personalInformation', 'user.profile'])
-
             ->where(function ($query) {
                 $query->where('supporter_id', auth()->id())
                     ->orWhere('advisor_id', auth()->id());
@@ -215,6 +219,7 @@ class ReportDaily extends Component
         $this->studentsWithoutReports = $studentsWithoutReportsFiltered;
         $this->studentsOnRestDay = $studentsOnRestDay;
     }
+
     public function sendMissingReportNotification(int $studentId): void
     {
         if (in_array($studentId, $this->notificationSentStudents)) {
@@ -518,6 +523,7 @@ class ReportDaily extends Component
         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
 
         $personalInfo = $report->student->user->personalInformation;
+        $ratingVal = (float)($report->detail->rating ?? 0);
 
         $this->selectedReportData = [
             'student_name' => $this->getStudentFullName($report->student->user),
@@ -525,10 +531,10 @@ class ReportDaily extends Component
             'student_field' => $this->getFieldLabel($personalInfo->field ?? ''),
             'report_date' => jdate($report->report_date)->format('Y/m/d'),
             'day_name' => $dayNames[jdate($report->report_date)->getDayOfWeek()] ?? '-',
-            'phone_hours' => $report->detail->phone_hours ?? 0,
             'description' => $report->detail->description ?? '',
-            'rating' => $report->detail->rating ?? 0,
-            'rating_label' => DailyReport::RATINGS[$report->detail->rating ?? 0] ?? 'نامشخص',
+            'missed_parts_reason' => $report->detail->missed_parts_reason ?? '',
+            'rating' => $ratingVal,
+            'rating_label' => $this->getRatingLabel($ratingVal),
             'is_compensatory' => $report->is_compensatory,
             'status' => $report->detail->status ?? 'pending',
             'advisor_comment' => $report->feedback->advisor_comment ?? '',
@@ -536,24 +542,43 @@ class ReportDaily extends Component
             'created_at' => $report->created_at ? jdate($report->created_at)->format('Y/m/d H:i') : '-',
         ];
 
-        // ✅ گرفتن پارت‌های برنامه برای این روز
-        $dayOfWeek = $report->day_of_week;
-        $programParts = $report->weeklyProgram
-            ->parts()
-            ->where('day_of_week', $dayOfWeek)
-            ->orderBy('part_order')
-            ->get();
 
-        // ✅ Map کردن پارت‌های گزارش شده
+        // ✅ برای گزارش جبرانی: پارت‌ها از reportParts می‌آیند
+        // ✅ برای گزارش عادی: از weeklyProgram.parts بر اساس day_of_week
         $reportPartsMap = $report->reportParts->keyBy('program_part_id');
 
-        // ✅ دریافت اطلاعات ثبت ساعت مطالعه برای پارت‌های این برنامه
-        $studySessionsMap = StudyPartSession::where('student_id', $report->student_id)
-            ->where('weekly_program_id', $report->weekly_program_id)
-            ->where('is_completed', true)
-            ->get()
-            ->keyBy('program_part_id');
+        if ($report->is_compensatory) {
+            $programParts = $report->reportParts
+                ->map(fn($rp) => $rp->programPart)
+                ->filter()
+                ->values();
+        } else {
+            $programParts = collect();
+            if ($report->weeklyProgram) {
+                $programParts = $report->weeklyProgram
+                    ->parts()
+                    ->where('day_of_week', $report->day_of_week)
+                    ->orderBy('part_order')
+                    ->with(['ccSubject', 'ccTopic', 'ccChapter'])
+                    ->get();
+            }
+            // ✅ Fallback: اگر پارت‌ها از weekly program پیدا نشد، از reportParts بگیر
+            if ($programParts->isEmpty()) {
+                $programParts = $report->reportParts
+                    ->map(fn($rp) => $rp->programPart)
+                    ->filter()
+                    ->values();
+            }
+        }
 
+        $partIds = $programParts->pluck('id')->filter()->toArray();
+
+        // ✅ دریافت آخرین session مطالعه برای هر پارت (بدون فیلتر weekly_program_id برای robustness)
+        $studySessionsMap = StudyPartSession::where('student_id', $report->student_id)
+            ->whereIn('program_part_id', $partIds)
+            ->where('is_completed', true)
+            ->with(['timing', 'feedback'])
+            ->get()->groupBy('program_part_id')->map(fn($sessions) => $sessions->sortByDesc('started_at')->first());
         $this->reportPartsDetails = [];
         $totalTests = 0;
         $doneTests = 0;
@@ -561,6 +586,7 @@ class ReportDaily extends Component
         $readParts = 0;
 
         foreach ($programParts as $programPart) {
+            if (!$programPart) continue;
             $reportPart = $reportPartsMap->get($programPart->id);
             $studySession = $studySessionsMap->get($programPart->id);
             $isRead = $reportPart?->is_read ?? false;
@@ -571,6 +597,17 @@ class ReportDaily extends Component
             if ($isRead) $readParts++;
             $totalTests += $testCount;
             $doneTests += $testsDone;
+            // ✅ مدت مطالعه: از sps_timings یا محاسبه از started_at/ended_at
+            $studyDuration = 0;
+            if ($studySession) {
+                $studyDuration = $studySession->timing?->duration_seconds
+                    ?? ($studySession->started_at && $studySession->ended_at
+                        ? $studySession->started_at->diffInSeconds($studySession->ended_at)
+                        : 0);
+            }
+
+            // ✅ امتیاز از session_feedbacks (1-10)
+            $sessionRating = $studySession?->feedback?->rating ?? null;
 
             $this->reportPartsDetails[] = [
                 'id' => $programPart->id,
@@ -585,10 +622,10 @@ class ReportDaily extends Component
                 'is_read' => $isRead,
                 'tests_done' => $testsDone,
                 'test_count' => $testCount,
-                'part_rating' => $reportPart?->part_rating ?? null,
+                'session_rating' => $sessionRating,
                 'is_compensatory' => $reportPart?->is_compensatory ?? false,
                 'has_study_session' => $studySession !== null,
-                'study_duration_seconds' => $studySession?->duration_seconds ?? 0,
+                'study_duration_seconds' => $studyDuration,
                 'study_started_at' => $studySession?->started_at?->format('H:i') ?? null,
                 'study_ended_at' => $studySession?->ended_at?->format('H:i') ?? null,
             ];
@@ -656,6 +693,7 @@ class ReportDaily extends Component
                 $totalParts = $report->reportParts->count();
                 $totalTests = $report->reportParts->sum(fn($p) => $p->programPart?->test_count ?? 0);
                 $doneTests = $report->reportParts->sum('tests_done');
+                $ratingVal = (float)($report->detail->rating ?? 0);
 
                 return [
                     'id' => $report->id,
@@ -666,9 +704,8 @@ class ReportDaily extends Component
                     'total_parts' => $totalParts,
                     'done_tests' => $doneTests,
                     'total_tests' => $totalTests,
-                    'phone_hours' => $report->detail->phone_hours ?? 0,
-                    'rating' => $report->detail->rating ?? 0,
-                    'rating_label' => DailyReport::RATINGS[$report->detail->rating ?? 0] ?? '-',
+                    'rating' => $ratingVal,
+                    'rating_label' => $this->getRatingLabel($ratingVal),
                     'is_compensatory' => $report->is_compensatory,
                     'description' => $report->detail->description ?? '',
                     'created_at' => $report->created_at ? jdate($report->created_at)->format('Y/m/d H:i') : '-',
@@ -696,10 +733,30 @@ class ReportDaily extends Component
         };
     }
 
-    public function getRatingLabel(int $rating): string
+    public function getRatingLabel($rating): string
     {
-        return DailyReport::RATINGS[$rating] ?? 'نامشخص';
+        $rating = (float) $rating;
+        return match (true) {
+            $rating >= 9 => 'عالی',
+            $rating >= 7 => 'خوب',
+            $rating >= 5 => 'متوسط',
+            $rating >= 3 => 'ضعیف',
+            $rating > 0  => 'خیلی ضعیف',
+            default      => 'ثبت نشده',
+        };
     }
+
+    public function getRatingBadgeClass($rating): string
+    {
+        $rating = (float) $rating;
+        return match (true) {
+            $rating >= 9 => 'bg-success',
+            $rating >= 7 => 'bg-primary',
+            $rating >= 5 => 'bg-warning text-dark',
+            $rating >= 3 => 'bg-orange text-dark',
+            $rating > 0  => 'bg-danger',
+            default      => 'bg-secondary',
+        };    }
 
     public function render()
     {
