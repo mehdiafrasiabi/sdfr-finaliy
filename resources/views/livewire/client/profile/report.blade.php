@@ -275,9 +275,9 @@
 
                                             {{-- Content --}}
                                             <div class="p-4 sm:p-6">
-                                                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4">
+                                                <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
 
-                                                    <div class="bg-muted/30 rounded-xl p-3 sm:p-4 hover:bg-muted/50 transition-colors">
+                                                <div class="bg-muted/30 rounded-xl p-3 sm:p-4 hover:bg-muted/50 transition-colors">
                                                         <div class="flex items-center gap-2 mb-2">
                                                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20">
                                                                 <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -306,40 +306,36 @@
                                                     </div>
 
                                                     <div class="bg-muted/30 rounded-xl p-3 sm:p-4 hover:bg-muted/50 transition-colors">
+                                                        @php
+                                                            $rpt = $report->rating;
+                                                            $rptColor = match(true) {
+                                                                $rpt >= 9 => 'emerald',
+                                                                $rpt >= 7 => 'blue',
+                                                                $rpt >= 5 => 'yellow',
+                                                                $rpt >= 3 => 'orange',
+                                                                $rpt > 0  => 'red',
+                                                                default   => 'gray',
+                                                            };
+                                                        @endphp
                                                         <div class="flex items-center gap-2 mb-2">
-                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20">
-                                                                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                                                </svg>
-                                                            </div>
-                                                            <span class="text-xs text-muted font-semibold">گوشی</span>
-                                                        </div>
-                                                        <div class="flex items-baseline gap-1">
-                                                            <span class="text-2xl sm:text-3xl font-black text-amber-600">{{ $report->phone_hours }}</span>
-                                                            <span class="text-xs text-muted font-medium">ساعت</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="bg-muted/30 rounded-xl p-3 sm:p-4 hover:bg-muted/50 transition-colors">
-                                                        <div class="flex items-center gap-2 mb-2">
-                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg
-                                                                {{ $report->rating >= 3 ? 'bg-green-500/20' : ($report->rating == 2 ? 'bg-blue-500/20' : 'bg-red-500/20') }}">
-                                                                <svg class="w-4 h-4 {{ $report->rating >= 3 ? 'text-green-600' : ($report->rating == 2 ? 'text-blue-600' : 'text-red-600') }}"
-                                                                     fill="currentColor" viewBox="0 0 24 24">
+                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-{{ $rptColor }}-500/20">
+                                                                <svg class="w-4 h-4 text-{{ $rptColor }}-600" fill="currentColor" viewBox="0 0 24 24">
                                                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                                                 </svg>
                                                             </div>
                                                             <span class="text-xs text-muted font-semibold">امتیاز</span>
                                                         </div>
-                                                        <span class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-black px-3 py-1.5 rounded-lg
-                                                            {{ $report->rating >= 3 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
-                                                            {{ $report->rating == 2 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
-                                                            {{ $report->rating <= 1 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
-                                                            <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                                                            </svg>
-                                                            {{ $this->getRatingLabel($report->rating) }}
-                                                        </span>
+                                                        @if($rpt > 0)
+                                                            <div class="flex items-baseline gap-1">
+                                                                <span class="text-2xl sm:text-3xl font-black text-{{ $rptColor }}-600 dark:text-{{ $rptColor }}-400">{{ $rpt }}</span>
+                                                                <span class="text-xs text-muted font-medium">/ 10</span>
+                                                            </div>
+                                                            <span class="inline-flex items-center mt-1 text-xs font-bold px-2 py-0.5 rounded-lg bg-{{ $rptColor }}-500/20 text-{{ $rptColor }}-600 dark:text-{{ $rptColor }}-400">
+                                                                {{ $this->getRatingLabel($rpt) }}
+                                                            </span>
+                                                        @else
+                                                            <span class="text-sm text-muted">ثبت نشده</span>
+                                                        @endif
                                                     </div>
                                                 </div>
 
@@ -519,29 +515,7 @@
 
                                     @if(in_array($part->id, $selectedParts))
                                         <div class="px-3 sm:px-3.5 pb-3 sm:pb-3.5 space-y-2.5 border-t border-border/50" wire:click.stop>
-                                            <div>
-                                                <label class="text-xs text-muted block mb-1.5">امتیاز این پارت:</label>
-                                                <div class="flex items-center gap-1">
-                                                    @for($s = 1; $s <= 4; $s++)
-                                                        <button type="button" wire:click="setPartRating({{ $part->id }}, {{ $s }})"
-                                                                class="transition-transform hover:scale-110 active:scale-95 p-0.5">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                                 class="w-6 h-6 sm:w-7 sm:h-7 {{ ($partRatings[$part->id] ?? 0) >= $s ? 'text-amber-400 fill-amber-400' : 'text-gray-300 dark:text-gray-600 fill-none' }}"
-                                                                 stroke-width="1.5" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
-                                                            </svg>
-                                                        </button>
-                                                    @endfor
-                                                    @if(($partRatings[$part->id] ?? 0) > 0)
-                                                        <span class="text-xs font-medium mr-1.5
-                                                            {{ ($partRatings[$part->id] ?? 0) >= 3 ? 'text-green-600' : '' }}
-                                                            {{ ($partRatings[$part->id] ?? 0) == 2 ? 'text-blue-600' : '' }}
-                                                            {{ ($partRatings[$part->id] ?? 0) == 1 ? 'text-red-600' : '' }}">
-                                                            {{ \App\Models\DailyReport::RATINGS[$partRatings[$part->id]] ?? '' }}
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                            </div>
+
                                             @if($part->test_count)
                                                 <div>
                                                     <label class="text-xs text-muted block mb-1">تعداد تست زده شده:</label>
@@ -557,20 +531,23 @@
                         </div>
                     </div>
 
-                    {{-- Phone Hours --}}
-                    <div class="space-y-2">
-                        <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
-                            <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                            </svg>
-                            ساعت استفاده از گوشی (غیر درسی):
-                        </label>
-                        <input type="number" wire:model="phoneHours" min="0" max="24"
-                               class="w-full h-11 rounded-xl border border-border bg-secondary text-foreground px-4 text-sm sm:text-base focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                               placeholder="مثال: 3 ساعت">
-                        @error('phoneHours')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                    </div>
-
+                    {{-- Missed Parts Reason --}}
+                    @if($this->unreadPartsCount > 1)
+                        <div class="space-y-2">
+                            <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
+                                <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                </svg>
+                                علت عدم انجام پارت:
+                                <span class="text-red-500 text-xs font-normal">(اجباری)</span>
+                            </label>
+                            <p class="text-xs text-muted">{{ $this->unreadPartsCount }} پارت از برنامه امروز انجام نشده — لطفاً دلیل را توضیح دهید.</p>
+                            <textarea wire:model="missedPartsReason" rows="3"
+                                      class="w-full rounded-xl border border-red-300 dark:border-red-700 bg-secondary text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
+                                      placeholder="لطفاً توضیح دهید چرا پارت‌های مطالعاتی انجام نشدند..."></textarea>
+                            @error('missedPartsReason')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
+                    @endif
                     {{-- Description --}}
                     <div class="space-y-2">
                         <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
@@ -585,7 +562,9 @@
                         @error('description')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                     </div>
 
-                    {{-- Computed Rating --}}
+
+
+                    {{-- Computed Rating (from session_feedbacks, 1-10 scale) --}}
                     @php $computedRating = $this->computedRating; @endphp
                     <div class="bg-gradient-to-br from-primary/5 to-primary/10 border border-primary/20 rounded-xl p-3.5 sm:p-4">
                         <div class="flex items-center justify-between gap-3">
@@ -596,25 +575,26 @@
                                 امتیاز کلی روز:
                             </span>
                             @if($computedRating > 0)
+                                @php
+                                    $ratingColor = match(true) {
+                                        $computedRating >= 9 => 'emerald',
+                                        $computedRating >= 7 => 'blue',
+                                        $computedRating >= 5 => 'yellow',
+                                        $computedRating >= 3 => 'orange',
+                                        default => 'red',
+                                    };
+                                @endphp
                                 <div class="flex items-center gap-2">
-                                    <div class="flex items-center gap-0.5">
-                                        @for($s = 1; $s <= 4; $s++)
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                 class="w-4 h-4 {{ $s <= $computedRating ? 'text-amber-400 fill-amber-400' : 'text-gray-300 dark:text-gray-600' }}"
-                                                 stroke-width="1.5" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
-                                            </svg>
-                                        @endfor
-                                    </div>
-                                    <span class="text-xs sm:text-sm font-bold px-2 py-1 rounded-lg
-                                        {{ $computedRating >= 3 ? 'bg-green-500/20 text-green-600 dark:text-green-400' : '' }}
-                                        {{ $computedRating == 2 ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400' : '' }}
-                                        {{ $computedRating == 1 ? 'bg-red-500/20 text-red-600 dark:text-red-400' : '' }}">
-                                        {{ \App\Models\DailyReport::RATINGS[$computedRating] ?? '' }}
+                                    <span class="text-2xl font-black text-{{ $ratingColor }}-600 dark:text-{{ $ratingColor }}-400">
+                                        {{ $computedRating }}
+                                    </span>
+                                    <span class="text-muted text-sm">/ 10</span>
+                                    <span class="text-xs sm:text-sm font-bold px-2 py-1 rounded-lg bg-{{ $ratingColor }}-500/20 text-{{ $ratingColor }}-600 dark:text-{{ $ratingColor }}-400">
+                                        {{ $this->getRatingLabel($computedRating) }}
                                     </span>
                                 </div>
                             @else
-                                <span class="text-muted text-xs sm:text-sm">ابتدا پارت‌ها را امتیازدهی کنید</span>
+                                <span class="text-muted text-xs sm:text-sm">امتیازی از ثبت ساعت مطالعه یافت نشد</span>
                             @endif
                         </div>
                     </div>
@@ -759,43 +739,23 @@
                                                     </div>
                                                 @endif
                                             </div>
-                                            <div wire:click.stop>
-                                                <label class="text-xs text-muted block mb-1.5">امتیاز:</label>
-                                                <div class="flex items-center gap-1">
-                                                    @for($s = 1; $s <= 4; $s++)
-                                                        <button type="button" wire:click="setCompensatoryPartRating({{ $missed['part']->id }}, {{ $s }})"
-                                                                class="transition-transform hover:scale-110 active:scale-95 p-0.5">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                                                 class="w-6 h-6 sm:w-7 sm:h-7 {{ ($compensatoryPartRatings[$missed['part']->id] ?? 0) >= $s ? 'text-amber-400 fill-amber-400' : 'text-gray-300 dark:text-gray-600 fill-none' }}"
-                                                                 stroke-width="1.5" stroke="currentColor">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/>
-                                                            </svg>
-                                                        </button>
-                                                    @endfor
-                                                    @if(($compensatoryPartRatings[$missed['part']->id] ?? 0) > 0)
-                                                        <span class="text-xs font-medium mr-1.5
-                                                            {{ ($compensatoryPartRatings[$missed['part']->id] ?? 0) >= 3 ? 'text-green-600' : '' }}
-                                                            {{ ($compensatoryPartRatings[$missed['part']->id] ?? 0) == 2 ? 'text-blue-600' : '' }}
-                                                            {{ ($compensatoryPartRatings[$missed['part']->id] ?? 0) == 1 ? 'text-red-600' : '' }}">
-                                                            {{ \App\Models\DailyReport::RATINGS[$compensatoryPartRatings[$missed['part']->id]] ?? '' }}
-                                                        </span>
-                                                    @endif
-                                                </div>
-                                            </div>
                                         </div>
                                     @endif
                                 @endforeach
                             </div>
                         </div>
-
                         <div class="space-y-2">
-                            <label class="font-semibold text-foreground">ساعت استفاده از گوشی (غیر درسی):</label>
-                            <input type="number" wire:model="compensatoryPhoneHours" min="0" max="24"
-                                   class="w-full h-11 rounded-xl border border-border bg-secondary text-foreground px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                   placeholder="از 24 ساعت">
-                            @error('compensatoryPhoneHours')<p class="text-red-500 text-xs">{{ $message }}</p>@enderror
+                            <label class="font-semibold text-foreground flex items-center gap-2">
+                                <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                علت عدم انجام پارت (اختیاری):
+                            </label>
+                            <textarea wire:model="compensatoryMissedPartsReason" rows="3"
+                                      class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                      placeholder="در صورت تمایل توضیح دهید چرا پارت‌ها در زمان اصلی انجام نشدند..."></textarea>
+                            @error('compensatoryMissedPartsReason')<p class="text-red-500 text-xs">{{ $message }}</p>@enderror
                         </div>
-
                         <div class="space-y-2">
                             <label class="font-semibold text-foreground">توضیحات (اختیاری):</label>
                             <textarea wire:model="compensatoryDescription" rows="3"
@@ -803,6 +763,7 @@
                                       placeholder="توضیحات خود را بنویسید..."></textarea>
                             @error('compensatoryDescription')<p class="text-red-500 text-xs">{{ $message }}</p>@enderror
                         </div>
+
                     @endif
                 </div>
 

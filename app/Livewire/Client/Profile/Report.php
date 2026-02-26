@@ -7,10 +7,10 @@ use App\Models\DailyReport;
 use App\Models\DailyReportPart;
 use App\Models\DailyReportDetail;
 use App\Models\DailyReportFeedback;
+use App\Models\SessionFeedback;
 use App\Models\WeeklyProgram;
 use App\Models\WeeklyProgramRestDay;
 use App\Models\StudyPartSession;
-
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -31,18 +31,16 @@ class Report extends Component
     // Current report data
     public ?int $selectedDayIndex = null;
     public array $selectedParts = [];
-    public array $partRatings = [];
     public array $testsDone = [];
-    public int $phoneHours = 0;
     public string $description = '';
+    public string $missedPartsReason = '';
 
     // Compensatory data
     public array $missedParts = [];
     public array $selectedCompensatoryParts = [];
-    public array $compensatoryPartRatings = [];
     public array $compensatoryTestsDone = [];
-    public int $compensatoryPhoneHours = 0;
     public string $compensatoryDescription = '';
+    public string $compensatoryMissedPartsReason = '';
     public int $compensatoryStep = 1;
 
     // Rest days
@@ -304,10 +302,8 @@ class Report extends Component
         $this->selectedDayIndex = $dayIndex;
         $this->selectedParts = [];
         $this->testsDone = [];
-        $this->partRatings = [];
-        $this->phoneHours = 0;
         $this->description = '';
-
+        $this->missedPartsReason = '';
         $this->showReportModal = true;
     }
 
@@ -317,7 +313,8 @@ class Report extends Component
         $this->selectedDayIndex = null;
         $this->selectedParts = [];
         $this->testsDone = [];
-        $this->partRatings = [];
+        $this->description = '';
+        $this->missedPartsReason = '';
         $this->resetErrorBag();
     }
 
@@ -325,8 +322,6 @@ class Report extends Component
     {
         if (in_array($partId, $this->selectedParts)) {
             $this->selectedParts = array_values(array_diff($this->selectedParts, [$partId]));
-            // ✅ وقتی پارت از انتخاب خارج شد، امتیازش رو پاک کن
-            unset($this->partRatings[$partId]);
         } else {
             // ✅ بررسی ثبت ساعت مطالعه قبل از انتخاب پارت
             if (!in_array($partId, $this->completedStudyParts)) {
@@ -337,47 +332,66 @@ class Report extends Component
         }
     }
 
-    public function setPartRating(int $partId, int $rating)
+    /**
+     * Compute average rating from session_feedbacks for the selected day's parts (1-10 scale).
+     */
+    public function getComputedRatingProperty(): float
     {
-        if ($rating >= 1 && $rating <= 4) {
-            $this->partRatings[$partId] = $rating;
+        if (is_null($this->selectedDayIndex) || !isset($this->weekDays[$this->selectedDayIndex])) {
+            return 0;
         }
+        $student = Auth::user()->student;
+        if (!$student) return 0;
+
+        $day = $this->weekDays[$this->selectedDayIndex];
+        $partIds = collect($day['parts'])->pluck('id')->toArray();
+
+        if (empty($partIds)) return 0;
+
+        $spsList = StudyPartSession::where('student_id', $student->id)
+            ->whereIn('program_part_id', $partIds)
+            ->where('is_completed', true)
+            ->with('feedback')
+            ->get();
+
+        $ratings = $spsList->filter(fn($sps) => $sps->feedback && $sps->feedback->rating > 0)
+            ->map(fn($sps) => $sps->feedback->rating);
+
+        if ($ratings->isEmpty()) return 0;
+
+        return round($ratings->avg(), 1);
     }
 
-    public function getComputedRatingProperty(): int
+    /**
+     * Count of parts not selected (unread) for the current day.
+     */
+    public function getUnreadPartsCountProperty(): int
     {
-        // ✅ فقط از پارت‌های انتخاب شده محاسبه کن
-        $selectedRatings = array_filter(
-            $this->partRatings,
-            fn($r, $id) => $r > 0 && in_array($id, $this->selectedParts),
-            ARRAY_FILTER_USE_BOTH
-        );
-
-        if (empty($selectedRatings)) return 0;
-        return (int)round(array_sum($selectedRatings) / count($selectedRatings));
+        if (is_null($this->selectedDayIndex) || !isset($this->weekDays[$this->selectedDayIndex])) {
+            return 0;
+        }
+        $totalParts = count($this->weekDays[$this->selectedDayIndex]['parts']);
+        return max(0, $totalParts - count($this->selectedParts));
     }
 
     public function submitReport()
     {
         $this->validate([
-            'phoneHours' => 'required|integer|min:0|max:24',
-            'description' => 'nullable|string|max:1000',
+            'description' => 'nullable|string|max:350',
+            'missedPartsReason' => 'nullable|string|max:500',
         ], [
-            'phoneHours.required' => 'ساعت استفاده از گوشی الزامی است.',
-            'phoneHours.max' => 'ساعت استفاده از گوشی نمی‌تواند بیشتر از 24 باشد.',
-            'description.max' => 'توضیحات نمی‌تواند بیشتر از 1000 کاراکتر باشد.',
+            'description.max' => 'توضیحات نمی‌تواند بیشتر از 350 کاراکتر باشد.',
+            'missedPartsReason.max' => 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.',
         ]);
 
         $student = Auth::user()->student;
         $day = $this->weekDays[$this->selectedDayIndex];
 
-        // ✅ بررسی که همه پارت‌های انتخاب شده امتیاز دارن
-        foreach ($this->selectedParts as $partId) {
-            $rating = $this->partRatings[$partId] ?? 0;
-            if ($rating < 1 || $rating > 4) {
-                $this->dispatch('warning', 'لطفاً برای تمام پارت‌های انتخاب شده امتیاز ستاره‌ای (۱ تا ۴) ثبت کنید.');
-                return;
-            }
+        // ✅ بررسی اجباری بودن علت عدم انجام پارت
+        $unreadCount = count($day['parts']) - count($this->selectedParts);
+        if ($unreadCount > 1 && empty(trim($this->missedPartsReason))) {
+            $this->addError('missedPartsReason', 'چون بیشتر از یک پارت انجام نشده، توضیح دادن علت عدم انجام پارت‌ها الزامی است.');
+            return;
         }
 
         if (!$this->canSubmitForDate($day['date'])) {
@@ -385,7 +399,7 @@ class Report extends Component
             $this->closeReportModal();
             return;
         }
-
+        // ✅ محاسبه امتیاز از session_feedbacks (1-10)
         $avgRating = $this->computedRating;
 
         $dailyReport = DailyReport::create([
@@ -400,8 +414,9 @@ class Report extends Component
 
         DailyReportDetail::create([
             'daily_report_id' => $dailyReport->id,
-            'phone_hours' => $this->phoneHours,
+            'phone_hours' => 0,
             'description' => $this->description,
+            'missed_parts_reason' => $unreadCount > 1 ? $this->missedPartsReason : null,
             'rating' => $avgRating,
             'status' => 'pending',
         ]);
@@ -416,7 +431,7 @@ class Report extends Component
                 'program_part_id' => $part->id,
                 'is_read' => in_array($part->id, $this->selectedParts),
                 'tests_done' => $this->testsDone[$part->id] ?? 0,
-                'part_rating' => $this->partRatings[$part->id] ?? null,
+                'part_rating' => null,
                 'is_compensatory' => false,
             ]);
         }
@@ -435,9 +450,8 @@ class Report extends Component
 
         $this->selectedCompensatoryParts = [];
         $this->compensatoryTestsDone = [];
-        $this->compensatoryPartRatings = [];
         $this->compensatoryStep = 1;
-        $this->compensatoryPhoneHours = 0;
+        $this->compensatoryMissedPartsReason = '';
         $this->compensatoryDescription = '';
 
         $this->showCompensatoryModal = true;
@@ -447,10 +461,9 @@ class Report extends Component
     {
         $this->showCompensatoryModal = false;
         $this->selectedCompensatoryParts = [];
-        $this->compensatoryPartRatings = [];
         $this->compensatoryTestsDone = [];
         $this->compensatoryStep = 1;
-        $this->compensatoryPhoneHours = 0;
+        $this->compensatoryMissedPartsReason = '';
         $this->compensatoryDescription = '';
         $this->resetErrorBag();
     }
@@ -459,7 +472,6 @@ class Report extends Component
     {
         if (in_array($partId, $this->selectedCompensatoryParts)) {
             $this->selectedCompensatoryParts = array_values(array_diff($this->selectedCompensatoryParts, [$partId]));
-            unset($this->compensatoryPartRatings[$partId]);
         } else {
             // ✅ بررسی ثبت ساعت مطالعه قبل از انتخاب پارت جبرانی
             if (!in_array($partId, $this->completedStudyParts)) {
@@ -470,12 +482,6 @@ class Report extends Component
         }
     }
 
-    public function setCompensatoryPartRating(int $partId, int $rating)
-    {
-        if ($rating >= 1 && $rating <= 4) {
-            $this->compensatoryPartRatings[$partId] = $rating;
-        }
-    }
 
     public function goToCompensatoryStep2()
     {
@@ -499,30 +505,29 @@ class Report extends Component
         }
 
         $this->validate([
-            'compensatoryPhoneHours' => 'required|integer|min:0|max:24',
-            'compensatoryDescription' => 'nullable|string|max:1000',
+            'compensatoryDescription' => 'nullable|string|max:350',
+            'compensatoryMissedPartsReason' => 'nullable|string|max:2000',
+
         ], [
-            'compensatoryPhoneHours.required' => 'ساعت استفاده از گوشی الزامی است.',
-            'compensatoryPhoneHours.max' => 'ساعت استفاده از گوشی نمی‌تواند بیشتر از 24 باشد.',
+            'compensatoryDescription.max' => 'توضیحات نمی‌تواند بیشتر از 350 کاراکتر باشد.',
+            'compensatoryMissedPartsReason.max' => 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.',
         ]);
 
-        foreach ($this->selectedCompensatoryParts as $partId) {
-            $rating = $this->compensatoryPartRatings[$partId] ?? 0;
-            if ($rating < 1 || $rating > 4) {
-                $this->dispatch('warning', 'لطفاً برای تمام پارت‌های انتخاب شده امتیاز ستاره‌ای ثبت کنید.');
-                return;
-            }
-        }
 
         $student = Auth::user()->student;
         $today = Carbon::today();
 
-        $selectedRatings = array_filter(
-            $this->compensatoryPartRatings,
-            fn($r, $id) => $r > 0 && in_array($id, $this->selectedCompensatoryParts),
-            ARRAY_FILTER_USE_BOTH
-        );
-        $avgRating = !empty($selectedRatings) ? (int)round(array_sum($selectedRatings) / count($selectedRatings)) : 3;
+        // ✅ محاسبه امتیاز از session_feedbacks برای پارت‌های جبرانی انتخاب شده (1-10)
+        $spsList = StudyPartSession::where('student_id', $student->id)
+            ->whereIn('program_part_id', $this->selectedCompensatoryParts)
+            ->where('is_completed', true)
+            ->with('feedback')
+            ->get();
+
+        $ratings = $spsList->filter(fn($sps) => $sps->feedback && $sps->feedback->rating > 0)
+            ->map(fn($sps) => $sps->feedback->rating);
+
+        $avgRating = $ratings->isNotEmpty() ? round($ratings->avg(), 1) : 0;
 
         $dailyReport = DailyReport::create([
             'student_id' => $student->id,
@@ -536,8 +541,9 @@ class Report extends Component
 
         DailyReportDetail::create([
             'daily_report_id' => $dailyReport->id,
-            'phone_hours' => $this->compensatoryPhoneHours,
+            'phone_hours' => 0,
             'description' => $this->compensatoryDescription ?: 'گزارش جبرانی',
+            'missed_parts_reason' => $this->compensatoryMissedPartsReason ?: null,
             'rating' => $avgRating,
             'status' => 'pending',
         ]);
@@ -552,7 +558,7 @@ class Report extends Component
                 'program_part_id' => $partId,
                 'is_read' => true,
                 'tests_done' => $this->compensatoryTestsDone[$partId] ?? 0,
-                'part_rating' => $this->compensatoryPartRatings[$partId] ?? null,
+                'part_rating' => null,
                 'is_compensatory' => true,
             ]);
         }
@@ -634,9 +640,28 @@ class Report extends Component
         $this->closeReplyModal();
     }
 
-    public function getRatingLabel(int $rating): string
+    public function getRatingLabel(float $rating): string
     {
-        return DailyReport::RATINGS[$rating] ?? 'نامشخص';
+        return match (true) {
+            $rating >= 9 => 'عالی',
+            $rating >= 7 => 'خوب',
+            $rating >= 5 => 'متوسط',
+            $rating >= 3 => 'ضعیف',
+            $rating > 0  => 'خیلی ضعیف',
+            default      => 'ثبت نشده',
+        };
+    }
+
+    public function getRatingColor(float $rating): string
+    {
+        return match (true) {
+            $rating >= 9 => 'emerald',
+            $rating >= 7 => 'blue',
+            $rating >= 5 => 'yellow',
+            $rating >= 3 => 'orange',
+            $rating > 0  => 'red',
+            default      => 'gray',
+        };
     }
 
     public function render()
