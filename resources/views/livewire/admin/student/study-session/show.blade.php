@@ -144,7 +144,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                             </svg>
-                            {{ now()->format('Y/m/d H:i') }}
+                            {{ jdate(now())->format('Y/m/d H:i') }}
                         </span>
 
                         <a href="{{ route('admin.student.studySession.index') }}"
@@ -456,8 +456,8 @@
                                         </span>
                                     </td>
 
-                                    <td class="small">{{ $mk->started_at ? $mk->started_at->format('Y/m/d H:i') : '-' }}</td>
-                                    <td class="small">{{ $mk->ended_at ? $mk->ended_at->format('Y/m/d H:i') : '-' }}</td>
+                                    <td class="small">{{ $mk->started_at ? jdate($mk->started_at)->format('Y/m/d H:i') : '-' }}</td>
+                                    <td class="small">{{ $mk->ended_at ? jdate($mk->ended_at)->format('Y/m/d H:i') : '-' }}</td>
 
                                     <td>
                                         <span class="badge rounded-pill text-bg-info px-3 py-2">
@@ -571,9 +571,31 @@
                                             <div class="d-flex flex-column">
                                                 <span
                                                     class="fw-semibold">{{ $session->programPart?->lesson_name ?? '-' }}</span>
-                                                @if($session->programPart?->description)
+                                                @if($session->programPart?->ccSubject || $session->programPart?->ccTopic)
+                                                    <span class="small text-muted">
+                                                        {{ $session->programPart?->ccSubject?->name ?? '' }}
+                                                        @if($session->programPart?->ccChapter)
+                                                            / {{ $session->programPart->ccChapter->name }}
+                                                        @endif
+                                                        @if($session->programPart?->ccTopic)
+                                                            / {{ $session->programPart->ccTopic->name }}
+                                                        @endif
+                                                    </span>
+                                                @elseif($session->programPart?->description)
                                                     <span
-                                                        class="small text-muted">{{ Str::limit($session->programPart->description, 40) }}</span>
+                                                        class="small text-muted">{{ Str::limit($session->programPart->description, 60) }}</span>
+                                                @endif
+                                                @if($session->weeklyProgram && $session->programPart)
+                                                    @php
+                                                        $dayIndex = $session->programPart->day_of_week;
+                                                        $programStart = \Carbon\Carbon::parse($session->weeklyProgram->start_date);
+                                                        $partDate = $programStart->copy()->addDays($dayIndex);
+                                                        $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+                                                        $partDayName = $dayNames[jdate($partDate)->getDayOfWeek()] ?? '-';
+                                                    @endphp
+                                                    <span class="small text-primary">
+                                                        روز {{ $dayIndex + 1 }} برنامه ({{ $partDayName }} {{ jdate($partDate)->format('m/d') }})
+                                                    </span>
                                                 @endif
                                             </div>
                                         </td>
@@ -592,7 +614,8 @@
                                         </td>
 
                                         <td class="small">
-                                            {{ $session->started_at ? $session->started_at->translatedFormat('Y/m/d') : '-' }}
+                                            {{ $session->started_at ? jdate($session->started_at)->format('Y/m/d') : '-' }}
+
                                         </td>
 
                                         <td class="small">
@@ -730,13 +753,15 @@
                                 <div class="col-md-4">
                                     <label class="small text-muted mb-1">زمان شروع</label>
                                     <div
-                                        class="fw-semibold">{{ $selectedSession->started_at ? $selectedSession->started_at->format('Y/m/d H:i') : '-' }}</div>
+                                        class="fw-semibold">{{ $selectedSession->started_at ? jdate($selectedSession->started_at)->format('Y/m/d H:i') : '-' }}</div>
+
                                 </div>
 
                                 <div class="col-md-4">
                                     <label class="small text-muted mb-1">زمان پایان</label>
                                     <div
-                                        class="fw-semibold">{{ $selectedSession->ended_at ? $selectedSession->ended_at->format('Y/m/d H:i') : '-' }}</div>
+                                        class="fw-semibold">{{ $selectedSession->ended_at ? jdate($selectedSession->ended_at)->format('Y/m/d H:i') : '-' }}</div>
+
                                 </div>
 
                                 <div class="col-md-6">
@@ -784,6 +809,44 @@
                                     <div
                                         class="fw-semibold">{{ $selectedSession->weeklyProgram?->advisingSession?->title ?? '-' }}</div>
                                 </div>
+                                @if($selectedSession->programPart?->ccSubject)
+                                    <div class="col-md-4">
+                                        <label class="small text-muted mb-1">مبحث درسی</label>
+                                        <div class="fw-semibold">{{ $selectedSession->programPart->ccSubject->name }}</div>
+                                    </div>
+                                @endif
+
+                                @if($selectedSession->programPart?->ccChapter)
+                                    <div class="col-md-4">
+                                        <label class="small text-muted mb-1">فصل</label>
+                                        <div class="fw-semibold">{{ $selectedSession->programPart->ccChapter->name }}</div>
+                                    </div>
+                                @endif
+
+                                @if($selectedSession->programPart?->ccTopic)
+                                    <div class="col-md-4">
+                                        <label class="small text-muted mb-1">سرفصل</label>
+                                        <div class="fw-semibold">{{ $selectedSession->programPart->ccTopic->name }}</div>
+                                    </div>
+                                @endif
+
+                                @if($selectedSession->weeklyProgram && $selectedSession->programPart)
+                                    <div class="col-md-4">
+                                        <label class="small text-muted mb-1">روز برنامه</label>
+                                        @php
+                                            $dayIdx = $selectedSession->programPart->day_of_week;
+                                            $progStart = \Carbon\Carbon::parse($selectedSession->weeklyProgram->start_date);
+                                            $partDt = $progStart->copy()->addDays($dayIdx);
+                                            $dNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+                                            $pDayName = $dNames[jdate($partDt)->getDayOfWeek()] ?? '-';
+                                        @endphp
+                                        <div class="fw-semibold">
+                                            <span class="badge rounded-pill text-bg-primary px-3 py-2">
+                                                روز {{ $dayIdx + 1 }} ({{ $pDayName }} {{ jdate($partDt)->format('Y/m/d') }})
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endif
 
                                 <div class="col-md-4">
                                     <label class="small text-muted mb-1">نوع پارت</label>
@@ -815,7 +878,8 @@
                                 <div class="col-md-4">
                                     <label class="small text-muted mb-1">تاریخ</label>
                                     <div
-                                        class="fw-semibold">{{ $selectedSession->started_at ? $selectedSession->started_at->translatedFormat('l، d F Y') : '-' }}</div>
+                                        class="fw-semibold">{{ $selectedSession->started_at ? jdate($selectedSession->started_at)->format('l، d F Y') : '-' }}</div>
+
                                 </div>
 
                                 <div class="col-md-4">

@@ -515,7 +515,8 @@ class Report extends Component
 
 
         $student = Auth::user()->student;
-        $today = Carbon::today();
+        // ✅ استفاده از تاریخ مؤثر (با احتساب بازه ۶ صبح) بجای تاریخ تقویمی
+        $effectiveDate = $this->getEffectiveDate();
 
         // ✅ محاسبه امتیاز از session_feedbacks برای پارت‌های جبرانی انتخاب شده (1-10)
         $spsList = StudyPartSession::where('student_id', $student->id)
@@ -534,8 +535,8 @@ class Report extends Component
             'admin_id' => $student->supporter_id ?? $student->advisor_id,
             'session_id' => $this->currentSession->id,
             'weekly_program_id' => $this->currentProgram->id,
-            'report_date' => $today,
-            'day_of_week' => jdate($today)->getDayOfWeek(),
+            'report_date' => $effectiveDate,
+            'day_of_week' => jdate($effectiveDate)->getDayOfWeek(),
             'is_compensatory' => true,
         ]);
 

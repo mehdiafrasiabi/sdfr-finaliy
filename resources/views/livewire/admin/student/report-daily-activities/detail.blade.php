@@ -557,7 +557,6 @@
 
                                     <td>{{ jdate($report->report_date)->format('Y/m/d') }}</td>
 
-                                    <td>{{ $dayNames[$report->day_of_week] ?? '-' }}</td>
                                     <td>{{ $dayNames[jdate($report->report_date)->getDayOfWeek()] ?? '-' }}</td>
 
                                     <td>
@@ -591,17 +590,15 @@
 
                                     <td>
 
-                                        @php
-
-                                            $ratingColors = [5 => 'success', 4 => 'success', 3 => 'info', 2 => 'warning', 1 => 'danger'];
-
-                                        @endphp
-
-                                        <span class="badge bg-{{ $ratingColors[$report->rating] ?? 'secondary' }}">
-
-                                            {{ \App\Models\DailyReport::RATINGS[$report->rating] ?? 'نامشخص' }}
-
-                                        </span>
+                                        @php $ratingVal = (float)$report->calculated_rating; @endphp
+                                        @if($ratingVal > 0)
+                                            <span class="badge bg-{{ $ratingVal >= 7 ? 'success' : ($ratingVal >= 4 ? 'info' : 'warning') }}">
+                                                {{ $ratingVal }} / 10
+                                            </span>
+                                            <br><small class="text-muted">{{ $this->getRatingLabel($ratingVal) }}</small>
+                                        @else
+                                            <span class="text-muted small">ثبت نشده</span>
+                                        @endif
 
                                     </td>
 
@@ -780,17 +777,15 @@
 
                                     <td>
 
-                                        @php
-
-                                            $ratingColors = [5 => 'success', 4 => 'success', 3 => 'info', 2 => 'warning', 1 => 'danger'];
-
-                                        @endphp
-
-                                        <span class="badge bg-{{ $ratingColors[$report->rating] ?? 'secondary' }}">
-
-                                            {{ \App\Models\DailyReport::RATINGS[$report->rating] ?? 'نامشخص' }}
-
-                                        </span>
+                                        @php $ratingVal2 = (float)$report->calculated_rating; @endphp
+                                        @if($ratingVal2 > 0)
+                                            <span class="badge bg-{{ $ratingVal2 >= 7 ? 'success' : ($ratingVal2 >= 4 ? 'info' : 'warning') }}">
+                                                {{ $ratingVal2 }} / 10
+                                            </span>
+                                            <br><small class="text-muted">{{ $this->getRatingLabel($ratingVal2) }}</small>
+                                        @else
+                                            <span class="text-muted small">ثبت نشده</span>
+                                        @endif
 
                                     </td>
 
@@ -1235,20 +1230,15 @@
                                     <div class="card-body">
 
                                         <h6 class="card-title text-muted mb-2">امتیاز روز</h6>
-
-                                        @php
-
-                                            $rating = $selectedReportData['rating'] ?? 3;
-
-                                            $ratingColors = [5 => 'success', 4 => 'success', 3 => 'info', 2 => 'warning', 1 => 'danger'];
-
-                                        @endphp
-
-                                        <span class="badge bg-{{ $ratingColors[$rating] ?? 'secondary' }} fs-6">
-
-                                            {{ $selectedReportData['rating_label'] ?? 'نامشخص' }}
-
-                                        </span>
+                                        @php $modalRating = (float)($selectedReportData['rating'] ?? 0); @endphp
+                                        @if($modalRating > 0)
+                                            <span class="badge bg-{{ $modalRating >= 7 ? 'success' : ($modalRating >= 4 ? 'info' : 'warning') }} fs-6">
+                                                {{ $modalRating }} / 10
+                                            </span>
+                                            <br><small class="text-muted">{{ $selectedReportData['rating_label'] ?? 'نامشخص' }}</small>
+                                        @else
+                                            <span class="text-muted">ثبت نشده</span>
+                                        @endif
 
                                     </div>
 

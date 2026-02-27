@@ -422,6 +422,7 @@ class Detail extends Component
         $reportDateEnd = Carbon::parse($report->report_date)->addDay()->setHour(6)->setMinute(0)->setSecond(0);
         $submittedInTime = $report->created_at
             && $report->created_at->between($reportDateStart, $reportDateEnd);
+        $ratingVal = (float)($report->detail->rating ?? 0);
         $this->selectedReportData = [
             'student_name' => $report->student->user->profile?->full_name
                 ?? $report->student->user->personalInformation?->name
@@ -431,8 +432,9 @@ class Detail extends Component
             'day_name' => $dayNames[jdate($report->report_date)->getDayOfWeek()] ?? '-',
             'phone_hours' => $report->detail->phone_hours ?? 0,
             'description' => $report->detail->description ?? '',
-            'rating' => $report->detail->rating ?? 3,
-            'rating_label' => DailyReport::RATINGS[$report->detail->rating ?? 3] ?? 'نامشخص',
+            'missed_parts_reason' => $report->detail->missed_parts_reason ?? '',
+            'rating' => $ratingVal,
+            'rating_label' => $this->getRatingLabel($ratingVal),
             'is_compensatory' => $report->is_compensatory,
             'status' => $report->detail->status ?? 'pending',
             'advisor_comment' => $report->feedback->advisor_comment ?? '',
@@ -442,19 +444,37 @@ class Detail extends Component
             'submit_window_start' => jdate($reportDateStart)->format('Y/m/d') . ' ۰۰:۰۰',
             'submit_window_end' => jdate($reportDateEnd)->format('Y/m/d') . ' ۰۶:۰۰',
         ];
-        $dayOfWeek = $report->day_of_week;
-        $programParts = $report->weeklyProgram
-            ->parts()
-            ->where('day_of_week', $dayOfWeek)
-            ->orderBy('part_order')
-            ->get();
+        // ✅ پارت‌ها همیشه از daily_report_parts بارگذاری می‌شوند (هم عادی هم جبرانی)
+        // چون day_of_week در daily_reports روز هفته شمسی است (۰-۶) ولی در program_parts شاخص روز برنامه (۰-۷)
         $reportPartsMap = $report->reportParts->keyBy('program_part_id');
+        $reportPartProgramIds = $report->reportParts->pluck('program_part_id')->filter()->toArray();
+
+        $programParts = collect();
+        if (!empty($reportPartProgramIds) && $report->weeklyProgram) {
+            $programParts = $report->weeklyProgram
+                ->parts()
+                ->whereIn('id', $reportPartProgramIds)
+                ->orderBy('day_of_week')
+                ->orderBy('part_order')
+                ->with(['ccSubject', 'ccTopic', 'ccChapter'])
+                ->get();
+        }
+
+        // Fallback: اگر از weekly program پیدا نشد، مستقیم از reportParts بگیر
+        if ($programParts->isEmpty()) {
+            $programParts = $report->reportParts
+                ->map(fn($rp) => $rp->programPart)
+                ->filter()
+                ->values();
+        }
+
         $this->reportPartsDetails = [];
         $totalTests = 0;
         $doneTests = 0;
         $totalParts = 0;
         $readParts = 0;
         foreach ($programParts as $programPart) {
+            if (!$programPart) continue;
             $reportPart = $reportPartsMap->get($programPart->id);
             $isRead = $reportPart?->is_read ?? false;
             $testsDone = $reportPart?->tests_done ?? 0;
@@ -557,7 +577,18 @@ class Detail extends Component
             default => 'secondary',
         };
     }
-
+    public function getRatingLabel($rating): string
+    {
+        $rating = (float) $rating;
+        return match (true) {
+            $rating >= 9 => 'عالی',
+            $rating >= 7 => 'خوب',
+            $rating >= 5 => 'متوسط',
+            $rating >= 3 => 'ضعیف',
+            $rating > 0  => 'خیلی ضعیف',
+            default      => 'ثبت نشده',
+        };
+    }
     public function render()
     {
         $reports = collect([]);

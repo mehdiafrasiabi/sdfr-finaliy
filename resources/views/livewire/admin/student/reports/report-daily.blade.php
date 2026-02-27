@@ -173,7 +173,7 @@
                                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-1">
                                             <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
                                         </svg>
-                                        تایید همه
+                                        تایید
                                     </button>
                                     <button type="button"
                                             wire:click="bulkAction('rejected')"
@@ -182,7 +182,7 @@
                                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="me-1">
                                             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
                                         </svg>
-                                        رد همه
+                                        رد وض
                                     </button>
                                 </div>
                             </div>
@@ -208,14 +208,14 @@
                                                    wire:model.live="selectAll">
                                         </th>
                                         <th class="text-nowrap">نام دانش‌آموز</th>
+                                        <th class="text-nowrap text-center">ساعت ثبت</th>
                                         <th class="text-nowrap text-center">پارت</th>
                                         <th class="text-nowrap text-center">تست</th>
 
                                         <th class="text-nowrap text-center">امتیاز</th>
                                         <th class="text-nowrap text-center">نوع</th>
-                                        <th class="text-nowrap text-center">ساعت ثبت</th>
+
                                         <th class="text-nowrap text-center">نظر</th>
-                                        <th class="text-nowrap text-center">وضعیت</th>
                                         <th class="text-nowrap text-center">عملیات</th>
                                     </tr>
                                     </thead>
@@ -231,6 +231,10 @@
                                             <td>
                                                 <span class="fw-medium">{{ $report->student->user->profile?->full_name ?? $report->student->user->personalInformation?->name ?? $report->student->user->name ?? '-' }}</span>
                                             </td>
+                                            <td class="text-center small text-muted">
+                                                {{ $report->created_at ? jdate($report->created_at)->format('H:i') : '-' }}
+
+                                            </td>
                                             <td class="text-center">
                                                 <span class="text-success fw-bold">{{ $report->read_parts_count }}</span>
                                                 <span class="text-muted">/</span>
@@ -240,8 +244,9 @@
                                                 <span class="fw-bold">{{ $report->total_tests }}</span>
                                             </td>
                                             <td class="text-center">
-                                                @php $ratingVal = (float)($report->rating ?? 0); @endphp
-                                                @if($ratingVal > 0)
+                                                @php $ratingVal = (float)$report->calculated_rating; @endphp
+
+                                            @if($ratingVal > 0)
                                                     <span class="badge rounded-pill {{ $this->getRatingBadgeClass($ratingVal) }}">
                                                         {{ $ratingVal }} / 10
                                                     </span>
@@ -257,10 +262,7 @@
                                                     <span class="badge bg-light text-dark">عادی</span>
                                                 @endif
                                             </td>
-                                            <td class="text-center small text-muted">
-                                                {{ $report->created_at ? jdate($report->created_at)->format('H:i') : '-' }}
 
-                                            </td>
                                             <td class="text-center">
                                                 <button type="button"
                                                         wire:click="openCommentModal({{ $report->id }})"
@@ -275,21 +277,6 @@
                                                         @endif
                                                     </svg>
                                                 </button>
-                                            </td>
-                                            <td class="text-center">
-                                                <select wire:change="changeStatus({{ $report->id }}, $event.target.value)"
-                                                        class="form-select form-select-sm text-center"
-                                                        style="min-width: 110px;">
-                                                    <option value="pending" {{ $report->status === 'pending' ? 'selected' : '' }}>
-                                                        در انتظار
-                                                    </option>
-                                                    <option value="approved" {{ $report->status === 'approved' ? 'selected' : '' }}>
-                                                        تایید
-                                                    </option>
-                                                    <option value="rejected" {{ $report->status === 'rejected' ? 'selected' : '' }}>
-                                                        رد
-                                                    </option>
-                                                </select>
                                             </td>
                                             <td class="text-center">
                                                 <div class="btn-group btn-group-sm">

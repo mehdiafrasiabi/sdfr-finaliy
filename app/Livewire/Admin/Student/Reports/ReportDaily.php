@@ -184,8 +184,11 @@ class ReportDaily extends Component
             })
             ->get();
 
+        // ✅ فقط گزارش‌های عادی (غیرجبرانی) به عنوان "دارای گزارش" حساب می‌شوند
+        // گزارش جبرانی مربوط به پارت‌های گذشته است و نباید جای گزارش روزانه را بگیرد
         $studentsWithReports = DailyReport::where('admin_id', auth()->id())
             ->whereDate('report_date', $reportDate)
+            ->where('is_compensatory', false)
             ->pluck('student_id')
             ->toArray();
 
@@ -366,48 +369,6 @@ class ReportDaily extends Component
         $this->dispatch('success', 'عملیات گروهی با موفقیت انجام شد.');
     }
 
-    public function changeStatus($reportId, $value)
-    {
-        $validator = Validator::make(['status' => $value, 'id' => $reportId], [
-            'id' => 'required|exists:daily_reports,id',
-            'status' => 'required|in:pending,approved,rejected'
-        ], [
-            '*.required' => 'فیلد اجباری است.',
-            'status.in' => 'وضعیت نامعتبر است.',
-            'id.exists' => 'گزارش یافت نشد.'
-        ]);
-
-        $validator->validate();
-        $this->resetValidation();
-
-        $report = DailyReport::with(['student.user.personalInformation', 'student.user.profile', 'detail'])
-            ->where('id', $reportId)
-            ->where('admin_id', auth()->id())
-            ->firstOrFail();
-
-        $report->detail->update(['status' => $value]);
-
-        if ($value === 'approved') {
-            $this->selectedReports = array_diff($this->selectedReports, [$reportId]);
-        }
-
-        if (in_array($value, ['approved', 'rejected'])) {
-            $studentName = $this->getStudentFullName($report->student->user);
-            $reportDate = jdate($report->report_date)->format('Y/m/d');
-
-            if ($value === 'approved') {
-                $message = "{$studentName} عزیز\nگزارش مطالعه شما در تاریخ {$reportDate} تایید شد. به همین روند ادامه بده!\nبا تشکر";
-                $title = 'تایید گزارش روزانه';
-            } else {
-                $message = "{$studentName} عزیز\nگزارش مطالعه شما در تاریخ {$reportDate} رد شد. لطفاً گزارش را بررسی و اصلاح کنید.\nبا تشکر";
-                $title = 'رد گزارش روزانه';
-            }
-
-            NotificationService::sendToStudent($report->student_id, $title, $message);
-        }
-
-        $this->dispatch('success', 'وضعیت با موفقیت تغییر کرد.');
-    }
 
     public function delete($reportId)
     {
@@ -543,32 +504,29 @@ class ReportDaily extends Component
         ];
 
 
-        // ✅ برای گزارش جبرانی: پارت‌ها از reportParts می‌آیند
-        // ✅ برای گزارش عادی: از weeklyProgram.parts بر اساس day_of_week
+        // ✅ پارت‌ها همیشه از daily_report_parts بارگذاری می‌شوند (هم عادی هم جبرانی)
+        // چون day_of_week در daily_reports روز هفته شمسی است (۰-۶) ولی در program_parts شاخص روز برنامه (۰-۷)
+        // بنابراین نباید از day_of_week برای کوئری استفاده شود
         $reportPartsMap = $report->reportParts->keyBy('program_part_id');
+        $reportPartProgramIds = $report->reportParts->pluck('program_part_id')->filter()->toArray();
 
-        if ($report->is_compensatory) {
+        $programParts = collect();
+        if (!empty($reportPartProgramIds) && $report->weeklyProgram) {
+            $programParts = $report->weeklyProgram
+                ->parts()
+                ->whereIn('id', $reportPartProgramIds)
+                ->orderBy('day_of_week')
+                ->orderBy('part_order')
+                ->with(['ccSubject', 'ccTopic', 'ccChapter'])
+                ->get();
+        }
+
+        // Fallback: اگر از weekly program پیدا نشد، مستقیم از reportParts بگیر
+        if ($programParts->isEmpty()) {
             $programParts = $report->reportParts
                 ->map(fn($rp) => $rp->programPart)
                 ->filter()
                 ->values();
-        } else {
-            $programParts = collect();
-            if ($report->weeklyProgram) {
-                $programParts = $report->weeklyProgram
-                    ->parts()
-                    ->where('day_of_week', $report->day_of_week)
-                    ->orderBy('part_order')
-                    ->with(['ccSubject', 'ccTopic', 'ccChapter'])
-                    ->get();
-            }
-            // ✅ Fallback: اگر پارت‌ها از weekly program پیدا نشد، از reportParts بگیر
-            if ($programParts->isEmpty()) {
-                $programParts = $report->reportParts
-                    ->map(fn($rp) => $rp->programPart)
-                    ->filter()
-                    ->values();
-            }
         }
 
         $partIds = $programParts->pluck('id')->filter()->toArray();

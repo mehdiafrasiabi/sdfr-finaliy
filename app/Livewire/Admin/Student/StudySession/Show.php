@@ -179,8 +179,7 @@ class Show extends Component
     protected function loadStudySessions()
     {
         $query = StudyPartSession::where('student_id', $this->studentId)
-            ->with(['programPart', 'feedback', 'weeklyProgram.advisingSession']);
-
+            ->with(['programPart.ccSubject', 'programPart.ccChapter', 'programPart.ccTopic', 'feedback', 'weeklyProgram.advisingSession']);
         // Apply filters
         if ($this->search) {
             $query->where(function ($q) {
@@ -330,7 +329,7 @@ class Show extends Component
             $this->selectedSession = MakeupSession::with(['ccTopic.chapter.subject.grade', 'student.user.personalInformation'])
                 ->find($sessionId);
         } else {
-            $this->selectedSession = StudyPartSession::with(['programPart', 'feedback', 'student.user.personalInformation', 'weeklyProgram.advisingSession'])
+            $this->selectedSession = StudyPartSession::with(['programPart.ccSubject', 'programPart.ccChapter', 'programPart.ccTopic', 'feedback', 'student.user.personalInformation', 'weeklyProgram.advisingSession'])
                 ->find($sessionId);
         }
 
