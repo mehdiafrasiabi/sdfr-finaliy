@@ -67,8 +67,18 @@ class Index extends Component
         $studentId = (int) $studentId;
         if (in_array($studentId, $this->selectedStudents)) {
             $this->selectedStudents = array_values(array_diff($this->selectedStudents, [$studentId]));
+            // Remove their schedule entry too
+            unset($this->studentSchedules[$studentId]);
         } else {
             $this->selectedStudents[] = $studentId;
+            // Initialize schedule entry with defaults
+            $this->studentSchedules[$studentId] = [
+                'day'           => '',
+                'hour'          => '08',
+                'minute'        => '00',
+                'location_type' => 'online',
+                'skyroom_link'  => '',
+            ];
         }
     }
 
@@ -78,17 +88,21 @@ class Index extends Component
             $this->dispatch('warning', 'لطفاً حداقل یک دانش‌آموز انتخاب کنید.');
             return;
         }
-        $this->showStudentSelectModal = false;
-        $this->studentSchedules = [];
+
+        // Validate that all selected students have a day selected
+        $missingDay = false;
         foreach ($this->selectedStudents as $studentId) {
-            $this->studentSchedules[$studentId] = [
-                'day'           => '',
-                'hour'          => '08',
-                'minute'        => '00',
-                'location_type' => 'online',
-                'skyroom_link'  => '',
-            ];
+            if (empty($this->studentSchedules[$studentId]['day'] ?? '')) {
+                $missingDay = true;
+                break;
+            }
         }
+        if ($missingDay) {
+            $this->dispatch('warning', 'لطفاً برای همه دانش‌آموزان انتخابی روز هفته را مشخص کنید.');
+            return;
+        }
+
+        $this->showStudentSelectModal = false;
         $this->showScheduleModal = true;
     }
 
@@ -111,20 +125,31 @@ class Index extends Component
         $rules    = [];
         $messages = [];
         foreach ($this->selectedStudents as $studentId) {
+            $student = \App\Models\Student::with('user.personalInformation')->find($studentId);
+            $name = $student?->user?->personalInformation?->name ?? "دانش‌آموز {$studentId}";
             $rules["studentSchedules.{$studentId}.day"]           = 'required|in:0,1,2,3,4,5,6';
-            $rules["studentSchedules.{$studentId}.hour"]          = 'required|integer|between:0,23';
-            $rules["studentSchedules.{$studentId}.minute"]        = 'required|integer|between:0,59';
+            $rules["studentSchedules.{$studentId}.hour"]          = 'required|integer|min:0|max:23';
+            $rules["studentSchedules.{$studentId}.minute"]        = 'required|integer|min:0|max:59';
             $rules["studentSchedules.{$studentId}.location_type"] = 'required|in:in_person,online';
 
             $schedule = $this->studentSchedules[$studentId] ?? [];
             if (($schedule['location_type'] ?? 'online') === 'online') {
                 $rules["studentSchedules.{$studentId}.skyroom_link"] = 'required|url';
-                $messages["studentSchedules.{$studentId}.skyroom_link.required"] = 'لینک جلسه آنلاین الزامی است.';
-                $messages["studentSchedules.{$studentId}.skyroom_link.url"]      = 'لینک وارد شده معتبر نیست.';
+                $messages["studentSchedules.{$studentId}.skyroom_link.required"] = "لینک جلسه آنلاین برای {$name} الزامی است.";
+                $messages["studentSchedules.{$studentId}.skyroom_link.url"]      = "لینک وارد شده برای {$name} معتبر نیست.";
             }
-
-            $messages["studentSchedules.{$studentId}.day.required"] = 'انتخاب روز هفته الزامی است.';
-            $messages["studentSchedules.{$studentId}.day.in"]       = 'روز انتخابی معتبر نیست.';
+            $messages["studentSchedules.{$studentId}.day.required"] = "انتخاب روز هفته برای {$name} الزامی است.";
+            $messages["studentSchedules.{$studentId}.day.in"]       = "روز انتخابی برای {$name} معتبر نیست.";
+            $messages["studentSchedules.{$studentId}.hour.required"] = "ساعت جلسه برای {$name} الزامی است.";
+            $messages["studentSchedules.{$studentId}.hour.min"]      = "ساعت باید بین ۰ تا ۲۳ باشد ({$name}).";
+            $messages["studentSchedules.{$studentId}.hour.max"]      = "ساعت باید بین ۰ تا ۲۳ باشد ({$name}).";
+            $messages["studentSchedules.{$studentId}.hour.integer"]  = "ساعت وارد شده برای {$name} نامعتبر است.";
+            $messages["studentSchedules.{$studentId}.minute.required"] = "دقیقه جلسه برای {$name} الزامی است.";
+            $messages["studentSchedules.{$studentId}.minute.min"]    = "دقیقه باید بین ۰ تا ۵۹ باشد ({$name}).";
+            $messages["studentSchedules.{$studentId}.minute.max"]    = "دقیقه باید بین ۰ تا ۵۹ باشد ({$name}).";
+            $messages["studentSchedules.{$studentId}.minute.integer"] = "دقیقه وارد شده برای {$name} نامعتبر است.";
+            $messages["studentSchedules.{$studentId}.location_type.required"] = "محل برگزاری جلسه برای {$name} الزامی است.";
+            $messages["studentSchedules.{$studentId}.location_type.in"]       = "محل برگزاری جلسه برای {$name} نامعتبر است.";
         }
         $this->validate($rules, $messages);
 

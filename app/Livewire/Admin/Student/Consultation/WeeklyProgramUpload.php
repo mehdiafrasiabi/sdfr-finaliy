@@ -133,10 +133,12 @@ class WeeklyProgramUpload extends Component
     public string $prevFilterStudied = '';    // '', 'studied', 'not_studied'
     // Part C: Multi-select and copy parts between days
     public bool $partSelectMode = false;
+    public bool $cutMode = false; // true = cut, false = copy
     public array $selectedPartIds = [];
     public ?int $copyTargetDay = null;
     public array $copyTargetDays = [];
-
+    // A-5: Class schedule reading type filter
+    public string $readingTypeFilter = ''; // '', 'daily', 'pre'
     protected function messages()
     {
         return [
@@ -521,6 +523,44 @@ class WeeklyProgramUpload extends Component
 
         return $ccField?->id;
     }
+    /**
+     * Get the allowed grade numbers and field for search queries
+     * - Grade 12: show grades 11 and 12 (same field)
+     * - Grade 11: show grades 10 and 11 (same field)
+     * - Grade 10: show grade 10 (same field)
+     * - Grade 9 or below (middle school): only show their own grade (no field)
+     * Returns array with ['grade_numbers' => [...], 'field_id' => int|null]
+     */
+    protected function getStudentGradeFilter(): array
+    {
+        $student = Student::with('user.personalInformation')->find($this->studentId);
+        if (!$student?->user?->personalInformation) return ['grade_numbers' => null, 'field_id' => null];
+
+        $gradeNum = (int)($student->user->personalInformation->grade ?? 0);
+        $field = $student->user->personalInformation->field;
+
+        $ccFieldId = null;
+        if ($field) {
+            $ccField = CcField::where('slug', CcField::mapFromPersonalInfo($field))
+                ->where('is_active', true)
+                ->first();
+            $ccFieldId = $ccField?->id;
+        }
+
+        if ($gradeNum === 12) {
+            return ['grade_numbers' => [11, 12,10], 'field_id' => $ccFieldId];
+        } elseif ($gradeNum === 11) {
+            return ['grade_numbers' => [10, 11], 'field_id' => $ccFieldId];
+        } elseif ($gradeNum === 10) {
+            return ['grade_numbers' => [10], 'field_id' => $ccFieldId];
+        } elseif ($gradeNum >= 7 && $gradeNum <= 9) {
+            // Middle school - no field, only their own grade
+            return ['grade_numbers' => [$gradeNum], 'field_id' => null];
+        }
+
+        // No grade info - no restriction
+        return ['grade_numbers' => null, 'field_id' => null];
+    }
 
     public function updatedGlobalSearch($value): void
     {
@@ -530,7 +570,9 @@ class WeeklyProgramUpload extends Component
         }
 
         $results = [];
-        $studentFieldId = $this->getStudentFieldFilter();
+        $gradeFilter = $this->getStudentGradeFilter();
+        $allowedGradeNumbers = $gradeFilter['grade_numbers'];
+        $studentFieldId = $gradeFilter['field_id'];
         $seen = [];
         // 1. Search subjects matching query → show their chapters first
         $subjectQuery = CcSubject::where('name', 'like', "%{$value}%")
@@ -543,7 +585,11 @@ class WeeklyProgramUpload extends Component
                 $q->where('cc_field_id', $studentFieldId)->orWhereNull('cc_field_id');
             });
         }
-
+        if ($allowedGradeNumbers !== null) {
+            $subjectQuery->whereHas('grade', function ($q) use ($allowedGradeNumbers) {
+                $q->whereIn('grade_number', $allowedGradeNumbers);
+            });
+        }
         foreach ($subjectQuery->limit(5)->get() as $subject) {
             $grade = $subject->grade;
             if (!$grade) continue;
@@ -575,10 +621,16 @@ class WeeklyProgramUpload extends Component
             ->with(['subject.grade.educationLevel', 'topics' => function ($q) {
                 $q->where('is_active', true)->whereNull('parent_id')->orderBy('order');
             }])
-            ->whereHas('subject', function ($q) use ($studentFieldId) {
+            ->whereHas('subject', function ($q) use ($studentFieldId, $allowedGradeNumbers) {
+
                 if ($studentFieldId) {
                     $q->where(function ($q2) use ($studentFieldId) {
                         $q2->where('cc_field_id', $studentFieldId)->orWhereNull('cc_field_id');
+                    });
+                }
+                if ($allowedGradeNumbers !== null) {
+                    $q->whereHas('grade', function ($q3) use ($allowedGradeNumbers) {
+                        $q3->whereIn('grade_number', $allowedGradeNumbers);
                     });
                 }
             })
@@ -636,10 +688,15 @@ class WeeklyProgramUpload extends Component
             ->whereNull('parent_id')
             ->where('name', 'like', "%{$value}%")
             ->with(['chapter.subject.grade.educationLevel'])
-            ->whereHas('chapter.subject', function ($q) use ($studentFieldId) {
+            ->whereHas('chapter.subject', function ($q) use ($studentFieldId, $allowedGradeNumbers) {
                 if ($studentFieldId) {
                     $q->where(function ($q2) use ($studentFieldId) {
                         $q2->where('cc_field_id', $studentFieldId)->orWhereNull('cc_field_id');
+                    });
+                }
+                if ($allowedGradeNumbers !== null) {
+                    $q->whereHas('grade', function ($q3) use ($allowedGradeNumbers) {
+                        $q3->whereIn('grade_number', $allowedGradeNumbers);
                     });
                 }
             })
@@ -2698,13 +2755,24 @@ class WeeklyProgramUpload extends Component
 
     // ==================== انتخاب چندگانه و کپی پارت‌ها ====================
 
-    public function togglePartSelectMode(): void
+    public function togglePartSelectMode(bool $cut = false): void
+
     {
-        $this->partSelectMode = !$this->partSelectMode;
-        if (!$this->partSelectMode) {
+        if ($this->partSelectMode && $this->cutMode === $cut) {
+            // Toggle off if same mode
+            $this->partSelectMode = false;
+            $this->cutMode = false;
             $this->selectedPartIds = [];
             $this->copyTargetDay = null;
             $this->copyTargetDays = [];
+        } else {
+            $this->partSelectMode = true;
+            $this->cutMode = $cut;
+            $this->selectedPartIds = [];
+            $this->copyTargetDay = null;
+            $this->copyTargetDays = [];
+            $this->copyTargetDays = [];
+            $this->cutMode = false;
 
         }
     }
@@ -2723,6 +2791,8 @@ class WeeklyProgramUpload extends Component
         $this->selectedPartIds = [];
         $this->copyTargetDay = null;
         $this->partSelectMode = false;
+        $this->cutMode = false;
+
     }
 
     public function copySelectedParts(): void
@@ -2795,6 +2865,86 @@ class WeeklyProgramUpload extends Component
         }
     }
 
+    public function cutSelectedParts(): void
+    {
+        $targetDays = !empty($this->copyTargetDays)
+            ? array_map('intval', $this->copyTargetDays)
+            : ($this->copyTargetDay !== null ? [(int)$this->copyTargetDay] : []);
+
+        if (empty($this->selectedPartIds) || empty($targetDays)) {
+            $this->dispatch('warning', 'لطفاً پارت‌ها و حداقل یک روز مقصد را انتخاب کنید.');
+            return;
+        }
+
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        $startDate = Carbon::parse($this->start_date);
+        $moved = 0;
+
+        // Only support single target day for cut
+        $dayIndex = $targetDays[0];
+
+        foreach ($this->selectedPartIds as $partId) {
+            $part = ProgramPart::find($partId);
+            if (!$part) continue;
+            if ($part->weekly_program_id !== $this->weeklyProgramId) continue;
+
+            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $dayIndex)
+                ->count();
+
+            if ($existingCount >= 20) break;
+
+            $partDate = $startDate->copy()->addDays($dayIndex);
+
+            ProgramPart::create([
+                'weekly_program_id' => $this->weeklyProgramId,
+                'lesson_name' => $part->lesson_name,
+                'part_date' => $partDate,
+                'day_of_week' => $dayIndex,
+                'part_order' => $existingCount + 1,
+                'description' => $part->description,
+                'duration_minutes' => $part->duration_minutes,
+                'test_count' => $part->test_count,
+                'part_type' => $part->part_type,
+                'source_type' => $part->source_type,
+                'lesson_type' => $part->lesson_type,
+                'grade' => $part->grade,
+                'education_level_id' => $part->education_level_id,
+                'cc_grade_id' => $part->cc_grade_id,
+                'cc_field_id' => $part->cc_field_id,
+                'cc_subject_id' => $part->cc_subject_id,
+                'cc_chapter_id' => $part->cc_chapter_id,
+                'cc_topic_id' => $part->cc_topic_id,
+                'grade_label' => $part->grade_label,
+            ]);
+
+            $part->delete();
+            $moved++;
+        }
+
+        $this->reorderAllDays();
+        $this->loadExistingParts();
+        $this->selectedPartIds = [];
+        $this->copyTargetDay = null;
+        $this->copyTargetDays = [];
+        $this->partSelectMode = false;
+        $this->cutMode = false;
+
+        if ($moved > 0) {
+            $this->dispatch('success', $moved . ' پارت با موفقیت جابه‌جا (کات) شد.');
+        } else {
+            $this->dispatch('warning', 'هیچ پارتی جابه‌جا نشد.');
+        }
+    }
+
+    // A-5: Update reading type filter
+    public function updatedReadingTypeFilter(): void
+    {
+        // Just trigger re-render
+    }
 
     // ==================== روزخوانی / پیش‌خوانی جداگانه ====================
 

@@ -265,13 +265,17 @@
                     <div class="modal-body p-0">
                         <!-- Search -->
                         <div class="p-3 border-bottom bg-light">
-                            <div class="input-group">
+                            <div class="input-group mb-2">
                                 <span class="input-group-text"><i class="fi fi-rr-search"></i></span>
                                 <input type="text"
                                        class="form-control"
                                        wire:model.live.debounce.300ms="studentSearch"
                                        placeholder="جستجو بر اساس نام، نام خانوادگی یا موبایل..."
                                        autofocus />
+                            </div>
+                            <div class="alert alert-info d-flex align-items-center gap-2 mb-0 py-2 small">
+                                <i class="fi fi-rr-info"></i>
+                                پس از انتخاب هر دانش‌آموز، روز جلسه را برای او مشخص کنید.
                             </div>
                         </div>
 
@@ -355,6 +359,26 @@
                                         </span>
                                             @endif
                                         </div>
+                                        {{-- انتخاب روز جلسه (برای دانش‌آموز انتخاب شده) --}}
+                                        @if($isSelected)
+                                            <div class="mt-2" @click.stop>
+                                                <select class="form-select form-select-sm @error('studentSchedules.'.$mStudent->id.'.day') is-invalid @enderror"
+                                                        wire:model.live="studentSchedules.{{ $mStudent->id }}.day"
+                                                        style="max-width:160px;">
+                                                    <option value="">-- روز جلسه --</option>
+                                                    <option value="6">شنبه</option>
+                                                    <option value="0">یکشنبه</option>
+                                                    <option value="1">دوشنبه</option>
+                                                    <option value="2">سه‌شنبه</option>
+                                                    <option value="3">چهارشنبه</option>
+                                                    <option value="4">پنج‌شنبه</option>
+                                                    <option value="5">جمعه</option>
+                                                </select>
+                                                @error('studentSchedules.'.$mStudent->id.'.day')
+                                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        @endif
                                     </div>
 
                                     <!-- Selected checkmark -->
@@ -408,7 +432,8 @@
                             <div class="small">
                                 برای هر دانش‌آموز انتخاب‌شده، <strong>۴ جلسه</strong> به صورت خودکار ثبت می‌شود.
                                 هر جلسه یک هفته پس از جلسه قبلی برگزار می‌شود.
-                                روز هفته، ساعت و محل برگزاری را برای هر دانش‌آموز جداگانه تنظیم کنید.
+                                ساعت، دقیقه و محل برگزاری را برای هر دانش‌آموز جداگانه تنظیم کنید.
+
                             </div>
                         </div>
 
@@ -437,24 +462,17 @@
                                     <div class="row g-3 align-items-start">
 
                                         <!-- روز هفته -->
-                                        <div class="col-md-3 col-6">
-                                            <label class="form-label fw-semibold small">
-                                                روز هفته <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-select form-select-sm @error('studentSchedules.'.$sid.'.day') is-invalid @enderror"
-                                                    wire:model.live="studentSchedules.{{ $sid }}.day">
-                                                <option value="">-- انتخاب --</option>
-                                                <option value="6">شنبه</option>
-                                                <option value="0">یکشنبه</option>
-                                                <option value="1">دوشنبه</option>
-                                                <option value="2">سه‌شنبه</option>
-                                                <option value="3">چهارشنبه</option>
-                                                <option value="4">پنج‌شنبه</option>
-                                                <option value="5">جمعه</option>
-                                            </select>
-                                            @error('studentSchedules.'.$sid.'.day')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
+                                        {{-- روز هفته: نمایش روز انتخابی از مرحله اول --}}
+                                        @php
+                                            $dayNames = [0=>'یکشنبه',1=>'دوشنبه',2=>'سه‌شنبه',3=>'چهارشنبه',4=>'پنج‌شنبه',5=>'جمعه',6=>'شنبه'];
+                                            $selectedDayName = $dayNames[$schedule['day'] ?? ''] ?? '—';
+                                        @endphp
+                                        <div class="col-md-3 col-6 d-flex align-items-center gap-2">
+                                            <i class="fi fi-rr-calendar text-primary"></i>
+                                            <div>
+                                                <div class="small text-muted">روز جلسه (انتخاب شده)</div>
+                                                <div class="fw-semibold">{{ $selectedDayName }}</div>
+                                            </div>
                                         </div>
 
                                         <!-- ساعت -->
@@ -462,12 +480,10 @@
                                             <label class="form-label fw-semibold small">
                                                 ساعت <span class="text-danger">*</span>
                                             </label>
-                                            <select class="form-select form-select-sm @error('studentSchedules.'.$sid.'.hour') is-invalid @enderror"
-                                                    wire:model="studentSchedules.{{ $sid }}.hour">
-                                                @for($h = 0; $h <= 23; $h++)
-                                                    <option value="{{ $h }}">{{ str_pad($h, 2, '0', STR_PAD_LEFT) }}</option>
-                                                @endfor
-                                            </select>
+                                            <input type="tel"
+                                                   class="form-control form-control-sm @error('studentSchedules.'.$sid.'.hour') is-invalid @enderror"
+                                                   wire:model="studentSchedules.{{ $sid }}.hour"
+                                                   min="0" max="23" placeholder="۸">
                                             @error('studentSchedules.'.$sid.'.hour')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -477,12 +493,10 @@
                                             <label class="form-label fw-semibold small">
                                                 دقیقه <span class="text-danger">*</span>
                                             </label>
-                                            <select class="form-select form-select-sm @error('studentSchedules.'.$sid.'.minute') is-invalid @enderror"
-                                                    wire:model="studentSchedules.{{ $sid }}.minute">
-                                                @foreach([0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55] as $m)
-                                                    <option value="{{ $m }}">{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}</option>
-                                                @endforeach
-                                            </select>
+                                            <input type="tel"
+                                                   class="form-control form-control-sm @error('studentSchedules.'.$sid.'.minute') is-invalid @enderror"
+                                                   wire:model="studentSchedules.{{ $sid }}.minute"
+                                                   min="0" max="59" placeholder="۰۰">
                                             @error('studentSchedules.'.$sid.'.minute')
                                             <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror

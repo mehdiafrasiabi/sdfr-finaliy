@@ -1,6 +1,5 @@
 <div>
     @push('link')
-
         <style>
             [x-cloak] {
                 display: none !important;
@@ -772,7 +771,7 @@
                 <div class="row g-3">
                     <div class="col-6 col-md-2">
                         <a href="#"
-                           @click.prevent="openIframe('{{ route('admin.student.studySession.detail', $student->id) }}', 'ساعت مطالعه', 'linear-gradient(135deg,#059669,#10b981)')"
+                           @click.prevent="openIframe('{{ route('admin.student.studySession.detail', $student->user_id) }}', 'ساعت مطالعه', 'linear-gradient(135deg,#059669,#10b981)')"
                            class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
                             <i class="material-symbols-outlined d-block mb-2 text-success">schedule</i>
                             <span class="small d-block fw-semibold">ساعت مطالعه</span>
@@ -782,7 +781,7 @@
 
                     <div class="col-6 col-md-2">
                         <a href="#"
-                           @click.prevent="openIframe('{{ route('admin.student.reportDailyActivities.detail', $student->id) }}', 'گزارش فعالیت روزانه', 'linear-gradient(135deg,#0891b2,#06b6d4)')"
+                           @click.prevent="openIframe('{{ route('admin.student.reportDailyActivities.detail', $student->user_id) }}', 'گزارش فعالیت روزانه', 'linear-gradient(135deg,#0891b2,#06b6d4)')"
                            class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
                             <i class="material-symbols-outlined d-block mb-2 text-info">summarize</i>
                             <span class="small d-block fw-semibold">گزارش</span>
@@ -840,7 +839,7 @@
                     </div>
                     <div class="col-6 col-md-4">
                         <a href="#"
-                           @click.prevent="openIframe('{{ route('admin.student.reportDailyActivities.detail', $student->id) }}', 'گزارش فعالیت - جلسه قبلی', 'linear-gradient(135deg,#7c3aed,#a855f7)')"
+                           @click.prevent="openIframe('{{ route('admin.student.reportDailyActivities.detail', $student->user_id) }}', 'گزارش فعالیت - جلسه قبلی', 'linear-gradient(135deg,#7c3aed,#a855f7)')"
                            class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100"
                            style="border-color: rgba(124, 58, 237, .25);">
                             <i class="material-symbols-outlined d-block mb-2 text-purple" style="color:#7c3aed;">summarize</i>
@@ -850,7 +849,7 @@
                     </div>
                     <div class="col-6 col-md-4">
                         <a href="#"
-                           @click.prevent="openIframe('{{ route('admin.student.studySession.detail', $student->id) }}', 'ساعت مطالعه - جلسه قبلی', 'linear-gradient(135deg,#059669,#10b981)')"
+                           @click.prevent="openIframe('{{ route('admin.student.studySession.detail', $student->user_id) }}', 'ساعت مطالعه - جلسه قبلی', 'linear-gradient(135deg,#059669,#10b981)')"
                            class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100"
                            style="border-color: rgba(5, 150, 105, .25);">
                             <i class="material-symbols-outlined d-block mb-2 text-success">schedule</i>
@@ -1147,59 +1146,104 @@
                     <i class="material-symbols-outlined text-primary">view_week</i>
                     <h5 class="mb-0">برنامه هفتگی</h5>
                 </div>
-                <div class="d-flex align-items-center gap-2">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
                     <small class="text-muted-2">برای افزودن روی + کلیک کنید</small>
-                    <button wire:click="togglePartSelectMode"
-                            class="btn btn-sm {{ $partSelectMode ? 'btn-warning' : 'btn-outline-secondary' }} d-flex align-items-center gap-1">
-                        <i class="material-symbols-outlined"
-                           style="font-size:16px;">{{ $partSelectMode ? 'close' : 'check_box' }}</i>
-                        {{ $partSelectMode ? 'خروج از انتخاب' : 'انتخاب و کپی پارت' }}
-                    </button>
+                    @if($partSelectMode)
+                        <button wire:click="togglePartSelectMode({{ $cutMode ? 'true' : 'false' }})"
+                                class="btn btn-sm {{ $cutMode ? 'btn-danger' : 'btn-warning' }} d-flex align-items-center gap-1">
+                            <i class="material-symbols-outlined" style="font-size:16px;">close</i>
+                            خروج از {{ $cutMode ? 'کات' : 'کپی' }}
+                        </button>
+                    @else
+                        <button wire:click="togglePartSelectMode(false)"
+                                class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+                            <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i>
+                            کپی پارت
+                        </button>
+                        <button wire:click="togglePartSelectMode(true)"
+                                class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
+                            <i class="material-symbols-outlined" style="font-size:16px;">content_cut</i>
+                            کات پارت
+                        </button>
+                    @endif
                 </div>
             </div>
             {{-- Floating copy panel --}}
             @if($partSelectMode && count($selectedPartIds) > 0)
-                <div class="card border-warning border-2 mb-3 mx-1">
+                <div class="card {{ $cutMode ? 'border-danger' : 'border-warning' }} border-2 mb-3 mx-1">
                     <div class="card-body py-2">
                         <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
-                            <span class="fw-semibold text-warning d-flex align-items-center gap-1">
-                                <i class="material-symbols-outlined" style="font-size:18px;">content_copy</i>
-                                {{ count($selectedPartIds) }} پارت انتخاب شده
+    <span class="fw-semibold {{ $cutMode ? 'text-danger' : 'text-warning' }} d-flex align-items-center gap-1">
+                                <i class="material-symbols-outlined" style="font-size:18px;">{{ $cutMode ? 'content_cut' : 'content_copy' }}</i>
+                                {{ count($selectedPartIds) }} پارت انتخاب شده برای {{ $cutMode ? 'کات' : 'کپی' }}
                             </span>
                             <button wire:click="clearPartSelection" class="btn btn-sm btn-outline-secondary ms-auto">
                                 لغو انتخاب
                             </button>
                         </div>
                         <div class="mb-2">
-                            <label class="form-label mb-1 small fw-semibold">روزهای مقصد (می‌توانید چند روز انتخاب
-                                کنید):</label>
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach($weekDays as $day)
-                                    @if(!$day['is_rest_day'] && !$day['is_exam_day'])
-                                        @php $isChecked = in_array((string)$day['index'], $copyTargetDays) || in_array($day['index'], $copyTargetDays); @endphp
-                                        <label
-                                            class="d-flex align-items-center gap-1 cursor-pointer border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-warning text-dark border-warning' : 'bg-body-tertiary' }}"
-                                            style="cursor:pointer;">
-                                            <input type="checkbox"
-                                                   wire:model.live="copyTargetDays"
-                                                   value="{{ $day['index'] }}"
-                                                   class="form-check-input mb-0 me-1"
-                                                   style="width:14px;height:14px;">
-                                            {{ $day['name'] }} ({{ $day['jalali_date'] }})
-                                        </label>
-                                    @endif
-                                @endforeach
-                            </div>
+                            @if($cutMode)
+                                <label class="form-label mb-1 small fw-semibold">روز مقصد (یک روز انتخاب کنید):</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach($weekDays as $day)
+                                        @if(!$day['is_rest_day'] && !$day['is_exam_day'])
+                                            @php $isChecked = in_array((string)$day['index'], $copyTargetDays) || in_array($day['index'], $copyTargetDays); @endphp
+                                            <label
+                                                class="d-flex align-items-center gap-1 cursor-pointer border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-danger text-white border-danger' : 'bg-body-tertiary' }}"
+                                                style="cursor:pointer;">
+                                                <input type="radio"
+                                                       wire:model.live="copyTargetDays"
+                                                       value="{{ $day['index'] }}"
+                                                       class="form-check-input mb-0 me-1"
+                                                       style="width:14px;height:14px;">
+                                                {{ $day['name'] }} ({{ $day['jalali_date'] }})
+                                            </label>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @else
+                                <label class="form-label mb-1 small fw-semibold">روزهای مقصد (می‌توانید چند روز انتخاب کنید):</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach($weekDays as $day)
+                                        @if(!$day['is_rest_day'] && !$day['is_exam_day'])
+                                            @php $isChecked = in_array((string)$day['index'], $copyTargetDays) || in_array($day['index'], $copyTargetDays); @endphp
+                                            <label
+                                                class="d-flex align-items-center gap-1 cursor-pointer border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-warning text-dark border-warning' : 'bg-body-tertiary' }}"
+                                                style="cursor:pointer;">
+                                                <input type="checkbox"
+                                                       wire:model.live="copyTargetDays"
+                                                       value="{{ $day['index'] }}"
+                                                       class="form-check-input mb-0 me-1"
+                                                       style="width:14px;height:14px;">
+                                                {{ $day['name'] }} ({{ $day['jalali_date'] }})
+                                            </label>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
+
                         </div>
-                        <button wire:click="copySelectedParts"
-                                class="btn btn-sm btn-warning text-white"
-                            {{ empty($copyTargetDays) ? 'disabled' : '' }}>
-                            <span wire:loading.remove wire:target="copySelectedParts">
-                                <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i>
-                                کپی در روزهای انتخابی
-                            </span>
-                            <span wire:loading wire:target="copySelectedParts">در حال کپی...</span>
-                        </button>
+                        @if($cutMode)
+                            <button wire:click="cutSelectedParts"
+                                    class="btn btn-sm btn-danger text-white"
+                                {{ empty($copyTargetDays) ? 'disabled' : '' }}>
+                                <span wire:loading.remove wire:target="cutSelectedParts">
+                                    <i class="material-symbols-outlined" style="font-size:16px;">content_cut</i>
+                                    کات به روز انتخابی
+                                </span>
+                                <span wire:loading wire:target="cutSelectedParts">در حال کات...</span>
+                            </button>
+                        @else
+                            <button wire:click="copySelectedParts"
+                                    class="btn btn-sm btn-warning text-white"
+                                {{ empty($copyTargetDays) ? 'disabled' : '' }}>
+                                <span wire:loading.remove wire:target="copySelectedParts">
+                                    <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i>
+                                    کپی در روزهای انتخابی
+                                </span>
+                                <span wire:loading wire:target="copySelectedParts">در حال کپی...</span>
+                            </button>
+                        @endif
                     </div>
                 </div>
             @endif
@@ -1370,27 +1414,52 @@
                                             @php $part = $day['parts'][$i]; @endphp
 
                                             @if($partSelectMode)
-                                                {{-- حالت انتخاب --}}
-                                                @php $isSelected = in_array($part->id, $selectedPartIds); @endphp
+                                                {{-- حالت انتخاب: نمایش کامل اطلاعات + قابلیت انتخاب --}}
+                                                @php
+                                                    $isSelected = in_array($part->id, $selectedPartIds);
+                                                    $selectBorderClass = $cutMode ? 'border-danger border-2' : 'border-warning border-2';
+                                                    $selectIconColor = $cutMode ? 'text-danger' : 'text-warning';
+                                                @endphp
                                                 <div
-                                                    class="plan-box p-3 {{ $part->color_class ?? '' }} {{ $isSelected ? 'border-warning border-2' : '' }}"
+                                                    class="plan-box p-3 {{ $part->color_class ?? '' }} {{ $isSelected ? $selectBorderClass : '' }}"
+
                                                     wire:click="togglePartSelection({{ $part->id }})"
                                                     style="cursor:pointer;position:relative;">
-                                                    <div class="position-absolute top-0 end-0 p-1">
-                                                        <i class="material-symbols-outlined {{ $isSelected ? 'text-warning' : 'text-muted-2' }}"
+                                                    <div class="position-absolute top-0 end-0 p-1" style="z-index:2;">
+                                                        <i class="material-symbols-outlined {{ $isSelected ? $selectIconColor : 'text-muted-2' }}"
                                                            style="font-size:20px;">
                                                             {{ $isSelected ? 'check_box' : 'check_box_outline_blank' }}
                                                         </i>
                                                     </div>
-                                                    <div class="d-flex align-items-center gap-1 mb-1">
-                                                        <span class="fw-bold small">{{ $part->lesson_name }}</span>
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <div class="d-flex align-items-center gap-1">
+                                                            <span class="fw-bold small">{{ $part->lesson_name }}</span>
+                                                        </div>
+                                                        <span class="badge bg-body-tertiary text-body border text-xs" style="margin-left:24px;">
+                                                            {{ $part->part_type_label }} {{ $part->grade_label }}
+                                                        </span>
                                                     </div>
+                                                    @if($part->source_type && $part->source_type !== 'normal')
+                                                        <div class="mb-1">
+                                                            <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
+                                                                {{ $part->source_type_label }}
+                                                            </span>
+                                                        </div>
+                                                    @endif
+                                                    <p class="small mb-2 text-muted-2">
+                                                        {{ Str::limit($part->description, 55) }}
+                                                    </p>
                                                     <div class="d-flex flex-wrap gap-2 small text-muted-2">
                                                         <span class="d-flex align-items-center gap-1">
-                                                            <i class="material-symbols-outlined"
-                                                               style="font-size:14px;">schedule</i>
+                                                            <i class="material-symbols-outlined" style="font-size:14px;">schedule</i>
                                                             {{ $part->duration_minutes }} دقیقه
                                                         </span>
+                                                        @if($part->test_count)
+                                                            <span class="d-flex align-items-center gap-1">
+                                                                <i class="material-symbols-outlined" style="font-size:14px;">quiz</i>
+                                                                {{ $part->test_count }} تست
+                                                            </span>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             @else
@@ -2046,18 +2115,36 @@
                                 </div>
                             @else
                                 {{-- جدول ویرایش تایم‌ها - یک ردیف برای هر درس --}}
-                                <div class="d-flex align-items-center justify-content-between mb-2">
-                                    <h6 class="fw-bold mb-0 d-flex align-items-center gap-1">
+                                <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+
+                                <h6 class="fw-bold mb-0 d-flex align-items-center gap-1">
                                         <i class="material-symbols-outlined text-success" style="font-size:18px;">edit_note</i>
                                         تایم پیش‌خوانی و روزخوانی هر درس
                                     </h6>
-                                    <button wire:click="previewWeeklyReadings"
-                                            class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
-                                        <i class="material-symbols-outlined" style="font-size:15px;">refresh</i>
-                                        بازنشانی
-                                        <span wire:loading wire:target="previewWeeklyReadings"><span
-                                                class="spinner-border spinner-border-sm"></span></span>
-                                    </button>
+                                    <div class="d-flex align-items-center gap-2">
+                                        {{-- فیلتر نوع --}}
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <button wire:click="$set('readingTypeFilter', '')"
+                                                    class="btn {{ $readingTypeFilter === '' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+                                                همه
+                                            </button>
+                                            <button wire:click="$set('readingTypeFilter', 'daily')"
+                                                    class="btn {{ $readingTypeFilter === 'daily' ? 'btn-primary' : 'btn-outline-primary' }}">
+                                                روزخوانی
+                                            </button>
+                                            <button wire:click="$set('readingTypeFilter', 'pre')"
+                                                    class="btn {{ $readingTypeFilter === 'pre' ? 'btn-info' : 'btn-outline-info' }}">
+                                                پیش‌خوانی
+                                            </button>
+                                        </div>
+                                        <button wire:click="previewWeeklyReadings"
+                                                class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+                                            <i class="material-symbols-outlined" style="font-size:15px;">refresh</i>
+                                            بازنشانی
+                                            <span wire:loading wire:target="previewWeeklyReadings"><span
+                                                    class="spinner-border spinner-border-sm"></span></span>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="alert alert-info small d-flex align-items-center gap-2 mb-2 py-2">
                                     <i class="material-symbols-outlined" style="font-size:16px;">info</i>
@@ -2076,7 +2163,9 @@
                                         </thead>
                                         <tbody>
                                         @foreach($weeklyReadingsPreview as $idx => $item)
-                                            <tr>
+                                            @if($readingTypeFilter === '' || $item['type'] === $readingTypeFilter)
+
+                                                <tr>
                                                 <td>
                                                     @if($item['type'] === 'daily')
                                                         <span
@@ -2100,6 +2189,7 @@
                                                            min="0" max="300" style="width:70px;">
                                                 </td>
                                             </tr>
+                                            @endif
                                         @endforeach
                                         </tbody>
                                     </table>
