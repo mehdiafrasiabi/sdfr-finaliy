@@ -50,8 +50,11 @@
                             </div>
 
                             <div
-                                class="d-md-flex justify-content-between align-items-center dt-layout-end col-md-auto ms-auto">
-                                <div >
+                                class="d-md-flex justify-content-between align-items-center dt-layout-end col-md-auto ms-auto gap-2">
+                                <button type="button" class="btn btn-success btn-sm" wire:click="openExportModal">
+                                    خروجی اکسل
+                                </button>
+                                <div>
                                     <input
                                         type="text"
                                         class="form-control form-control-sm"
@@ -244,6 +247,103 @@
             </div>
         </div>
     </div>
+    @if($exportModalOpen)
+        <div class="modal fade show d-block" tabindex="-1" role="dialog" style="background:rgba(0,0,0,.5);" wire:click.self="closeExportModal">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">خروجی اکسل ساعت مطالعه دانش آموزان</h5>
+                        <button type="button" class="btn-close" wire:click="closeExportModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">نوع خروجی</label>
+                            <div class="d-flex gap-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="study_export_all" value="all" wire:model.live="exportTarget">
+                                    <label class="form-check-label" for="study_export_all">همه دانش‌آموزان</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="study_export_selected" value="selected" wire:model.live="exportTarget">
+                                    <label class="form-check-label" for="study_export_selected">چند دانش‌آموز انتخابی</label>
+                                </div>
+                            </div>
+                        </div>
 
+                        @if($exportTarget === 'selected')
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="study_selected_students">انتخاب دانش‌آموزان</label>
+                                <select id="study_selected_students" class="form-select" multiple wire:model.live="selectedStudentIds" style="min-height: 180px;">
+                                    @foreach($exportStudents as $exportStudent)
+                                        <option value="{{ $exportStudent->id }}">
+                                            {{ trim(($exportStudent->user?->personalInformation?->name ?? '') . ' ' . ($exportStudent->user?->personalInformation?->name_full ?? '')) ?: '-' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('selectedStudentIds') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+                        @endif
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">از تاریخ</label>
+                                <div wire:ignore>
+                                    <input type="text" id="study_export_start" data-jdp data-jdp-only-date class="form-control" placeholder="1404/01/01" autocomplete="off" readonly>
+                                </div>
+                                @error('exportStartDate') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">تا تاریخ</label>
+                                <div wire:ignore>
+                                    <input type="text" id="study_export_end" data-jdp data-jdp-only-date class="form-control" placeholder="1404/01/30" autocomplete="off" readonly>
+                                </div>
+                                @error('exportEndDate') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" wire:click="closeExportModal">انصراف</button>
+                        <button type="button" class="btn btn-success" wire:click="exportExcel">دریافت خروجی اکسل</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @script
+    <script>
+        if (typeof jalaliDatepicker !== 'undefined') {
+            jalaliDatepicker.startWatch({
+                time: false,
+                autoClose: true,
+                changeMonth: true,
+                changeYear: true,
+                showTodayBtn: true,
+                todayBtnText: 'امروز',
+                zIndex: 2000
+            });
+        }
+
+        const bindStudyExportDates = () => {
+            const start = document.getElementById('study_export_start');
+            const end = document.getElementById('study_export_end');
+
+            if (start) {
+                start.value = $wire.exportStartDate || '';
+                start.onchange = (e) => $wire.set('exportStartDate', e.target.value);
+            }
+            if (end) {
+                end.value = $wire.exportEndDate || '';
+                end.onchange = (e) => $wire.set('exportEndDate', e.target.value);
+            }
+        };
+
+        $wire.$watch('exportModalOpen', (open) => {
+            if (open) {
+                setTimeout(bindStudyExportDates, 50);
+            }
+        });
+    </script>
+    @endscript
 </div>
 

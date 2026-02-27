@@ -302,12 +302,13 @@
                                                             </div>
                                                             <span class="text-xs text-muted font-semibold">تست زده</span>
                                                         </div>
-                                                        <div class="text-2xl sm:text-3xl font-black text-blue-600">{{ $report->total_tests }}</div>
+                                                        <div class="text-2xl sm:text-3xl font-black text-blue-600">{{ $report->reportParts->sum('tests_done') }}</div>
+
                                                     </div>
 
                                                     <div class="bg-muted/30 rounded-xl p-3 sm:p-4 hover:bg-muted/50 transition-colors">
                                                         @php
-                                                            $rpt = $report->rating;
+                                                            $rpt = $report->calculated_rating;
                                                             $rptColor = match(true) {
                                                                 $rpt >= 9 => 'emerald',
                                                                 $rpt >= 7 => 'blue',

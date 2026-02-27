@@ -580,7 +580,7 @@
                                     <tr>
                                         <th class="text-right py-2 px-3 font-bold text-foreground border-b border-border" style="min-width: 80px;">روز</th>
                                         @for($p = 1; $p <= 5; $p++)
-                                            <th class="text-center py-2 px-3 font-bold text-foreground border-b border-border">پارت {{ $p }}</th>
+                                            <th class="text-center py-2 px-3 font-bold text-foreground border-b border-border">زنگ {{ $p }}</th>
                                         @endfor
                                     </tr>
                                     </thead>

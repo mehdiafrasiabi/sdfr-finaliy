@@ -668,11 +668,19 @@ class Report extends Component
     public function render()
     {
         $studentId = Auth::user()->student->id ?? null;
-        $reports = DailyReport::query()
+        $reportsQuery = DailyReport::query()
             ->where('student_id', $studentId)
-            ->with(['reportParts.programPart', 'weeklyProgram', 'detail', 'feedback'])
-            ->latest()
-            ->paginate(10);
+            ->with(['reportParts.programPart', 'weeklyProgram', 'detail', 'feedback']);
+
+        // فقط گزارش‌های مربوط به جلسه مشاوره فعال فعلی را نمایش بده
+        if ($this->currentSession) {
+            $reportsQuery->where('session_id', $this->currentSession->id);
+        } else {
+            // اگر جلسه‌ای وجود ندارد، لیست خالی
+            $reportsQuery->whereRaw('1 = 0');
+        }
+
+        $reports = $reportsQuery->latest()->paginate(10);
 
         return view('livewire.client.profile.report', [
             'reports' => $reports,

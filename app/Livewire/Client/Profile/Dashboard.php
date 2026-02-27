@@ -5,6 +5,7 @@ namespace App\Livewire\Client\Profile;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use App\Models\AdvisingSession;
 
 use App\Models\NotificationRecipient;
 use App\Models\WeeklyProgram;
@@ -63,17 +64,29 @@ class Dashboard extends Component
     }
 
     /**
-     * دریافت برنامه فعال هفتگی
-     */
-    public function getActiveWeeklyProgram()
+     * دریافت جلسه مشاوره فعال (آخرین جلسه برگزار شده)
+ */
+    public function getActiveAdvisingSession()
     {
         if (!$this->student) {
             return null;
         }
-
-        return WeeklyProgram::where('student_id', $this->student->id)
-            ->where('is_active', true)
+        return AdvisingSession::where('student_id', $this->student->id)
+            ->where('result_status', 'held')
+            ->orderBy('activation_date', 'desc')
             ->first();
+    }
+    /**
+     * دریافت برنامه فعال هفتگی (مرتبط با آخرین جلسه مشاوره برگزار شده)
+     */
+    public function getActiveWeeklyProgram()
+    {
+        $activeSession = $this->getActiveAdvisingSession();
+        if (!$activeSession) {
+            return null;
+        }
+
+        return WeeklyProgram::where('advising_session_id', $activeSession->id)->first();
     }
 
     /**
@@ -89,17 +102,20 @@ class Dashboard extends Component
 
         $today = Carbon::today();
 
-        // محاسبه اینکه امروز چندمین روز برنامه است
         $startDate = Carbon::parse($activeProgram->start_date);
-        $dayIndex = $today->diffInDays($startDate);
+        $endDate = Carbon::parse($activeProgram->end_date ?? $startDate->copy()->addDays(7));
 
         // اگر امروز در بازه برنامه نیست
-        if ($dayIndex < 0 || $dayIndex > 7) {
+        if ($today->lt($startDate) || $today->gt($endDate)) {
+
             return [];
         }
-
+        // محاسبه اینکه امروز چندمین روز برنامه است
+        $dayIndex = $startDate->diffInDays($today);
         return $activeProgram->parts()
             ->where('day_of_week', $dayIndex)
+            ->with(['lesson', 'ccSubject', 'ccChapter'])
+
             ->orderBy('part_order')
             ->get();
     }
@@ -177,15 +193,20 @@ class Dashboard extends Component
 
         $submittedReports = DailyReport::where('student_id', $this->student->id)
             ->where('weekly_program_id', $activeProgram->id)
+            ->where('is_compensatory', false)
+
             ->whereBetween('report_date', [$startDate, $endDate])
             ->count();
 
-        $percentage = ($submittedReports / 7) * 100;
+        // تعداد روزهایی که برنامه دارند (برای محاسبه درصد)
+        $programDays = $activeProgram->parts()->distinct('day_of_week')->count('day_of_week');
+        $totalDays = max($programDays, 1);
+        $percentage = ($submittedReports / $totalDays) * 100;
 
         return [
-            'total_days' => 7,
+            'total_days' => $totalDays,
             'submitted_days' => $submittedReports,
-            'percentage' => round($percentage, 1),
+            'percentage' => round(min($percentage, 100), 1),
         ];
     }
 
