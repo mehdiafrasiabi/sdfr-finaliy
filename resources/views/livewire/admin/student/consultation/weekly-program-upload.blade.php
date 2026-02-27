@@ -445,9 +445,12 @@
 
                             <label class="form-label fw-semibold">روز مورد نظر را انتخاب کنید:</label>
 
-                            <div class="d-flex align-items-center gap-2 mb-2 small">
+                            <div class="d-flex align-items-center gap-2 mb-2 small flex-wrap">
+
                                 <span class="d-inline-flex align-items-center gap-1"><span
-                                        class="badge bg-success rounded-pill px-2">&nbsp;</span> قبل یا روز امتحان</span>
+                                        class="badge bg-success rounded-pill px-2">&nbsp;</span> قبل از امتحان</span>
+                                <span class="d-inline-flex align-items-center gap-1"><span
+                                        class="badge bg-warning rounded-pill px-2">&nbsp;</span> روز امتحان</span>
                                 <span class="d-inline-flex align-items-center gap-1"><span
                                         class="badge bg-danger rounded-pill px-2">&nbsp;</span> بعد از امتحان</span>
                             </div>
@@ -458,12 +461,16 @@
                                         @if(!$day['is_rest_day'])
                                             @php
                                                 $dayDateCarbon = $day['date']->copy()->startOfDay();
-                                                $isBeforeOrOnExam = $dayDateCarbon->lte($examDateCarbon);
-                                            @endphp
+                                                $isExamDate = $dayDateCarbon->isSameDay($examDateCarbon);
+                                                $isBeforeExam = $dayDateCarbon->lt($examDateCarbon);
+                                                @endphp
                                             <button type="button"
                                                     wire:click="$set('examDaySelectTarget', {{ $day['index'] }})"
-                                                    class="btn btn-sm {{ $examDaySelectTarget === $day['index'] ? 'btn-primary' : ($isBeforeOrOnExam ? 'btn-outline-success' : 'btn-outline-danger') }}">
+                                                    class="btn btn-sm {{ $examDaySelectTarget === $day['index'] ? 'btn-primary' : ($isExamDate ? 'btn-warning text-white' : ($isBeforeExam ? 'btn-outline-success' : 'btn-outline-danger')) }}">
                                                 {{ $day['name'] }} ({{ $day['jalali_date'] }})
+                                                @if($isExamDate)
+                                                    <span class="badge bg-white text-warning ms-1" style="font-size:9px;">امتحان</span>
+                                                @endif
                                             </button>
                                         @endif
                                     @endforeach
@@ -1154,14 +1161,25 @@
                             <i class="material-symbols-outlined" style="font-size:16px;">close</i>
                             خروج از {{ $cutMode ? 'کات' : 'کپی' }}
                         </button>
+                    @elseif($bulkDeleteMode)
+                        <button wire:click="toggleBulkDeleteMode"
+                                class="btn btn-sm btn-danger d-flex align-items-center gap-1">
+                            <i class="material-symbols-outlined" style="font-size:16px;">close</i>
+                            خروج از حذف گروهی
+                        </button>
                     @else
                         <button wire:click="togglePartSelectMode(false)"
                                 class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
                             <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i>
                             کپی پارت
                         </button>
-                        <button wire:click="togglePartSelectMode(true)"
+                        <button wire:click="toggleBulkDeleteMode"
                                 class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
+                            <i class="material-symbols-outlined" style="font-size:16px;">delete_sweep</i>
+                            حذف گروهی
+                        </button>
+                        <button wire:click="togglePartSelectMode(true)"
+                                class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
                             <i class="material-symbols-outlined" style="font-size:16px;">content_cut</i>
                             کات پارت
                         </button>
@@ -1173,7 +1191,9 @@
                 <div class="card {{ $cutMode ? 'border-danger' : 'border-warning' }} border-2 mb-3 mx-1">
                     <div class="card-body py-2">
                         <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
-    <span class="fw-semibold {{ $cutMode ? 'text-danger' : 'text-warning' }} d-flex align-items-center gap-1">
+                            <span class="fw-semibold {{ $cutMode ? 'text-danger' : 'text-warning' }} d-flex align-items-center gap-1">
+
+
                                 <i class="material-symbols-outlined" style="font-size:18px;">{{ $cutMode ? 'content_cut' : 'content_copy' }}</i>
                                 {{ count($selectedPartIds) }} پارت انتخاب شده برای {{ $cutMode ? 'کات' : 'کپی' }}
                             </span>
@@ -1181,6 +1201,41 @@
                                 لغو انتخاب
                             </button>
                         </div>
+                        {{-- نمایش پارت‌های انتخاب‌شده --}}
+                        @php
+                            $selectedPartsInfo = [];
+                            foreach($weekDays as $wd) {
+                                foreach($wd['parts'] as $wp) {
+                                    if(in_array($wp->id, $selectedPartIds)) {
+                                        $selectedPartsInfo[] = [
+                                            'part' => $wp,
+                                            'day_name' => $wd['name'],
+                                            'jalali_date' => $wd['jalali_date'],
+                                        ];
+                                    }
+                                }
+                            }
+                        @endphp
+                        @if(count($selectedPartsInfo) > 0)
+                            <div class="mb-2">
+                                <label class="form-label mb-1 small fw-semibold text-muted-2">پارت‌های انتخاب‌شده:</label>
+                                <div class="border rounded-3 bg-body-tertiary" style="max-height:130px;overflow-y:auto;">
+                                    @foreach($selectedPartsInfo as $info)
+                                        <div class="d-flex align-items-start gap-2 px-2 py-1 border-bottom border-opacity-25 small">
+                                            <i class="material-symbols-outlined {{ $cutMode ? 'text-danger' : 'text-warning' }}" style="font-size:14px;margin-top:2px;">{{ $cutMode ? 'content_cut' : 'content_copy' }}</i>
+                                            <div class="flex-fill">
+                                                <span class="fw-semibold">{{ $info['part']->lesson_name }}</span>
+                                                @if($info['part']->description)
+                                                    <span class="text-muted-2"> — {{ Str::limit($info['part']->description, 45) }}</span>
+                                                @endif
+                                                <span class="badge bg-body-secondary text-body border rounded-pill ms-1" style="font-size:10px;">{{ $info['day_name'] }} {{ $info['jalali_date'] }}</span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="mb-2">
                             @if($cutMode)
                                 <label class="form-label mb-1 small fw-semibold">روز مقصد (یک روز انتخاب کنید):</label>
@@ -1242,6 +1297,69 @@
                                     کپی در روزهای انتخابی
                                 </span>
                                 <span wire:loading wire:target="copySelectedParts">در حال کپی...</span>
+                            </button>
+                        @endif
+                    </div>
+                </div>
+            @endif
+            {{-- Floating bulk delete panel --}}
+            @if($bulkDeleteMode)
+                <div class="card border-danger border-2 mb-3 mx-1">
+                    <div class="card-body py-2">
+                        <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
+                            <span class="fw-semibold text-danger d-flex align-items-center gap-1">
+                                <i class="material-symbols-outlined" style="font-size:18px;">delete_sweep</i>
+                                حالت حذف گروهی
+                                @if(count($bulkDeleteSelectedIds) > 0)
+                                    — {{ count($bulkDeleteSelectedIds) }} پارت انتخاب شده
+                                @else
+                                    — روی پارت‌ها کلیک کنید تا انتخاب شوند
+                                @endif
+                            </span>
+                            <button wire:click="toggleBulkDeleteMode" class="btn btn-sm btn-outline-secondary ms-auto">
+                                لغو
+                            </button>
+                        </div>
+                        {{-- نمایش پارت‌های انتخاب‌شده برای حذف --}}
+                        @if(count($bulkDeleteSelectedIds) > 0)
+                            @php
+                                $bulkSelectedInfo = [];
+                                foreach($weekDays as $wd) {
+                                    foreach($wd['parts'] as $wp) {
+                                        if(in_array($wp->id, $bulkDeleteSelectedIds)) {
+                                            $bulkSelectedInfo[] = [
+                                                'part' => $wp,
+                                                'day_name' => $wd['name'],
+                                                'jalali_date' => $wd['jalali_date'],
+                                            ];
+                                        }
+                                    }
+                                }
+                            @endphp
+                            <div class="mb-2">
+                                <label class="form-label mb-1 small fw-semibold text-danger">پارت‌هایی که حذف می‌شوند:</label>
+                                <div class="border border-danger rounded-3 bg-danger bg-opacity-10" style="max-height:130px;overflow-y:auto;">
+                                    @foreach($bulkSelectedInfo as $info)
+                                        <div class="d-flex align-items-start gap-2 px-2 py-1 border-bottom border-danger border-opacity-25 small">
+                                            <i class="material-symbols-outlined text-danger" style="font-size:14px;margin-top:2px;">delete</i>
+                                            <div class="flex-fill">
+                                                <span class="fw-semibold">{{ $info['part']->lesson_name }}</span>
+                                                @if($info['part']->description)
+                                                    <span class="text-muted-2"> — {{ Str::limit($info['part']->description, 45) }}</span>
+                                                @endif
+                                                <span class="badge bg-danger-subtle text-danger border rounded-pill ms-1" style="font-size:10px;">{{ $info['day_name'] }} {{ $info['jalali_date'] }}</span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <button wire:click="openBulkDeleteConfirm"
+                                    class="btn btn-sm btn-danger text-white">
+                                <span wire:loading.remove wire:target="openBulkDeleteConfirm">
+                                    <i class="material-symbols-outlined" style="font-size:16px;">delete_forever</i>
+                                    حذف {{ count($bulkDeleteSelectedIds) }} پارت انتخاب‌شده
+                                </span>
+                                <span wire:loading wire:target="openBulkDeleteConfirm">لطفاً صبر کنید...</span>
                             </button>
                         @endif
                     </div>
@@ -1413,7 +1531,36 @@
                                         @elseif(isset($day['parts'][$i]))
                                             @php $part = $day['parts'][$i]; @endphp
 
-                                            @if($partSelectMode)
+                                            @if($bulkDeleteMode)
+                                                {{-- حالت حذف گروهی --}}
+                                                @php
+                                                    $isBulkSelected = in_array($part->id, $bulkDeleteSelectedIds);
+                                                @endphp
+                                                <div
+                                                    class="plan-box p-3 {{ $part->color_class ?? '' }} {{ $isBulkSelected ? 'border-danger border-2 bg-danger bg-opacity-10' : '' }}"
+                                                    wire:click="toggleBulkDeleteSelection({{ $part->id }})"
+                                                    style="cursor:pointer;position:relative;">
+                                                    <div class="position-absolute top-0 end-0 p-1" style="z-index:2;">
+                                                        <i class="material-symbols-outlined {{ $isBulkSelected ? 'text-danger' : 'text-muted-2' }}"
+                                                           style="font-size:20px;">
+                                                            {{ $isBulkSelected ? 'check_box' : 'check_box_outline_blank' }}
+                                                        </i>
+                                                    </div>
+                                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                                        <span class="fw-bold small">{{ $part->lesson_name }}</span>
+                                                        <span class="badge bg-body-tertiary text-body border text-xs" style="margin-left:24px;">
+                                                            {{ $part->part_type_label }} {{ $part->grade_label }}
+                                                        </span>
+                                                    </div>
+                                                    @if($part->description)
+                                                        <p class="small mb-1 text-muted-2">{{ Str::limit($part->description, 50) }}</p>
+                                                    @endif
+                                                    <div class="small text-muted-2">
+                                                        <i class="material-symbols-outlined" style="font-size:13px;">schedule</i>
+                                                        {{ $part->duration_minutes }} دقیقه
+                                                    </div>
+                                                </div>
+                                            @elseif($partSelectMode)
                                                 {{-- حالت انتخاب: نمایش کامل اطلاعات + قابلیت انتخاب --}}
                                                 @php
                                                     $isSelected = in_array($part->id, $selectedPartIds);
@@ -1989,7 +2136,83 @@
         </div>
     @endif
 
-    {{-- Rest Day Confirmation Modal --}}
+        {{-- Modal تأیید حذف گروهی --}}
+        @if($showBulkDeleteConfirmModal)
+            <div class="modal fade show d-block" tabindex="-1"
+                 style="background: rgba(2, 6, 23, 0.70); backdrop-filter: blur(4px); z-index: 1090;">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content shadow-lg border-0">
+                        <div class="modal-header text-white"
+                             style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);">
+                            <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                <i class="material-symbols-outlined">delete_forever</i>
+                                تأیید حذف گروهی
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white"
+                                    wire:click="closeBulkDeleteConfirmModal"></button>
+                        </div>
+
+                        <div class="modal-body py-3">
+                            <div class="text-center mb-3">
+                                <i class="material-symbols-outlined text-danger" style="font-size: 56px;">delete_sweep</i>
+                            </div>
+                            <p class="fw-semibold text-center mb-3">
+                                <span class="text-danger fw-bold">{{ count($bulkDeleteSelectedIds) }}</span> پارت زیر حذف خواهند شد. این عمل قابل بازگشت نیست.
+                            </p>
+                            @php
+                                $confirmDeleteInfo = [];
+                                foreach($weekDays as $wd) {
+                                    foreach($wd['parts'] as $wp) {
+                                        if(in_array($wp->id, $bulkDeleteSelectedIds)) {
+                                            $confirmDeleteInfo[] = [
+                                                'part' => $wp,
+                                                'day_name' => $wd['name'],
+                                                'jalali_date' => $wd['jalali_date'],
+                                            ];
+                                        }
+                                    }
+                                }
+                            @endphp
+                            <div class="border border-danger rounded-3 bg-danger bg-opacity-10" style="max-height:200px;overflow-y:auto;">
+                                @foreach($confirmDeleteInfo as $info)
+                                    <div class="d-flex align-items-start gap-2 px-3 py-2 border-bottom border-danger border-opacity-25 small">
+                                        <i class="material-symbols-outlined text-danger" style="font-size:15px;margin-top:1px;">delete</i>
+                                        <div>
+                                            <span class="fw-semibold">{{ $info['part']->lesson_name }}</span>
+                                            @if($info['part']->description)
+                                                <span class="text-muted-2"> — {{ Str::limit($info['part']->description, 50) }}</span>
+                                            @endif
+                                            <div class="mt-1">
+                                            <span class="badge bg-danger-subtle text-danger border rounded-pill" style="font-size:10px;">
+                                                <i class="material-symbols-outlined" style="font-size:11px;">calendar_today</i>
+                                                {{ $info['day_name'] }} {{ $info['jalali_date'] }}
+                                            </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <div class="modal-footer bg-body-tertiary justify-content-center gap-2">
+                            <button type="button" class="btn btn-outline-secondary"
+                                    wire:click="closeBulkDeleteConfirmModal">
+                                انصراف
+                            </button>
+                            <button type="button" class="btn btn-danger" wire:click="executeBulkDelete">
+                            <span wire:loading.remove wire:target="executeBulkDelete">
+                                <i class="material-symbols-outlined" style="font-size:18px;">delete_forever</i>
+                                بله، حذف کن
+                            </span>
+                                <span wire:loading wire:target="executeBulkDelete">در حال حذف...</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
+
+        {{-- Rest Day Confirmation Modal --}}
     @if($showRestDayConfirmModal)
         <div class="modal fade show d-block" tabindex="-1"
              style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">

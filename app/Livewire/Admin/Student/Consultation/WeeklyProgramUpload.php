@@ -139,6 +139,11 @@ class WeeklyProgramUpload extends Component
     public array $copyTargetDays = [];
     // A-5: Class schedule reading type filter
     public string $readingTypeFilter = ''; // '', 'daily', 'pre'
+
+    // Bulk delete mode
+    public bool $bulkDeleteMode = false;
+    public array $bulkDeleteSelectedIds = [];
+    public bool $showBulkDeleteConfirmModal = false;
     protected function messages()
     {
         return [
@@ -949,6 +954,8 @@ class WeeklyProgramUpload extends Component
         $part->delete();
 
         $this->loadExistingParts();
+        $this->closePartModal();
+
         $this->dispatch('success', 'پارت حذف شد.');
     }
 
@@ -2792,7 +2799,66 @@ class WeeklyProgramUpload extends Component
         $this->copyTargetDay = null;
         $this->partSelectMode = false;
         $this->cutMode = false;
+    }
 
+    // ==================== حذف گروهی ====================
+
+    public function toggleBulkDeleteMode(): void
+    {
+        $this->bulkDeleteMode = !$this->bulkDeleteMode;
+        $this->bulkDeleteSelectedIds = [];
+        if ($this->bulkDeleteMode && $this->partSelectMode) {
+            $this->partSelectMode = false;
+            $this->selectedPartIds = [];
+            $this->cutMode = false;
+            $this->copyTargetDays = [];
+        }
+    }
+
+    public function toggleBulkDeleteSelection(int $partId): void
+    {
+        if (in_array($partId, $this->bulkDeleteSelectedIds)) {
+            $this->bulkDeleteSelectedIds = array_values(
+                array_filter($this->bulkDeleteSelectedIds, fn($id) => $id !== $partId)
+            );
+        } else {
+            $this->bulkDeleteSelectedIds[] = $partId;
+        }
+    }
+
+    public function openBulkDeleteConfirm(): void
+    {
+        if (empty($this->bulkDeleteSelectedIds)) {
+            $this->dispatch('warning', 'حداقل یک پارت انتخاب کنید.');
+            return;
+        }
+        $this->showBulkDeleteConfirmModal = true;
+    }
+
+    public function closeBulkDeleteConfirmModal(): void
+    {
+        $this->showBulkDeleteConfirmModal = false;
+    }
+
+    public function executeBulkDelete(): void
+    {
+        if (empty($this->bulkDeleteSelectedIds) || !$this->weeklyProgramId) {
+            return;
+        }
+
+        $count = count($this->bulkDeleteSelectedIds);
+
+        ProgramPart::whereIn('id', $this->bulkDeleteSelectedIds)
+            ->where('weekly_program_id', $this->weeklyProgramId)
+            ->delete();
+
+        $this->reorderAllDays();
+        $this->loadExistingParts();
+        $this->bulkDeleteSelectedIds = [];
+        $this->showBulkDeleteConfirmModal = false;
+        $this->bulkDeleteMode = false;
+
+        $this->dispatch('success', $count . ' پارت با موفقیت حذف شد.');
     }
 
     public function copySelectedParts(): void

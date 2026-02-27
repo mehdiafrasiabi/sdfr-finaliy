@@ -371,6 +371,17 @@
                                             </svg>
                                         </a>
                                     @else
+                                        <a
+                                            href="{{ route('admin.student.weekly-program', ['student' => $student->id, 'session' => $session->id]) }}"
+                                            class="btn btn-sm btn-icon btn-text-primary rounded-pill waves-effect"
+                                            title="برنامه هفتگی"
+                                        >
+                                            <!-- calendar_month icon -->
+                                            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+                                                <path
+                                                    d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm13 8H4v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9ZM5 6a1 1 0 0 0-1 1v1h16V7a1 1 0 0 0-1-1H5Z"/>
+                                            </svg>
+                                        </a>
                                         <button
                                             disabled
                                             class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
