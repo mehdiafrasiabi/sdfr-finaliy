@@ -6,11 +6,9 @@ use App\Models\Student;
 use App\Models\AdvisingSession;
 use App\Models\WeeklyProgram;
 use App\Models\ProgramPart;
-use App\Models\Lesson;
 use App\Models\AdvisingPreSession;
 use App\Models\WeeklyProgramRestDay;
 use App\Models\ClassSchedule;
-use App\Models\ClassSchedulePart;
 use App\Models\Notification;
 use App\Models\NotificationRecipient;
 use Carbon\Carbon;
@@ -23,11 +21,10 @@ use App\Models\CcSubject;
 use App\Models\CcChapter;
 use App\Models\CcTopic;
 use App\Models\WeeklyProgramExamDay;
-use Morilog\Jalali\Jalalian;
 use App\Models\ClassificationProject;
 use App\Models\StudentClassification;
-use App\Models\ProgramPartSource;
-
+use App\Models\DailyReport;
+use App\Models\StudyPartSession;
 class WeeklyProgramUpload extends Component
 {
     use WithPagination;
@@ -126,12 +123,19 @@ class WeeklyProgramUpload extends Component
     // Multi-select copy from previous session
     public array $prevSelectedPartIds = [];
     public ?int $prevMultiCopyTargetDay = null;
-    public array $copiedFromPrevPartIds = []; // track copied parts for undo
+    public array $copiedFromPrevPartIds = []; // track copied parts for undo (partId → new partId)
+
     // Filters for previous program modal
     public string $prevFilterQuality = '';    // '', 'excellent', 'good', 'poor'
     public string $prevFilterCompensatory = ''; // '', 'compensatory', 'normal'
     public string $prevFilterStudied = '';    // '', 'studied', 'not_studied'
     // Part C: Multi-select and copy parts between days
+    // Multi-select target day for prev session
+    public ?int $prevMultiCopyTargetDaySelected = null;
+    // گزارش و ساعت مطالعه جلسه قبلی
+    public bool $showPrevReportModal = false;
+    public array $prevReportData = [];
+    public string $prevReportType = ''; // 'report' or 'study'
     public bool $partSelectMode = false;
     public bool $cutMode = false; // true = cut, false = copy
     public array $selectedPartIds = [];
@@ -600,7 +604,25 @@ class WeeklyProgramUpload extends Component
             if (!$grade) continue;
             $educationLevel = $grade->educationLevel;
             if (!$educationLevel) continue;
+// Add the subject itself as a result (درس)
+            $subjectKey = 'subject_' . $subject->id;
+            if (!isset($seen[$subjectKey])) {
+                $seen[$subjectKey] = true;
+                $results[] = [
+                    'type' => 'subject',
+                    'sort' => 0,
+                    'topic_id' => null,
+                    'chapter_id' => null,
+                    'subject_id' => $subject->id,
+                    'grade_id' => $grade->id,
 
+                    'grade_name' => $grade->name,
+                    'grade_number' => $grade->grade_number,
+                    'field_id' => $subject->cc_field_id,
+                    'education_level_id' => $educationLevel->id,
+                    'label' => $subject->name,
+                ];
+            }
             foreach ($subject->chapters as $chapter) {
                 $key = 'chapter_' . $chapter->id;
                 if (isset($seen[$key])) continue;
@@ -613,6 +635,8 @@ class WeeklyProgramUpload extends Component
                     'chapter_id' => $chapter->id,
                     'subject_id' => $subject->id,
                     'grade_id' => $grade->id,
+                    'grade_name' => $grade->name,
+                    'grade_number' => $grade->grade_number,
                     'field_id' => $subject->cc_field_id,
                     'education_level_id' => $educationLevel->id,
                     'label' => $subject->name . ' / ' . $chapter->name,
@@ -661,6 +685,8 @@ class WeeklyProgramUpload extends Component
                     'chapter_id' => $chapter->id,
                     'subject_id' => $subject->id,
                     'grade_id' => $grade->id,
+                    'grade_name' => $grade->name,
+                    'grade_number' => $grade->grade_number,
                     'field_id' => $subject->cc_field_id,
                     'education_level_id' => $educationLevel->id,
                     'label' => $subject->name . ' / ' . $chapter->name,
@@ -680,6 +706,8 @@ class WeeklyProgramUpload extends Component
                     'chapter_id' => $chapter->id,
                     'subject_id' => $subject->id,
                     'grade_id' => $grade->id,
+                    'grade_name' => $grade->name,
+                    'grade_number' => $grade->grade_number,
                     'field_id' => $subject->cc_field_id,
                     'education_level_id' => $educationLevel->id,
                     'label' => $subject->name . ' / ' . $chapter->name . ' / ' . $topic->name,
@@ -729,6 +757,8 @@ class WeeklyProgramUpload extends Component
                 'chapter_id' => $chapter->id,
                 'subject_id' => $subject->id,
                 'grade_id' => $grade->id,
+                'grade_name' => $grade->name,
+                'grade_number' => $grade->grade_number,
                 'field_id' => $subject->cc_field_id,
                 'education_level_id' => $educationLevel->id,
                 'label' => $subject->name . ' / ' . $chapter->name . ' / ' . $topic->name,
@@ -2686,11 +2716,218 @@ class WeeklyProgramUpload extends Component
         $this->prevSessionParts = [];
         $this->copyingPrevPartId = null;
         $this->copyPrevPartTargetDay = null;
+        $this->prevSelectedPartIds = [];
+        $this->prevMultiCopyTargetDaySelected = null;
+        $this->copiedFromPrevPartIds = [];
+    }
+
+    /**
+     * انتخاب / لغو انتخاب پارت جلسه قبلی برای کپی چندگانه
+     */
+    public function togglePrevPartSelection(int $partId): void
+    {
+        if (in_array($partId, $this->prevSelectedPartIds)) {
+            $this->prevSelectedPartIds = array_values(array_filter($this->prevSelectedPartIds, fn($id) => $id !== $partId));
+        } else {
+            $this->prevSelectedPartIds[] = $partId;
+        }
+    }
+
+    /**
+     * افزودن پارت‌های انتخاب‌شده از جلسه قبلی به برنامه جاری
+     */
+    public function addSelectedPrevParts(): void
+    {
+        if (empty($this->prevSelectedPartIds) || $this->prevMultiCopyTargetDaySelected === null) {
+            $this->dispatch('warning', 'لطفاً پارت‌ها و روز مقصد را انتخاب کنید.');
+            return;
+        }
+
+        if (!$this->weeklyProgramId) {
+            $this->saveProgram();
+        }
+
+        $dayIndex = (int) $this->prevMultiCopyTargetDaySelected;
+        $startDate = Carbon::parse($this->start_date);
+        $partDate = $startDate->copy()->addDays($dayIndex);
+        $added = 0;
+
+        foreach ($this->prevSelectedPartIds as $partId) {
+            $part = collect($this->prevSessionParts)->firstWhere('id', $partId);
+            if (!$part) continue;
+
+            $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                ->where('day_of_week', $dayIndex)
+                ->count();
+
+            if ($existingCount >= 20) break;
+
+            $newPart = ProgramPart::create([
+                'weekly_program_id' => $this->weeklyProgramId,
+                'lesson_name' => $part['lesson_name'],
+                'part_date' => $partDate,
+                'day_of_week' => $dayIndex,
+                'part_order' => $existingCount + 1,
+                'description' => $part['description'],
+                'duration_minutes' => $part['duration_minutes'],
+                'test_count' => $part['test_count'],
+                'part_type' => $part['part_type'],
+                'source_type' => ProgramPart::SOURCE_NORMAL,
+                'lesson_type' => $part['lesson_type'],
+                'grade' => $part['grade'],
+                'education_level_id' => $part['education_level_id'],
+                'cc_grade_id' => $part['cc_grade_id'],
+                'cc_field_id' => $part['cc_field_id'],
+                'cc_subject_id' => $part['cc_subject_id'],
+                'cc_chapter_id' => $part['cc_chapter_id'],
+                'cc_topic_id' => $part['cc_topic_id'],
+            ]);
+            $this->copiedFromPrevPartIds[$partId] = $newPart->id;
+            $added++;
+        }
+
+        $this->loadExistingParts();
+        $this->prevSelectedPartIds = [];
+        $this->prevMultiCopyTargetDaySelected = null;
+
+        if ($added > 0) {
+            $this->dispatch('success', $added . ' پارت با موفقیت به برنامه اضافه شد.');
+        } else {
+            $this->dispatch('warning', 'هیچ پارتی اضافه نشد.');
+        }
     }
 
     /**
      * انتخاب پارت جلسه قبلی برای کپی
      */
+
+
+    public function revertAddedPrevPart(int $prevPartId): void
+    {
+        if (!isset($this->copiedFromPrevPartIds[$prevPartId])) return;
+
+        $newPartId = $this->copiedFromPrevPartIds[$prevPartId];
+        ProgramPart::where('id', $newPartId)
+            ->where('weekly_program_id', $this->weeklyProgramId)
+            ->delete();
+
+        unset($this->copiedFromPrevPartIds[$prevPartId]);
+        $this->reorderAllDays();
+        $this->loadExistingParts();
+        $this->dispatch('success', 'پارت از برنامه حذف شد.');
+    }
+
+    /**
+     * باز کردن مودال گزارش / ساعت مطالعه جلسه قبلی
+     */
+    public function openPrevReportModal(string $type): void
+    {
+        $session = AdvisingSession::find($this->sessionId);
+        if (!$session) {
+            $this->dispatch('warning', 'جلسه فعلی یافت نشد.');
+            return;
+        }
+
+        $prevSession = AdvisingSession::where('student_id', $this->studentId)
+            ->where('result_status', AdvisingSession::RESULT_HELD)
+            ->where('id', '!=', $this->sessionId)
+            ->latest()
+            ->first();
+
+        if (!$prevSession) {
+            $this->dispatch('warning', 'جلسه قبلی برگزار شده‌ای یافت نشد.');
+            return;
+        }
+
+        $this->prevReportType = $type;
+        $this->prevReportData = [];
+
+        if ($type === 'report') {
+            // گزارش فعالیت روزانه جلسه قبلی
+            $reports = DailyReport::where('student_id', $this->studentId)
+                ->where('session_id', $prevSession->id)
+                ->orderBy('report_date')
+                ->get()
+                ->map(function ($report) {
+                    return [
+                        'id' => $report->id,
+                        'date' => $report->report_date ? jdate($report->report_date)->format('Y/m/d') : '',
+                        'day_name' => $report->report_date ? $this->getJalaliDayName($report->report_date) : '',
+                        'content' => $report->description ?? '',
+                        'rating' => $report->rating ?? null,
+                    ];
+                })->toArray();
+
+            $this->prevReportData = [
+                'session_date' => $prevSession->activation_date ? jdate($prevSession->activation_date)->format('Y/m/d') : '',
+                'result_status' => 'برگزار شده',
+                'items' => $reports,
+                'type_label' => 'گزارش فعالیت روزانه',
+            ];
+        } elseif ($type === 'study') {
+            // ساعت مطالعه پارت‌های جلسه قبلی (StudyPartSession + feedback)
+            $prevProgram = WeeklyProgram::where('advising_session_id', $prevSession->id)->first();
+
+            if (!$prevProgram) {
+                $this->dispatch('warning', 'برنامه جلسه قبلی یافت نشد.');
+                return;
+            }
+
+            $studySessions = StudyPartSession::where('weekly_program_id', $prevProgram->id)
+                ->where('student_id', $this->studentId)
+                ->with(['programPart', 'feedback'])
+                ->orderBy('started_at')
+                ->get()
+                ->map(function ($session) {
+                    $durationSeconds = $session->duration_seconds ?? 0;
+                    $durationMinutes = (int)round($durationSeconds / 60);
+                    $hours = floor($durationMinutes / 60);
+                    $mins = $durationMinutes % 60;
+                    $durationLabel = $hours > 0 ? ($hours . ' ساعت ' . ($mins > 0 ? $mins . ' دقیقه' : '')) : ($mins . ' دقیقه');
+                    return [
+                        'id' => $session->id,
+                        'date' => $session->started_at ? jdate($session->started_at)->format('Y/m/d') : '',
+                        'day_name' => $session->started_at ? $this->getJalaliDayName($session->started_at) : '',
+                        'subject' => $session->programPart?->lesson_name ?? '-',
+                        'duration_minutes' => $durationMinutes,
+                        'duration_label' => $durationLabel,
+                        'rating' => $session->feedback?->rating ?? null,
+                        'feedback' => $session->feedback?->comment ?? null,
+                    ];
+                })->toArray();
+
+            $totalMinutes = collect($studySessions)->sum('duration_minutes');
+            $totalHours = floor($totalMinutes / 60);
+            $totalMins = $totalMinutes % 60;
+            $totalLabel = $totalHours > 0 ? ($totalHours . ' ساعت ' . ($totalMins > 0 ? $totalMins . ' دقیقه' : '')) : ($totalMins . ' دقیقه');
+
+            $this->prevReportData = [
+                'session_date' => $prevSession->activation_date ? jdate($prevSession->activation_date)->format('Y/m/d') : '',
+                'result_status' => 'برگزار شده',
+                'items' => $studySessions,
+                'total_label' => $totalLabel,
+                'type_label' => 'ساعت مطالعه پارت‌ها',
+            ];
+        }
+
+        $this->showPrevReportModal = true;
+    }
+
+    public function closePrevReportModal(): void
+    {
+        $this->showPrevReportModal = false;
+        $this->prevReportData = [];
+        $this->prevReportType = '';
+    }
+
+    protected function getJalaliDayName($date): string
+    {
+        $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+        $dayOfWeek = jdate($date)->getDayOfWeek();
+        return $jalaliDayNames[$dayOfWeek] ?? '';
+    }
+
+
     public function selectPrevPartForCopy(int $partId): void
     {
         if ($this->copyingPrevPartId === $partId) {
@@ -2778,8 +3015,7 @@ class WeeklyProgramUpload extends Component
             $this->selectedPartIds = [];
             $this->copyTargetDay = null;
             $this->copyTargetDays = [];
-            $this->copyTargetDays = [];
-            $this->cutMode = false;
+
 
         }
     }
