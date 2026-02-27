@@ -536,14 +536,21 @@
 
                                     $report = $item['data'];
 
-                                    $readParts = $report->reportParts->where('is_read', true)->count();
+                                                                      // Get ALL program parts for this day from weekly program
+                                    $allDayParts = $report->getProgramPartsForDay();
+                                    $reportPartsMap = $report->reportParts->keyBy('program_part_id');
 
-                                    $totalParts = $report->reportParts->count();
-
-                                    $totalTests = $report->reportParts->sum(fn($p) => $p->programPart?->test_count ?? 0);
-
-                                    $doneTests = $report->reportParts->sum('tests_done');
-
+                                    if ($allDayParts->isNotEmpty()) {
+                                        $totalParts = $allDayParts->count();
+                                        $readParts = $allDayParts->filter(fn($p) => $reportPartsMap->get($p->id)?->is_read ?? false)->count();
+                                        $totalTests = (int) $allDayParts->sum('test_count');
+                                        $doneTests = $allDayParts->sum(fn($p) => $reportPartsMap->get($p->id)?->tests_done ?? 0);
+                                    } else {
+                                        $readParts = $report->reportParts->where('is_read', true)->count();
+                                        $totalParts = $report->reportParts->count();
+                                        $totalTests = $report->reportParts->sum(fn($p) => $p->programPart?->test_count ?? 0);
+                                        $doneTests = $report->reportParts->sum('tests_done');
+                                    }
                                     $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
                                      // Check if submitted within allowed time window (00:00 ~ 06:00 next day)
                                     $rptDateStart = \Carbon\Carbon::parse($report->report_date)->startOfDay();
@@ -1475,117 +1482,57 @@
                             <i class="material-symbols-outlined text-success">download</i>
 
                             خروجی اکسل
-
                         </h5>
-
                         <button type="button" class="btn-close" wire:click="closeExportModal"></button>
-
                     </div>
-
-
                     <div class="modal-body">
-
                         <p class="text-muted mb-3">
-
                             بازه تاریخی مورد نظر خود را انتخاب کنید. خروجی شامل تمام گزارش‌ها (تایید شده، رد شده و ارسال
                             نشده) خواهد بود.
-
                         </p>
-
-
                         <div class="row g-3">
-
                             <div class="col-md-6">
-
                                 <label class="form-label">تاریخ شروع</label>
-
                                 <input type="text"
-
                                        wire:model="exportStartDate"
-
                                        class="form-control"
-
                                        placeholder="1404/09/10"
-
                                        dir="ltr">
-
                                 @error('exportStartDate')
-
                                 <div class="form-text text-danger">{{ $message }}</div>
-
                                 @enderror
-
                             </div>
-
                             <div class="col-md-6">
-
                                 <label class="form-label">تاریخ پایان</label>
-
                                 <input type="text"
-
                                        wire:model="exportEndDate"
-
                                        class="form-control"
-
                                        placeholder="1404/10/30"
-
                                        dir="ltr">
-
                                 @error('exportEndDate')
-
                                 <div class="form-text text-danger">{{ $message }}</div>
-
                                 @enderror
-
                             </div>
-
                         </div>
-
-
                         <div class="alert alert-info mt-3 mb-0">
-
                             <i class="material-symbols-outlined align-middle me-1">info</i>
-
                             فرمت تاریخ: سال/ماه/روز شمسی (مثال: 1404/09/10)
-
                         </div>
-
                     </div>
-
-
                     <div class="modal-footer">
-
                         <button type="button" class="btn btn-secondary" wire:click="closeExportModal">انصراف</button>
-
                         <button type="button"
-
                                 wire:click="exportExcel"
-
                                 wire:loading.attr="disabled"
-
                                 class="btn btn-success d-flex align-items-center gap-2">
-
                             <i class="material-symbols-outlined" style="font-size: 20px;">download</i>
-
                             <span wire:loading.remove wire:target="exportExcel">دانلود اکسل</span>
-
                             <span wire:loading wire:target="exportExcel"
-
                                   class="spinner-border spinner-border-sm"></span>
-
                         </button>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     @endif
-
-
-
-
 </div>

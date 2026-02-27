@@ -484,7 +484,7 @@ class ReportDaily extends Component
         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
 
         $personalInfo = $report->student->user->personalInformation;
-        $ratingVal = (float)($report->detail->rating ?? 0);
+
 
         $this->selectedReportData = [
             'student_name' => $this->getStudentFullName($report->student->user),
@@ -494,8 +494,8 @@ class ReportDaily extends Component
             'day_name' => $dayNames[jdate($report->report_date)->getDayOfWeek()] ?? '-',
             'description' => $report->detail->description ?? '',
             'missed_parts_reason' => $report->detail->missed_parts_reason ?? '',
-            'rating' => $ratingVal,
-            'rating_label' => $this->getRatingLabel($ratingVal),
+            'rating' => 0,
+            'rating_label' => 'ثبت نشده',
             'is_compensatory' => $report->is_compensatory,
             'status' => $report->detail->status ?? 'pending',
             'advisor_comment' => $report->feedback->advisor_comment ?? '',
@@ -504,34 +504,45 @@ class ReportDaily extends Component
         ];
 
 
-        // ✅ پارت‌ها همیشه از daily_report_parts بارگذاری می‌شوند (هم عادی هم جبرانی)
-        // چون day_of_week در daily_reports روز هفته شمسی است (۰-۶) ولی در program_parts شاخص روز برنامه (۰-۷)
-        // بنابراین نباید از day_of_week برای کوئری استفاده شود
+        // Get ALL program parts for this day from weekly program
+
         $reportPartsMap = $report->reportParts->keyBy('program_part_id');
-        $reportPartProgramIds = $report->reportParts->pluck('program_part_id')->filter()->toArray();
 
         $programParts = collect();
-        if (!empty($reportPartProgramIds) && $report->weeklyProgram) {
+        if ($report->weeklyProgram) {
+            $startDate = Carbon::parse($report->weeklyProgram->start_date);
+            $dayIndex = $startDate->diffInDays(Carbon::parse($report->report_date));
             $programParts = $report->weeklyProgram
                 ->parts()
-                ->whereIn('id', $reportPartProgramIds)
-                ->orderBy('day_of_week')
+                ->where('day_of_week', $dayIndex)
                 ->orderBy('part_order')
                 ->with(['ccSubject', 'ccTopic', 'ccChapter'])
                 ->get();
         }
 
-        // Fallback: اگر از weekly program پیدا نشد، مستقیم از reportParts بگیر
+        // Fallback: if no parts found from weekly program, use reportParts
         if ($programParts->isEmpty()) {
-            $programParts = $report->reportParts
-                ->map(fn($rp) => $rp->programPart)
-                ->filter()
-                ->values();
+            $reportPartProgramIds = $report->reportParts->pluck('program_part_id')->filter()->toArray();
+            if (!empty($reportPartProgramIds) && $report->weeklyProgram) {
+                $programParts = $report->weeklyProgram
+                    ->parts()
+                    ->whereIn('id', $reportPartProgramIds)
+                    ->orderBy('day_of_week')
+                    ->orderBy('part_order')
+                    ->with(['ccSubject', 'ccTopic', 'ccChapter'])
+                    ->get();
+            }
+            if ($programParts->isEmpty()) {
+                $programParts = $report->reportParts
+                    ->map(fn($rp) => $rp->programPart)
+                    ->filter()
+                    ->values();
+            }
         }
 
         $partIds = $programParts->pluck('id')->filter()->toArray();
 
-        // ✅ دریافت آخرین session مطالعه برای هر پارت (بدون فیلتر weekly_program_id برای robustness)
+        // Get study sessions with timing and feedback for all parts
         $studySessionsMap = StudyPartSession::where('student_id', $report->student_id)
             ->whereIn('program_part_id', $partIds)
             ->where('is_completed', true)
@@ -542,6 +553,7 @@ class ReportDaily extends Component
         $doneTests = 0;
         $totalParts = 0;
         $readParts = 0;
+        $ratingSum = 0;
 
         foreach ($programParts as $programPart) {
             if (!$programPart) continue;
@@ -555,7 +567,6 @@ class ReportDaily extends Component
             if ($isRead) $readParts++;
             $totalTests += $testCount;
             $doneTests += $testsDone;
-            // ✅ مدت مطالعه: از sps_timings یا محاسبه از started_at/ended_at
             $studyDuration = 0;
             if ($studySession) {
                 $studyDuration = $studySession->timing?->duration_seconds
@@ -564,8 +575,9 @@ class ReportDaily extends Component
                         : 0);
             }
 
-            // ✅ امتیاز از session_feedbacks (1-10)
-            $sessionRating = $studySession?->feedback?->rating ?? null;
+            // Rating from session_feedbacks (1-10), 0 if no feedback
+            $sessionRating = $studySession?->feedback?->rating ?? 0;
+            $ratingSum += $sessionRating;
 
             $this->reportPartsDetails[] = [
                 'id' => $programPart->id,
@@ -581,6 +593,7 @@ class ReportDaily extends Component
                 'tests_done' => $testsDone,
                 'test_count' => $testCount,
                 'session_rating' => $sessionRating,
+                'has_report' => $reportPart !== null,
                 'is_compensatory' => $reportPart?->is_compensatory ?? false,
                 'has_study_session' => $studySession !== null,
                 'study_duration_seconds' => $studyDuration,
@@ -588,6 +601,7 @@ class ReportDaily extends Component
                 'study_ended_at' => $studySession?->ended_at?->format('H:i') ?? null,
             ];
         }
+        $avgRating = $totalParts > 0 ? round($ratingSum / $totalParts, 1) : 0;
 
         $this->selectedReportData['total_parts'] = $totalParts;
         $this->selectedReportData['read_parts'] = $readParts;
@@ -595,7 +609,8 @@ class ReportDaily extends Component
         $this->selectedReportData['total_tests'] = $totalTests;
         $this->selectedReportData['done_tests'] = $doneTests;
         $this->selectedReportData['undone_tests'] = $totalTests - $doneTests;
-
+        $this->selectedReportData['rating'] = $avgRating;
+        $this->selectedReportData['rating_label'] = $this->getRatingLabel($avgRating);
         $this->detailModalOpen = true;
     }
 
@@ -640,6 +655,7 @@ class ReportDaily extends Component
             'student.user.profile',
             'detail',
             'reportParts.programPart',
+            'weeklyProgram.parts',
             'feedback',
         ])
             ->where('admin_id', auth()->id())
@@ -647,11 +663,23 @@ class ReportDaily extends Component
             ->latest()
             ->get()
             ->map(function ($report) {
-                $readParts = $report->reportParts->where('is_read', true)->count();
-                $totalParts = $report->reportParts->count();
-                $totalTests = $report->reportParts->sum(fn($p) => $p->programPart?->test_count ?? 0);
-                $doneTests = $report->reportParts->sum('tests_done');
-                $ratingVal = (float)($report->detail->rating ?? 0);
+                // Get ALL program parts for this day from weekly program
+                $allDayParts = $report->getProgramPartsForDay();
+                $reportPartsMap = $report->reportParts->keyBy('program_part_id');
+
+                if ($allDayParts->isNotEmpty()) {
+                    $totalParts = $allDayParts->count();
+                    $readParts = $allDayParts->filter(fn($p) => $reportPartsMap->get($p->id)?->is_read ?? false)->count();
+                    $totalTests = (int) $allDayParts->sum('test_count');
+                    $doneTests = $allDayParts->sum(fn($p) => $reportPartsMap->get($p->id)?->tests_done ?? 0);
+                } else {
+                    $readParts = $report->reportParts->where('is_read', true)->count();
+                    $totalParts = $report->reportParts->count();
+                    $totalTests = $report->reportParts->sum(fn($p) => $p->programPart?->test_count ?? 0);
+                    $doneTests = $report->reportParts->sum('tests_done');
+                }
+
+                $ratingVal = (float) $report->calculated_rating;
 
                 return [
                     'id' => $report->id,
@@ -726,6 +754,7 @@ class ReportDaily extends Component
             'student.user.profile',
             'weeklyProgram',
             'reportParts.programPart',
+            'weeklyProgram.parts',
             'detail',
             'feedback',
         ])

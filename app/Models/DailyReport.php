@@ -2,11 +2,12 @@
 
 
 namespace App\Models;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-
+use Illuminate\Support\Collection;
 class DailyReport extends Model
 
 {
@@ -25,6 +26,24 @@ class DailyReport extends Model
         2 => 'قابل قبول',
         1 => 'نیاز به تلاش بیشتر',
     ];
+    /**
+     * Get all program parts scheduled for this report's day from the weekly program.
+     */
+    public function getProgramPartsForDay(): Collection
+    {
+        $weeklyProgram = $this->weeklyProgram;
+        if (!$weeklyProgram) return collect();
+
+        $startDate = Carbon::parse($weeklyProgram->start_date);
+        $dayIndex = $startDate->diffInDays(Carbon::parse($this->report_date));
+
+        if ($weeklyProgram->relationLoaded('parts')) {
+            return $weeklyProgram->parts->where('day_of_week', $dayIndex)->sortBy('part_order')->values();
+        }
+
+        return $weeklyProgram->parts()->where('day_of_week', $dayIndex)->orderBy('part_order')->get();
+    }
+
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
@@ -67,7 +86,8 @@ class DailyReport extends Model
     }
     public function getTotalPartsAttribute(): int
     {
-        return $this->reportParts()->count();
+        $allParts = $this->getProgramPartsForDay();
+        return $allParts->isNotEmpty() ? $allParts->count() : $this->reportParts()->count();
     }
     public function detail(): HasOne
     {
@@ -120,18 +140,43 @@ class DailyReport extends Model
     }
     public function getUnreadPartsCountAttribute(): int
     {
-        return $this->reportParts()->where('is_read', false)->count();
+        return $this->total_parts - $this->read_parts_count;
     }
     public function getTotalTestsAttribute(): int
     {
-        return $this->reportParts()->sum('tests_done');
+        $allParts = $this->getProgramPartsForDay();
+        if ($allParts->isNotEmpty()) {
+            return (int) $allParts->sum('test_count');
+        }
+        return (int) $this->reportParts()->sum('tests_done');
     }
     /**
-     * Calculate average part rating and round to get daily rating (1-4).
-     */
-    public function getCalculatedRatingAttribute(): int
+     * Calculate average rating from session feedbacks for all program parts of this day.
+     * * Parts without feedback count as 0.
+     * * Example: 3 parts, 1 has rating 8 → (8+0+0)/3 = 2.67
+ */
+    public function getCalculatedRatingAttribute(): float
     {
-        $avg = $this->reportParts()->whereNotNull('part_rating')->avg('part_rating');
-        return $avg ? (int) round($avg) : 3;
+        $allParts = $this->getProgramPartsForDay();
+        if ($allParts->isEmpty()) return 0;
+
+        $partIds = $allParts->pluck('id')->filter()->toArray();
+        $totalParts = $allParts->count();
+
+        $studySessions = StudyPartSession::where('student_id', $this->student_id)
+            ->whereIn('program_part_id', $partIds)
+            ->where('is_completed', true)
+            ->with('feedback')
+            ->get()
+            ->groupBy('program_part_id')
+            ->map(fn($sessions) => $sessions->sortByDesc('started_at')->first());
+
+        $totalRating = 0;
+        foreach ($allParts as $part) {
+            $session = $studySessions->get($part->id);
+            $totalRating += $session?->feedback?->rating ?? 0;
+        }
+
+        return $totalParts > 0 ? round($totalRating / $totalParts, 1) : 0;
     }
 }

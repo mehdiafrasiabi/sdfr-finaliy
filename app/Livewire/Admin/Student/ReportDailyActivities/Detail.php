@@ -145,15 +145,53 @@ class Detail extends Component
         $totalTests = 0;
         $doneTests = 0;
         $totalPhoneHours = 0;
+        $ratingSum = 0;
+        $ratingDayCount = 0;
         foreach ($reports as $report) {
             $totalPhoneHours += $report->detail->phone_hours ?? 0;
-            foreach ($report->reportParts as $rp) {
-                $totalParts++;
-                if ($rp->is_read) $readParts++;
-                $totalTests += $rp->programPart?->test_count ?? 0;
-                $doneTests += $rp->tests_done;
+            // Get ALL program parts for this day from weekly program
+            $allDayParts = $report->getProgramPartsForDay();
+            $reportPartsMap = $report->reportParts->keyBy('program_part_id');
+
+            if ($allDayParts->isNotEmpty()) {
+                foreach ($allDayParts as $programPart) {
+                    $totalParts++;
+                    $reportPart = $reportPartsMap->get($programPart->id);
+                    if ($reportPart?->is_read) $readParts++;
+                    $totalTests += $programPart->test_count ?? 0;
+                    $doneTests += $reportPart?->tests_done ?? 0;
+                }
+
+                // Rating: average of session feedback ratings for all parts of this day
+                $partIds = $allDayParts->pluck('id')->filter()->toArray();
+                $studySessions = \App\Models\StudyPartSession::where('student_id', $report->student_id)
+                    ->whereIn('program_part_id', $partIds)
+                    ->where('is_completed', true)
+                    ->with('feedback')
+                    ->get()
+                    ->groupBy('program_part_id')
+                    ->map(fn($sessions) => $sessions->sortByDesc('started_at')->first());
+
+                $dayRatingSum = 0;
+                foreach ($allDayParts as $part) {
+                    $session = $studySessions->get($part->id);
+                    $dayRatingSum += $session?->feedback?->rating ?? 0;
+                }
+                $dayAvgRating = $allDayParts->count() > 0 ? $dayRatingSum / $allDayParts->count() : 0;
+                $ratingSum += $dayAvgRating;
+                $ratingDayCount++;
+            } else {
+                // Fallback: use reportParts only
+                foreach ($report->reportParts as $rp) {
+                    $totalParts++;
+                    if ($rp->is_read) $readParts++;
+                    $totalTests += $rp->programPart?->test_count ?? 0;
+                    $doneTests += $rp->tests_done;
+                }
             }
         }
+        $avgRating = $ratingDayCount > 0 ? round($ratingSum / $ratingDayCount, 1) : 0;
+
         $this->stats = [
             'total_reports' => $totalReports,
             'approved_reports' => $approvedReports,
@@ -169,6 +207,8 @@ class Detail extends Component
             'total_phone_hours' => $totalPhoneHours,
             'read_percentage' => $totalParts > 0 ? round(($readParts / $totalParts) * 100) : 0,
             'test_percentage' => $totalTests > 0 ? round(($doneTests / $totalTests) * 100) : 0,
+            'avg_rating' => $avgRating,
+
         ];
 
     }
@@ -176,7 +216,7 @@ class Detail extends Component
 
     protected function getFilteredReportsQuery()
     {
-        $query = DailyReport::with(['student.user', 'reportParts.programPart', 'detail', 'feedback'])
+        $query = DailyReport::with(['student.user', 'reportParts.programPart', 'detail', 'feedback', 'weeklyProgram.parts'])
             ->where('student_id', $this->studentId);
         // Filter by session
         if ($this->selectedSessionId) {
@@ -193,7 +233,7 @@ class Detail extends Component
 
     protected function getReportsWithFilters()
     {
-        $query = DailyReport::with(['student.user', 'reportParts.programPart', 'detail', 'feedback'])
+        $query = DailyReport::with(['student.user', 'reportParts.programPart', 'detail', 'feedback', 'weeklyProgram.parts'])
             ->where('student_id', $this->studentId);
         // Filter by session
         if ($this->selectedSessionId) {
@@ -422,7 +462,6 @@ class Detail extends Component
         $reportDateEnd = Carbon::parse($report->report_date)->addDay()->setHour(6)->setMinute(0)->setSecond(0);
         $submittedInTime = $report->created_at
             && $report->created_at->between($reportDateStart, $reportDateEnd);
-        $ratingVal = (float)($report->detail->rating ?? 0);
         $this->selectedReportData = [
             'student_name' => $report->student->user->profile?->full_name
                 ?? $report->student->user->personalInformation?->name
@@ -433,8 +472,8 @@ class Detail extends Component
             'phone_hours' => $report->detail->phone_hours ?? 0,
             'description' => $report->detail->description ?? '',
             'missed_parts_reason' => $report->detail->missed_parts_reason ?? '',
-            'rating' => $ratingVal,
-            'rating_label' => $this->getRatingLabel($ratingVal),
+            'rating' => 0,
+            'rating_label' => 'ثبت نشده',
             'is_compensatory' => $report->is_compensatory,
             'status' => $report->detail->status ?? 'pending',
             'advisor_comment' => $report->feedback->advisor_comment ?? '',
@@ -444,45 +483,70 @@ class Detail extends Component
             'submit_window_start' => jdate($reportDateStart)->format('Y/m/d') . ' ۰۰:۰۰',
             'submit_window_end' => jdate($reportDateEnd)->format('Y/m/d') . ' ۰۶:۰۰',
         ];
-        // ✅ پارت‌ها همیشه از daily_report_parts بارگذاری می‌شوند (هم عادی هم جبرانی)
-        // چون day_of_week در daily_reports روز هفته شمسی است (۰-۶) ولی در program_parts شاخص روز برنامه (۰-۷)
-        $reportPartsMap = $report->reportParts->keyBy('program_part_id');
-        $reportPartProgramIds = $report->reportParts->pluck('program_part_id')->filter()->toArray();
+        // Get ALL program parts for this day from weekly program
 
+        $reportPartsMap = $report->reportParts->keyBy('program_part_id');
         $programParts = collect();
-        if (!empty($reportPartProgramIds) && $report->weeklyProgram) {
+        if ($report->weeklyProgram) {
+            $startDate = Carbon::parse($report->weeklyProgram->start_date);
+            $dayIndex = $startDate->diffInDays(Carbon::parse($report->report_date));
             $programParts = $report->weeklyProgram
                 ->parts()
-                ->whereIn('id', $reportPartProgramIds)
-                ->orderBy('day_of_week')
+                ->where('day_of_week', $dayIndex)
+
                 ->orderBy('part_order')
                 ->with(['ccSubject', 'ccTopic', 'ccChapter'])
                 ->get();
         }
 
-        // Fallback: اگر از weekly program پیدا نشد، مستقیم از reportParts بگیر
+        // Fallback: if no parts found from weekly program, use reportParts
         if ($programParts->isEmpty()) {
-            $programParts = $report->reportParts
-                ->map(fn($rp) => $rp->programPart)
-                ->filter()
-                ->values();
+            $reportPartProgramIds = $report->reportParts->pluck('program_part_id')->filter()->toArray();
+            if (!empty($reportPartProgramIds) && $report->weeklyProgram) {
+                $programParts = $report->weeklyProgram
+                    ->parts()
+                    ->whereIn('id', $reportPartProgramIds)
+                    ->orderBy('day_of_week')
+                    ->orderBy('part_order')
+                    ->with(['ccSubject', 'ccTopic', 'ccChapter'])
+                    ->get();
+            }
+            if ($programParts->isEmpty()) {
+                $programParts = $report->reportParts
+                    ->map(fn($rp) => $rp->programPart)
+                    ->filter()
+                    ->values();
+            }
         }
+        // Get study session feedback ratings for rating calculation
+        $partIds = $programParts->pluck('id')->filter()->toArray();
+        $studySessionsMap = \App\Models\StudyPartSession::where('student_id', $report->student_id)
+            ->whereIn('program_part_id', $partIds)
+            ->where('is_completed', true)
+            ->with('feedback')
+            ->get()
+            ->groupBy('program_part_id')
+            ->map(fn($sessions) => $sessions->sortByDesc('started_at')->first());
 
         $this->reportPartsDetails = [];
         $totalTests = 0;
         $doneTests = 0;
         $totalParts = 0;
         $readParts = 0;
+        $ratingSum = 0;
         foreach ($programParts as $programPart) {
             if (!$programPart) continue;
             $reportPart = $reportPartsMap->get($programPart->id);
             $isRead = $reportPart?->is_read ?? false;
             $testsDone = $reportPart?->tests_done ?? 0;
             $testCount = $programPart->test_count ?? 0;
+            $studySession = $studySessionsMap->get($programPart->id);
+            $sessionRating = $studySession?->feedback?->rating ?? 0;
             $totalParts++;
             if ($isRead) $readParts++;
             $totalTests += $testCount;
             $doneTests += $testsDone;
+            $ratingSum += $sessionRating;
             $this->reportPartsDetails[] = [
                 'id' => $programPart->id,
                 'lesson_name' => $programPart->lesson_name,
@@ -493,15 +557,22 @@ class Detail extends Component
                 'is_read' => $isRead,
                 'tests_done' => $testsDone,
                 'test_count' => $testCount,
+                'session_rating' => $sessionRating,
                 'is_compensatory' => $reportPart?->is_compensatory ?? false,
+                'has_report' => $reportPart !== null,
+
             ];
         }
+        $avgRating = $totalParts > 0 ? round($ratingSum / $totalParts, 1) : 0;
+
         $this->selectedReportData['total_parts'] = $totalParts;
         $this->selectedReportData['read_parts'] = $readParts;
         $this->selectedReportData['unread_parts'] = $totalParts - $readParts;
         $this->selectedReportData['total_tests'] = $totalTests;
         $this->selectedReportData['done_tests'] = $doneTests;
         $this->selectedReportData['undone_tests'] = $totalTests - $doneTests;
+        $this->selectedReportData['rating'] = $avgRating;
+        $this->selectedReportData['rating_label'] = $this->getRatingLabel($avgRating);
         $this->detailModalOpen = true;
     }
 
