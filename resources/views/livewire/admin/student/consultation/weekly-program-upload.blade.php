@@ -1293,7 +1293,7 @@
                             </button>
                         @else
                             <button wire:click="togglePartSelectMode(false)"
-                                    class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
+                                    class="btn btn-sm btn-outline-success d-flex align-items-center gap-1">
 
                                 <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i>
                                 کپی پارت
@@ -1313,11 +1313,11 @@
                 </div>
                 {{-- Floating copy panel --}}
                 @if($partSelectMode && count($selectedPartIds) > 0)
-                    <div class="card {{ $cutMode ? 'border-danger' : 'border-warning' }} border-2 mb-3 mx-1">
+                    <div class="card {{ $cutMode ? 'border-secondary' : 'border-warning' }} border-2 mb-3 mx-1 ">
                         <div class="card-body py-2">
                             <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
                             <span
-                                class="fw-semibold {{ $cutMode ? 'text-danger' : 'text-warning' }} d-flex align-items-center gap-1">
+                                class="fw-semibold {{ $cutMode ? 'text-secondary' : 'text-warning' }} d-flex align-items-center gap-1">
 
 
                                 <i class="material-symbols-outlined"
@@ -1373,20 +1373,22 @@
 
                             <div class="mb-2">
                                 @if($cutMode)
-                                    <label class="form-label mb-1 small fw-semibold">روز مقصد (یک روز انتخاب
-                                        کنید):</label>
+                                    <label class="form-label mb-1 small fw-semibold">روز مقصد (یک روز انتخاب کنید):</label>
                                     <div class="d-flex flex-wrap gap-2">
                                         @foreach($weekDays as $day)
                                             @if(!$day['is_rest_day'] && !$day['is_exam_day'])
-                                                @php $isChecked = in_array((string)$day['index'], $copyTargetDays) || in_array($day['index'], $copyTargetDays); @endphp
+                                                @php
+                                                    $isChecked = (string)$copyTargetDay === (string)$day['index'];
+                                                @endphp
                                                 <label
-                                                    class="d-flex align-items-center gap-1 cursor-pointer border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-danger text-white border-danger' : 'bg-body-tertiary' }}"
+                                                    class="d-flex align-items-center gap-1 border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-danger text-white border-danger' : 'bg-body-tertiary' }}"
                                                     style="cursor:pointer;">
                                                     <input type="radio"
-                                                           wire:model.live="copyTargetDays"
+                                                           wire:model.live="copyTargetDay"
                                                            value="{{ $day['index'] }}"
                                                            class="form-check-input mb-0 me-1"
-                                                           style="width:14px;height:14px;">
+                                                           style="width:14px;height:14px;"
+                                                        {{ $isChecked ? 'checked' : '' }}>
                                                     {{ $day['name'] }} ({{ $day['jalali_date'] }})
                                                 </label>
                                             @endif
@@ -1398,7 +1400,9 @@
                                     <div class="d-flex flex-wrap gap-2">
                                         @foreach($weekDays as $day)
                                             @if(!$day['is_rest_day'] && !$day['is_exam_day'])
-                                                @php $isChecked = in_array((string)$day['index'], $copyTargetDays) || in_array($day['index'], $copyTargetDays); @endphp
+                                                @php
+                                                    $isChecked = is_array($copyTargetDays) && (in_array((string)$day['index'], $copyTargetDays) || in_array($day['index'], $copyTargetDays));
+                                                @endphp
                                                 <label
                                                     class="d-flex align-items-center gap-1 cursor-pointer border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-warning text-dark border-warning' : 'bg-body-tertiary' }}"
                                                     style="cursor:pointer;">
@@ -1418,7 +1422,7 @@
                             @if($cutMode)
                                 <button wire:click="cutSelectedParts"
                                         class="btn btn-sm btn-danger text-white"
-                                    {{ empty($copyTargetDays) ? 'disabled' : '' }}>
+                                    {{ $copyTargetDay === null || $copyTargetDay === '' ? 'disabled' : '' }}>
                                 <span wire:loading.remove wire:target="cutSelectedParts">
                                     <i class="material-symbols-outlined" style="font-size:16px;">content_cut</i>
                                     کات به روز انتخابی
@@ -1519,11 +1523,12 @@
                         <tr>
                             <th class="text-center" style="width: 90px;">روز</th>
                             <th class="text-center" style="width: 130px;">تاریخ</th>
+                            <th class="text-center" style="width: 110px;">ساعت</th>
+
                             <th class="text-center" style="width: 95px;">تست روز</th>
                             <th class="text-center" style="width: 90px;">استراحت</th>
                             <th class="text-center" style="width: 100px;">آزمون جامع</th>
 
-                            <th class="text-center" style="width: 110px;">ساعت</th>
                             @php
                                 $maxPartsInWeek = 10;
                                 if(isset($weekDays)) {
@@ -1558,7 +1563,15 @@
                                 <td class="text-center">
                                     <div class="fw-semibold text-muted-2">{{ $day['jalali_date'] }}</div>
                                 </td>
-
+                                {{-- ساعت کل --}}
+                                <td class="text-center">
+                                    @if($day['is_rest_day'])
+                                        <span class="text-success fw-bold">-</span>
+                                    @else
+                                        <div class="fw-bold">{{ $day['total_hours'] }}</div>
+                                        <small class="text-muted-2 d-block">ساعت</small>
+                                    @endif
+                                </td>
                                 {{-- تست روز --}}
                                 <td class="text-center">
                                     @if($day['is_rest_day'])
@@ -1594,15 +1607,6 @@
                                     </div>
                                     @if($day['is_exam_day'])
                                         <small class="text-danger d-block mt-1 fw-semibold">آزمون جامع</small>
-                                    @endif
-                                </td>
-                                {{-- ساعت کل --}}
-                                <td class="text-center">
-                                    @if($day['is_rest_day'])
-                                        <span class="text-success fw-bold">-</span>
-                                    @else
-                                        <div class="fw-bold">{{ $day['total_hours'] }}</div>
-                                        <small class="text-muted-2 d-block">ساعت</small>
                                     @endif
                                 </td>
 

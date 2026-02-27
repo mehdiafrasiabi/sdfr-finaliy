@@ -139,7 +139,7 @@ class WeeklyProgramUpload extends Component
     public bool $partSelectMode = false;
     public bool $cutMode = false; // true = cut, false = copy
     public array $selectedPartIds = [];
-    public ?int $copyTargetDay = null;
+    public $copyTargetDay = null;
     public array $copyTargetDays = [];
     // A-5: Class schedule reading type filter
     public string $readingTypeFilter = ''; // '', 'daily', 'pre'
@@ -3169,9 +3169,15 @@ class WeeklyProgramUpload extends Component
 
     public function cutSelectedParts(): void
     {
-        $targetDays = !empty($this->copyTargetDays)
-            ? array_map('intval', $this->copyTargetDays)
-            : ($this->copyTargetDay !== null ? [(int)$this->copyTargetDay] : []);
+        // copyTargetDay برای کات (single value از radio)
+        $targetDays = [];
+
+        if (!empty($this->copyTargetDays)) {
+            // اگر از copyTargetDays آمد (backup)
+            $targetDays = array_map('intval', (array)$this->copyTargetDays);
+        } elseif ($this->copyTargetDay !== null && $this->copyTargetDay !== '') {
+            $targetDays = [(int)$this->copyTargetDay];
+        }
 
         if (empty($this->selectedPartIds) || empty($targetDays)) {
             $this->dispatch('warning', 'لطفاً پارت‌ها و حداقل یک روز مقصد را انتخاب کنید.');
