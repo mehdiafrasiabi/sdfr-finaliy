@@ -116,9 +116,6 @@ class MultiStepModal extends Component
             $this->dispatch('warning', message: 'خطایی هنگام ثبت پیش آمد: ' . $e->getMessage());
         }
     }
-
-
-
     public function render()
     {
         return view('livewire.client.profile.multi-step-modal');

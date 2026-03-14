@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 @php
     use App\Helpers\PersianShaper;
     use App\Models\ContactDocumentation;
@@ -6,7 +7,6 @@
     $successful   = $records->where('contact_status', 'successful')->count();
     $unsuccessful = $records->where('contact_status', 'unsuccessful')->count();
 @endphp
-    <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -181,6 +181,5 @@
     {{ PersianShaper::shape('این گزارش توسط سیستم مدیریت آموزشی تولید شده است') }}
     &mdash; {{ $date }}
 </div>
-
 </body>
 </html>

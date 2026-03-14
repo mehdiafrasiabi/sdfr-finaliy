@@ -589,7 +589,7 @@
                                                     @php
                                                         $dayIndex = $session->programPart->day_of_week;
                                                         $programStart = \Carbon\Carbon::parse($session->weeklyProgram->start_date);
-                                                        $partDate = $programStart->copy()->addDays($dayIndex);
+                                                        $partDate = $programStart->copy()->addDays((int) $dayIndex);
                                                         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
                                                         $partDayName = $dayNames[jdate($partDate)->getDayOfWeek()] ?? '-';
                                                     @endphp
@@ -836,7 +836,8 @@
                                         @php
                                             $dayIdx = $selectedSession->programPart->day_of_week;
                                             $progStart = \Carbon\Carbon::parse($selectedSession->weeklyProgram->start_date);
-                                            $partDt = $progStart->copy()->addDays($dayIdx);
+                                          $partDt = $progStart->copy()->addDays((int) $dayIdx);
+
                                             $dNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
                                             $pDayName = $dNames[jdate($partDt)->getDayOfWeek()] ?? '-';
                                         @endphp

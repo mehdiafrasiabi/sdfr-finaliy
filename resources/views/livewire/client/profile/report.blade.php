@@ -413,7 +413,7 @@
     @if($showReportModal && isset($weekDays[$selectedDayIndex]))
         @php $selectedDay = $weekDays[$selectedDayIndex]; @endphp
 
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
+        <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
              wire:click.self="closeReportModal">
 
             <div class="w-full sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] overflow-hidden
@@ -635,7 +635,7 @@
                  wire:keydown.escape.window="closeCompensatoryModal">
 
                 {{-- Header --}}
-                <div class="sticky top-0 z-10 bg-secondary border-b border-border px-6 py-4">
+                <div class="sticky top-0 z-[85] bg-secondary border-b border-border px-6 py-4">
                     <div class="flex items-center justify-between">
                         <div>
                             <h3 class="text-lg font-bold text-foreground">ثبت پارت جبرانی</h3>
@@ -802,7 +802,7 @@
     @endif
     {{-- ===== Reply Modal ===== --}}
     @if($replyModalOpen)
-        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+        <div class="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
              wire:click.self="closeReplyModal">
 
             <div class="w-full max-w-lg bg-secondary border border-border rounded-2xl shadow-2xl"

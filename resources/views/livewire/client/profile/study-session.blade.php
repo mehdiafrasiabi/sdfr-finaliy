@@ -10,8 +10,7 @@
     </style>
     @endassets
 
-
-    <div class="max-w-7xl mx-auto px-4 py-6">
+    <div class="max-w-7xl mx-auto px-4">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
             <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
                 <livewire:client.profile.sidebar/>
@@ -33,7 +32,7 @@
                             <div class="w-1.5 h-1.5 bg-foreground/70 rounded-full"></div>
                             <div class="w-2.5 h-2.5 bg-foreground rounded-full"></div>
                         </div>
-                        <div class="font-black text-foreground text-sm sm:text-base">
+                        <div class="font-black text-foreground text-lg">
                             ثبت ساعت مطالعه بر اساس برنامه
                         </div>
                     </div>
@@ -550,12 +549,15 @@
                     @endif
 
                 @else
-                    <div class="bg-secondary border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 text-center">
-                        <h3 class="text-lg font-bold text-yellow-800 dark:text-yellow-300 mb-2">برنامه‌ای یافت نشد</h3>
-                        <p class="text-sm text-yellow-700 dark:text-yellow-400">
-                            هنوز جلسه مشاوره‌ای برگزار نشده یا برنامه‌ای برای شما تنظیم نشده است.
-                            <br>لطفاً با مشاور خود تماس بگیرید.
-                        </p>
+                    <div class="flex flex-col items-center justify-center space-y-12 py-16">
+                        <div class="flex flex-col items-center justify-center space-y-12">
+                            <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="empty"/>
+                            <div class="text-center space-y-3">
+                                <h2 class="font-bold text-xl text-foreground">
+                                   ساعت مطالعه برای شما وجود ندارد.
+                                </h2>
+                            </div>
+                        </div>
                     </div>
                 @endif
 

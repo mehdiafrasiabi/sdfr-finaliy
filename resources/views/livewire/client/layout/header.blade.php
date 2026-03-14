@@ -1,5 +1,5 @@
 <div>
-    @push('link')
+    @assets
         <style>
 
             /* انیمیشن‌های نرم */
@@ -33,7 +33,7 @@
                 }
             }
         </style>
-    @endpush
+    @endassets
     <div x-data="mobileMenuHandler()" x-init="init()" @resize.window="handleResize()">
 
 
@@ -112,6 +112,7 @@
                                 <div
                                     class="absolute right-0 top-full opacity-0 invisible transition-all group-hover/categories:opacity-100 group-hover/categories:visible pt-5 z-10">
                                     <ul class="flex flex-col relative w-56 min-h-[100px] bg-background border border-border shadow-2xl shadow-black/5 rounded-xl">
+
                                         <li class="group">
                                             <a href="{{route('client.about-us')}}" wire:navigate
                                                class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
@@ -122,6 +123,12 @@
                                             <a href="{{route('client.contact-us')}}" wire:navigate
                                                class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
                                                 <span class="font-semibold text-sm">ارتباط با ما</span>
+                                            </a>
+                                        </li>
+                                        <li class="group">
+                                            <a href="{{route('client.download')}}" wire:navigate
+                                               class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
+                                                <span class="font-semibold text-sm">نصب اپلیکیشن</span>
                                             </a>
                                         </li>
                                         <li class="group">
@@ -150,8 +157,7 @@
                                 <!-- Desktop Profile Button -->
                                 <button class="flex items-center sm:gap-3 gap-1 group"
                                         @click="desktopProfileOpen = !desktopProfileOpen">
-                  <span
-                      class="inline-flex items-center justify-center w-9 h-9 bg-secondary rounded-full text-foreground ring-2 ring-transparent group-hover:ring-primary/20 transition-all overflow-hidden">
+                  <span class="inline-flex items-center justify-center w-9 h-9 bg-secondary rounded-full text-foreground ring-2 ring-transparent group-hover:ring-primary/20 transition-all overflow-hidden">
                 @if($profilePictureUrl)
                           <img src="{{ $profilePictureUrl }}" class="rounded-full w-full h-full object-cover"
                                alt="avatar">
@@ -164,22 +170,22 @@
                       @else
                           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                stroke="currentColor" class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                              d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                    </svg>
+                              <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+                          </svg>
                       @endif
             </span>
                                     <span class="flex flex-col items-start text-xs space-y-1">
-                <span class="font-semibold text-foreground">{{auth()->user()->name}} عزیز</span>
-                <span class="font-semibold text-muted">خوش آمـــدی</span>
-            </span>
+                                        <span class="font-semibold text-foreground">{{auth()->user()->name}} عزیز</span>
+                                        <span class="font-semibold text-muted">خوش آمـــدی</span>
+                                    </span>
                                     <span class="text-foreground transition-transform duration-200"
                                           :class="desktopProfileOpen ? 'rotate-180' : ''">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                     stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-                </svg>
-            </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
+                                        </svg>
+                                    </span>
                                 </button>
 
                                 <!-- Backdrop Overlay -->
@@ -208,7 +214,7 @@
                                      x-transition:leave-end="opacity-0 translate-y-4">
 
                                     <div
-                                        class="w-[280px] rounded-2xl bg-white dark:bg-slate-800 shadow-2xl shadow-black/20 border border-slate-200 dark:border-slate-700 overflow-hidden">
+                                        class="w-[280px] rounded-2xl bg-white dark:bg-slate-500 shadow-2xl shadow-black/20 border border-slate-200 dark:border-slate-700 overflow-hidden">
 
                                         <!-- Header - Avatar & Name -->
                                         <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">

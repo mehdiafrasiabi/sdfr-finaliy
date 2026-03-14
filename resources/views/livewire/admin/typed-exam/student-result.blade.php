@@ -1,133 +1,68 @@
 <div>
-
     <div class="container-fluid">
-
         <!-- Page Header -->
-
         <div class="row mb-4">
-
             <div class="col-12">
-
                 <div class="card">
-
                     <div class="card-body d-flex justify-content-between align-items-center">
-
                         <div>
-
                             <h4 class="card-title mb-1">نتیجه آزمون</h4>
-
                             <p class="text-muted mb-0">
-
                                 {{ $exam->title }} -
-
                                 {{ $attempt->student?->user?->name ?? 'نامشخص' }}
-
                             </p>
-
                         </div>
-
                         <a href="{{ route('admin.typed-exams.assignment', ['examId' => $examId]) }}"
                            class="btn btn-secondary">
-
                             <i class="ti ti-arrow-right me-1"></i>
-
                             بازگشت
-
                         </a>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
-
         <!-- Stats Summary -->
-
         <div class="row mb-4">
-
             <div class="col-md-2">
-
                 <div class="card text-center h-100">
-
                     <div class="card-body">
-
                         <h6 class="text-muted">نمره کل</h6>
-
                         <div class="display-6 text-primary fw-bold">{{ $stats['score'] ?? 0 }}%</div>
-
                     </div>
-
                 </div>
-
             </div>
-
             <div class="col-md-2">
-
                 <div class="card text-center h-100 bg-success-subtle">
-
                     <div class="card-body">
-
                         <h6 class="text-success">صحیح</h6>
-
                         <div class="h3 text-success">{{ $stats['correct'] }}</div>
-
                     </div>
-
                 </div>
-
             </div>
-
             <div class="col-md-2">
-
                 <div class="card text-center h-100 bg-danger-subtle">
-
                     <div class="card-body">
-
                         <h6 class="text-danger">غلط</h6>
-
                         <div class="h3 text-danger">{{ $stats['wrong'] }}</div>
-
                     </div>
-
                 </div>
-
             </div>
-
             <div class="col-md-2">
-
                 <div class="card text-center h-100 bg-secondary-subtle">
-
                     <div class="card-body">
-
                         <h6 class="text-secondary">بدون پاسخ</h6>
-
                         <div class="h3 text-secondary">{{ $stats['unanswered'] }}</div>
-
                     </div>
-
                 </div>
-
             </div>
-
             <div class="col-md-4">
-
                 <div class="card text-center h-100">
-
                     <div class="card-body">
-
                         <h6 class="text-muted">زمان صرف شده</h6>
-
                         <div class="h3">{{ $stats['duration'] }}</div>
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
 
         {{-- پیام موفقیت عملیات ادمین --}}
@@ -236,95 +171,48 @@
                 </div>
             </div>
         </div>
-
-
         <!-- Questions with Answers -->
-
         <div class="row">
-
             <div class="col-12">
-
                 <div class="card">
-
                     <div class="card-header">
-
                         <h5 class="card-title mb-0">جزئیات پاسخ‌ها</h5>
-
                     </div>
-
                     <div class="card-body">
-
                         @foreach($questionsWithAnswers as $index => $qa)
-
                             @php
-
                                 $question = $qa['question'];
-
                                 $selectedOption = $qa['selected_option'];
-
                                 $isCorrect = $qa['is_correct'];
-
                                 $correctOptionNumber = $qa['correct_option_number'];
-
                             @endphp
-
-
-
                             <div
                                 class="question-box border rounded p-4 mb-4 {{ $isCorrect === true ? 'border-success' : ($isCorrect === false ? 'border-danger' : 'border-secondary') }}">
-
                                 <!-- Question Header -->
-
                                 <div class="d-flex justify-content-between align-items-center mb-3">
-
                                     <div class="d-flex gap-2">
-
                                         <span class="badge bg-primary">سوال {{ $index + 1 }}</span>
-
                                         <span class="badge bg-secondary">{{ $question->code }}</span>
-
                                         <span class="badge bg-info">{{ $question->subject?->name }}</span>
-
                                     </div>
-
                                     <div>
-
                                         @if($isCorrect === true)
-
                                             <span class="badge bg-success"><i class="ti ti-check me-1"></i> صحیح</span>
-
                                         @elseif($isCorrect === false)
-
                                             <span class="badge bg-danger"><i class="ti ti-x me-1"></i> غلط</span>
-
                                         @else
-
                                             <span class="badge bg-secondary"><i class="ti ti-minus me-1"></i> بدون پاسخ</span>
-
                                         @endif
-
                                     </div>
-
                                 </div>
-
-
                                 <!-- Question Body (Image or Text) -->
-
-
                                 <div class="question-body mb-3" dir="rtl">
-
                                     @if($question->content?->question_image_url)
-
                                         <img src="{{ $question->content->question_image_url }}"
-
                                              alt="تصویر سوال {{ $index + 1 }}"
-
                                              class="img-fluid rounded mb-3"
-
                                              style="max-width: 100%; max-height: 400px; object-fit: contain;">
-
                                     @elseif($question->content?->body)
-
                                         {!! $question->content->body !!}
                                     @else
                                         <div class="text-muted text-center py-4">
@@ -356,90 +244,46 @@
                                             <span
                                                 class="badge {{ $isCorrectOption ? 'bg-success' : ($isSelected ? 'bg-danger' : 'bg-secondary') }}"
                                                 style="width: 30px;">
-
                                                 {{ $optNum }}
                                             </span>
                                             <div class="flex-grow-1">گزینه {{ $optNum }}</div>
-
                                             @if($isSelected)
-
                                                 <span class="badge bg-primary">انتخاب شده</span>
-
                                             @endif
-
                                             @if($isCorrectOption)
-
                                                 <i class="ti ti-check text-success"></i>
-
                                             @endif
-
                                         </div>
-
                                     @endforeach
-
                                 </div>
-
-
                                 <!-- Explanation (Image or Text) -->
-
-
                                 @if($question->content?->explanation_image_url)
-
                                     <div class="explanation mt-3 p-3 bg-light rounded">
-
                                         <strong class="d-block mb-2"><i class="ti ti-book me-1"></i> توضیح:</strong>
-
                                         <img src="{{ $question->content->explanation_image_url }}"
-
                                              alt="توضیح سوال {{ $index + 1 }}"
-
                                              class="img-fluid rounded"
-
                                              style="max-width: 100%; max-height: 300px; object-fit: contain;">
-
                                     </div>
-
                                 @elseif($question->content?->explanation)
-
                                     <div class="explanation mt-3 p-3 bg-light rounded">
-
                                         <strong class="d-block mb-2"><i class="ti ti-book me-1"></i> توضیح:</strong>
-
                                         {!! $question->content->explanation !!}
-
                                     </div>
-
                                 @endif
-
                             </div>
-
                         @endforeach
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
-
     @push('link')
-
         <style>
-
             .question-body img, .option-item img, .explanation img {
-
                 max-width: 100%;
-
                 height: auto;
-
             }
-
         </style>
-
     @endpush
-
 </div>

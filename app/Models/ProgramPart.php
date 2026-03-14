@@ -17,6 +17,7 @@ class ProgramPart extends Model
     protected $casts = [
         'grade' => 'string',
         'part_date' => 'date',
+        'day_of_week' => 'integer',
 
     ];
 

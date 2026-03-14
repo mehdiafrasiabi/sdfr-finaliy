@@ -35,7 +35,7 @@
                                 <!-- article:card -->
                         <div class="relative bg-background rounded-xl p-4">
                             <div class="relative mb-3 z-20">
-                                <a href="{{ route('client.blog.show', [$blog->blog_code, $slug]) }}" class="block">
+                                <a href="#" class="block">
                                     <img src="{{asset('blogs/'.$blog->id.'/photo/'.$image->path)}}"
                                          class="max-w-full rounded-xl" alt=" {{ $blog->seo->meta_title }}">
                                 </a>
@@ -51,7 +51,7 @@
                             </div>
                             <div class="relative space-y-3 z-10">
                                 <h2 class="font-bold text-sm">
-                                    <a href="{{ route('client.blog.show', [$blog->blog_code, $slug]) }}"
+                                    <a href="#"
                                        class="line-clamp-1 text-foreground transition-colors hover:text-primary">
                                         {{ $blog->title }}
                                     </a>
@@ -67,7 +67,7 @@
 
                                             گروه آموزشی SDFR</a>
                                     </div>
-                                    <a href="{{ route('client.blog.show', [$blog->blog_code, $slug]) }}"
+                                    <a href="#"
                                        class="bg-primary/10 rounded-full text-primary transition-all hover:opacity-80 py-1 px-4">
                                         <span class="font-bold text-xxs">{{$blog->category->name}}</span>
                                     </a>

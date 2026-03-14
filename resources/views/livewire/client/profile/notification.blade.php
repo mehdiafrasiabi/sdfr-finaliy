@@ -147,7 +147,7 @@
 
                         <div
                             class="bg-secondary border border-border rounded-xl overflow-hidden {{ $borderColor }} border-r-4 transition-all hover:shadow-lg">
-                            <div class="p-4 md:p-5">
+                            <div class="p-4 md:p-5 ">
 
                                 <!-- Header: آیکون، تایتل، زمان و دکمه -->
                                 <div class="flex items-start gap-3 md:gap-4 mb-4">
@@ -186,55 +186,42 @@
                                                             class="px-2 py-0.5 text-[10px] md:text-xs font-bold bg-red-500 text-white rounded-full">جدید</span>
                                                     @endif
                                                 </div>
+
                                             </div>
 
-                                            <!-- دکمه خواندن -->
-                                            <div class="flex-shrink-0">
-                                                @if($recipient->is_read)
-                                                    <button disabled
-                                                            class="inline-flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full text-[10px] md:text-xs font-medium cursor-default">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                                             class="w-3 h-3 md:w-4 md:h-4">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                  d="M4.5 12.75l6 6 9-13.5"/>
-                                                        </svg>
-                                                        خوانده شده
-                                                    </button>
-                                                @else
-                                                    <button wire:click="markAsRead({{ $recipient->id }})"
-                                                            class="inline-flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 bg-primary text-primary-foreground rounded-full text-[10px] md:text-xs font-medium hover:opacity-90 transition-opacity">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none"
-                                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                                             class="w-3 h-3 md:w-4 md:h-4">
-                                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                                  d="M4.5 12.75l6 6 9-13.5"/>
-                                                        </svg>
-                                                        خواندن
-                                                    </button>
-                                                @endif
-                                            </div>
                                         </div>
+
+                                    </div>
+                                    <!-- دکمه خواندن -->
+                                    <div class="flex justify-end gap-3 pt-4">
+                                        @if($recipient->is_read)
+                                            <div>
+                                                <button disabled
+                                                        class="inline-flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full text-[11px]  md:text-xs font-medium cursor-default">
+                                                    خوانده شده: {{ \Morilog\Jalali\Jalalian::fromDateTime($recipient->read_at)->format('y/m/d') }}
+                                                </button>
+                                            </div>
+                                        @else
+                                            <button wire:click="markAsRead({{ $recipient->id }})"
+                                                    class="inline-flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 bg-primary text-primary-foreground rounded-full text-[12px]  md:text-xs font-medium hover:opacity-90 transition-opacity">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                     class="w-3 h-3 md:w-4 md:h-4">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          d="M4.5 12.75l6 6 9-13.5"/>
+                                                </svg>
+                                                خواندن
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
 
                                 <!-- محتوای پیام -->
-
                                 <div class="bg-muted rounded-xl p-4 md:p-5 border border-border" style="background-color: #2b2b31">
                                     <p class="text-xs md:text-sm text-muted leading-relaxed text-right whitespace-pre-line">
-
                                         {{ $notif->body }}
                                     </p>
                                 </div>
-                                <!-- Footer: زمان خوانده شدن -->
-                                @if($recipient->is_read && $recipient->read_at)
-                                    <div class="mt-3 md:mt-4 flex justify-end gap-5">
-                                        <span class="text-[12px] md:text-based h-11 inline-flex items-center justify-center gap-2 bg-primary rounded-full text-primary-foreground px-4 mr-auto">
-                                            خوانده شده در {{ \Morilog\Jalali\Jalalian::fromDateTime($recipient->read_at)->format('H:i - Y/m/d') }}
-                                        </span>
-                                    </div>
-                                @endif
-
                             </div>
                         </div>
 

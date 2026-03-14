@@ -6,7 +6,6 @@ use App\Livewire\Client\Auth\ForgotPassword as ForgotPassword;
 use App\Livewire\Client\Auth\Login as authLogin;
 use App\Livewire\Client\Auth\Signup as authSignup;
 use App\Livewire\Client\Blog\Weblog\Index as WeblogIndex;
-use App\Livewire\Client\Blog\Weblog\Show;
 use App\Livewire\Client\Cart\Index as CartIndex;
 use App\Livewire\Client\Cart\Info as cartInfo;
 use App\Livewire\Client\ContactUs\Index as ContactUs;
@@ -52,7 +51,7 @@ Route::name('client.')->group(function () {
         ->name('secure.download');
 
     Route::get('/', HomeIndex::class)->name('home');
-    Route::get('/download', DownloadIndex::class)->name('download');
+    Route::get('/application', DownloadIndex::class)->name('download');
     Route::get('/shop',ShopIndex::class)->name('shop');
     Route::get('/product/{p_code}/{slug?}', ProductIndex::class)->name('product');
 
@@ -60,8 +59,7 @@ Route::name('client.')->group(function () {
     Route::get('/about-us',AboutUs::class)->name('about-us');
     Route::get('/contact-us',ContactUs::class)->name('contact-us');
 
-    Route::get('/blog/all',WeblogIndex::class)->name('blog');
-    Route::get('/blog/{blog_code}/{slug}', Show::class)->name('blog.show');
+    Route::get('/blog',WeblogIndex::class)->name('blog');
     Route::get('/course',CourseIndex::class)->name('course');
 
 
@@ -73,8 +71,8 @@ Route::name('client.')->group(function () {
     });
 
     Route::middleware('auth')->group(function () {
-        Route::get('/checkout/cart',CartIndex::class)->name('checkout.cart');
-        Route::get('/checkout/cart/orderInfo',cartInfo::class)->name('checkout.cart.info');
+        Route::get('/shopping-cart',CartIndex::class)->name('checkout.cart');
+        Route::get('/shopping-cart-info',cartInfo::class)->name('checkout.cart.info');
         Route::get('/logout', [authLogin::class,'clientLogout'])->name('logout');
         Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
 

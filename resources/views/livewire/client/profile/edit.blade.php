@@ -1,7 +1,7 @@
 <div>
     @assets
         <!-- Tom Select CSS -->
-        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
+{{--        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">--}}
         <style>
             .tom-select .ts-control {
                 background: hsl(var(--secondary)) !important;
@@ -359,7 +359,7 @@
                                                     </svg>
                                                     استان
                                                 </label>
-                                                <select id="state_id">
+                                                <select id="state_id" class="form-select">
                                                     <option value="">انتخاب کنید</option>
                                                     @foreach($states as $state)
                                                         <option value="{{ $state->id }}">{{ $state->name }}</option>
@@ -692,7 +692,7 @@
 
     @script
         <!-- Tom Select JS -->
-        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+{{--        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>--}}
         <script>
             document.addEventListener('livewire:initialized', () => {
                 let stateSelect, citySelect;

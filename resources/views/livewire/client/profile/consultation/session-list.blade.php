@@ -133,21 +133,21 @@
                                            {{ $statusFilter === 'completed'
                                                ? 'bg-emerald-500 text-white shadow-md'
                                                : 'bg-secondary text-foreground border border-border hover:bg-secondary/80' }}">
-                                جلسات برگزار شده
+                                 برگزار شده
                             </button>
                             <button wire:click="$set('statusFilter', 'pending')"
                                     class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors
                                            {{ $statusFilter === 'pending'
                                                ? 'bg-slate-500 text-white shadow-md'
                                                : 'bg-secondary text-foreground border border-border hover:bg-secondary/80' }}">
-                                جلسات در انتظار برگزاری
+                                در انتظار
                             </button>
                             <button wire:click="$set('statusFilter', 'cancelled')"
                                     class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors
                                            {{ $statusFilter === 'cancelled'
                                                ? 'bg-red-500 text-white shadow-md'
                                                : 'bg-secondary text-foreground border border-border hover:bg-secondary/80' }}">
-                                جلسات لغو شده توسط مشاور یا دانش‌آموز
+                                 لغو شده
                             </button>
                         </div>
                         <!-- لیست جلسات به صورت کارت -->
@@ -318,7 +318,7 @@
                                                             پر کردن پیش‌جلسه
                                                         </button>
                                                     @elseif($session->preSession)
-                                                        <a wire:ignore href="{{ route('client.profile.consultation.pre-session', $session->id) }}"
+                                                        <a wire:navigate wire:ignore href="{{ route('client.profile.consultation.pre-session', $session->id) }}"
                                                            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-slate-500 hover:bg-slate-600 text-white rounded-xl font-semibold text-sm transition-colors">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -404,7 +404,7 @@
                             <!-- Pagination -->
                             @if($sessions->hasPages())
                                 <div class="mt-6">
-                                    {{ $sessions->links() }}
+                                    {{ $sessions->links('layouts.client.pagination') }}
                                 </div>
                             @endif
                         @endif
@@ -416,7 +416,7 @@
 
         {{-- Modal تایید پیش‌جلسه --}}
         <div x-show="showPreSessionModal" x-cloak x-transition.opacity
-             class="fixed inset-0 z-50 overflow-y-auto ">
+             class="fixed inset-0 z-[100] overflow-y-auto ">
             <div class="flex items-center justify-center min-h-screen px-4">
                 <div x-show="showPreSessionModal"
                      x-transition:enter="transition ease-out duration-300 transform"
@@ -425,7 +425,7 @@
                      x-transition:leave="transition ease-in duration-200 transform"
                      x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                      x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     class="relative w-full max-w-md my-20 overflow-hidden transition-all transform bg-secondary border border-border rounded-2xl shadow-2xl z-20">
+                     class="relative w-full max-w-md my-20 overflow-hidden transition-all  transform bg-secondary border border-border rounded-2xl shadow-2xl z-20">
 
 
 

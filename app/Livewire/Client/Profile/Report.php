@@ -416,7 +416,6 @@ class Report extends Component
             'daily_report_id' => $dailyReport->id,
             'phone_hours' => 0,
             'description' => $this->description,
-            'missed_parts_reason' => $unreadCount > 1 ? $this->missedPartsReason : null,
             'rating' => $avgRating,
             'status' => 'pending',
         ]);
@@ -544,7 +543,6 @@ class Report extends Component
             'daily_report_id' => $dailyReport->id,
             'phone_hours' => 0,
             'description' => $this->compensatoryDescription ?: 'گزارش جبرانی',
-            'missed_parts_reason' => $this->compensatoryMissedPartsReason ?: null,
             'rating' => $avgRating,
             'status' => 'pending',
         ]);

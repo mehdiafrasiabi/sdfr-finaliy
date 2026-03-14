@@ -2,7 +2,7 @@
     <div class="container mx-auto px-3 sm:px-4 max-w-4xl">
 
         {{-- HEADER --}}
-        <div class="overflow-hidden rounded-2xl border bg-secondary border-border shadow-[0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
+        <div class="overflow-hidden rounded-3xl border bg-secondary border-border shadow-[0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.2)]">
             <div class="bg-gradient-to-br from-blue-700 via-blue-600 to-blue-400 px-5 py-6 sm:px-7 sm:py-7">
                 <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div>
@@ -22,14 +22,15 @@
                     </div>
 
                     <div class="flex flex-col items-stretch gap-2 sm:items-end">
-                        <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
+                        <a  wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
                            class="inline-flex items-center justify-center gap-1.5 rounded-lg bg-red-500 px-4 py-2 text-xs sm:text-sm font-medium
                             text-white shadow-sm transition hover:bg-red-600 focus:outline-none focus:ring-2
                             focus:ring-red-300 focus:ring-offset-2 focus:ring-offset-background">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            <span class="font-semibold text-xs">  بازگشت</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3"></path>
                             </svg>
-                            بازگشت
+
                         </a>
 
                         <span class="inline-flex items-center gap-2 rounded-full bg-black/10 px-3 py-1 text-[11px] text-blue-100/90 ring-1 ring-blue-200/40">
@@ -125,30 +126,32 @@
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-foreground">درس</label>
                                     @if(count($availableSubjects) > 0)
-                                        <select wire:model.live="examForm.cc_subject_id" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                        <select wire:model.live="examForm.cc_subject_id" class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary  focus:border-border rounded-xl text-sm text-foreground px-5">
                                             <option value="">انتخاب درس...</option>
                                             @foreach($availableSubjects as $subject)
                                                 <option value="{{ $subject['id'] }}">{{ $subject['name'] }} ({{ $subject['type'] === 'general' ? 'عمومی' : 'تخصصی' }})</option>
                                             @endforeach
                                         </select>
                                     @else
-                                        <input type="text" wire:model="examForm.subject" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="مثال: ریاضی">
+                                        <input type="text" wire:model="examForm.subject" class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5" placeholder="مثال: ریاضی">
                                     @endif
-                                    @error('examForm.subject')<span class="mt-1 block text-xs text-red-500">{{ $message }}</span>@enderror
+                                    @error('examForm.subject')
+                                    <span class="mt-1 block text-xs text-red-500">{{ $message }}</span
+                                    >@enderror
                                 </div>
 
                                 {{-- فصل --}}
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-foreground">فصل</label>
                                     @if(count($availableChapters) > 0)
-                                        <select wire:model="examForm.cc_chapter_id" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                        <select wire:model="examForm.cc_chapter_id" class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
                                             <option value="">انتخاب فصل...</option>
                                             @foreach($availableChapters as $chapter)
                                                 <option value="{{ $chapter['id'] }}">{{ $chapter['name'] }}</option>
                                             @endforeach
                                         </select>
                                     @else
-                                        <select disabled class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted-foreground shadow-sm cursor-not-allowed">
+                                        <select disabled class="form-select w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted shadow-sm cursor-not-allowed">
                                             <option>ابتدا درس را انتخاب کنید</option>
                                         </select>
                                     @endif
@@ -254,14 +257,14 @@
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-foreground">درس</label>
                                     @if(count($availableSubjects) > 0)
-                                        <select wire:model.live="qaForm.cc_subject_id" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                        <select wire:model.live="qaForm.cc_subject_id" class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
                                             <option value="">انتخاب درس...</option>
                                             @foreach($availableSubjects as $subject)
                                                 <option value="{{ $subject['id'] }}">{{ $subject['name'] }} ({{ $subject['type'] === 'general' ? 'عمومی' : 'تخصصی' }})</option>
                                             @endforeach
                                         </select>
                                     @else
-                                        <input type="text" wire:model="qaForm.subject" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="مثال: فیزیک">
+                                        <input type="text" wire:model="qaForm.subject" class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5" placeholder="مثال: فیزیک">
                                     @endif
                                     @error('qaForm.subject')<span class="mt-1 block text-xs text-red-500">{{ $message }}</span>@enderror
                                 </div>
@@ -269,14 +272,14 @@
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-foreground">فصل</label>
                                     @if(count($availableChapters) > 0)
-                                        <select wire:model="qaForm.cc_chapter_id" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                        <select wire:model="qaForm.cc_chapter_id" class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
                                             <option value="">انتخاب فصل...</option>
                                             @foreach($availableChapters as $chapter)
                                                 <option value="{{ $chapter['id'] }}">{{ $chapter['name'] }}</option>
                                             @endforeach
                                         </select>
                                     @else
-                                        <select disabled class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted-foreground shadow-sm cursor-not-allowed">
+                                        <select disabled class="form-select w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted shadow-sm cursor-not-allowed">
                                             <option>ابتدا درس را انتخاب کنید</option>
                                         </select>
                                     @endif
@@ -375,14 +378,14 @@
                                 <div>
                                     <label class="mb-1 block text-xs font-medium text-foreground">درس</label>
                                     @if(count($availableSubjects) > 0)
-                                        <select wire:model.live="assignmentForm.cc_subject_id" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                        <select wire:model.live="assignmentForm.cc_subject_id" class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
                                             <option value="">انتخاب درس...</option>
                                             @foreach($availableSubjects as $subject)
                                                 <option value="{{ $subject['id'] }}">{{ $subject['name'] }} ({{ $subject['type'] === 'general' ? 'عمومی' : 'تخصصی' }})</option>
                                             @endforeach
                                         </select>
                                     @else
-                                        <input type="text" wire:model="assignmentForm.subject" class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" placeholder="مثال: شیمی">
+                                        <input type="text" wire:model="assignmentForm.subject" class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5" placeholder="مثال: شیمی">
                                     @endif
                                     @error('assignmentForm.subject')<span class="mt-1 block text-xs text-red-500">{{ $message }}</span>@enderror
                                 </div>
@@ -485,7 +488,7 @@
                                         <label class="mb-1 block text-xs font-medium text-foreground">درس</label>
                                         @if(count($availableGradeSubjects) > 0)
                                             <select wire:model.live="requestedPartForm.cc_subject_id"
-                                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                                    class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
                                                 <option value="">انتخاب درس...</option>
                                                 @foreach($availableGradeSubjects as $gradeGroup)
                                                     <optgroup label="{{ $gradeGroup['grade_label'] }}">
@@ -499,7 +502,7 @@
                                             </select>
                                         @else
                                             <input type="text" wire:model="requestedPartForm.subject"
-                                                   class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                                                   class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5"
                                                    placeholder="مثال: ریاضی">
                                         @endif
                                         @error('requestedPartForm.subject')<span class="mt-1 block text-xs text-red-500">{{ $message }}</span>@enderror
@@ -513,7 +516,7 @@
                                         </label>
                                         @if(count($requestedPartChapters) > 0)
                                             <select wire:model="requestedPartForm.cc_chapter_id"
-                                                    class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20">
+                                                    class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
                                                 <option value="">همه فصل‌ها...</option>
                                                 @foreach($requestedPartChapters as $chapter)
                                                     <option value="{{ $chapter['id'] }}">{{ $chapter['name'] }}</option>
@@ -521,7 +524,7 @@
                                             </select>
                                         @else
                                             <select disabled
-                                                    class="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted-foreground shadow-sm cursor-not-allowed">
+                                                    class="form-select w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-muted shadow-sm cursor-not-allowed">
                                                 <option>ابتدا درس را انتخاب کنید</option>
                                             </select>
                                         @endif
@@ -533,9 +536,9 @@
                                             توضیحات
                                             <span class="text-muted-foreground font-normal">(اختیاری)</span>
                                         </label>
-                                        <input type="text" wire:model="requestedPartForm.description"
-                                               class="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
-                                               placeholder="مثال: از ابتدای فصل تا مبحث مشتق">
+                                        <textarea  wire:model="requestedPartForm.description"  rows="5"
+                                               class="w-full !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5 py-5 mt-2"
+                                                  placeholder="مثال: از ابتدای فصل تا مبحث مشتق"></textarea>
                                     </div>
 
                                     {{-- تعداد پارت --}}
@@ -709,7 +712,7 @@
                 @endif
 
                 {{-- دکمه‌های ناوبری --}}
-                <div class="mt-8 border-t border-border pt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div  class="mt-8 border-t border-border pt-5 gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
                         @if($currentStep > 1)
                             <button wire:click="prevStep"
@@ -717,6 +720,7 @@
                                 مرحله قبل
                             </button>
                         @endif
+
                     </div>
 
                     <div class="flex justify-end">
@@ -734,11 +738,6 @@
                                     <span wire:loading.remove wire:target="finalSubmit">ثبت نهایی پیش‌جلسه</span>
                                     <span wire:loading wire:target="finalSubmit" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                                 </button>
-                            @else
-                                <a href="{{ route('client.profile.consultation.sessions') }}"
-                                   class="inline-flex items-center justify-center rounded-lg bg-muted px-5 py-2 text-xs sm:text-sm font-medium text-foreground shadow-sm transition hover:bg-muted/80">
-                                    بازگشت به لیست جلسات
-                                </a>
                             @endif
                         @endif
                     </div>

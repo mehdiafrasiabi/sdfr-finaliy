@@ -109,6 +109,17 @@
                     </a>
                 </li>
                 <li class="nav-item-hr">
+                <li class="nav-item" data-bs-placement="right" data-bs-title="تیکت‌ها" data-bs-toggle="tooltip">
+                    <a aria-controls="ticketsTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
+                       href="#ticketsTab" role="tab">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="icon icon-tabler icons-tabler-outline icon-tabler-message-circle menu-icon">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1"></path>
+                        </svg>
+                    </a>
+                </li>
                 </li>
                 <li class="nav-item" data-bs-placement="right" data-bs-title="اعلانات"
                     data-bs-toggle="tooltip">
@@ -296,6 +307,21 @@
                                         <span class="menu-label">
                                              داشبورد
                                         </span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                    <div class="tab-pane fade" id="ticketsTab" role="tabpanel" tabindex="0">
+                        <nav class="app-navbar" data-simplebar="">
+                            <ul class="side-menubar">
+                                <li class="menu-heading">
+                                    <span class="menu-label">تیکت‌ها و پشتیبانی</span>
+                                </li>
+                                <li class="menu-item">
+                                    <a class="menu-link" href="{{ route('admin.ticket.index') }}">
+                                        <i class="fi fi-rr-comment"></i>
+                                        <span class="menu-label">لیست تیکت‌ها</span>
                                     </a>
                                 </li>
                             </ul>

@@ -1,35 +1,19 @@
 <div>
-
     <div class="max-w-7xl space-y-14 px-4 mx-auto">
-
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
-
             <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
-
                 <livewire:client.profile.sidebar/>
-
             </div>
-
             <div class="lg:col-span-9 md:col-span-8">
-
                 <div class="space-y-10">
-
                     <div class="space-y-5">
-
                         <!-- Header -->
-
                         <div class="flex items-center gap-3">
-
                             <div class="flex items-center gap-1">
-
                                 <div class="w-1 h-1 bg-foreground rounded-full"></div>
-
                                 <div class="w-2 h-2 bg-foreground rounded-full"></div>
-
                             </div>
-
                             <div class="font-black text-foreground">آزمون‌ ها</div>
-
                         </div>
                         <!-- Guide Section -->
                         <div
@@ -37,25 +21,21 @@
                             x-data="collapseGuide('exam-guide')"
                             x-init="init()"
                             class="rounded-2xl border border-border bg-primary  overflow-hidden transition-all">
-
                             <!-- HEADER -->
                             <button
                                 @click="toggle"
                                 class="w-full flex items-center justify-between px-4 md:px-6 py-4
                                  transition">
-
                                 <!-- title -->
                                 <div class="flex items-center gap-2">
-
                                     <svg class="w-5 h-5 text-white dark:text-white"
                                          fill="currentColor" viewBox="0 0 24 24">
                                         <path
                                             d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
                                     </svg>
-
                                     <span class="font-black text-white dark:text-white text-blue-300 md:text-lg">
-                راهنمای شرکت در آزمون
-            </span>
+                                        راهنمای شرکت در آزمون
+                                    </span>
                                 </div>
 
                                 <!-- arrow -->
@@ -67,7 +47,6 @@
                                           stroke-width="2" d="M19 9l-7 7-7-7"/>
                                 </svg>
                             </button>
-
                             <!-- CONTENT -->
                             <div
                                 x-show="open"
@@ -78,62 +57,45 @@
                                 x-transition:leave="transition ease-in duration-200"
                                 x-transition:leave-start="opacity-100 translate-y-0"
                                 x-transition:leave-end="opacity-0 -translate-y-1"
-                                class="px-4 md:px-6 pb-6"
-                            >
-
-
+                                class="px-4 md:px-6 pb-6">
                                 <div class="flex flex-col md:flex-row-reverse gap-6 items-center mt-2">
-
                                     <!-- IMAGE -->
                                     <div class="relative w-full md:w-[280px] shrink-0 order-2 md:order-1">
-
                                         <img
                                             src="/client/assets/images/blog/sdfr.jpg"
-                                            class="w-full h-[200px] md:h-[180px] object-cover rounded-xl"
-                                        >
-
+                                            class="w-full h-[200px] md:h-[180px] object-cover rounded-xl">
                                         <button
                                             type="button"
                                             id="57612318744"
                                             data-video-url="https://www.aparat.com/video/video/embed/videohash/utg98i1/vt/frame?titleShow=true&recom=self"
                                             allowFullScreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"
                                             data-video-title="راهنمای شرکت در آزمون"
-                                            class="absolute inset-0 flex items-center justify-center"
-                                        >
-            <span
-                class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60
-                       flex items-center justify-center shadow-lg transition"
-            >
-                <svg class="w-7 h-7 text-blue-600 mr-1"
-                     fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"/>
-                </svg>
-            </span>
+                                            class="absolute inset-0 flex items-center justify-center">
+                                            <span
+                                                class="w-14 h-14 rounded-full bg-white/90 dark:bg-black/60
+                                                       flex items-center justify-center shadow-lg transition">
+                                                <svg class="w-7 h-7 text-blue-600 mr-1"
+                                                     fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M8 5v14l11-7z"/>
+                                                </svg>
+                                            </span>
                                         </button>
                                     </div>
-
                                     <!-- TEXT -->
                                     <div
                                         class="flex-1 text-right text-sm md:text-base  text-white dark:text-white leading-7 order-1 md:order-2">
-
                                         دانش‌آموز عزیز سلام، قبل از شرکت در آزمون موارد زیر را با دقت مطالعه کنید:
-
                                         <br>• استفاده از آخرین نسخه مرورگر کروم الزامی است.
                                         <br>• حتماً قبل از خروج ثبت نهایی انجام شود.
                                         <br>• پس از ورود به هر دفترچه امکان بازگشت وجود ندارد.
                                         <br>• دفترچه آزمایشی ممکن است در پایان نمایش داده شود.
-
                                     </div>
-
                                 </div>
                             </div>
                         </div>
                         <!-- End Guide Section -->
-
                         @if($assignments->isEmpty())
-
                             <div class="flex flex-col items-center justify-center space-y-12 py-16">
-
                                 <div class="flex flex-col items-center justify-center space-y-12">
                                     <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35"
                                          alt="empty"/>
@@ -143,23 +105,14 @@
                                         </h2>
                                     </div>
                                 </div>
-
                             </div>
-
                         @else
-
                             <div class="space-y-4">
-
                                 @foreach($assignments as $assignment)
-
                                     @php
-
                                         $exam = $assignment->typedExam;
-
                                         $isExpanded = in_array($assignment->id, $expandedExams);
-
                                     @endphp
-
                                     <div
                                         class="bg-secondary border border-border rounded-2xl overflow-hidden flex flex-col">
 
@@ -181,80 +134,76 @@
                                                                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                                         </svg>
                                                     </div>
-
                                                     <div class="flex-1 " style="margin-right: 10px">
                                                         <h3 class="font-bold text-foreground text-lg">
                                                             {{ $exam->title }}
                                                         </h3>
-
                                                         @if($assignment->time_range)
                                                             <p class="text-sm text-muted mt-1">
-                            <span class="inline-flex items-center gap-1">
+                                                                <span class="inline-flex items-center gap-1">
 
-                                {{ $assignment->time_range['start_date'] }} ساعت {{ $assignment->time_range['start_time'] }}
-                                تا
-                                {{ $assignment->time_range['end_date'] }} ساعت {{ $assignment->time_range['end_time'] }}
-                            </span>
+                                                                    {{ $assignment->time_range['start_date'] }} ساعت {{ $assignment->time_range['start_time'] }}
+                                                                    تا
+                                                                    {{ $assignment->time_range['end_date'] }} ساعت {{ $assignment->time_range['end_time'] }}
+                                                                </span>
                                                             </p>
                                                         @endif
-
                                                         {{-- وضعیت + نمره مرتب در یک ردیف --}}
                                                         <div class="mt-3 flex flex-wrap items-center gap-2">
                                                             @switch($assignment->computed_status)
                                                                 @case('not_started')
                                                                     <span
                                                                         class="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400 text-xs rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none"
-                                         viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    هنوز شروع نشده
-                                </span>
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none"
+                                                                             viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                                        </svg>
+                                                                        هنوز شروع نشده
+                                                                    </span>
                                                                     @break
 
                                                                 @case('available')
                                                                     <span
                                                                         class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-500 dark:text-green-400 text-xs rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none"
-                                         viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    قابل شرکت
-                                </span>
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none"
+                                                                             viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                                        </svg>
+                                                                        قابل شرکت
+                                                                    </span>
                                                                     @break
 
                                                                 @case('expired')
                                                                     <span
                                                                         class="inline-flex items-center gap-1 px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-500 dark:text-red-500 text-xs rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none"
-                                         viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    منقضی شده
-                                </span>
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none"
+                                                                             viewBox="0 0 24 24" stroke="currentColor">
+                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                                        </svg>
+                                                                        منقضی شده
+                                                                    </span>
                                                                     @break
-
                                                                 @case('completed')
                                                                     <span
                                                                         class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-primary dark:text-blue-400 text-xs rounded-full">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none"
-                                         viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M5 13l4 4L19 7"/>
-                                    </svg>
-                                    تکمیل شده
-                                </span>
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none"
+                                                                                     viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                                                          d="M5 13l4 4L19 7"/>
+                                                                                </svg>
+                                                                                تکمیل شده
+                                                                    </span>
                                                                     @break
                                                             @endswitch
 
                                                             @if($assignment->computed_status === 'completed' && $assignment->latestAttempt?->score !== null)
                                                                 <span
                                                                     class="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-full">
-                                نمره: {{ number_format($assignment->latestAttempt->score, 1) }}%
-                            </span>
+                                                                         نمره: {{ number_format($assignment->latestAttempt->score, 1) }}%
+                                                               </span>
                                                             @endif
                                                         </div>
                                                     </div>
@@ -326,7 +275,6 @@
                                                 </button>
                                             </div>
                                         </div>
-
                                         <!-- Dropdown Details -->
                                         @if($isExpanded)
                                             <div class="border-t border-border bg-background/50 p-4">
@@ -343,7 +291,6 @@
                                                         <span
                                                             class="font-bold text-foreground text-sm mt-1">{{ $exam->title }}</span>
                                                     </div>
-
                                                     <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
                                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-2"
                                                              fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -361,7 +308,6 @@
                                                             @endif
                                                         </span>
                                                     </div>
-
                                                     <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
                                                         <svg xmlns="http://www.w3.org/2000/svg"
                                                              class="w-6 h-6 text-green-500 mb-2" fill="none"
@@ -389,96 +335,48 @@
                                             </div>
                                         @endif
                                     </div>
-
                                     <br>
                                 @endforeach
-
                             </div>
-
                         @endif
-
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
-
     <!-- Start Exam Modal -->
-
-
     @if($confirmingExamId)
-
         @php
-
             $selectedAssignment = $assignments->firstWhere('id', $confirmingExamId);
-
             $selectedExam = $selectedAssignment?->typedExam;
-
         @endphp
-
         <div class="fixed inset-0 z-50 overflow-y-auto" x-data="{ modalOpen: true }">
-
             <div class="flex items-center justify-center min-h-screen px-4">
-
                 <!-- Modal Content -->
-
                 <div x-show="modalOpen"
-
                      x-transition:enter="transition ease-out duration-300 transform"
-
                      x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-
                      x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-
                      x-transition:leave="transition ease-in duration-200 transform"
-
                      x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-
                      x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-
                      class="relative w-full max-w-md my-20 overflow-hidden transition-all transform bg-background border border-border rounded-2xl shadow-2xl z-20">
-
-
                     <!-- Close Button -->
-
                     <div class="relative p-4">
-
                         <button type="button" wire:click="closeModal"
-
                                 class="absolute left-4 text-muted focus:outline-none hover:text-error">
-
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-
                                  stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
-
                             </svg>
-
                         </button>
-
                     </div>
-
-
                     <hr class="border-border">
-
-
                     <!-- Modal Body -->
-
                     <div class="p-6">
-
                         <div class="flex flex-col items-center justify-center space-y-5">
-
                             <!-- green Circle with Clock Icon -->
-
-                            <div
-                                class="flex items-center justify-center w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full">
-
+                            <div class="flex items-center justify-center w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full">
                                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
                                      xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-500">
                                     <path
@@ -492,78 +390,40 @@
                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                         stroke-linejoin="round"></path>
                                 </svg>
-
                             </div>
-
-
                             <!-- Exam Title -->
-
                             <h3 class="font-bold text-xl text-foreground">{{ $selectedExam?->title ?? 'آزمون' }}</h3>
-
-
                             <!-- Warning Text -->
-
                             <p class="text-center text-muted text-sm leading-relaxed">
-
                                 حواستون باشه از زمانی که دکمه شرکت در آزمون رو می‌زنید، زمان برای شما در نظر گرفته میشه!
-
                             </p>
-
                         </div>
-
                     </div>
-
-
                     <!-- Modal Footer -->
-
                     <div class="flex items-center gap-x-4 border-t border-border p-4">
-
                         <button type="button" wire:click="closeModal"
-
                                 class="flex items-center justify-center gap-x-2 w-full bg-background border border-border rounded-xl text-foreground py-3 px-4 hover:bg-secondary transition-colors">
-
                             <span class="font-bold text-sm">لغو</span>
-
                         </button>
-
                         <button wire:click="enterExam"
-
                                 class="flex items-center justify-center gap-x-2 w-full bg-primary hover:bg-primary/90 border border-transparent rounded-xl text-primary-foreground py-3 px-4 transition-colors">
-
                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                                  stroke="currentColor">
-
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                       d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-
                             </svg>
-
                             <span class="font-bold text-sm">شروع</span>
-
                         </button>
-
                     </div>
-
                 </div>
-
-
                 <!-- Backdrop -->
-
                 <div x-show="modalOpen"
-
                      wire:click="closeModal"
-
                      class="fixed inset-0 bg-secondary/80 cursor-pointer transition-all z-10"></div>
-
             </div>
-
         </div>
-
     @endif
-
-
 </div>
 

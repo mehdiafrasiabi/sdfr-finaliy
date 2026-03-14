@@ -71,7 +71,7 @@
         <div class="absolute inset-0 bg-black/10 dark:bg-black/30"></div>
         <div class="relative z-10 w-full auth-hero-inner flex flex-row items-center justify-center gap-4 lg:flex-col text-center px-4 py-6 lg:px-6 lg:py-10">
             <div class="relative flex items-center justify-center shrink-0">
-                <img src="/client/authenticator1.png" alt="" class="max-w-[120px] sm:max-w-[140px] lg:max-w-[420px] h-auto drop-shadow-2xl"/>
+                <img src="/client/step-01.webp" alt="" class="max-w-[120px] sm:max-w-[140px] lg:max-w-[420px] h-auto drop-shadow-2xl"/>
             </div>
             <div class="lg:mt-6 max-w-md text-right lg:text-center">
                 <h2 class="font-black text-white text-lg sm:text-xl lg:text-4xl leading-relaxed">خوش آمدید</h2>
@@ -329,12 +329,8 @@
                             } else {
                                 clearInterval(this.timer);
                             @this.call('countdownFinished');
-                            }
-                        }, 1000);
-                    }
-                }
-            }
+                            }}, 1000);
+                    }}}
         </script>
     @endpush
-
 </div>

@@ -8,6 +8,7 @@ use App\Models\AdvisingPreSession;
 use App\Services\NotificationService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -19,7 +20,8 @@ class Index extends Component
     use WithPagination, SEOTools;
 
     public $search = '';
-
+    // روز انتخابی در نمای اصلی (Carbon dayOfWeek: 0=Sun .. 6=Sat)
+    public $selectedDay = 6; // پیش‌فرض: شنبه
     // Modal 1: Student Selection
     public $showStudentSelectModal = false;
     public $studentSearch = '';
@@ -28,7 +30,7 @@ class Index extends Component
     // Modal 2: Schedule Configuration (per-student)
     public $showScheduleModal = false;
 
-    public $studentSchedules = []; // keyed by student ID: ['day','hour','minute','location_type','skyroom_link']
+    public $studentSchedules = []; // keyed by student ID
 
     public function mount()
     {
@@ -38,13 +40,14 @@ class Index extends Component
 
     public function seoConfig()
     {
-        $this->seo()
-            ->setTitle('دانش آموزان');
+           $this->seo()->setTitle('اتاق مشاوره');
     }
 
-    public function updatingSearch()
+    // ==================== انتخاب روز در نمای اصلی ====================
+
+    public function selectDay($day)
     {
-        $this->resetPage();
+        $this->selectedDay = (int) $day;
     }
 
 // ==================== Modal 1: Student Selection ====================
@@ -52,7 +55,7 @@ class Index extends Component
     public function openStudentSelectModal()
     {
         $this->selectedStudents = [];
-        $this->studentSearch = '';
+        $this->studentSearch    = '';
         $this->showStudentSelectModal = true;
     }
 
@@ -73,7 +76,7 @@ class Index extends Component
             $this->selectedStudents[] = $studentId;
             // Initialize schedule entry with defaults
             $this->studentSchedules[$studentId] = [
-                'day'           => '',
+                'day'           => (string) $this->selectedDay,
                 'hour'          => '08',
                 'minute'        => '00',
                 'location_type' => 'online',
@@ -89,21 +92,9 @@ class Index extends Component
             return;
         }
 
-        // Validate that all selected students have a day selected
-        $missingDay = false;
-        foreach ($this->selectedStudents as $studentId) {
-            if (empty($this->studentSchedules[$studentId]['day'] ?? '')) {
-                $missingDay = true;
-                break;
-            }
-        }
-        if ($missingDay) {
-            $this->dispatch('warning', 'لطفاً برای همه دانش‌آموزان انتخابی روز هفته را مشخص کنید.');
-            return;
-        }
 
         $this->showStudentSelectModal = false;
-        $this->showScheduleModal = true;
+        $this->showScheduleModal      = true;
     }
 
     // ==================== Modal 2: Schedule Config ====================
@@ -125,7 +116,7 @@ class Index extends Component
         $rules    = [];
         $messages = [];
         foreach ($this->selectedStudents as $studentId) {
-            $student = \App\Models\Student::with('user.personalInformation')->find($studentId);
+            $student = Student::with('user.personalInformation')->find($studentId);
             $name = $student?->user?->personalInformation?->name ?? "دانش‌آموز {$studentId}";
             $rules["studentSchedules.{$studentId}.day"]           = 'required|in:0,1,2,3,4,5,6';
             $rules["studentSchedules.{$studentId}.hour"]          = 'required|integer|min:0|max:23';
@@ -138,16 +129,16 @@ class Index extends Component
                 $messages["studentSchedules.{$studentId}.skyroom_link.required"] = "لینک جلسه آنلاین برای {$name} الزامی است.";
                 $messages["studentSchedules.{$studentId}.skyroom_link.url"]      = "لینک وارد شده برای {$name} معتبر نیست.";
             }
-            $messages["studentSchedules.{$studentId}.day.required"] = "انتخاب روز هفته برای {$name} الزامی است.";
-            $messages["studentSchedules.{$studentId}.day.in"]       = "روز انتخابی برای {$name} معتبر نیست.";
-            $messages["studentSchedules.{$studentId}.hour.required"] = "ساعت جلسه برای {$name} الزامی است.";
-            $messages["studentSchedules.{$studentId}.hour.min"]      = "ساعت باید بین ۰ تا ۲۳ باشد ({$name}).";
-            $messages["studentSchedules.{$studentId}.hour.max"]      = "ساعت باید بین ۰ تا ۲۳ باشد ({$name}).";
-            $messages["studentSchedules.{$studentId}.hour.integer"]  = "ساعت وارد شده برای {$name} نامعتبر است.";
-            $messages["studentSchedules.{$studentId}.minute.required"] = "دقیقه جلسه برای {$name} الزامی است.";
-            $messages["studentSchedules.{$studentId}.minute.min"]    = "دقیقه باید بین ۰ تا ۵۹ باشد ({$name}).";
-            $messages["studentSchedules.{$studentId}.minute.max"]    = "دقیقه باید بین ۰ تا ۵۹ باشد ({$name}).";
-            $messages["studentSchedules.{$studentId}.minute.integer"] = "دقیقه وارد شده برای {$name} نامعتبر است.";
+            $messages["studentSchedules.{$studentId}.day.required"]          = "روز جلسه برای {$name} الزامی است.";
+            $messages["studentSchedules.{$studentId}.day.in"]                = "روز انتخابی برای {$name} معتبر نیست.";
+            $messages["studentSchedules.{$studentId}.hour.required"]         = "ساعت جلسه برای {$name} الزامی است.";
+            $messages["studentSchedules.{$studentId}.hour.min"]              = "ساعت باید بین ۰ تا ۲۳ باشد ({$name}).";
+            $messages["studentSchedules.{$studentId}.hour.max"]              = "ساعت باید بین ۰ تا ۲۳ باشد ({$name}).";
+            $messages["studentSchedules.{$studentId}.hour.integer"]          = "ساعت وارد شده برای {$name} نامعتبر است.";
+            $messages["studentSchedules.{$studentId}.minute.required"]       = "دقیقه جلسه برای {$name} الزامی است.";
+            $messages["studentSchedules.{$studentId}.minute.min"]            = "دقیقه باید بین ۰ تا ۵۹ باشد ({$name}).";
+            $messages["studentSchedules.{$studentId}.minute.max"]            = "دقیقه باید بین ۰ تا ۵۹ باشد ({$name}).";
+            $messages["studentSchedules.{$studentId}.minute.integer"]        = "دقیقه وارد شده برای {$name} نامعتبر است.";
             $messages["studentSchedules.{$studentId}.location_type.required"] = "محل برگزاری جلسه برای {$name} الزامی است.";
             $messages["studentSchedules.{$studentId}.location_type.in"]       = "محل برگزاری جلسه برای {$name} نامعتبر است.";
         }
@@ -162,9 +153,9 @@ class Index extends Component
             $student = Student::with('user.personalInformation')->find($studentId);
             if (!$student) continue;
 
-            $schedule    = $this->studentSchedules[$studentId];
-            $targetDay   = (int) $schedule['day'];
-            $sessionTime = sprintf('%02d:%02d', (int)$schedule['hour'], (int)$schedule['minute']);
+            $schedule     = $this->studentSchedules[$studentId];
+            $targetDay    = (int) $schedule['day'];
+            $sessionTime  = sprintf('%02d:%02d', (int)$schedule['hour'], (int)$schedule['minute']);
             $locationType = $schedule['location_type'];
             $skyroomLink  = $locationType === 'online' ? $schedule['skyroom_link'] : null;
 
@@ -230,27 +221,47 @@ class Index extends Component
     public function render()
     {
         $adminId = auth()->id();
-        $studentsQuery = Student::query()
+        // دانش‌آموزانی که برای روز انتخابی جلسه دارند
+        $dayStudents = Student::query()
             ->with([
-                'payment.order.orderItems.product',
+                'user.profile',
                 'payment.order.user',
+                'advisingSessions' => function ($q) {
+                    $q->whereRaw('DAYOFWEEK(activation_date) = ?', [$this->selectedDay + 1])
+                        ->orderBy('activation_date');
+                },
                 'user.personalInformation',
-                'user.profile'
+
             ])
-            ->where('supporter_id', $adminId);
+            ->where('supporter_id', $adminId)
+            ->whereHas('advisingSessions', function ($q) {
+                $q->whereRaw('DAYOFWEEK(activation_date) = ?', [$this->selectedDay + 1]);
+            })
+            ->get();
 
-        // اگر جستجو فعال بود
-        if ($this->search) {
-            $studentsQuery->whereHas('user.personalInformation', function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%');
-            });
+        // تعداد دانش‌آموز به ازای هر روز (برای badge تب‌ها)
+        $dayCountsRaw = DB::table('advising_sessions')
+            ->join('students', 'students.id', '=', 'advising_sessions.student_id')
+            ->where('students.supporter_id', $adminId)
+            ->whereNull('advising_sessions.deleted_at')
+            ->selectRaw('(DAYOFWEEK(activation_date) - 1) as carbon_day, COUNT(DISTINCT advising_sessions.student_id) as cnt')
+            ->groupByRaw('DAYOFWEEK(activation_date), (DAYOFWEEK(activation_date) - 1)')
+            ->get()
+            ->pluck('cnt', 'carbon_day')
+            ->toArray();
+
+        $dayCounts = array_fill(0, 7, 0);
+        foreach ($dayCountsRaw as $carbonDay => $cnt) {
+            $dayCounts[(int)$carbonDay] = (int)$cnt;
         }
-        $students = $studentsQuery->paginate(10);
+        // تعداد کل دانش‌آموزان این مشاور
+        $totalStudentCount = Student::where('supporter_id', $adminId)->count();
 
-        // Students for the auto-session modal (all, with search across multiple fields)
+        // دانش‌آموزان مودال: فقط آنهایی که هیچ جلسه‌ای ندارند
         $modalStudentsQuery = Student::query()
             ->with(['user.personalInformation', 'user.profile'])
-            ->where('supporter_id', $adminId);
+            ->where('supporter_id', $adminId)
+            ->whereDoesntHave('advisingSessions');
 
         if ($this->studentSearch) {
             $modalStudentsQuery->where(function ($q) {
@@ -268,7 +279,10 @@ class Index extends Component
         $modalStudents = $modalStudentsQuery->get();
 
         return view('livewire.admin.student.consultation.index', [
-            'students'      => $students,
-            'modalStudents' => $modalStudents,
-        ])->layout('layouts.admin.app');    }
+            'dayStudents'       => $dayStudents,
+            'modalStudents'     => $modalStudents,
+            'totalStudentCount' => $totalStudentCount,
+            'dayCounts'         => $dayCounts,
+        ])->layout('layouts.admin.app');
+    }
 }

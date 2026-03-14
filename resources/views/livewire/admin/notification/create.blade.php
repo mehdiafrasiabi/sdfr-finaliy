@@ -209,7 +209,7 @@
 
                                 <td>
                                     <p class="wrap-text fw-semibold mb-1">{{ $notif->title }}</p>
-                                    <p class="wrap-text small text-body-secondary mb-0">{{ Str::limit($notif->body, 50) }}</p>
+                                    <p class="wrap-text small text-body-secondary mb-0">{{ $notif->body }}</p>
                                 </td>
 
                                 <td class="text-nowrap">

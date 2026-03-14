@@ -78,7 +78,7 @@
                                         {{ $isRunning
                                             ? 'bg-red-500 hover:bg-red-600 text-white'
                                             : 'bg-emerald-500 hover:bg-emerald-600 text-white' }}">
-                                <span>{{ $isRunning ? 'توقف موقت' : 'شروع / ادامه' }}</span>
+                                <span>{{ $isRunning ? 'توقف موقت' : 'شروع' }}</span>
                             </button>
 
                             <button wire:click="resetTimer"

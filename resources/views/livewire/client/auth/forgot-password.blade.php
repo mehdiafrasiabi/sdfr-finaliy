@@ -96,7 +96,7 @@
         <div
             class="relative z-10 w-full auth-hero-inner flex flex-row items-center justify-center gap-4 lg:flex-col text-center px-4 py-6 lg:px-6 lg:py-10">
             <div class="relative flex items-center justify-center shrink-0">
-                <img src="/client/authenticator1.png" alt=""
+                <img src="/client/step-01.webp" alt=""
                      class="max-w-[120px] sm:max-w-[140px] lg:max-w-[420px] h-auto drop-shadow-2xl"/>
             </div>
             <div class="lg:mt-6 max-w-md text-right lg:text-center">

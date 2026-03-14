@@ -51,50 +51,83 @@
             seconds: secs.toString().padStart(2, '0'),
         };
     }
-}" x-init="init()" class="min-h-screen bg-background">
+}"
+     x-init="init()" class="min-h-screen bg-background">
 
-
+    @assets
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+        /* ----- تایمر شیشه‌ای و تار ----- */
+        .timer-blur-glass {
+            filter: blur(6px); /* تار کردن خود باکس‌ها */
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px); /* اثر شیشه‌ای روی پس‌زمینه (اگر مرورگر پشتیبانی کند) */
+            background-color: rgba(15, 23, 42, 0.35); /* یک بک‌گراند نیمه‌شفاف (متناسب با تم خودت تنظیم کن) */
+            border-radius: 1rem;
+            pointer-events: none; /* کلیک‌ناپذیر */
+            user-select: none; /* انتخاب‌ناپذیر */
+            transition: all 0.2s ease-in-out;
+        }
+        .prose img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+        }
+        .prose table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .prose table th,
+        .prose table td {
+            border: 1px solid #e5e7eb;
+            padding: 0.5rem;
+        }
+        /* Question Image Responsive Styles */
+        .question-image-container img {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+        @media (max-width: 640px) {
+            .question-image-container img {
+                max-height: 50vh;
+            }
+        }
+        @media (min-width: 641px) and (max-width: 1024px) {
+            .question-image-container img {
+                max-height: 60vh;
+            }
+        }
+        @media (min-width: 1025px) {
+            .question-image-container img {
+                max-height: 70vh;
+            }
+        }
+    </style>
+    @endassets
     <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
-
         <!-- Top Info Card -->
-
         <div class="bg-secondary border border-border rounded-2xl p-4">
-
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-
                 <!-- Right Side - Exam Info -->
-
                 <div class="flex items-center gap-4">
-
                     <div class="flex-shrink-0 w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary" fill="none"
                              viewBox="0 0 24 24" stroke="currentColor">
-
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-
                         </svg>
-
                     </div>
-
                     <div style="margin-right: 10px">
-
                         <h1 class="font-bold text-xl text-foreground">{{ $exam->title }}</h1>
-
                         <p class="text-sm text-muted">{{ $totalQuestions }} سوال</p>
-
                     </div>
-
                 </div>
-
-
             </div>
             <!-- Left Side - Timer and Controls -->
-
             <div class="flex flex-col sm:flex-row items-center justify-end gap-4">
-
-
                 <!-- Timer Display -->
                 <!-- Left Side - Timer and Controls -->
                 <div class="mt-4 flex flex-col sm:flex-row items-center justify-end gap-4">
@@ -107,39 +140,34 @@
                             <button
                                 type="button"
                                 class="relative inline-flex items-center gap-2"
-                                @click="showTimer = !showTimer"
-                            >
+                                @click="showTimer = !showTimer">
                                 <!-- آیکن زمان‌سنج -->
                                 <span
-                                    class="flex items-center justify-center w-7 h-7 rounded-xl bg-primary/10 text-primary"
-                                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                         viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
-                              d="M12 8v4l2 2m-5-9h6M12 4a8 8 0 100 16 8 8 0 000-16z"/>
-                    </svg>
-                </span>
+                                    class="flex items-center justify-center w-7 h-7 rounded-xl bg-primary/10 text-primary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+                                         viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+                                              d="M12 8v4l2 2m-5-9h6M12 4a8 8 0 100 16 8 8 0 000-16z"/>
+                                    </svg>
+                                  </span>
 
                                 <!-- بدنه سوئیچ -->
                                 <span class="relative inline-flex items-center">
-                    <span class="w-11 h-6 rounded-full bg-gray-300 dark:bg-gray-700"></span>
-                    <span
-                        class="absolute w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-200"
-                        :class="showTimer ? 'translate-x-[18px]' : 'translate-x-[2px]'"
-                    ></span>
-                </span>
-                            </button>
-
+                                            <span class="w-11 h-6 rounded-full bg-gray-300 dark:bg-gray-700"></span>
+                                            <span
+                                                class="absolute w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-200"
+                                                :class="showTimer ? 'translate-x-[18px]' : 'translate-x-[2px]'">
+                                            </span>
+                                </span>
+                                </button>
                             <span class="text-xs sm:text-sm text-muted">
-                مشاهده زمان
-            </span>
+                                مشاهده زمان
+                            </span>
                         </div>
                     </div>
-
                     {{-- باکس‌های ساعت / دقیقه / ثانیه --}}
                     <div class="flex items-center justify-end gap-2 transition-all duration-200"
                          :class="showTimer ? 'timer-blur-glass' : ''">
-
                         <!-- ثانیه -->
                         <div
                             class="flex flex-col items-center bg-background border border-border rounded-xl px-3 py-2 min-w-[50px]">
@@ -148,9 +176,7 @@
                                   x-text="formatTime(remainingSeconds).seconds"></span>
                             <span class="text-[10px] text-muted">ثانیه</span>
                         </div>
-
                         <span class="text-xl font-bold text-muted">:</span>
-
                         <!-- دقیقه -->
                         <div
                             class="flex flex-col items-center bg-background border border-border rounded-xl px-3 py-2 min-w-[50px]">
@@ -158,9 +184,7 @@
                                   x-text="formatTime(remainingSeconds).minutes"></span>
                             <span class="text-[10px] text-muted">دقیقه</span>
                         </div>
-
                         <span class="text-xl font-bold text-muted">:</span>
-
                         <!-- ساعت -->
                         <div
                             class="flex flex-col items-center bg-background border border-border rounded-xl px-3 py-2 min-w-[50px]">
@@ -169,73 +193,38 @@
                             <span class="text-[10px] text-muted">ساعت</span>
                         </div>
                     </div>
-
                 </div>
-
-
             </div>
-
         </div>
-
-
         <br>
         <!-- Filter and View Toggle -->
-
         <div class="bg-secondary border border-border rounded-2xl p-4">
-
             <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-
                 <!-- Filter Select -->
-
                 <div class="flex items-center gap-3 w-full sm:w-auto">
-
                     <label class="text-sm text-muted whitespace-nowrap">فیلتر سوالات:</label>
-
                     <select wire:model.live="questionFilter"
-
                             class="flex-1 sm:flex-none bg-background border border-border rounded-xl px-4 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary">
-
                         <option value="all">تمامی سوالات</option>
-
                         <option value="unanswered">سوالات بدون پاسخ</option>
-
                         <option value="minus">سوالات با علامت منها</option>
-
                         <option value="circle">سوالات با علامت دایره</option>
-
                         <option value="close">سوالات با علامت ضربدر</option>
-
                     </select>
-
                 </div>
-
-
                 <!-- View Mode Toggle -->
-
                 <div class="flex items-center gap-2 bg-background border border-border rounded-xl p-1">
-
                     <button wire:click="setViewMode('questions')"
-
                             class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors {{ $viewMode === 'questions' ? 'bg-primary text-primary-foreground' : 'text-muted hover:text-foreground' }}">
-
                         سوالات
-
                     </button>
-
                     <button wire:click="setViewMode('answersheet')"
-
                             class="px-4 py-2 rounded-lg text-sm font-semibold transition-colors {{ $viewMode === 'answersheet' ? 'bg-primary text-primary-foreground' : 'text-muted hover:text-foreground' }}">
-
                         پاسخنامه
-
                     </button>
-
                 </div>
-
             </div>
-
         </div>
-
 
         <br>
         <div class="grid lg:grid-cols-12 gap-6">
@@ -304,87 +293,46 @@
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Question Body -->
                                 <div class="p-6">
-
                                     <!-- Question Image -->
-
                                     @if($question->content?->question_image_url)
-
                                         <div class="mb-6 question-image-container">
-
                                             <img src="{{ $question->content->question_image_url }}"
-
                                                  alt="تصویر سوال {{ $index + 1 }}"
-
                                                  class="w-full max-w-3xl mx-auto rounded-xl shadow-lg"
-
                                                  loading="lazy">
-
                                         </div>
-
                                     @elseif($question->content?->body)
-
                                         <!-- Fallback to text if no image -->
-
                                         <div class="prose text-white prose-sm dark:prose-invert max-w-none mb-5"
                                              dir="rtl">
-
                                             {!! $question->content?->body !!}
-
                                         </div>
-
                                     @else
-
                                         <div class="text-center py-8 text-muted">
-
                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 mx-auto mb-2"
                                                  fill="none" viewBox="0 0 24 24" stroke="currentColor">
-
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-
                                             </svg>
-
                                             <p>تصویر سوال موجود نیست</p>
-
                                         </div>
-
                                     @endif
-
-
-
                                     <!-- Options - Simple numbered buttons -->
-
                                     <div class="flex flex-wrap justify-center gap-4 mt-6">
-
                                         @foreach([1, 2, 3, 4] as $optNum)
-
                                             @php
-
                                                 $isSelected = $selected === $optNum;
-
                                                 $optionLabel = ['۱', '۲', '۳', '۴'][$optNum - 1];
-
                                             @endphp
-
-
-
                                             <button
-
                                                 wire:click="selectAnswer({{ $question->id }}, {{ $optNum }})"
-
                                                 class="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl border-2 transition-all flex items-center justify-center text-2xl sm:text-3xl font-bold
-
                                                     {{ $isSelected
-
                                                         ? 'border-primary bg-primary text-primary-foreground shadow-lg shadow-primary/30 scale-105'
-
                                                         : 'border-border bg-background hover:border-primary/50 hover:bg-primary/10 text-foreground' }}"
-
                                             >
-
                                                 {{ $optionLabel }}
                                             </button>
                                         @endforeach
@@ -583,7 +531,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Five-Minute Warning Modal -->
         <div
             x-show="showFiveMinuteWarning"
@@ -592,7 +539,6 @@
             x-transition.opacity
         >
             <div class="absolute inset-0 bg-black/60" @click="showFiveMinuteWarning = false"></div>
-
             <div
                 class="relative bg-secondary border border-border rounded-2xl max-w-md w-full mx-4 p-6 shadow-xl"
                 x-transition.scale
@@ -608,13 +554,11 @@
                         </svg>
                     </button>
                 </div>
-
                 <p class="text-sm text-muted mb-6 leading-relaxed">
                     فقط ۵ دقیقه تا پایان آزمون باقی مانده است.
                     <br>
                     لطفاً پاسخ تمام سؤالات خود را بررسی و ثبت کنید.
                 </p>
-
                 <div class="flex items-center justify-end">
                     <button
                         type="button"
@@ -626,93 +570,5 @@
                 </div>
             </div>
         </div>
-
     </div>
-
-
-    @push('link')
-
-        <style>
-
-            [x-cloak] {
-                display: none !important;
-            }
-
-            /* ----- تایمر شیشه‌ای و تار ----- */
-            .timer-blur-glass {
-                filter: blur(6px); /* تار کردن خود باکس‌ها */
-                -webkit-backdrop-filter: blur(8px);
-                backdrop-filter: blur(8px); /* اثر شیشه‌ای روی پس‌زمینه (اگر مرورگر پشتیبانی کند) */
-                background-color: rgba(15, 23, 42, 0.35); /* یک بک‌گراند نیمه‌شفاف (متناسب با تم خودت تنظیم کن) */
-                border-radius: 1rem;
-                pointer-events: none; /* کلیک‌ناپذیر */
-                user-select: none; /* انتخاب‌ناپذیر */
-                transition: all 0.2s ease-in-out;
-            }
-
-            .prose img {
-                max-width: 100%;
-                height: auto;
-                border-radius: 0.5rem;
-            }
-
-            .prose table {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            .prose table th,
-            .prose table td {
-                border: 1px solid #e5e7eb;
-                padding: 0.5rem;
-            }
-
-            /* Question Image Responsive Styles */
-
-            .question-image-container img {
-
-                max-width: 100%;
-
-                height: auto;
-
-                object-fit: contain;
-
-            }
-
-
-            @media (max-width: 640px) {
-
-                .question-image-container img {
-
-                    max-height: 50vh;
-
-                }
-
-            }
-
-
-            @media (min-width: 641px) and (max-width: 1024px) {
-
-                .question-image-container img {
-
-                    max-height: 60vh;
-
-                }
-
-            }
-
-
-            @media (min-width: 1025px) {
-
-                .question-image-container img {
-
-                    max-height: 70vh;
-
-                }
-
-            }
-        </style>
-
-    @endpush
-
 </div>

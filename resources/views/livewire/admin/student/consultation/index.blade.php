@@ -1,16 +1,26 @@
 <div>
+    @php
+        $weekDays = [
+            6 => 'شنبه',
+            0 => 'یکشنبه',
+            1 => 'دوشنبه',
+            2 => 'سه‌شنبه',
+            3 => 'چهارشنبه',
+            4 => 'پنج‌شنبه',
+            5 => 'جمعه',
+        ];
+    @endphp
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
                     <a href="{{route('admin.dashboard.index')}}">
-                        <i class="fi fi-rr-home">
-                        </i>
+                        <i class="fi fi-rr-home"></i>
                         صفحه اصلی
                     </a>
                 </li>
                 <li aria-current="page" class="breadcrumb-item active">
-
+                    اتاق مشاوره
                 </li>
             </ol>
         </nav>
@@ -21,9 +31,12 @@
         <div class="col-lg-12">
             <div class="card overflow-hidden">
                 <div class="card-header d-flex align-items-center justify-content-between">
-                    <h6 class="card-title mb-0">
-                        اتاق مشاوره
-                    </h6>
+                    <div class="d-flex align-items-center gap-2">
+                        <h6 class="card-title mb-0">اتاق مشاوره</h6>
+                        <span class="badge bg-secondary rounded-pill" title="تعداد کل دانش‌آموزان">
+                            {{ $totalStudentCount }} دانش‌آموز
+                        </span>
+                    </div>
                     <button wire:click="openStudentSelectModal"
                             class="btn btn-primary btn-sm d-flex align-items-center gap-1">
                         <i class="fi fi-rr-calendar-plus"></i>
@@ -31,218 +44,160 @@
                     </button>
                 </div>
 
-                <div class="card-body p-0 pb-2">
-                    <div id="dt_basic_wrapper" class="dt-container dt-bootstrap5 dt-empty-footer">
+                <div class="card-body p-0">
+                    {{-- ===== بخش ۱: انتخاب روز (Day Picker) ===== --}}
+                    <div class="border-bottom bg-light px-3 pt-3 pb-0">
+                        <div class="d-flex align-items-center gap-1 mb-2">
+                            <i class="fi fi-rr-calendar-days text-muted small"></i>
+                            <span class="small text-muted fw-semibold">انتخاب روز هفته:</span>
+                        </div>
+                        <ul class="nav nav-tabs border-0 flex-nowrap" style="overflow-x:auto;">
+                            @foreach($weekDays as $day => $name)
+                                <li class="nav-item">
+                                    <button wire:click="selectDay({{ $day }})"
+                                            class="nav-link px-3 py-2 {{ $selectedDay == $day ? 'active fw-bold' : '' }}">
+                                        {{ $name }}
+                                        @if(($dayCounts[$day] ?? 0) > 0)
+                                            <span class="badge rounded-pill ms-1"
+                                                  style="font-size:0.68rem;"
+                                                  class="{{ $selectedDay == $day ? 'bg-primary' : 'bg-secondary' }}">
+                                                {{ $dayCounts[$day] }}
+                                            </span>
+                                        @endif
+                                    </button>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
 
-                        <!-- Top Controls -->
-                        <div class="row mt-2 justify-content-between mx-2 py-2">
-                            <div
-                                class="d-md-flex justify-content-between align-items-center dt-layout-start col-md-auto me-auto">
-                                <div class="dt-length">
-                                    <label for="dt-length-0"> در هرصفحه</label>:
-                                    <select
-                                        aria-controls="dt_basic"
-                                        class="form-select form-select-sm"
-                                        id="dt-length-0"
-                                    >
-                                        <option value="10">10</option>
-                                        <option value="25">25</option>
-                                        <option value="50">50</option>
-                                        <option value="100">100</option>
-                                    </select>
 
-                                </div>
-                            </div>
-
-                            <div
-                                class="d-md-flex justify-content-between align-items-center dt-layout-end col-md-auto ms-auto">
-                                <div >
-                                    <input
-                                        type="text"
-                                        class="form-control form-control-sm"
-                                        id="search"
-                                        wire:model.live.debounce.350ms="search"
-                                        name="search"
-                                        placeholder="جستجو"
-                                    />
-                                    <label for="dt-search-0"></label>
-                                </div>
+                    {{-- ===== بخش ۲: نمایش دانش‌آموزان روز انتخابی ===== --}}
+                    <div class="p-3">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fw-semibold fs-6">
+                                    <i class="fi fi-rr-calendar me-1"></i>
+                                    روز {{ $weekDays[$selectedDay] ?? '' }}
+                                </span>
+                                <span class="text-muted small">
+                                    {{ count($dayStudents) }} دانش‌آموز در این روز
+                                </span>
                             </div>
                         </div>
 
-                        <!-- Table -->
-                        <div class="row mt-2 justify-content-between ">
-                            <div
-                                class="d-md-flex justify-content-between align-items-center col-12  col-md">
-                                <table class="table display"  style="width: 100%;">
+                        @forelse($dayStudents as $student)
+                            @php
+                                $profile = $student->user->profile ?? null;
+                                $info    = $student->user->personalInformation ?? null;
+                            @endphp
+                            <div class="card border mb-3 shadow-sm">
+                                <div class="card-body p-3">
+                                    <div class="d-flex align-items-start gap-3">
 
+                                        {{-- آواتار --}}
+                                        <div class="flex-shrink-0">
+                                            @if($profile && $profile->picture)
+                                                <img src="{{ asset('user/img/' . $student->user->id . '/' . $profile->picture) }}"
+                                                     class="rounded-circle"
+                                                     style="width:48px;height:48px;object-fit:cover;" />
+                                            @elseif($profile && $profile->gender === 'female')
+                                                <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center"
+                                                     style="width:48px;height:48px;font-size:1.3rem;">
+                                                    <i class="fi fi-rr-user"></i>
+                                                </div>
+                                            @else
+                                                <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
+                                                     style="width:48px;height:48px;font-size:1.3rem;">
+                                                    <i class="fi fi-rr-user"></i>
+                                                </div>
+                                            @endif
+                                        </div>
 
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th data-dt-column="0">#</th>
-                                        <th data-dt-column="1">دانش آموز</th>
-                                        <th data-dt-column="2">پدر</th>
-                                        <th data-dt-column="3">مادر</th>
-                                        <th data-dt-column="4">پایه + رشته</th>
-                                        <th data-dt-column="5"></th>
-                                    </tr>
-                                    </thead>
-
-                                    <tbody>
-                                    @forelse($students as $student)
-                                        <tr>
-                                            <td>
-                                                {{$loop->iteration + $students->firstItem() - 1}}
-                                            </td>
-
-                                            <td>
-                                                <div class="d-flex justify-content-left align-items-center">
-                                                    <div class="avatar-wrapper">
-                                                        <div class="avatar me-2">
-                                                            @php
-                                                                $profile = $student->user->profile ?? null;
-                                                                $personalInfo = $student->user->personalInformation ?? null;
-                                                            @endphp
-                                                            @if($profile && $profile->picture)
-                                                                <img
-                                                                    src="{{ asset('user/img/' . $student->user->id . '/' . $profile->picture) }}"
-                                                                    alt="{{ $personalInfo->name ?? '' }}"
-                                                                    class="rounded-circle"
-                                                                    style="width:40px;height:40px;object-fit:cover;"
-                                                                />
-                                                            @elseif($profile && $profile->gender === 'male')
-                                                                <span
-                                                                    class="avatar-title rounded-circle bg-primary-subtle text-primary fs-4">
-                                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" viewBox="0 -7.5 154 154" fill="none" >
-                                                                                    <g clip-path="url(#clip0)">
-                                                                                    <path d="M76.6855 71.5615C65.6857 70.9757 55.8861 69.1054 47.7116 62.3051C41.7686 57.3606 38.2463 50.9588 36.7987 43.4632C33.6317 27.0857 42.6463 12.8772 56.1894 5.89224C65.6228 1.0266 75.5581 -0.855128 86.1177 0.77602C95.1291 2.16731 101.72 7.2487 107.058 14.2679C108.865 16.6451 110.987 18.9033 112.244 21.5559C114.841 27.0416 117.049 32.6689 115.551 39.0629C114.148 45.0425 112.412 50.8119 108.506 55.6989C101.648 64.2794 92.9826 69.7286 81.8758 70.9402C79.8933 71.1555 77.9212 71.4128 76.6855 71.5615ZM46.4202 39.9973C47.6111 48.8674 52.006 55.2204 60.2239 58.5021C63.5488 59.7191 67.0069 60.538 70.5253 60.941C81.8888 62.547 91.6425 59.6001 98.8685 50.236C102.12 46.2124 103.704 41.0997 103.295 35.9481C94.099 34.2445 85.7793 31.1639 79.0382 24.457C70.3509 34.3228 58.8442 37.9304 46.4181 39.9973H46.4202Z" fill="#000000"/>
-                                                                                    <path d="M95.7339 137.907C81.8738 137.907 68.013 137.836 54.1544 137.928C42.1912 138.007 30.2319 138.35 18.2669 138.403C14.9469 138.425 11.6336 138.098 8.38211 137.429C2.30359 136.153 0.343106 132.725 1.87245 126.697C3.08673 121.913 5.56776 117.71 8.18172 113.601C18.7984 96.8872 33.9953 85.9476 52.2918 78.9375C62.2227 75.0506 72.7768 72.9883 83.444 72.8493C98.8963 72.7342 113.246 76.4697 125.57 86.4402C134.336 93.4348 141.524 102.193 146.667 112.145C148.186 115.095 149.811 118.012 151.039 121.082C152.127 123.729 152.905 126.492 153.359 129.317C154.013 133.713 151.627 136.648 147.246 137.176C144.173 137.575 141.079 137.797 137.979 137.84C123.898 137.91 109.816 137.871 95.7339 137.871V137.907ZM142.397 127.433C142.448 126.851 142.543 126.609 142.475 126.426C137.953 114.457 131.542 103.723 121.671 95.3336C115.882 90.4143 109.494 86.4861 102.035 84.5505C92.1086 82.062 81.7668 81.6935 71.6876 83.4695C46.6982 87.5845 26.735 99.7092 13.1076 121.389C11.658 123.695 10.5034 126.188 9.13486 128.735C13.6821 130.051 17.8222 129.526 22.0271 129.272C30.2015 128.779 38.4038 128.6 46.5978 128.555C72.3204 128.416 98.0445 128.432 123.767 128.31C129.522 128.283 135.275 127.94 141.028 127.725C141.492 127.664 141.95 127.566 142.397 127.431V127.433Z" fill="#000000"/>
-                                                                                    </g>
-                                                                                    <defs>
-                                                                                    <clipPath id="clip0">
-                                                                                    <rect width="153" height="139" fill="white" transform="translate(0.777344)"/>
-                                                                                    </clipPath>
-                                                                                    </defs>
-                                                                                    </svg>
-                                                                </span>
-                                                            @elseif($profile && $profile->gender === 'female')
-                                                                <span
-                                                                    class="avatar-title rounded-circle bg-danger-subtle text-danger fs-4">
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="#000000" width="24px" height="24px" viewBox="0 0 32 32" version="1.1" class="w-5 h-5">
-                                                                                <path
-                                                                                    d="M30.001 25.084l-8.703-4.127c1.161-0.582 5.695-0.767 6.070-1.79 0 0-1.792-2.75-2.229-6.323-0.17-1.386-0.461-3.206-0.75-5.769-0.469-4.157-3.965-7.075-8.381-7.075h-0.016c-4.416 0-7.912 2.919-8.38 7.075-0.289 2.563-0.58 4.382-0.75 5.769-0.438 3.573-2.229 6.323-2.229 6.323 0.375 1.023 4.909 1.208 6.071 1.79l-8.704 4.128s-1.999 0.702-1.999 2.358v2.642c0 1.105 0.894 1.916 1.999 1.916h28.002c1.105 0 1.999-0.811 1.999-1.916v-2.642c0-1.657-1.999-2.358-1.999-2.358zM2 30v-2.558c0-0.107 0.378-0.363 0.685-0.48 0.067-0.023 0.107-0.042 0.17-0.072l8.703-4.127c0.691-0.327 1.135-1.021 1.144-1.786s-0.42-1.468-1.104-1.81c-0.678-0.34-1.573-0.508-2.976-0.751-0.333-0.058-0.788-0.14-1.229-0.229 0.572-1.285 1.205-3.081 1.454-5.114 0.062-0.506 0.14-1.075 0.229-1.706 0.152-1.073 0.339-2.434 0.524-4.069 0.349-3.090 2.977-5.299 6.393-5.299h0.016c3.416 0 6.045 2.209 6.393 5.299 0.184 1.635 0.372 2.997 0.523 4.069 0.088 0.63 0.167 1.2 0.229 1.706 0.249 2.032 0.882 3.829 1.454 5.114-0.442 0.088-0.896 0.17-1.23 0.229-1.404 0.243-2.299 0.411-2.977 0.751-0.683 0.343-1.111 1.046-1.104 1.811 0.009 0.764 0.452 1.459 1.143 1.786l8.703 4.127c0.063 0.030 0.104 0.049 0.17 0.072 0.308 0.117 0.64 0.373 0.686 0.48l0.001 2.557h-28.001z"/>
-                                                                            </svg>
-                                                                </span>
-                                                            @else
-                                                                <span
-                                                                    class="avatar-title rounded-circle bg-secondary-subtle text-secondary fs-4">
-                                                                    <svg width="24" height="24" viewBox="0 0 24 24"
-                                                                         fill="none"
-                                                                         xmlns="http://www.w3.org/2000/svg"
-                                                                         class="w-5 h-5 text-blue-600 dark:text-blue-400">
-
-                                                                          <!-- سر -->
-                                                                          <path
-                                                                              d="M12 11C14.2091 11 16 9.20914 16 7C16 4.79086 14.2091 3 12 3C9.79086 3 8 4.79086 8 7C8 9.20914 9.79086 11 12 11Z"
-                                                                              stroke="currentColor" stroke-width="1.5"
-                                                                              stroke-linecap="round"
-                                                                              stroke-linejoin="round"/>
-
-                                                                        <!-- بدن -->
-                                                                          <path
-                                                                              d="M4 20C4 16.6863 7.58172 14 12 14C16.4183 14 20 16.6863 20 20"
-                                                                              stroke="currentColor" stroke-width="1.5"
-                                                                              stroke-linecap="round"
-                                                                              stroke-linejoin="round"/>
-
-                                                                        </svg>
-
-                                                                </span>
+                                        {{-- اطلاعات دانش‌آموز --}}
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold text-dark">
+                                                {{ $info->name ?? '-' }} {{ $info->name_full ?? '' }}
+                                            </div>
+                                            <div class="text-muted small d-flex gap-3 mt-1 flex-wrap">
+                                                <span>
+                                                    <i class="fi fi-rr-smartphone me-1"></i>
+                                                    {{ $student->user->mobile ?? '-' }}
+                                                </span>
+                                                @if($info)
+                                                    <span>
+                                                        @if($info->grade == 12) دوازدهم
+                                                        @elseif($info->grade == 11) یازدهم
+                                                        @elseif($info->grade == 10) دهم
+                                                        @endif
+                                                        @if($info->field == 'math') - ریاضی
+                                                        @elseif($info->field == 'experimental') - تجربی
+                                                        @elseif($info->field == 'human') - انسانی
+                                                        @endif
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            {{-- لیست جلسات --}}
+                                            <div class="mt-2 pt-2 border-top">
+                                                <div class="small text-muted mb-2 fw-semibold">
+                                                    <i class="fi fi-rr-list me-1"></i>
+                                                    لیست جلسات:
+                                                </div>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    @foreach($student->advisingSessions as $session)
+                                                        @php
+                                                            $jalaliDate = \Morilog\Jalali\Jalalian::fromCarbon($session->activation_date)->format('Y/m/d');
+                                                            $hasResult  = !empty($session->result_status);
+                                                            $timeStr    = $session->session_time
+                                                                            ? $session->session_time->format('H:i')
+                                                                            : '';
+                                                        @endphp
+                                                        <span class="badge rounded-pill px-3 py-2 small d-flex align-items-center gap-1
+                                                              {{ $hasResult ? 'bg-secondary' : 'bg-light text-dark border' }}"
+                                                              style="{{ $hasResult ? 'text-decoration:line-through; opacity:0.65;' : '' }}"
+                                                              title="{{ $hasResult ? $session->result_label : 'در انتظار برگزاری' }}">
+                                                            <i class="fi fi-rr-calendar-day" style="font-size:0.7rem;"></i>
+                                                            {{ $jalaliDate }}
+                                                            @if($timeStr)
+                                                                <span class="opacity-75 small">{{ $timeStr }}</span>
                                                             @endif
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="d-flex flex-column">
-                                                          <span class="text-truncate fw-medium">
-                                                            {{ $personalInfo->name ?? '-' }}
-                                                              {{ $personalInfo->name_full ?? '' }}
+                                                            @if($session->location_type === 'in_person')
+                                                                <i class="fi fi-rr-building" style="font-size:0.65rem;" title="حضوری"></i>
+                                                            @else
+                                                                <i class="fi fi-rr-wifi" style="font-size:0.65rem;" title="آنلاین"></i>
+                                                            @endif
                                                         </span>
-                                                        <small class="text-truncate text-muted">
-                                                            {{ $student->user->mobile ?? '' }}
-                                                        </small>
-                                                    </div>
+                                                    @endforeach
                                                 </div>
-                                            </td>
-
-                                            <td>
-                                                {{$student->user->personalInformation->father_mobile}}
-                                            </td>
-
-                                            <td>
-                                                {{$student->user->personalInformation->mother_mobile}}
-                                            </td>
-
-                                            <td>
-                                                @if($student->user->personalInformation->grade == 12)
-                                                    دوازدهم
-                                                @elseif($student->user->personalInformation->grade == 11)
-                                                    یازدهم
-                                                @elseif($student->user->personalInformation->grade == 10)
-                                                    دهم
-                                                @endif
-
-                                                @if($student->user->personalInformation->field == 'math')
-                                                    ریاضی
-                                                @elseif($student->user->personalInformation->field == 'experimental')
-                                                    تجربی
-                                                @elseif($student->user->personalInformation->field == 'human')
-                                                    انسانی
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <div class="btn-group float-end">
-                                                    <button class="btn btn-white btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
-                                                        <i class="fi fi-rr-menu-dots">
-                                                        </i>
-                                                    </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <a class="dropdown-item" href="{{route('admin.student.advising-sessions.create',$student->payment->order->user->id)}}">
-                                                               ایجاد جلسه مشاوره
-                                                            </a>
-                                                        </li>
-                                                    </ul>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="5" class="text-danger text-center">
-                                                وجود ندارد
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                    </tbody>
-
-                                </table>
+                                            </div>
+                                        </div>
 
 
-                            </div>
-                        </div>
+                                        <!-- Bottom Pagination -->
+                                        {{-- دکمه عملیات --}}
+                                        @if($student->payment && $student->payment->order && $student->payment->order->user)
+                                            <div class="flex-shrink-0">
+                                                <a href="{{ route('admin.student.advising-sessions.create', $student->payment->order->user->id) }}"
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fi fi-rr-plus me-1"></i>
+                                                    جلسه
+                                                </a>
+                                            </div>
+                                        @endif
 
-                        <!-- Bottom Pagination -->
-                        <div class="row mt-2 justify-content-between">
-                            <div
-                                class="d-md-flex justify-content-between align-items-center dt-layout-start col-md-auto me-auto">
-                            </div>
-
-                            <div
-                                class="d-md-flex justify-content-between align-items-center dt-layout-end col-md-auto ms-auto">
-                                <div class="dt-paging">
-                                    {{ $students->links('layouts.admin.pagination') }}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @empty
+                            <div class="text-center text-muted py-5">
+                                <i class="fi fi-rr-calendar-xmark" style="font-size:2.5rem; opacity:0.4;"></i>
+                                <p class="mt-2 mb-1">هیچ دانش‌آموزی برای روز <strong>{{ $weekDays[$selectedDay] ?? '' }}</strong> ثبت نشده است.</p>
+                                <button wire:click="openStudentSelectModal"
+                                        class="btn btn-primary btn-sm mt-2">
+                                    <i class="fi fi-rr-calendar-plus me-1"></i>
+                                    تعریف جلسه برای این روز
+                                </button>
+                            </div>
+                        @endforelse
 
                     </div>
                 </div>
@@ -263,7 +218,20 @@
                     </div>
 
                     <div class="modal-body p-0">
-                        <!-- Search -->
+                        {{-- نمایش روز انتخاب‌شده (جدا از بخش انتخاب دانش‌آموز) --}}
+                        <div class="p-3 border-bottom bg-primary-subtle">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fi fi-rr-calendar text-primary fs-5"></i>
+                                <div>
+                                    <div class="fw-bold text-primary fs-6">
+                                        روز جلسه: {{ $weekDays[$selectedDay] ?? '' }}
+                                    </div>
+                                    <div class="small text-muted">جلسات هر هفته در این روز برگزار می‌شوند</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- جستجو --}}
                         <div class="p-3 border-bottom bg-light">
                             <div class="input-group mb-2">
                                 <span class="input-group-text"><i class="fi fi-rr-search"></i></span>
@@ -275,7 +243,7 @@
                             </div>
                             <div class="alert alert-info d-flex align-items-center gap-2 mb-0 py-2 small">
                                 <i class="fi fi-rr-info"></i>
-                                پس از انتخاب هر دانش‌آموز، روز جلسه را برای او مشخص کنید.
+                                فقط دانش‌آموزانی نمایش داده می‌شوند که هنوز برای هیچ روزی جلسه‌ای ثبت نشده است.
                             </div>
                         </div>
 
@@ -291,13 +259,13 @@
                         <div style="max-height: 420px; overflow-y: auto;">
                             @forelse($modalStudents as $mStudent)
                                 @php
-                                    $mProfile = $mStudent->user->profile ?? null;
-                                    $mInfo    = $mStudent->user->personalInformation ?? null;
+                                    $mProfile   = $mStudent->user->profile ?? null;
+                                    $mInfo      = $mStudent->user->personalInformation ?? null;
                                     $isSelected = in_array($mStudent->id, $selectedStudents);
                                 @endphp
                                 <div wire:click="toggleStudentSelection({{ $mStudent->id }})"
-                                     class="d-flex align-items-center p-3 border-bottom cursor-pointer
-                                        {{ $isSelected ? 'bg-primary-subtle' : 'hover-bg-light' }}"
+                                     class="d-flex align-items-center p-3 border-bottom
+                                        {{ $isSelected ? 'bg-primary-subtle' : '' }}"
                                      style="cursor:pointer; transition: background 0.15s;">
 
                                     <!-- Checkbox -->
@@ -318,13 +286,13 @@
                                                  class="rounded-circle"
                                                  style="width:42px;height:42px;object-fit:cover;" />
                                         @elseif($mProfile && $mProfile->gender === 'female')
-                                            <div class="avatar-title rounded-circle bg-danger-subtle text-danger"
-                                                 style="width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">
+                                            <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center"
+                                                 style="width:42px;height:42px;font-size:1.2rem;">
                                                 <i class="fi fi-rr-user"></i>
                                             </div>
                                         @else
-                                            <div class="avatar-title rounded-circle bg-primary-subtle text-primary"
-                                                 style="width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">
+                                            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
+                                                 style="width:42px;height:42px;font-size:1.2rem;">
                                                 <i class="fi fi-rr-user"></i>
                                             </div>
                                         @endif
@@ -342,13 +310,12 @@
                                         </span>
                                             @if($mInfo)
                                                 <span>
-                                            پایه:
-                                            @if($mInfo->grade == 12) دوازدهم
+                                                    پایه:
+                                                    @if($mInfo->grade == 12) دوازدهم
                                                     @elseif($mInfo->grade == 11) یازدهم
                                                     @elseif($mInfo->grade == 10) دهم
-                                                    @else -
-                                                    @endif
-                                        </span>
+                                                    @else - @endif
+                                                </span>
                                                 <span>
                                             رشته:
                                             @if($mInfo->field == 'math') ریاضی
@@ -359,26 +326,7 @@
                                         </span>
                                             @endif
                                         </div>
-                                        {{-- انتخاب روز جلسه (برای دانش‌آموز انتخاب شده) --}}
-                                        @if($isSelected)
-                                            <div class="mt-2" @click.stop>
-                                                <select class="form-select form-select-sm @error('studentSchedules.'.$mStudent->id.'.day') is-invalid @enderror"
-                                                        wire:model.live="studentSchedules.{{ $mStudent->id }}.day"
-                                                        style="max-width:160px;">
-                                                    <option value="">-- روز جلسه --</option>
-                                                    <option value="6">شنبه</option>
-                                                    <option value="0">یکشنبه</option>
-                                                    <option value="1">دوشنبه</option>
-                                                    <option value="2">سه‌شنبه</option>
-                                                    <option value="3">چهارشنبه</option>
-                                                    <option value="4">پنج‌شنبه</option>
-                                                    <option value="5">جمعه</option>
-                                                </select>
-                                                @error('studentSchedules.'.$mStudent->id.'.day')
-                                                <div class="text-danger small mt-1">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        @endif
+
                                     </div>
 
                                     <!-- Selected checkmark -->
@@ -391,7 +339,13 @@
                             @empty
                                 <div class="text-center text-muted py-5">
                                     <i class="fi fi-rr-user-slash" style="font-size:2rem;"></i>
-                                    <p class="mt-2">دانش‌آموزی یافت نشد.</p>
+                                    <p class="mt-2">
+                                        @if($studentSearch)
+                                            دانش‌آموزی با این مشخصات یافت نشد.
+                                        @else
+                                            همه دانش‌آموزان جلسه دارند یا دانش‌آموزی وجود ندارد.
+                                        @endif
+                                    </p>
                                 </div>
                             @endforelse
                         </div>
@@ -418,8 +372,8 @@
                 <div class="modal-content">
                     <div class="modal-header border-bottom">
                         <h5 class="modal-title fw-bold">
-                            <i class="fi fi-rr-calendar me-2"></i>
-                            تنظیم روز، ساعت و محل برگزاری جلسات
+                            <i class="fi fi-rr-clock me-2"></i>
+                            تنظیم ساعت و محل برگزاری جلسات
                         </h5>
                         <button type="button" class="btn-close" wire:click="closeScheduleModal"></button>
                     </div>
@@ -430,8 +384,10 @@
                         <div class="alert alert-info d-flex align-items-start gap-2 mb-4" role="alert">
                             <i class="fi fi-rr-info mt-1"></i>
                             <div class="small">
-                                برای هر دانش‌آموز انتخاب‌شده، <strong>۴ جلسه</strong> به صورت خودکار ثبت می‌شود.
-                                هر جلسه یک هفته پس از جلسه قبلی برگزار می‌شود.
+                                برای هر دانش‌آموز انتخاب‌شده، <strong>۴ جلسه</strong> به‌صورت خودکار در روز
+                                <strong>{{ $weekDays[$selectedDay] ?? '' }}</strong>
+                                ثبت می‌شود. هر جلسه یک هفته پس از جلسه قبلی برگزار می‌شود.
+
                                 ساعت، دقیقه و محل برگزاری را برای هر دانش‌آموز جداگانه تنظیم کنید.
 
                             </div>
@@ -441,10 +397,16 @@
                         <!-- کارت هر دانش‌آموز -->
                         @foreach($modalStudents->whereIn('id', $selectedStudents) as $selStudent)
                             @php
-                                $selInfo     = $selStudent->user->personalInformation ?? null;
-                                $sid         = $selStudent->id;
-                                $schedule    = $studentSchedules[$sid] ?? ['day'=>'','hour'=>'08','minute'=>'00','location_type'=>'online','skyroom_link'=>''];
-                                $isOnline    = ($schedule['location_type'] ?? 'online') === 'online';
+                                $selInfo  = $selStudent->user->personalInformation ?? null;
+                                $sid      = $selStudent->id;
+                                $schedule = $studentSchedules[$sid] ?? [
+                                    'day'           => '',
+                                    'hour'          => '08',
+                                    'minute'        => '00',
+                                    'location_type' => 'online',
+                                    'skyroom_link'  => '',
+                                ];
+                                $isOnline = ($schedule['location_type'] ?? 'online') === 'online';
                             @endphp
                             <div class="card border mb-3 shadow-sm">
                                 <div class="card-header bg-primary-subtle d-flex align-items-center gap-2 py-2">
@@ -453,27 +415,18 @@
                                         {{ $selInfo->name ?? '-' }} {{ $selInfo->name_full ?? '' }}
                                     </strong>
                                     @if($selInfo)
-                                        <small class="text-muted ms-2">
-                                            ({{ $selStudent->user->mobile ?? '' }})
-                                        </small>
+                                        <small class="text-muted ms-1">({{ $selStudent->user->mobile ?? '' }})</small>
+
                                     @endif
+                                    {{-- نمایش روز (جدا از انتخاب) --}}
+                                    <span class="badge bg-white text-primary border border-primary ms-auto px-2 py-1">
+                                        <i class="fi fi-rr-calendar me-1"></i>
+                                        روز {{ $weekDays[$selectedDay] ?? '' }}
+                                    </span>
                                 </div>
                                 <div class="card-body">
                                     <div class="row g-3 align-items-start">
 
-                                        <!-- روز هفته -->
-                                        {{-- روز هفته: نمایش روز انتخابی از مرحله اول --}}
-                                        @php
-                                            $dayNames = [0=>'یکشنبه',1=>'دوشنبه',2=>'سه‌شنبه',3=>'چهارشنبه',4=>'پنج‌شنبه',5=>'جمعه',6=>'شنبه'];
-                                            $selectedDayName = $dayNames[$schedule['day'] ?? ''] ?? '—';
-                                        @endphp
-                                        <div class="col-md-3 col-6 d-flex align-items-center gap-2">
-                                            <i class="fi fi-rr-calendar text-primary"></i>
-                                            <div>
-                                                <div class="small text-muted">روز جلسه (انتخاب شده)</div>
-                                                <div class="fw-semibold">{{ $selectedDayName }}</div>
-                                            </div>
-                                        </div>
 
                                         <!-- ساعت -->
                                         <div class="col-md-2 col-3">

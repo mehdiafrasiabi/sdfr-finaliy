@@ -27,16 +27,13 @@
                                     <th><span class="fw-medium">تلفن مشاور</span></th>
                                     <td>{{$student->advisor->mobile??'---'}}</td>
                                 </tr>
-
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
-
         <div class="col-xxl-9">
             <div class="card">
                 <div class="card-header">
@@ -48,14 +45,9 @@
                         <button wire:click="exportBarnamehs" class="btn btn-outline-primary">دانلود برنامه‌های مشاوره‌ای</button>
                     </div>
                 </div>
-
                 <div class="card-body">
                     <div class="listjs-table" id="customerList">
-                        <div class="row g-4 mb-3">
-
-
-                        </div>
-
+                        <div class="row g-4 mb-3"></div>
                         <div class="table-responsive table-card mt-3 mb-1">
                             <table class="table align-middle table-nowrap" id="customerTable">
                                 <thead class="table-light">
@@ -68,9 +60,6 @@
                                     <th class="sort" data-sort="action">تاریخ ثبت</th>
                                     <th class="sort" data-sort="phone">وضعیت مشاهده</th>
                                     <th class="sort" data-sort="phone">تاریخ مشاهده</th>
-
-
-
                                 </tr>
                                 </thead>
                                 <tbody class="list form-check-all">
@@ -266,22 +255,15 @@
                                 @endforelse
                                 </tbody>
                             </table>
-
                         </div>
-
                         <div class="d-flex justify-content-end">
                             <div class="pagination-wrap hstack gap-2">
                                 {{$reportDaily ->links('layouts.manager.pagination')}}
                             </div>
                         </div>
                     </div>
-
                 </div>
-
             </div>
-
-
-
         </div>
     </div>
     @push('style')
@@ -296,22 +278,19 @@
     @endpush
     @push('script')
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="/admin/assets/libs/prismjs/prism.js"></script>
-        <script src="/admin/assets/libs/list.js/list.min.js"></script>
-        <script src="/admin/assets/libs/list.pagination.js/list.pagination.min.js"></script>
-        <script src="/admin/assets/js/pages/listjs.init.js"></script>
-
+        <script src="/manager/assets/libs/prismjs/prism.js"></script>
+        <script src="/manager/assets/libs/list.js/list.min.js"></script>
+        <script src="/manager/assets/libs/list.pagination.js/list.pagination.min.js"></script>
+        <script src="/manager/assets/js/pages/listjs.init.js"></script>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
                 Livewire.on('open-selfie-modal', () => {
                     new bootstrap.Modal(document.getElementById('selfieModal')).show();
                 });
-
                 Livewire.on('open-national-modal', () => {
                     new bootstrap.Modal(document.getElementById('nationalCardModal')).show();
                 });
             });
         </script>
-
     @endpush
 </div>

@@ -63,13 +63,13 @@
         <div class="text-center text-muted">وجود ندارد</div>
     @endif
 
-    @push('link')
+    @assets
         <style>
             #unique-slider2 .swiper-wrapper { transition-timing-function: linear !important; }
         </style>
-    @endpush
+    @endassets
 
-    @push('script')
+    @script
         <script>
             document.addEventListener("DOMContentLoaded", () => {
                 const el = document.querySelector('#unique-slider2');
@@ -108,5 +108,5 @@
                 });
             });
         </script>
-    @endpush
+    @endscript
 </div>

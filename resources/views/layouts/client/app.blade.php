@@ -206,7 +206,7 @@
 
 
 @include('layouts.client.script')
-<script src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+{{--<script src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>--}}
 
 <script data-navigate-once>
     //remove wire:snapshot form tags in client

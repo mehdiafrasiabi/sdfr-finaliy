@@ -30,7 +30,7 @@
                      x-transition:leave="transition ease-in duration-200"
                      x-transition:leave-start="opacity-100 translate-y-0"
                      x-transition:leave-end="opacity-0 translate-y-full"
-                     class="md:hidden fixed bottom-0 left-0 right-0 z-50">
+                     class="md:hidden fixed bottom-2.5 left-5 right-5 z-50">
 
                     <!-- Services Popup Overlay -->
                     <div x-show="servicesOpen"
@@ -66,7 +66,7 @@
                                               stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
                                 </div>
-                                <span class="text-xs font-semibold text-foreground bg-background/90 px-2 py-0.5 rounded-full whitespace-nowrap">اتاق مشاوره</span>
+                                <span class="text-xs font-semibold text-foreground bg-background px-2 py-0.5 rounded-full whitespace-nowrap">اتاق مشاوره</span>
                             </a>
 
                             <!-- برنامه درسی - Right -->
@@ -79,7 +79,7 @@
                                         <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                                     </svg>
                                 </div>
-                                <span class="text-xs font-semibold text-foreground bg-background/90 px-2 py-0.5 rounded-full whitespace-nowrap">برنامه درسی</span>
+                                <span class="text-xs font-semibold text-foreground bg-background px-2 py-0.5 rounded-full whitespace-nowrap">برنامه درسی</span>
                             </a>
 
                             <!-- گزارش - Bottom Center -->
@@ -97,7 +97,7 @@
                                               stroke-linecap="round" stroke-linejoin="round"/>
                                     </svg>
                                 </div>
-                                <span class="text-xs font-semibold text-foreground bg-background/90 px-2 py-0.5 rounded-full whitespace-nowrap">گزارش درسی</span>
+                                <span class="text-xs font-semibold text-foreground bg-background px-2 py-0.5 rounded-full whitespace-nowrap">گزارش درسی</span>
                             </a>
 
                             <!-- آزمون - Left -->
@@ -110,7 +110,7 @@
                                         <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                                     </svg>
                                 </div>
-                                <span class="text-xs font-semibold text-foreground bg-background/90 px-2 py-0.5 rounded-full whitespace-nowrap">آزمون</span>
+                                <span class="text-xs font-semibold text-foreground bg-background px-2 py-0.5 rounded-full whitespace-nowrap">آزمون</span>
                             </a>
 
                             <!-- ساعت مطالعه - Center -->
@@ -122,16 +122,16 @@
                                         <path d="M10 5v5h4" stroke-linecap="round" stroke-linejoin="round"></path>
                                     </svg>
                                 </div>
-                                <span class="text-xs font-semibold text-foreground bg-background/90 px-2 py-0.5 rounded-full whitespace-nowrap">ساعت مطالعه</span>
+                                <span class="text-xs font-semibold text-foreground bg-background px-2 py-0.5 rounded-full whitespace-nowrap">ساعت مطالعه</span>
                             </a>
 
                         </div>
                     </div>
 
                     <!-- Bottom Navigation Bar -->
-                    <nav class="bg-background/95 backdrop-blur-xl border-t border-border shadow-lg shadow-black/10
+                    <nav class="bg-background/95 backdrop-blur-xl border-t border-border shadow-lg shadow-black  rounded-3xl
                          pb-[max(env(safe-area-inset-bottom),12px)]">
-                        <div class="flex items-center justify-around h-16 px-2 max-w-lg mx-auto">
+                        <div class="flex items-center justify-around h-16 px-6 max-w-lg mx-auto">
 
                             <!-- داشبورد -->
                             <a href="{{ route('client.profile.dashboard') }}" wire:navigate

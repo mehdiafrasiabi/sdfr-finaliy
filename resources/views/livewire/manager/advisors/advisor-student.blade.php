@@ -81,27 +81,23 @@
                                 @endforelse
                                 </tbody>
                             </table>
-
                         </div>
-
                         <div class="d-flex justify-content-end">
                             <div class="pagination-wrap hstack gap-2">
                                 {{$students ->links('layouts.manager.pagination')}}
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </div>
-
     </div>
     @push('script')
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="/admin/assets/libs/prismjs/prism.js"></script>
-        <script src="/admin/assets/libs/list.js/list.min.js"></script>
-        <script src="/admin/assets/libs/list.pagination.js/list.pagination.min.js"></script>
-        <script src="/admin/assets/js/pages/listjs.init.js"></script>
+        <script src="/manager/assets/libs/prismjs/prism.js"></script>
+        <script src="/manager/assets/libs/list.js/list.min.js"></script>
+        <script src="/manager/assets/libs/list.pagination.js/list.pagination.min.js"></script>
+        <script src="/manager/assets/js/pages/listjs.init.js"></script>
 
         <script>
             document.addEventListener('DOMContentLoaded', function () {

@@ -23,7 +23,8 @@
                                     </span>
                             <div class="flex flex-col space-y-2">
                                 <span class="font-black xs:text-2xl text-lg text-primary">سبد خرید شما</span>
-                                <span class="font-semibold text-xs text-muted">{{$cart}} دوره به سبد اضافه کرده‌اید</span>
+                                <span
+                                    class="font-semibold text-xs text-muted">{{$cart}} دوره به سبد اضافه کرده‌اید</span>
                             </div>
                         </div>
                     </div>
@@ -31,10 +32,15 @@
 
                     <!-- alert: محدودیت تک دوره -->
                     @if($cart > 1)
-                        <div class="flex items-start gap-3 relative bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 mt-5" x-data="{ open: true }" x-show="open">
+                        <div
+                            class="flex items-start gap-3 relative bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800 rounded-xl p-4 mt-5"
+                            x-data="{ open: true }" x-show="open">
                             <span class="text-yellow-600 dark:text-yellow-400 flex-shrink-0">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-6 h-6">
-                                    <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
+                                     class="w-6 h-6">
+                                    <path fill-rule="evenodd"
+                                          d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                                          clip-rule="evenodd"/>
                                 </svg>
                             </span>
                             <div class="flex-1">
@@ -42,12 +48,16 @@
                                     توجه: محدودیت خرید
                                 </div>
                                 <div class="font-medium text-xs text-yellow-700 dark:text-yellow-400">
-                                    شما فقط میتوانید یک دوره در هر خرید انتخاب کنید. لطفا سایر دوره‌ها را از سبد خرید حذف کنید.
+                                    شما فقط میتوانید یک دوره در هر خرید انتخاب کنید. لطفا سایر دوره‌ها را از سبد خرید
+                                    حذف کنید.
                                 </div>
                             </div>
-                            <button type="button" class="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-200 transition-colors" x-on:click="open = false">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            <button type="button"
+                                    class="text-yellow-600 dark:text-yellow-400 hover:text-yellow-800 dark:hover:text-yellow-200 transition-colors"
+                                    x-on:click="open = false">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                                     stroke="currentColor" class="w-5 h-5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                                 </svg>
                             </button>
                         </div>
@@ -214,120 +224,65 @@
                                     @endif
                                 </form>
                                 {{-- Wallet Toggle --}}
-
                                 @if($walletBalance > 0)
-
                                     <div
                                         class="bg-blue-50 dark:bg-blue-950/30 rounded-xl p-4 border border-blue-200 dark:border-blue-800">
-
                                         <div class="flex items-center justify-between">
-
                                             <div class="flex flex-col">
-
                                                 <span class="font-bold text-sm text-foreground">استفاده از اعتبار کیف پول</span>
-
                                                 <span class="text-xs text-muted">اعتبار فعلی: {{ number_format($walletBalance) }} تومان</span>
-
                                             </div>
-
                                             <button type="button" wire:click="toggleWallet"
-
                                                     class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none {{ $useWallet ? 'bg-blue-500' : 'bg-gray-300 dark:bg-gray-600' }}">
-
                                                 <span
                                                     class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out {{ $useWallet ? '-translate-x-5' : 'translate-x-0' }}"></span>
-
                                             </button>
-
                                         </div>
-
                                     </div>
-
                                 @endif
-
-
                                 <div class="flex flex-col space-y-2">
-
                                     <div class="flex items-center justify-between gap-3">
-
                                         <div class="font-bold text-xs text-foreground">جمع کل</div>
-
                                         <div class="flex items-center gap-1">
-
                                             <span
                                                 class="font-black text-base text-foreground">{{number_format($invoice['totalOriginalPrice'])}}</span>
-
                                             <span class="text-xs text-muted">تومان</span>
-
                                         </div>
-
                                     </div>
-
                                     @if($showDiscountCode)
-
                                         <div class="flex items-center justify-between gap-3">
-
                                             <div class="font-bold text-xs text-green-500">میزان تخفیف</div>
-
                                             <div class="flex items-center gap-1">
-
                                                 <span
                                                     class="font-black text-base text-green-500">- {{number_format($discountCodeAmount)}}</span>
-
                                                 <span class="text-xs text-muted">تومان</span>
-
                                             </div>
-
                                         </div>
-
                                     @endif
-
                                     @if($useWallet && $walletDeduction > 0)
-
                                         <div class="flex items-center justify-between gap-3">
-
                                             <div class="font-bold text-xs text-blue-500">کسر از کیف پول</div>
-
                                             <div class="flex items-center gap-1">
-
                                                 <span
                                                     class="font-black text-base text-blue-500">- {{number_format($walletDeduction)}}</span>
-
                                                 <span class="text-xs text-muted">تومان</span>
-
                                             </div>
-
                                         </div>
-
                                     @endif
-
                                 </div>
-
                                 <div class="h-px bg-secondary"></div>
-
                                 <div class="flex items-center justify-between gap-3 text-primary">
-
                                     <div class="font-bold text-sm text-foreground">مبلغ قابل پرداخت</div>
-
                                     <div class="flex items-center gap-1">
-
                                         <span
                                             class="font-black text-xl text-foreground">{{number_format($this->totalAmount)}}</span>
-
                                         <span class="text-xs text-muted">تومان</span>
-
                                     </div>
-
                                 </div>
-
                                 @if($totalAmount == 0 && $useWallet)
-
                                     <div class="bg-green-50 dark:bg-green-950/30 rounded-xl p-3 text-center">
-
                                         <span class="text-sm text-green-600 dark:text-green-400 font-bold">پرداخت کامل با کیف پول</span>
-
                                     </div>
-
                                 @endif
                             </div>
                         </div>
@@ -343,9 +298,12 @@
                                       clip-rule="evenodd"></path>
                             </svg>
                             <div wire:loading wire:target="goToOrderInfo" class="flex items-center gap-2">
-                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                     viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                            stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                                 <span class="font-semibold text-sm">در حال انتقال...</span>
                             </div>

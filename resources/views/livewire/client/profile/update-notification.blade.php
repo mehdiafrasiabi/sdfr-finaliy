@@ -1,5 +1,5 @@
 <div>
-    @push('link')
+    @assets
         <style>
             [x-cloak] { display: none !important; }
 
@@ -92,7 +92,7 @@
                 100% { background-position: -200% 0; }
             }
         </style>
-    @endpush
+    @endassets
 
     <div
         x-data="{

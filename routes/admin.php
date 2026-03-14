@@ -14,6 +14,8 @@ use App\Livewire\Admin\Student\Reports\ReportDaily as StudentReportDaily;
 use App\Livewire\Admin\Student\Reports\ReportMissing as ReportMissingIndex;
 use App\Livewire\Admin\Student\StudySession\Index as StudentStudySessionIndex;
 use App\Livewire\Admin\Student\StudySession\Show as StudentStudySessionShow;
+use App\Livewire\Admin\Ticket\Index as TicketIndex;
+use App\Livewire\Admin\Ticket\Show as TicketShow;
 use App\Livewire\Admin\ContactDocumentation\Index as ContactDocumentationIndex;
 use Illuminate\Support\Facades\Route;
 
@@ -76,42 +78,31 @@ Route::name('admin.')->group(function () {
 
         Route::get('/advising-sessions/{student}/weekly-program/{session?}', ConsultationWeeklyProgram::class)->name('student.weekly-program')
             ->middleware('admin.permission:admin.weekly-program.upload');
-
-
         // مستندات تماس
-
         Route::get('/contact-documentation', ContactDocumentationIndex::class)->name('contact-documentation.index')
             ->middleware('admin.permission:admin.contact-documentation.view');
         // گزارش‌های ارسال نشده
-
         Route::get('/report-not-send', ReportMissingIndex::class)->name('reportMissing')
             ->middleware('admin.permission:admin.report-missing.view');
-
         // آزمون‌های تایپی
-
         Route::get('/typed-exams', \App\Livewire\Admin\TypedExam\ExamIndex::class)->name('typed-exams.index')
             ->middleware('admin.permission:admin.typed-exams.view');
-
         Route::get('/typed-exams/{examId}/assignment', \App\Livewire\Admin\TypedExam\ExamAssignment::class)->name('typed-exams.assignment')
             ->middleware('admin.permission:admin.typed-exams.assign');
-
         Route::get('/typed-exams/{examId}/stats', \App\Livewire\Admin\TypedExam\ExamStats::class)->name('typed-exams.stats')
             ->middleware('admin.permission:admin.typed-exams.stats');
-
         Route::get('/typed-exams/{examId}/student-result/{attemptId}', \App\Livewire\Admin\TypedExam\StudentResult::class)->name('typed-exams.student-result')
             ->middleware('admin.permission:admin.typed-exams.results');
-
-
         // طبقه‌بندی آموزشی
-
+        // تیکت‌ها و پشتیبانی
+        Route::get('/tickets', TicketIndex::class)->name('ticket.index');
+//            ->middleware('admin.permission:admin.tickets.view');
+        Route::get('/tickets/{ticket}', TicketShow::class)->name('ticket.show');
+//            ->middleware('admin.permission:admin.tickets.view');
         Route::prefix('classification')->name('classification.')->middleware('admin.permission:admin.classification.view')->group(function () {
-
             Route::get('/', \App\Livewire\Admin\Classification\Dashboard::class)->name('dashboard');
-
             Route::get('/{project}/students', \App\Livewire\Admin\Classification\Students::class)->name('students');
-
             Route::get('/{project}/students/{user}/detail', \App\Livewire\Admin\Classification\StudentDetail::class)->name('detail');
-
         });
 
     });

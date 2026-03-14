@@ -4,6 +4,7 @@ namespace App\Livewire\Client\Profile\Ticket;
 
 use App\Models\Ticket;
 use Artesaos\SEOTools\Traits\SEOTools;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -11,16 +12,22 @@ use Livewire\WithFileUploads;
 
 class Show extends Component
 {
-    use WithFileUploads,SEOTools;
+    use WithFileUploads, SEOTools;
 
-    public  $ticket;
-    public  $message = '';
+    public $ticket;
+    public $message = '';
     public $attachment;
 
     public function mount($ticket)
     {
+        $user_id= Auth::id();
         $this->ticket = Ticket::with(['messages.user', 'messages.admin', 'department'])->findOrFail($ticket);
-        abort_if($this->ticket->user_id !== auth()->id(), 403);
+        abort_if($this->ticket->user_id !== $user_id, 403);
+        // mark admin messages as read
+        $this->ticket->messages()
+            ->whereNotNull('admin_id')
+            ->where('is_read', false)
+            ->update(['is_read' => true]);
         $this->seoConfig();
     }
 
@@ -40,7 +47,8 @@ class Show extends Component
             '*.string' => 'فرمت نوشتاری شما اشتباه است ',
             '*.max' => 'حداکثر حجم فایل 10 مگابایت است',
             '*.min' => 'حداقل نوشتن : 4 کاراکتر',
-            'attachment.mimes' => 'فقط فرمت zip و rar مجاز است',        ]);
+            'attachment.mimes' => 'فقط فرمت zip و rar مجاز است',
+        ]);
         // مرحله دوم: ساخت مسیر و انتقال فایل
         $fileName = null;
         if ($this->attachment) {
@@ -64,7 +72,7 @@ class Show extends Component
         // مرحله سوم: ذخیره پیام در دیتابیس
         $this->ticket->messages()->create([
             'user_id' => auth()->id(),
-            'message' => $this->message,
+            'message' => strip_tags($this->message),
             'attachment' => $fileName,
         ]);
 
@@ -74,14 +82,17 @@ class Show extends Component
         ]);
 
         // مرحله پنجم: ریست فیلدها و نمایش پیام موفقیت
-        $this->dispatch('success','پیام با موفقیت ارسال شد');
+        $this->dispatch('success', 'پیام با موفقیت ارسال شد');
         $this->reset(['message', 'attachment']);
         $this->resetValidation();
-        $this->ticket->refresh(); // تا فوراً در ویو آپدیت شه
+        $this->ticket->refresh();
+        $this->ticket->load(['messages.user', 'messages.admin', 'department']);
     }
 
     public function render()
     {
-        return view('livewire.client.profile.ticket.show',[ 'ticket' => $this->ticket,])->layout('layouts.client.app');
+        return view('livewire.client.profile.ticket.show', [
+            'ticket' => $this->ticket,
+        ])->layout('layouts.client.app');
     }
 }

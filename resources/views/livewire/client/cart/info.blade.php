@@ -1,8 +1,8 @@
 <div x-data="cartInfoForm()" x-init="init()">
     @assets
 
-    <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
-    <script src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+    <link rel="stylesheet" href="/client/assets/date/jalalidatepicker.min.css">
+    <script src="/client/assets/date/persian-datepicker.min.js"></script>
     <style>
         /* Select2 Dark Mode Support */
         .dark .select2-container--default .select2-selection--single {

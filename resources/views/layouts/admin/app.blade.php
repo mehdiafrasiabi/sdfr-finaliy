@@ -42,25 +42,6 @@
                         .
                     </p>
                 </div>
-                <div class="col-lg-6 col-md-5">
-                    <ul class="d-flex list-inline mb-0 gap-3 flex-wrap justify-content-center justify-content-md-end">
-                        <li>
-                            <a class="text-body" href="#">
-                                صفحه اصلی
-                            </a>
-                        </li>
-                        <li>
-                            <a class="text-body" href="#">
-                                سوالات متداول
-                            </a>
-                        </li>
-                        <li>
-                            <a class="text-body" href="#">
-                                پشتیبانی
-                            </a>
-                        </li>
-                    </ul>
-                </div>
             </div>
         </div>
     </footer>

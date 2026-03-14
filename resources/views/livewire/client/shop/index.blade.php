@@ -210,25 +210,9 @@
                                 </div>
                             </div>
                         @endforeach
-
                         <!-- end course:card -->
-
                     </div>
                     <!-- courses:wrapper -->
-
-{{--                    <div class="flex justify-center mt-8">--}}
-{{--                        <!-- load more:button -->--}}
-{{--                        <button type="button"--}}
-{{--                                class="h-11 inline-flex items-center justify-center gap-1 bg-secondary rounded-full text-primary px-8">--}}
-{{--                            <span class="font-semibold text-sm">در حال بارگذاری</span>--}}
-{{--                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"--}}
-{{--                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"--}}
-{{--                                 stroke-linejoin="round" class="w-5 h-5 animate-spin">--}}
-{{--                                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>--}}
-{{--                            </svg>--}}
-{{--                        </button>--}}
-{{--                        <!-- end load more:button -->--}}
-{{--                    </div>--}}
                 </div>
             </div>
         </div>
