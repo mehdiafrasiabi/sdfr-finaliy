@@ -499,9 +499,9 @@
                                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24"
                                                      stroke="currentColor">
                                                     <path stroke-linecap="round"
-                                                                                 stroke-linejoin="round"
-                                                                                 stroke-width="2"
-                                                                                 d="M6 18L18 6M6 6l12 12"/>
+                                                          stroke-linejoin="round"
+                                                          stroke-width="2"
+                                                          d="M6 18L18 6M6 6l12 12"/>
                                                 </svg>
                                                 غلط
                                             </span>
@@ -667,43 +667,43 @@
         @endif
     </div>
     @script
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const ctx = document.getElementById('donutChart');
-                if (ctx) {
-                    new Chart(ctx, {
-                        type: 'doughnut',
-                        data: {
-                            labels: ['صحیح', 'غلط', 'بدون پاسخ'],
-                            datasets: [{
-                                data: [{{ $stats['correct'] }}, {{ $stats['wrong'] }}, {{ $stats['unanswered'] }}],
-                                backgroundColor: ['#22c55e', '#ef4444', '#9ca3af'],
-                                borderWidth: 0
-                            }]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: true,
-                            cutout: '70%',
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('donutChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['صحیح', 'غلط', 'بدون پاسخ'],
+                        datasets: [{
+                            data: [{{ $stats['correct'] }}, {{ $stats['wrong'] }}, {{ $stats['unanswered'] }}],
+                            backgroundColor: ['#22c55e', '#ef4444', '#9ca3af'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        cutout: '70%',
+                        plugins: {
+                            legend: {
+                                display: false
                             }
                         }
-                    });
-                }
-            });
-        </script>
+                    }
+                });
+            }
+        });
+    </script>
     @endscript
     @assets
-        <style>
-            .prose img {
-                max-width: 100%;
-                height: auto;
-                border-radius: 0.5rem;
-            }
-        </style>
+    <style>
+        .prose img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+        }
+    </style>
     @endassets
 </div>

@@ -112,15 +112,19 @@
 
                                 </div>
                                 <div class="space-y-1.5">
-                                    <label for="department" class="font-medium text-xs text-muted">دپارتمان:</label>
-                                    <select id="department" wire:model="department_id" name="department_id"
-                                            class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
-                                        <option value="">دپارتمان را انتخاب کنید</option>
-                                        @foreach($departments as $department)
-                                            <option value="{{ $department->id }}">{{ $department->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error('department_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                                    <label class="font-medium text-xs text-muted">دپارتمان:</label>
+
+                                    <x-ui.select
+                                        wire:model="department_id"
+                                        :options="$departments->map(fn($d) => ['id' => $d->id, 'name' => $d->name])->values()->toArray()"
+                                        value-key="id"
+                                        label-key="name"
+                                        placeholder="دپارتمان را انتخاب کنید"
+                                    />
+
+                                    @error('department_id')
+                                    <span class="text-red-500 text-xs">{{ $message }}</span>
+                                    @enderror
                                 </div>
                             </div>
                             <div class="space-y-1.5">

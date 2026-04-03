@@ -179,6 +179,9 @@ class RolePermissionSeeder extends Seeder
 
             'view_typed_exam_results', // مشاهده نتایج آزمون دانش‌آموزان
 
+            // دسترسی‌های تیکت و پشتیبانی
+            'admin.tickets.view',
+            'admin.tickets.reply',
         ];
 
         //ایجاد دسترسی در دیتابیس

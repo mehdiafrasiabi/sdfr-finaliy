@@ -350,54 +350,65 @@
                                                 @enderror
                                             </div>
 
-                                            <!-- استان -->
-                                            <div class="space-y-2" wire:ignore>
-                                                <label for="state_id" class="flex items-center gap-2 font-semibold text-sm text-foreground">
+                                            <div class="space-y-2">
+                                                <label class="flex items-center gap-2 font-semibold text-sm text-foreground">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-primary">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
                                                     </svg>
                                                     استان
                                                 </label>
-                                                <select id="state_id" class="form-select">
-                                                    <option value="">انتخاب کنید</option>
-                                                    @foreach($states as $state)
-                                                        <option value="{{ $state->id }}">{{ $state->name }}</option>
-                                                    @endforeach
-                                                </select>
+
+                                                <x-ui.select
+                                                    wire:model.live="state_id"
+                                                    :options="$states->map(fn($s) => ['id' => $s->id, 'name' => $s->name])->values()->toArray()"
+                                                    value-key="id"
+                                                    label-key="name"
+                                                    placeholder="جستجو و انتخاب استان..."
+                                                    :searchable="true"
+                                                    search-placeholder="جستجوی استان..."
+                                                />
+
                                                 @error('state_id')
                                                 <div class="font-medium text-xs text-red-500 flex items-center gap-1 mt-1">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                                                     </svg>
-                                                    {{$message}}
+                                                    {{ $message }}
                                                 </div>
                                                 @enderror
                                             </div>
 
-                                            <!-- شهر -->
-                                            <div class="space-y-2" wire:ignore>
-                                                <label for="city_id" class="flex items-center gap-2 font-semibold text-sm text-foreground">
+                                            <div class="space-y-2">
+                                                <label class="flex items-center gap-2 font-semibold text-sm text-foreground">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-primary">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z" />
                                                     </svg>
                                                     شهر
                                                 </label>
-                                                <select id="city_id">
-                                                    <option value="">انتخاب کنید</option>
-                                                    @foreach($cities as $city)
-                                                        <option value="{{ $city->id }}">{{ $city->name }}</option>
-                                                    @endforeach
-                                                </select>
+
+                                                <x-ui.select
+                                                    wire:model.live="city_id"
+                                                    wire:key="select-city-{{ $state_id }}"
+                                                    :options="$cities->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values()->toArray()"
+                                                    value-key="id"
+                                                    label-key="name"
+                                                    placeholder="جستجو و انتخاب شهر..."
+                                                    :searchable="true"
+                                                    search-placeholder="جستجوی شهر..."
+                                                    :disabled="!$state_id"
+                                                />
+
                                                 @error('city_id')
                                                 <div class="font-medium text-xs text-red-500 flex items-center gap-1 mt-1">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                                                     </svg>
-                                                    {{$message}}
+                                                    {{ $message }}
                                                 </div>
                                                 @enderror
                                             </div>
+
                                         </div>
 
                                         <!-- دکمه ذخیره -->
@@ -689,59 +700,4 @@
             </div>
         </div>
     </div>
-
-    @script
-        <!-- Tom Select JS -->
-{{--        <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>--}}
-        <script>
-            document.addEventListener('livewire:initialized', () => {
-                let stateSelect, citySelect;
-
-                function initStateSelect() {
-                    const el = document.getElementById('state_id');
-                    if (el && !el.tomselect) {
-                        stateSelect = new TomSelect(el, {
-                            placeholder: 'جستجو و انتخاب استان...',
-                            create: false,
-                            sortField: 'text',
-                            onChange(value) {
-                            @this.set('state_id', value);
-                            }
-                        });
-
-                        // مقدار اولیه از Livewire (اگر داری)
-                        if (@this.get('state_id')) {
-                            stateSelect.setValue(@this.get('state_id'));
-                        }
-                    }
-                }
-
-                function initCitySelect() {
-                    const el = document.getElementById('city_id');
-                    if (el && !el.tomselect) {
-                        citySelect = new TomSelect(el, {
-                            placeholder: 'جستجو و انتخاب شهر...',
-                            create: false,
-                            sortField: 'text',
-                            onChange(value) {
-                            @this.set('city_id', value);
-                            }
-                        });
-
-                        if (@this.get('city_id')) {
-                            citySelect.setValue(@this.get('city_id'));
-                        }
-                    }
-                }
-
-                initStateSelect();
-                initCitySelect();
-
-                Livewire.on('state-changed', () => {
-                    if (citySelect) citySelect.destroy();
-                    setTimeout(() => initCitySelect(), 0);
-                });
-            });
-        </script>
-        @endscript
 </div>

@@ -8,6 +8,8 @@ use App\Models\DailyReportPart;
 use App\Models\DailyReportDetail;
 use App\Models\DailyReportFeedback;
 use App\Models\SessionFeedback;
+use App\Models\MakeupSession;
+
 use App\Models\WeeklyProgram;
 use App\Models\WeeklyProgramRestDay;
 use App\Models\StudyPartSession;
@@ -49,6 +51,8 @@ class Report extends Component
     // Completed study parts (parts with logged study hours)
     public array $completedStudyParts = [];
     public array $alreadyCompensatedPartIds = [];
+    // Makeup (extra-organization) sessions for current report day
+    public array $currentDayMakeupSessions = [];
 
 
     // Reply modal data
@@ -301,9 +305,17 @@ class Report extends Component
 
         $this->selectedDayIndex = $dayIndex;
         $this->selectedParts = [];
+        // ✅ انتخاب خودکار پارت‌هایی که ساعت مطالعه برایشان ثبت شده
+        $this->selectedParts = collect($day['parts'])
+            ->filter(fn($part) => in_array($part->id, $this->completedStudyParts))
+            ->pluck('id')
+            ->values()
+            ->toArray();
         $this->testsDone = [];
         $this->description = '';
         $this->missedPartsReason = '';
+        // ✅ بارگذاری پارت‌های اضافه بر سازمان برای این روز
+        $this->loadCurrentDayMakeupSessions($day['date']);
         $this->showReportModal = true;
     }
 
@@ -315,9 +327,39 @@ class Report extends Component
         $this->testsDone = [];
         $this->description = '';
         $this->missedPartsReason = '';
+        $this->currentDayMakeupSessions = [];
+
         $this->resetErrorBag();
     }
+    /**
+     * Load MakeupSessions (اضافه بر سازمان) for the given report date window.
+     */
+    protected function loadCurrentDayMakeupSessions(Carbon $date): void
+    {
+        $student = Auth::user()->student;
+        if (!$student) {
+            $this->currentDayMakeupSessions = [];
+            return;
+        }
 
+        $start = $date->copy()->startOfDay();
+        $end   = $date->copy()->addDay()->setHour(self::REPORT_CUTOFF_HOUR)->setMinute(0)->setSecond(0);
+
+        $this->currentDayMakeupSessions = MakeupSession::where('student_id', $student->id)
+            ->whereNotNull('ended_at')
+            ->whereBetween('ended_at', [$start, $end])
+            ->with('ccTopic')
+            ->get()
+            ->map(fn($ms) => [
+                'id'               => $ms->id,
+                'topic_name'       => $ms->ccTopic?->name ?? 'نامشخص',
+                'part_type_label'  => $ms->part_type_label,
+                'duration_minutes' => $ms->started_at && $ms->ended_at
+                    ? (int) $ms->started_at->diffInMinutes($ms->ended_at)
+                    : 0,
+            ])
+            ->toArray();
+    }
     public function togglePart(int $partId)
     {
         if (in_array($partId, $this->selectedParts)) {
@@ -378,10 +420,11 @@ class Report extends Component
     {
         $this->validate([
             'description' => 'nullable|string|max:350',
-            'missedPartsReason' => 'nullable|string|max:500',
+            'missedPartsReason' => 'nullable|string|min:20|max:500',
         ], [
             'description.max' => 'توضیحات نمی‌تواند بیشتر از 350 کاراکتر باشد.',
             'missedPartsReason.max' => 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.',
+            'missedPartsReason.min' => 'توضیحات علت عدم انجام پارت نمی‌تواند کمتر از 20 کاراکتر باشد.',
         ]);
 
         $student = Auth::user()->student;

@@ -1,112 +1,140 @@
-<div class="bg-gradient-to-l from-secondary to-background rounded-2xl p-5 space-y-8 border border-border/60">
-    <!-- section:title -->
-    <div class="flex items-center justify-between gap-8">
-        <div class="flex items-center gap-5">
-            <span class="flex items-center justify-center w-12 h-12 bg-primary text-primary-foreground rounded-full shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                     fill="none" stroke="currentColor" stroke-width="2"
-                     stroke-linecap="round" stroke-linejoin="round"
-                     class="feather feather-smile">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                </svg>
-            </span>
-            <span class="font-black xs:text-2xl text-lg text-primary">
-                گوشه ای از لبخند ستارگان SDFR
-            </span>
-        </div>
-    </div>
-    <!-- end section:title -->
+@php
+    $students = collect($topStudent)
+        ->filter(fn ($student) => filled($student->name) && filled($student->document))
+        ->values();
 
-    @if(!empty($topStudent) && count($topStudent))
-        <div class="relative">
-            <div id="unique-slider2" class="swiper overflow-hidden select-none">
-                <div class="swiper-wrapper">
-                    @foreach($topStudent as $item)
-                        <div class="swiper-slide">
-                            <div
-                                class="group relative rounded-2xl overflow-hidden
-                                       bg-background/60 dark:bg-background/40 backdrop-blur
-                                       border border-border/70
-                                       shadow-sm shadow-black/5 dark:shadow-black/20
-                                       transition-all duration-300
-                                       hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/10">
-                                <div class="p-2">
-                                    <div class="aspect-[3/4] w-full rounded-xl overflow-hidden bg-muted/40">
-                                        <img
-                                            src="{{ asset('client/sdfr/topStudent/'.$item->document) }}"
-                                            alt="{{ $item->name }}"
-                                            class="w-full h-full object-cover
-                                                   transition-transform duration-500
-                                                   group-hover:scale-[1.03]"
-                                            loading="lazy"
-                                            style="pointer-events:none;"
-                                        >
-                                    </div>
-                                </div>
+    $studentItems = $students->map(function ($student) {
+        $video = $student->video_url ?? $student->video ?? $student->video_link ?? null;
 
-                                <div class="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                                    <div class="absolute -inset-x-20 -top-10 h-24 rotate-12 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-                                </div>
-                            </div>
+        return [
+            'id' => $student->id,
+            'name' => $student->name,
+            'avatar' => asset('client/sdfr/topStudent/' . $student->document),
+            'video' => $video,
+        ];
+    })->toArray();
+@endphp
+
+<div class="space-y-6" x-data="studentReviews(@js($studentItems))">
+    <h2 class="text-center font-black text-2xl sm:text-3xl lg:text-5xl text-primary">
+        قبولی‌های مدارس برتر سال‌های پیش
+    </h2>
+
+    @if(count($studentItems))
+        <div class="relative rounded-3xl p-4 sm:p-6 lg:px-10 lg:py-8 bg-[linear-gradient(135deg,#ffe7c2_0%,#f5bfd0_55%,#bfcdfc_100%)] overflow-hidden">
+            <div class="hidden lg:block">
+                <div class="grid grid-cols-12 gap-6 items-center min-h-[720px]">
+                    <div class="col-span-4 h-full">
+                        <div class="grid grid-cols-2 gap-y-12 pt-6">
+                            <template x-for="(student, index) in students.filter((item,idx) => idx % 2 === 0).slice(0,4)" :key="student.id">
+                                <button type="button" class="group text-center" @click="setActive(students.findIndex(x => x.id === student.id))">
+                                    <img :src="student.avatar" :alt="student.name" class="w-20 h-20 rounded-full mx-auto object-cover border-2 transition" :class="active.id === student.id ? 'border-primary scale-105' : 'border-white/70 grayscale group-hover:grayscale-0'">
+                                    <p class="mt-3 text-xl font-semibold text-primary/90" x-text="student.name"></p>
+                                </button>
+                            </template>
                         </div>
-                    @endforeach
+                    </div>
+
+                    <div class="col-span-4">
+                        <div class="rounded-[28px] overflow-hidden shadow-2xl shadow-black/25 bg-black w-full max-w-[360px] mx-auto aspect-[9/16]">
+                            <template x-if="active.video">
+                                <video class="w-full h-full object-cover" controls playsinline preload="metadata" :poster="active.avatar" :key="active.id + '-desktop-video'">
+                                    <source :src="active.video" type="video/mp4">
+                                </video>
+                            </template>
+                            <template x-if="!active.video">
+                                <div class="w-full h-full bg-center bg-cover" :style="`background-image:url('${active.avatar}')`"></div>
+                            </template>
+                        </div>
+                    </div>
+                    <div class="col-span-4">
+                        <div class="rounded-[28px] overflow-hidden shadow-2xl shadow-black/25 bg-black w-full max-w-[360px] mx-auto aspect-[9/16]">
+                            <template x-if="active.video">
+                                <video class="w-full h-full object-cover" controls playsinline preload="metadata" :poster="active.avatar" :key="active.id + '-desktop-video'">
+                                    <source :src="active.video" type="video/mp4">
+                                </video>
+                            </template>
+                            <template x-if="!active.video">
+                                <div class="w-full h-full bg-center bg-cover" :style="`background-image:url('${active.avatar}')`"></div>
+                            </template>
+                        </div>
+                    </div>
+                        </div>
+            </div>
                 </div>
             </div>
+<div class="lg:hidden space-y-5">
+    <div class="flex items-start justify-between gap-3">
+        <button type="button" class="mt-7 text-primary" @click="prev()" aria-label="قبلی">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
 
-            <div class="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-background to-transparent"></div>
-            <div class="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-background to-transparent"></div>
+        <div class="flex-1 overflow-x-auto no-scrollbar">
+            <div class="flex items-start justify-start gap-4 min-w-max px-1">
+                <template x-for="(student, index) in students" :key="student.id + '-mobile-avatar'">
+                    <button type="button" class="text-center w-[88px]" @click="setActive(index)">
+                        <img :src="student.avatar" :alt="student.name" class="w-16 h-16 rounded-full mx-auto object-cover border-2" :class="active.id === student.id ? 'border-primary' : 'border-white/70'">
+                        <p class="mt-2 text-lg leading-7 text-primary" x-text="student.name"></p>
+                    </button>
+                </template>
+            </div>
+        </div>
+
+        <button type="button" class="mt-7 text-primary" @click="next()" aria-label="بعدی">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="rounded-3xl bg-white/20 backdrop-blur-sm p-4">
+        <div class="rounded-[28px] overflow-hidden shadow-2xl shadow-black/20 bg-black aspect-[9/16]">
+            <template x-if="active.video">
+                <video class="w-full h-full object-cover" controls playsinline preload="metadata" :poster="active.avatar" :key="active.id + '-mobile-video'">
+                    <source :src="active.video" type="video/mp4">
+                </video>
+            </template>
+            <template x-if="!active.video">
+                <div class="w-full h-full bg-center bg-cover" :style="`background-image:url('${active.avatar}')`"></div>
+            </template>
+        </div>
+    </div>
+</div>
         </div>
     @else
-        <div class="text-center text-muted">وجود ندارد</div>
+        <div class="rounded-3xl border border-border bg-secondary/60 p-8 text-center text-muted">
+            در حال حاضر دانش‌آموزی برای نمایش ثبت نشده است.
+        </div>
     @endif
-
-    @assets
-        <style>
-            #unique-slider2 .swiper-wrapper { transition-timing-function: linear !important; }
-        </style>
-    @endassets
-
     @script
         <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const el = document.querySelector('#unique-slider2');
-                if (!el) return;
+            window.studentReviews = function (students) {
+                return {
+                    students,
+                    activeIndex: 0,
+                    get active() {
+                        return this.students[this.activeIndex] ?? {};
+                        },
 
-                if (el.dataset.swiperInitialized === "1") return;
-                el.dataset.swiperInitialized = "1";
-
-                const swiper2 = new Swiper('#unique-slider2', {
-                    loop: true,
-                    loopAdditionalSlides: 10,
-                    centeredSlides: false,
-
-                    slidesPerView: 1,
-                    spaceBetween: 14,
-                    breakpoints: {
-                        480: { slidesPerView: 1.1, spaceBetween: 14 },
-                        640: { slidesPerView: 2,   spaceBetween: 16 },
-                        768: { slidesPerView: 3,   spaceBetween: 18 },
-                        1024:{ slidesPerView: 4,   spaceBetween: 20 },
+                    window.studentReviews = function (students) {
+                        return {
+                            students,
+                            activeIndex: 0,
+                            get active() {
+                                return this.students[this.activeIndex] ?? {};
                     },
-
-                    speed: 9000,
-                    autoplay: {
-                        delay: 0,
-                        disableOnInteraction: false,
-                        pauseOnMouseEnter: true,
-                    },
-                    freeMode: { enabled: true, momentum: false },
-                    grabCursor: true,
-                    allowTouchMove: true,
-                });
-
-                document.addEventListener('livewire:navigated', () => {
-                    try { swiper2.update(); } catch (e) {}
-                });
-            });
+                            next() {
+                                if (!this.students.length) return;
+                                this.activeIndex = (this.activeIndex + 1) % this.students.length;
+                            },
+                            prev() {
+                                if (!this.students.length) return;
+                                this.activeIndex = (this.activeIndex - 1 + this.students.length) % this.students.length;
+                            }
+                        }
+                    }
         </script>
     @endscript
 </div>

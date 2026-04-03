@@ -20,8 +20,8 @@ class Index extends Component
     public function seoConfig()
     {
         $this->seo()
-            ->setTitle('فروشگاه')
-            ->setDescription('آزمون به سبک SDFR، کلاس مشاوره تحصیلی');
+            ->setTitle('فروشگاه سال تحصیلی ۱۴۰۴-۱۴۰۵')
+            ->setDescription('مشاور بهشاد اتقیایی – امتحان نهایی - دریافت کل آزمون ها و کلاس های مشاوره ای');
     }
 
     public function render()

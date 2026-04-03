@@ -18,7 +18,9 @@ class Index extends Component
     public function mount()
     {
         $this->seo()
-            ->setTitle('مقالات سایت');
+            ->setTitle('مقالات سایت')
+            ->setDescription('روزشمار کنکور , تخمین رتبه کنکور , حذفیات کنکور , برنامه ریزی کنکور , انتخاب رشته , ثبت نام کتاب درسی , زیست دهم , شیمی دهم , درصد گیری آنلاین , ترمیم معدل , اخبار کنکور')
+        ;
     }
     public function placeholder()
 

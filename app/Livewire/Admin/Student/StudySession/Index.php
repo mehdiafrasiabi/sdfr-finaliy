@@ -20,6 +20,8 @@ class Index extends Component
     public $search = ''; // جستجو در نام دانش‌آموز
     public bool $exportModalOpen = false;
     public string $exportTarget = 'all';
+    public string $exportMode = 'date_range'; // 'date_range' | 'last_program'
+
     public string $exportStartDate = '';
     public string $exportEndDate = '';
     public array $selectedStudentIds = [];
@@ -57,10 +59,13 @@ class Index extends Component
     {
         $rules = [
             'exportTarget' => 'required|in:all,selected',
-            'exportStartDate' => 'required|string',
-            'exportEndDate' => 'required|string',
-        ];
+            'exportMode' => 'required|in:date_range,last_program',
 
+        ];
+        if ($this->exportMode === 'date_range') {
+            $rules['exportStartDate'] = 'required|string';
+            $rules['exportEndDate'] = 'required|string';
+        }
         if ($this->exportTarget === 'selected') {
             $rules['selectedStudentIds'] = 'required|array|min:1';
         }
@@ -72,17 +77,22 @@ class Index extends Component
             'exportEndDate.required' => 'تاریخ پایان را وارد کنید.',
         ]);
 
-        try {
-            $startDate = Jalalian::fromFormat('Y/m/d', $this->exportStartDate)->toCarbon()->startOfDay();
-            $endDate = Jalalian::fromFormat('Y/m/d', $this->exportEndDate)->toCarbon()->endOfDay();
-        } catch (\Throwable) {
-            $this->addError('exportStartDate', 'فرمت تاریخ صحیح نیست. مثال: 1404/09/10');
-            return;
-        }
+        $startDate = null;
+        $endDate = null;
 
-        if ($startDate->gt($endDate)) {
-            $this->addError('exportStartDate', 'تاریخ شروع نباید بعد از تاریخ پایان باشد.');
-            return;
+        if ($this->exportMode === 'date_range') {
+            try {
+                $startDate = Jalalian::fromFormat('Y/m/d', $this->exportStartDate)->toCarbon()->startOfDay();
+                $endDate = Jalalian::fromFormat('Y/m/d', $this->exportEndDate)->toCarbon()->endOfDay();
+            } catch (\Throwable) {
+                $this->addError('exportStartDate', 'فرمت تاریخ صحیح نیست. مثال: 1404/09/10');
+                return;
+            }
+
+            if ($startDate->gt($endDate)) {
+                $this->addError('exportStartDate', 'تاریخ شروع نباید بعد از تاریخ پایان باشد.');
+                return;
+            }
         }
 
         $studentIds = $this->exportTarget === 'all' ? null : array_map('intval', $this->selectedStudentIds);

@@ -1,11 +1,33 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="fa">
 <head>
+    <style>
+        /* fallback */
+        @font-face {
+            font-family: 'Material Symbols Outlined';
+            font-style: normal;
+            font-weight: 100 700;
+            src: url(/admin/admin.woff2) format('woff2');
+        }
+
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
     {!! SEO::generate() !!}
     @include('layouts.admin.link')
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
-
     <link rel="stylesheet" href="/admin/assets/css/bootstrap-icons.min.css">
     <link href="/admin/assets/css/select2.min.css" rel="stylesheet">
     <link href="/admin/assets/css/jalalidatepicker.min.css" rel="stylesheet">

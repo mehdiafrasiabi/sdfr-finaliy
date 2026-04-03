@@ -89,7 +89,7 @@
 
                 <!-- Header -->
                 <div class="bg-background rounded-b-3xl space-y-2 p-5 text-center">
-                    <a href="https://sdfr.me" class="inline-flex items-center gap-2 text-primary">
+                    <a wire:navigate href="{{route('client.home')}}" class="inline-flex items-center gap-2 text-primary">
                         <img src="/client/assets/images/theme/intro/header.png" style="width: 100px;" alt="Logo">
                     </a>
                 </div>
@@ -177,7 +177,7 @@
                                 <input type="checkbox" wire:model="rememberMe" class="w-4 h-4 rounded border-border">
                                 <span class="text-sm text-foreground">مرا به خاطر بسپار</span>
                             </label>
-                            <a href="{{ route('client.auth.forgotPassword') }}" class="text-sm font-medium text-primary hover:underline">فراموشی رمز عبور</a>
+                            <a  wire:navigate href="{{ route('client.auth.forgotPassword') }}" class="text-sm font-medium text-primary hover:underline">فراموشی رمز عبور</a>
                         </div>
 
                         <button type="submit" wire:loading.attr="disabled" wire:target="loginWithPassword"
@@ -293,14 +293,14 @@
 
                 <div class="mt-6 text-center text-sm text-muted">
                     حساب کاربری ندارید؟
-                    <a href="{{ route('client.auth.signup') }}" class="font-medium text-primary hover:underline">ثبت نام کنید</a>
+                    <a wire:navigate href="{{ route('client.auth.signup') }}" class="font-medium text-primary hover:underline">ثبت نام کنید</a>
                 </div>
             </div>
 
             <div class="bg-secondary rounded-xl space-y-5 p-5 mt-3">
                 <div class="font-medium text-xs text-center text-muted">
-                    ورود شما به معنای پذیرش <a href="https://sdfr.me/terms" class="text-foreground hover:text-primary hover:underline">شرایط</a> و
-                    <a href="https://sdfr.me/terms" class="text-foreground hover:text-primary hover:underline">قوانین حریم خصوصی</a> است.
+                    ورود شما به معنای پذیرش <a href="{{route('client.terms')}}" class="text-foreground hover:text-primary hover:underline">شرایط</a> و
+                    <a href="{{route('client.terms')}}" class="text-foreground hover:text-primary hover:underline">قوانین حریم خصوصی</a> است.
                 </div>
             </div>
         </div>

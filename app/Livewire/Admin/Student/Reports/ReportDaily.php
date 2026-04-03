@@ -14,6 +14,8 @@ use App\Models\PersonalInformation;
 use App\Services\NotificationService;
 use App\Models\SessionFeedback;
 use Carbon\Carbon;
+use App\Models\MakeupSession;
+
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -611,7 +613,29 @@ class ReportDaily extends Component
         $this->selectedReportData['undone_tests'] = $totalTests - $doneTests;
         $this->selectedReportData['rating'] = $avgRating;
         $this->selectedReportData['rating_label'] = $this->getRatingLabel($avgRating);
+
+        // ✅ بارگذاری پارت‌های اضافه بر سازمان در بازه این روز
+        $reportDate = Carbon::parse($report->report_date);
+        $windowStart = $reportDate->copy()->startOfDay();
+        $windowEnd   = $reportDate->copy()->addDay()->setHour(self::REPORT_CUTOFF_HOUR)->setMinute(0)->setSecond(0);
+
+        $makeupSessions = MakeupSession::where('student_id', $report->student_id)
+            ->whereNotNull('ended_at')
+            ->whereBetween('ended_at', [$windowStart, $windowEnd])
+            ->with('ccTopic')
+            ->get();
+
+        $this->selectedReportData['makeup_sessions'] = $makeupSessions->map(fn($ms) => [
+            'topic_name'       => $ms->ccTopic?->name ?? 'نامشخص',
+            'part_type_label'  => $ms->part_type_label,
+            'duration_minutes' => $ms->started_at && $ms->ended_at
+                ? (int) $ms->started_at->diffInMinutes($ms->ended_at)
+                : 0,
+            'ended_at'         => $ms->ended_at ? $ms->ended_at->format('H:i') : '-',
+        ])->toArray();
+
         $this->detailModalOpen = true;
+
     }
 
     public function closeDetailModal()

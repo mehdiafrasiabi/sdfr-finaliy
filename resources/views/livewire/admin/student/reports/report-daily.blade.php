@@ -236,9 +236,14 @@
 
                                             </td>
                                             <td class="text-center">
-                                                <span class="text-success fw-bold">{{ $report->read_parts_count }}</span>
+                                                @php
+                                                    $listReadParts = $report->reportParts->where('is_read', true)->count();
+                                                    $listTotalParts = $report->reportParts->count();
+                                                @endphp
+                                                <span class="text-success fw-bold">{{ $listReadParts }}</span>
                                                 <span class="text-muted">/</span>
-                                                <span>{{ $report->total_parts }}</span>
+                                                <span>{{ $listTotalParts }}</span>
+
                                             </td>
                                             <td class="text-center">
                                                 <span class="fw-bold">{{ $report->total_tests }}</span>
@@ -527,6 +532,16 @@
                                     </div>
                                 </div>
                             </div>
+                            @if(!empty($selectedReportData['makeup_sessions']))
+                                <div class="col-6 col-lg-3">
+                                    <div class="card border-0 shadow-sm h-100" style="border-right: 4px solid #7c3aed !important;">
+                                        <div class="card-body text-center py-3">
+                                            <div class="fw-bold fs-4" style="color:#7c3aed;">{{ count($selectedReportData['makeup_sessions']) }}</div>
+                                            <small class="text-muted">اضافه بر سازمان</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
                         @if($selectedReportData['is_compensatory'] ?? false)
@@ -560,6 +575,7 @@
                                             <th class="text-nowrap">ردیف</th>
                                             <th class="text-nowrap">نام درس</th>
                                             <th class="text-nowrap">موضوع/فصل</th>
+                                            <th class="text-center text-nowrap">وضعیت خواندن</th>
                                             <th class="text-center text-nowrap">نوع پارت</th>
                                             <th class="text-center text-nowrap">مدت برنامه</th>
                                             <th class="text-center text-nowrap">ثبت ساعت مطالعه</th>
@@ -570,7 +586,7 @@
                                         </thead>
                                         <tbody>
                                         @forelse($reportPartsDetails as $index => $part)
-                                            <tr class="{{ $part['is_read'] ? 'table-success' : '' }}">
+                                            <tr class="{{ $part['is_read'] ? 'table-success' : 'table-danger bg-opacity-10' }}">
                                                 <td class="fw-medium">{{ $index + 1 }}</td>
                                                 <td>
                                                     <div class="fw-semibold text-dark">{{ $part['lesson_name'] }}</div>
@@ -587,6 +603,23 @@
                                                     @endif
                                                     @if(!$part['chapter_name'] && !$part['topic_name'])
                                                         <span class="text-muted">-</span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-center">
+                                                    @if($part['is_read'])
+                                                        <span class="badge bg-success">
+                                                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                                            </svg>
+                                                            خوانده شده
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-danger">
+                                                            <svg width="12" height="12" fill="currentColor" viewBox="0 0 16 16" class="me-1">
+                                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                                                            </svg>
+                                                            خوانده نشده
+                                                        </span>
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
@@ -658,7 +691,8 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="8" class="text-center text-muted py-5">
+                                                <td colspan="9" class="text-center text-muted py-5">
+
                                                     <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16" class="mb-3 opacity-50">
                                                         <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z"/>
                                                     </svg>
@@ -671,7 +705,58 @@
                                 </div>
                             </div>
                         </div>
-
+                        <!-- Makeup Sessions (اضافه بر سازمان) -->
+                        @if(!empty($selectedReportData['makeup_sessions']))
+                            <div class="card border-0 shadow-sm mb-4 border-start border-4 border-purple">
+                                <div class="card-header border-bottom" style="background-color: #f3e8ff;">
+                                    <h6 class="mb-0 fw-bold text-purple">
+                                        <svg width="18" height="18" fill="currentColor" viewBox="0 0 16 16" class="me-2" style="color:#7c3aed;">
+                                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                                            <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                                        </svg>
+                                        <span style="color:#7c3aed;">مطالعه اضافه بر سازمان ({{ count($selectedReportData['makeup_sessions']) }} مورد)</span>
+                                    </h6>
+                                    <small class="text-muted">پارت‌هایی که دانش‌آموز خارج از برنامه مطالعاتی مطالعه کرده است</small>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-sm align-middle mb-0">
+                                            <thead class="table-light">
+                                            <tr>
+                                                <th class="text-nowrap">ردیف</th>
+                                                <th class="text-nowrap">مبحث</th>
+                                                <th class="text-center text-nowrap">نوع</th>
+                                                <th class="text-center text-nowrap">مدت مطالعه</th>
+                                                <th class="text-center text-nowrap">ساعت پایان</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach($selectedReportData['makeup_sessions'] as $idx => $ms)
+                                                <tr>
+                                                    <td>{{ $idx + 1 }}</td>
+                                                    <td class="fw-semibold">{{ $ms['topic_name'] }}</td>
+                                                    <td class="text-center">
+                                                        <span class="badge" style="background-color:#ede9fe;color:#7c3aed;">{{ $ms['part_type_label'] }}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if($ms['duration_minutes'] > 0)
+                                                            <span class="fw-bold" style="color:#7c3aed;">{{ $ms['duration_minutes'] }}</span>
+                                                            <small class="text-muted"> دقیقه</small>
+                                                        @else
+                                                            <span class="text-muted">-</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <small class="text-muted">{{ $ms['ended_at'] }}</small>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                         <!-- Description -->
                         @if($selectedReportData['description'] ?? null)
                             <div class="card border-0 shadow-sm mb-4">

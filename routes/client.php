@@ -40,6 +40,7 @@ use App\Livewire\Client\Profile\TypedExam\TypedExamList;
 use App\Livewire\Client\Profile\TypedExam\TypedExamResult;
 use App\Livewire\Client\Profile\TypedExam\TypedExamTest;
 use App\Livewire\Client\Shop\Index as ShopIndex;
+use App\Livewire\Client\ExamCountdown\Index as ExamCountdownIndex;
 use App\Livewire\Client\Terms\Index as RuleIndex;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Client\Profile\Wallet as ProfileWallet;
@@ -61,7 +62,7 @@ Route::name('client.')->group(function () {
 
     Route::get('/blog',WeblogIndex::class)->name('blog');
     Route::get('/course',CourseIndex::class)->name('course');
-
+    Route::get('/konkur', ExamCountdownIndex::class)->name('exam-countdown');
 
 
     Route::middleware('guest')->group(function () {

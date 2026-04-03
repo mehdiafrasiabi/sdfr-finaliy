@@ -20,16 +20,21 @@
             <livewire:client.home.latest-course.index/>
             <!-- end section:latest-courses -->
 
-
+            <!-- section:sdfr-help -->
+            <livewire:client.home.sdfr-help.index lazy/>
+            <!-- end section:sdfr-help -->
         </div>
         <!-- end container -->
 
         <!-- feedback -->
         <!-- end feedback -->
-        <div class="max-w-7xl space-y-14 px-4 mx-auto">
+{{--        <div class="max-w-7xl space-y-14 px-4 mx-auto">--}}
 {{--            <livewire:client.home.top-student.index lazy/>--}}
+{{--        </div>--}}
 
-        </div>
+        <!-- testimonials -->
+        <livewire:client.home.testimonials.index />
+        <!-- end testimonials -->
         <livewire:client.home.feedback.index />
 
         <!-- blog -->

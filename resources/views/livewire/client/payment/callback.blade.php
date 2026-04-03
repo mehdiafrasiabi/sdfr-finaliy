@@ -303,32 +303,6 @@
             <div class="lg:col-span-9 md:col-span-8 md:order-1 order-2">
                 <!-- sort & filter(offcanvas) -->
                 <div class="flex items-center gap-3 mb-3" x-data="{ offcanvasOpen: false }">
-                    <!-- sort -->
-                    <div
-                        x-data="{ range: function(start, end) { return Array(end - start + 1).fill().map((_, idx) => start + idx) } }">
-                        <!-- form:select container -->
-                        <div class="flex items-center gap-3">
-                            <!-- form:select:label -->
-                            <label class="sm:flex hidden items-center gap-1 font-semibold text-xs text-muted">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"
-                                     class="w-5 h-5">
-                                    <path
-                                        d="M10 3.75a2 2 0 1 0-4 0 2 2 0 0 0 4 0ZM17.25 4.5a.75.75 0 0 0 0-1.5h-5.5a.75.75 0 0 0 0 1.5h5.5ZM5 3.75a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5a.75.75 0 0 1 .75.75ZM4.25 17a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0 0 1.5h1.5ZM17.25 17a.75.75 0 0 0 0-1.5h-5.5a.75.75 0 0 0 0 1.5h5.5ZM9 10a.75.75 0 0 1-.75.75h-5.5a.75.75 0 0 1 0-1.5h5.5A.75.75 0 0 1 9 10ZM17.25 10.75a.75.75 0 0 0 0-1.5h-1.5a.75.75 0 0 0 0 1.5h1.5ZM14 10a2 2 0 1 0-4 0 2 2 0 0 0 4 0ZM10 16.25a2 2 0 1 0-4 0 2 2 0 0 0 4 0Z"/>
-                                </svg>
-                                مرتب سازی:
-                            </label><!-- end form:select:label -->
-                            <!-- form:select -->
-                            <div class="w-52 relative"
-                                 x-data="{ open: false, selectedOption: 'انتخاب کنید', selectedValue: '', options: ['جدید‌ترین', 'در حال برگزاری', 'تکمیل ضبط‌', 'دوره‌های خریداری شده', 'در حال مشاهده', 'قدیمی‌ترین'] }">
-                                <select wire:model.live.debounce.350ms="categoryId" id="category"
-                                        class="form-select w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
-                                    <option value="">انتخاب پایه و رشته</option>
-                                </select>
-                            </div><!-- end form:select -->
-                        </div><!-- end form:select container -->
-                    </div>
-                    <!-- end sort -->
-
                 </div>
 
                 <!-- articles:wrapper -->
@@ -337,7 +311,7 @@
                         <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35"
                              alt="..."/>
                         <div class="text-center space-y-3">
-                            <h2 class="font-bold text-xl text-foreground">مقاله ای وجود ندارد</h2>
+                            <h2 class="font-bold text-xl text-foreground">تراکنش وجود ندارد.</h2>
                         </div>
                     </div>
                 </div>

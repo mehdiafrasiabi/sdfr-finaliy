@@ -159,7 +159,7 @@
                                                 :class="showTimer ? 'translate-x-[18px]' : 'translate-x-[2px]'">
                                             </span>
                                 </span>
-                                </button>
+                            </button>
                             <span class="text-xs sm:text-sm text-muted">
                                 مشاهده زمان
                             </span>

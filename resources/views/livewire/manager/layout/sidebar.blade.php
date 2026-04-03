@@ -462,7 +462,10 @@
                                             <a href="{{route('manager.setting.topStudent')}}" class="nav-link "
                                                data-key="t-basic">گوشه از لبخند ستارگان</a>
                                         </li>
-
+                                        <li class="nav-item">
+                                            <a href="{{route('manager.setting.examCountdown')}}" class="nav-link "
+                                               data-key="t-basic">روزشمار کنکور</a>
+                                        </li>
 
                                     </ul>
                                 </div>

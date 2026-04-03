@@ -8,6 +8,7 @@ use App\Notifications\SendOtpToUser;
 use App\Traits\NormalizesDigits;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Validator;
@@ -47,7 +48,10 @@ class Login extends Component
 
     public function seoConfig()
     {
-        $this->seo()->setTitle('ورود به حساب کاربری');
+        $this->seo()
+            ->setTitle('بهترین کلاس های مشاوره ای-ورود-sdfr')
+            ->setDescription('ورود به پنل کاربری')
+        ;
     }
 
     protected function convertToEnglishDigits($value)
@@ -142,6 +146,7 @@ class Login extends Component
             $this->dispatch('error', $this->errorMessage);
             return;
         }
+        $this->invalidateOtherSessions(Auth::id());
 
         $this->isLoading = false;
         $this->dispatch('success', 'خوش آمدید!');
@@ -289,6 +294,8 @@ class Login extends Component
         $user = User::where('mobile', $mobile)->first();
         Auth::login($user, true);
 
+        $this->invalidateOtherSessions($user->id);
+
         session()->forget('login_otp_mobile');
 
         $this->isLoading = false;
@@ -304,6 +311,17 @@ class Login extends Component
         $this->errorMessage = '';
         $this->resetValidation();
     }
+    private function invalidateOtherSessions(int $currentUserId): void
+    {
+        DB::table('sessions')
+            ->where('id', '!=', session()->getId())
+            ->delete();
+
+        User::where('id', '!=', $currentUserId)
+            ->whereNotNull('remember_token')
+            ->update(['remember_token' => null]);
+    }
+
 
     public function clientLogout()
     {

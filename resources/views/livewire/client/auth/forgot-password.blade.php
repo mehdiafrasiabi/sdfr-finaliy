@@ -116,7 +116,7 @@
 
                 <!-- Header -->
                 <div class="bg-background rounded-b-3xl space-y-2 p-5 text-center">
-                    <a href="https://sdfr.me" class="inline-flex items-center gap-2 text-primary">
+                    <a href="{{route('client.home')}}" class="inline-flex items-center gap-2 text-primary">
                         <img src="/client/assets/images/theme/intro/header.png" style="width: 100px;" alt="Logo">
                     </a>
                 </div>
@@ -437,7 +437,7 @@
                 <!-- Back to Login -->
                 @if($step !== 4)
                     <div class="mt-6 text-center text-sm text-muted">
-                        <a href="{{ route('client.auth.login') }}"
+                        <a wire:navigate href="{{ route('client.auth.login') }}"
                            class="font-medium text-primary hover:underline flex items-center justify-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -451,9 +451,9 @@
 
             <div class="bg-secondary rounded-xl space-y-5 p-5 mt-3">
                 <div class="font-medium text-xs text-center text-muted">
-                    ورود شما به معنای پذیرش <a href="https://sdfr.me/terms"
+                    ورود شما به معنای پذیرش <a wire:navigate href="{{route('client.terms')}}"
                                                class="text-foreground hover:text-primary hover:underline">شرایط</a> و
-                    <a href="https://sdfr.me/terms" class="text-foreground hover:text-primary hover:underline">قوانین
+                    <a wire:navigate href="{{route('client.terms')}}" class="text-foreground hover:text-primary hover:underline">قوانین
                         حریم خصوصی</a> است.
                 </div>
             </div>

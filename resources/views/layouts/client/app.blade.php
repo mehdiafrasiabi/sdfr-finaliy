@@ -167,7 +167,7 @@
 
     <!-- end header -->
 
-    <main class="flex-auto py-5">
+    <main class="flex-auto py-4">
         {{$slot}}
     </main>
 

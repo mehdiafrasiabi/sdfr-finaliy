@@ -64,21 +64,29 @@
                         </svg>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
-                        <select wire:model.live="statusFilter"
-                                class="form-select h-10 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-4 min-w-[140px]">
-                            <option value="">همه وضعیت‌ها</option>
-                            <option value="waiting">در انتظار پاسخ</option>
-                            <option value="answered">پاسخ داده شده</option>
-                            <option value="closed">بسته شده</option>
-                        </select>
-                        <select wire:model.live="priorityFilter"
-                                class="form-select h-10 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-4 min-w-[120px]">
-                            <option value="">همه اولویت‌ها</option>
-                            <option value="low">کم</option>
-                            <option value="medium">متوسط</option>
-                            <option value="high">زیاد</option>
-                            <option value="urgent">فوری</option>
-                        </select>
+                        <x-ui.select
+                            wire:model.live="statusFilter"
+                            :options="[
+                                       ['id' => 'waiting',  'name' => 'در انتظار پاسخ'],
+                                        ['id' => 'answered', 'name' => 'پاسخ داده شده'],
+                                        ['id' => 'closed',   'name' => 'بسته شده'],
+                                    ]"
+                            value-key="id"
+                            label-key="name"
+                            placeholder="همه وضعیت‌ها"
+                        />
+                        <x-ui.select
+                            wire:model.live="priorityFilter"
+                            :options="[
+        ['id' => 'low',    'name' => 'کم'],
+        ['id' => 'medium', 'name' => 'متوسط'],
+        ['id' => 'high',   'name' => 'زیاد'],
+        ['id' => 'urgent', 'name' => 'فوری'],
+    ]"
+                            value-key="id"
+                            label-key="name"
+                            placeholder="همه اولویت‌ها"
+                        />
                     </div>
                     <!-- end filters -->
 

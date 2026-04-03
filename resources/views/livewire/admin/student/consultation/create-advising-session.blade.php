@@ -358,31 +358,42 @@
 
                             <td>
                                 <div class="d-flex align-items-center gap-1">
-                                    @if($canAccess)
-                                        <a
-                                            href="{{ route('admin.student.weekly-program', ['student' => $student->id, 'session' => $session->id]) }}"
-                                            class="btn btn-sm btn-icon btn-text-primary rounded-pill waves-effect"
-                                            title="برنامه هفتگی"
-                                        >
-                                            <!-- calendar_month icon -->
-                                            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
-                                                <path
-                                                    d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm13 8H4v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9ZM5 6a1 1 0 0 0-1 1v1h16V7a1 1 0 0 0-1-1H5Z"/>
-                                            </svg>
-                                        </a>
-                                    @else
-                                        <button
-                                            disabled
-                                            class="btn btn-sm btn-icon btn-text-secondary rounded-pill"
-                                            title="تا زمان رسیدن به تاریخ جلسه قفل است"
-                                        >
-                                            <!-- lock icon -->
-                                            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
-                                                <path
-                                                    d="M17 10h-1V8a4 4 0 0 0-8 0v2H7a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6a3 3 0 0 0-3-3Zm-7-2a2 2 0 1 1 4 0v2h-4V8Zm10 11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v6Z"/>
-                                            </svg>
-                                        </button>
-                                    @endif
+                                    <a
+                                        href="{{ route('admin.student.weekly-program', ['student' => $student->id, 'session' => $session->id]) }}"
+                                        class="btn btn-sm btn-icon btn-text-primary rounded-pill waves-effect"
+                                        title="برنامه هفتگی"
+                                    >
+                                        <!-- calendar_month icon -->
+                                        <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path
+                                                d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm13 8H4v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9ZM5 6a1 1 0 0 0-1 1v1h16V7a1 1 0 0 0-1-1H5Z"/>
+                                        </svg>
+                                    </a>
+{{--                                    @if($canAccess)--}}
+{{--                                        <a--}}
+{{--                                            href="{{ route('admin.student.weekly-program', ['student' => $student->id, 'session' => $session->id]) }}"--}}
+{{--                                            class="btn btn-sm btn-icon btn-text-primary rounded-pill waves-effect"--}}
+{{--                                            title="برنامه هفتگی"--}}
+{{--                                        >--}}
+{{--                                            <!-- calendar_month icon -->--}}
+{{--                                            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">--}}
+{{--                                                <path--}}
+{{--                                                    d="M7 2a1 1 0 0 1 1 1v1h8V3a1 1 0 1 1 2 0v1h1a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h1V3a1 1 0 0 1 1-1Zm13 8H4v9a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-9ZM5 6a1 1 0 0 0-1 1v1h16V7a1 1 0 0 0-1-1H5Z"/>--}}
+{{--                                            </svg>--}}
+{{--                                        </a>--}}
+{{--                                    @else--}}
+{{--                                        <button--}}
+{{--                                            disabled--}}
+{{--                                            class="btn btn-sm btn-icon btn-text-secondary rounded-pill"--}}
+{{--                                            title="تا زمان رسیدن به تاریخ جلسه قفل است"--}}
+{{--                                        >--}}
+{{--                                            <!-- lock icon -->--}}
+{{--                                            <svg class="icon-svg" viewBox="0 0 24 24" aria-hidden="true">--}}
+{{--                                                <path--}}
+{{--                                                    d="M17 10h-1V8a4 4 0 0 0-8 0v2H7a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-6a3 3 0 0 0-3-3Zm-7-2a2 2 0 1 1 4 0v2h-4V8Zm10 11a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v6Z"/>--}}
+{{--                                            </svg>--}}
+{{--                                        </button>--}}
+{{--                                    @endif--}}
 
                                     <button
                                         wire:click="editSession({{ $session->id }})"

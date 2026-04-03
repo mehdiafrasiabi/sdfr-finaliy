@@ -447,7 +447,14 @@
                                 <span class="font-medium text-green-600">{{ count($selectedParts) }}</span> / {{ count($selectedDay['parts']) }}
                             </span>
                         </div>
-
+                        @if(count($selectedParts) > 0)
+                            <div class="flex items-center gap-2 px-3 py-2 rounded-lg bg-green-500/10 border border-green-500/30">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-green-600 shrink-0">
+                                    <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="text-xs text-green-700 dark:text-green-400 font-medium">{{ count($selectedParts) }} پارت بر اساس ثبت ساعت مطالعه شما خودکار انتخاب شدند. در صورت نیاز می‌توانید تغییر دهید.</span>
+                            </div>
+                        @endif
                         <div class="grid grid-cols-1 gap-2.5 sm:gap-3">
                             @foreach($selectedDay['parts'] as $part)
                                 @php $partHasStudyHours = in_array($part->id, $completedStudyParts); @endphp
@@ -564,6 +571,32 @@
                     </div>
 
 
+                    {{-- Makeup Sessions (اضافه بر سازمان) --}}
+                    @if(count($currentDayMakeupSessions) > 0)
+                        <div class="rounded-xl border border-violet-300 dark:border-violet-700 bg-violet-50/50 dark:bg-violet-900/10 p-3.5 sm:p-4 space-y-2">
+                            <div class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-violet-600 shrink-0">
+                                    <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="font-semibold text-sm text-violet-700 dark:text-violet-300">مطالعه اضافه بر برنامه (خودکار ضمیمه می‌شود):</span>
+                            </div>
+                            <div class="space-y-1.5">
+                                @foreach($currentDayMakeupSessions as $ms)
+                                    <div class="flex items-center justify-between text-xs text-violet-700 dark:text-violet-300 bg-violet-100 dark:bg-violet-900/30 rounded-lg px-3 py-1.5">
+                                        <span class="font-medium">{{ $ms['topic_name'] }}</span>
+                                        <div class="flex items-center gap-2 text-violet-500">
+                                            <span>{{ $ms['part_type_label'] }}</span>
+                                            @if($ms['duration_minutes'] > 0)
+                                                <span class="text-violet-400">•</span>
+                                                <span>{{ $ms['duration_minutes'] }} دقیقه</span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <p class="text-[10px] text-violet-500 dark:text-violet-400">این موارد به‌عنوان گزارش اضافه بر سازمان برای مشاور ارسال می‌شوند.</p>
+                        </div>
+                    @endif
 
                     {{-- Computed Rating (from session_feedbacks, 1-10 scale) --}}
                     @php $computedRating = $this->computedRating; @endphp

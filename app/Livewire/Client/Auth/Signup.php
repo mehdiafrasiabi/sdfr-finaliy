@@ -62,7 +62,8 @@ class Signup extends Component
 
     public function seoConfig()
     {
-        $this->seo()->setTitle('ثبت نام در آبان ترید');
+        $this->seo()->setTitle('بهترین کلاس های مشاوره ای-ثبت نام-sdfr')
+        ->setDescription('ثبت نام در مجموعه مشاوره ای SDFR');
     }
 
     protected function convertToEnglishDigits($value)

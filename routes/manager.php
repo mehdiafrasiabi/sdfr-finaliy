@@ -1,5 +1,4 @@
 <?php
-
 use App\Livewire\Manager\AdminManage\Index as AdminManage;
 use App\Livewire\Manager\AssignStudents\Index as AssignStudents;
 use App\Livewire\Manager\Blog\Blog\Index;
@@ -67,8 +66,8 @@ use App\Livewire\Manager\GiftCode\Index as GiftCodeIndex;
 
 use App\Livewire\Manager\Setting\General as SettingGeneral;
 use App\Livewire\Manager\Comment\Index as CommentIndex;
-
-
+use App\Livewire\Manager\Setting\ExamCountdown as SettingExamCountdown;
+use App\Livewire\Manager\Setting\ExamCountdownCkUpload;
 Route::name('manager.')->group(function () {
 
     Route::get('/sign-in', AuthIndex::class)->name('sign-in')->middleware('guest:manager');
@@ -117,10 +116,13 @@ Route::name('manager.')->group(function () {
         Route::get('/setting/contactUs', SettingContactUs::class)->name('setting.contactUs');
         Route::get('/setting/sdfrStudent', SettingHomeTopStudent::class)->name('setting.topStudent');
         Route::get('/setting/sdfrSchool', SettingHomeSchoolSdfr::class)->name('setting.schoolSdfr');
-
+        Route::get('/setting/examCountdown', SettingExamCountdown::class)->name('setting.examCountdown');
+        Route::post('/setting/exam-countdown/ck-upload', [ExamCountdownCkUpload::class, 'upload'])->name('setting.exam-countdown.ck-upload');
 // مسیر مدیریت آزمون‌ها
         Route::get('/exams', ExamIndex::class)->name('exam.index');
         Route::get('/exams/questions', QuestionManager::class)->name('exam.questions');
+        Route::get('/setting/examCountdown', SettingExamCountdown::class)->name('setting.examCountdown');
+        Route::post('/setting/exam-countdown/ck-upload', [ExamCountdownCkUpload::class, 'upload'])->name('setting.exam-countdown.ck-upload');
 // Comment Management (مدیریت دیدگاه‌ها)
 
         Route::get('/comments', CommentIndex::class)->name('comment.index');

@@ -1,8 +1,8 @@
 <div class="min-h-screen flex flex-col lg:flex-row bg-background p-0" x-data="signupForm()">
 
     @push('link')
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-        <link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">
+{{--        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />--}}
+{{--        <link href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css" rel="stylesheet">--}}
         <style>
             .auth-hero {
                 background: linear-gradient(135deg, rgba(0, 0, 0, .25), rgba(0, 0, 0, .25)),
@@ -153,7 +153,7 @@
 
                 <!-- Header -->
                 <div class="bg-background rounded-b-3xl p-5 text-center">
-                    <a href="https://sdfr.me" class="inline-flex items-center gap-2 text-primary">
+                    <a wire:navigate href="{{route('client.home')}}" class="inline-flex items-center gap-2 text-primary">
                         <img src="/client/assets/images/theme/intro/header.png" style="width: 100px;" alt="Logo">
                     </a>
                 </div>
@@ -653,16 +653,16 @@
 
                 <div class="mt-6 text-center text-sm text-muted">
                     قبلاً حساب کاربری دارید؟
-                    <a href="{{ route('client.auth.login') }}" class="font-medium text-primary hover:underline">وارد شوید</a>
+                    <a wire:navigate href="{{ route('client.auth.login') }}" class="font-medium text-primary hover:underline">وارد شوید</a>
                 </div>
             </div>
         </div>
     </div>
 
     @push('script')
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+{{--        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>--}}
+{{--        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>--}}
+{{--        <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>--}}
 
         <script>
             function signupForm() {

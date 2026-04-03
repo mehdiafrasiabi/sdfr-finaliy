@@ -284,22 +284,43 @@
                             </div>
                         @endif
 
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">از تاریخ</label>
-                                <div wire:ignore>
-                                    <input type="text" id="study_export_start" data-jdp data-jdp-only-date class="form-control" placeholder="1404/01/01" autocomplete="off" readonly>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">بازه زمانی</label>
+                            <div class="d-flex gap-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="study_mode_date_range" value="date_range" wire:model.live="exportMode">
+                                    <label class="form-check-label" for="study_mode_date_range">بازه تاریخی دلخواه</label>
                                 </div>
-                                @error('exportStartDate') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">تا تاریخ</label>
-                                <div wire:ignore>
-                                    <input type="text" id="study_export_end" data-jdp data-jdp-only-date class="form-control" placeholder="1404/01/30" autocomplete="off" readonly>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" id="study_mode_last_program" value="last_program" wire:model.live="exportMode">
+                                    <label class="form-check-label" for="study_mode_last_program">آخرین برنامه هفتگی دریافتی</label>
                                 </div>
-                                @error('exportEndDate') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
                         </div>
+
+                        @if($exportMode === 'date_range')
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">از تاریخ</label>
+                                    <div wire:ignore>
+                                        <input type="text" id="study_export_start" data-jdp data-jdp-only-date class="form-control" placeholder="1404/01/01" autocomplete="off" readonly>
+                                    </div>
+                                    @error('exportStartDate') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-semibold">تا تاریخ</label>
+                                    <div wire:ignore>
+                                        <input type="text" id="study_export_end" data-jdp data-jdp-only-date class="form-control" placeholder="1404/01/30" autocomplete="off" readonly>
+                                    </div>
+                                    @error('exportEndDate') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                        @else
+                            <div class="alert alert-info py-2 mb-0">
+                                <i class="fi fi-rr-info me-1"></i>
+                                برای هر دانش‌آموز، آخرین برنامه هفتگی که تا امروز دریافت شده انتخاب می‌شود و ساعت کل آن برنامه نیز در فایل اکسل نمایش داده می‌شود.
+                            </div>
+                        @endif
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" wire:click="closeExportModal">انصراف</button>
@@ -340,6 +361,11 @@
 
         $wire.$watch('exportModalOpen', (open) => {
             if (open) {
+                setTimeout(bindStudyExportDates, 50);
+            }
+        });
+        $wire.$watch('exportMode', (mode) => {
+            if (mode === 'date_range') {
                 setTimeout(bindStudyExportDates, 50);
             }
         });

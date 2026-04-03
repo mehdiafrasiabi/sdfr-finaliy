@@ -101,7 +101,7 @@
                                 دانش‌آموز عزیز سلام، قبل از شروع مطالعه موارد زیر را با دقت بخوانید:
                                 <br>• استفاده از آخرین نسخه مرورگر کروم الزامی است.
                                 <br>• حتماً قبل از خروج ثبت نهایی انجام شود.
-                                <br>• می‌توانید هر زمان که بخواهید ساعت مطالعه خارج از چارچوب برنامه ثبت کنید.
+                                <br>• می‌توانید هر زمان که بخواهید ساعت مطالعه اضافه بر سازمان برنامه ثبت کنید.
                                 <br>• پس از پایان هر جلسه، حتماً بازخورد خود را ثبت کنید.
                             </div>
                         </div>
@@ -316,7 +316,7 @@
                                      stroke="currentColor" class="w-5 h-5" wire:loading.remove wire:target="openMakeupModal">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                                 </svg>
-                                <span wire:loading.remove wire:target="openMakeupModal">ثبت ساعت مطالعه خارج از چارچوب برنامه</span>
+                                <span wire:loading.remove wire:target="openMakeupModal">ثبت ساعت مطالعه اضافه بر سازمان برنامه</span>
                                 <span wire:loading wire:target="openMakeupModal"
                                       class="inline-block w-4 h-4 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
                                 <span wire:loading wire:target="openMakeupModal" class="text-xs">در حال بارگذاری...</span>
@@ -344,6 +344,11 @@
                                             {{ $dayFilter==='all' ? 'bg-primary text-white shadow' : 'text-muted hover:text-foreground' }}">
                                         همه
                                     </button>
+                                    <button wire:click="$set('dayFilter','missed')"
+                                            class="px-4 h-9 rounded-full text-xs font-semibold transition whitespace-nowrap
+                                            {{ $dayFilter==='missed' ? 'bg-red-500 text-white shadow' : 'text-muted hover:text-foreground' }}">
+                                        انجام نشده
+                                    </button>
                                 </div>
 
                                 <button wire:click="toggleProgram"
@@ -368,11 +373,15 @@
                         <div class="mt-5 space-y-7">
 
                             @foreach($programDays as $day)
-
                                 @php
+                                    $effectiveDateStr = now()->hour < 6 ? now()->subDay()->toDateString() : now()->toDateString();
+
                                     $showDay = true;
                                     if ($dayFilter === 'today') {
                                         $showDay = $day['date'] === now()->toDateString();
+                                         } elseif ($dayFilter === 'missed') {
+                                        $missedPartsInDay = $day['parts']->filter(fn($p) => !in_array($p->id, $completedParts));
+                                        $showDay = !$day['is_rest_day'] && $day['date'] < $effectiveDateStr && $missedPartsInDay->count() > 0;
                                     }
                                 @endphp
 
@@ -426,10 +435,21 @@
 
                                                 <tbody class="divide-y divide-border">
                                                 @foreach($day['parts']->sortBy('part_order') as $part)
-                                                    <tr class="hover:bg-secondary/60 transition {{ in_array($part->part_type, ['comprehensive_exam', 'exam_analysis']) ? 'bg-red-50/50 dark:bg-red-900/10' : '' }}">
-                                                        <td class="px-3 py-3 text-foreground">
-                                                            <div class="font-semibold {{ in_array($part->part_type, ['comprehensive_exam', 'exam_analysis']) ? 'text-red-700 dark:text-red-400' : '' }}">
-                                                                {{ $part->lesson_name }}@if($part->ccChapter)<span class="text-muted font-normal">({{ $part->ccChapter->name }})</span>@endif
+                                                    @php
+                                                        $isPartMissed = !in_array($part->id, $completedParts);
+                                                    @endphp
+                                                    @if($dayFilter !== 'missed' || $isPartMissed)
+                                                        <tr class="hover:bg-secondary/60 transition
+                                                        {{ $dayFilter === 'missed' && $isPartMissed ? 'bg-red-50/80 dark:bg-red-950/30' : '' }}
+                                                        {{ in_array($part->part_type, ['comprehensive_exam', 'exam_analysis']) && $dayFilter !== 'missed' ? 'bg-red-50/50 dark:bg-red-900/10' : '' }}">
+                                                            <td class="px-3 py-3 text-foreground">
+                                                                <div class="font-semibold
+                                                                {{ $dayFilter === 'missed' && $isPartMissed ? 'text-red-700 dark:text-red-400' : '' }}
+                                                                {{ in_array($part->part_type, ['comprehensive_exam', 'exam_analysis']) && $dayFilter !== 'missed' ? 'text-red-700 dark:text-red-400' : '' }}">
+                                                                    {{ $part->lesson_name }}@if($part->ccChapter)<span class="text-muted font-normal">({{ $part->ccChapter->name }})</span>@endif
+                                                                    @if($dayFilter === 'missed' && $isPartMissed)
+                                                                        <span class="mr-1 px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 text-[9px] font-bold">ثبت نشده</span>
+                                                                    @endif
                                                             </div>
 
                                                             @if($part->ccTopic)
@@ -472,6 +492,8 @@
                                                                 <span class="text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">✓ تکمیل شده</span>
                                                             @elseif($currentPartId == $part->id)
                                                                 <span class="text-blue-600 dark:text-blue-400 font-bold text-[11px]">در حال مطالعه...</span>
+                                                            @elseif($dayFilter === 'missed')
+                                                                <span class="text-red-500 dark:text-red-400 font-bold text-[11px]">✗ انجام نشده</span>
                                                             @else
                                                                 <button wire:click="startPart({{ $part->id }})"
                                                                         wire:loading.attr="disabled"
@@ -486,6 +508,7 @@
                                                             @endif
                                                         </td>
                                                     </tr>
+                                                    @endif
                                                 @endforeach
                                                 </tbody>
                                             </table>
@@ -496,7 +519,7 @@
                                             <div class="mt-4 rounded-2xl p-4 bg-secondary border border-border">
                                                 <div class="flex items-center gap-2 mb-3">
                                                     <span class="w-2 h-2 rounded-full bg-violet-500"></span>
-                                                    <h4 class="font-bold text-foreground text-sm">جلسات خارج از چارچوب برنامه امروز</h4>
+                                                    <h4 class="font-bold text-foreground text-sm">جلسات اضافه بر سازمان برنامه امروز</h4>
                                                     <span class="px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-[10px] font-bold">
                                                         {{ $this->todayMakeupSessions->count() }}
                                                     </span>
@@ -545,6 +568,25 @@
                                     <div class="border-t border-dashed border-slate-300/35 dark:border-slate-600/35"></div>
                                 @endif
                             @endforeach
+                                @if($dayFilter === 'missed')
+                                    @php
+                                        $hasMissedDays = false;
+                                        foreach($programDays as $d) {
+                                            $effectiveDateStr2 = now()->hour < 6 ? now()->subDay()->toDateString() : now()->toDateString();
+                                            if (!$d['is_rest_day'] && $d['date'] < $effectiveDateStr2 && $d['parts']->filter(fn($p) => !in_array($p->id, $completedParts))->count() > 0) {
+                                                $hasMissedDays = true;
+                                                break;
+                                            }
+                                        }
+                                    @endphp
+                                    @if(!$hasMissedDays)
+                                        <div class="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-8 text-center">
+                                            <div class="text-3xl mb-3">✅</div>
+                                            <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-1">همه پارت‌ها انجام شده‌اند</h4>
+                                            <p class="text-sm text-emerald-600/80 dark:text-emerald-400/70">هیچ پارت انجام نشده‌ای وجود ندارد.</p>
+                                        </div>
+                                    @endif
+                                @endif
                         </div>
                     @endif
 
@@ -793,7 +835,7 @@
                          @click.away="makeupModal = false">
 
                         <div class="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-secondary z-10 rounded-t-2xl">
-                            <h3 class="text-base font-bold text-foreground">ثبت ساعت مطالعه خارج از چارچوب برنامه</h3>
+                            <h3 class="text-base font-bold text-foreground">ثبت ساعت مطالعه اضافه بر سازمان برنامه</h3>
                             <button type="button" wire:click="closeMakeupModal" class="text-muted hover:text-foreground transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -874,8 +916,9 @@
 
                             <div class="border-t border-border pt-4">
                                 <p class="text-[11px] text-muted mb-3">یا از فیلترهای زیر استفاده کنید:</p>
-
                                 <div class="space-y-3 mb-3">
+
+                                    {{-- ─── رشته (فقط نمایش، بدون select) ─── --}}
                                     @if($this->fields->isNotEmpty())
                                         <div>
                                             <label class="block text-[11px] font-semibold text-foreground mb-1">رشته</label>
@@ -892,64 +935,81 @@
                                         </div>
                                     @endif
 
-                                    <div>
+                                    {{-- ─── پایه تحصیلی ─── --}}
+                                    <div wire:ignore>
                                         <label class="block text-[11px] font-semibold text-foreground mb-1">پایه تحصیلی</label>
-                                        <select wire:model.live="makeupGradeId"
-                                                class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
-                                            <option value="">انتخاب پایه...</option>
-                                            @foreach($this->grades as $grade)
-                                                <option value="{{ $grade->id }}">{{ $grade->name }}</option>
-                                            @endforeach
-                                        </select>
+
+                                        <x-ui.select
+                                            wire:model.live="makeupGradeId"
+                                            wire:key="select-grade"
+                                            :options="$this->grades->map(fn($g) => ['id' => $g->id, 'name' => $g->name])->values()->toArray()"
+                                            value-key="id"
+                                            label-key="name"
+                                            placeholder="انتخاب پایه..."
+                                        />
+
                                         @if($this->grades->isEmpty())
                                             <p class="text-[10px] text-muted mt-1">هیچ پایه‌ای برای رشته شما یافت نشد.</p>
                                         @endif
                                     </div>
+
                                 </div>
 
+
+                                {{-- ─── درس ─── --}}
                                 @if($makeupGradeId)
-                                    <div class="mb-3" wire:loading.class="opacity-50" wire:target="makeupGradeId">
+                                    <div wire:ignore class="mb-3" wire:loading.class="opacity-50" wire:target="makeupGradeId">
                                         <label class="block text-[11px] font-semibold text-foreground mb-1">درس</label>
-                                        <select wire:model.live="makeupSubjectId"
-                                                class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
-                                            <option value="">انتخاب درس...</option>
-                                            @foreach($this->subjects as $subject)
-                                                <option value="{{ $subject->id }}">
-                                                    {{ $subject->name }} {{ $subject->type === 'general' ? '(عمومی)' : '(تخصصی)' }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+
+                                        <x-ui.select
+                                            wire:model.live="makeupSubjectId"
+                                            wire:key="select-subject-{{ $makeupGradeId }}"
+                                            :options="$this->subjects->map(fn($s) => [
+                                                    'id'   => $s->id,
+                                                    'name' => $s->name . ($s->type === 'general' ? ' (عمومی)' : ' (تخصصی)')
+                                                ])->values()->toArray()"
+                                            value-key="id"
+                                            label-key="name"
+                                            placeholder="انتخاب درس..."
+                                        />
                                     </div>
                                 @endif
 
+
+                                {{-- ─── فصل ─── --}}
                                 @if($makeupSubjectId)
-                                    <div class="mb-3" wire:loading.class="opacity-50" wire:target="makeupSubjectId">
+                                    <div wire:ignore class="mb-3" wire:loading.class="opacity-50" wire:target="makeupSubjectId">
                                         <label class="block text-[11px] font-semibold text-foreground mb-1">فصل</label>
-                                        <select wire:model.live="makeupChapterId"
-                                                class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
-                                            <option value="">انتخاب فصل...</option>
-                                            @foreach($this->chapters as $chapter)
-                                                <option value="{{ $chapter->id }}">{{ $chapter->name }}</option>
-                                            @endforeach
-                                        </select>
+
+                                        <x-ui.select
+                                            wire:model.live="makeupChapterId"
+                                            wire:key="select-chapter-{{ $makeupSubjectId }}"
+                                            :options="$this->chapters->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values()->toArray()"
+                                            value-key="id"
+                                            label-key="name"
+                                            placeholder="انتخاب فصل..."
+                                        />
                                     </div>
                                 @endif
 
+
+                                {{-- ─── مبحث ─── --}}
                                 @if($makeupChapterId)
-                                    <div class="mb-3" wire:loading.class="opacity-50" wire:target="makeupChapterId">
+                                    <div wire:ignore class="mb-3" wire:loading.class="opacity-50" wire:target="makeupChapterId">
                                         <label class="block text-[11px] font-semibold text-foreground mb-1">مبحث</label>
-                                        <select wire:model.live="makeupTopicId"
-                                                class="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
-                                            <option value="">انتخاب مبحث...</option>
-                                            @foreach($this->topics as $topic)
-                                                <option value="{{ $topic->id }}">{{ $topic->name }}</option>
-                                            @endforeach
-                                        </select>
+
+                                        <x-ui.select
+                                            wire:model.live="makeupTopicId"
+                                            wire:key="select-topic-{{ $makeupChapterId }}"
+                                            :options="$this->topics->map(fn($t) => ['id' => $t->id, 'name' => $t->name])->values()->toArray()"
+                                            value-key="id"
+                                            label-key="name"
+                                            placeholder="انتخاب مبحث..."
+                                        />
                                     </div>
                                 @endif
-                            </div>
 
-                            {{-- انتخاب نوع پارت --}}
+                                {{-- انتخاب نوع پارت --}}
                             <div class="border-t border-border pt-4">
                                 <label class="block text-xs font-semibold text-foreground mb-2">نوع مطالعه</label>
                                 <div class="grid grid-cols-3 gap-2">
@@ -1177,6 +1237,7 @@
         window.addEventListener('focus', () => {
         @this.call('syncTimers');
         });
+
     </script>
     @endscript
 

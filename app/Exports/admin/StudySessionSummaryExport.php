@@ -6,6 +6,7 @@ use App\Models\ProgramPart;
 use App\Models\Student;
 use App\Models\StudyPartSession;
 use Carbon\Carbon;
+use App\Models\WeeklyProgram;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -16,9 +17,10 @@ class StudySessionSummaryExport implements FromCollection, WithHeadings, ShouldA
 {
     public function __construct(
         private readonly int $adminId,
-        private readonly Carbon $startDate,
-        private readonly Carbon $endDate,
+        private readonly ?Carbon $startDate,
+        private readonly ?Carbon $endDate,
         private readonly ?array $studentIds = null,
+        private readonly bool $useLastProgram = false,
     ) {
     }
 
@@ -33,6 +35,7 @@ class StudySessionSummaryExport implements FromCollection, WithHeadings, ShouldA
                     $index + 1,
                     trim(($student->user?->personalInformation?->name ?? '') . ' ' . ($student->user?->personalInformation?->name_full ?? '')) ?: '-',
                     $student->user?->mobile ?? '-',
+                    $metrics['program_total_hours'],
                     $metrics['total_hours'],
                     $metrics['average_hours'],
                     $metrics['not_registered_parts'],
@@ -48,6 +51,7 @@ class StudySessionSummaryExport implements FromCollection, WithHeadings, ShouldA
             '#',
             'نام دانش‌آموز',
             'شماره موبایل',
+            'ساعت کل برنامه',
             'میزان کل ساعت مطالعه',
             'میانگین ساعت مطالعه',
             'تعداد پارت‌های ثبت ساعت مطالعه نشده',
@@ -66,10 +70,41 @@ class StudySessionSummaryExport implements FromCollection, WithHeadings, ShouldA
 
     protected function buildMetricsForStudent(Student $student): array
     {
+        $startDate = $this->startDate;
+        $endDate = $this->endDate;
+        $programTotalMinutes = 0;
+
+        if ($this->useLastProgram) {
+            $lastProgram = WeeklyProgram::where('student_id', $student->id)
+                ->where('start_date', '<=', now()->toDateString())
+                ->orderBy('start_date', 'desc')
+                ->first();
+
+            if (!$lastProgram) {
+                return [
+                    'program_total_hours' => '-',
+                    'total_hours' => '-',
+                    'average_hours' => '-',
+                    'registered_parts' => 0,
+                    'not_registered_parts' => 0,
+                    'avg_rating' => 0,
+                ];
+            }
+
+            $startDate = Carbon::parse($lastProgram->start_date)->startOfDay();
+            $endDate = $lastProgram->end_date
+                ? Carbon::parse($lastProgram->end_date)->endOfDay()
+                : Carbon::parse($lastProgram->start_date)->addDays(7)->endOfDay();
+
+            $programTotalMinutes = (int) ProgramPart::where('weekly_program_id', $lastProgram->id)
+                ->sum('duration_minutes');
+        }
+
+
         $sessions = StudyPartSession::query()
             ->with(['feedback'])
             ->where('student_id', $student->id)
-            ->whereBetween('started_at', [$this->startDate, $this->endDate])
+            ->whereBetween('started_at', [$startDate, $endDate])
             ->where('is_completed', true)
             ->get();
 
@@ -79,16 +114,18 @@ class StudySessionSummaryExport implements FromCollection, WithHeadings, ShouldA
             ->with(['weeklyProgram:id,start_date'])
             ->whereHas('weeklyProgram', function (Builder $query) use ($student) {
                 $query->where('student_id', $student->id)
-                    ->whereDate('start_date', '<=', $this->endDate);
+                    ->whereDate('start_date', '<=', $this->useLastProgram ? now() : $this->endDate);
+
             })
             ->get()
-            ->filter(function (ProgramPart $part) {
+            ->filter(function (ProgramPart $part) use ($startDate, $endDate) {
                 if (!$part->weeklyProgram?->start_date) {
                     return false;
                 }
 
                 $partDate = Carbon::parse($part->weeklyProgram->start_date)->addDays((int) $part->day_of_week)->startOfDay();
-                return $partDate->betweenIncluded($this->startDate->copy()->startOfDay(), $this->endDate->copy()->endOfDay());
+                return $partDate->betweenIncluded($startDate->copy()->startOfDay(), $endDate->copy()->endOfDay());
+
             });
 
         $scheduledPartsCount = $scheduledParts->count();
@@ -101,6 +138,7 @@ class StudySessionSummaryExport implements FromCollection, WithHeadings, ShouldA
             ->avg() ?? 0), 2);
 
         return [
+            'program_total_hours' => $this->useLastProgram ? $this->formatHours($programTotalMinutes * 60) : '-',
             'total_hours' => $this->formatHours($totalSeconds),
             'average_hours' => $this->formatHours($avgSeconds),
             'registered_parts' => $registeredParts,

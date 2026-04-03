@@ -29,6 +29,14 @@
                                         @error('name') <span class="text-danger text-sm">{{ $message }}</span> @enderror
                                     </div>
                                 </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="video_url" class="form-label">لینک ویدیو دانش‌آموز (اختیاری):</label>
+                                        <input type="url" wire:model="video_url" name="video_url" class="form-control"
+                                               placeholder="مثلا: https://example.com/student-video.mp4" id="video_url">
+                                        @error('video_url') <span class="text-danger text-sm">{{ $message }}</span> @enderror
+                                    </div>
+                                </div>
 
                                 <div class="field-wrapper  mb-4" x-data="{isUploading:false,progress:0 }"
                                      x-on:livewire-upload-start="isUploading=true"
@@ -122,7 +130,10 @@
                                             <th tabindex="0" aria-controls="alternative-pagination"
                                                 rowspan="1" colspan="1" style="width: 183.661px;"
                                                 aria-label="تصویر بند انگشتی: activate to sort column ascending">تصویر
-
+                                            </th>
+                                            <th tabindex="0" aria-controls="alternative-pagination"
+                                                rowspan="1" colspan="1" style="width: 220px;"
+                                                aria-label="ویدیو: activate to sort column ascending">ویدیو
                                             </th>
                                             <th tabindex="0" aria-controls="alternative-pagination"
                                                 rowspan="1" colspan="1" style="width: 148.661px;"
@@ -149,6 +160,13 @@
                                                     </button>
                                                 </td>
 
+                                                <td>
+                                                    @if($sdfr->video_url)
+                                                        <a href="{{ $sdfr->video_url }}" target="_blank" class="btn btn-sm btn-primary">مشاهده ویدیو</a>
+                                                    @else
+                                                        <span class="text-muted">ثبت نشده</span>
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <label> نمایش :</label>
                                                     <input wire:confirm="آیا مطمئن هستید؟"

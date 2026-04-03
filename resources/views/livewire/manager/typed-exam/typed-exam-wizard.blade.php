@@ -24,8 +24,8 @@
                         <div class="wizard-steps d-flex justify-content-center">
                             @foreach([1 => 'تنظیمات کلی', 2 => 'انتخاب سوالات', 3 => 'ترتیب سوالات'] as $step => $label)
                                 <div class="wizard-step text-center px-4 {{ $currentStep === $step ? 'active' : '' }} {{ $currentStep > $step ? 'completed' : '' }}"
-                                    wire:click="goToStep({{ $step }})"
-                                    style="cursor: pointer;">
+                                     wire:click="goToStep({{ $step }})"
+                                     style="cursor: pointer;">
                                     <div class="step-number rounded-circle d-inline-flex align-items-center justify-content-center
                                         {{ $currentStep === $step ? 'bg-primary text-white' : ($currentStep > $step ? 'bg-success text-white' : 'bg-light') }}"
                                          style="width: 40px; height: 40px;">
