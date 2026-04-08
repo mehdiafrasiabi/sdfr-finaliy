@@ -282,11 +282,11 @@
                                     @else
                                         <!-- حالت خالی -->
                                         <div class="flex flex-col items-center justify-center py-12 space-y-4">
-                                            <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="empty"/>
+                                            <img src="/client/empty/plan.png" class="w-full max-w-xs" alt="empty"/>
                                             <div class="text-center space-y-2">
                                                 <h2 class="font-bold text-xl text-foreground">برنامه‌ای وجود
-                                                    ندارد</h2>
-                                                <p class="text-muted text-sm">   هنوز برنامه‌ای برای شما ثبت نشده است.</p>
+                                                    ندارد!</h2>
+                                                <p class="text-muted text-sm">هنوز برنامه‌ای برای شما ثبت نشده است.</p>
                                             </div>
                                         </div>
                                     @endif

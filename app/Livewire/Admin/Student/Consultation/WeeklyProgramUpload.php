@@ -109,6 +109,7 @@ class WeeklyProgramUpload extends Component
     public bool $showClassificationModal = false;
     public array $classificationTopics = [];
     public ?string $classificationProjectName = null;
+    public string $classificationSort = 'rating'; // 'rating', 'grade', 'lesson_type'
 
     // Zero-time warning modal
     public bool $showZeroTimeWarningModal = false;
@@ -129,6 +130,15 @@ class WeeklyProgramUpload extends Component
     public string $prevFilterQuality = '';    // '', 'excellent', 'good', 'poor'
     public string $prevFilterCompensatory = ''; // '', 'compensatory', 'normal'
     public string $prevFilterStudied = '';    // '', 'studied', 'not_studied'
+    // Per-part inline add form for previous program
+    public ?int $prevPartInlineSelectedId = null;
+    public array $prevPartInlineForm = [
+        'part_type' => 'descriptive',
+        'duration_hours' => 1,
+        'duration_minutes' => 0,
+        'day_index' => null,
+    ];
+    public bool $showPrevPartInlineForm = false;
     // Part C: Multi-select and copy parts between days
     // Multi-select target day for prev session
     public ?int $prevMultiCopyTargetDaySelected = null;
@@ -1096,21 +1106,57 @@ class WeeklyProgramUpload extends Component
                 ->with(['topic.chapter.subject'])
                 ->get();
 
-            $this->classificationTopics = $classifications->map(function ($c) {
+            // Track which topics are already added to current program
+            $addedTopicIds = [];
+            if ($this->weeklyProgramId) {
+                $addedTopicIds = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                    ->where('source_type', ProgramPart::SOURCE_CLASSIFICATION)
+                    ->whereNotNull('cc_topic_id')
+                    ->pluck('cc_topic_id')
+                    ->toArray();
+            }
+
+            $this->classificationTopics = $classifications->map(function ($c) use ($addedTopicIds) {
+                $subject = $c->topic?->chapter?->subject;
+                $grade = $subject?->grade;
                 return [
                     'id' => $c->id,
                     'topic_id' => $c->cc_topic_id,
                     'topic_name' => $c->topic?->name ?? 'نامشخص',
                     'chapter_name' => $c->topic?->chapter?->name ?? '',
-                    'subject_name' => $c->topic?->chapter?->subject?->name ?? '',
+                    'subject_name' => $subject?->name ?? '',
                     'rating' => $c->rating,
                     'rating_label' => $c->ratingLabel,
                     'rating_color' => $c->ratingColor,
+                    'grade' => $grade?->grade_number ?? '',
+                    'grade_label' => match($grade?->grade_number) { '10' => 'دهم', '11' => 'یازدهم', '12' => 'دوازدهم', default => '' },
+                    'lesson_type' => $subject?->type ?? 'specialized',
+                    'lesson_type_label' => ($subject?->type === 'general') ? 'عمومی' : 'تخصصی',
+                    'is_added' => in_array($c->cc_topic_id, $addedTopicIds),
                 ];
             })->toArray();
+
+            $this->applySortToClassificationTopics();
         }
 
         $this->showClassificationModal = true;
+    }
+
+    private function applySortToClassificationTopics(): void
+    {
+        $collection = collect($this->classificationTopics);
+        $sorted = match($this->classificationSort) {
+            'grade' => $collection->sortBy('grade'),
+            'lesson_type' => $collection->sortBy('lesson_type'),
+            default => $collection->sortByDesc('rating'),
+        };
+        $this->classificationTopics = $sorted->values()->toArray();
+    }
+
+    public function sortClassification(string $sort): void
+    {
+        $this->classificationSort = $sort;
+        $this->applySortToClassificationTopics();
     }
 
     public function closeClassificationModal(): void
@@ -1124,6 +1170,8 @@ class WeeklyProgramUpload extends Component
         'day_index' => null,
         'duration_hours' => 1,
         'duration_minutes' => 0,
+        'part_type' => 'descriptive',
+        'test_count' => null,
     ];
     public bool $showClassificationAddForm = false;
 
@@ -1137,6 +1185,8 @@ class WeeklyProgramUpload extends Component
             'day_index' => null,
             'duration_hours' => 1,
             'duration_minutes' => 0,
+            'part_type' => 'descriptive',
+            'test_count' => null,
         ];
         $this->showClassificationAddForm = true;
     }
@@ -1148,6 +1198,24 @@ class WeeklyProgramUpload extends Component
     {
         $this->showClassificationAddForm = false;
         $this->classificationSelectedTopicId = null;
+    }
+
+    /**
+     * Remove classification parts for a given topic from current program
+     */
+    public function revertClassificationPart(int $topicId): void
+    {
+        if (!$this->weeklyProgramId) return;
+
+        ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('cc_topic_id', $topicId)
+            ->where('source_type', ProgramPart::SOURCE_CLASSIFICATION)
+            ->delete();
+
+        $this->loadExistingParts();
+        $this->dispatch('success', 'پارت از برنامه حذف شد.');
+        // Reload modal to refresh is_added flags
+        $this->openClassificationModal();
     }
 
     /**
@@ -1198,6 +1266,11 @@ class WeeklyProgramUpload extends Component
 
         $path = collect([$subject?->name, $chapter?->name, $topic->name])->filter()->join(' > ');
 
+        $partType = $this->classificationAddForm['part_type'] ?? 'descriptive';
+        $testCount = in_array($partType, ['test', 'topic_exam'])
+            ? ((int)($this->classificationAddForm['test_count'] ?? 0) ?: null)
+            : null;
+
         ProgramPart::create([
             'weekly_program_id' => $this->weeklyProgramId,
             'lesson_name' => $subject?->name ?? $topic->name,
@@ -1206,8 +1279,8 @@ class WeeklyProgramUpload extends Component
             'part_order' => $existingCount + 1,
             'description' => $path,
             'duration_minutes' => $totalMinutes,
-            'test_count' => null,
-            'part_type' => 'descriptive',
+            'test_count' => $testCount,
+            'part_type' => $partType,
             'source_type' => ProgramPart::SOURCE_CLASSIFICATION,
             'lesson_type' => $subject?->type ?? 'specialized',
             'grade' => $grade?->grade_number,
@@ -2329,7 +2402,7 @@ class WeeklyProgramUpload extends Component
     /**
      * D1: Preview weekly readings (daily reading + pre-reading) for entire week
      *  Shows one row per unique subject+type combination (not per day)
- */
+     */
     public function previewWeeklyReadings(): void
     {
         if (!$this->weeklyProgramId) {
@@ -2633,7 +2706,7 @@ class WeeklyProgramUpload extends Component
         }
 
         $prevProgram = WeeklyProgram::where('advising_session_id', $prevSession->id)
-            ->with(['parts.studyPartSessions.feedback'])
+            ->with(['parts.studyPartSessions.feedback', 'parts.ccSubject', 'parts.ccChapter', 'parts.ccTopic'])
             ->first();
 
         if (!$prevProgram) {
@@ -2696,12 +2769,16 @@ class WeeklyProgramUpload extends Component
                     'grade' => $part->grade,
                     'grade_label_attr' => $part->grade_label,
                     'lesson_type' => $part->lesson_type,
+                    'lesson_type_label' => $part->lesson_type === 'general' ? 'عمومی' : 'تخصصی',
                     'plan_rating' => $planRating,
                     'report_rating' => $reportRating,
                     'avg_rating' => $avgRating,
                     'avg_label' => $avgLabel,
                     'avg_color' => $avgColor,
                     'study_sessions_count' => $sessions->count(),
+                    'subject_name' => $part->ccSubject?->name ?? '',
+                    'chapter_name' => $part->ccChapter?->name ?? '',
+                    'topic_name' => $part->ccTopic?->name ?? '',
                 ];
             })->toArray();
 
@@ -2719,6 +2796,95 @@ class WeeklyProgramUpload extends Component
         $this->prevSelectedPartIds = [];
         $this->prevMultiCopyTargetDaySelected = null;
         $this->copiedFromPrevPartIds = [];
+        $this->showPrevPartInlineForm = false;
+        $this->prevPartInlineSelectedId = null;
+    }
+
+    public function showPrevPartInlineAddForm(int $partId): void
+    {
+        if ($this->prevPartInlineSelectedId === $partId) {
+            $this->showPrevPartInlineForm = false;
+            $this->prevPartInlineSelectedId = null;
+            return;
+        }
+        // Pre-fill from the selected part
+        $part = collect($this->prevSessionParts)->firstWhere('id', $partId);
+        $hours = $part ? floor($part['duration_minutes'] / 60) : 1;
+        $mins = $part ? ($part['duration_minutes'] % 60) : 0;
+        $this->prevPartInlineSelectedId = $partId;
+        $this->prevPartInlineForm = [
+            'part_type' => $part['part_type'] ?? 'descriptive',
+            'duration_hours' => $hours,
+            'duration_minutes' => $mins,
+            'day_index' => null,
+        ];
+        $this->showPrevPartInlineForm = true;
+    }
+
+    public function hidePrevPartInlineAddForm(): void
+    {
+        $this->showPrevPartInlineForm = false;
+        $this->prevPartInlineSelectedId = null;
+    }
+
+    public function addSinglePrevPartToProgram(): void
+    {
+        if (!$this->prevPartInlineSelectedId) return;
+        $dayIndex = $this->prevPartInlineForm['day_index'];
+        if ($dayIndex === null || $dayIndex === '') {
+            $this->dispatch('warning', 'لطفاً یک روز انتخاب کنید.');
+            return;
+        }
+        $hours = (int)($this->prevPartInlineForm['duration_hours'] ?? 0);
+        $minutes = (int)($this->prevPartInlineForm['duration_minutes'] ?? 0);
+        $totalMinutes = ($hours * 60) + $minutes;
+        if ($totalMinutes < 1) {
+            $this->dispatch('warning', 'مدت زمان باید حداقل ۱ دقیقه باشد.');
+            return;
+        }
+
+        if (!$this->weeklyProgramId) $this->saveProgram();
+
+        $prevPart = collect($this->prevSessionParts)->firstWhere('id', $this->prevPartInlineSelectedId);
+        if (!$prevPart) return;
+
+        $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('day_of_week', (int)$dayIndex)
+            ->count();
+        if ($existingCount >= 20) {
+            $this->dispatch('warning', 'حداکثر ۲۰ پارت برای هر روز مجاز است.');
+            return;
+        }
+
+        $startDate = Carbon::parse($this->start_date);
+        $partType = $this->prevPartInlineForm['part_type'] ?? $prevPart['part_type'] ?? 'descriptive';
+        $testCount = in_array($partType, ['test', 'topic_exam']) ? ($prevPart['test_count'] ?: null) : null;
+
+        $newPart = ProgramPart::create([
+            'weekly_program_id' => $this->weeklyProgramId,
+            'lesson_name' => $prevPart['lesson_name'],
+            'part_date' => $startDate->copy()->addDays((int)$dayIndex),
+            'day_of_week' => (int)$dayIndex,
+            'part_order' => $existingCount + 1,
+            'description' => $prevPart['description'],
+            'duration_minutes' => $totalMinutes,
+            'test_count' => $testCount,
+            'part_type' => $partType,
+            'source_type' => ProgramPart::SOURCE_NORMAL,
+            'lesson_type' => $prevPart['lesson_type'] ?? 'specialized',
+            'grade' => $prevPart['grade'] ?? null,
+            'education_level_id' => $prevPart['education_level_id'] ?? null,
+            'cc_grade_id' => $prevPart['cc_grade_id'] ?? null,
+            'cc_field_id' => $prevPart['cc_field_id'] ?? null,
+            'cc_subject_id' => $prevPart['cc_subject_id'] ?? null,
+            'cc_chapter_id' => $prevPart['cc_chapter_id'] ?? null,
+            'cc_topic_id' => $prevPart['cc_topic_id'] ?? null,
+        ]);
+
+        $this->copiedFromPrevPartIds[$this->prevPartInlineSelectedId] = $newPart->id;
+        $this->loadExistingParts();
+        $this->hidePrevPartInlineAddForm();
+        $this->dispatch('success', 'پارت با موفقیت به برنامه اضافه شد.');
     }
 
     /**
@@ -2844,25 +3010,82 @@ class WeeklyProgramUpload extends Component
 
         if ($type === 'report') {
             // گزارش فعالیت روزانه جلسه قبلی
+            $prevProgram = WeeklyProgram::where('advising_session_id', $prevSession->id)->first();
+            $programStartDate = $prevProgram?->start_date ? Carbon::parse($prevProgram->start_date) : null;
+            $programEndDate = $programStartDate ? $programStartDate->copy()->addDays(7) : null;
+
+            // Build set of program dates (all days in the session week)
+            $programDates = collect();
+            if ($programStartDate && $programEndDate) {
+                $d = $programStartDate->copy();
+                while ($d->lessThan($programEndDate)) {
+                    $programDates->push($d->toDateString());
+                    $d->addDay();
+                }
+            }
+
             $reports = DailyReport::where('student_id', $this->studentId)
                 ->where('session_id', $prevSession->id)
+                ->with(['detail', 'reportParts.programPart'])
                 ->orderBy('report_date')
-                ->get()
-                ->map(function ($report) {
-                    return [
-                        'id' => $report->id,
-                        'date' => $report->report_date ? jdate($report->report_date)->format('Y/m/d') : '',
-                        'day_name' => $report->report_date ? $this->getJalaliDayName($report->report_date) : '',
-                        'content' => $report->description ?? '',
-                        'rating' => $report->rating ?? null,
-                    ];
-                })->toArray();
+                ->get();
+
+            $sentDates = $reports->pluck('report_date')->map(fn($d) => Carbon::parse($d)->toDateString())->toArray();
+            $missingDates = $programDates->filter(fn($d) => !in_array($d, $sentDates))->values();
+
+            $reportItems = $reports->map(function ($report) use ($prevProgram) {
+                // Count parts done (is_read=true) vs total
+                $reportPartsCount = $report->reportParts->count();
+                $donePartsCount = $report->reportParts->where('is_read', true)->count();
+                // Total planned parts for this day
+                $totalPlanned = $reportPartsCount;
+                if ($prevProgram) {
+                    $startDate = Carbon::parse($prevProgram->start_date);
+                    $dayIndex = $startDate->diffInDays(Carbon::parse($report->report_date));
+                    $totalPlanned = \App\Models\ProgramPart::where('weekly_program_id', $prevProgram->id)
+                        ->where('day_of_week', $dayIndex)
+                        ->whereNotIn('part_type', ['comprehensive_exam', 'exam_analysis'])
+                        ->count();
+                    if ($totalPlanned === 0) $totalPlanned = $reportPartsCount;
+                }
+                return [
+                    'id' => $report->id,
+                    'date' => $report->report_date ? jdate($report->report_date)->format('Y/m/d') : '',
+                    'day_name' => $report->report_date ? $this->getJalaliDayName($report->report_date) : '',
+                    'content' => $report->detail?->description ?? '',
+                    'rating' => $report->detail?->rating ?? null,
+                    'status' => $report->detail?->status ?? 'pending',
+                    'status_label' => match($report->detail?->status ?? 'pending') {
+                        'approved' => 'تایید شده',
+                        'rejected' => 'رد شده',
+                        default => 'در انتظار',
+                    },
+                    'status_color' => match($report->detail?->status ?? 'pending') {
+                        'approved' => 'success',
+                        'rejected' => 'danger',
+                        default => 'warning',
+                    },
+                    'parts_done' => $donePartsCount,
+                    'parts_total' => $totalPlanned,
+                    'missed_reason' => $report->detail?->missed_parts_reason ?? null,
+                ];
+            })->toArray();
+
+            $missingDayItems = $missingDates->map(function ($dateStr) {
+                return [
+                    'date' => jdate($dateStr)->format('Y/m/d'),
+                    'day_name' => $this->getJalaliDayName($dateStr),
+                ];
+            })->toArray();
 
             $this->prevReportData = [
                 'session_date' => $prevSession->activation_date ? jdate($prevSession->activation_date)->format('Y/m/d') : '',
                 'result_status' => 'برگزار شده',
-                'items' => $reports,
+                'items' => $reportItems,
                 'type_label' => 'گزارش فعالیت روزانه',
+                'sent_days_count' => count($reportItems),
+                'not_sent_days_count' => $missingDates->count(),
+                'missing_days' => $missingDayItems,
             ];
         } elseif ($type === 'study') {
             // ساعت مطالعه پارت‌های جلسه قبلی (StudyPartSession + feedback)
@@ -2873,28 +3096,61 @@ class WeeklyProgramUpload extends Component
                 return;
             }
 
-            $studySessions = StudyPartSession::where('weekly_program_id', $prevProgram->id)
+            // Total assigned parts (non-exam)
+            $totalAssignedParts = ProgramPart::where('weekly_program_id', $prevProgram->id)
+                ->whereNotIn('part_type', ['comprehensive_exam', 'exam_analysis'])
+                ->count();
+
+            $studySessionsCollection = StudyPartSession::where('weekly_program_id', $prevProgram->id)
                 ->where('student_id', $this->studentId)
                 ->with(['programPart', 'feedback'])
                 ->orderBy('started_at')
-                ->get()
-                ->map(function ($session) {
-                    $durationSeconds = $session->duration_seconds ?? 0;
-                    $durationMinutes = (int)round($durationSeconds / 60);
-                    $hours = floor($durationMinutes / 60);
-                    $mins = $durationMinutes % 60;
-                    $durationLabel = $hours > 0 ? ($hours . ' ساعت ' . ($mins > 0 ? $mins . ' دقیقه' : '')) : ($mins . ' دقیقه');
-                    return [
-                        'id' => $session->id,
-                        'date' => $session->started_at ? jdate($session->started_at)->format('Y/m/d') : '',
-                        'day_name' => $session->started_at ? $this->getJalaliDayName($session->started_at) : '',
-                        'subject' => $session->programPart?->lesson_name ?? '-',
-                        'duration_minutes' => $durationMinutes,
-                        'duration_label' => $durationLabel,
-                        'rating' => $session->feedback?->rating ?? null,
-                        'feedback' => $session->feedback?->comment ?? null,
-                    ];
-                })->toArray();
+                ->get();
+
+            $doneParts = $studySessionsCollection->where('is_completed', true)->groupBy('program_part_id')->count();
+
+            $studySessions = $studySessionsCollection->map(function ($session) {
+                $durationSeconds = $session->duration_seconds ?? 0;
+                $durationMinutes = (int)round($durationSeconds / 60);
+                $hours = floor($durationMinutes / 60);
+                $mins = $durationMinutes % 60;
+                $durationLabel = $hours > 0 ? ($hours . ' ساعت ' . ($mins > 0 ? $mins . ' دقیقه' : '')) : ($mins . ' دقیقه');
+
+                // Time difference check: actual elapsed vs planned duration
+                $plannedMinutes = $session->programPart?->duration_minutes ?? 0;
+                $actualElapsedMinutes = 0;
+                $isSuspicious = false;
+                if ($session->started_at && $session->ended_at) {
+                    $actualElapsedMinutes = (int)round($session->started_at->diffInSeconds($session->ended_at) / 60);
+                    // Suspicious if actual elapsed is more than 2x the planned duration
+                    if ($plannedMinutes > 0 && $actualElapsedMinutes > ($plannedMinutes * 2)) {
+                        $isSuspicious = true;
+                    }
+                }
+
+                return [
+                    'id' => $session->id,
+                    'date' => $session->started_at ? jdate($session->started_at)->format('Y/m/d') : '',
+                    'day_name' => $session->started_at ? $this->getJalaliDayName($session->started_at) : '',
+                    'day_of_week' => $session->programPart?->day_of_week ?? null,
+                    'subject' => $session->programPart?->lesson_name ?? '-',
+                    'subject_description' => $session->programPart?->description ?? '',
+                    'duration_minutes' => $durationMinutes,
+                    'duration_label' => $durationLabel,
+                    'planned_minutes' => $plannedMinutes,
+                    'actual_elapsed_minutes' => $actualElapsedMinutes,
+                    'is_suspicious' => $isSuspicious,
+                    'rating' => $session->feedback?->rating ?? null,
+                    'feedback' => $session->feedback?->comment ?? null,
+                    'has_feedback' => $session->feedback !== null,
+                    'is_completed' => (bool)$session->is_completed,
+                    'started_at' => $session->started_at?->format('H:i'),
+                    'ended_at' => $session->ended_at?->format('H:i'),
+                    'grade_label' => $session->programPart?->grade_label ?? '',
+                    'lesson_type' => $session->programPart?->lesson_type ?? 'specialized',
+                    'lesson_type_label' => $session->programPart?->lesson_type === 'general' ? 'عمومی' : 'تخصصی',
+                ];
+            })->toArray();
 
             $totalMinutes = collect($studySessions)->sum('duration_minutes');
             $totalHours = floor($totalMinutes / 60);
@@ -2907,6 +3163,8 @@ class WeeklyProgramUpload extends Component
                 'items' => $studySessions,
                 'total_label' => $totalLabel,
                 'type_label' => 'ساعت مطالعه پارت‌ها',
+                'total_assigned_parts' => $totalAssignedParts,
+                'total_done_parts' => $doneParts,
             ];
         }
 

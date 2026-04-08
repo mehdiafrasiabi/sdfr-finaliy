@@ -132,36 +132,23 @@ class Detail extends Component
 
     protected function loadStats()
     {
-        // Load stats based on current filters
+        // --- Report-level stats (respect the current session/status filter) ---
+
         $reports = $this->getFilteredReportsQuery()->get();
         $totalReports = $reports->count();
-        $approvedReports = $reports->where('status', 'approved')->count();
-        $pendingReports = $reports->where('status', 'pending')->count();
-        $rejectedReports = $reports->where('status', 'rejected')->count();
+        $approvedReports  = $reports->where('status', 'approved')->count();
+        $pendingReports   = $reports->where('status', 'pending')->count();
+        $rejectedReports  = $reports->where('status', 'rejected')->count();
         $compensatoryReports = $reports->where('is_compensatory', true)->count();
+        $totalPhoneHours = $reports->sum(fn($r) => $r->detail->phone_hours ?? 0);
 
-        $totalParts = 0;
-        $readParts = 0;
-        $totalTests = 0;
-        $doneTests = 0;
-        $totalPhoneHours = 0;
+        // Rating: average over filtered reports
         $ratingSum = 0;
         $ratingDayCount = 0;
         foreach ($reports as $report) {
-            $totalPhoneHours += $report->detail->phone_hours ?? 0;
-            // Get ALL program parts for this day from weekly program
             $allDayParts = $report->getProgramPartsForDay();
-            $reportPartsMap = $report->reportParts->keyBy('program_part_id');
 
             if ($allDayParts->isNotEmpty()) {
-                foreach ($allDayParts as $programPart) {
-                    $totalParts++;
-                    $reportPart = $reportPartsMap->get($programPart->id);
-                    if ($reportPart?->is_read) $readParts++;
-                    $totalTests += $programPart->test_count ?? 0;
-                    $doneTests += $reportPart?->tests_done ?? 0;
-                }
-
                 // Rating: average of session feedback ratings for all parts of this day
                 $partIds = $allDayParts->pluck('id')->filter()->toArray();
                 $studySessions = \App\Models\StudyPartSession::where('student_id', $report->student_id)
@@ -177,37 +164,49 @@ class Detail extends Component
                     $session = $studySessions->get($part->id);
                     $dayRatingSum += $session?->feedback?->rating ?? 0;
                 }
-                $dayAvgRating = $allDayParts->count() > 0 ? $dayRatingSum / $allDayParts->count() : 0;
-                $ratingSum += $dayAvgRating;
+                $ratingSum += $allDayParts->count() > 0 ? $dayRatingSum / $allDayParts->count() : 0;
                 $ratingDayCount++;
-            } else {
-                // Fallback: use reportParts only
-                foreach ($report->reportParts as $rp) {
-                    $totalParts++;
-                    if ($rp->is_read) $readParts++;
-                    $totalTests += $rp->programPart?->test_count ?? 0;
-                    $doneTests += $rp->tests_done;
-                }
+
             }
         }
         $avgRating = $ratingDayCount > 0 ? round($ratingSum / $ratingDayCount, 1) : 0;
+        // --- Cumulative parts & tests across ALL programs of this student ---
+        $totalParts = \App\Models\ProgramPart::whereHas(
+            'weeklyProgram', fn($q) => $q->where('student_id', $this->studentId)
+        )->count();
+
+        $totalTests = (int) \App\Models\ProgramPart::whereHas(
+            'weeklyProgram', fn($q) => $q->where('student_id', $this->studentId)
+        )->sum('test_count');
+
+        $readParts = \App\Models\DailyReportPart::whereHas(
+            'dailyReport', fn($q) => $q->where('student_id', $this->studentId)
+        )->where('is_read', true)->count();
+
+        $doneTests = (int) \App\Models\DailyReportPart::whereHas(
+            'dailyReport', fn($q) => $q->where('student_id', $this->studentId)
+        )->sum('tests_done');
+
+        // Cap to avoid negative values when compensatory reports push counts past totals
+        $unreadParts  = max(0, $totalParts - $readParts);
+        $undoneTests  = max(0, $totalTests - $doneTests);
 
         $this->stats = [
-            'total_reports' => $totalReports,
-            'approved_reports' => $approvedReports,
-            'pending_reports' => $pendingReports,
-            'rejected_reports' => $rejectedReports,
+            'total_reports'       => $totalReports,
+            'approved_reports'    => $approvedReports,
+            'pending_reports'     => $pendingReports,
+            'rejected_reports'    => $rejectedReports,
             'compensatory_reports' => $compensatoryReports,
-            'total_parts' => $totalParts,
-            'read_parts' => $readParts,
-            'unread_parts' => $totalParts - $readParts,
-            'total_tests' => $totalTests,
-            'done_tests' => $doneTests,
-            'undone_tests' => $totalTests - $doneTests,
-            'total_phone_hours' => $totalPhoneHours,
-            'read_percentage' => $totalParts > 0 ? round(($readParts / $totalParts) * 100) : 0,
-            'test_percentage' => $totalTests > 0 ? round(($doneTests / $totalTests) * 100) : 0,
-            'avg_rating' => $avgRating,
+            'total_parts'         => $totalParts,
+            'read_parts'          => $readParts,
+            'unread_parts'        => $unreadParts,
+            'total_tests'         => $totalTests,
+            'done_tests'          => $doneTests,
+            'undone_tests'        => $undoneTests,
+            'total_phone_hours'   => $totalPhoneHours,
+            'read_percentage'     => $totalParts > 0 ? min(100, round(($readParts / $totalParts) * 100)) : 0,
+            'test_percentage'     => $totalTests > 0 ? min(100, round(($doneTests / $totalTests) * 100)) : 0,
+            'avg_rating'          => $avgRating,
 
         ];
 
@@ -264,15 +263,14 @@ class Detail extends Component
     }
 
     /**
-     * Get not-sent days for the current session filter.
-     * Includes future days with 'future' status.
-     * When no session selected but months are active, gathers from all sessions.
-     */
+     * Get non-report days for the current session filter.
+     * * Returns rest days ('rest_day'), future days ('future'), and not-sent past days ('not_sent').
+     * * When no session is selected but months are active, gathers from all sessions.
+    **/
     protected function getNotSentDays()
     {
         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
         if (!$this->selectedSessionId) {
-            // Only gather missing days from all sessions when months are selected
             if (empty($this->selectedMonths)) {
                 return collect([]);
             }
@@ -280,29 +278,40 @@ class Detail extends Component
         }
         $session = AdvisingSession::find($this->selectedSessionId);
         if (!$session) return collect([]);
-        $weeklyProgram = WeeklyProgram::where('advising_session_id', $this->selectedSessionId)->first();
+        $weeklyProgram = WeeklyProgram::where('advising_session_id', $this->selectedSessionId)
+            ->with('restDays')
+            ->first();
         if (!$weeklyProgram) return collect([]);
+        $restDayIndices = $weeklyProgram->restDays->pluck('day_index')->toArray();
         $startDate = Carbon::parse($session->activation_date);
-        $endDate = $startDate->copy()->addDays(7);
         $today = Carbon::today();
-        // Get existing report dates for this program
         $existingReportDates = DailyReport::where('student_id', $this->studentId)
             ->where('weekly_program_id', $weeklyProgram->id)
             ->pluck('report_date')
             ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'))
             ->toArray();
-        // Generate missing days
         $missingDays = collect([]);
-        $period = \Carbon\CarbonPeriod::create($startDate, '1 day', $endDate);
-        foreach ($period as $day) {
+        for ($dayIndex = 0; $dayIndex <= 7; $dayIndex++) {
+            $day = $startDate->copy()->addDays($dayIndex);
             $dayString = $day->format('Y-m-d');
-            if (!in_array($dayString, $existingReportDates)) {
-                $jalaliDate = jdate($day);
-                $jalaliMonth = $jalaliDate->format('m');
-                // Filter by selected months if any
-                if (!empty($this->selectedMonths) && !in_array($jalaliMonth, $this->selectedMonths)) {
-                    continue;
-                }
+            $jalaliDate = jdate($day);
+            $jalaliMonth = $jalaliDate->format('m');
+
+            if (!empty($this->selectedMonths) && !in_array($jalaliMonth, $this->selectedMonths)) {
+                continue;
+            }
+
+            if (in_array($dayIndex, $restDayIndices)) {
+                // This is a rest day - show it explicitly
+                $missingDays->push([
+                    'date' => $day,
+                    'jalali_date' => $jalaliDate->format('Y/m/d'),
+                    'day_name' => $dayNames[jdate($day)->getDayOfWeek()] ?? '-',
+                    'status' => 'rest_day',
+                    'is_future' => $day->gt($today),
+                    'future_note' => null,
+                ]);
+            } elseif (!in_array($dayString, $existingReportDates)) {
                 $isFuture = $day->gt($today);
                 $missingDays->push([
                     'date' => $day,
@@ -324,31 +333,42 @@ class Detail extends Component
     {
         $sessions = AdvisingSession::where('student_id', $this->studentId)
             ->where('result_status', 'held')
+            ->with(['weeklyProgram.restDays'])
             ->get();
         $missingDays = collect([]);
         $today = Carbon::today();
-        $seen = []; // avoid duplicate dates
+        $seen = [];
         foreach ($sessions as $session) {
-            $weeklyProgram = WeeklyProgram::where('advising_session_id', $session->id)->first();
+            $weeklyProgram = $session->weeklyProgram;
             if (!$weeklyProgram) continue;
+            $restDayIndices = $weeklyProgram->restDays->pluck('day_index')->toArray();
             $startDate = Carbon::parse($session->activation_date);
-            $endDate = $startDate->copy()->addDays(7);
             $existingReportDates = DailyReport::where('student_id', $this->studentId)
                 ->where('weekly_program_id', $weeklyProgram->id)
                 ->pluck('report_date')
                 ->map(fn($date) => Carbon::parse($date)->format('Y-m-d'))
                 ->toArray();
-            $period = \Carbon\CarbonPeriod::create($startDate, '1 day', $endDate);
-            foreach ($period as $day) {
+            for ($dayIndex = 0; $dayIndex <= 7; $dayIndex++) {
+                $day = $startDate->copy()->addDays($dayIndex);
                 $dayString = $day->format('Y-m-d');
                 if (isset($seen[$dayString])) continue;
-                if (!in_array($dayString, $existingReportDates)) {
-                    $jalaliDate = jdate($day);
-                    $jalaliMonth = $jalaliDate->format('m');
-                    if (!in_array($jalaliMonth, $this->selectedMonths)) {
-                        continue;
-                    }
-                    $seen[$dayString] = true;
+
+                $jalaliDate = jdate($day);
+                $jalaliMonth = $jalaliDate->format('m');
+                if (!in_array($jalaliMonth, $this->selectedMonths)) continue;
+
+                $seen[$dayString] = true;
+
+                if (in_array($dayIndex, $restDayIndices)) {
+                    $missingDays->push([
+                        'date' => $day,
+                        'jalali_date' => $jalaliDate->format('Y/m/d'),
+                        'day_name' => $dayNames[jdate($day)->getDayOfWeek()] ?? '-',
+                        'status' => 'rest_day',
+                        'is_future' => $day->gt($today),
+                        'future_note' => null,
+                    ]);
+                } elseif (!in_array($dayString, $existingReportDates)) {
                     $isFuture = $day->gt($today);
                     $missingDays->push([
                         'date' => $day,
@@ -662,47 +682,50 @@ class Detail extends Component
     }
     public function render()
     {
-        $reports = collect([]);
         $notSentDays = collect([]);
         // Get filtered reports
         $filteredReports = $this->getReportsWithFilters();
-        // Get not sent days if needed
+        // Get non-report days (not_sent / rest_day / future) when needed
         if ($this->statusFilter === 'all' || $this->statusFilter === 'not_sent') {
             $notSentDays = $this->getNotSentDays();
         }
-        // Combine based on filter
+        // Helper: normalise any date value to a comparable string
+        $dateKey = function ($item) {
+            $d = $item['date'];
+            return $d instanceof Carbon ? $d->format('Y-m-d') : (string) $d;
+        };
+
         if ($this->statusFilter === 'not_sent') {
-            // Only show not sent days
-            $allItems = $notSentDays;
+            // Show only non-report days (includes rest_day, not_sent, future)
+            $allItems = $notSentDays->map(fn($day) => [
+                'type' => 'not_sent',
+                'data' => $day,
+                'date' => $day['date'],
+            ])->sortByDesc($dateKey)->values();
         } elseif ($this->statusFilter === 'all') {
-            // Combine reports with not sent days
-            $reportItems = $filteredReports->map(function ($report) {
-                return [
-                    'type' => 'report',
-                    'data' => $report,
-                    'date' => $report->report_date,
-                ];
-            });
-            $notSentItems = $notSentDays->map(function ($day) {
-                return [
-                    'type' => 'not_sent',
-                    'data' => $day,
-                    'date' => $day['date'],
-                ];
-            });
-            $allItems = $reportItems->concat($notSentItems)->sortByDesc('date');
+            $reportItems = $filteredReports->map(fn($report) => [
+                'type' => 'report',
+                'data' => $report,
+                'date' => $report->report_date,
+            ]);
+            $notSentItems = $notSentDays->map(fn($day) => [
+                'type' => 'not_sent',
+                'data' => $day,
+                'date' => $day['date'],
+            ]);
+            $allItems = $reportItems->concat($notSentItems)
+                ->sortByDesc($dateKey)
+                ->values();
         } else {
-            // Only show filtered reports
-            $allItems = $filteredReports->map(function ($report) {
-                return [
-                    'type' => 'report',
-                    'data' => $report,
-                    'date' => $report->report_date,
-                ];
-            })->sortByDesc('date');
+            // Only show filtered reports (approved / rejected / pending)
+            $allItems = $filteredReports->map(fn($report) => [
+                'type' => 'report',
+                'data' => $report,
+                'date' => $report->report_date,
+            ])->sortByDesc($dateKey)->values();
         }
         // Manual pagination
-        $page = request()->get('page', 1);
+        $page = $this->getPage();
         $perPage = 10;
         $total = $allItems->count();
         $items = $allItems->forPage($page, $perPage)->values();

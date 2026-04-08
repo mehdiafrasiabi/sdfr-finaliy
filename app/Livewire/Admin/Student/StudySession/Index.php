@@ -25,6 +25,7 @@ class Index extends Component
     public string $exportStartDate = '';
     public string $exportEndDate = '';
     public array $selectedStudentIds = [];
+    public array $studentTotalDisplays = [];
     public function mount()
     {
         // دریافت پارامتر course_id از URL
@@ -124,7 +125,14 @@ class Index extends Component
             ])
             ->where('supporter_id', $adminId);
     }
+    public function formatHourMinute(?int $seconds): string
+    {
+        if (is_null($seconds) || $seconds <= 0) {
+            return '00:00';
+        }
 
+        return sprintf('%02d:%02d', floor($seconds / 3600), floor(($seconds % 3600) / 60));
+    }
     public function render()
     {
         $adminId = auth()->id(); // گرفتن ID پشتیبان لاگین شده
@@ -137,6 +145,25 @@ class Index extends Component
             });
         }
         $students = $studentsQuery->paginate(10);
+        $studentIds = $students->pluck('id')->all();
+        $regularSums = \App\Models\StudySession::query()
+            ->selectRaw('student_id, COALESCE(SUM(duration_seconds),0) as total_seconds')
+            ->whereIn('student_id', $studentIds)
+            ->groupBy('student_id')
+            ->pluck('total_seconds', 'student_id');
+
+        $extraSums = \App\Models\MakeupSession::query()
+            ->selectRaw('student_id, COALESCE(SUM(duration_seconds),0) as total_seconds')
+            ->whereIn('student_id', $studentIds)
+            ->groupBy('student_id')
+            ->pluck('total_seconds', 'student_id');
+
+        $this->studentTotalDisplays = [];
+        foreach ($studentIds as $sid) {
+            $regular = (int) ($regularSums[$sid] ?? 0);
+            $extra = (int) ($extraSums[$sid] ?? 0);
+            $this->studentTotalDisplays[$sid] = $this->formatHourMinute($regular) . '+' . $this->formatHourMinute($extra);
+        }
 
         $exportStudents = $this->studentsBaseQuery($adminId)
             ->select(['id', 'user_id'])

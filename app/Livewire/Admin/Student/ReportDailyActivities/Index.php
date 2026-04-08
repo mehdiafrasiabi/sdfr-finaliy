@@ -3,6 +3,9 @@
 namespace App\Livewire\Admin\Student\ReportDailyActivities;
 use App\Exports\admin\ReportDailyActivitiesSummaryExport;
 use App\Models\Student;
+use App\Models\AdvisingSession;
+use App\Models\DailyReport;
+use Carbon\Carbon;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -120,14 +123,68 @@ class Index extends Component
                     ->orWhere('advisor_id', $adminId);
             });
     }
+    /**
+     * Batch-compute not-sent report counts for a set of student IDs.
+     * Not-sent = past days in held sessions that have no report, excluding rest days.
+     */
+    protected function computeNotSentCountsForStudents(array $studentIds): array
+    {
+        if (empty($studentIds)) return [];
+
+        $today = Carbon::today();
+
+        // Load all held sessions with weekly programs + rest days for these students
+        $sessionsByStudent = AdvisingSession::whereIn('student_id', $studentIds)
+            ->where('result_status', 'held')
+            ->with(['weeklyProgram.restDays'])
+            ->get()
+            ->groupBy('student_id');
+
+        // Load all report dates grouped by student_id + weekly_program_id key
+        $reportsByKey = DailyReport::whereIn('student_id', $studentIds)
+            ->select(['student_id', 'weekly_program_id', 'report_date'])
+            ->get()
+            ->groupBy(fn($r) => $r->student_id . '_' . $r->weekly_program_id);
+
+        $counts = [];
+
+        foreach ($studentIds as $studentId) {
+            $counts[$studentId] = 0;
+            $sessions = $sessionsByStudent->get($studentId, collect());
+
+            foreach ($sessions as $session) {
+                $weeklyProgram = $session->weeklyProgram;
+                if (!$weeklyProgram) continue;
+
+                $restDayIndices = $weeklyProgram->restDays->pluck('day_index')->toArray();
+                $startDate = Carbon::parse($session->activation_date);
+
+                $key = $studentId . '_' . $weeklyProgram->id;
+                $existingDates = $reportsByKey->get($key, collect())
+                    ->map(fn($r) => Carbon::parse($r->report_date)->format('Y-m-d'))
+                    ->toArray();
+
+                for ($idx = 0; $idx <= 7; $idx++) {
+                    $day = $startDate->copy()->addDays($idx);
+                    if ($day->gt($today)) continue;            // future days don't count yet
+                    if (in_array($idx, $restDayIndices)) continue; // rest days are not missing
+                    if (!in_array($day->format('Y-m-d'), $existingDates)) {
+                        $counts[$studentId]++;
+                    }
+                }
+            }
+        }
+
+        return $counts;
+    }
+
 
     public function render()
     {
-        $adminId = auth()->id(); // گرفتن ID پشتیبان لاگین شده
+        $adminId = auth()->id();
 
         $studentsQuery = $this->studentsBaseQuery($adminId);
 
-        // اگر جستجو فعال بود
         if ($this->search) {
             $searchTerm = '%' . $this->search . '%';
 
@@ -142,6 +199,22 @@ class Index extends Component
         }
 
         $students = $studentsQuery->paginate(10);
+        // Compute per-student report counts for the current page
+        $studentIds = $students->pluck('id')->toArray();
+
+        $sentCounts = DailyReport::whereIn('student_id', $studentIds)
+            ->selectRaw('student_id, COUNT(*) as total')
+            ->groupBy('student_id')
+            ->pluck('total', 'student_id');
+
+        $compensatoryCounts = DailyReport::whereIn('student_id', $studentIds)
+            ->where('is_compensatory', true)
+            ->selectRaw('student_id, COUNT(*) as total')
+            ->groupBy('student_id')
+            ->pluck('total', 'student_id');
+
+        $notSentCounts = $this->computeNotSentCountsForStudents($studentIds);
+
         $exportStudents = $this->studentsBaseQuery($adminId)
             ->select(['id', 'user_id'])
             ->with(['user.personalInformation'])
@@ -150,6 +223,9 @@ class Index extends Component
         return view('livewire.admin.student.report-daily-activities.index', [
             'students' => $students,
             'exportStudents' => $exportStudents,
+            'sentCounts' => $sentCounts,
+            'compensatoryCounts' => $compensatoryCounts,
+            'notSentCounts' => $notSentCounts,
         ])->layout('layouts.admin.app');
     }
 }

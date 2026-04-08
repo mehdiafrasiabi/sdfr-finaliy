@@ -80,11 +80,10 @@
                                     <tr>
                                         <th data-dt-column="0">#</th>
                                         <th data-dt-column="1">دانش آموز</th>
-                                        <th data-dt-column="2">پدر</th>
-                                        <th data-dt-column="3">مادر</th>
-                                        <th data-dt-column="4">پایه + رشته</th>
-                                        <th data-dt-column="5">اخرین نظر </th>
-                                        <th data-dt-column="6"></th>
+                                        <th data-dt-column="2" class="text-center">ارسال شده</th>
+                                        <th data-dt-column="3" class="text-center">ارسال نشده</th>
+                                        <th data-dt-column="4" class="text-center">جبرانی</th>
+                                        <th data-dt-column="5"></th>
                                     </tr>
                                     </thead>
 
@@ -166,6 +165,24 @@
                                                           <span class="text-truncate fw-medium">
                                                             {{ $personalInfo->name ?? '-' }}
                                                               {{ $personalInfo->name_full ?? '' }}
+
+                                                              [
+                                                              @if($student->user->personalInformation->grade == 12)
+                                                                  دوازدهم
+                                                              @elseif($student->user->personalInformation->grade == 11)
+                                                                  یازدهم
+                                                              @elseif($student->user->personalInformation->grade == 10)
+                                                                  دهم
+                                                              @endif
+
+                                                              @if($student->user->personalInformation->field == 'math')
+                                                                  ریاضی
+                                                              @elseif($student->user->personalInformation->field == 'experimental')
+                                                                  تجربی
+                                                              @elseif($student->user->personalInformation->field == 'human')
+                                                                  انسانی
+                                                              @endif
+                                                            ]
                                                         </span>
                                                         <small class="text-truncate text-muted">
                                                             {{ $student->user->mobile ?? '' }}
@@ -174,40 +191,27 @@
                                                 </div>
                                             </td>
 
-                                            <td>
-                                                {{$student->user->personalInformation->father_mobile}}
+
+                                            {{-- تعداد گزارشات ارسال شده --}}
+                                            <td class="text-center">
+                                                <span class="badge bg-success fs-6">
+                                                    {{ $sentCounts[$student->id] ?? 0 }}
+                                                </span>
                                             </td>
 
-                                            <td>
-                                                {{$student->user->personalInformation->mother_mobile}}
+                                            {{-- تعداد گزارشات ارسال نشده (روزهای گذشته بدون گزارش، استراحت‌ها حذف شده‌اند) --}}
+                                            <td class="text-center">
+                                                @php $ns = $notSentCounts[$student->id] ?? 0; @endphp
+                                                <span class="badge {{ $ns > 0 ? 'bg-danger' : 'bg-secondary' }} fs-6">
+                                                    {{ $ns }}
+                                                </span>
                                             </td>
 
-                                            <td>
-                                                @if($student->user->personalInformation->grade == 12)
-                                                    دوازدهم
-                                                @elseif($student->user->personalInformation->grade == 11)
-                                                    یازدهم
-                                                @elseif($student->user->personalInformation->grade == 10)
-                                                    دهم
-                                                @endif
-
-                                                @if($student->user->personalInformation->field == 'math')
-                                                    ریاضی
-                                                @elseif($student->user->personalInformation->field == 'experimental')
-                                                    تجربی
-                                                @elseif($student->user->personalInformation->field == 'human')
-                                                    انسانی
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @php
-                                                    $latestReplyAt = $student->latest_student_reply_at ? \Illuminate\Support\Carbon::parse($student->latest_student_reply_at) : null;
-                                                @endphp
-                                                @if($latestReplyAt)
-                                                    {{ \Morilog\Jalali\Jalalian::fromCarbon($latestReplyAt)->format('Y/m/d | H:i') }}
-                                                @else
-                                                    ---
-                                                @endif
+                                            {{-- تعداد گزارشات جبرانی --}}
+                                            <td class="text-center">
+                                                <span class="badge bg-warning text-white fs-6">
+                                                    {{ $compensatoryCounts[$student->id] ?? 0 }}
+                                                </span>
                                             </td>
                                             <td>
                                                 <div class="btn-group float-end">
@@ -227,7 +231,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-danger text-center">
+                                            <td colspan="6" class="text-danger text-center">
                                                 وجود ندارد
                                             </td>
                                         </tr>

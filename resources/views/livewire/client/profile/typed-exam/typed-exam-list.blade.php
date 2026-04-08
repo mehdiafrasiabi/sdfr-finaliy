@@ -97,11 +97,12 @@
                         @if($assignments->isEmpty())
                             <div class="flex flex-col items-center justify-center space-y-12 py-16">
                                 <div class="flex flex-col items-center justify-center space-y-12">
-                                    <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35"
+                                    <img src="/client/empty/exam.png" class="w-full max-w-xs"
                                          alt="empty"/>
                                     <div class="text-center space-y-3">
                                         <h2 class="font-bold text-xl text-foreground">
-                                            آزمونی برای شما وجود ندارد .
+                                            آزمونی برای شما وجود ندارد!
+                                            <p class="text-muted text-sm">هنوز آزمونی برای شما ثبت نشده است.</p>
                                         </h2>
                                     </div>
                                 </div>

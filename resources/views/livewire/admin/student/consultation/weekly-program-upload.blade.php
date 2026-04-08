@@ -5,7 +5,7 @@
                 display: none !important;
             }
 
-            /* ====== Theme tokens (minimal - bootstrap aware) ====== */
+            /* ====== Theme tokens ====== */
             :root {
                 --ui-bg: var(--bs-body-bg);
                 --ui-card: var(--bs-body-bg);
@@ -85,21 +85,44 @@
             }
 
             /* ====== Weekly table ====== */
+
+            /*
+             * FIX: overflow:hidden روی weekly-wrap حذف شد
+             * چون sticky داخلش کار نمی‌کرد
+             * به جاش border-radius روی thead اول اعمال میشه
+             */
             .weekly-wrap {
                 border-radius: var(--ui-radius);
-                overflow: hidden;
                 border: 1px solid var(--ui-border);
                 box-shadow: var(--ui-shadow-sm);
                 background: var(--bs-body-bg);
+                /* overflow:hidden حذف شد - sticky را می‌شکست */
             }
 
+            /*
+             * FIX: overflow-y باید visible باشه
+             * تا sticky top روی thead نسبت به window کار کنه نه این div
+             */
+            .weekly-scroll {
+                overflow-x: auto;
+                overflow-y: visible;
+                -webkit-overflow-scrolling: touch;
+                white-space: nowrap;
+            }
+
+            /*
+             * FIX: border-collapse: separate برای sticky corner cells لازمه
+             * با collapse، border روی sticky cell‌ها درست render نمیشه
+             */
             .weekly-table {
                 margin-bottom: 0;
-                min-width: 1100px;
+                min-width: 1800px;
+                table-layout: fixed;
+                border-collapse: separate;
+                border-spacing: 0;
             }
 
             .weekly-table thead th {
-
                 background: linear-gradient(90deg, #1d4ed8, #2563eb);
                 color: #fff;
                 border-color: rgba(255, 255, 255, .16);
@@ -118,6 +141,122 @@
                 background: rgba(2, 132, 199, .03);
             }
 
+            /* سلول‌ها باکس رو خرد نکنن */
+            .weekly-table td,
+            .weekly-table th {
+                white-space: nowrap;
+                vertical-align: top;
+                border: 1px solid var(--ui-border);
+            }
+
+            /* عرض ستون‌های پلن */
+            .weekly-table th:nth-child(n+4),
+            .weekly-table td:nth-child(n+4) {
+                width: 230px;
+                min-width: 210px;
+            }
+
+            /* ===== Sticky header (scroll عمودی صفحه) ===== */
+            .weekly-table thead th,
+            .weekly-table thead td {
+                position: sticky;
+                top: 0;
+                z-index: 4;
+            }
+
+            /* Action row - زیر header اول */
+            .weekly-table thead tr.weekly-action-row th,
+            .weekly-table thead tr.weekly-action-row td {
+                top: 52px;
+                z-index: 4;
+                background: var(--bs-body-bg) !important;
+                border-bottom: 2px solid var(--ui-border);
+                padding: 6px 10px;
+                white-space: normal;
+            }
+
+            /* ===== Sticky columns (scroll افقی جدول) ===== */
+
+            /* ستون 1: روز/تاریخ */
+            .weekly-table th:nth-child(1),
+            .weekly-table td:nth-child(1) {
+                position: sticky;
+                right: 0;
+                z-index: 2;
+                width: 130px;
+                min-width: 130px;
+            }
+
+            /* ستون 2: ساعت */
+            .weekly-table th:nth-child(2),
+            .weekly-table td:nth-child(2) {
+                position: sticky;
+                right: 130px;
+                z-index: 2;
+                width: 110px;
+                min-width: 110px;
+            }
+
+            /* ستون 3: وضعیت روز */
+            .weekly-table th:nth-child(3),
+            .weekly-table td:nth-child(3) {
+                position: sticky;
+                right: 240px;
+                z-index: 2;
+                width: 155px;
+                min-width: 155px;
+            }
+
+            /* ===== Intersection cells: sticky top + sticky right ===== */
+            /* بالاترین z-index - هم sticky top هم sticky right */
+            .weekly-table thead th:nth-child(1),
+            .weekly-table thead th:nth-child(2),
+            .weekly-table thead th:nth-child(3) {
+                z-index: 6;
+                background: linear-gradient(90deg, #1d4ed8, #2563eb) !important;
+                color: #fff;
+            }
+
+            /* action row - سه ستون اول sticky right هم دارن */
+            .weekly-table thead tr.weekly-action-row td:nth-child(1),
+            .weekly-table thead tr.weekly-action-row td:nth-child(2),
+            .weekly-table thead tr.weekly-action-row td:nth-child(3) {
+                z-index: 6;
+                background: var(--bs-body-bg) !important;
+            }
+
+            /* سایه سمت چپ ستون سوم برای جداسازی بصری */
+            .weekly-table td:nth-child(3),
+            .weekly-table th:nth-child(3) {
+                box-shadow: -4px 0 10px rgba(0, 0, 0, .07);
+            }
+
+            [data-bs-theme="dark"] .weekly-table td:nth-child(3),
+            [data-bs-theme="dark"] .weekly-table th:nth-child(3) {
+                box-shadow: -4px 0 10px rgba(0, 0, 0, .30);
+            }
+
+            /* tbody sticky cells - رنگ solid (شفافیت نداشته باشن تا محتوا از پشت دیده نشه) */
+            .weekly-table tbody td:nth-child(1),
+            .weekly-table tbody td:nth-child(2),
+            .weekly-table tbody td:nth-child(3) {
+                background-color: var(--bs-body-bg) !important;
+            }
+
+            /* ردیف استراحت */
+            .weekly-table tbody tr.table-success td:nth-child(1),
+            .weekly-table tbody tr.table-success td:nth-child(2),
+            .weekly-table tbody tr.table-success td:nth-child(3) {
+                background-color: color-mix(in srgb, var(--bs-success) 10%, var(--bs-body-bg)) !important;
+            }
+
+            /* ردیف آزمون */
+            .weekly-table tbody tr.table-danger td:nth-child(1),
+            .weekly-table tbody tr.table-danger td:nth-child(2),
+            .weekly-table tbody tr.table-danger td:nth-child(3) {
+                background-color: color-mix(in srgb, var(--bs-danger) 10%, var(--bs-body-bg)) !important;
+            }
+
             /* plan cell boxes */
             .plan-box {
                 min-height: 120px;
@@ -125,6 +264,8 @@
                 border: 1px solid var(--ui-border);
                 transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
                 overflow: visible;
+                width: 100%;
+                min-width: 200px;
             }
 
             /* Exam day parts should auto-size */
@@ -160,6 +301,42 @@
                 font-size: .72rem;
             }
 
+            /* ===== Action bar (دکمه‌های کپی/کات/حذف) ===== */
+            /*
+             * این بار action buttons خارج از جدول در یک div جداگانه هستند
+             * و sticky به بالای صفحه می‌چسبن - مستقل از scroll افقی جدول
+             */
+            .weekly-action-bar {
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                background: var(--bs-body-bg);
+                border: 1px solid var(--ui-border);
+                border-radius: 12px;
+                padding: 8px 14px;
+                margin-bottom: 8px;
+                box-shadow: var(--ui-shadow-sm);
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            [data-bs-theme="dark"] .weekly-action-bar {
+                box-shadow: 0 4px 16px rgba(0, 0, 0, .35);
+            }
+
+            .weekly-action-bar-detail {
+                width: 100%;
+                padding-top: 8px;
+                margin-top: 4px;
+                border-top: 1px solid var(--ui-border);
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                align-items: center;
+            }
+
             /* ====== Modal ====== */
             .modal.show .modal-dialog {
                 animation: modalSlideDown .22s ease-out;
@@ -186,7 +363,7 @@
                 border-bottom: 1px solid rgba(255, 255, 255, .16);
             }
 
-            /* ====== Select2 keep normal, just align with Bootstrap ====== */
+            /* ====== Select2 ====== */
             .select2-container {
                 width: 100% !important;
             }
@@ -227,112 +404,6 @@
                 color: var(--ui-muted) !important;
             }
 
-            /* اسکرول افقی (عمودی توسط صفحه انجام می‌شود) */
-            .weekly-scroll {
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-                white-space: nowrap;
-            }
-
-            /* جدول عرض داینامیک بر اساس تعداد ستون */
-            .weekly-table {
-                min-width: 2200px;
-                table-layout: fixed;
-            }
-
-            /* سلول‌ها باکس رو خرد نکنن */
-            .weekly-table td,
-            .weekly-table th {
-                white-space: nowrap;
-                vertical-align: top;
-            }
-
-            /* هر ستون پلن یک عرض مشخص داشته باشه */
-            .weekly-table th:nth-child(n+7):nth-child(-n+30),
-            .weekly-table td:nth-child(n+7):nth-child(-n+30) {
-                width: 210px;
-                min-width: 210px;
-            }
-
-            /* ===== Sticky header (vertical page scroll) ===== */
-            .weekly-table thead th {
-                position: sticky;
-                top: 0;
-                z-index: 3;
-            }
-
-            /* ===== Sticky fixed columns (horizontal scroll, RTL) ===== */
-            /* Only روز، تاریخ، ساعت are sticky on horizontal scroll */
-            /* تست روز، استراحت، آزمون جامع scroll with content */
-
-            /* روز - column 1 */
-            .weekly-table th:nth-child(1),
-            .weekly-table td:nth-child(1) {
-                position: sticky;
-                right: 0;
-                z-index: 2;
-            }
-
-            /* تاریخ - column 2 */
-            .weekly-table th:nth-child(2),
-            .weekly-table td:nth-child(2) {
-                position: sticky;
-                right: 90px;
-                z-index: 2;
-            }
-
-            /* تست روز - column 3: NOT sticky */
-            /* استراحت - column 4: NOT sticky */
-            /* آزمون جامع - column 5: NOT sticky */
-            /* ساعت - column 6 */
-            .weekly-table th:nth-child(6),
-            .weekly-table td:nth-child(6) {
-                position: sticky;
-                right: 220px;
-                z-index: 2;
-            }
-
-            /* Intersection cells (sticky both top AND right) get highest z-index */
-            .weekly-table thead th:nth-child(1),
-            .weekly-table thead th:nth-child(2),
-            .weekly-table thead th:nth-child(6) {
-                z-index: 5;
-            }
-
-            /* Ensure tbody sticky cells have a solid background */
-            .weekly-table tbody td:nth-child(1),
-            .weekly-table tbody td:nth-child(2),
-            .weekly-table tbody td:nth-child(6) {
-                background: var(--bs-body-bg);
-            }
-
-            .weekly-table tbody tr.table-success td:nth-child(1),
-            .weekly-table tbody tr.table-success td:nth-child(2),
-            .weekly-table tbody tr.table-success td:nth-child(6) {
-                background: rgba(var(--bs-success-rgb), 0.1);
-            }
-
-            .weekly-table tbody tr.table-danger td:nth-child(1),
-            .weekly-table tbody tr.table-danger td:nth-child(2),
-            .weekly-table tbody tr.table-danger td:nth-child(6) {
-                background: rgba(var(--bs-danger-rgb), 0.1);
-            }
-
-            /* ===== Sticky top panel (copy/cut/delete panel + header) ===== */
-            .sticky-action-panel {
-                position: sticky;
-                top: 0;
-                z-index: 20;
-                background: var(--bs-body-bg);
-                padding-bottom: 4px;
-            }
-
-            /* باکس داخل سلول کامل جا بگیره */
-            .plan-box {
-                width: 100%;
-                min-width: 200px;
-            }
-
             /* Cross-day drag-drop styles */
             .drag-over-day {
                 background: rgba(37, 99, 235, .08) !important;
@@ -366,7 +437,6 @@
             [data-bs-theme="dark"] .registered-badge.registered {
                 background: rgba(22, 163, 74, .2);
                 color: #4ade80;
-
             }
 
             /* Drag handle hover */
@@ -392,6 +462,11 @@
                 transform: scale(1.02);
             }
 
+            /* sticky-action-panel legacy */
+            .sticky-action-panel {
+                background: var(--bs-body-bg);
+                padding-bottom: 4px;
+            }
         </style>
     @endpush
     <div class="container-xxl flex-grow-1 container-p-y bg-body text-body" dir="rtl">
@@ -493,166 +568,197 @@
                                     wire:click="closePrevProgramModal"></button>
                         </div>
 
-                        <div class="modal-body">
+                        <div class="modal-body" x-data="{
+                            sort: 'day',
+                            get sorted() {
+                                let parts = @js($prevSessionParts);
+                                if (this.sort === 'grade') return [...parts].sort((a,b)=>((a.grade||'')>(b.grade||''))?1:-1);
+                                if (this.sort === 'lesson_type') return [...parts].sort((a,b)=>((a.lesson_type||'')>(b.lesson_type||''))?1:-1);
+                                if (this.sort === 'rating') return [...parts].sort((a,b)=>(b.avg_rating??-1)-(a.avg_rating??-1));
+                                // day (default)
+                                return [...parts].sort((a,b)=>a.day_of_week-b.day_of_week);
+                            }
+                        }">
                             @if(count($prevSessionParts) > 0)
-                                {{-- Multi-select action bar --}}
-                                <div
-                                    class="card mb-3 border-2 {{ count($prevSelectedPartIds) > 0 ? 'border-warning' : 'border-secondary border-opacity-25' }}">
-                                    <div class="card-body py-2">
-                                        <div class="d-flex flex-wrap align-items-center gap-3">
-                                            <span
-                                                class="fw-semibold {{ count($prevSelectedPartIds) > 0 ? 'text-warning' : 'text-muted-2' }} d-flex align-items-center gap-1">
-                                                <i class="material-symbols-outlined" style="font-size:18px;">playlist_add_check</i>
-                                                @if(count($prevSelectedPartIds) > 0)
-                                                    {{ count($prevSelectedPartIds) }} پارت انتخاب شده
-                                                @else
-                                                    روی پارت‌ها کلیک کنید تا انتخاب شوند
-                                                @endif
-                                            </span>
-                                            @if(count($prevSelectedPartIds) > 0)
-                                                <div class="d-flex align-items-center gap-2 flex-wrap ms-auto">
-                                                    <label class="form-label mb-0 small fw-semibold">روز مقصد:</label>
-                                                    <select wire:model.live="prevMultiCopyTargetDaySelected"
-                                                            class="form-select form-select-sm" style="width:auto;">
-                                                        <option value="">انتخاب روز</option>
-                                                        @foreach($weekDays as $day)
-                                                            @if(!$day['is_rest_day'])
-                                                                <option value="{{ $day['index'] }}">{{ $day['name'] }}
-                                                                    ({{ $day['jalali_date'] }})
-                                                                </option>
-
-                                                            @endif
-                                                        @endforeach
-                                                    </select>
-                                                    <button wire:click="addSelectedPrevParts"
-                                                            class="btn btn-sm btn-warning text-white"
-                                                        {{ $prevMultiCopyTargetDaySelected === null ? 'disabled' : '' }}>
-                                                        <span wire:loading.remove wire:target="addSelectedPrevParts">
-                                                            <i class="material-symbols-outlined"
-                                                               style="font-size:15px;">add_circle</i>
-                                                            اضافه کن
-                                                        </span>
-                                                        <span wire:loading wire:target="addSelectedPrevParts">...</span>
-
-                                                    </button>
-                                                    <button wire:click="$set('prevSelectedPartIds', [])"
-                                                            class="btn btn-sm btn-outline-secondary">
-                                                        لغو انتخاب
-                                                    </button>
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
+                                {{-- Sort Controls --}}
+                                <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                                    <span class="small fw-semibold text-muted-2">مرتب‌سازی:</span>
+                                    <button @click="sort='day'" :class="sort==='day'?'btn-warning':'btn-outline-secondary'" class="btn btn-sm">
+                                        <i class="material-symbols-outlined" style="font-size:14px;">calendar_today</i> روز
+                                    </button>
+                                    <button @click="sort='grade'" :class="sort==='grade'?'btn-warning':'btn-outline-secondary'" class="btn btn-sm">
+                                        <i class="material-symbols-outlined" style="font-size:14px;">school</i> پایه
+                                    </button>
+                                    <button @click="sort='lesson_type'" :class="sort==='lesson_type'?'btn-warning':'btn-outline-secondary'" class="btn btn-sm">
+                                        <i class="material-symbols-outlined" style="font-size:14px;">category</i> عمومی/تخصصی
+                                    </button>
+                                    <button @click="sort='rating'" :class="sort==='rating'?'btn-warning':'btn-outline-secondary'" class="btn btn-sm">
+                                        <i class="material-symbols-outlined" style="font-size:14px;">star</i> امتیاز مطالعه
+                                    </button>
                                 </div>
 
                                 <div class="table-responsive">
                                     <table class="table table-hover align-middle mb-0">
                                         <thead class="bg-body-tertiary">
                                         <tr>
-                                            <th class="text-center" style="width:36px;">
-                                                <i class="material-symbols-outlined" style="font-size:16px;"
-                                                   title="انتخاب">check_box_outline_blank</i>
-                                            </th>
-                                            <th>درس</th>
+                                            <th class="text-center" style="width:36px;">#</th>
+                                            <th>درس / فصل / مبحث</th>
                                             <th class="text-center">روز</th>
                                             <th class="text-center">تایم</th>
                                             <th class="text-center">نوع</th>
                                             <th class="text-center">امتیاز مطالعه</th>
-                                            <th class="text-center">وضعیت</th>
+                                            <th class="text-center">افزودن به برنامه</th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @foreach($prevSessionParts as $idx => $pPart)
-                                            @php
-                                                $isSelected = in_array($pPart['id'], $prevSelectedPartIds);
-                                                $isAdded = isset($copiedFromPrevPartIds[$pPart['id']]);
-                                                $rating = $pPart['avg_rating'];
-                                                $qualityLabel = null;
-                                                $qualityColor = null;
-                                                if ($rating !== null) {
-                                                    if ($rating >= 8) { $qualityLabel = 'مطالعه عالی'; $qualityColor = 'success'; }
-                                                    elseif ($rating >= 5) { $qualityLabel = 'مطالعه با کیفیت'; $qualityColor = 'info'; }
-                                                    else { $qualityLabel = 'مطالعه بی‌کیفیت'; $qualityColor = 'danger'; }
-                                                }
-                                            @endphp
-                                            <tr class="{{ $isSelected ? 'table-warning' : ($isAdded ? 'table-success bg-success bg-opacity-10' : '') }}"
-                                                wire:click="togglePrevPartSelection({{ $pPart['id'] }})"
-                                                style="cursor:pointer;">
-                                                <td class="text-center" onclick="event.stopPropagation()">
-                                                    <input type="checkbox"
-                                                           wire:click.stop="togglePrevPartSelection({{ $pPart['id'] }})"
-                                                           {{ $isSelected ? 'checked' : '' }}
-                                                           class="form-check-input">
-                                                </td>
+                                        <template x-for="(pPart, idx) in sorted" :key="pPart.id">
+                                            <tr :class="{'table-success bg-success bg-opacity-10': @js($copiedFromPrevPartIds)[pPart.id] !== undefined}">
+                                                <td class="text-center text-muted-2 small" x-text="idx+1"></td>
                                                 <td>
-                                                    <div class="fw-semibold">{{ $pPart['lesson_name'] }}</div>
-                                                    @if($pPart['description'])
-                                                        <div
-                                                            class="small text-muted-2">{{ Str::limit($pPart['description'], 50) }}</div>
-                                                    @endif
-                                                    @if($pPart['grade_label'])
-                                                        <span
-                                                            class="badge bg-primary-subtle text-primary small">{{ $pPart['grade_label'] }}</span>
-                                                    @endif
-                                                    @if($pPart['source_type'] && $pPart['source_type'] !== 'normal')
-                                                        <span
-                                                            class="badge bg-{{ $pPart['source_type_color'] }}-subtle text-{{ $pPart['source_type_color'] }} small mt-1">{{ $pPart['source_type_label'] }}</span>
-                                                    @endif
-                                                </td>
-                                                <td class="text-center">
-                                                    <span
-                                                        class="badge bg-body-tertiary text-body border rounded-pill small">{{ $pPart['day_name'] }}</span>
-
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="small fw-semibold">{{ $pPart['duration_minutes'] }} دقیقه</span>
-                                                    @if($pPart['test_count'])
-                                                        <div class="small text-muted-2">{{ $pPart['test_count'] }}تست
+                                                    <div class="fw-semibold" x-text="pPart.lesson_name"></div>
+                                                    <template x-if="pPart.subject_name">
+                                                        <div class="small text-muted-2">
+                                                            <span x-text="pPart.subject_name"></span>
+                                                            <template x-if="pPart.chapter_name">
+                                                                <span> › <span x-text="pPart.chapter_name"></span></span>
+                                                            </template>
+                                                            <template x-if="pPart.topic_name">
+                                                                <span> › <span x-text="pPart.topic_name"></span></span>
+                                                            </template>
                                                         </div>
-
-                                                    @endif
+                                                    </template>
+                                                    <template x-if="!pPart.subject_name && pPart.description">
+                                                        <div class="small text-muted-2" x-text="pPart.description.substring(0,60)"></div>
+                                                    </template>
+                                                    <template x-if="pPart.grade_label">
+                                                        <span class="badge bg-primary-subtle text-primary small me-1" x-text="pPart.grade_label"></span>
+                                                    </template>
+                                                    <template x-if="pPart.lesson_type_label">
+                                                        <span class="badge bg-body-tertiary text-body border small" x-text="pPart.lesson_type_label"></span>
+                                                    </template>
                                                 </td>
                                                 <td class="text-center">
-                                                    <span
-                                                        class="badge bg-body-tertiary text-body border small">{{ $pPart['part_type_label'] }}</span>
-
+                                                    <span class="badge bg-body-tertiary text-body border rounded-pill small" x-text="pPart.day_name"></span>
                                                 </td>
                                                 <td class="text-center">
-                                                    @if($rating !== null)
-                                                        <div class="fw-bold fs-6 text-{{ $qualityColor }}">{{ $rating }}
-                                                            /10
+                                                    <span class="small fw-semibold" x-text="pPart.duration_minutes+' دقیقه'"></span>
+                                                    <template x-if="pPart.test_count">
+                                                        <div class="small text-muted-2" x-text="pPart.test_count+' تست'"></div>
+                                                    </template>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-body-tertiary text-body border small" x-text="pPart.part_type_label"></span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <template x-if="pPart.avg_rating !== null && pPart.avg_rating !== undefined">
+                                                        <div>
+                                                            <div class="fw-bold fs-6" :class="pPart.avg_rating>=8?'text-success':(pPart.avg_rating>=5?'text-info':'text-danger')" x-text="pPart.avg_rating+'/10'"></div>
+                                                            <span class="badge small" :class="pPart.avg_rating>=8?'bg-success-subtle text-success':(pPart.avg_rating>=5?'bg-info-subtle text-info':'bg-danger-subtle text-danger')" x-text="pPart.avg_label"></span>
                                                         </div>
-                                                        <span
-                                                            class="badge bg-{{ $qualityColor }}-subtle text-{{ $qualityColor }} small">{{ $qualityLabel }}</span>
-                                                    @else
+                                                    </template>
+                                                    <template x-if="pPart.avg_rating === null || pPart.avg_rating === undefined">
                                                         <span class="text-muted-2 small">ثبت نشده</span>
-                                                    @endif
+                                                    </template>
                                                 </td>
                                                 <td class="text-center">
-                                                <td class="text-center" onclick="event.stopPropagation()">
-                                                    @if($isAdded)
-                                                        <span
-                                                            class="badge bg-success text-white px-2 py-1 d-block mb-1">
-                                                            <i class="material-symbols-outlined"
-                                                               style="font-size:13px;">check_circle</i>
-                                                            اضافه شده
-                                                        </span>
-                                                        <button
-                                                            wire:click.stop="revertAddedPrevPart({{ $pPart['id'] }})"
-                                                            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1">
-                                                            <i class="material-symbols-outlined"
-                                                               style="font-size:13px;">undo</i>
-                                                            بازگرداند
-                                                        </button>
-                                                    @else
-                                                        <span class="text-muted-2 small">—</span>
-                                                    @endif
+                                                    @foreach($prevSessionParts as $pPartPhp)
+                                                        {{-- Inline add button - using livewire for the actual inline form --}}
+                                                    @endforeach
+                                                    <div x-show="pPart.id === {{ $prevPartInlineSelectedId ?? 0 }} && {{ $showPrevPartInlineForm ? 'true' : 'false' }}" style="display:none!important;"></div>
+                                                    <template x-if="@js($copiedFromPrevPartIds)[pPart.id] !== undefined">
+                                                        <div>
+                                                            <span class="badge bg-success text-white px-2 py-1 d-inline-flex align-items-center gap-1 mb-1">
+                                                                <i class="material-symbols-outlined" style="font-size:13px;">check_circle</i>
+                                                                اضافه شده
+                                                            </span>
+                                                        </div>
+                                                    </template>
+                                                    <button class="btn btn-sm btn-outline-warning"
+                                                            @click="$wire.showPrevPartInlineAddForm(pPart.id)">
+                                                        <i class="material-symbols-outlined" style="font-size:14px;">add_circle</i>
+                                                        افزودن
+                                                    </button>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        </template>
                                         </tbody>
                                     </table>
                                 </div>
+
+                                {{-- Per-part inline add form (shown below table when active) --}}
+                                @if($showPrevPartInlineForm && $prevPartInlineSelectedId)
+                                    @php
+                                        $inlinePart = collect($prevSessionParts)->firstWhere('id', $prevPartInlineSelectedId);
+                                    @endphp
+                                    @if($inlinePart)
+                                        <div class="card border-warning border-2 mt-3">
+                                            <div class="card-header py-2 bg-warning bg-opacity-10">
+                                                <span class="fw-semibold small">
+                                                    <i class="material-symbols-outlined" style="font-size:16px;">add_circle</i>
+                                                    افزودن به برنامه:
+                                                    <strong>{{ $inlinePart['lesson_name'] }}</strong>
+                                                    @if($inlinePart['subject_name'])
+                                                        <span class="text-muted-2"> — {{ $inlinePart['subject_name'] }}{{ $inlinePart['chapter_name'] ? ' › '.$inlinePart['chapter_name'] : '' }}{{ $inlinePart['topic_name'] ? ' › '.$inlinePart['topic_name'] : '' }}</span>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                            <div class="card-body py-3">
+                                                <div class="row g-3 align-items-end">
+                                                    <div class="col-md-3">
+                                                        <label class="form-label small fw-semibold mb-1">روز مقصد</label>
+                                                        <select class="form-select form-select-sm"
+                                                                wire:model="prevPartInlineForm.day_index">
+                                                            <option value="">انتخاب روز...</option>
+                                                            @foreach($weekDays as $wd)
+                                                                @if(!$wd['is_rest_day'])
+                                                                    <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
+                                                                @endif
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <label class="form-label small fw-semibold mb-1">نوع پارت</label>
+                                                        <select class="form-select form-select-sm"
+                                                                wire:model="prevPartInlineForm.part_type">
+                                                            <option value="descriptive">تشریحی</option>
+                                                            <option value="test">تستی</option>
+                                                            <option value="video">ویدئو</option>
+                                                            <option value="topic_exam">آزمون مبحثی</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-1">
+                                                        <label class="form-label small fw-semibold mb-1">ساعت</label>
+                                                        <input type="number" min="0" max="24"
+                                                               class="form-control form-control-sm text-center"
+                                                               wire:model="prevPartInlineForm.duration_hours"
+                                                               placeholder="0">
+                                                    </div>
+                                                    <div class="col-md-1">
+                                                        <label class="form-label small fw-semibold mb-1">دقیقه</label>
+                                                        <input type="number" min="0" max="59"
+                                                               class="form-control form-control-sm text-center"
+                                                               wire:model="prevPartInlineForm.duration_minutes"
+                                                               placeholder="0">
+                                                    </div>
+                                                    <div class="col-md-4 d-flex gap-2">
+                                                        <button type="button" class="btn btn-sm btn-warning text-white flex-fill"
+                                                                wire:click="addSinglePrevPartToProgram">
+                                                            <span wire:loading.remove wire:target="addSinglePrevPartToProgram">
+                                                                <i class="material-symbols-outlined" style="font-size:14px;">check</i>
+                                                                ثبت در برنامه
+                                                            </span>
+                                                            <span wire:loading wire:target="addSinglePrevPartToProgram">در حال ثبت...</span>
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                wire:click="hidePrevPartInlineAddForm">
+                                                            <i class="material-symbols-outlined" style="font-size:14px;">close</i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endif
                             @else
                                 <div class="text-center py-5">
                                     <i class="material-symbols-outlined text-muted-2" style="font-size:48px;">inbox</i>
@@ -675,7 +781,7 @@
         @if($showPrevReportModal)
             <div class="modal fade show d-block" tabindex="-1"
                  style="background: rgba(2, 6, 23, 0.65); backdrop-filter: blur(4px); z-index: 1082;">
-                <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content shadow-lg border-0">
                         <div class="modal-header text-white"
                              style="background: {{ $prevReportType === 'study' ? 'linear-gradient(135deg,#059669,#10b981)' : 'linear-gradient(135deg,#7c3aed,#a855f7)' }};">
@@ -689,6 +795,7 @@
 
                         <div class="modal-body">
                             @if(!empty($prevReportData))
+                                {{-- Session info --}}
                                 <div class="d-flex flex-wrap gap-3 mb-3 small">
                                     <div class="d-flex align-items-center gap-1">
                                         <i class="material-symbols-outlined text-muted-2" style="font-size:16px;">calendar_today</i>
@@ -696,19 +803,75 @@
                                     </div>
                                     <div class="d-flex align-items-center gap-1">
                                         <i class="material-symbols-outlined text-success" style="font-size:16px;">check_circle</i>
-                                        <span>نتیجه جلسه: <span
-                                                class="badge bg-success text-white">{{ $prevReportData['result_status'] ?? 'برگزار شده' }}</span></span>
+                                        <span>نتیجه جلسه: <span class="badge bg-success text-white">{{ $prevReportData['result_status'] ?? 'برگزار شده' }}</span></span>
                                     </div>
                                     @if($prevReportType === 'study' && !empty($prevReportData['total_label']))
                                         <div class="d-flex align-items-center gap-1">
                                             <i class="material-symbols-outlined text-primary" style="font-size:16px;">timer</i>
-                                            <span>جمع کل: <strong
-                                                    class="text-primary">{{ $prevReportData['total_label'] }}</strong></span>
+                                            <span>جمع کل: <strong class="text-primary">{{ $prevReportData['total_label'] }}</strong></span>
                                         </div>
                                     @endif
                                 </div>
 
+                                {{-- Summary boxes --}}
+                                @if($prevReportType === 'report')
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-6 col-md-3">
+                                            <div class="card border-0 bg-success bg-opacity-10 text-center p-3">
+                                                <div class="fw-bold fs-4 text-success">{{ $prevReportData['sent_days_count'] ?? 0 }}</div>
+                                                <div class="small text-success">روز گزارش ارسال شده</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="card border-0 bg-danger bg-opacity-10 text-center p-3">
+                                                <div class="fw-bold fs-4 text-danger">{{ $prevReportData['not_sent_days_count'] ?? 0 }}</div>
+                                                <div class="small text-danger">روز گزارش ارسال نشده</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @elseif($prevReportType === 'study')
+                                    <div class="row g-3 mb-3" x-data="{studySort:'day'}">
+                                        <div class="col-6 col-md-3">
+                                            <div class="card border-0 bg-primary bg-opacity-10 text-center p-3">
+                                                <div class="fw-bold fs-4 text-primary">{{ $prevReportData['total_assigned_parts'] ?? 0 }}</div>
+                                                <div class="small text-primary">تعداد پارت در نظر گرفته شده</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="card border-0 bg-success bg-opacity-10 text-center p-3">
+                                                <div class="fw-bold fs-4 text-success">{{ $prevReportData['total_done_parts'] ?? 0 }}</div>
+                                                <div class="small text-success">تعداد پارت ثبت شده</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-md-3">
+                                            <div class="card border-0 bg-danger bg-opacity-10 text-center p-3">
+                                                <div class="fw-bold fs-4 text-danger">{{ max(0, ($prevReportData['total_assigned_parts'] ?? 0) - ($prevReportData['total_done_parts'] ?? 0)) }}</div>
+                                                <div class="small text-danger">تعداد پارت ثبت نشده</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
+
                                 @if(!empty($prevReportData['items']))
+                                    {{-- Sort for study --}}
+                                    @if($prevReportType === 'study')
+                                        <div class="d-flex align-items-center gap-2 mb-2 flex-wrap" x-data="{studySort:'day'}">
+                                            <span class="small fw-semibold text-muted-2">مرتب‌سازی:</span>
+                                            <button @click="studySort='day'" :class="studySort==='day'?'btn-success':'btn-outline-secondary'" class="btn btn-sm">
+                                                <i class="material-symbols-outlined" style="font-size:14px;">calendar_today</i> روز
+                                            </button>
+                                            <button @click="studySort='not_registered'" :class="studySort==='not_registered'?'btn-success':'btn-outline-secondary'" class="btn btn-sm">
+                                                <i class="material-symbols-outlined" style="font-size:14px;">block</i> ثبت نشده
+                                            </button>
+                                            <button @click="studySort='rating'" :class="studySort==='rating'?'btn-success':'btn-outline-secondary'" class="btn btn-sm">
+                                                <i class="material-symbols-outlined" style="font-size:14px;">star</i> امتیاز
+                                            </button>
+                                            <button @click="studySort='lesson_type'" :class="studySort==='lesson_type'?'btn-success':'btn-outline-secondary'" class="btn btn-sm">
+                                                <i class="material-symbols-outlined" style="font-size:14px;">category</i> عمومی/تخصصی
+                                            </button>
+                                        </div>
+                                    @endif
+
                                     <div class="table-responsive">
                                         <table class="table table-hover align-middle mb-0 small">
                                             <thead class="bg-body-tertiary">
@@ -718,48 +881,86 @@
                                                 <th>تاریخ</th>
                                                 @if($prevReportType === 'study')
                                                     <th>درس</th>
-                                                    <th class="text-center">مدت</th>
+                                                    <th class="text-center">مدت برنامه</th>
+                                                    <th class="text-center">مدت واقعی</th>
+                                                    <th class="text-center">ساعت شروع/پایان</th>
                                                     <th class="text-center">امتیاز</th>
                                                     <th>بازخورد</th>
                                                 @else
+                                                    <th class="text-center">پارت انجام شده</th>
                                                     <th>محتوا</th>
-                                                    <th class="text-center">امتیاز</th>
+                                                    <th class="text-center">وضعیت گزارش</th>
+                                                    <th>علت عدم انجام</th>
                                                 @endif
                                             </tr>
                                             </thead>
                                             <tbody>
                                             @foreach($prevReportData['items'] as $i => $item)
-                                                <tr>
+                                                <tr class="{{ ($prevReportType === 'study' && ($item['is_suspicious'] ?? false)) ? 'table-danger bg-danger bg-opacity-10' : '' }}">
                                                     <td class="text-center text-muted-2">{{ $i + 1 }}</td>
                                                     <td>
-                                                        <span
-                                                            class="badge bg-body-tertiary text-body border rounded-pill">{{ $item['day_name'] }}</span>
+                                                        <span class="badge bg-body-tertiary text-body border rounded-pill">{{ $item['day_name'] }}</span>
                                                     </td>
                                                     <td>{{ $item['date'] }}</td>
                                                     @if($prevReportType === 'study')
-                                                        <td class="fw-semibold">{{ $item['subject'] }}</td>
-                                                        <td class="text-center">{{ $item['duration_label'] }}</td>
+                                                        <td>
+                                                            <div class="fw-semibold">{{ $item['subject'] }}</div>
+                                                            @if(!empty($item['grade_label']))
+                                                                <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">{{ $item['grade_label'] }}</span>
+                                                            @endif
+                                                            @if(!empty($item['lesson_type_label']))
+                                                                <span class="badge bg-body-tertiary text-body border" style="font-size:10px;">{{ $item['lesson_type_label'] }}</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-center">{{ $item['planned_minutes'] ?? 0 }} دقیقه</td>
+                                                        <td class="text-center {{ ($item['is_suspicious'] ?? false) ? 'text-danger fw-bold' : '' }}">
+                                                            {{ $item['duration_label'] }}
+                                                            @if($item['is_suspicious'] ?? false)
+                                                                <div class="small text-danger">
+                                                                    <i class="material-symbols-outlined" style="font-size:12px;">warning</i>
+                                                                    فاصله زمانی: {{ $item['actual_elapsed_minutes'] ?? 0 }} دقیقه
+                                                                </div>
+                                                            @endif
+                                                        </td>
                                                         <td class="text-center">
-                                                            @if($item['rating'] !== null)
-                                                                @php
-                                                                    $rc = $item['rating'] >= 8 ? 'success' : ($item['rating'] >= 5 ? 'info' : 'danger');
-                                                                @endphp
-                                                                <span
-                                                                    class="badge bg-{{ $rc }}-subtle text-{{ $rc }} fw-bold">{{ $item['rating'] }}/10</span>
+                                                            @if(!empty($item['started_at']))
+                                                                <span class="small">{{ $item['started_at'] }}</span>
+                                                                @if(!empty($item['ended_at']))
+                                                                    <span class="text-muted-2"> — {{ $item['ended_at'] }}</span>
+                                                                @endif
                                                             @else
                                                                 <span class="text-muted-2">—</span>
                                                             @endif
                                                         </td>
-                                                        <td class="text-muted-2">{{ Str::limit($item['feedback'] ?? '', 60) }}</td>
-                                                    @else
-                                                        <td>{{ Str::limit($item['content'] ?? '', 100) }}</td>
                                                         <td class="text-center">
                                                             @if($item['rating'] !== null)
                                                                 @php $rc = $item['rating'] >= 8 ? 'success' : ($item['rating'] >= 5 ? 'info' : 'danger'); @endphp
-                                                                <span
-                                                                    class="badge bg-{{ $rc }}-subtle text-{{ $rc }} fw-bold">{{ $item['rating'] }}/10</span>
+                                                                <span class="badge bg-{{ $rc }}-subtle text-{{ $rc }} fw-bold">{{ $item['rating'] }}/10</span>
                                                             @else
-                                                                <span class="text-muted-2">—</span>
+                                                                <span class="badge bg-warning-subtle text-warning">بدون نظر</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-muted-2">{{ Str::limit($item['feedback'] ?? '', 60) }}</td>
+                                                    @else
+                                                        <td class="text-center fw-bold">
+                                                            <span class="{{ ($item['parts_done'] ?? 0) >= ($item['parts_total'] ?? 0) ? 'text-success' : 'text-warning' }}">
+                                                                {{ $item['parts_done'] ?? 0 }}/{{ $item['parts_total'] ?? 0 }}
+                                                            </span>
+                                                        </td>
+                                                        <td>{{ Str::limit($item['content'] ?? '', 80) }}</td>
+                                                        <td class="text-center">
+                                                            <span class="badge bg-{{ $item['status_color'] ?? 'warning' }}-subtle text-{{ $item['status_color'] ?? 'warning' }} fw-semibold">
+                                                                {{ $item['status_label'] ?? '—' }}
+                                                            </span>
+                                                        </td>
+                                                        <td>
+                                                            @if(!empty($item['missed_reason']))
+                                                                <div class="small text-danger">
+                                                                    <i class="material-symbols-outlined" style="font-size:12px;">warning</i>
+                                                                    {{ Str::limit($item['missed_reason'], 100) }}
+                                                                </div>
+                                                            @else
+                                                                <span class="text-muted-2 small">—</span>
                                                             @endif
                                                         </td>
                                                     @endif
@@ -768,10 +969,49 @@
                                             </tbody>
                                         </table>
                                     </div>
+
+                                    {{-- Missing days (report type only) --}}
+                                    @if($prevReportType === 'report' && !empty($prevReportData['missing_days']))
+                                        <div class="mt-4">
+                                            <h6 class="fw-bold text-danger d-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size:18px;">event_busy</i>
+                                                روز‌هایی که گزارش ارسال نشده
+                                            </h6>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                @foreach($prevReportData['missing_days'] as $md)
+                                                    <span class="badge bg-danger-subtle text-danger border border-danger border-opacity-25 px-3 py-2">
+                                                        <i class="material-symbols-outlined" style="font-size:13px;">calendar_today</i>
+                                                        {{ $md['day_name'] }} — {{ $md['date'] }}
+                                                    </span>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    {{-- Parts without feedback (study type only) --}}
+                                    @if($prevReportType === 'study')
+                                        @php
+                                            $noFeedbackItems = collect($prevReportData['items'])->where('has_feedback', false)->values();
+                                        @endphp
+                                        @if($noFeedbackItems->count() > 0)
+                                            <div class="mt-4">
+                                                <h6 class="fw-bold text-warning d-flex align-items-center gap-1">
+                                                    <i class="material-symbols-outlined" style="font-size:18px;">rate_review</i>
+                                                    پارت‌هایی که نظر داده نشده ({{ $noFeedbackItems->count() }} پارت)
+                                                </h6>
+                                                <div class="d-flex flex-wrap gap-2">
+                                                    @foreach($noFeedbackItems as $nf)
+                                                        <span class="badge bg-warning-subtle text-warning border border-warning border-opacity-25 px-3 py-2">
+                                                            {{ $nf['day_name'] }} — {{ $nf['subject'] }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        @endif
+                                    @endif
                                 @else
                                     <div class="text-center py-4">
-                                        <i class="material-symbols-outlined text-muted-2"
-                                           style="font-size:48px;">inbox</i>
+                                        <i class="material-symbols-outlined text-muted-2" style="font-size:48px;">inbox</i>
                                         <p class="text-muted-2 mt-2">اطلاعاتی برای نمایش وجود ندارد</p>
                                     </div>
                                 @endif
@@ -1270,279 +1510,171 @@
 
         {{-- جدول برنامه هفتگی --}}
         <div class="card mb-4 border-0 bg-body">
-            <div class="sticky-action-panel">
 
-                <div class="d-flex align-items-center justify-content-between mb-2 px-1 flex-wrap gap-2">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="material-symbols-outlined text-primary">view_week</i>
-                        <h5 class="mb-0">برنامه هفتگی</h5>
-                    </div>
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <small class="text-muted-2">برای افزودن روی + کلیک کنید</small>
-                        @if($partSelectMode)
-                            <button wire:click="togglePartSelectMode({{ $cutMode ? 'true' : 'false' }})"
-                                    class="btn btn-sm {{ $cutMode ? 'btn-danger' : 'btn-warning' }} d-flex align-items-center gap-1">
-                                <i class="material-symbols-outlined" style="font-size:16px;">close</i>
-                                خروج از {{ $cutMode ? 'کات' : 'کپی' }}
-                            </button>
-                        @elseif($bulkDeleteMode)
-                            <button wire:click="toggleBulkDeleteMode"
-                                    class="btn btn-sm btn-danger d-flex align-items-center gap-1">
-                                <i class="material-symbols-outlined" style="font-size:16px;">close</i>
-                                خروج از حذف گروهی
-                            </button>
-                        @else
-                            <button wire:click="togglePartSelectMode(false)"
-                                    class="btn btn-sm btn-outline-success d-flex align-items-center gap-1">
-
-                                <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i>
-                                کپی پارت
-                            </button>
-                            <button wire:click="toggleBulkDeleteMode"
-                                    class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
-                                <i class="material-symbols-outlined" style="font-size:16px;">delete_sweep</i>
-                                حذف گروهی
-                            </button>
-                            <button wire:click="togglePartSelectMode(true)"
-                                    class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
-                                <i class="material-symbols-outlined" style="font-size:16px;">content_cut</i>
-                                کات پارت
-                            </button>
-                        @endif
-                    </div>
+            {{-- Title bar --}}
+            <div class="d-flex align-items-center justify-content-between mb-2 px-1 flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="material-symbols-outlined text-primary">view_week</i>
+                    <h5 class="mb-0">برنامه هفتگی</h5>
                 </div>
-                {{-- Floating copy panel --}}
-                @if($partSelectMode && count($selectedPartIds) > 0)
-                    <div class="card {{ $cutMode ? 'border-secondary' : 'border-warning' }} border-2 mb-3 mx-1 ">
-                        <div class="card-body py-2">
-                            <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
-                            <span
-                                class="fw-semibold {{ $cutMode ? 'text-secondary' : 'text-warning' }} d-flex align-items-center gap-1">
+                <small class="text-muted-2">برای افزودن روی + کلیک کنید</small>
+            </div>
 
+            {{-- ACTION BAR: خارج از جدول، sticky به بالای صفحه --}}
+            <div class="weekly-action-bar">
+                @if($partSelectMode)
+                    <button wire:click="togglePartSelectMode({{ $cutMode ? 'true' : 'false' }})"
+                            class="btn btn-sm {{ $cutMode ? 'btn-danger' : 'btn-warning' }} d-flex align-items-center gap-1">
+                        <i class="material-symbols-outlined" style="font-size:16px;">close</i>
+                        خروج از {{ $cutMode ? 'کات' : 'کپی' }}
+                    </button>
+                    @if(count($selectedPartIds) > 0)
+                        <span class="fw-semibold {{ $cutMode ? 'text-danger' : 'text-warning' }} small">
+                    {{ count($selectedPartIds) }} پارت انتخاب شده
+                </span>
+                        <button wire:click="clearPartSelection" class="btn btn-sm btn-outline-secondary">لغو انتخاب</button>
 
-                                <i class="material-symbols-outlined"
-                                   style="font-size:18px;">{{ $cutMode ? 'content_cut' : 'content_copy' }}</i>
-                                {{ count($selectedPartIds) }} پارت انتخاب شده برای {{ $cutMode ? 'کات' : 'کپی' }}
-                            </span>
-                                <button wire:click="clearPartSelection"
-                                        class="btn btn-sm btn-outline-secondary ms-auto">
-                                    لغو انتخاب
-                                </button>
-                            </div>
-                            {{-- نمایش پارت‌های انتخاب‌شده --}}
+                        {{-- detail panel: لیست پارت‌های انتخاب شده + روز مقصد --}}
+                        <div class="weekly-action-bar-detail">
                             @php
                                 $selectedPartsInfo = [];
                                 foreach($weekDays as $wd) {
                                     foreach($wd['parts'] as $wp) {
                                         if(in_array($wp->id, $selectedPartIds)) {
-                                            $selectedPartsInfo[] = [
-                                                'part' => $wp,
-                                                'day_name' => $wd['name'],
-                                                'jalali_date' => $wd['jalali_date'],
-                                            ];
+                                            $selectedPartsInfo[] = ['part' => $wp, 'day_name' => $wd['name'], 'jalali_date' => $wd['jalali_date']];
                                         }
                                     }
                                 }
                             @endphp
-                            @if(count($selectedPartsInfo) > 0)
-                                <div class="mb-2">
-                                    <label class="form-label mb-1 small fw-semibold text-muted-2">پارت‌های
-                                        انتخاب‌شده:</label>
-                                    <div class="border rounded-3 bg-body-tertiary"
-                                         style="max-height:130px;overflow-y:auto;">
-                                        @foreach($selectedPartsInfo as $info)
-                                            <div
-                                                class="d-flex align-items-start gap-2 px-2 py-1 border-bottom border-opacity-25 small">
-                                                <i class="material-symbols-outlined {{ $cutMode ? 'text-danger' : 'text-warning' }}"
-                                                   style="font-size:14px;margin-top:2px;">{{ $cutMode ? 'content_cut' : 'content_copy' }}</i>
-                                                <div class="flex-fill">
-                                                    <span class="fw-semibold">{{ $info['part']->lesson_name }}</span>
-                                                    @if($info['part']->description)
-                                                        <span
-                                                            class="text-muted-2"> — {{ Str::limit($info['part']->description, 45) }}</span>
-                                                    @endif
-                                                    <span
-                                                        class="badge bg-body-secondary text-body border rounded-pill ms-1"
-                                                        style="font-size:10px;">{{ $info['day_name'] }} {{ $info['jalali_date'] }}</span>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endif
+                            @foreach($selectedPartsInfo as $info)
+                                <span class="badge bg-body-secondary text-body border rounded-pill small">
+                            <i class="material-symbols-outlined" style="font-size:12px;">{{ $cutMode ? 'content_cut' : 'content_copy' }}</i>
+                            {{ $info['part']->lesson_name }} — {{ $info['day_name'] }}
+                        </span>
+                            @endforeach
 
-                            <div class="mb-2">
-                                @if($cutMode)
-                                    <label class="form-label mb-1 small fw-semibold">روز مقصد (یک روز انتخاب کنید):</label>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @foreach($weekDays as $day)
-                                            @if(!$day['is_rest_day'] && !$day['is_exam_day'])
-                                                @php
-                                                    $isChecked = (string)$copyTargetDay === (string)$day['index'];
-                                                @endphp
-                                                <label
-                                                    class="d-flex align-items-center gap-1 border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-danger text-white border-danger' : 'bg-body-tertiary' }}"
-                                                    style="cursor:pointer;">
-                                                    <input type="radio"
-                                                           wire:model.live="copyTargetDay"
-                                                           value="{{ $day['index'] }}"
-                                                           class="form-check-input mb-0 me-1"
-                                                           style="width:14px;height:14px;"
-                                                        {{ $isChecked ? 'checked' : '' }}>
-                                                    {{ $day['name'] }} ({{ $day['jalali_date'] }})
-                                                </label>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @else
-                                    <label class="form-label mb-1 small fw-semibold">روزهای مقصد (می‌توانید چند روز
-                                        انتخاب کنید):</label>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @foreach($weekDays as $day)
-                                            @if(!$day['is_rest_day'] && !$day['is_exam_day'])
-                                                @php
-                                                    $isChecked = is_array($copyTargetDays) && (in_array((string)$day['index'], $copyTargetDays) || in_array($day['index'], $copyTargetDays));
-                                                @endphp
-                                                <label
-                                                    class="d-flex align-items-center gap-1 cursor-pointer border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-warning text-dark border-warning' : 'bg-body-tertiary' }}"
-                                                    style="cursor:pointer;">
-                                                    <input type="checkbox"
-                                                           wire:model.live="copyTargetDays"
-                                                           value="{{ $day['index'] }}"
-                                                           class="form-check-input mb-0 me-1"
-                                                           style="width:14px;height:14px;">
-                                                    {{ $day['name'] }} ({{ $day['jalali_date'] }})
-                                                </label>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                @endif
-
-                            </div>
                             @if($cutMode)
-                                <button wire:click="cutSelectedParts"
-                                        class="btn btn-sm btn-danger text-white"
+                                <span class="small fw-semibold w-100 mt-1">روز مقصد:</span>
+                                @foreach($weekDays as $day)
+                                    @if(!$day['is_rest_day'] && !$day['is_exam_day'])
+                                        @php $isChecked = (string)$copyTargetDay === (string)$day['index']; @endphp
+                                        <label class="d-flex align-items-center gap-1 border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-danger text-white border-danger' : 'bg-body-tertiary' }}" style="cursor:pointer;">
+                                            <input type="radio" wire:model.live="copyTargetDay" value="{{ $day['index'] }}"
+                                                   class="form-check-input mb-0 me-1" style="width:14px;height:14px;"
+                                                {{ $isChecked ? 'checked' : '' }}>
+                                            {{ $day['name'] }}
+                                        </label>
+                                    @endif
+                                @endforeach
+                                <button wire:click="cutSelectedParts" class="btn btn-sm btn-danger text-white"
                                     {{ $copyTargetDay === null || $copyTargetDay === '' ? 'disabled' : '' }}>
-                                <span wire:loading.remove wire:target="cutSelectedParts">
-                                    <i class="material-symbols-outlined" style="font-size:16px;">content_cut</i>
-                                    کات به روز انتخابی
-                                </span>
-                                    <span wire:loading wire:target="cutSelectedParts">در حال کات...</span>
+                            <span wire:loading.remove wire:target="cutSelectedParts">
+                                <i class="material-symbols-outlined" style="font-size:16px;">content_cut</i> کات
+                            </span>
+                                    <span wire:loading wire:target="cutSelectedParts">...</span>
                                 </button>
                             @else
-                                <button wire:click="copySelectedParts"
-                                        class="btn btn-sm btn-warning text-white"
+                                <span class="small fw-semibold w-100 mt-1">روزهای مقصد:</span>
+                                @foreach($weekDays as $day)
+                                    @if(!$day['is_rest_day'] && !$day['is_exam_day'])
+                                        @php $isChecked = is_array($copyTargetDays) && (in_array((string)$day['index'], $copyTargetDays) || in_array($day['index'], $copyTargetDays)); @endphp
+                                        <label class="d-flex align-items-center gap-1 border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-warning text-dark border-warning' : 'bg-body-tertiary' }}" style="cursor:pointer;">
+                                            <input type="checkbox" wire:model.live="copyTargetDays" value="{{ $day['index'] }}"
+                                                   class="form-check-input mb-0 me-1" style="width:14px;height:14px;">
+                                            {{ $day['name'] }}
+                                        </label>
+                                    @endif
+                                @endforeach
+                                <button wire:click="copySelectedParts" class="btn btn-sm btn-warning text-white"
                                     {{ empty($copyTargetDays) ? 'disabled' : '' }}>
-                                <span wire:loading.remove wire:target="copySelectedParts">
-                                    <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i>
-                                    کپی در روزهای انتخابی
-                                </span>
-                                    <span wire:loading wire:target="copySelectedParts">در حال کپی...</span>
+                            <span wire:loading.remove wire:target="copySelectedParts">
+                                <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i> کپی
+                            </span>
+                                    <span wire:loading wire:target="copySelectedParts">...</span>
                                 </button>
                             @endif
                         </div>
-                    </div>
-                @endif
-                {{-- Floating bulk delete panel --}}
-                @if($bulkDeleteMode)
-                    <div class="card border-danger border-2 mb-3 mx-1">
-                        <div class="card-body py-2">
-                            <div class="d-flex flex-wrap align-items-center gap-3 mb-2">
-                            <span class="fw-semibold text-danger d-flex align-items-center gap-1">
-                                <i class="material-symbols-outlined" style="font-size:18px;">delete_sweep</i>
-                                حالت حذف گروهی
-                                @if(count($bulkDeleteSelectedIds) > 0)
-                                    — {{ count($bulkDeleteSelectedIds) }} پارت انتخاب شده
-                                @else
-                                    — روی پارت‌ها کلیک کنید تا انتخاب شوند
-                                @endif
-                            </span>
-                                <button wire:click="toggleBulkDeleteMode"
-                                        class="btn btn-sm btn-outline-secondary ms-auto">
-                                    لغو
-                                </button>
-                            </div>
-                            {{-- نمایش پارت‌های انتخاب‌شده برای حذف --}}
-                            @if(count($bulkDeleteSelectedIds) > 0)
-                                @php
-                                    $bulkSelectedInfo = [];
-                                    foreach($weekDays as $wd) {
-                                        foreach($wd['parts'] as $wp) {
-                                            if(in_array($wp->id, $bulkDeleteSelectedIds)) {
-                                                $bulkSelectedInfo[] = [
-                                                    'part' => $wp,
-                                                    'day_name' => $wd['name'],
-                                                    'jalali_date' => $wd['jalali_date'],
-                                                ];
-                                            }
+                    @else
+                        <span class="small text-muted-2">روی پارت‌ها کلیک کنید</span>
+                    @endif
+
+                @elseif($bulkDeleteMode)
+                    <button wire:click="toggleBulkDeleteMode"
+                            class="btn btn-sm btn-danger d-flex align-items-center gap-1">
+                        <i class="material-symbols-outlined" style="font-size:16px;">close</i>
+                        خروج از حذف گروهی
+                    </button>
+                    @if(count($bulkDeleteSelectedIds) > 0)
+                        <span class="fw-semibold text-danger small">{{ count($bulkDeleteSelectedIds) }} پارت انتخاب شده</span>
+                        <button wire:click="openBulkDeleteConfirm" class="btn btn-sm btn-danger text-white">
+                            <i class="material-symbols-outlined" style="font-size:16px;">delete_forever</i>
+                            حذف {{ count($bulkDeleteSelectedIds) }} پارت
+                        </button>
+
+                        {{-- detail panel: لیست پارت‌های انتخاب شده برای حذف --}}
+                        <div class="weekly-action-bar-detail">
+                            @php
+                                $bulkSelectedInfo = [];
+                                foreach($weekDays as $wd) {
+                                    foreach($wd['parts'] as $wp) {
+                                        if(in_array($wp->id, $bulkDeleteSelectedIds)) {
+                                            $bulkSelectedInfo[] = ['part' => $wp, 'day_name' => $wd['name'], 'jalali_date' => $wd['jalali_date']];
                                         }
                                     }
-                                @endphp
-                                <div class="mb-2">
-                                    <label class="form-label mb-1 small fw-semibold text-danger">پارت‌هایی که حذف
-                                        می‌شوند:</label>
-                                    <div class="border border-danger rounded-3 bg-danger bg-opacity-10"
-                                         style="max-height:130px;overflow-y:auto;">
-                                        @foreach($bulkSelectedInfo as $info)
-                                            <div
-                                                class="d-flex align-items-start gap-2 px-2 py-1 border-bottom border-danger border-opacity-25 small">
-                                                <i class="material-symbols-outlined text-danger"
-                                                   style="font-size:14px;margin-top:2px;">delete</i>
-                                                <div class="flex-fill">
-                                                    <span class="fw-semibold">{{ $info['part']->lesson_name }}</span>
-                                                    @if($info['part']->description)
-                                                        <span
-                                                            class="text-muted-2"> — {{ Str::limit($info['part']->description, 45) }}</span>
-                                                    @endif
-                                                    <span
-                                                        class="badge bg-danger-subtle text-danger border rounded-pill ms-1"
-                                                        style="font-size:10px;">{{ $info['day_name'] }} {{ $info['jalali_date'] }}</span>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                                <button wire:click="openBulkDeleteConfirm"
-                                        class="btn btn-sm btn-danger text-white">
-                                <span wire:loading.remove wire:target="openBulkDeleteConfirm">
-                                    <i class="material-symbols-outlined" style="font-size:16px;">delete_forever</i>
-                                    حذف {{ count($bulkDeleteSelectedIds) }} پارت انتخاب‌شده
-                                </span>
-                                    <span wire:loading wire:target="openBulkDeleteConfirm">لطفاً صبر کنید...</span>
-                                </button>
-                            @endif
+                                }
+                            @endphp
+                            @foreach($bulkSelectedInfo as $info)
+                                <span class="badge bg-danger-subtle text-danger border rounded-pill small">
+                            <i class="material-symbols-outlined" style="font-size:12px;">delete</i>
+                            {{ $info['part']->lesson_name }} — {{ $info['day_name'] }}
+                        </span>
+                            @endforeach
                         </div>
-                    </div>
-                @endif
-            </div>{{-- end sticky-action-panel --}}
+                    @else
+                        <span class="small text-muted-2">روی پارت‌ها کلیک کنید</span>
+                    @endif
 
+                @else
+                    <button wire:click="togglePartSelectMode(false)"
+                            class="btn btn-sm btn-outline-success d-flex align-items-center gap-1">
+                        <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i>
+                        کپی پارت
+                    </button>
+                    <button wire:click="toggleBulkDeleteMode"
+                            class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
+                        <i class="material-symbols-outlined" style="font-size:16px;">delete_sweep</i>
+                        حذف گروهی
+                    </button>
+                    <button wire:click="togglePartSelectMode(true)"
+                            class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+                        <i class="material-symbols-outlined" style="font-size:16px;">content_cut</i>
+                        کات پارت
+                    </button>
+                @endif
+            </div>
+
+            {{-- جدول --}}
             <div class="weekly-wrap">
                 <div class="weekly-scroll">
+                    @php
+                        $maxPartsInWeek = 10;
+                        if(isset($weekDays)) {
+                            foreach($weekDays as $wd) {
+                                $c = count($wd['parts']);
+                                if($c >= $maxPartsInWeek) $maxPartsInWeek = $c + 2;
+                            }
+                        }
+                        $maxPartsInWeek = max($maxPartsInWeek, 10);
+                    @endphp
                     <table class="table table-bordered table-hover align-middle weekly-table">
                         <thead>
                         <tr>
-                            <th class="text-center" style="width: 90px;">روز</th>
-                            <th class="text-center" style="width: 130px;">تاریخ</th>
-                            <th class="text-center" style="width: 110px;">ساعت</th>
-
-                            <th class="text-center" style="width: 95px;">تست روز</th>
-                            <th class="text-center" style="width: 90px;">استراحت</th>
-                            <th class="text-center" style="width: 100px;">آزمون جامع</th>
-
-                            @php
-                                $maxPartsInWeek = 10;
-                                if(isset($weekDays)) {
-                                    foreach($weekDays as $wd) {
-                                        $c = count($wd['parts']);
-     if($c >= $maxPartsInWeek) $maxPartsInWeek = $c + 2;
-                                    }
-                                }
-                                $maxPartsInWeek = max($maxPartsInWeek, 10);
-                            @endphp
+                            <th class="text-center" style="width:130px;">روز / تاریخ</th>
+                            <th class="text-center" style="width:110px;">ساعت</th>
+                            <th class="text-center" style="width:155px;">وضعیت روز</th>
                             @for($i = 1; $i <= $maxPartsInWeek; $i++)
                                 <th class="text-center">پلن {{ $i }}</th>
                             @endfor
-
                         </tr>
                         </thead>
 
@@ -1551,19 +1683,16 @@
                             <tr class="{{ $day['is_rest_day'] ? 'table-success bg-success bg-opacity-10' : ($day['is_exam_day'] ? 'table-danger bg-danger bg-opacity-10' : '') }}"
                                 data-day-index="{{ $day['index'] }}"
                                 data-sortable-row="1">
-                                {{-- روز --}}
+
+                                {{-- ستون 1: روز / تاریخ --}}
                                 <td class="text-center">
-                                    <span
-                                        class="badge {{ $day['is_rest_day'] ? 'bg-success' : ($day['is_exam_day'] ? 'bg-danger' : 'bg-primary') }} rounded-pill px-3 py-2 fw-bold">
-                                        {{ $day['name'] }}
-                                    </span>
+                            <span class="badge {{ $day['is_rest_day'] ? 'bg-success' : ($day['is_exam_day'] ? 'bg-danger' : 'bg-primary') }} rounded-pill px-2 py-1 fw-bold d-block mb-1">
+                                {{ $day['name'] }}
+                            </span>
+                                    <div class="small text-muted-2">{{ $day['jalali_date'] }}</div>
                                 </td>
 
-                                {{-- تاریخ --}}
-                                <td class="text-center">
-                                    <div class="fw-semibold text-muted-2">{{ $day['jalali_date'] }}</div>
-                                </td>
-                                {{-- ساعت کل --}}
+                                {{-- ستون 2: ساعت کل --}}
                                 <td class="text-center">
                                     @if($day['is_rest_day'])
                                         <span class="text-success fw-bold">-</span>
@@ -1572,136 +1701,120 @@
                                         <small class="text-muted-2 d-block">ساعت</small>
                                     @endif
                                 </td>
-                                {{-- تست روز --}}
+
+                                {{-- ستون 3: وضعیت روز --}}
                                 <td class="text-center">
-                                    @if($day['is_rest_day'])
-                                        <span class="badge bg-success-subtle text-success fw-bold">-</span>
-                                    @else
-                                        <span class="badge bg-warning-subtle text-warning fw-bold">
-                                            {{ $day['total_tests'] }}
-                                        </span>
-                                    @endif
-                                </td>
-                                {{-- استراحت --}}
-                                <td class="text-center">
-                                    <div class="form-check form-switch d-flex justify-content-center">
-                                        <input type="checkbox"
-                                               class="form-check-input"
-                                               wire:click="toggleRestDay({{ $day['index'] }})"
-                                               {{ $day['is_rest_day'] ? 'checked' : '' }}
-                                               style="cursor: pointer;">
+                                    <div class="d-flex flex-column gap-1 align-items-center">
+                                        @if(!$day['is_rest_day'])
+                                            <span class="badge bg-warning-subtle text-warning fw-bold">
+                                        <i class="material-symbols-outlined" style="font-size:12px;">quiz</i>
+                                        {{ $day['total_tests'] }}
+                                    </span>
+                                        @endif
+                                        <div class="d-flex align-items-center gap-1">
+                                            <small class="{{ $day['is_rest_day'] ? 'text-success fw-semibold' : 'text-muted-2' }}">استراحت</small>
+                                            <div class="form-check form-switch mb-0">
+
+                                                <input type="checkbox" class="form-check-input"
+                                                       wire:click="toggleRestDay({{ $day['index'] }})"
+                                                       {{ $day['is_rest_day'] ? 'checked' : '' }}
+                                                       style="cursor:pointer;">
+
+                                            </div>
+
+                                        </div>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <small class="{{ $day['is_exam_day'] ? 'text-danger fw-semibold' : 'text-muted-2' }}" >آزمون</small>
+                                            <div class="form-check form-switch mb-0">
+                                                <input type="checkbox" class="form-check-input" style="margin-right: -42px;"
+                                                       wire:click="toggleExamDay({{ $day['index'] }})"
+                                                       {{ $day['is_exam_day'] ? 'checked' : '' }}
+                                                       {{ $day['is_rest_day'] ? 'disabled' : '' }}
+                                                       style="cursor:pointer;">
+                                            </div>
+
+                                        </div>
                                     </div>
-                                    @if($day['is_rest_day'])
-                                        <small class="text-success d-block mt-1 fw-semibold">روز استراحت</small>
-                                    @endif
-                                </td>
-                                {{-- آزمون جامع --}}
-                                <td class="text-center">
-                                    <div class="form-check form-switch d-flex justify-content-center">
-                                        <input type="checkbox"
-                                               class="form-check-input"
-                                               wire:click="toggleExamDay({{ $day['index'] }})"
-                                               {{ $day['is_exam_day'] ? 'checked' : '' }}
-                                               {{ $day['is_rest_day'] ? 'disabled' : '' }}
-                                               style="cursor: pointer;">
-                                    </div>
-                                    @if($day['is_exam_day'])
-                                        <small class="text-danger d-block mt-1 fw-semibold">آزمون جامع</small>
-                                    @endif
                                 </td>
 
-                                {{-- پلن‌ها --}}
+                                {{-- ستون‌های پلن --}}
                                 @for($i = 0; $i < $maxPartsInWeek; $i++)
                                     <td class="{{ (!$day['is_rest_day'] && !$day['is_exam_day'] && isset($day['parts'][$i])) ? 'plan-part-cell' : '' }}"
                                         data-part-id="{{ (!$day['is_rest_day'] && !$day['is_exam_day'] && isset($day['parts'][$i])) ? $day['parts'][$i]->id : '' }}">
+
                                         @if($day['is_rest_day'])
-                                            <div
-                                                class="plan-box plan-rest d-flex align-items-center justify-content-center">
+                                            <div class="plan-box plan-rest d-flex align-items-center justify-content-center">
                                                 @if($i === 0)
                                                     <div class="text-center">
-                                                        <i class="material-symbols-outlined text-success"
-                                                           style="font-size: 34px;">self_improvement</i>
+                                                        <i class="material-symbols-outlined text-success" style="font-size:34px;">self_improvement</i>
                                                         <div class="small text-success fw-semibold mt-1">استراحت</div>
                                                     </div>
                                                 @endif
                                             </div>
+
                                         @elseif($day['is_exam_day'])
-                                            {{-- Comprehensive exam day mode --}}
                                             @if(isset($day['parts'][$i]))
                                                 @php $part = $day['parts'][$i]; @endphp
-                                                <div
-                                                    class="plan-box clickable p-3 {{ $part->part_type === 'exam_analysis' ? 'bg-warning bg-opacity-10 border-warning' : 'bg-danger bg-opacity-10 border-danger' }}"
-                                                    wire:click="editExamPart({{ $part->id }})">
+                                                <div class="plan-box clickable p-3 {{ $part->part_type === 'exam_analysis' ? 'bg-warning bg-opacity-10 border-warning' : 'bg-danger bg-opacity-10 border-danger' }}"
+                                                     wire:click="editExamPart({{ $part->id }})">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                         <span class="fw-bold small">{{ $part->lesson_name }}</span>
-                                                        <span
-                                                            class="badge {{ $part->part_type === 'exam_analysis' ? 'bg-warning' : 'bg-danger' }} text-white text-xs">
-                                                            {{ $part->part_type_label }}
-                                                        </span>
+                                                        <span class="badge {{ $part->part_type === 'exam_analysis' ? 'bg-warning' : 'bg-danger' }} text-white text-xs">
+                                                    {{ $part->part_type_label }}
+                                                </span>
                                                     </div>
                                                     @if($part->source_type && $part->source_type !== 'normal')
                                                         <div class="mb-1">
-                                                            <span
-                                                                class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
-                                                                {{ $part->source_type_label }}
-                                                            </span>
+                                                    <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
+                                                        {{ $part->source_type_label }}
+                                                    </span>
                                                         </div>
                                                     @endif
                                                     <p class="small mb-2 text-muted-2">{{ Str::limit($part->description, 55) }}</p>
                                                     <div class="d-flex flex-wrap gap-2 small text-muted-2">
-                                                        <span class="d-flex align-items-center gap-1">
-                                                            <i class="material-symbols-outlined"
-                                                               style="font-size: 14px;">schedule</i>
-                                                            {{ $part->duration_minutes }} دقیقه
-                                                        </span>
+                                                <span class="d-flex align-items-center gap-1">
+                                                    <i class="material-symbols-outlined" style="font-size:14px;">schedule</i>
+                                                    {{ $part->duration_minutes }} دقیقه
+                                                </span>
                                                     </div>
                                                     <div class="mt-2">
                                                         <button class="btn btn-sm btn-outline-danger"
                                                                 wire:click.stop="deleteExamPart({{ $part->id }})"
                                                                 wire:confirm="آیا از حذف این آزمون اطمینان دارید؟">
-                                                            <i class="material-symbols-outlined"
-                                                               style="font-size: 14px;">delete</i>
+                                                            <i class="material-symbols-outlined" style="font-size:14px;">delete</i>
                                                         </button>
                                                     </div>
                                                 </div>
                                             @elseif($i === count($day['parts']))
-                                                <div
-                                                    class="plan-box plan-empty d-flex align-items-center justify-content-center clickable"
-                                                    wire:click="openExamPartModal({{ $day['index'] }})">
+                                                <div class="plan-box plan-empty d-flex align-items-center justify-content-center clickable"
+                                                     wire:click="openExamPartModal({{ $day['index'] }})">
                                                     <div class="text-center">
                                                         <i class="material-symbols-outlined text-danger">add</i>
                                                         <div class="small text-danger mt-1">افزودن آزمون</div>
                                                     </div>
                                                 </div>
                                             @else
-                                                <div
-                                                    class="plan-box plan-empty d-flex align-items-center justify-content-center"></div>
+                                                <div class="plan-box plan-empty d-flex align-items-center justify-content-center"></div>
                                             @endif
 
                                         @elseif(isset($day['parts'][$i]))
                                             @php $part = $day['parts'][$i]; @endphp
 
                                             @if($bulkDeleteMode)
-                                                {{-- حالت حذف گروهی --}}
-                                                @php
-                                                    $isBulkSelected = in_array($part->id, $bulkDeleteSelectedIds);
-                                                @endphp
-                                                <div
-                                                    class="plan-box p-3 {{ $part->color_class ?? '' }} {{ $isBulkSelected ? 'border-danger border-2 bg-danger bg-opacity-10' : '' }}"
-                                                    wire:click="toggleBulkDeleteSelection({{ $part->id }})"
-                                                    style="cursor:pointer;position:relative;">
+                                                @php $isBulkSelected = in_array($part->id, $bulkDeleteSelectedIds); @endphp
+                                                <div class="plan-box p-3 {{ $part->color_class ?? '' }} {{ $isBulkSelected ? 'border-danger border-2 bg-danger bg-opacity-10' : '' }}"
+                                                     wire:click="toggleBulkDeleteSelection({{ $part->id }})"
+                                                     style="cursor:pointer;position:relative;">
                                                     <div class="position-absolute top-0 end-0 p-1" style="z-index:2;">
-                                                        <i class="material-symbols-outlined {{ $isBulkSelected ? 'text-danger' : 'text-muted-2' }}"
-                                                           style="font-size:20px;">
+                                                        <i class="material-symbols-outlined {{ $isBulkSelected ? 'text-danger' : 'text-muted-2' }}" style="font-size:20px;">
                                                             {{ $isBulkSelected ? 'check_box' : 'check_box_outline_blank' }}
                                                         </i>
                                                     </div>
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
                                                         <span class="fw-bold small">{{ $part->lesson_name }}</span>
-                                                        <span class="badge bg-body-tertiary text-body border text-xs"
-                                                              style="margin-left:24px;">
-                                                            {{ $part->part_type_label }} {{ $part->grade_label }}
-                                                        </span>
+                                                        <span class="badge bg-body-tertiary text-body border text-xs" style="margin-left:24px;">
+                                                    {{ $part->part_type_label }} {{ $part->grade_label }}
+                                                </span>
                                                     </div>
                                                     @if($part->description)
                                                         <p class="small mb-1 text-muted-2">{{ Str::limit($part->description, 50) }}</p>
@@ -1711,61 +1824,50 @@
                                                         {{ $part->duration_minutes }} دقیقه
                                                     </div>
                                                 </div>
+
                                             @elseif($partSelectMode)
-                                                {{-- حالت انتخاب: نمایش کامل اطلاعات + قابلیت انتخاب --}}
                                                 @php
                                                     $isSelected = in_array($part->id, $selectedPartIds);
                                                     $selectBorderClass = $cutMode ? 'border-danger border-2' : 'border-warning border-2';
                                                     $selectIconColor = $cutMode ? 'text-danger' : 'text-warning';
                                                 @endphp
-                                                <div
-                                                    class="plan-box p-3 {{ $part->color_class ?? '' }} {{ $isSelected ? $selectBorderClass : '' }}"
-
-                                                    wire:click="togglePartSelection({{ $part->id }})"
-                                                    style="cursor:pointer;position:relative;">
+                                                <div class="plan-box p-3 {{ $part->color_class ?? '' }} {{ $isSelected ? $selectBorderClass : '' }}"
+                                                     wire:click="togglePartSelection({{ $part->id }})"
+                                                     style="cursor:pointer;position:relative;">
                                                     <div class="position-absolute top-0 end-0 p-1" style="z-index:2;">
-                                                        <i class="material-symbols-outlined {{ $isSelected ? $selectIconColor : 'text-muted-2' }}"
-                                                           style="font-size:20px;">
+                                                        <i class="material-symbols-outlined {{ $isSelected ? $selectIconColor : 'text-muted-2' }}" style="font-size:20px;">
                                                             {{ $isSelected ? 'check_box' : 'check_box_outline_blank' }}
                                                         </i>
                                                     </div>
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <div class="d-flex align-items-center gap-1">
-                                                            <span class="fw-bold small">{{ $part->lesson_name }}</span>
-                                                        </div>
-                                                        <span class="badge bg-body-tertiary text-body border text-xs"
-                                                              style="margin-left:24px;">
-                                                            {{ $part->part_type_label }} {{ $part->grade_label }}
-                                                        </span>
+                                                        <span class="fw-bold small">{{ $part->lesson_name }}</span>
+                                                        <span class="badge bg-body-tertiary text-body border text-xs" style="margin-left:24px;">
+                                                    {{ $part->part_type_label }} {{ $part->grade_label }}
+                                                </span>
                                                     </div>
                                                     @if($part->source_type && $part->source_type !== 'normal')
                                                         <div class="mb-1">
-                                                            <span
-                                                                class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
-                                                                {{ $part->source_type_label }}
-                                                            </span>
+                                                    <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
+                                                        {{ $part->source_type_label }}
+                                                    </span>
                                                         </div>
                                                     @endif
-                                                    <p class="small mb-2 text-muted-2">
-                                                        {{ Str::limit($part->description, 55) }}
-                                                    </p>
+                                                    <p class="small mb-2 text-muted-2">{{ Str::limit($part->description, 55) }}</p>
                                                     <div class="d-flex flex-wrap gap-2 small text-muted-2">
-                                                        <span class="d-flex align-items-center gap-1">
-                                                            <i class="material-symbols-outlined"
-                                                               style="font-size:14px;">schedule</i>
-                                                            {{ $part->duration_minutes }} دقیقه
-                                                        </span>
+                                                <span class="d-flex align-items-center gap-1">
+                                                    <i class="material-symbols-outlined" style="font-size:14px;">schedule</i>
+                                                    {{ $part->duration_minutes }} دقیقه
+                                                </span>
                                                         @if($part->test_count)
                                                             <span class="d-flex align-items-center gap-1">
-                                                                <i class="material-symbols-outlined"
-                                                                   style="font-size:14px;">quiz</i>
-                                                                {{ $part->test_count }} تست
-                                                            </span>
+                                                        <i class="material-symbols-outlined" style="font-size:14px;">quiz</i>
+                                                        {{ $part->test_count }} تست
+                                                    </span>
                                                         @endif
                                                     </div>
                                                 </div>
+
                                             @else
-                                                {{-- رنگ‌بندی قبلی شما حفظ شده (color_class) --}}
                                                 <div class="plan-box clickable p-3 {{ $part->color_class ?? '' }}"
                                                      wire:click="editPart({{ $part->id }})">
                                                     <div class="d-flex justify-content-between align-items-center mb-2">
@@ -1777,55 +1879,46 @@
                                                             <span class="fw-bold small">{{ $part->lesson_name }}</span>
                                                         </div>
                                                         <span class="badge bg-body-tertiary text-body border text-xs">
-                                                            {{ $part->part_type_label }} {{ $part->grade_label }}
-                                                        </span>
+                                                    {{ $part->part_type_label }} {{ $part->grade_label }}
+                                                </span>
                                                     </div>
                                                     @if($part->source_type && $part->source_type !== 'normal')
                                                         <div class="mb-1">
-                                                            <span
-                                                                class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
-                                                                {{ $part->source_type_label }}
-                                                            </span>
+                                                    <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
+                                                        {{ $part->source_type_label }}
+                                                    </span>
                                                         </div>
                                                     @endif
-                                                    <p class="small mb-2 text-muted-2">
-                                                        {{ Str::limit($part->description, 55) }}
-                                                    </p>
-
+                                                    <p class="small mb-2 text-muted-2">{{ Str::limit($part->description, 55) }}</p>
                                                     <div class="d-flex flex-wrap gap-2 small text-muted-2">
-                                                        <span class="d-flex align-items-center gap-1">
-                                                         <i class="material-symbols-outlined" style="font-size: 14px;">schedule</i>
-                                                            {{ $part->duration_minutes }} دقیقه
-                                                        </span>
+                                                <span class="d-flex align-items-center gap-1">
+                                                    <i class="material-symbols-outlined" style="font-size:14px;">schedule</i>
+                                                    {{ $part->duration_minutes }} دقیقه
+                                                </span>
                                                         @if($part->test_count)
                                                             <span class="d-flex align-items-center gap-1">
-                                                                <i class="material-symbols-outlined"
-                                                                   style="font-size: 14px;">quiz</i>
-                                                                {{ $part->test_count }} تست
-                                                            </span>
+                                                        <i class="material-symbols-outlined" style="font-size:14px;">quiz</i>
+                                                        {{ $part->test_count }} تست
+                                                    </span>
                                                         @endif
                                                     </div>
-                                                    @endif
                                                 </div>
+                                            @endif
 
-                                                @elseif($i === count($day['parts']))
-                                                    {{-- Part C: Add New Part button at the end of existing parts --}}
-                                                    <div
-                                                        class="plan-box plan-empty d-flex align-items-center justify-content-center clickable"
-                                                        wire:click="openPartModal({{ $day['index'] }})">
-                                                        <div class="text-center">
-                                                            <i class="material-symbols-outlined text-primary">add_circle</i>
-                                                            <div class="small text-primary mt-1">افزودن پارت</div>
-                                                        </div>
-                                                    </div>
-                                                @else
-                                                    <div
-                                                        class="plan-box plan-empty d-flex align-items-center justify-content-center">
-                                                    </div>
-                                                @endif
+                                        @elseif($i === count($day['parts']))
+                                            <div class="plan-box plan-empty d-flex align-items-center justify-content-center clickable"
+                                                 wire:click="openPartModal({{ $day['index'] }})">
+                                                <div class="text-center">
+                                                    <i class="material-symbols-outlined text-primary">add_circle</i>
+                                                    <div class="small text-primary mt-1">افزودن پارت</div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="plan-box plan-empty d-flex align-items-center justify-content-center"></div>
+                                        @endif
+
                                     </td>
                                 @endfor
-
 
                             </tr>
                         @endforeach
@@ -1982,7 +2075,7 @@
                                                 wire:click="selectGlobalResult({{ $index }})"
                                                 class="list-group-item list-group-item-action py-2 px-3 d-flex align-items-center gap-2 flex-wrap">
 
-                                        @if($result['type'] === 'topic')
+                                            @if($result['type'] === 'topic')
                                                 <span class="badge bg-success-subtle text-success small">مبحث</span>
                                             @elseif($result['type'] === 'chapter')
                                                 <span class="badge bg-info-subtle text-info small">فصل</span>
@@ -3087,7 +3180,7 @@
     @if($showClassificationModal)
         <div class="modal fade show d-block" tabindex="-1"
              style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px); z-index: 1075;">
-            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content shadow-lg border-0">
                     <div class="modal-header text-white"
                          style="background: linear-gradient(135deg, #475569 0%, #64748b 50%, #94a3b8 100%);">
@@ -3095,8 +3188,7 @@
                             <i class="material-symbols-outlined">category</i>
                             طبقه‌بندی مباحث
                             @if($classificationProjectName)
-                                <span
-                                    class="badge bg-white bg-opacity-25 fw-normal small">{{ $classificationProjectName }}</span>
+                                <span class="badge bg-white bg-opacity-25 fw-normal small">{{ $classificationProjectName }}</span>
                             @endif
                         </h5>
                         <button type="button" class="btn-close btn-close-white"
@@ -3105,10 +3197,29 @@
 
                     <div class="modal-body">
                         @if(count($classificationTopics) > 0)
-                            <p class="small text-muted-2 mb-3 d-flex align-items-center gap-1">
-                                <i class="material-symbols-outlined" style="font-size:16px;">info</i>
-                                برای افزودن مبحث به برنامه روی «اضافه کردن» کلیک کنید و روز و زمان را انتخاب نمایید.
-                            </p>
+                            {{-- Sort Controls --}}
+                            <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                                <span class="small fw-semibold text-muted-2">مرتب‌سازی:</span>
+                                <button wire:click="sortClassification('rating')"
+                                        class="btn btn-sm {{ $classificationSort === 'rating' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+                                    <i class="material-symbols-outlined" style="font-size:14px;">star</i>
+                                    رتبه
+                                </button>
+                                <button wire:click="sortClassification('grade')"
+                                        class="btn btn-sm {{ $classificationSort === 'grade' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+                                    <i class="material-symbols-outlined" style="font-size:14px;">school</i>
+                                    پایه
+                                </button>
+                                <button wire:click="sortClassification('lesson_type')"
+                                        class="btn btn-sm {{ $classificationSort === 'lesson_type' ? 'btn-secondary' : 'btn-outline-secondary' }}">
+                                    <i class="material-symbols-outlined" style="font-size:14px;">category</i>
+                                    عمومی/تخصصی
+                                </button>
+                                <span class="text-muted-2 small ms-2">
+                                    <i class="material-symbols-outlined" style="font-size:14px;">info</i>
+                                    برای افزودن مبحث روی «افزودن» کلیک کنید.
+                                </span>
+                            </div>
                             <div class="table-responsive">
                                 <table class="table table-hover align-middle mb-0">
                                     <thead class="table-light">
@@ -3117,29 +3228,57 @@
                                         <th>درس</th>
                                         <th>فصل</th>
                                         <th>مبحث</th>
+                                        <th class="text-center">پایه</th>
+                                        <th class="text-center">نوع</th>
                                         <th class="text-center">رتبه</th>
                                         <th class="text-center">عملیات</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     @foreach($classificationTopics as $idx => $item)
-                                        <tr>
+                                        <tr class="{{ $item['is_added'] ? 'table-success bg-success bg-opacity-10' : '' }}">
                                             <td class="text-muted-2">{{ $idx + 1 }}</td>
                                             <td class="fw-semibold">{{ $item['subject_name'] }}</td>
                                             <td class="small text-muted-2">{{ $item['chapter_name'] }}</td>
                                             <td class="fw-semibold">{{ $item['topic_name'] }}</td>
                                             <td class="text-center">
-                                                <span
-                                                    class="badge bg-{{ $item['rating_color'] }}-subtle text-{{ $item['rating_color'] }} fw-bold px-2">
+                                                @if($item['grade_label'])
+                                                    <span class="badge bg-primary-subtle text-primary small">{{ $item['grade_label'] }}</span>
+                                                @else
+                                                    <span class="text-muted-2 small">—</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-body-tertiary text-body border small">{{ $item['lesson_type_label'] }}</span>
+                                            </td>
+                                            <td class="text-center">
+                                                <span class="badge bg-{{ $item['rating_color'] }}-subtle text-{{ $item['rating_color'] }} fw-bold px-2">
                                                     {{ $item['rating_label'] }}
                                                 </span>
                                             </td>
                                             <td class="text-center">
-                                                <div class="d-flex gap-1 justify-content-center">
+                                                <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                                    @if($item['is_added'])
+                                                        <span class="badge bg-success text-white px-2 py-1 d-inline-flex align-items-center gap-1 mb-1">
+                                                            <i class="material-symbols-outlined" style="font-size:13px;">check_circle</i>
+                                                            اضافه شده
+                                                        </span>
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-danger"
+                                                                wire:click.stop="revertClassificationPart({{ $item['topic_id'] }})"
+                                                                wire:loading.attr="disabled"
+                                                                wire:target="revertClassificationPart({{ $item['topic_id'] }})">
+                                                            <span wire:loading.remove wire:target="revertClassificationPart({{ $item['topic_id'] }})">
+                                                                <i class="material-symbols-outlined" style="font-size:13px;">undo</i>
+                                                                برگشت
+                                                            </span>
+                                                            <span wire:loading wire:target="revertClassificationPart({{ $item['topic_id'] }})">...</span>
+                                                        </button>
+                                                    @endif
                                                     <button type="button" class="btn btn-sm btn-outline-primary"
                                                             wire:click.stop="showClassificationInlineAdd({{ $item['topic_id'] }})">
                                                         <i class="material-symbols-outlined" style="font-size:14px;">add_circle</i>
-                                                        اضافه کردن به برنامه
+                                                        افزودن
                                                     </button>
                                                 </div>
                                             </td>
@@ -3147,60 +3286,69 @@
                                         {{-- Inline add form --}}
                                         @if($showClassificationAddForm && $classificationSelectedTopicId === $item['topic_id'])
                                             <tr class="bg-body-tertiary">
-                                                <td colspan="6">
+                                                <td colspan="8">
                                                     <div class="p-3 rounded-3 border"
                                                          style="border-color: var(--ui-border) !important;">
                                                         <div class="row g-3 align-items-end">
-                                                            <div class="col-md-4">
-                                                                <label class="form-label small fw-semibold mb-1">انتخاب
-                                                                    روز</label>
+                                                            <div class="col-md-3">
+                                                                <label class="form-label small fw-semibold mb-1">انتخاب روز</label>
                                                                 <select class="form-select form-select-sm"
                                                                         wire:model="classificationAddForm.day_index">
                                                                     <option value="">انتخاب کنید...</option>
                                                                     @foreach($weekDays as $wd)
                                                                         @if(!$wd['is_rest_day'])
-                                                                            <option value="{{ $wd['index'] }}">
-                                                                                {{ $wd['name'] }}
-                                                                                ({{ $wd['jalali_date'] }})
-                                                                            </option>
+                                                                            <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
                                                                         @endif
                                                                     @endforeach
                                                                 </select>
                                                             </div>
                                                             <div class="col-md-2">
-                                                                <label
-                                                                    class="form-label small fw-semibold mb-1">ساعت</label>
+                                                                <label class="form-label small fw-semibold mb-1">نوع پارت</label>
+                                                                <select class="form-select form-select-sm"
+                                                                        wire:model.live="classificationAddForm.part_type">
+                                                                    <option value="descriptive">تشریحی</option>
+                                                                    <option value="test">تستی</option>
+                                                                    <option value="video">ویدئو</option>
+                                                                    <option value="topic_exam">آزمون مبحثی</option>
+                                                                </select>
+                                                            </div>
+                                                            @if(in_array($classificationAddForm['part_type'] ?? 'descriptive', ['test', 'topic_exam']))
+                                                                <div class="col-md-1">
+                                                                    <label class="form-label small fw-semibold mb-1">تعداد تست</label>
+                                                                    <input type="number" min="0"
+                                                                           class="form-control form-control-sm text-center"
+                                                                           wire:model="classificationAddForm.test_count"
+                                                                           placeholder="0">
+                                                                </div>
+                                                            @endif
+                                                            <div class="col-md-1">
+                                                                <label class="form-label small fw-semibold mb-1">ساعت</label>
                                                                 <input type="number" min="0" max="24"
                                                                        class="form-control form-control-sm text-center"
                                                                        wire:model="classificationAddForm.duration_hours"
                                                                        placeholder="0">
                                                             </div>
-                                                            <div class="col-md-2">
-                                                                <label
-                                                                    class="form-label small fw-semibold mb-1">دقیقه</label>
+                                                            <div class="col-md-1">
+                                                                <label class="form-label small fw-semibold mb-1">دقیقه</label>
                                                                 <input type="number" min="0" max="59"
                                                                        class="form-control form-control-sm text-center"
                                                                        wire:model="classificationAddForm.duration_minutes"
                                                                        placeholder="0">
                                                             </div>
-                                                            <div class="col-md-4 d-flex gap-2">
+                                                            <div class="col-md-3 d-flex gap-2">
                                                                 <button type="button"
                                                                         class="btn btn-sm btn-success flex-fill"
                                                                         wire:click="addClassificationToProgram">
-                                                                    <span wire:loading.remove
-                                                                          wire:target="addClassificationToProgram">
-                                                                        <i class="material-symbols-outlined"
-                                                                           style="font-size:14px;">check</i>
+                                                                    <span wire:loading.remove wire:target="addClassificationToProgram">
+                                                                        <i class="material-symbols-outlined" style="font-size:14px;">check</i>
                                                                         ثبت نهایی
                                                                     </span>
-                                                                    <span wire:loading
-                                                                          wire:target="addClassificationToProgram">در حال ثبت...</span>
+                                                                    <span wire:loading wire:target="addClassificationToProgram">در حال ثبت...</span>
                                                                 </button>
                                                                 <button type="button"
                                                                         class="btn btn-sm btn-outline-secondary"
                                                                         wire:click="hideClassificationInlineAdd">
-                                                                    <i class="material-symbols-outlined"
-                                                                       style="font-size:14px;">close</i>
+                                                                    <i class="material-symbols-outlined" style="font-size:14px;">close</i>
                                                                 </button>
                                                             </div>
                                                         </div>
@@ -3217,8 +3365,7 @@
                                 <i class="material-symbols-outlined text-muted-2" style="font-size:64px;">category</i>
                                 <p class="text-muted-2 mt-3">
                                     @if($classificationProjectName)
-                                        هیچ مبحثی برای این دانش‌آموز در پروژه «{{ $classificationProjectName }}» ثبت
-                                        نشده است.
+                                        هیچ مبحثی برای این دانش‌آموز در پروژه «{{ $classificationProjectName }}» ثبت نشده است.
                                     @else
                                         پروژه طبقه‌بندی فعالی یافت نشد.
                                     @endif

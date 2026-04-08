@@ -12,7 +12,7 @@ use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\User;
-
+use Morilog\Jalali\Jalalian;
 class Show extends Component
 {
     use SEOTools, WithPagination;
@@ -28,11 +28,9 @@ class Show extends Component
     public $dateTo = '';
     public $sortBy = 'started_at';
     public $sortDirection = 'desc';
-    public $sessionType = 'all'; // all | regular | makeup | program
-    public $feedbackFilter = 'all'; // all | has_feedback | no_feedback
-    public $partTypeFilter = 'all'; // all | test | descriptive | video
-    public $advisingSessionFilter = ''; // فیلتر بر اساس جلسه مشاوره
-
+    public $sessionType = 'all';
+    public $partTypeFilter = 'all';
+    public $advisingSessionFilter = '';
     // Statistics
     public $totalSessions = 0;
     public $averageDuration = 0;
@@ -47,18 +45,25 @@ class Show extends Component
 
     // جلسات مشاوره
     public $advisingSessions = [];
+    public $filteredAdvisingPlans = [];
 
+    public int $totalRegularSeconds = 0;
+    public int $totalProgramSeconds = 0;
+    public int $totalActualSeconds = 0;
+    public int $totalMakeupSeconds = 0;
+    public int $totalPlannedSeconds = 0;
+    public int $unmetSeconds = 0;
+    public int $adjustedTotalSeconds = 0;
+    public int $activeDays = 1;
+    public int $dailyAverageSeconds = 0;
     // مودال جزئیات
     public $showDetailModal = false;
     public $selectedSession = null;
-    public $selectedSessionType = null; // 'regular' | 'makeup' | 'program'
-
+    public $selectedSessionType = null;
     protected $queryString = [
         'search' => ['except' => ''],
         'dateFrom' => ['except' => ''],
         'dateTo' => ['except' => ''],
-        'sessionType' => ['except' => 'all'],
-        'feedbackFilter' => ['except' => 'all'],
         'partTypeFilter' => ['except' => 'all'],
         'advisingSessionFilter' => ['except' => ''],
     ];
@@ -91,9 +96,47 @@ class Show extends Component
     {
         $this->advisingSessions = AdvisingSession::where('student_id', $this->studentId)
             ->where('result_status', AdvisingSession::RESULT_HELD)
-            ->with(['weeklyProgram'])
+            ->with(['weeklyProgram.parts'])
             ->orderByDesc('activation_date')
             ->get();
+        $this->totalPlannedSeconds = (int)$this->advisingSessions
+            ->sum(fn($session) => ((int)$session->weeklyProgram?->parts?->sum('duration_minutes')) * 60);
+
+        $this->loadFilteredAdvisingPlans();
+    }
+
+    protected function loadFilteredAdvisingPlans(): void
+    {
+        if (!$this->advisingSessionFilter) {
+            $this->filteredAdvisingPlans = [];
+            return;
+        }
+
+        $session = $this->advisingSessions->firstWhere('id', (int)$this->advisingSessionFilter);
+
+        if (!$session || !$session->weeklyProgram) {
+            $this->filteredAdvisingPlans = [];
+            return;
+        }
+
+        $parts = $session->weeklyProgram->parts()->with(['ccSubject', 'ccChapter', 'ccTopic'])->orderBy('day_of_week')->orderBy('part_order')->get();
+
+        $this->filteredAdvisingPlans = $parts->map(function ($part) use ($session) {
+            $hasLogged = StudyPartSession::where('student_id', $this->studentId)
+                ->where('weekly_program_id', $session->weeklyProgram->id)
+                ->where('program_part_id', $part->id)
+                ->exists();
+
+            return [
+                'id' => $part->id,
+                'lesson_name' => $part->lesson_name,
+                'cc_subject' => $part->ccSubject?->name,
+                'cc_chapter' => $part->ccChapter?->name,
+                'cc_topic' => $part->ccTopic?->name,
+                'duration_seconds' => ((int)$part->duration_minutes) * 60,
+                'is_logged' => $hasLogged,
+            ];
+        })->toArray();
     }
 
     protected function calculateStudyTime()
@@ -101,63 +144,69 @@ class Show extends Component
         $now = Carbon::now();
 
         // جلسات عادی (بدون برنامه)
-        $totalSeconds = StudySession::where('student_id', $this->studentId)->sum('duration_seconds');
-
+        $this->totalRegularSeconds = (int) StudySession::where('student_id', $this->studentId)->sum('duration_seconds');
+        $this->totalProgramSeconds = (int) StudyPartSession::where('student_id', $this->studentId)->sum('duration_seconds');
+        $this->totalActualSeconds = $this->totalRegularSeconds + $this->totalProgramSeconds;
+        $this->totalMakeupSeconds = (int) MakeupSession::where('student_id', $this->studentId)->sum('duration_seconds');
         // جلسات پارت‌های برنامه
-        $programSeconds = StudyPartSession::where('student_id', $this->studentId)
-            ->where('is_completed', true)
-            ->sum('duration_seconds');
-
+        $jalaliToday = Jalalian::fromCarbon($now);
+        $todayStart = Jalalian::fromFormat('Y/m/d', $jalaliToday->format('Y/m/d'))->toCarbon()->startOfDay();
+        $todayEnd = $todayStart->copy()->endOfDay();
         // Today
-        $todaySeconds = StudyPartSession::where('student_id', $this->studentId)
-            ->whereDate('started_at', $now->toDateString())
-            ->sum('duration_seconds');
+        $weekStartJalali = $jalaliToday->subDays($jalaliToday->getDayOfWeek());
+        $weekStart = Jalalian::fromFormat('Y/m/d', $weekStartJalali->format('Y/m/d'))->toCarbon()->startOfDay();
+        $weekEnd = $weekStart->copy()->addDays(6)->endOfDay();
 
-        // This Week
-        $weekStart = $now->copy()->startOfWeek(Carbon::SATURDAY);
-        $weekEnd = $now->copy()->endOfWeek(Carbon::FRIDAY);
+        $monthYear = (int)$jalaliToday->getYear();
+        $monthNumber = (int)$jalaliToday->getMonth();
+        $monthStart = Jalalian::fromFormat('Y/m/d', sprintf('%04d/%02d/01', $monthYear, $monthNumber))->toCarbon()->startOfDay();
+        $monthDays = Jalalian::fromFormat('Y/m/d', sprintf('%04d/%02d/01', $monthYear, $monthNumber))->getMonthDays();
+        $monthEnd = $monthStart->copy()->addDays($monthDays - 1)->endOfDay();
 
-        $weekSeconds = StudyPartSession::where('student_id', $this->studentId)
-            ->whereBetween('started_at', [$weekStart, $weekEnd])
-            ->sum('duration_seconds');
+        $todaySeconds = $this->sumAllStudySecondsBetween($todayStart, $todayEnd);
+        $weekSeconds = $this->sumAllStudySecondsBetween($weekStart, $weekEnd);
+        $monthSeconds = $this->sumAllStudySecondsBetween($monthStart, $monthEnd);
 
-        // This Month
-        $monthStart = $now->copy()->startOfMonth();
-        $monthEnd = $now->copy()->endOfMonth();
+        $this->unmetSeconds = max(0, $this->totalPlannedSeconds - $this->totalActualSeconds);
+        $this->adjustedTotalSeconds = max(0, $this->totalActualSeconds - $this->unmetSeconds);
 
-        $monthSeconds = StudyPartSession::where('student_id', $this->studentId)
-            ->whereBetween('started_at', [$monthStart, $monthEnd])
-            ->sum('duration_seconds');
+        $firstActivity = collect([
+            StudySession::where('student_id', $this->studentId)->min('started_at'),
+            StudyPartSession::where('student_id', $this->studentId)->min('started_at'),
+            MakeupSession::where('student_id', $this->studentId)->min('started_at'),
+        ])->filter()->map(fn($d) => Carbon::parse($d))->sort()->first();
 
-        // جلسات جبرانی
-        $makeupSeconds = MakeupSession::where('student_id', $this->studentId)
-            ->where('status', 'approved')
-            ->sum('duration_seconds');
-
-        $formatTime = fn($seconds) => sprintf(
-            '%02d:%02d:%02d',
-            floor($seconds / 3600),
-            floor(($seconds % 3600) / 60),
-            $seconds % 60
-        );
+        $this->activeDays = $firstActivity ? max(1, $firstActivity->startOfDay()->diffInDays($now->copy()->startOfDay()) + 1) : 1;
+        $this->dailyAverageSeconds = (int) floor($this->adjustedTotalSeconds / $this->activeDays);
 
         $this->studyTime = [
-            'total' => $formatTime($totalSeconds + $programSeconds + $makeupSeconds),
-            'today' => $formatTime($todaySeconds),
-            'week' => $formatTime($weekSeconds),
-            'month' => $formatTime($monthSeconds),
-            'makeup' => $formatTime($makeupSeconds),
-            'program' => $formatTime($programSeconds),
+            'regular_plus_extra' => $this->formatHourMinute($this->totalRegularSeconds) . '+' . $this->formatHourMinute($this->totalMakeupSeconds),
+            'today' => $this->formatHourMinute($todaySeconds),
+            'week' => $this->formatHourMinute($weekSeconds),
+            'month' => $this->formatHourMinute($monthSeconds),
+            'makeup' => $this->formatHourMinute($this->totalMakeupSeconds),
+            'total_actual' => $this->formatHourMinute($this->totalActualSeconds),
+            'total_planned' => $this->formatHourMinute($this->totalPlannedSeconds),
+            'unmet' => $this->formatHourMinute($this->unmetSeconds),
+            'daily_average' => $this->formatHourMinute($this->dailyAverageSeconds),
+            'final_total' => $this->formatHourMinute(max(0, $this->totalPlannedSeconds - $this->totalActualSeconds + $this->totalMakeupSeconds)),
         ];
 
         // Calculate total sessions count
         $this->totalSessions = StudyPartSession::where('student_id', $this->studentId)->count();
+        $this->averageDuration = $this->totalSessions > 0 ? round($this->totalProgramSeconds / $this->totalSessions / 60, 0) : 0;
+    }
+    protected function sumAllStudySecondsBetween(Carbon $from, Carbon $to): int
+    {
+        $program = (int) StudyPartSession::where('student_id', $this->studentId)
+            ->whereBetween('started_at', [$from, $to])
+            ->sum('duration_seconds');
 
-        // Calculate average duration
-        $totalDuration = $programSeconds;
-        if ($this->totalSessions > 0) {
-            $this->averageDuration = round($totalDuration / $this->totalSessions / 60, 0);
-        }
+        $regular = (int) StudySession::where('student_id', $this->studentId)
+            ->whereBetween('started_at', [$from, $to])
+            ->sum('duration_seconds');
+
+        return $program + $regular;
     }
 
     protected function loadStats()
@@ -170,10 +219,7 @@ class Show extends Component
 
         $this->completedPartsCount = $this->programPartsCount;
 
-        $this->feedbackAvg = round(
-            SessionFeedback::where('student_id', $this->studentId)->avg('rating') ?? 0,
-            1
-        );
+        $this->feedbackAvg = round(SessionFeedback::where('student_id', $this->studentId)->avg('rating') ?? 0, 1);
     }
 
     protected function loadStudySessions()
@@ -192,30 +238,21 @@ class Show extends Component
 
         if ($this->dateFrom) {
             try {
-                $dateFrom = Carbon::createFromFormat('Y/m/d', $this->dateFrom)->startOfDay();
+                $dateFrom = Jalalian::fromFormat('Y/m/d', $this->dateFrom)->toCarbon()->startOfDay();
                 $query->where('started_at', '>=', $dateFrom);
-            } catch (\Exception $e) {
-                // Invalid date format
+            } catch (\Throwable $e) {
             }
         }
 
         if ($this->dateTo) {
             try {
-                $dateTo = Carbon::createFromFormat('Y/m/d', $this->dateTo)->endOfDay();
+                $dateTo = Jalalian::fromFormat('Y/m/d', $this->dateTo)->toCarbon()->endOfDay();
                 $query->where('started_at', '<=', $dateTo);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Invalid date format
             }
         }
 
-        // Feedback filter
-        if ($this->feedbackFilter === 'has_feedback') {
-            $query->has('feedback');
-        } elseif ($this->feedbackFilter === 'no_feedback') {
-            $query->doesntHave('feedback');
-        }
-
-        // Part type filter
         if ($this->partTypeFilter !== 'all') {
             $query->whereHas('programPart', function ($q) {
                 $q->where('part_type', $this->partTypeFilter);
@@ -229,10 +266,7 @@ class Show extends Component
             });
         }
 
-        // Apply sorting
-        $query->orderBy($this->sortBy, $this->sortDirection);
-
-        $this->studySessions = $query->get();
+        $this->studySessions = $query->orderBy($this->sortBy, $this->sortDirection)->get();
     }
 
     protected function loadMakeupSessions()
@@ -243,23 +277,22 @@ class Show extends Component
         // Apply same date filters
         if ($this->dateFrom) {
             try {
-                $dateFrom = Carbon::createFromFormat('Y/m/d', $this->dateFrom)->startOfDay();
+                $dateFrom = Jalalian::fromFormat('Y/m/d', $this->dateFrom)->toCarbon()->startOfDay();
                 $query->where('created_at', '>=', $dateFrom);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Invalid date format
             }
         }
 
         if ($this->dateTo) {
             try {
-                $dateTo = Carbon::createFromFormat('Y/m/d', $this->dateTo)->endOfDay();
+                $dateTo = Jalalian::fromFormat('Y/m/d', $this->dateTo)->toCarbon()->endOfDay();
                 $query->where('created_at', '<=', $dateTo);
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Invalid date format
             }
         }
 
-        // Part type filter for makeup
         if ($this->partTypeFilter !== 'all') {
             $query->where('part_type', $this->partTypeFilter);
         }
@@ -267,48 +300,11 @@ class Show extends Component
         $this->makeupSessions = $query->orderByDesc('created_at')->get();
     }
 
-    public function updatedSearch()
-    {
-        $this->loadStudySessions();
-        if ($this->sessionType === 'all' || $this->sessionType === 'makeup') {
-            $this->loadMakeupSessions();
-        }
-    }
-
-    public function updatedSessionType()
-    {
-        $this->loadStudySessions();
-        $this->loadMakeupSessions();
-    }
-
-    public function updatedFeedbackFilter()
-    {
-        $this->loadStudySessions();
-    }
-
-    public function updatedPartTypeFilter()
-    {
-        $this->loadStudySessions();
-        $this->loadMakeupSessions();
-    }
-
-    public function updatedAdvisingSessionFilter()
-    {
-        $this->loadStudySessions();
-    }
-
-    public function updatedDateFrom()
-    {
-        $this->loadStudySessions();
-        $this->loadMakeupSessions();
-    }
-
-    public function updatedDateTo()
-    {
-        $this->loadStudySessions();
-        $this->loadMakeupSessions();
-    }
-
+    public function updatedSearch() { $this->loadStudySessions(); $this->loadMakeupSessions(); }
+    public function updatedPartTypeFilter() { $this->loadStudySessions(); $this->loadMakeupSessions(); }
+    public function updatedAdvisingSessionFilter() { $this->loadStudySessions(); $this->loadFilteredAdvisingPlans(); }
+    public function updatedDateFrom() { $this->loadStudySessions(); $this->loadMakeupSessions(); }
+    public function updatedDateTo() { $this->loadStudySessions(); $this->loadMakeupSessions(); }
     public function sortBy($field)
     {
         if ($this->sortBy === $field) {
@@ -326,11 +322,10 @@ class Show extends Component
         $this->selectedSessionType = $type;
 
         if ($type === 'makeup') {
-            $this->selectedSession = MakeupSession::with(['ccTopic.chapter.subject.grade', 'student.user.personalInformation'])
-                ->find($sessionId);
+            $this->selectedSession = MakeupSession::with(['ccTopic.chapter.subject.grade', 'student.user.personalInformation'])->find($sessionId);
         } else {
-            $this->selectedSession = StudyPartSession::with(['programPart.ccSubject', 'programPart.ccChapter', 'programPart.ccTopic', 'feedback', 'student.user.personalInformation', 'weeklyProgram.advisingSession'])
-                ->find($sessionId);
+            $this->selectedSession = StudyPartSession::with(['programPart.ccSubject', 'programPart.ccChapter', 'programPart.ccTopic', 'feedback', 'student.user.personalInformation', 'weeklyProgram.advisingSession'])->find($sessionId);
+
         }
 
         $this->showDetailModal = true;
@@ -373,39 +368,44 @@ class Show extends Component
         $this->dateTo = '';
         $this->sortBy = 'started_at';
         $this->sortDirection = 'desc';
-        $this->sessionType = 'all';
-        $this->feedbackFilter = 'all';
+
         $this->partTypeFilter = 'all';
         $this->advisingSessionFilter = '';
 
         $this->loadStudySessions();
         $this->loadMakeupSessions();
+        $this->loadFilteredAdvisingPlans();
     }
 
     public function formatDuration(?int $seconds): string
     {
-        if (is_null($seconds) || $seconds == 0) {
+        if (is_null($seconds) || $seconds <= 0) {
             return '-';
         }
 
-        return sprintf(
-            '%02d:%02d:%02d',
-            floor($seconds / 3600),
-            floor(($seconds % 3600) / 60),
-            $seconds % 60
-        );
+        return sprintf('%02d:%02d:%02d', floor($seconds / 3600), floor(($seconds % 3600) / 60), $seconds % 60);
     }
 
-    public function exportToExcel()
+    public function formatHourMinute(?int $seconds): string
     {
-        session()->flash('success', 'فایل Excel در حال آماده‌سازی است...');
+        if (is_null($seconds) || $seconds <= 0) {
+            return '00:00';
+        }
+
+        return sprintf('%02d:%02d', floor($seconds / 3600), floor(($seconds % 3600) / 60));
     }
 
-    public function exportToPdf()
+    public function isLatePartSession($session): bool
     {
-        session()->flash('success', 'فایل PDF در حال آماده‌سازی است...');
-    }
+        if (!$session?->started_at || !$session?->ended_at || (int)$session->duration_seconds <= 0) {
+            return false;
+        }
 
+        $expectedEnd = $session->started_at->copy()->addSeconds((int)$session->duration_seconds);
+        return $session->ended_at->gt($expectedEnd->addMinutes(20));
+    }
+    public function exportToExcel() { session()->flash('success', 'فایل Excel در حال آماده‌سازی است...'); }
+    public function exportToPdf() { session()->flash('success', 'فایل PDF در حال آماده‌سازی است...'); }
     public function deleteSession($sessionId)
     {
         try {
@@ -425,7 +425,6 @@ class Show extends Component
 
     public function render()
     {
-        return view('livewire.admin.student.study-session.show')
-            ->layout('layouts.admin.app');
+        return view('livewire.admin.student.study-session.show')->layout('layouts.admin.app');
     }
 }

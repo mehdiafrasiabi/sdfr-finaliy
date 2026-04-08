@@ -82,7 +82,8 @@
                                         <th data-dt-column="2">پدر</th>
                                         <th data-dt-column="3">مادر</th>
                                         <th data-dt-column="4">پایه + رشته</th>
-                                        <th data-dt-column="5"></th>
+                                        <th data-dt-column="5">کل ساعت (عادی+اضافه)</th>
+                                        <th data-dt-column="6"></th>
                                     </tr>
                                     </thead>
 
@@ -198,6 +199,9 @@
                                                 @endif
                                             </td>
                                             <td>
+                                                <span class="badge rounded-pill bg-info-subtle text-info-emphasis">{{ $studentTotalDisplays[$student->id] ?? '00:00+00:00' }}</span>
+                                            </td>
+                                            <td>
                                                 <div class="btn-group float-end">
                                                     <button class="btn btn-white btn-sm btn-shadow btn-icon waves-effect dropdown-toggle" data-bs-toggle="dropdown" type="button">
                                                         <i class="fi fi-rr-menu-dots">
@@ -215,7 +219,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="5" class="text-danger text-center">
+                                            <td colspan="7" class="text-danger text-center">
                                                 وجود ندارد
                                             </td>
                                         </tr>

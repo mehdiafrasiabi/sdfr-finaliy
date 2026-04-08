@@ -119,6 +119,11 @@
                             <span
                                 class="badge bg-white text-warning">{{ $stats['pending_reports'] ?? 0 }} در انتظار</span>
                             <span class="badge bg-white text-danger">{{ $stats['rejected_reports'] ?? 0 }} رد</span>
+                            @if(($stats['compensatory_reports'] ?? 0) > 0)
+                                <div >
+                                    <span class="badge bg-info">{{ $stats['compensatory_reports'] }} گزارش جبرانی</span>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -179,26 +184,7 @@
                         </div>
                         @if(($stats['undone_tests'] ?? 0) > 0)
                             <div class="mt-2">
-                                <span class="badge bg-warning text-dark">{{ $stats['undone_tests'] }} نزده</span>
-                            </div>
-                        @endif
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-3 col-md-6">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center justify-content-between">
-                            <div>
-                                <h6 class="text-muted mb-1">گوشی (غیردرسی)</h6>
-                                <h2 class="mb-0 text-warning">{{ $stats['total_phone_hours'] ?? 0 }}<small
-                                        class="text-muted fs-6"> ساعت</small></h2>
-                            </div>
-                            <i class="material-symbols-outlined text-warning" style="font-size: 48px; opacity: 0.3;">smartphone</i>
-                        </div>
-                        @if(($stats['compensatory_reports'] ?? 0) > 0)
-                            <div class="mt-2">
-                                <span class="badge bg-info">{{ $stats['compensatory_reports'] }} گزارش جبرانی</span>
+                                <span class="badge bg-warning text-white">{{ $stats['undone_tests'] }} نزده</span>
                             </div>
                         @endif
                     </div>
@@ -229,7 +215,6 @@
                         <th scope="col">روز</th>
                         <th scope="col">پارت خوانده</th>
                         <th scope="col">تست زده</th>
-                        <th scope="col">گوشی</th>
                         <th scope="col">امتیاز</th>
                         <th scope="col">نوع</th>
                         <th scope="col">وضعیت</th>
@@ -242,14 +227,23 @@
                     @if($reports->count() > 0)
                         @foreach($reports as $index => $item)
                             @if(isset($item['type']) && $item['type'] === 'not_sent')
-                                {{-- Not Sent / Future Day Row --}}
-                                @php $day = $item['data']; $isFutureDay = $day['is_future'] ?? false; @endphp
-                                <tr wire:key="not-sent-{{ $day['jalali_date'] }}" class="{{ $isFutureDay ? 'table-secondary' : 'table-warning' }}">
+                                {{-- Not Sent / Rest Day / Future Day Row --}}
+                                @php
+                                    $day = $item['data'];
+                                    $dayStatus = $day['status'] ?? 'not_sent';
+                                    $isFutureDay = $day['is_future'] ?? false;
+                                    $isRestDay   = $dayStatus === 'rest_day';
+                                    $rowClass = $isRestDay ? 'table-info' : ($isFutureDay ? 'table-secondary' : 'table-warning');
+                                @endphp
+                                <tr wire:key="not-sent-{{ $day['jalali_date'] }}" class="{{ $rowClass }}">
                                     <td>{{ $loop->iteration + $reports->firstItem() - 1 }}</td>
                                     <td>{{ $day['jalali_date'] }}</td>
                                     <td>{{ $day['day_name'] }}</td>
                                     <td colspan="5" class="text-center text-muted">
-                                        @if($isFutureDay)
+                                        @if($isRestDay)
+                                            <i class="material-symbols-outlined align-middle text-info" style="font-size: 18px;">weekend</i>
+                                            روز استراحت
+                                        @elseif($isFutureDay)
                                             <i class="material-symbols-outlined align-middle text-secondary" style="font-size: 18px;">schedule</i>
                                             هنوز به این تاریخ نرسیده‌اید
                                         @else
@@ -258,10 +252,12 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($isFutureDay)
+                                        @if($isRestDay)
+                                            <span class="badge bg-info">روز استراحت</span>
+                                        @elseif($isFutureDay)
                                             <span class="badge bg-secondary">تاریخ آینده</span>
                                         @else
-                                            <span class="badge bg-warning text-dark">ارسال نشده</span>
+                                            <span class="badge bg-warning text-white">ارسال نشده</span>
                                         @endif
                                     </td>
                                     <td>-</td>
@@ -316,7 +312,6 @@
                                         <span class="text-muted">/</span>
                                         <span>{{ $totalTests }}</span>
                                     </td>
-                                    <td>{{ $report->phone_hours }} ساعت</td>
                                     <td>
                                         @php $ratingVal = (float)$report->calculated_rating; @endphp
                                         @if($ratingVal > 0)
@@ -330,9 +325,9 @@
                                     </td>
                                     <td>
                                         @if($report->is_compensatory)
-                                            <span class="badge bg-warning text-dark">جبرانی</span>
+                                            <span class="badge bg-warning text-white">جبرانی</span>
                                         @else
-                                            <span class="badge bg-light text-dark">عادی</span>
+                                            <span class="badge bg-light text-white">عادی</span>
                                         @endif
                                     </td>
                                     <td>
@@ -434,9 +429,9 @@
                                     </td>
                                     <td>
                                         @if($report->is_compensatory)
-                                            <span class="badge bg-warning text-dark">جبرانی</span>
+                                            <span class="badge bg-warning text-white">جبرانی</span>
                                         @else
-                                            <span class="badge bg-light text-dark">عادی</span>
+                                            <span class="badge bg-light text-white">عادی</span>
                                         @endif
                                     </td>
                                     <td>
@@ -591,7 +586,7 @@
                                 {{ $selectedReportData['day_name'] ?? '' }}
                                 - {{ $selectedReportData['report_date'] ?? '' }}
                                 @if($selectedReportData['is_compensatory'] ?? false)
-                                    <span class="badge bg-warning text-dark ms-1">جبرانی</span>
+                                    <span class="badge bg-warning text-white ms-1">جبرانی</span>
                                 @endif
                             </p>
                             @if(isset($selectedReportData['created_at']) && $selectedReportData['created_at'] !== '-')
@@ -698,10 +693,10 @@
                                                         </small>
                                                     @endif
                                                     <div class="d-flex flex-wrap gap-2 mt-2">
-                                                        <span class="badge bg-light text-dark">{{ $part['duration_minutes'] }} دقیقه</span>
+                                                        <span class="badge bg-light text-white">{{ $part['duration_minutes'] }} دقیقه</span>
                                                         @if($part['test_count'] > 0)
                                                             <span
-                                                                class="badge {{ $part['tests_done'] >= $part['test_count'] ? 'bg-success' : 'bg-warning text-dark' }}">
+                                                                class="badge {{ $part['tests_done'] >= $part['test_count'] ? 'bg-success' : 'bg-warning text-white' }}">
                                                                 تست: {{ $part['tests_done'] }}/{{ $part['test_count'] }}
                                                             </span>
                                                         @endif

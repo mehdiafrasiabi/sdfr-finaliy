@@ -25,7 +25,7 @@
                     <div class="space-y-4">
                         @if($payments->isEmpty())
                             <div class="flex flex-col items-center justify-center space-y-12 py-16">
-                                <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="empty"/>
+                                <img src="/client/empty/financial1.webp" class="w-full max-w-xs" alt="empty"/>
                                 <div class="text-center space-y-3">
                                     <h2 class="font-bold text-xl text-foreground">
                                         تراکنشی برای شما وجود ندارد.

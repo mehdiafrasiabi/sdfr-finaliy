@@ -9,7 +9,6 @@ use App\Livewire\Client\Blog\Weblog\Index as WeblogIndex;
 use App\Livewire\Client\Cart\Index as CartIndex;
 use App\Livewire\Client\Cart\Info as cartInfo;
 use App\Livewire\Client\ContactUs\Index as ContactUs;
-use App\Livewire\Client\Course\Index as CourseIndex;
 use App\Livewire\Client\Home\Index as HomeIndex;
 use App\Livewire\Client\Download\Index as DownloadIndex;
 use App\Livewire\Client\Payment\Callback as PaymentCallback;
@@ -27,8 +26,6 @@ use App\Livewire\Client\Profile\Financial as ProfileFinancial;
 use App\Livewire\Client\Profile\Installment\Installment as ProfileInstallment;
 use App\Livewire\Client\Profile\Installment\InstallmentDetail as ProfileInstallmentDetail;
 use App\Livewire\Client\Profile\Notification as ProfileNotification;
-use App\Livewire\Client\Profile\ProfessionalTools\Index as ProfessionalToolsIndex;
-use App\Livewire\Client\Profile\ProfessionalTools\PomodoroTimer as ProfessionalToolsPomodoroTimer;
 use App\Livewire\Client\Profile\Report as ProfileReport;
 use App\Livewire\Client\Profile\ReportStudentStudy as ProfileReportStudentStudy;
 use App\Livewire\Client\Profile\Star;
@@ -61,7 +58,6 @@ Route::name('client.')->group(function () {
     Route::get('/contact-us',ContactUs::class)->name('contact-us');
 
     Route::get('/blog',WeblogIndex::class)->name('blog');
-    Route::get('/course',CourseIndex::class)->name('course');
     Route::get('/konkur', ExamCountdownIndex::class)->name('exam-countdown');
 
 
@@ -89,8 +85,6 @@ Route::name('client.')->group(function () {
             Route::get('/installmentDetail',ProfileInstallmentDetail::class)->name('installmentDetail');
             Route::get('/plan',ProfilePlan::class)->name('plan');
             Route::get('/report',ProfileReport::class)->name('report');
-            Route::get('/ProfessionalTools',ProfessionalToolsIndex::class)->name('professionalTools.index');
-            Route::get('/ProfessionalTools/pomodoro',ProfessionalToolsPomodoroTimer::class)->name('professionalTools.pomodoro');
             Route::get('/studySession',StudySession::class)->name('studySession');
 
 //          Ticketing Route

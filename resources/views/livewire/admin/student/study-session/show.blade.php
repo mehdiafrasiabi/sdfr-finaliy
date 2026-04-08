@@ -190,7 +190,7 @@
                 <div class="col-md-3">
                     <div class="card stat-card shadow-sm border-0 position-relative overflow-hidden">
                         <div class="card-body text-center py-3">
-                            <div class="badge-soft badge-soft-blue mb-2 d-inline-block">پارت‌های برنامه</div>
+                            <div class="badge-soft badge-soft-blue mb-2 d-inline-block">تعداد ثبت پارت‌های برنامه</div>
                             <div class="h3 fw-black text-primary mb-0">{{ $programPartsCount }}</div>
                         </div>
                     </div>
@@ -234,7 +234,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge-soft badge-soft-blue">امروز</span>
                             </div>
-                            <div class="h2 fw-black text-primary mb-0">{{ $studyTime['today'] }}</div>
+                            <div class="h2 fw-black text-primary mb-0">{{ $studyTime['today'] ?? '00:00' }}</div>
                         </div>
                         <div class="progress rounded-0" style="height:4px;">
                             <div class="progress-bar bg-primary" style="width: 100%;"></div>
@@ -250,7 +250,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge-soft badge-soft-green">این هفته</span>
                             </div>
-                            <div class="h2 fw-black text-success mb-0">{{ $studyTime['week'] }}</div>
+                            <div class="h2 fw-black text-success mb-0">{{ $studyTime['week'] ?? '00:00' }}</div>
                         </div>
                         <div class="progress rounded-0" style="height:4px;">
                             <div class="progress-bar bg-success" style="width: 100%;"></div>
@@ -266,7 +266,7 @@
                             <div class="d-flex justify-content-between align-items-center mb-2">
                                 <span class="badge-soft badge-soft-amber">این ماه</span>
                             </div>
-                            <div class="h2 fw-black text-warning mb-0">{{ $studyTime['month'] }}</div>
+                            <div class="h2 fw-black text-warning mb-0">{{ $studyTime['month'] ?? '00:00' }}</div>
                         </div>
                         <div class="progress rounded-0" style="height:4px;">
                             <div class="progress-bar bg-warning" style="width: 100%;"></div>
@@ -291,21 +291,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-2">
-                    <div class="card stat-card shadow-sm border-0 position-relative overflow-hidden">
-                        <div class="position-absolute top-0 start-0 rounded-circle"
-                             style="width:8rem;height:8rem;background:radial-gradient(circle,#06b6d4,#0891b2);opacity:.18;transform:translate(-30%,-30%);"></div>
-                        <div class="card-body position-relative">
-                            <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge-soft badge-soft-blue">برنامه</span>
-                            </div>
-                            <div class="h2 fw-black text-info mb-0">{{ $studyTime['program'] ?? '00:00:00' }}</div>
-                        </div>
-                        <div class="progress rounded-0" style="height:4px;">
-                            <div class="progress-bar bg-info" style="width: 100%;"></div>
-                        </div>
-                    </div>
-                </div>
+
 
                 <div class="col-md-2">
                     <div class="card stat-card shadow-sm border-0 position-relative overflow-hidden">
@@ -316,7 +302,10 @@
                                 <span class="badge-soft"
                                       style="background: rgba(239, 68, 68, .1);color: #dc2626;">کل</span>
                             </div>
-                            <div class="h2 fw-black text-danger mb-0">{{ $studyTime['total'] }}</div>
+                            <div class="small text-muted mb-1">برنامه: <span class="fw-bold text-dark">{{ $studyTime['total_planned'] ?? '00:00' }}</span></div>
+                            <div class="small text-muted mb-1">واقعی: <span class="fw-bold text-dark">{{ $studyTime['total_actual'] ?? '00:00' }}</span></div>
+                            <div class="h6 fw-black text-danger mb-0">اختلاف + جبرانی: {{ $studyTime['final_total'] ?? '00:00' }}</div>
+{{--                            <div class="h2 fw-black text-danger mb-0">{{ $studyTime['total'] }}</div>--}}
                         </div>
                         <div class="progress rounded-0" style="height:4px;">
                             <div class="progress-bar bg-danger" style="width: 100%;"></div>
@@ -324,7 +313,32 @@
                     </div>
                 </div>
             </div>
-
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="small text-muted">کل ساعت ثبت شده (عادی+اضافه)</div>
+                            <div class="h5 fw-bold mb-0">{{ $studyTime['regular_plus_extra'] ?? '00:00+00:00' }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="small text-muted">ساعت مطالعه انجام نشده</div>
+                            <div class="h5 fw-bold mb-0">{{ $studyTime['unmet'] ?? '00:00' }}</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-body">
+                            <div class="small text-muted">میانگین روزانه</div>
+                            <div class="h5 fw-bold mb-0">{{ $studyTime['daily_average'] ?? '00:00' }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {{-- فیلترها --}}
             <div class="card shadow-sm mb-4">
                 <div class="card-body">
@@ -337,32 +351,12 @@
 
                         <div class="col-md-2">
                             <label class="form-label fw-semibold small mb-1">از تاریخ</label>
-                            <input type="text" wire:model.live="dateFrom" placeholder="1402/01/01"
-                                   class="form-control form-control-sm">
+                            <input id="show_date_from" type="text" wire:model.live="dateFrom" placeholder="1402/01/01" autocomplete="off" readonly class="form-control form-control-sm">
                         </div>
 
                         <div class="col-md-2">
                             <label class="form-label fw-semibold small mb-1">تا تاریخ</label>
-                            <input type="text" wire:model.live="dateTo" placeholder="1402/12/29"
-                                   class="form-control form-control-sm">
-                        </div>
-
-                        <div class="col-md-2">
-                            <label class="form-label fw-semibold small mb-1">نوع جلسه</label>
-                            <select wire:model.live="sessionType" class="form-select form-select-sm">
-                                <option value="all">همه جلسات</option>
-                                <option value="program">پارت‌های برنامه</option>
-                                <option value="makeup">جبرانی</option>
-                            </select>
-                        </div>
-
-                        <div class="col-md-2">
-                            <label class="form-label fw-semibold small mb-1">بازخورد</label>
-                            <select wire:model.live="feedbackFilter" class="form-select form-select-sm">
-                                <option value="all">همه</option>
-                                <option value="has_feedback">دارای بازخورد</option>
-                                <option value="no_feedback">بدون بازخورد</option>
-                            </select>
+                            <input id="show_date_to" type="text" wire:model.live="dateTo" placeholder="1402/12/29" autocomplete="off" readonly class="form-control form-control-sm">
                         </div>
 
                         <div class="col-md-2">
@@ -401,7 +395,45 @@
                     </div>
                 </div>
             </div>
-
+            @if($advisingSessionFilter && count($filteredAdvisingPlans) > 0)
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-light border-0 px-4 py-3">
+                        <h2 class="h6 fw-bold mb-0">پلان‌های جلسه مشاوره انتخاب‌شده</h2>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>#</th>
+                                <th>درس</th>
+                                <th>فصل</th>
+                                <th>مبحث</th>
+                                <th>مدت</th>
+                                <th>وضعیت ثبت</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($filteredAdvisingPlans as $planIndex => $plan)
+                                <tr>
+                                    <td>{{ $planIndex + 1 }}</td>
+                                    <td>{{ $plan['cc_subject'] ?: '-' }}</td>
+                                    <td>{{ $plan['cc_chapter'] ?: '-' }}</td>
+                                    <td>{{ $plan['cc_topic'] ?: '-' }}</td>
+                                    <td>{{ $this->formatHourMinute($plan['duration_seconds']) }}</td>
+                                    <td>
+                                        @if($plan['is_logged'])
+                                            <span class="badge rounded-pill text-bg-success">ثبت شده</span>
+                                        @else
+                                            <span class="badge rounded-pill text-bg-danger">ثبت نشده</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
             {{-- جدول جلسات جبرانی --}}
             @if($sessionType !== 'program' && count($makeupSessions) > 0)
                 <div class="card shadow-sm mb-4">
@@ -561,7 +593,7 @@
                                 </thead>
                                 <tbody>
                                 @foreach($studySessions as $index => $session)
-                                    <tr>
+                                    <tr @class(['bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' => $this->isLatePartSession($session)])>
                                         <td class="text-center">
                                             <span
                                                 class="pill-index bg-primary bg-gradient text-white shadow-sm fw-bold">{{ $index + 1 }}</span>
@@ -571,31 +603,18 @@
                                             <div class="d-flex flex-column">
                                                 <span
                                                     class="fw-semibold">{{ $session->programPart?->lesson_name ?? '-' }}</span>
-                                                @if($session->programPart?->ccSubject || $session->programPart?->ccTopic)
-                                                    <span class="small text-muted">
-                                                        {{ $session->programPart?->ccSubject?->name ?? '' }}
-                                                        @if($session->programPart?->ccChapter)
-                                                            / {{ $session->programPart->ccChapter->name }}
-                                                        @endif
-                                                        @if($session->programPart?->ccTopic)
-                                                            / {{ $session->programPart->ccTopic->name }}
-                                                        @endif
-                                                    </span>
+                                                @if($session->programPart?->ccSubject || $session->programPart?->ccChapter || $session->programPart?->ccTopic)
+                                                    @if($session->programPart?->ccSubject)
+                                                        <span class="small text-muted">درس: {{ $session->programPart->ccSubject->name }}</span>
+                                                    @endif
+                                                    @if($session->programPart?->ccChapter)
+                                                        <span class="small text-muted">فصل: {{ $session->programPart->ccChapter->name }}</span>
+                                                    @endif
+                                                    @if($session->programPart?->ccTopic)
+                                                        <span class="small text-muted">مبحث: {{ $session->programPart->ccTopic->name }}</span>
+                                                    @endif
                                                 @elseif($session->programPart?->description)
-                                                    <span
-                                                        class="small text-muted">{{ Str::limit($session->programPart->description, 60) }}</span>
-                                                @endif
-                                                @if($session->weeklyProgram && $session->programPart)
-                                                    @php
-                                                        $dayIndex = $session->programPart->day_of_week;
-                                                        $programStart = \Carbon\Carbon::parse($session->weeklyProgram->start_date);
-                                                        $partDate = $programStart->copy()->addDays((int) $dayIndex);
-                                                        $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
-                                                        $partDayName = $dayNames[jdate($partDate)->getDayOfWeek()] ?? '-';
-                                                    @endphp
-                                                    <span class="small text-primary">
-                                                        روز {{ $dayIndex + 1 }} برنامه ({{ $partDayName }} {{ jdate($partDate)->format('m/d') }})
-                                                    </span>
+                                                    <span class="small text-muted">{{ Str::limit($session->programPart->description, 60) }}</span>
                                                 @endif
                                             </div>
                                         </td>
@@ -830,25 +849,6 @@
                                     </div>
                                 @endif
 
-                                @if($selectedSession->weeklyProgram && $selectedSession->programPart)
-                                    <div class="col-md-4">
-                                        <label class="small text-muted mb-1">روز برنامه</label>
-                                        @php
-                                            $dayIdx = $selectedSession->programPart->day_of_week;
-                                            $progStart = \Carbon\Carbon::parse($selectedSession->weeklyProgram->start_date);
-                                          $partDt = $progStart->copy()->addDays((int) $dayIdx);
-
-                                            $dNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
-                                            $pDayName = $dNames[jdate($partDt)->getDayOfWeek()] ?? '-';
-                                        @endphp
-                                        <div class="fw-semibold">
-                                            <span class="badge rounded-pill text-bg-primary px-3 py-2">
-                                                روز {{ $dayIdx + 1 }} ({{ $pDayName }} {{ jdate($partDt)->format('Y/m/d') }})
-                                            </span>
-                                        </div>
-                                    </div>
-                                @endif
-
                                 <div class="col-md-4">
                                     <label class="small text-muted mb-1">نوع پارت</label>
                                     <div>
@@ -965,4 +965,33 @@
             </div>
         </div>
     @endif
+        @push('script')
+            <script>
+                document.addEventListener('livewire:navigated', function () {
+                    const fromInput = document.getElementById('show_date_from');
+                    const toInput = document.getElementById('show_date_to');
+                    if (window.jalaliDatepicker) {
+                        window.jalaliDatepicker.startWatch({
+                            minDate: 'attr',
+                            maxDate: 'attr',
+                            autoHide: true,
+                        });
+                    }
+                    if (fromInput) {
+                        fromInput.setAttribute('data-jdp', '');
+                        fromInput.setAttribute('data-jdp-only-date', '');
+                        fromInput.addEventListener('change', (e) => {
+                            window.Livewire.find(fromInput.closest('[wire\:id]').getAttribute('wire:id')).set('dateFrom', e.target.value);
+                        });
+                    }
+                    if (toInput) {
+                        toInput.setAttribute('data-jdp', '');
+                        toInput.setAttribute('data-jdp-only-date', '');
+                        toInput.addEventListener('change', (e) => {
+                            window.Livewire.find(toInput.closest('[wire\:id]').getAttribute('wire:id')).set('dateTo', e.target.value);
+                        });
+                    }
+                });
+            </script>
+        @endpush
 </div>

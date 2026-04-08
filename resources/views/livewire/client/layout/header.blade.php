@@ -71,34 +71,12 @@
                                     <span class="font-semibold">دوره ها</span>
                                 </a>
                             </li>
-                            <div class="relative group/categories">
-                                <a href="#"
-                                   class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground">
-                                    <span class="font-semibold text-sm">بلاگ</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-                                    </svg>
+                            <li>
+                                <a href="{{route('client.blog')}}" wire:navigate
+                                   class="inline-flex text-muted transition-colors hover:text-foreground">
+                                    <span class="font-semibold">مقالات</span>
                                 </a>
-                                <div
-                                    class="absolute right-0 top-full opacity-0 invisible transition-all group-hover/categories:opacity-100 group-hover/categories:visible pt-5 z-10">
-                                    <ul class="flex flex-col relative w-56 min-h-[100px] bg-background border border-border shadow-2xl shadow-black/5 rounded-xl">
-                                        <li class="group">
-                                            <a href="{{route('client.blog')}}" wire:navigate
-                                               class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
-                                                <span class="font-semibold text-sm">مقالات</span>
-                                            </a>
-                                        </li>
-                                        <li class="group">
-                                            <a href="{{route('client.course')}}" wire:navigate
-                                               class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
-                                                <span class="font-semibold text-sm">دوره های آموزشی</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
+                            </li>
                             <div class="relative group/categories">
                                 <a href="#"
                                    class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground">
