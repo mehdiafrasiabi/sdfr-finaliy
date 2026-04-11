@@ -79,11 +79,8 @@
                                     <tr>
                                         <th data-dt-column="0">#</th>
                                         <th data-dt-column="1">دانش آموز</th>
-                                        <th data-dt-column="2">پدر</th>
-                                        <th data-dt-column="3">مادر</th>
-                                        <th data-dt-column="4">پایه + رشته</th>
-                                        <th data-dt-column="5">کل ساعت (عادی+اضافه)</th>
-                                        <th data-dt-column="6"></th>
+                                        <th data-dt-column="2">کل ساعت (عادی+اضافه)</th>
+                                        <th data-dt-column="3"></th>
                                     </tr>
                                     </thead>
 
@@ -165,6 +162,25 @@
                                                           <span class="text-truncate fw-medium">
                                                             {{ $personalInfo->name ?? '-' }}
                                                               {{ $personalInfo->name_full ?? '' }}
+
+                                                              [
+                                                              @if($student->user->personalInformation->grade == 12)
+                                                                  دوازدهم
+                                                              @elseif($student->user->personalInformation->grade == 11)
+                                                                  یازدهم
+                                                              @elseif($student->user->personalInformation->grade == 10)
+                                                                  دهم
+                                                              @endif
+
+                                                              @if($student->user->personalInformation->field == 'math')
+                                                                  ریاضی
+                                                              @elseif($student->user->personalInformation->field == 'experimental')
+                                                                  تجربی
+                                                              @elseif($student->user->personalInformation->field == 'human')
+                                                                  انسانی
+                                                              @endif
+
+                                                              ]
                                                         </span>
                                                         <small class="text-truncate text-muted">
                                                             {{ $student->user->mobile ?? '' }}
@@ -173,31 +189,6 @@
                                                 </div>
                                             </td>
 
-                                            <td>
-                                                {{$student->user->personalInformation->father_mobile}}
-                                            </td>
-
-                                            <td>
-                                                {{$student->user->personalInformation->mother_mobile}}
-                                            </td>
-
-                                            <td>
-                                                @if($student->user->personalInformation->grade == 12)
-                                                    دوازدهم
-                                                @elseif($student->user->personalInformation->grade == 11)
-                                                    یازدهم
-                                                @elseif($student->user->personalInformation->grade == 10)
-                                                    دهم
-                                                @endif
-
-                                                @if($student->user->personalInformation->field == 'math')
-                                                    ریاضی
-                                                @elseif($student->user->personalInformation->field == 'experimental')
-                                                    تجربی
-                                                @elseif($student->user->personalInformation->field == 'human')
-                                                    انسانی
-                                                @endif
-                                            </td>
                                             <td>
                                                 <span class="badge rounded-pill bg-info-subtle text-info-emphasis">{{ $studentTotalDisplays[$student->id] ?? '00:00+00:00' }}</span>
                                             </td>
@@ -219,7 +210,7 @@
                                         </tr>
                                     @empty
                                         <tr>
-                                            <td colspan="7" class="text-danger text-center">
+                                            <td colspan="4" class="text-danger text-center">
                                                 وجود ندارد
                                             </td>
                                         </tr>

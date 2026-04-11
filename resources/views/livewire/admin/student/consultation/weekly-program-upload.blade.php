@@ -1,1074 +1,49 @@
 <div>
-    @push('link')
-        <style>
-            [x-cloak] {
-                display: none !important;
-            }
-
-            /* ====== Theme tokens ====== */
-            :root {
-                --ui-bg: var(--bs-body-bg);
-                --ui-card: var(--bs-body-bg);
-                --ui-border: var(--bs-border-color);
-                --ui-muted: var(--bs-secondary-color);
-                --ui-shadow: 0 10px 25px rgba(0, 0, 0, .10);
-                --ui-shadow-sm: 0 6px 16px rgba(0, 0, 0, .08);
-                --ui-radius: 16px;
-                --ui-radius-sm: 12px;
-            }
-
-            .container-p-y {
-                background: var(--ui-bg);
-                border-radius: 18px;
-            }
-
-            /* ====== Cards / headers ====== */
-            .ui-card {
-                background: var(--ui-card);
-                border: 1px solid var(--ui-border) !important;
-                border-radius: var(--ui-radius) !important;
-                box-shadow: var(--ui-shadow-sm);
-            }
-
-            .ui-card .card-header {
-                border-bottom: 1px solid var(--ui-border);
-                background: var(--bs-tertiary-bg);
-                backdrop-filter: blur(6px);
-                border-top-left-radius: var(--ui-radius);
-                border-top-right-radius: var(--ui-radius);
-            }
-
-            .ui-page-hero {
-                border-radius: 22px;
-                border: 1px solid rgba(255, 255, 255, .15);
-                box-shadow: var(--ui-shadow);
-                background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 50%, #1d4ed8 100%);
-                position: relative;
-                overflow: hidden;
-            }
-
-            .ui-page-hero:before {
-                content: "";
-                position: absolute;
-                inset: -40%;
-                background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .18), transparent 55%);
-                transform: rotate(12deg);
-            }
-
-            .ui-page-hero > .card-body {
-                position: relative;
-            }
-
-            .ui-chip {
-                background: rgba(255, 255, 255, .12);
-                border: 1px solid rgba(255, 255, 255, .18);
-                border-radius: 14px;
-            }
-
-            /* ====== Quick access tiles ====== */
-            .quick-tile {
-                background: var(--bs-body-bg);
-                border: 1px solid var(--ui-border);
-                border-radius: 16px;
-                transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-                box-shadow: 0 4px 14px rgba(0, 0, 0, .08);
-            }
-
-            .quick-tile:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 12px 26px rgba(0, 0, 0, .12);
-                border-color: rgba(37, 99, 235, .25);
-            }
-
-            .quick-tile i {
-                font-size: 26px;
-            }
-
-            /* ====== Weekly table ====== */
-
-            /*
-             * FIX: overflow:hidden روی weekly-wrap حذف شد
-             * چون sticky داخلش کار نمی‌کرد
-             * به جاش border-radius روی thead اول اعمال میشه
-             */
-            .weekly-wrap {
-                border-radius: var(--ui-radius);
-                border: 1px solid var(--ui-border);
-                box-shadow: var(--ui-shadow-sm);
-                background: var(--bs-body-bg);
-                /* overflow:hidden حذف شد - sticky را می‌شکست */
-            }
-
-            /*
-             * FIX: overflow-y باید visible باشه
-             * تا sticky top روی thead نسبت به window کار کنه نه این div
-             */
-            .weekly-scroll {
-                overflow-x: auto;
-                overflow-y: visible;
-                -webkit-overflow-scrolling: touch;
-                white-space: nowrap;
-            }
-
-            /*
-             * FIX: border-collapse: separate برای sticky corner cells لازمه
-             * با collapse، border روی sticky cell‌ها درست render نمیشه
-             */
-            .weekly-table {
-                margin-bottom: 0;
-                min-width: 1800px;
-                table-layout: fixed;
-                border-collapse: separate;
-                border-spacing: 0;
-            }
-
-            .weekly-table thead th {
-                background: linear-gradient(90deg, #1d4ed8, #2563eb);
-                color: #fff;
-                border-color: rgba(255, 255, 255, .16);
-                font-weight: 700;
-                white-space: nowrap;
-                padding-top: .85rem;
-                padding-bottom: .85rem;
-            }
-
-            .weekly-table tbody td {
-                vertical-align: top;
-                background: var(--bs-body-bg);
-            }
-
-            .weekly-table tbody tr:hover td {
-                background: rgba(2, 132, 199, .03);
-            }
-
-            /* سلول‌ها باکس رو خرد نکنن */
-            .weekly-table td,
-            .weekly-table th {
-                white-space: nowrap;
-                vertical-align: top;
-                border: 1px solid var(--ui-border);
-            }
-
-            /* عرض ستون‌های پلن */
-            .weekly-table th:nth-child(n+4),
-            .weekly-table td:nth-child(n+4) {
-                width: 230px;
-                min-width: 210px;
-            }
-
-            /* ===== Sticky header (scroll عمودی صفحه) ===== */
-            .weekly-table thead th,
-            .weekly-table thead td {
-                position: sticky;
-                top: 0;
-                z-index: 4;
-            }
-
-            /* Action row - زیر header اول */
-            .weekly-table thead tr.weekly-action-row th,
-            .weekly-table thead tr.weekly-action-row td {
-                top: 52px;
-                z-index: 4;
-                background: var(--bs-body-bg) !important;
-                border-bottom: 2px solid var(--ui-border);
-                padding: 6px 10px;
-                white-space: normal;
-            }
-
-            /* ===== Sticky columns (scroll افقی جدول) ===== */
-
-            /* ستون 1: روز/تاریخ */
-            .weekly-table th:nth-child(1),
-            .weekly-table td:nth-child(1) {
-                position: sticky;
-                right: 0;
-                z-index: 2;
-                width: 130px;
-                min-width: 130px;
-            }
-
-            /* ستون 2: ساعت */
-            .weekly-table th:nth-child(2),
-            .weekly-table td:nth-child(2) {
-                position: sticky;
-                right: 130px;
-                z-index: 2;
-                width: 110px;
-                min-width: 110px;
-            }
-
-            /* ستون 3: وضعیت روز */
-            .weekly-table th:nth-child(3),
-            .weekly-table td:nth-child(3) {
-                position: sticky;
-                right: 240px;
-                z-index: 2;
-                width: 155px;
-                min-width: 155px;
-            }
-
-            /* ===== Intersection cells: sticky top + sticky right ===== */
-            /* بالاترین z-index - هم sticky top هم sticky right */
-            .weekly-table thead th:nth-child(1),
-            .weekly-table thead th:nth-child(2),
-            .weekly-table thead th:nth-child(3) {
-                z-index: 6;
-                background: linear-gradient(90deg, #1d4ed8, #2563eb) !important;
-                color: #fff;
-            }
-
-            /* action row - سه ستون اول sticky right هم دارن */
-            .weekly-table thead tr.weekly-action-row td:nth-child(1),
-            .weekly-table thead tr.weekly-action-row td:nth-child(2),
-            .weekly-table thead tr.weekly-action-row td:nth-child(3) {
-                z-index: 6;
-                background: var(--bs-body-bg) !important;
-            }
-
-            /* سایه سمت چپ ستون سوم برای جداسازی بصری */
-            .weekly-table td:nth-child(3),
-            .weekly-table th:nth-child(3) {
-                box-shadow: -4px 0 10px rgba(0, 0, 0, .07);
-            }
-
-            [data-bs-theme="dark"] .weekly-table td:nth-child(3),
-            [data-bs-theme="dark"] .weekly-table th:nth-child(3) {
-                box-shadow: -4px 0 10px rgba(0, 0, 0, .30);
-            }
-
-            /* tbody sticky cells - رنگ solid (شفافیت نداشته باشن تا محتوا از پشت دیده نشه) */
-            .weekly-table tbody td:nth-child(1),
-            .weekly-table tbody td:nth-child(2),
-            .weekly-table tbody td:nth-child(3) {
-                background-color: var(--bs-body-bg) !important;
-            }
-
-            /* ردیف استراحت */
-            .weekly-table tbody tr.table-success td:nth-child(1),
-            .weekly-table tbody tr.table-success td:nth-child(2),
-            .weekly-table tbody tr.table-success td:nth-child(3) {
-                background-color: color-mix(in srgb, var(--bs-success) 10%, var(--bs-body-bg)) !important;
-            }
-
-            /* ردیف آزمون */
-            .weekly-table tbody tr.table-danger td:nth-child(1),
-            .weekly-table tbody tr.table-danger td:nth-child(2),
-            .weekly-table tbody tr.table-danger td:nth-child(3) {
-                background-color: color-mix(in srgb, var(--bs-danger) 10%, var(--bs-body-bg)) !important;
-            }
-
-            /* plan cell boxes */
-            .plan-box {
-                min-height: 120px;
-                border-radius: 14px;
-                border: 1px solid var(--ui-border);
-                transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
-                overflow: visible;
-                width: 100%;
-                min-width: 200px;
-            }
-
-            /* Exam day parts should auto-size */
-            .plan-box.border-danger,
-            .plan-box.border-warning {
-                min-height: 120px;
-                height: auto;
-            }
-
-            .plan-box.clickable {
-                cursor: pointer;
-            }
-
-            .plan-box.clickable:hover {
-                transform: translateY(-1px);
-                box-shadow: 0 10px 18px rgba(0, 0, 0, .12);
-                border-color: rgba(37, 99, 235, .22);
-            }
-
-            .plan-empty {
-                border-style: dashed;
-                border-color: color-mix(in srgb, var(--bs-secondary-color) 35%, transparent);
-                background: var(--bs-tertiary-bg);
-            }
-
-            .plan-rest {
-                border-color: rgba(22, 163, 74, .22);
-                background: rgba(22, 163, 74, .06);
-            }
-
-            /* badges */
-            .badge.text-xs {
-                font-size: .72rem;
-            }
-
-            /* ===== Action bar (دکمه‌های کپی/کات/حذف) ===== */
-            /*
-             * این بار action buttons خارج از جدول در یک div جداگانه هستند
-             * و sticky به بالای صفحه می‌چسبن - مستقل از scroll افقی جدول
-             */
-            .weekly-action-bar {
-                position: sticky;
-                top: 0;
-                z-index: 10;
-                background: var(--bs-body-bg);
-                border: 1px solid var(--ui-border);
-                border-radius: 12px;
-                padding: 8px 14px;
-                margin-bottom: 8px;
-                box-shadow: var(--ui-shadow-sm);
-                display: flex;
-                align-items: center;
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-
-            [data-bs-theme="dark"] .weekly-action-bar {
-                box-shadow: 0 4px 16px rgba(0, 0, 0, .35);
-            }
-
-            .weekly-action-bar-detail {
-                width: 100%;
-                padding-top: 8px;
-                margin-top: 4px;
-                border-top: 1px solid var(--ui-border);
-                display: flex;
-                flex-wrap: wrap;
-                gap: 8px;
-                align-items: center;
-            }
-
-            /* ====== Modal ====== */
-            .modal.show .modal-dialog {
-                animation: modalSlideDown .22s ease-out;
-            }
-
-            @keyframes modalSlideDown {
-                from {
-                    transform: translateY(-24px);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateY(0);
-                    opacity: 1;
-                }
-            }
-
-            .modal-content {
-                border-radius: 18px;
-                border: 1px solid var(--ui-border);
-                overflow: hidden;
-            }
-
-            .modal-header {
-                border-bottom: 1px solid rgba(255, 255, 255, .16);
-            }
-
-            /* ====== Select2 ====== */
-            .select2-container {
-                width: 100% !important;
-            }
-
-            .select2-container .select2-selection--single {
-                height: calc(2.375rem + 2px);
-                border: 1px solid #ced4da;
-                border-radius: .5rem;
-                padding: .375rem .75rem;
-                display: flex;
-                align-items: center;
-            }
-
-            .select2-container--default .select2-selection--single .select2-selection__rendered {
-                line-height: 1.6;
-                padding: 0;
-            }
-
-            .select2-container--default .select2-selection--single .select2-selection__arrow {
-                height: calc(2.375rem + 2px);
-                right: .35rem;
-            }
-
-            .select2-dropdown {
-                border: 1px solid rgba(15, 23, 42, .12);
-                border-radius: 12px;
-                box-shadow: 0 16px 30px rgba(15, 23, 42, .12);
-                overflow: hidden;
-            }
-
-            .select2-search--dropdown .select2-search__field {
-                border-radius: 10px;
-                border: 1px solid rgba(15, 23, 42, .12);
-            }
-
-            /* small helpers */
-            .text-muted-2 {
-                color: var(--ui-muted) !important;
-            }
-
-            /* Cross-day drag-drop styles */
-            .drag-over-day {
-                background: rgba(37, 99, 235, .08) !important;
-                outline: 2px dashed rgba(37, 99, 235, .4);
-                outline-offset: -2px;
-            }
-
-            .drag-swap-target .plan-box {
-                outline: 2px solid rgba(234, 88, 12, .6) !important;
-                outline-offset: 2px;
-                background: rgba(234, 88, 12, .05) !important;
-            }
-
-            /* Registered badge */
-            .registered-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                padding: 2px 8px;
-                border-radius: 6px;
-                font-size: 11px;
-                font-weight: 600;
-            }
-
-            .registered-badge.registered {
-                background: rgba(22, 163, 74, .1);
-                color: #16a34a;
-                border: 1px solid rgba(22, 163, 74, .2);
-            }
-
-            [data-bs-theme="dark"] .registered-badge.registered {
-                background: rgba(22, 163, 74, .2);
-                color: #4ade80;
-            }
-
-            /* Drag handle hover */
-            .drag-handle:hover {
-                color: var(--bs-primary) !important;
-                cursor: grab;
-            }
-
-            .drag-handle:active {
-                cursor: grabbing;
-            }
-
-            /* Sortable ghost/chosen states */
-            .sortable-ghost-cell {
-                opacity: 0.35;
-                background: rgba(37, 99, 235, .06) !important;
-                border: 2px dashed rgba(37, 99, 235, .4) !important;
-            }
-
-            .sortable-chosen-cell .plan-box {
-                box-shadow: 0 8px 24px rgba(37, 99, 235, .25) !important;
-                border-color: rgba(37, 99, 235, .5) !important;
-                transform: scale(1.02);
-            }
-
-            /* sticky-action-panel legacy */
-            .sticky-action-panel {
-                background: var(--bs-body-bg);
-                padding-bottom: 4px;
-            }
-        </style>
-    @endpush
-    <div class="container-xxl flex-grow-1 container-p-y bg-body text-body" dir="rtl">
-        {{-- D2: Modal انتخاب روز برای امتحان کلاسی --}}
-        @if($showExamDaySelectModal)
-            <div class="modal fade show d-block" tabindex="-1"
-                 style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content shadow-lg border-0">
-                        <div class="modal-header text-white"
-                             style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);">
-                            <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                                <i class="material-symbols-outlined">event</i>
-                                انتخاب روز برای امتحان کلاسی
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white"
-                                    wire:click="closeExamDaySelectModal"></button>
-                        </div>
-
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <p class="fw-semibold mb-1">درس: {{ $examDaySelectData['subject'] ?? '' }}</p>
-                                <p class="small text-muted-2 mb-0">
-                                    {{ $examDaySelectData['part_count'] ?? 0 }} پارت -
-                                    {{ $examDaySelectData['time_per_part'] ?? 0 }} دقیقه هر پارت
-
-                                    (تاریخ امتحان: {{ jalali($examDaySelectData['exam_date'])->format('%d %B %Y') }} )
-                                </p>
-                            </div>
-
-                            <label class="form-label fw-semibold">روز مورد نظر را انتخاب کنید:</label>
-
-                            <div class="d-flex align-items-center gap-2 mb-2 small flex-wrap">
-
-                                <span class="d-inline-flex align-items-center gap-1"><span
-                                        class="badge bg-success rounded-pill px-2">&nbsp;</span> قبل از امتحان</span>
-                                <span class="d-inline-flex align-items-center gap-1"><span
-                                        class="badge bg-warning rounded-pill px-2">&nbsp;</span> روز امتحان</span>
-                                <span class="d-inline-flex align-items-center gap-1"><span
-                                        class="badge bg-danger rounded-pill px-2">&nbsp;</span> بعد از امتحان</span>
-                            </div>
-                            <div class="d-flex flex-wrap gap-2">
-                                @if(isset($weekDays))
-                                    @php $examDateCarbon = \Carbon\Carbon::parse($examDaySelectData['exam_date'] ?? null)->startOfDay(); @endphp
-                                    @foreach($weekDays as $day)
-                                        @if(!$day['is_rest_day'])
-                                            @php
-                                                $dayDateCarbon = $day['date']->copy()->startOfDay();
-                                                $isExamDate = $dayDateCarbon->isSameDay($examDateCarbon);
-                                                $isBeforeExam = $dayDateCarbon->lt($examDateCarbon);
-                                            @endphp
-                                            <button type="button"
-                                                    wire:click="$set('examDaySelectTarget', {{ $day['index'] }})"
-                                                    class="btn btn-sm {{ $examDaySelectTarget === $day['index'] ? 'btn-primary' : ($isExamDate ? 'btn-warning text-white' : ($isBeforeExam ? 'btn-outline-success' : 'btn-outline-danger')) }}">
-                                                {{ $day['name'] }} ({{ $day['jalali_date'] }})
-                                                @if($isExamDate)
-                                                    <span class="badge bg-white text-warning ms-1"
-                                                          style="font-size:9px;">امتحان</span>
-                                                @endif
-                                            </button>
-                                        @endif
-                                    @endforeach
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="modal-footer bg-body-tertiary">
-                            <button type="button" class="btn btn-outline-secondary"
-                                    wire:click="closeExamDaySelectModal">
-                                انصراف
-                            </button>
-                            <button type="button" class="btn btn-warning text-white" wire:click="applyExamToDay"
-                                {{ $examDaySelectTarget === null ? 'disabled' : '' }}>
-                            <span wire:loading.remove wire:target="applyExamToDay">
-                                <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
-                                ثبت در برنامه
-                            </span>
-                                <span wire:loading wire:target="applyExamToDay">در حال ثبت...</span>
-                            </button>
-                        </div>
+    {{-- ====== BODY SCROLL LOCK WHEN MODAL OPEN ====== --}}
+    @if($showPartModal || $showPrevProgramModal || $showPrevReportModal || $showClassificationModal ||
+        $showClassScheduleModal || $showNoScheduleModal || $showRestDayConfirmModal || $showExamDayConfirmModal ||
+        $showExamPartModal || $showExamDaySelectModal || $showDistributeHomeworkModal || $showDistributeExamModal ||
+        $showDistributeQaModal || $showBulkDeleteConfirmModal || $showZeroTimeWarningModal)
+        @push('link')
+            <style>
+                body { overflow: hidden !important; }
+                body.modal-open-custom { overflow: hidden !important; }
+            </style>
+        @endpush
+    @endif
+
+    {{-- ====== HERO ====== --}}
+    <div class="card mb-4 border-0 text-white rounded-4 overflow-hidden"
+         style="background: linear-gradient(135deg,#0ea5e9 0%,#2563eb 50%,#1d4ed8 100%);">
+        <div class="card-body py-4">
+            <div class="row gy-3 align-items-center">
+                <div class="col-md-5 d-flex align-items-center gap-3">
+                    <div class="bg-white bg-opacity-10 rounded-4 p-3 border border-white border-opacity-10">
+                        <span class="fs-4 fw-bold text-white">SDFR</span>
+                    </div>
+                    <div>
+                        <h1 class="h4 mb-1 fw-bold">برنامه درسی هفتگی</h1>
+                        <small class="text-white-50">به سبک SDFR</small>
                     </div>
                 </div>
-            </div>
-        @endif
-
-        {{-- Modal آرشیو جلسه قبلی - برنامه درسی --}}
-        @if($showPrevProgramModal)
-            <div class="modal fade show d-block" tabindex="-1"
-                 style="background: rgba(2, 6, 23, 0.65); backdrop-filter: blur(4px); z-index: 1080;">
-                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content shadow-lg border-0">
-                        <div class="modal-header text-white"
-                             style="background: linear-gradient(135deg, #d97706 0%, #f59e0b 50%, #fbbf24 100%);">
-                            <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                                <i class="material-symbols-outlined">history</i>
-                                برنامه درسی جلسه قبلی
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white"
-                                    wire:click="closePrevProgramModal"></button>
-                        </div>
-
-                        <div class="modal-body" x-data="{
-                            sort: 'day',
-                            get sorted() {
-                                let parts = @js($prevSessionParts);
-                                if (this.sort === 'grade') return [...parts].sort((a,b)=>((a.grade||'')>(b.grade||''))?1:-1);
-                                if (this.sort === 'lesson_type') return [...parts].sort((a,b)=>((a.lesson_type||'')>(b.lesson_type||''))?1:-1);
-                                if (this.sort === 'rating') return [...parts].sort((a,b)=>(b.avg_rating??-1)-(a.avg_rating??-1));
-                                // day (default)
-                                return [...parts].sort((a,b)=>a.day_of_week-b.day_of_week);
-                            }
-                        }">
-                            @if(count($prevSessionParts) > 0)
-                                {{-- Sort Controls --}}
-                                <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
-                                    <span class="small fw-semibold text-muted-2">مرتب‌سازی:</span>
-                                    <button @click="sort='day'" :class="sort==='day'?'btn-warning':'btn-outline-secondary'" class="btn btn-sm">
-                                        <i class="material-symbols-outlined" style="font-size:14px;">calendar_today</i> روز
-                                    </button>
-                                    <button @click="sort='grade'" :class="sort==='grade'?'btn-warning':'btn-outline-secondary'" class="btn btn-sm">
-                                        <i class="material-symbols-outlined" style="font-size:14px;">school</i> پایه
-                                    </button>
-                                    <button @click="sort='lesson_type'" :class="sort==='lesson_type'?'btn-warning':'btn-outline-secondary'" class="btn btn-sm">
-                                        <i class="material-symbols-outlined" style="font-size:14px;">category</i> عمومی/تخصصی
-                                    </button>
-                                    <button @click="sort='rating'" :class="sort==='rating'?'btn-warning':'btn-outline-secondary'" class="btn btn-sm">
-                                        <i class="material-symbols-outlined" style="font-size:14px;">star</i> امتیاز مطالعه
-                                    </button>
-                                </div>
-
-                                <div class="table-responsive">
-                                    <table class="table table-hover align-middle mb-0">
-                                        <thead class="bg-body-tertiary">
-                                        <tr>
-                                            <th class="text-center" style="width:36px;">#</th>
-                                            <th>درس / فصل / مبحث</th>
-                                            <th class="text-center">روز</th>
-                                            <th class="text-center">تایم</th>
-                                            <th class="text-center">نوع</th>
-                                            <th class="text-center">امتیاز مطالعه</th>
-                                            <th class="text-center">افزودن به برنامه</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        <template x-for="(pPart, idx) in sorted" :key="pPart.id">
-                                            <tr :class="{'table-success bg-success bg-opacity-10': @js($copiedFromPrevPartIds)[pPart.id] !== undefined}">
-                                                <td class="text-center text-muted-2 small" x-text="idx+1"></td>
-                                                <td>
-                                                    <div class="fw-semibold" x-text="pPart.lesson_name"></div>
-                                                    <template x-if="pPart.subject_name">
-                                                        <div class="small text-muted-2">
-                                                            <span x-text="pPart.subject_name"></span>
-                                                            <template x-if="pPart.chapter_name">
-                                                                <span> › <span x-text="pPart.chapter_name"></span></span>
-                                                            </template>
-                                                            <template x-if="pPart.topic_name">
-                                                                <span> › <span x-text="pPart.topic_name"></span></span>
-                                                            </template>
-                                                        </div>
-                                                    </template>
-                                                    <template x-if="!pPart.subject_name && pPart.description">
-                                                        <div class="small text-muted-2" x-text="pPart.description.substring(0,60)"></div>
-                                                    </template>
-                                                    <template x-if="pPart.grade_label">
-                                                        <span class="badge bg-primary-subtle text-primary small me-1" x-text="pPart.grade_label"></span>
-                                                    </template>
-                                                    <template x-if="pPart.lesson_type_label">
-                                                        <span class="badge bg-body-tertiary text-body border small" x-text="pPart.lesson_type_label"></span>
-                                                    </template>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="badge bg-body-tertiary text-body border rounded-pill small" x-text="pPart.day_name"></span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="small fw-semibold" x-text="pPart.duration_minutes+' دقیقه'"></span>
-                                                    <template x-if="pPart.test_count">
-                                                        <div class="small text-muted-2" x-text="pPart.test_count+' تست'"></div>
-                                                    </template>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="badge bg-body-tertiary text-body border small" x-text="pPart.part_type_label"></span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <template x-if="pPart.avg_rating !== null && pPart.avg_rating !== undefined">
-                                                        <div>
-                                                            <div class="fw-bold fs-6" :class="pPart.avg_rating>=8?'text-success':(pPart.avg_rating>=5?'text-info':'text-danger')" x-text="pPart.avg_rating+'/10'"></div>
-                                                            <span class="badge small" :class="pPart.avg_rating>=8?'bg-success-subtle text-success':(pPart.avg_rating>=5?'bg-info-subtle text-info':'bg-danger-subtle text-danger')" x-text="pPart.avg_label"></span>
-                                                        </div>
-                                                    </template>
-                                                    <template x-if="pPart.avg_rating === null || pPart.avg_rating === undefined">
-                                                        <span class="text-muted-2 small">ثبت نشده</span>
-                                                    </template>
-                                                </td>
-                                                <td class="text-center">
-                                                    @foreach($prevSessionParts as $pPartPhp)
-                                                        {{-- Inline add button - using livewire for the actual inline form --}}
-                                                    @endforeach
-                                                    <div x-show="pPart.id === {{ $prevPartInlineSelectedId ?? 0 }} && {{ $showPrevPartInlineForm ? 'true' : 'false' }}" style="display:none!important;"></div>
-                                                    <template x-if="@js($copiedFromPrevPartIds)[pPart.id] !== undefined">
-                                                        <div>
-                                                            <span class="badge bg-success text-white px-2 py-1 d-inline-flex align-items-center gap-1 mb-1">
-                                                                <i class="material-symbols-outlined" style="font-size:13px;">check_circle</i>
-                                                                اضافه شده
-                                                            </span>
-                                                        </div>
-                                                    </template>
-                                                    <button class="btn btn-sm btn-outline-warning"
-                                                            @click="$wire.showPrevPartInlineAddForm(pPart.id)">
-                                                        <i class="material-symbols-outlined" style="font-size:14px;">add_circle</i>
-                                                        افزودن
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </template>
-                                        </tbody>
-                                    </table>
-                                </div>
-
-                                {{-- Per-part inline add form (shown below table when active) --}}
-                                @if($showPrevPartInlineForm && $prevPartInlineSelectedId)
-                                    @php
-                                        $inlinePart = collect($prevSessionParts)->firstWhere('id', $prevPartInlineSelectedId);
-                                    @endphp
-                                    @if($inlinePart)
-                                        <div class="card border-warning border-2 mt-3">
-                                            <div class="card-header py-2 bg-warning bg-opacity-10">
-                                                <span class="fw-semibold small">
-                                                    <i class="material-symbols-outlined" style="font-size:16px;">add_circle</i>
-                                                    افزودن به برنامه:
-                                                    <strong>{{ $inlinePart['lesson_name'] }}</strong>
-                                                    @if($inlinePart['subject_name'])
-                                                        <span class="text-muted-2"> — {{ $inlinePart['subject_name'] }}{{ $inlinePart['chapter_name'] ? ' › '.$inlinePart['chapter_name'] : '' }}{{ $inlinePart['topic_name'] ? ' › '.$inlinePart['topic_name'] : '' }}</span>
-                                                    @endif
-                                                </span>
-                                            </div>
-                                            <div class="card-body py-3">
-                                                <div class="row g-3 align-items-end">
-                                                    <div class="col-md-3">
-                                                        <label class="form-label small fw-semibold mb-1">روز مقصد</label>
-                                                        <select class="form-select form-select-sm"
-                                                                wire:model="prevPartInlineForm.day_index">
-                                                            <option value="">انتخاب روز...</option>
-                                                            @foreach($weekDays as $wd)
-                                                                @if(!$wd['is_rest_day'])
-                                                                    <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
-                                                                @endif
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-2">
-                                                        <label class="form-label small fw-semibold mb-1">نوع پارت</label>
-                                                        <select class="form-select form-select-sm"
-                                                                wire:model="prevPartInlineForm.part_type">
-                                                            <option value="descriptive">تشریحی</option>
-                                                            <option value="test">تستی</option>
-                                                            <option value="video">ویدئو</option>
-                                                            <option value="topic_exam">آزمون مبحثی</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="col-md-1">
-                                                        <label class="form-label small fw-semibold mb-1">ساعت</label>
-                                                        <input type="number" min="0" max="24"
-                                                               class="form-control form-control-sm text-center"
-                                                               wire:model="prevPartInlineForm.duration_hours"
-                                                               placeholder="0">
-                                                    </div>
-                                                    <div class="col-md-1">
-                                                        <label class="form-label small fw-semibold mb-1">دقیقه</label>
-                                                        <input type="number" min="0" max="59"
-                                                               class="form-control form-control-sm text-center"
-                                                               wire:model="prevPartInlineForm.duration_minutes"
-                                                               placeholder="0">
-                                                    </div>
-                                                    <div class="col-md-4 d-flex gap-2">
-                                                        <button type="button" class="btn btn-sm btn-warning text-white flex-fill"
-                                                                wire:click="addSinglePrevPartToProgram">
-                                                            <span wire:loading.remove wire:target="addSinglePrevPartToProgram">
-                                                                <i class="material-symbols-outlined" style="font-size:14px;">check</i>
-                                                                ثبت در برنامه
-                                                            </span>
-                                                            <span wire:loading wire:target="addSinglePrevPartToProgram">در حال ثبت...</span>
-                                                        </button>
-                                                        <button type="button" class="btn btn-sm btn-outline-secondary"
-                                                                wire:click="hidePrevPartInlineAddForm">
-                                                            <i class="material-symbols-outlined" style="font-size:14px;">close</i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
-                                @endif
-                            @else
-                                <div class="text-center py-5">
-                                    <i class="material-symbols-outlined text-muted-2" style="font-size:48px;">inbox</i>
-                                    <p class="text-muted-2 mt-2">برنامه‌ای برای جلسه قبلی ثبت نشده است</p>
-                                </div>
-                            @endif
-                        </div>
-
-                        <div class="modal-footer bg-body-tertiary">
-                            <button type="button" class="btn btn-outline-secondary"
-                                    wire:click="closePrevProgramModal">
-                                بستن
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-        {{-- Modal گزارش / ساعت مطالعه جلسه قبلی --}}
-        @if($showPrevReportModal)
-            <div class="modal fade show d-block" tabindex="-1"
-                 style="background: rgba(2, 6, 23, 0.65); backdrop-filter: blur(4px); z-index: 1082;">
-                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-                    <div class="modal-content shadow-lg border-0">
-                        <div class="modal-header text-white"
-                             style="background: {{ $prevReportType === 'study' ? 'linear-gradient(135deg,#059669,#10b981)' : 'linear-gradient(135deg,#7c3aed,#a855f7)' }};">
-                            <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                                <i class="material-symbols-outlined">{{ $prevReportType === 'study' ? 'schedule' : 'summarize' }}</i>
-                                {{ $prevReportData['type_label'] ?? '' }} — جلسه قبلی
-                            </h5>
-                            <button type="button" class="btn-close btn-close-white"
-                                    wire:click="closePrevReportModal"></button>
-                        </div>
-
-                        <div class="modal-body">
-                            @if(!empty($prevReportData))
-                                {{-- Session info --}}
-                                <div class="d-flex flex-wrap gap-3 mb-3 small">
-                                    <div class="d-flex align-items-center gap-1">
-                                        <i class="material-symbols-outlined text-muted-2" style="font-size:16px;">calendar_today</i>
-                                        <span>تاریخ جلسه: <strong>{{ $prevReportData['session_date'] ?? '—' }}</strong></span>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-1">
-                                        <i class="material-symbols-outlined text-success" style="font-size:16px;">check_circle</i>
-                                        <span>نتیجه جلسه: <span class="badge bg-success text-white">{{ $prevReportData['result_status'] ?? 'برگزار شده' }}</span></span>
-                                    </div>
-                                    @if($prevReportType === 'study' && !empty($prevReportData['total_label']))
-                                        <div class="d-flex align-items-center gap-1">
-                                            <i class="material-symbols-outlined text-primary" style="font-size:16px;">timer</i>
-                                            <span>جمع کل: <strong class="text-primary">{{ $prevReportData['total_label'] }}</strong></span>
-                                        </div>
-                                    @endif
-                                </div>
-
-                                {{-- Summary boxes --}}
-                                @if($prevReportType === 'report')
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-6 col-md-3">
-                                            <div class="card border-0 bg-success bg-opacity-10 text-center p-3">
-                                                <div class="fw-bold fs-4 text-success">{{ $prevReportData['sent_days_count'] ?? 0 }}</div>
-                                                <div class="small text-success">روز گزارش ارسال شده</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-3">
-                                            <div class="card border-0 bg-danger bg-opacity-10 text-center p-3">
-                                                <div class="fw-bold fs-4 text-danger">{{ $prevReportData['not_sent_days_count'] ?? 0 }}</div>
-                                                <div class="small text-danger">روز گزارش ارسال نشده</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @elseif($prevReportType === 'study')
-                                    <div class="row g-3 mb-3" x-data="{studySort:'day'}">
-                                        <div class="col-6 col-md-3">
-                                            <div class="card border-0 bg-primary bg-opacity-10 text-center p-3">
-                                                <div class="fw-bold fs-4 text-primary">{{ $prevReportData['total_assigned_parts'] ?? 0 }}</div>
-                                                <div class="small text-primary">تعداد پارت در نظر گرفته شده</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-3">
-                                            <div class="card border-0 bg-success bg-opacity-10 text-center p-3">
-                                                <div class="fw-bold fs-4 text-success">{{ $prevReportData['total_done_parts'] ?? 0 }}</div>
-                                                <div class="small text-success">تعداد پارت ثبت شده</div>
-                                            </div>
-                                        </div>
-                                        <div class="col-6 col-md-3">
-                                            <div class="card border-0 bg-danger bg-opacity-10 text-center p-3">
-                                                <div class="fw-bold fs-4 text-danger">{{ max(0, ($prevReportData['total_assigned_parts'] ?? 0) - ($prevReportData['total_done_parts'] ?? 0)) }}</div>
-                                                <div class="small text-danger">تعداد پارت ثبت نشده</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-
-                                @if(!empty($prevReportData['items']))
-                                    {{-- Sort for study --}}
-                                    @if($prevReportType === 'study')
-                                        <div class="d-flex align-items-center gap-2 mb-2 flex-wrap" x-data="{studySort:'day'}">
-                                            <span class="small fw-semibold text-muted-2">مرتب‌سازی:</span>
-                                            <button @click="studySort='day'" :class="studySort==='day'?'btn-success':'btn-outline-secondary'" class="btn btn-sm">
-                                                <i class="material-symbols-outlined" style="font-size:14px;">calendar_today</i> روز
-                                            </button>
-                                            <button @click="studySort='not_registered'" :class="studySort==='not_registered'?'btn-success':'btn-outline-secondary'" class="btn btn-sm">
-                                                <i class="material-symbols-outlined" style="font-size:14px;">block</i> ثبت نشده
-                                            </button>
-                                            <button @click="studySort='rating'" :class="studySort==='rating'?'btn-success':'btn-outline-secondary'" class="btn btn-sm">
-                                                <i class="material-symbols-outlined" style="font-size:14px;">star</i> امتیاز
-                                            </button>
-                                            <button @click="studySort='lesson_type'" :class="studySort==='lesson_type'?'btn-success':'btn-outline-secondary'" class="btn btn-sm">
-                                                <i class="material-symbols-outlined" style="font-size:14px;">category</i> عمومی/تخصصی
-                                            </button>
-                                        </div>
-                                    @endif
-
-                                    <div class="table-responsive">
-                                        <table class="table table-hover align-middle mb-0 small">
-                                            <thead class="bg-body-tertiary">
-                                            <tr>
-                                                <th class="text-center" style="width:36px;">#</th>
-                                                <th>روز</th>
-                                                <th>تاریخ</th>
-                                                @if($prevReportType === 'study')
-                                                    <th>درس</th>
-                                                    <th class="text-center">مدت برنامه</th>
-                                                    <th class="text-center">مدت واقعی</th>
-                                                    <th class="text-center">ساعت شروع/پایان</th>
-                                                    <th class="text-center">امتیاز</th>
-                                                    <th>بازخورد</th>
-                                                @else
-                                                    <th class="text-center">پارت انجام شده</th>
-                                                    <th>محتوا</th>
-                                                    <th class="text-center">وضعیت گزارش</th>
-                                                    <th>علت عدم انجام</th>
-                                                @endif
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            @foreach($prevReportData['items'] as $i => $item)
-                                                <tr class="{{ ($prevReportType === 'study' && ($item['is_suspicious'] ?? false)) ? 'table-danger bg-danger bg-opacity-10' : '' }}">
-                                                    <td class="text-center text-muted-2">{{ $i + 1 }}</td>
-                                                    <td>
-                                                        <span class="badge bg-body-tertiary text-body border rounded-pill">{{ $item['day_name'] }}</span>
-                                                    </td>
-                                                    <td>{{ $item['date'] }}</td>
-                                                    @if($prevReportType === 'study')
-                                                        <td>
-                                                            <div class="fw-semibold">{{ $item['subject'] }}</div>
-                                                            @if(!empty($item['grade_label']))
-                                                                <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">{{ $item['grade_label'] }}</span>
-                                                            @endif
-                                                            @if(!empty($item['lesson_type_label']))
-                                                                <span class="badge bg-body-tertiary text-body border" style="font-size:10px;">{{ $item['lesson_type_label'] }}</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">{{ $item['planned_minutes'] ?? 0 }} دقیقه</td>
-                                                        <td class="text-center {{ ($item['is_suspicious'] ?? false) ? 'text-danger fw-bold' : '' }}">
-                                                            {{ $item['duration_label'] }}
-                                                            @if($item['is_suspicious'] ?? false)
-                                                                <div class="small text-danger">
-                                                                    <i class="material-symbols-outlined" style="font-size:12px;">warning</i>
-                                                                    فاصله زمانی: {{ $item['actual_elapsed_minutes'] ?? 0 }} دقیقه
-                                                                </div>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if(!empty($item['started_at']))
-                                                                <span class="small">{{ $item['started_at'] }}</span>
-                                                                @if(!empty($item['ended_at']))
-                                                                    <span class="text-muted-2"> — {{ $item['ended_at'] }}</span>
-                                                                @endif
-                                                            @else
-                                                                <span class="text-muted-2">—</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-center">
-                                                            @if($item['rating'] !== null)
-                                                                @php $rc = $item['rating'] >= 8 ? 'success' : ($item['rating'] >= 5 ? 'info' : 'danger'); @endphp
-                                                                <span class="badge bg-{{ $rc }}-subtle text-{{ $rc }} fw-bold">{{ $item['rating'] }}/10</span>
-                                                            @else
-                                                                <span class="badge bg-warning-subtle text-warning">بدون نظر</span>
-                                                            @endif
-                                                        </td>
-                                                        <td class="text-muted-2">{{ Str::limit($item['feedback'] ?? '', 60) }}</td>
-                                                    @else
-                                                        <td class="text-center fw-bold">
-                                                            <span class="{{ ($item['parts_done'] ?? 0) >= ($item['parts_total'] ?? 0) ? 'text-success' : 'text-warning' }}">
-                                                                {{ $item['parts_done'] ?? 0 }}/{{ $item['parts_total'] ?? 0 }}
-                                                            </span>
-                                                        </td>
-                                                        <td>{{ Str::limit($item['content'] ?? '', 80) }}</td>
-                                                        <td class="text-center">
-                                                            <span class="badge bg-{{ $item['status_color'] ?? 'warning' }}-subtle text-{{ $item['status_color'] ?? 'warning' }} fw-semibold">
-                                                                {{ $item['status_label'] ?? '—' }}
-                                                            </span>
-                                                        </td>
-                                                        <td>
-                                                            @if(!empty($item['missed_reason']))
-                                                                <div class="small text-danger">
-                                                                    <i class="material-symbols-outlined" style="font-size:12px;">warning</i>
-                                                                    {{ Str::limit($item['missed_reason'], 100) }}
-                                                                </div>
-                                                            @else
-                                                                <span class="text-muted-2 small">—</span>
-                                                            @endif
-                                                        </td>
-                                                    @endif
-                                                </tr>
-                                            @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    {{-- Missing days (report type only) --}}
-                                    @if($prevReportType === 'report' && !empty($prevReportData['missing_days']))
-                                        <div class="mt-4">
-                                            <h6 class="fw-bold text-danger d-flex align-items-center gap-1">
-                                                <i class="material-symbols-outlined" style="font-size:18px;">event_busy</i>
-                                                روز‌هایی که گزارش ارسال نشده
-                                            </h6>
-                                            <div class="d-flex flex-wrap gap-2">
-                                                @foreach($prevReportData['missing_days'] as $md)
-                                                    <span class="badge bg-danger-subtle text-danger border border-danger border-opacity-25 px-3 py-2">
-                                                        <i class="material-symbols-outlined" style="font-size:13px;">calendar_today</i>
-                                                        {{ $md['day_name'] }} — {{ $md['date'] }}
-                                                    </span>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @endif
-
-                                    {{-- Parts without feedback (study type only) --}}
-                                    @if($prevReportType === 'study')
-                                        @php
-                                            $noFeedbackItems = collect($prevReportData['items'])->where('has_feedback', false)->values();
-                                        @endphp
-                                        @if($noFeedbackItems->count() > 0)
-                                            <div class="mt-4">
-                                                <h6 class="fw-bold text-warning d-flex align-items-center gap-1">
-                                                    <i class="material-symbols-outlined" style="font-size:18px;">rate_review</i>
-                                                    پارت‌هایی که نظر داده نشده ({{ $noFeedbackItems->count() }} پارت)
-                                                </h6>
-                                                <div class="d-flex flex-wrap gap-2">
-                                                    @foreach($noFeedbackItems as $nf)
-                                                        <span class="badge bg-warning-subtle text-warning border border-warning border-opacity-25 px-3 py-2">
-                                                            {{ $nf['day_name'] }} — {{ $nf['subject'] }}
-                                                        </span>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        @endif
-                                    @endif
-                                @else
-                                    <div class="text-center py-4">
-                                        <i class="material-symbols-outlined text-muted-2" style="font-size:48px;">inbox</i>
-                                        <p class="text-muted-2 mt-2">اطلاعاتی برای نمایش وجود ندارد</p>
-                                    </div>
-                                @endif
-                            @endif
-                        </div>
-
-                        <div class="modal-footer bg-body-tertiary">
-                            <button type="button" class="btn btn-outline-secondary"
-                                    wire:click="closePrevReportModal">
-                                بستن
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        @endif
-
-        {{-- هدر صفحه --}}
-        <div class="card mb-4 ui-page-hero border-0 text-white">
-            <div class="card-body">
-                <div class="row gy-3 align-items-center">
-                    <div class="col-md-6 d-flex align-items-center gap-3">
-                        <div class="bg-white bg-opacity-10 rounded-4 p-3 border border-white border-opacity-10">
-                            <span class="fs-3 fw-bold text-white">SDFR</span>
-                        </div>
-                        <div>
-                            <h1 class="h4 mb-1 fw-bold">برنامه درسی هفتگی</h1>
-                            <small class="text-white-50">به سبک SDFR</small>
-                        </div>
-                    </div>
-
-                    <div class="col-md-6">
-                        <div class="ui-chip d-flex flex-wrap align-items-center justify-content-md-end gap-4 px-4 py-3">
-                            <div class="text-center">
-                                <div class="text-white-50 small mb-1">نام و نام خانوادگی</div>
-                                <div class="fw-bold fs-6 text-white">{{ $student->user->name ?? '---' }}</div>
+                <div class="col-md-7">
+                    <div class="bg-white bg-opacity-10 border border-white border-opacity-25 rounded-4 px-4 py-3">
+                        <div class="row g-3 text-center">
+                            <div class="col-6 col-md-3">
+                                <div class="text-white-50 small mb-1">نام دانش‌آموز</div>
+                                <div class="fw-bold text-white small">{{ $student->user->name ?? '---' }}</div>
                             </div>
-
-                            <div class="vr d-none d-md-block text-white opacity-25"></div>
-
-                            <div class="text-center">
+                            <div class="col-6 col-md-3">
                                 <div class="text-white-50 small mb-1">مشاور</div>
-                                <div class="fw-bold text-white">{{ $advisorName }}</div>
+                                <div class="fw-bold text-white small">{{ $advisorName }}</div>
                             </div>
-
-                            <div class="vr d-none d-md-block text-white opacity-25"></div>
-
-                            <div class="text-center">
+                            <div class="col-6 col-md-3">
                                 <div class="text-white-50 small mb-1">پشتیبان</div>
-                                <div class="fw-bold text-white">{{ $supporterName }}</div>
+                                <div class="fw-bold text-white small">{{ $supporterName }}</div>
                             </div>
-
-                            <div class="vr d-none d-md-block text-white opacity-25"></div>
-
-                            <div class="text-center">
-                                <div class="text-white-50 small mb-1">تاریخ ارائه برنامه</div>
-                                <div class="fw-bold text-white">
+                            <div class="col-6 col-md-3">
+                                <div class="text-white-50 small mb-1">تاریخ شروع</div>
+                                <div class="fw-bold text-white small">
                                     {{ $start_date ? jdate($start_date)->format('Y/m/d') : '---' }}
                                 </div>
                             </div>
@@ -1077,1012 +52,736 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        {{-- دسترسی سریع --}}
-        <div class="card mb-4 ui-card" x-data="{
-            iframeModal: false,
-            iframeUrl: '',
-            iframeTitle: '',
-            iframeColor: '#2563eb',
-            openIframe(url, title, color) {
-                this.iframeUrl = url;
-                this.iframeTitle = title;
-                this.iframeColor = color || '#2563eb';
-                this.iframeModal = true;
-            }
-        }">
-            {{-- Iframe Modal --}}
-            <template x-teleport="body">
-                <div x-show="iframeModal" x-cloak
-                     style="position:fixed;inset:0;z-index:1080;background:rgba(2,6,23,.65);backdrop-filter:blur(4px);"
-                     @keydown.escape.window="iframeModal=false">
-                    <div
-                        style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:16px;">
-                        <div
-                            style="width:100%;max-width:1200px;height:90vh;border-radius:18px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.35);display:flex;flex-direction:column;background:var(--bs-body-bg);">
-                            <div class="d-flex align-items-center justify-content-between px-4 py-3 text-white"
-                                 :style="'background:'+iframeColor">
-                                <h5 class="mb-0 d-flex align-items-center gap-2 fw-bold">
-                                    <i class="material-symbols-outlined">open_in_new</i>
-                                    <span x-text="iframeTitle"></span>
-                                </h5>
-                                <div class="d-flex align-items-center gap-2">
-                                    <a :href="iframeUrl" target="_blank"
-                                       class="btn btn-sm btn-light btn-outline-light opacity-75 d-flex align-items-center gap-1">
-                                        <i class="material-symbols-outlined" style="font-size:16px;">open_in_new</i>
-                                        باز کردن در تب جدید
-                                    </a>
-                                    <button @click="iframeModal=false" class="btn-close btn-close-white"></button>
-                                </div>
+    {{-- ====== QUICK ACCESS ====== --}}
+    <div class="card mb-4 border rounded-4 shadow-sm" x-data="{
+        iframeModal: false, iframeUrl: '', iframeTitle: '', iframeColor: '#2563eb',
+        openIframe(url, title, color) { this.iframeUrl=url; this.iframeTitle=title; this.iframeColor=color||'#2563eb'; this.iframeModal=true; }
+    }">
+        {{-- Iframe Modal --}}
+        <template x-teleport="body">
+            <div x-show="iframeModal" x-cloak
+                 class="position-fixed top-0 start-0 w-100 h-100"
+                 style="z-index:1080;background:rgba(2,6,23,.65);backdrop-filter:blur(4px);"
+                 @keydown.escape.window="iframeModal=false">
+                <div class="d-flex align-items-center justify-content-center w-100 h-100 p-3">
+                    <div class="rounded-4 overflow-hidden shadow d-flex flex-column bg-body"
+                         style="width:100%;max-width:1200px;height:90vh;">
+                        <div class="d-flex align-items-center justify-content-between px-4 py-3 text-white"
+                             :style="'background:'+iframeColor">
+                            <h5 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                                <i class="material-symbols-outlined">open_in_new</i>
+                                <span x-text="iframeTitle"></span>
+                            </h5>
+                            <div class="d-flex gap-2 align-items-center">
+                                <a :href="iframeUrl" target="_blank" class="btn btn-sm btn-light d-flex align-items-center gap-1">
+                                    <i class="material-symbols-outlined" style="font-size:16px;">open_in_new</i>
+                                    تب جدید
+                                </a>
+                                <button @click="iframeModal=false" class="btn-close btn-close-white"></button>
                             </div>
-                            <div style="flex:1;overflow:hidden;">
-                                <iframe :src="iframeUrl" style="width:100%;height:100%;border:0;"
-                                        loading="lazy"></iframe>
-                            </div>
+                        </div>
+                        <div class="flex-fill overflow-hidden">
+                            <iframe :src="iframeUrl" class="w-100 h-100 border-0" loading="lazy"></iframe>
                         </div>
                     </div>
                 </div>
-            </template>
-            <div class="card-header d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="material-symbols-outlined text-primary">bolt</i>
-                    <h5 class="mb-0">دسترسی سریع</h5>
-                </div>
-                <small class="text-muted-2">میانبرهای پرکاربرد</small>
             </div>
+        </template>
 
-            <div class="card-body">
-                <div class="row g-3">
-                    <div class="col-6 col-md-2">
-                        <a href="#"
-                           @click.prevent="openIframe('{{ route('admin.student.studySession.detail', $student->user_id) }}', 'ساعت مطالعه', 'linear-gradient(135deg,#059669,#10b981)')"
-                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
-                            <i class="material-symbols-outlined d-block mb-2 text-success">schedule</i>
-                            <span class="small d-block fw-semibold">ساعت مطالعه</span>
-                            <span class="small text-muted-2">جلسات مطالعه</span>
-                        </a>
-                    </div>
-
-                    <div class="col-6 col-md-2">
-                        <a href="#"
-                           @click.prevent="openIframe('{{ route('admin.student.reportDailyActivities.detail', $student->user_id) }}', 'گزارش فعالیت روزانه', 'linear-gradient(135deg,#0891b2,#06b6d4)')"
-                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
-                            <i class="material-symbols-outlined d-block mb-2 text-info">summarize</i>
-                            <span class="small d-block fw-semibold">گزارش</span>
-                            <span class="small text-muted-2">فعالیت روزانه</span>
-                        </a>
-                    </div>
-
-                    <div class="col-6 col-md-2">
-                        <a href="#"
-                           @click.prevent="openIframe('{{ route('admin.typed-exams.index') }}', 'آزمون‌ها', 'linear-gradient(135deg,#d97706,#f59e0b)')"
-                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
-                            <i class="material-symbols-outlined d-block mb-2 text-warning">quiz</i>
-                            <span class="small d-block fw-semibold">آزمون‌ها</span>
-                            <span class="small text-muted-2">مرور آزمون</span>
-                        </a>
-                    </div>
-
-                    <div class="col-6 col-md-2">
-                        <a href="#" wire:click.prevent="openClassificationModal"
-                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
-                            <i class="material-symbols-outlined d-block mb-2 text-secondary">category</i>
-                            <span class="small d-block fw-semibold">طبقه‌بندی</span>
-                            <span class="small text-muted-2">دسته‌بندی موارد</span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <a href="#" wire:click.prevent="openClassScheduleModal"
-                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100">
-                            <i class="material-symbols-outlined d-block mb-2 text-danger">menu_book</i>
-                            <span class="small d-block fw-semibold">برنامه کلاسی</span>
-                            <span class="small text-muted-2">مشاهده برنامه</span>
-                        </a>
-                    </div>
-                </div>
-
-                {{-- ارشیو جلسه قبلی --}}
-                <hr class="my-3">
-                <div class="d-flex align-items-center gap-2 mb-3">
-                    <i class="material-symbols-outlined text-warning">history</i>
-                    <h6 class="mb-0 fw-bold">ارشیو جلسه قبلی</h6>
-                    <small class="text-muted-2">داده‌های جلسه برگزار شده قبلی</small>
-                </div>
-                <div class="row g-3">
-                    <div class="col-6 col-md-4">
-                        <a href="#" wire:click.prevent="openPrevProgramModal"
-                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100"
-                           style="border-color: rgba(234, 179, 8, .25);">
-                            <i class="material-symbols-outlined d-block mb-2 text-warning">calendar_today</i>
-                            <span class="small d-block fw-semibold">برنامه درسی</span>
-                            <span class="small text-muted-2">جلسه قبلی</span>
-                            <span wire:loading wire:target="openPrevProgramModal" class="d-block mt-1">
-                                <span class="spinner-border spinner-border-sm text-warning"></span>
-                            </span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4">
-                        <a href="#" wire:click.prevent="openPrevReportModal('report')"
-                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100"
-                           style="border-color: rgba(124, 58, 237, .25);">
-                            <i class="material-symbols-outlined d-block mb-2" style="color:#7c3aed;">summarize</i>
-                            <span class="small d-block fw-semibold">گزارش</span>
-                            <span class="small text-muted-2">جلسه قبلی</span>
-                            <span wire:loading wire:target="openPrevReportModal" class="d-block mt-1">
-                                <span class="spinner-border spinner-border-sm" style="color:#7c3aed;"></span>
-                            </span>
-                        </a>
-                    </div>
-                    <div class="col-6 col-md-4">
-                        <a href="#" wire:click.prevent="openPrevReportModal('study')"
-
-                           class="quick-tile d-block p-3 text-center text-reset text-decoration-none h-100"
-                           style="border-color: rgba(5, 150, 105, .25);">
-                            <i class="material-symbols-outlined d-block mb-2 text-success">schedule</i>
-                            <span class="small d-block fw-semibold">ساعت مطالعه</span>
-                            <span class="small text-muted-2">جلسه قبلی</span>
-                            <span wire:loading wire:target="openPrevReportModal" class="d-block mt-1">
-                                <span class="spinner-border spinner-border-sm text-success"></span>
-                            </span>
-                        </a>
-                    </div>
-                </div>
+        <div class="card-header d-flex align-items-center justify-content-between rounded-top-4">
+            <div class="d-flex align-items-center gap-2">
+                <i class="material-symbols-outlined text-primary">bolt</i>
+                <h5 class="mb-0">دسترسی سریع</h5>
             </div>
+            <small class="text-muted">میانبرهای پرکاربرد</small>
         </div>
 
-        {{-- پیش‌جلسه‌های ثبت شده --}}
-        @if($preSessions->count() > 0)
-            @foreach($preSessions as $preSession)
-                <div class="card mb-4 ui-card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-1">پیش‌جلسه: {{ $preSession->title }}</h5>
-                            <small class="text-muted-2">اطلاعات ثبت شده توسط دانش‌آموز</small>
-                        </div>
-                        <span
-                            class="badge rounded-pill {{ $preSession->status === 'completed' ? 'bg-success' : 'bg-warning text-dark' }} px-3 py-2">
-                            {{ $preSession->status_label }}
+        <div class="card-body">
+            <div class="row g-3 mb-3">
+                <div class="col-6 col-md-2">
+                    <a href="#"
+                       @click.prevent="openIframe('{{ route('admin.student.studySession.detail', $student->user_id) }}','ساعت مطالعه','linear-gradient(135deg,#059669,#10b981)')"
+                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
+                        <i class="material-symbols-outlined d-block mb-2 text-success" style="font-size:28px;">schedule</i>
+                        <span class="small fw-semibold d-block">ساعت مطالعه</span>
+                        <span class="small text-muted">جلسات مطالعه</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-2">
+                    <a href="#"
+                       @click.prevent="openIframe('{{ route('admin.student.reportDailyActivities.detail', $student->user_id) }}','گزارش فعالیت روزانه','linear-gradient(135deg,#0891b2,#06b6d4)')"
+                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
+                        <i class="material-symbols-outlined d-block mb-2 text-info" style="font-size:28px;">summarize</i>
+                        <span class="small fw-semibold d-block">گزارش</span>
+                        <span class="small text-muted">فعالیت روزانه</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-2">
+                    <a href="#"
+                       @click.prevent="openIframe('{{ route('admin.typed-exams.index') }}','آزمون‌ها','linear-gradient(135deg,#d97706,#f59e0b)')"
+                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
+                        <i class="material-symbols-outlined d-block mb-2 text-warning" style="font-size:28px;">quiz</i>
+                        <span class="small fw-semibold d-block">آزمون‌ها</span>
+                        <span class="small text-muted">مرور آزمون</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-2">
+                    <a href="#" wire:click.prevent="openClassificationModal"
+                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
+                        <i class="material-symbols-outlined d-block mb-2 text-secondary" style="font-size:28px;">category</i>
+                        <span class="small fw-semibold d-block">طبقه‌بندی</span>
+                        <span class="small text-muted">دسته‌بندی موارد</span>
+                    </a>
+                </div>
+                <div class="col-6 col-md-2">
+                    <a href="#" wire:click.prevent="openClassScheduleModal"
+                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm">
+                        <i class="material-symbols-outlined d-block mb-2 text-danger" style="font-size:28px;">menu_book</i>
+                        <span class="small fw-semibold d-block">برنامه کلاسی</span>
+                        <span class="small text-muted">مشاهده برنامه</span>
+                    </a>
+                </div>
+            </div>
+
+            <hr class="my-3">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <i class="material-symbols-outlined text-warning">history</i>
+                <h6 class="mb-0 fw-bold">آرشیو جلسه قبلی</h6>
+                <small class="text-muted">داده‌های جلسه برگزار شده قبلی</small>
+            </div>
+            <div class="row g-3">
+                <div class="col-6 col-md-4">
+                    <a href="#" wire:click.prevent="openPrevProgramModal"
+                       class="d-block p-3 text-center text-reset text-decoration-none border border-warning border-opacity-25 rounded-4 h-100 bg-body shadow-sm">
+                        <i class="material-symbols-outlined d-block mb-2 text-warning" style="font-size:28px;">calendar_today</i>
+                        <span class="small fw-semibold d-block">برنامه درسی</span>
+                        <span class="small text-muted">جلسه قبلی</span>
+                        <span wire:loading wire:target="openPrevProgramModal" class="d-block mt-1">
+                            <span class="spinner-border spinner-border-sm text-warning"></span>
                         </span>
-                    </div>
-
-                    <div class="card-body">
-                        <div class="row g-4">
-
-                            {{-- امتحانات --}}
-                            <div class="col-lg-6">
-                                <div class="ui-card p-3 h-100">
-                                    <h6 class="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
-                                        <i class="material-symbols-outlined">quiz</i>
-                                        امتحانات
-                                        <span class="badge bg-primary-subtle text-primary rounded-pill">
-                                            {{ $preSession->exams->count() }}
-                                        </span>
-                                    </h6>
-
-                                    @if($preSession->exams->count() > 0)
-                                        <div class="weekly-scroll">
-                                            <table class="table table-sm align-middle mb-0">
-                                                <thead>
-                                                <tr class="text-muted-2">
-                                                    <th>درس</th>
-                                                    <th>تعداد پارت</th>
-                                                    <th>زمان هر پارت</th>
-
-                                                    <th>تاریخ آزمون</th>
-                                                    <th class="text-center">وضعیت</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                @foreach($preSession->exams as $examIdx => $exam)
-                                                    <tr>
-                                                        <td class="fw-semibold">{{ $exam->subject }}</td>
-                                                        <td>{{ $exam->part_count }} پارت</td>
-                                                        <td>{{ $exam->time_per_part }} دقیقه</td>
-                                                        <td>{{ jalali($exam->exam_date)->format('%d %B %Y') }}</td>
-                                                        <td class="text-center">
-                                                            @if($this->isExamRegistered($examIdx))
-                                                                <span class="registered-badge registered">
-                                                                    <i class="material-symbols-outlined"
-                                                                       style="font-size: 14px;">check_circle</i>
-                                                                    ثبت شده
-                                                                </span>
-                                                                <button wire:click="revertExamParts({{ $examIdx }})"
-                                                                        wire:confirm="آیا از حذف پارت‌های این امتحان از برنامه اطمینان دارید؟"
-                                                                        class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 mt-1">
-                                                                    <i class="material-symbols-outlined"
-                                                                       style="font-size: 14px;">undo</i>
-                                                                    بازگرداندن
-                                                                </button>
-                                                            @else
-                                                                <button wire:click="openExamDaySelect({{ $examIdx }})"
-                                                                        class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1">
-                                                                    <i class="material-symbols-outlined"
-                                                                       style="font-size: 14px;">event</i>
-                                                                    انتخاب روز
-                                                                </button>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    @else
-                                        <p class="text-muted-2 small mb-0">هیچ امتحانی ثبت نشده است</p>
-                                    @endif
-                                </div>
-                            </div>
-
-                            {{-- پرسش و پاسخ کلاسی --}}
-                            <div class="col-lg-6">
-                                <div class="ui-card p-3 h-100">
-                                    <h6 class="fw-bold text-info mb-3 d-flex align-items-center gap-2">
-                                        <i class="material-symbols-outlined">forum</i>
-                                        پرسش و پاسخ کلاسی
-                                        <span class="badge bg-info-subtle text-info rounded-pill">
-                                            {{ $preSession->qas->count() }}
-                                        </span>
-                                    </h6>
-
-                                    @if($preSession->qas->count() > 0)
-                                        <div class="weekly-scroll">
-                                            <table class="table table-sm align-middle mb-0">
-                                                <thead>
-                                                <tr class="text-muted-2">
-                                                    <th>درس</th>
-                                                    <th>تعداد پارت</th>
-                                                    <th>زمان هر پارت</th>
-                                                    <th>تاریخ</th>
-                                                    <th class="text-center">وضعیت</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                @foreach($preSession->qas as $qaIdx => $qa)
-                                                    <tr>
-                                                        <td class="fw-semibold">{{ $qa->subject }}</td>
-                                                        <td>{{ $qa->part_count }} پارت</td>
-                                                        <td>{{ $qa->time_per_part }} دقیقه</td>
-                                                        <td>{{ jalali($qa->qa_date)->format('%d %B %Y') }}</td>
-                                                        <td class="text-center">
-                                                            @if($this->isQaRegistered($qaIdx))
-                                                                <span class="registered-badge registered">
-                                                                    <i class="material-symbols-outlined"
-                                                                       style="font-size: 14px;">check_circle</i>
-                                                                    ثبت شده
-                                                                </span>
-                                                                <button wire:click="revertQaParts({{ $qaIdx }})"
-                                                                        wire:confirm="آیا از حذف پارت‌های پرسش و پاسخ از برنامه اطمینان دارید؟"
-                                                                        class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 mt-1">
-                                                                    <i class="material-symbols-outlined"
-                                                                       style="font-size: 14px;">undo</i>
-                                                                    بازگرداندن
-                                                                </button>
-                                                            @else
-                                                                <button wire:click="previewQaDistribution"
-                                                                        class="btn btn-sm btn-outline-info d-inline-flex align-items-center gap-1">
-                                                                    <i class="material-symbols-outlined"
-                                                                       style="font-size: 14px;">auto_fix_high</i>
-                                                                    ثبت در برنامه
-                                                                </button>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    @else
-                                        <p class="text-muted-2 small mb-0">هیچ پرسش و پاسخ کلاسی ثبت نشده است</p>
-                                    @endif
-                                </div>
-                            </div>
-
-                            {{-- تکالیف --}}
-                            <div class="col-lg-6">
-                                <div class="ui-card p-3 h-100">
-                                    <h6 class="fw-bold text-warning mb-3 d-flex align-items-center gap-2">
-                                        <i class="material-symbols-outlined">assignment</i>
-                                        تکالیف
-                                        <span class="badge bg-warning-subtle text-warning rounded-pill">
-                                            {{ $preSession->assignments->count() }}
-                                        </span>
-                                    </h6>
-
-                                    @if($preSession->assignments->count() > 0)
-                                        <div class="weekly-scroll">
-                                            <table class="table table-sm align-middle mb-0">
-                                                <thead>
-                                                <tr class="text-muted-2">
-                                                    <th>درس</th>
-                                                    <th>تعداد پارت</th>
-                                                    <th>زمان هر پارت</th>
-                                                    <th>مهلت انجام</th>
-                                                    <th class="text-center">وضعیت</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                @foreach($preSession->assignments as $assignmentIdx => $assignment)
-                                                    <tr>
-                                                        <td class="fw-semibold">{{ $assignment->subject }}</td>
-                                                        <td>{{ $assignment->part_count }} پارت</td>
-                                                        <td>{{ $assignment->time_per_part }} دقیقه</td>
-                                                        <td>{{ jalali($assignment->due_date)->format('%d %B %Y') }}</td>
-                                                        <td class="text-center">
-                                                            @if($this->isAssignmentRegistered($assignmentIdx))
-                                                                <span class="registered-badge registered">
-                                                                    <i class="material-symbols-outlined"
-                                                                       style="font-size: 14px;">check_circle</i>
-                                                                    ثبت شده
-                                                                </span>
-                                                                <button
-                                                                    wire:click="revertAssignmentParts({{ $assignmentIdx }})"
-                                                                    wire:confirm="آیا از حذف پارت‌های تکلیف از برنامه اطمینان دارید؟"
-                                                                    class="btn btn-sm btn-outline-danger d-inline-flex align-items-center gap-1 mt-1">
-                                                                    <i class="material-symbols-outlined"
-                                                                       style="font-size: 14px;">undo</i>
-                                                                    بازگرداندن
-                                                                </button>
-                                                            @else
-                                                                <button wire:click="previewHomeworkDistribution"
-                                                                        class="btn btn-sm btn-outline-warning d-inline-flex align-items-center gap-1">
-                                                                    <i class="material-symbols-outlined"
-                                                                       style="font-size: 14px;">auto_fix_high</i>
-                                                                    ثبت در برنامه
-                                                                </button>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    @else
-                                        <p class="text-muted-2 small mb-0">هیچ تکلیفی ثبت نشده است</p>
-                                    @endif
-                                </div>
-                            </div>
-
-                            {{-- متفرقه --}}
-                            <div class="col-lg-6">
-                                <div class="ui-card p-3 h-100">
-                                    <h6 class="fw-bold text-success mb-3 d-flex align-items-center gap-2">
-                                        <i class="material-symbols-outlined">notes</i>
-                                        متفرقه
-                                    </h6>
-
-                                    @if($preSession->miscellaneous)
-                                        <div class="bg-body-tertiary rounded-3 p-3 border"
-                                             style="border-color: var(--ui-border) !important;">
-                                            <p class="mb-0"
-                                               style="white-space: pre-line;">{{ $preSession->miscellaneous->description }}</p>
-                                        </div>
-                                    @else
-                                        <p class="text-muted-2 small mb-0">اطلاعات متفرقه ثبت نشده است</p>
-                                    @endif
-                                </div>
-                            </div>
-                            {{-- پارت در خواستی --}}
-                            <div class="col-12">
-                                <div class="ui-card p-3">
-                                    <h6 class="fw-bold mb-3 d-flex align-items-center gap-2" style="color:#ea580c;">
-                                        <i class="material-symbols-outlined">playlist_add</i>
-                                        پارت در خواستی
-                                        <span class="badge rounded-pill px-3 py-2"
-                                              style="background:rgba(234,88,12,.12);color:#ea580c;">
-                                            {{ $preSession->requestedParts->count() }}
-                                        </span>
-                                    </h6>
-
-                                    @if($preSession->requestedParts->count() > 0)
-                                        <div class="weekly-scroll">
-                                            <table class="table table-sm align-middle mb-0">
-                                                <thead>
-                                                <tr class="text-muted-2">
-                                                    <th>درس</th>
-                                                    <th>تعداد پارت</th>
-                                                    <th>زمان هر پارت</th>
-                                                    <th>توضیحات</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody>
-                                                @foreach($preSession->requestedParts as $rp)
-                                                    <tr>
-                                                        <td class="fw-semibold">{{ $rp->subject }}</td>
-                                                        <td>{{ $rp->part_count }} پارت</td>
-                                                        <td>{{ $rp->time_per_part }} دقیقه</td>
-                                                        <td class="text-muted-2">{{ $rp->description ?? '—' }}</td>
-                                                    </tr>
-                                                @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    @else
-                                        <p class="text-muted-2 small mb-0">هیچ پارت در خواستی ثبت نشده است</p>
-                                    @endif
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
+                    </a>
                 </div>
-            @endforeach
-        @endif
-
-        {{-- جدول برنامه هفتگی --}}
-        <div class="card mb-4 border-0 bg-body">
-
-            {{-- Title bar --}}
-            <div class="d-flex align-items-center justify-content-between mb-2 px-1 flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="material-symbols-outlined text-primary">view_week</i>
-                    <h5 class="mb-0">برنامه هفتگی</h5>
-                </div>
-                <small class="text-muted-2">برای افزودن روی + کلیک کنید</small>
-            </div>
-
-            {{-- ACTION BAR: خارج از جدول، sticky به بالای صفحه --}}
-            <div class="weekly-action-bar">
-                @if($partSelectMode)
-                    <button wire:click="togglePartSelectMode({{ $cutMode ? 'true' : 'false' }})"
-                            class="btn btn-sm {{ $cutMode ? 'btn-danger' : 'btn-warning' }} d-flex align-items-center gap-1">
-                        <i class="material-symbols-outlined" style="font-size:16px;">close</i>
-                        خروج از {{ $cutMode ? 'کات' : 'کپی' }}
-                    </button>
-                    @if(count($selectedPartIds) > 0)
-                        <span class="fw-semibold {{ $cutMode ? 'text-danger' : 'text-warning' }} small">
-                    {{ count($selectedPartIds) }} پارت انتخاب شده
-                </span>
-                        <button wire:click="clearPartSelection" class="btn btn-sm btn-outline-secondary">لغو انتخاب</button>
-
-                        {{-- detail panel: لیست پارت‌های انتخاب شده + روز مقصد --}}
-                        <div class="weekly-action-bar-detail">
-                            @php
-                                $selectedPartsInfo = [];
-                                foreach($weekDays as $wd) {
-                                    foreach($wd['parts'] as $wp) {
-                                        if(in_array($wp->id, $selectedPartIds)) {
-                                            $selectedPartsInfo[] = ['part' => $wp, 'day_name' => $wd['name'], 'jalali_date' => $wd['jalali_date']];
-                                        }
-                                    }
-                                }
-                            @endphp
-                            @foreach($selectedPartsInfo as $info)
-                                <span class="badge bg-body-secondary text-body border rounded-pill small">
-                            <i class="material-symbols-outlined" style="font-size:12px;">{{ $cutMode ? 'content_cut' : 'content_copy' }}</i>
-                            {{ $info['part']->lesson_name }} — {{ $info['day_name'] }}
+                <div class="col-6 col-md-4">
+                    <a href="#" wire:click.prevent="openPrevReportModal('report')"
+                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm"
+                       style="border-color:rgba(124,58,237,.25)!important;">
+                        <i class="material-symbols-outlined d-block mb-2" style="font-size:28px;color:#7c3aed;">summarize</i>
+                        <span class="small fw-semibold d-block">گزارش فعالیت</span>
+                        <span class="small text-muted">جلسه قبلی</span>
+                        <span wire:loading wire:target="openPrevReportModal" class="d-block mt-1">
+                            <span class="spinner-border spinner-border-sm" style="color:#7c3aed;"></span>
                         </span>
-                            @endforeach
-
-                            @if($cutMode)
-                                <span class="small fw-semibold w-100 mt-1">روز مقصد:</span>
-                                @foreach($weekDays as $day)
-                                    @if(!$day['is_rest_day'] && !$day['is_exam_day'])
-                                        @php $isChecked = (string)$copyTargetDay === (string)$day['index']; @endphp
-                                        <label class="d-flex align-items-center gap-1 border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-danger text-white border-danger' : 'bg-body-tertiary' }}" style="cursor:pointer;">
-                                            <input type="radio" wire:model.live="copyTargetDay" value="{{ $day['index'] }}"
-                                                   class="form-check-input mb-0 me-1" style="width:14px;height:14px;"
-                                                {{ $isChecked ? 'checked' : '' }}>
-                                            {{ $day['name'] }}
-                                        </label>
-                                    @endif
-                                @endforeach
-                                <button wire:click="cutSelectedParts" class="btn btn-sm btn-danger text-white"
-                                    {{ $copyTargetDay === null || $copyTargetDay === '' ? 'disabled' : '' }}>
-                            <span wire:loading.remove wire:target="cutSelectedParts">
-                                <i class="material-symbols-outlined" style="font-size:16px;">content_cut</i> کات
-                            </span>
-                                    <span wire:loading wire:target="cutSelectedParts">...</span>
-                                </button>
-                            @else
-                                <span class="small fw-semibold w-100 mt-1">روزهای مقصد:</span>
-                                @foreach($weekDays as $day)
-                                    @if(!$day['is_rest_day'] && !$day['is_exam_day'])
-                                        @php $isChecked = is_array($copyTargetDays) && (in_array((string)$day['index'], $copyTargetDays) || in_array($day['index'], $copyTargetDays)); @endphp
-                                        <label class="d-flex align-items-center gap-1 border rounded-pill px-2 py-1 small {{ $isChecked ? 'bg-warning text-dark border-warning' : 'bg-body-tertiary' }}" style="cursor:pointer;">
-                                            <input type="checkbox" wire:model.live="copyTargetDays" value="{{ $day['index'] }}"
-                                                   class="form-check-input mb-0 me-1" style="width:14px;height:14px;">
-                                            {{ $day['name'] }}
-                                        </label>
-                                    @endif
-                                @endforeach
-                                <button wire:click="copySelectedParts" class="btn btn-sm btn-warning text-white"
-                                    {{ empty($copyTargetDays) ? 'disabled' : '' }}>
-                            <span wire:loading.remove wire:target="copySelectedParts">
-                                <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i> کپی
-                            </span>
-                                    <span wire:loading wire:target="copySelectedParts">...</span>
-                                </button>
-                            @endif
-                        </div>
-                    @else
-                        <span class="small text-muted-2">روی پارت‌ها کلیک کنید</span>
-                    @endif
-
-                @elseif($bulkDeleteMode)
-                    <button wire:click="toggleBulkDeleteMode"
-                            class="btn btn-sm btn-danger d-flex align-items-center gap-1">
-                        <i class="material-symbols-outlined" style="font-size:16px;">close</i>
-                        خروج از حذف گروهی
-                    </button>
-                    @if(count($bulkDeleteSelectedIds) > 0)
-                        <span class="fw-semibold text-danger small">{{ count($bulkDeleteSelectedIds) }} پارت انتخاب شده</span>
-                        <button wire:click="openBulkDeleteConfirm" class="btn btn-sm btn-danger text-white">
-                            <i class="material-symbols-outlined" style="font-size:16px;">delete_forever</i>
-                            حذف {{ count($bulkDeleteSelectedIds) }} پارت
-                        </button>
-
-                        {{-- detail panel: لیست پارت‌های انتخاب شده برای حذف --}}
-                        <div class="weekly-action-bar-detail">
-                            @php
-                                $bulkSelectedInfo = [];
-                                foreach($weekDays as $wd) {
-                                    foreach($wd['parts'] as $wp) {
-                                        if(in_array($wp->id, $bulkDeleteSelectedIds)) {
-                                            $bulkSelectedInfo[] = ['part' => $wp, 'day_name' => $wd['name'], 'jalali_date' => $wd['jalali_date']];
-                                        }
-                                    }
-                                }
-                            @endphp
-                            @foreach($bulkSelectedInfo as $info)
-                                <span class="badge bg-danger-subtle text-danger border rounded-pill small">
-                            <i class="material-symbols-outlined" style="font-size:12px;">delete</i>
-                            {{ $info['part']->lesson_name }} — {{ $info['day_name'] }}
+                    </a>
+                </div>
+                <div class="col-6 col-md-4">
+                    <a href="#" wire:click.prevent="openPrevReportModal('study')"
+                       class="d-block p-3 text-center text-reset text-decoration-none border border-success border-opacity-25 rounded-4 h-100 bg-body shadow-sm">
+                        <i class="material-symbols-outlined d-block mb-2 text-success" style="font-size:28px;">schedule</i>
+                        <span class="small fw-semibold d-block">ساعت مطالعه</span>
+                        <span class="small text-muted">جلسه قبلی</span>
+                        <span wire:loading wire:target="openPrevReportModal" class="d-block mt-1">
+                            <span class="spinner-border spinner-border-sm text-success"></span>
                         </span>
-                            @endforeach
-                        </div>
-                    @else
-                        <span class="small text-muted-2">روی پارت‌ها کلیک کنید</span>
-                    @endif
-
-                @else
-                    <button wire:click="togglePartSelectMode(false)"
-                            class="btn btn-sm btn-outline-success d-flex align-items-center gap-1">
-                        <i class="material-symbols-outlined" style="font-size:16px;">content_copy</i>
-                        کپی پارت
-                    </button>
-                    <button wire:click="toggleBulkDeleteMode"
-                            class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
-                        <i class="material-symbols-outlined" style="font-size:16px;">delete_sweep</i>
-                        حذف گروهی
-                    </button>
-                    <button wire:click="togglePartSelectMode(true)"
-                            class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
-                        <i class="material-symbols-outlined" style="font-size:16px;">content_cut</i>
-                        کات پارت
-                    </button>
-                @endif
-            </div>
-
-            {{-- جدول --}}
-            <div class="weekly-wrap">
-                <div class="weekly-scroll">
-                    @php
-                        $maxPartsInWeek = 10;
-                        if(isset($weekDays)) {
-                            foreach($weekDays as $wd) {
-                                $c = count($wd['parts']);
-                                if($c >= $maxPartsInWeek) $maxPartsInWeek = $c + 2;
-                            }
-                        }
-                        $maxPartsInWeek = max($maxPartsInWeek, 10);
-                    @endphp
-                    <table class="table table-bordered table-hover align-middle weekly-table">
-                        <thead>
-                        <tr>
-                            <th class="text-center" style="width:130px;">روز / تاریخ</th>
-                            <th class="text-center" style="width:110px;">ساعت</th>
-                            <th class="text-center" style="width:155px;">وضعیت روز</th>
-                            @for($i = 1; $i <= $maxPartsInWeek; $i++)
-                                <th class="text-center">پلن {{ $i }}</th>
-                            @endfor
-                        </tr>
-                        </thead>
-
-                        <tbody>
-                        @foreach($weekDays as $day)
-                            <tr class="{{ $day['is_rest_day'] ? 'table-success bg-success bg-opacity-10' : ($day['is_exam_day'] ? 'table-danger bg-danger bg-opacity-10' : '') }}"
-                                data-day-index="{{ $day['index'] }}"
-                                data-sortable-row="1">
-
-                                {{-- ستون 1: روز / تاریخ --}}
-                                <td class="text-center">
-                            <span class="badge {{ $day['is_rest_day'] ? 'bg-success' : ($day['is_exam_day'] ? 'bg-danger' : 'bg-primary') }} rounded-pill px-2 py-1 fw-bold d-block mb-1">
-                                {{ $day['name'] }}
-                            </span>
-                                    <div class="small text-muted-2">{{ $day['jalali_date'] }}</div>
-                                </td>
-
-                                {{-- ستون 2: ساعت کل --}}
-                                <td class="text-center">
-                                    @if($day['is_rest_day'])
-                                        <span class="text-success fw-bold">-</span>
-                                    @else
-                                        <div class="fw-bold">{{ $day['total_hours'] }}</div>
-                                        <small class="text-muted-2 d-block">ساعت</small>
-                                    @endif
-                                </td>
-
-                                {{-- ستون 3: وضعیت روز --}}
-                                <td class="text-center">
-                                    <div class="d-flex flex-column gap-1 align-items-center">
-                                        @if(!$day['is_rest_day'])
-                                            <span class="badge bg-warning-subtle text-warning fw-bold">
-                                        <i class="material-symbols-outlined" style="font-size:12px;">quiz</i>
-                                        {{ $day['total_tests'] }}
-                                    </span>
-                                        @endif
-                                        <div class="d-flex align-items-center gap-1">
-                                            <small class="{{ $day['is_rest_day'] ? 'text-success fw-semibold' : 'text-muted-2' }}">استراحت</small>
-                                            <div class="form-check form-switch mb-0">
-
-                                                <input type="checkbox" class="form-check-input"
-                                                       wire:click="toggleRestDay({{ $day['index'] }})"
-                                                       {{ $day['is_rest_day'] ? 'checked' : '' }}
-                                                       style="cursor:pointer;">
-
-                                            </div>
-
-                                        </div>
-                                        <div class="d-flex align-items-center gap-1">
-                                            <small class="{{ $day['is_exam_day'] ? 'text-danger fw-semibold' : 'text-muted-2' }}" >آزمون</small>
-                                            <div class="form-check form-switch mb-0">
-                                                <input type="checkbox" class="form-check-input" style="margin-right: -42px;"
-                                                       wire:click="toggleExamDay({{ $day['index'] }})"
-                                                       {{ $day['is_exam_day'] ? 'checked' : '' }}
-                                                       {{ $day['is_rest_day'] ? 'disabled' : '' }}
-                                                       style="cursor:pointer;">
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                </td>
-
-                                {{-- ستون‌های پلن --}}
-                                @for($i = 0; $i < $maxPartsInWeek; $i++)
-                                    <td class="{{ (!$day['is_rest_day'] && !$day['is_exam_day'] && isset($day['parts'][$i])) ? 'plan-part-cell' : '' }}"
-                                        data-part-id="{{ (!$day['is_rest_day'] && !$day['is_exam_day'] && isset($day['parts'][$i])) ? $day['parts'][$i]->id : '' }}">
-
-                                        @if($day['is_rest_day'])
-                                            <div class="plan-box plan-rest d-flex align-items-center justify-content-center">
-                                                @if($i === 0)
-                                                    <div class="text-center">
-                                                        <i class="material-symbols-outlined text-success" style="font-size:34px;">self_improvement</i>
-                                                        <div class="small text-success fw-semibold mt-1">استراحت</div>
-                                                    </div>
-                                                @endif
-                                            </div>
-
-                                        @elseif($day['is_exam_day'])
-                                            @if(isset($day['parts'][$i]))
-                                                @php $part = $day['parts'][$i]; @endphp
-                                                <div class="plan-box clickable p-3 {{ $part->part_type === 'exam_analysis' ? 'bg-warning bg-opacity-10 border-warning' : 'bg-danger bg-opacity-10 border-danger' }}"
-                                                     wire:click="editExamPart({{ $part->id }})">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <span class="fw-bold small">{{ $part->lesson_name }}</span>
-                                                        <span class="badge {{ $part->part_type === 'exam_analysis' ? 'bg-warning' : 'bg-danger' }} text-white text-xs">
-                                                    {{ $part->part_type_label }}
-                                                </span>
-                                                    </div>
-                                                    @if($part->source_type && $part->source_type !== 'normal')
-                                                        <div class="mb-1">
-                                                    <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
-                                                        {{ $part->source_type_label }}
-                                                    </span>
-                                                        </div>
-                                                    @endif
-                                                    <p class="small mb-2 text-muted-2">{{ Str::limit($part->description, 55) }}</p>
-                                                    <div class="d-flex flex-wrap gap-2 small text-muted-2">
-                                                <span class="d-flex align-items-center gap-1">
-                                                    <i class="material-symbols-outlined" style="font-size:14px;">schedule</i>
-                                                    {{ $part->duration_minutes }} دقیقه
-                                                </span>
-                                                    </div>
-                                                    <div class="mt-2">
-                                                        <button class="btn btn-sm btn-outline-danger"
-                                                                wire:click.stop="deleteExamPart({{ $part->id }})"
-                                                                wire:confirm="آیا از حذف این آزمون اطمینان دارید؟">
-                                                            <i class="material-symbols-outlined" style="font-size:14px;">delete</i>
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            @elseif($i === count($day['parts']))
-                                                <div class="plan-box plan-empty d-flex align-items-center justify-content-center clickable"
-                                                     wire:click="openExamPartModal({{ $day['index'] }})">
-                                                    <div class="text-center">
-                                                        <i class="material-symbols-outlined text-danger">add</i>
-                                                        <div class="small text-danger mt-1">افزودن آزمون</div>
-                                                    </div>
-                                                </div>
-                                            @else
-                                                <div class="plan-box plan-empty d-flex align-items-center justify-content-center"></div>
-                                            @endif
-
-                                        @elseif(isset($day['parts'][$i]))
-                                            @php $part = $day['parts'][$i]; @endphp
-
-                                            @if($bulkDeleteMode)
-                                                @php $isBulkSelected = in_array($part->id, $bulkDeleteSelectedIds); @endphp
-                                                <div class="plan-box p-3 {{ $part->color_class ?? '' }} {{ $isBulkSelected ? 'border-danger border-2 bg-danger bg-opacity-10' : '' }}"
-                                                     wire:click="toggleBulkDeleteSelection({{ $part->id }})"
-                                                     style="cursor:pointer;position:relative;">
-                                                    <div class="position-absolute top-0 end-0 p-1" style="z-index:2;">
-                                                        <i class="material-symbols-outlined {{ $isBulkSelected ? 'text-danger' : 'text-muted-2' }}" style="font-size:20px;">
-                                                            {{ $isBulkSelected ? 'check_box' : 'check_box_outline_blank' }}
-                                                        </i>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <span class="fw-bold small">{{ $part->lesson_name }}</span>
-                                                        <span class="badge bg-body-tertiary text-body border text-xs" style="margin-left:24px;">
-                                                    {{ $part->part_type_label }} {{ $part->grade_label }}
-                                                </span>
-                                                    </div>
-                                                    @if($part->description)
-                                                        <p class="small mb-1 text-muted-2">{{ Str::limit($part->description, 50) }}</p>
-                                                    @endif
-                                                    <div class="small text-muted-2">
-                                                        <i class="material-symbols-outlined" style="font-size:13px;">schedule</i>
-                                                        {{ $part->duration_minutes }} دقیقه
-                                                    </div>
-                                                </div>
-
-                                            @elseif($partSelectMode)
-                                                @php
-                                                    $isSelected = in_array($part->id, $selectedPartIds);
-                                                    $selectBorderClass = $cutMode ? 'border-danger border-2' : 'border-warning border-2';
-                                                    $selectIconColor = $cutMode ? 'text-danger' : 'text-warning';
-                                                @endphp
-                                                <div class="plan-box p-3 {{ $part->color_class ?? '' }} {{ $isSelected ? $selectBorderClass : '' }}"
-                                                     wire:click="togglePartSelection({{ $part->id }})"
-                                                     style="cursor:pointer;position:relative;">
-                                                    <div class="position-absolute top-0 end-0 p-1" style="z-index:2;">
-                                                        <i class="material-symbols-outlined {{ $isSelected ? $selectIconColor : 'text-muted-2' }}" style="font-size:20px;">
-                                                            {{ $isSelected ? 'check_box' : 'check_box_outline_blank' }}
-                                                        </i>
-                                                    </div>
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <span class="fw-bold small">{{ $part->lesson_name }}</span>
-                                                        <span class="badge bg-body-tertiary text-body border text-xs" style="margin-left:24px;">
-                                                    {{ $part->part_type_label }} {{ $part->grade_label }}
-                                                </span>
-                                                    </div>
-                                                    @if($part->source_type && $part->source_type !== 'normal')
-                                                        <div class="mb-1">
-                                                    <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
-                                                        {{ $part->source_type_label }}
-                                                    </span>
-                                                        </div>
-                                                    @endif
-                                                    <p class="small mb-2 text-muted-2">{{ Str::limit($part->description, 55) }}</p>
-                                                    <div class="d-flex flex-wrap gap-2 small text-muted-2">
-                                                <span class="d-flex align-items-center gap-1">
-                                                    <i class="material-symbols-outlined" style="font-size:14px;">schedule</i>
-                                                    {{ $part->duration_minutes }} دقیقه
-                                                </span>
-                                                        @if($part->test_count)
-                                                            <span class="d-flex align-items-center gap-1">
-                                                        <i class="material-symbols-outlined" style="font-size:14px;">quiz</i>
-                                                        {{ $part->test_count }} تست
-                                                    </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-
-                                            @else
-                                                <div class="plan-box clickable p-3 {{ $part->color_class ?? '' }}"
-                                                     wire:click="editPart({{ $part->id }})">
-                                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                                        <div class="d-flex align-items-center gap-1">
-                                                            <i class="material-symbols-outlined drag-handle text-muted-2"
-                                                               style="font-size:16px;cursor:grab;user-select:none;"
-                                                               title="برای جابه‌جایی بکشید"
-                                                               wire:click.stop>drag_handle</i>
-                                                            <span class="fw-bold small">{{ $part->lesson_name }}</span>
-                                                        </div>
-                                                        <span class="badge bg-body-tertiary text-body border text-xs">
-                                                    {{ $part->part_type_label }} {{ $part->grade_label }}
-                                                </span>
-                                                    </div>
-                                                    @if($part->source_type && $part->source_type !== 'normal')
-                                                        <div class="mb-1">
-                                                    <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }} text-xs">
-                                                        {{ $part->source_type_label }}
-                                                    </span>
-                                                        </div>
-                                                    @endif
-                                                    <p class="small mb-2 text-muted-2">{{ Str::limit($part->description, 55) }}</p>
-                                                    <div class="d-flex flex-wrap gap-2 small text-muted-2">
-                                                <span class="d-flex align-items-center gap-1">
-                                                    <i class="material-symbols-outlined" style="font-size:14px;">schedule</i>
-                                                    {{ $part->duration_minutes }} دقیقه
-                                                </span>
-                                                        @if($part->test_count)
-                                                            <span class="d-flex align-items-center gap-1">
-                                                        <i class="material-symbols-outlined" style="font-size:14px;">quiz</i>
-                                                        {{ $part->test_count }} تست
-                                                    </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            @endif
-
-                                        @elseif($i === count($day['parts']))
-                                            <div class="plan-box plan-empty d-flex align-items-center justify-content-center clickable"
-                                                 wire:click="openPartModal({{ $day['index'] }})">
-                                                <div class="text-center">
-                                                    <i class="material-symbols-outlined text-primary">add_circle</i>
-                                                    <div class="small text-primary mt-1">افزودن پارت</div>
-                                                </div>
-                                            </div>
-                                        @else
-                                            <div class="plan-box plan-empty d-flex align-items-center justify-content-center"></div>
-                                        @endif
-
-                                    </td>
-                                @endfor
-
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
+                    </a>
                 </div>
             </div>
-        </div>
-
-        {{-- آمار و نمودارها --}}
-        @if($weeklyProgram && $weeklyProgram->parts->count() > 0)
-            <div class="card mb-4 ui-card">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="material-symbols-outlined text-info">analytics</i>
-                        <h5 class="mb-0">خلاصه اطلاعات جزئی برنامه</h5>
-                    </div>
-                    <small class="text-muted-2">آمار کلی هفته</small>
-                </div>
-
-                <div class="card-body">
-                    <div class="row g-3 mb-4">
-                        <div class="col-6 col-md-3">
-                            <div class="rounded-4 p-4 border bg-primary bg-opacity-10">
-                                <p class="small text-muted-2 mb-1">جمع کل ساعت مطالعه</p>
-                                <p class="fs-3 fw-bold text-primary mb-0">{{ $weeklyProgram->total_hours }}</p>
-                            </div>
-                        </div>
-
-                        <div class="col-6 col-md-3">
-                            <div class="rounded-4 p-4 border bg-warning bg-opacity-10">
-                                <p class="small text-muted-2 mb-1">جمع کل تعداد تست</p>
-                                <p class="fs-3 fw-bold text-warning mb-0">{{ $weeklyProgram->total_tests }}</p>
-                            </div>
-                        </div>
-
-                        <div class="col-6 col-md-3">
-                            <div class="rounded-4 p-4 border bg-success bg-opacity-10">
-                                <p class="small text-muted-2 mb-1">تعداد کل پارت‌ها</p>
-                                <p class="fs-3 fw-bold text-success mb-0">{{ $weeklyProgram->total_parts }}</p>
-                            </div>
-                        </div>
-
-                        <div class="col-6 col-md-3">
-                            <div class="rounded-4 p-4 border bg-secondary bg-opacity-10">
-                                <p class="small text-muted-2 mb-1">تعداد پلن‌های درسی</p>
-                                <p class="fs-3 fw-bold text-secondary mb-0">{{ $weeklyProgram->total_plans }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row g-3">
-                        <div class="col-6 col-md-2">
-                            <div class="rounded-4 p-3 text-center bg-body-tertiary border">
-                                <div class="fs-3 fw-bold text-primary">{{ $weeklyProgram->test_parts_count }}</div>
-                                <div class="small text-muted-2 mt-1">پارت تستی</div>
-                            </div>
-                        </div>
-
-                        <div class="col-6 col-md-2">
-                            <div class="rounded-4 p-3 text-center bg-body-tertiary border">
-                                <div
-                                    class="fs-3 fw-bold text-warning">{{ $weeklyProgram->descriptive_parts_count }}</div>
-                                <div class="small text-muted-2 mt-1">پارت تشریحی</div>
-                            </div>
-                        </div>
-
-                        <div class="col-6 col-md-2">
-                            <div class="rounded-4 p-3 text-center bg-body-tertiary border">
-                                <div class="fs-3 fw-bold text-secondary">{{ $weeklyProgram->video_parts_count }}</div>
-                                <div class="small text-muted-2 mt-1">پارت ویدئو</div>
-                            </div>
-                        </div>
-
-                        <div class="col-6 col-md-2">
-                            <div class="rounded-4 p-3 text-center bg-body-tertiary border">
-                                <div class="fs-3 fw-bold text-success">{{ $weeklyProgram->grade_10_parts_count }}</div>
-                                <div class="small text-muted-2 mt-1">پارت دهم</div>
-                            </div>
-                        </div>
-
-                        <div class="col-6 col-md-2">
-                            <div class="rounded-4 p-3 text-center bg-body-tertiary border">
-                                <div class="fs-3 fw-bold text-danger">{{ $weeklyProgram->grade_11_parts_count }}</div>
-                                <div class="small text-muted-2 mt-1">پارت یازدهم</div>
-                            </div>
-                        </div>
-
-                        <div class="col-6 col-md-2">
-                            <div class="rounded-4 p-3 text-center bg-body-tertiary border">
-                                <div class="fs-3 fw-bold text-info">{{ $weeklyProgram->grade_12_parts_count }}</div>
-                                <div class="small text-muted-2 mt-1">پارت دوازدهم</div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        @endif
-
-        {{-- دکمه ذخیره / بازگشت --}}
-        <div class="d-flex justify-content-end gap-2 mb-4">
-            <a href="{{ route('admin.advising-sessions') }}" class="btn btn-outline-secondary">
-                بازگشت
-            </a>
-
-            <button wire:click="finalSave" class="btn btn-primary">
-                <span wire:loading.remove>ذخیره برنامه</span>
-                <span wire:loading>در حال ذخیره...</span>
-            </button>
         </div>
     </div>
 
-    {{-- Modal اضافه کردن / ویرایش پارت --}}
+    {{-- ====== PRE-SESSIONS ====== --}}
+    @if($preSessions->count() > 0)
+        @foreach($preSessions as $preSession)
+            <div class="card mb-4 border rounded-4 shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center rounded-top-4">
+                    <div>
+                        <h5 class="mb-1">پیش‌جلسه: {{ $preSession->title }}</h5>
+                        <small class="text-muted">اطلاعات ثبت شده توسط دانش‌آموز</small>
+                    </div>
+                    <span class="badge rounded-pill px-3 py-2 {{ $preSession->status === 'completed' ? 'bg-success' : 'bg-warning text-white' }}">
+                        {{ $preSession->status_label }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+
+                        {{-- امتحانات --}}
+                        <div class="col-lg-6">
+                            <div class="border rounded-3 p-3 h-100">
+                                <h6 class="fw-bold text-primary mb-3 d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined">quiz</i>
+                                    امتحانات
+                                    <span class="badge bg-primary-subtle text-primary rounded-pill">{{ $preSession->exams->count() }}</span>
+                                </h6>
+                                @if($preSession->exams->count() > 0)
+                                    <div class="table-responsive">
+                                        <table class="table table-sm align-middle mb-0">
+                                            <thead class="table-light">
+                                            <tr><th>درس</th><th>پارت</th><th>زمان</th><th>تاریخ</th><th class="text-center">وضعیت</th></tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach($preSession->exams as $examIdx => $exam)
+                                                <tr>
+                                                    <td class="fw-semibold small">{{ $exam->subject }}</td>
+                                                    <td class="small">{{ $exam->part_count }}</td>
+                                                    <td class="small">{{ $exam->time_per_part }} دقیقه</td>
+                                                    <td class="small">{{ jalali($exam->exam_date)->format('%d %B') }}</td>
+                                                    <td class="text-center">
+                                                        @if($this->isExamRegistered($examIdx))
+                                                            <span class="badge bg-success-subtle text-success border border-success border-opacity-25 small">
+                                                                <i class="material-symbols-outlined" style="font-size:12px;">check_circle</i> ثبت شده
+                                                            </span>
+                                                            <button wire:click="revertExamParts({{ $examIdx }})"
+                                                                    wire:confirm="آیا مطمئنید؟"
+                                                                    class="btn btn-sm btn-outline-danger mt-1 d-flex align-items-center gap-1">
+                                                                <i class="material-symbols-outlined" style="font-size:13px;">undo</i> بازگرداندن
+                                                            </button>
+                                                        @else
+                                                            <button wire:click="openExamDaySelect({{ $examIdx }})"
+                                                                    class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1">
+                                                                <i class="material-symbols-outlined" style="font-size:13px;">event</i> انتخاب روز
+                                                            </button>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <p class="text-muted small mb-0">هیچ امتحانی ثبت نشده</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- پرسش و پاسخ --}}
+                        <div class="col-lg-6">
+                            <div class="border rounded-3 p-3 h-100">
+                                <h6 class="fw-bold text-info mb-3 d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined">forum</i>
+                                    پرسش و پاسخ کلاسی
+                                    <span class="badge bg-info-subtle text-info rounded-pill">{{ $preSession->qas->count() }}</span>
+                                </h6>
+                                @if($preSession->qas->count() > 0)
+                                    <div class="table-responsive">
+                                        <table class="table table-sm align-middle mb-0">
+                                            <thead class="table-light">
+                                            <tr><th>درس</th><th>پارت</th><th>زمان</th><th>تاریخ</th><th class="text-center">وضعیت</th></tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach($preSession->qas as $qaIdx => $qa)
+                                                <tr>
+                                                    <td class="fw-semibold small">{{ $qa->subject }}</td>
+                                                    <td class="small">{{ $qa->part_count }}</td>
+                                                    <td class="small">{{ $qa->time_per_part }} دقیقه</td>
+                                                    <td class="small">{{ jalali($qa->qa_date)->format('%d %B') }}</td>
+                                                    <td class="text-center">
+                                                        @if($this->isQaRegistered($qaIdx))
+                                                            <span class="badge bg-success-subtle text-success border border-success border-opacity-25 small">
+                                                                <i class="material-symbols-outlined" style="font-size:12px;">check_circle</i> ثبت شده
+                                                            </span>
+                                                            <button wire:click="revertQaParts({{ $qaIdx }})" wire:confirm="آیا مطمئنید؟"
+                                                                    class="btn btn-sm btn-outline-danger mt-1">
+                                                                <i class="material-symbols-outlined" style="font-size:13px;">undo</i> بازگرداندن
+                                                            </button>
+                                                        @else
+                                                            <button wire:click="previewQaDistribution"
+                                                                    class="btn btn-sm btn-outline-info d-flex align-items-center gap-1">
+                                                                <i class="material-symbols-outlined" style="font-size:13px;">auto_fix_high</i> ثبت
+                                                            </button>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <p class="text-muted small mb-0">هیچ پرسش و پاسخی ثبت نشده</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- تکالیف --}}
+                        <div class="col-lg-6">
+                            <div class="border rounded-3 p-3 h-100">
+                                <h6 class="fw-bold text-warning mb-3 d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined">assignment</i>
+                                    تکالیف
+                                    <span class="badge bg-warning-subtle text-warning rounded-pill">{{ $preSession->assignments->count() }}</span>
+                                </h6>
+                                @if($preSession->assignments->count() > 0)
+                                    <div class="table-responsive">
+                                        <table class="table table-sm align-middle mb-0">
+                                            <thead class="table-light">
+                                            <tr><th>درس</th><th>پارت</th><th>زمان</th><th>مهلت</th><th class="text-center">وضعیت</th></tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach($preSession->assignments as $aIdx => $assignment)
+                                                <tr>
+                                                    <td class="fw-semibold small">{{ $assignment->subject }}</td>
+                                                    <td class="small">{{ $assignment->part_count }}</td>
+                                                    <td class="small">{{ $assignment->time_per_part }} دقیقه</td>
+                                                    <td class="small">{{ jalali($assignment->due_date)->format('%d %B') }}</td>
+                                                    <td class="text-center">
+                                                        @if($this->isAssignmentRegistered($aIdx))
+                                                            <span class="badge bg-success-subtle text-success border border-success border-opacity-25 small">
+                                                                <i class="material-symbols-outlined" style="font-size:12px;">check_circle</i> ثبت شده
+                                                            </span>
+                                                            <button wire:click="revertAssignmentParts({{ $aIdx }})" wire:confirm="آیا مطمئنید؟"
+                                                                    class="btn btn-sm btn-outline-danger mt-1">
+                                                                <i class="material-symbols-outlined" style="font-size:13px;">undo</i> بازگرداندن
+                                                            </button>
+                                                        @else
+                                                            <button wire:click="previewHomeworkDistribution"
+                                                                    class="btn btn-sm btn-outline-warning d-flex align-items-center gap-1">
+                                                                <i class="material-symbols-outlined" style="font-size:13px;">auto_fix_high</i> ثبت
+                                                            </button>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <p class="text-muted small mb-0">هیچ تکلیفی ثبت نشده</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- متفرقه --}}
+                        <div class="col-lg-6">
+                            <div class="border rounded-3 p-3 h-100">
+                                <h6 class="fw-bold text-success mb-3 d-flex align-items-center gap-2">
+                                    <i class="material-symbols-outlined">notes</i> متفرقه
+                                </h6>
+                                @if($preSession->miscellaneous)
+                                    <div class="bg-body-tertiary rounded-3 p-3 border">
+                                        <p class="mb-0 small" style="white-space:pre-line;">{{ $preSession->miscellaneous->description }}</p>
+                                    </div>
+                                @else
+                                    <p class="text-muted small mb-0">متفرقه‌ای ثبت نشده</p>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- پارت درخواستی --}}
+                        @if($preSession->requestedParts->count() > 0)
+                            <div class="col-12">
+                                <div class="border rounded-3 p-3">
+                                    <h6 class="fw-bold mb-3 d-flex align-items-center gap-2" style="color:#ea580c;">
+                                        <i class="material-symbols-outlined">playlist_add</i>
+                                        پارت درخواستی
+                                        <span class="badge rounded-pill px-2" style="background:rgba(234,88,12,.12);color:#ea580c;">
+                                            {{ $preSession->requestedParts->count() }}
+                                        </span>
+                                    </h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-sm align-middle mb-0">
+                                            <thead class="table-light">
+                                            <tr><th>درس</th><th>پارت</th><th>زمان</th><th>توضیحات</th></tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach($preSession->requestedParts as $rp)
+                                                <tr>
+                                                    <td class="fw-semibold small">{{ $rp->subject }}</td>
+                                                    <td class="small">{{ $rp->part_count }}</td>
+                                                    <td class="small">{{ $rp->time_per_part }} دقیقه</td>
+                                                    <td class="text-muted small">{{ $rp->description ?? '—' }}</td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
+
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    @endif
+
+    {{-- ====== ACTION BAR ====== --}}
+    <div class="d-flex align-items-center flex-wrap gap-2 p-2 mb-2 border rounded-3 bg-body shadow-sm sticky-top" style="z-index:10;top:0;">
+        @if($partSelectMode)
+            <button wire:click="togglePartSelectMode({{ $cutMode ? 'true' : 'false' }})"
+                    class="btn btn-sm {{ $cutMode ? 'btn-danger' : 'btn-warning' }} d-flex align-items-center gap-1">
+                <i class="material-symbols-outlined" style="font-size:16px;">close</i>
+                خروج از {{ $cutMode ? 'کات' : 'کپی' }}
+            </button>
+            @if(count($selectedPartIds) > 0)
+                <span class="fw-semibold small {{ $cutMode ? 'text-danger' : 'text-warning' }}">
+                    {{ count($selectedPartIds) }} پارت انتخاب شده
+                </span>
+                <button wire:click="clearPartSelection" class="btn btn-sm btn-outline-secondary">لغو</button>
+
+                <div class="w-100 pt-2 mt-1 border-top d-flex flex-wrap gap-2 align-items-center">
+                    <span class="small fw-semibold">روز{{ $cutMode ? '' : 'های' }} مقصد:</span>
+                    @foreach($weekDays as $day)
+                        @if(!$day['is_rest_day'] && !$day['is_exam_day'])
+                            @if($cutMode)
+                                @php $isChecked = (string)$copyTargetDay === (string)$day['index']; @endphp
+                                <label class="border rounded-pill px-2 py-1 small d-flex align-items-center gap-1 {{ $isChecked ? 'bg-danger text-white border-danger' : 'bg-body-tertiary' }}" style="cursor:pointer;">
+                                    <input type="radio" wire:model.live="copyTargetDay" value="{{ $day['index'] }}" class="form-check-input mb-0" style="width:13px;height:13px;">
+                                    {{ $day['name'] }}
+                                </label>
+                            @else
+                                @php $isChecked = in_array((string)$day['index'], array_map('strval', $copyTargetDays)); @endphp
+                                <label class="border rounded-pill px-2 py-1 small d-flex align-items-center gap-1 {{ $isChecked ? 'bg-warning text-white border-warning' : 'bg-body-tertiary' }}" style="cursor:pointer;">
+                                    <input type="checkbox" wire:model.live="copyTargetDays" value="{{ $day['index'] }}" class="form-check-input mb-0" style="width:13px;height:13px;">
+                                    {{ $day['name'] }}
+                                </label>
+                            @endif
+                        @endif
+                    @endforeach
+                    @if($cutMode)
+                        <button wire:click="cutSelectedParts" class="btn btn-sm btn-danger" {{ $copyTargetDay === null ? 'disabled' : '' }}>
+                            <span wire:loading.remove wire:target="cutSelectedParts"><i class="material-symbols-outlined" style="font-size:15px;">content_cut</i> کات</span>
+                            <span wire:loading wire:target="cutSelectedParts">...</span>
+                        </button>
+                    @else
+                        <button wire:click="copySelectedParts" class="btn btn-sm btn-warning" {{ empty($copyTargetDays) ? 'disabled' : '' }}>
+                            <span wire:loading.remove wire:target="copySelectedParts"><i class="material-symbols-outlined" style="font-size:15px;">content_copy</i> کپی</span>
+                            <span wire:loading wire:target="copySelectedParts">...</span>
+                        </button>
+                    @endif
+                </div>
+            @else
+                <span class="small text-muted">روی پارت‌ها کلیک کنید</span>
+            @endif
+
+        @elseif($bulkDeleteMode)
+            <button wire:click="toggleBulkDeleteMode" class="btn btn-sm btn-danger d-flex align-items-center gap-1">
+                <i class="material-symbols-outlined" style="font-size:16px;">close</i> خروج از حذف گروهی
+            </button>
+            @if(count($bulkDeleteSelectedIds) > 0)
+                <span class="fw-semibold text-danger small">{{ count($bulkDeleteSelectedIds) }} پارت</span>
+                <button wire:click="openBulkDeleteConfirm" class="btn btn-sm btn-danger">
+                    <i class="material-symbols-outlined" style="font-size:15px;">delete_forever</i>
+                    حذف {{ count($bulkDeleteSelectedIds) }} پارت
+                </button>
+            @else
+                <span class="small text-muted">روی پارت‌ها کلیک کنید</span>
+            @endif
+
+        @else
+            <button wire:click="togglePartSelectMode(false)" class="btn btn-sm btn-outline-success d-flex align-items-center gap-1">
+                <i class="material-symbols-outlined" style="font-size:15px;">content_copy</i> کپی پارت
+            </button>
+            <button wire:click="togglePartSelectMode(true)" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
+                <i class="material-symbols-outlined" style="font-size:15px;">content_cut</i> کات پارت
+            </button>
+            <button wire:click="toggleBulkDeleteMode" class="btn btn-sm btn-outline-danger d-flex align-items-center gap-1">
+                <i class="material-symbols-outlined" style="font-size:15px;">delete_sweep</i> حذف گروهی
+            </button>
+        @endif
+    </div>
+
+    {{-- ====== WEEKLY TABLE ====== --}}
+    <div class="border rounded-4 shadow-sm overflow-hidden mb-4 bg-body">
+        <div class="overflow-x-auto">
+            @php
+                $maxParts = 10;
+                foreach($weekDays as $wd) { $c = count($wd['parts']); if($c >= $maxParts) $maxParts = $c + 2; }
+                $maxParts = max($maxParts, 10);
+            @endphp
+            <table class="table table-bordered align-middle mb-0"
+                   style="min-width:1800px;table-layout:fixed;border-collapse:separate;border-spacing:0;">
+                <thead>
+                <tr style="background:linear-gradient(90deg,#1d4ed8,#2563eb);">
+                    <th class="text-center text-white fw-bold" style="width:130px;position:sticky;right:0;z-index:6;background:linear-gradient(90deg,#1d4ed8,#2563eb);">روز / تاریخ</th>
+                    <th class="text-center text-white fw-bold" style="width:110px;position:sticky;right:130px;z-index:6;background:linear-gradient(90deg,#1d4ed8,#2563eb);">ساعت</th>
+                    <th class="text-center text-white fw-bold" style="width:155px;position:sticky;right:240px;z-index:6;background:linear-gradient(90deg,#1d4ed8,#2563eb);">وضعیت روز</th>
+                    @for($i = 1; $i <= $maxParts; $i++)
+                        <th class="text-center text-white fw-bold" style="width:220px;min-width:200px;">پلن {{ $i }}</th>
+                    @endfor
+                </tr>
+                </thead>
+                <tbody>
+                @foreach($weekDays as $day)
+                    <tr data-day-index="{{ $day['index'] }}" data-sortable-row="1"
+                        class="{{ $day['is_rest_day'] ? 'table-success' : ($day['is_exam_day'] ? 'table-danger' : '') }}">
+
+                        {{-- روز / تاریخ --}}
+                        <td class="text-center" style="position:sticky;right:0;z-index:2;background-color:var(--bs-body-bg);">
+                            <span class="badge rounded-pill fw-bold d-block mb-1 {{ $day['is_rest_day'] ? 'bg-success' : ($day['is_exam_day'] ? 'bg-danger' : 'bg-primary') }}">
+                                {{ $day['name'] }}
+                            </span>
+                            <div class="small text-muted">{{ $day['jalali_date'] }}</div>
+                        </td>
+
+                        {{-- ساعت --}}
+                        <td class="text-center" style="position:sticky;right:130px;z-index:2;background-color:var(--bs-body-bg);">
+                            @if(!$day['is_rest_day'])
+                                <div class="fw-bold">{{ $day['total_hours'] }}</div>
+                                <small class="text-muted">ساعت</small>
+                            @else
+                                <span class="text-success fw-bold">-</span>
+                            @endif
+                        </td>
+
+                        {{-- وضعیت روز --}}
+                        <td class="text-center" style="position:sticky;right:240px;z-index:2;background-color:var(--bs-body-bg);box-shadow:-4px 0 10px rgba(0,0,0,.07);">
+                            <div class="d-flex flex-column gap-1 align-items-center">
+                                @if(!$day['is_rest_day'])
+                                    <span class="badge bg-warning-subtle text-warning fw-bold">
+                                        <i class="material-symbols-outlined" style="font-size:12px;">quiz</i>
+                                        {{ $day['total_tests'] }}
+                                    </span>
+                                @endif
+                                <div class="d-flex align-items-center gap-1">
+                                    <small class="{{ $day['is_rest_day'] ? 'text-success fw-semibold' : 'text-muted' }}">استراحت</small>
+                                    <div class="form-check form-switch mb-0">
+                                        <input type="checkbox" class="form-check-input" style="cursor:pointer;"
+                                               wire:click="toggleRestDay({{ $day['index'] }})"
+                                            {{ $day['is_rest_day'] ? 'checked' : '' }}>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center gap-1">
+                                    <small class="{{ $day['is_exam_day'] ? 'text-danger fw-semibold' : 'text-muted' }}">آزمون</small>
+                                    <div class="form-check form-switch mb-0">
+                                        <input type="checkbox" class="form-check-input" style="cursor:pointer;"
+                                               wire:click="toggleExamDay({{ $day['index'] }})"
+                                            {{ $day['is_exam_day'] ? 'checked' : '' }}
+                                            {{ $day['is_rest_day'] ? 'disabled' : '' }}>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        {{-- پلن‌ها --}}
+                        @for($i = 0; $i < $maxParts; $i++)
+                            <td class="{{ (!$day['is_rest_day'] && !$day['is_exam_day'] && isset($day['parts'][$i])) ? 'plan-part-cell' : '' }}"
+                                data-part-id="{{ (!$day['is_rest_day'] && !$day['is_exam_day'] && isset($day['parts'][$i])) ? $day['parts'][$i]->id : '' }}"
+                                style="vertical-align:top;padding:6px;">
+
+                                @if($day['is_rest_day'])
+                                    @if($i === 0)
+                                        <div class="rounded-3 border border-success bg-success bg-opacity-10 d-flex align-items-center justify-content-center p-3" style="min-height:110px;">
+                                            <div class="text-center">
+                                                <i class="material-symbols-outlined text-success" style="font-size:32px;">self_improvement</i>
+                                                <div class="small text-success fw-semibold mt-1">استراحت</div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="rounded-3 border border-success border-opacity-25 bg-success bg-opacity-10" style="min-height:110px;"></div>
+                                    @endif
+
+                                @elseif($day['is_exam_day'])
+                                    @if(isset($day['parts'][$i]))
+                                        @php $part = $day['parts'][$i]; @endphp
+                                        <div class="rounded-3 border p-2 {{ $part->part_type === 'exam_analysis' ? 'border-warning bg-warning bg-opacity-10' : 'border-danger bg-danger bg-opacity-10' }}"
+                                             wire:click="editExamPart({{ $part->id }})" style="cursor:pointer;min-height:110px;">
+                                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                                <span class="fw-semibold small">{{ $part->lesson_name }}</span>
+                                                <span class="badge {{ $part->part_type === 'exam_analysis' ? 'bg-warning' : 'bg-danger' }} text-white" style="font-size:10px;">
+                                                    {{ $part->part_type_label }}
+                                                </span>
+                                            </div>
+                                            <p class="small mb-1 text-muted">{{ Str::limit($part->description, 50) }}</p>
+                                            <div class="small text-muted d-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size:13px;">schedule</i>
+                                                {{ $part->duration_minutes }} دقیقه
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-danger mt-1 w-100"
+                                                    wire:click.stop="deleteExamPart({{ $part->id }})"
+                                                    wire:confirm="آیا از حذف این آزمون اطمینان دارید؟">
+                                                <i class="material-symbols-outlined" style="font-size:13px;">delete</i>
+                                            </button>
+                                        </div>
+                                    @elseif($i === count($day['parts']))
+                                        <div class="rounded-3 border border-dashed border-danger bg-danger bg-opacity-10 d-flex align-items-center justify-content-center"
+                                             style="min-height:110px;cursor:pointer;border-style:dashed!important;"
+                                             wire:click="openExamPartModal({{ $day['index'] }})">
+                                            <div class="text-center">
+                                                <i class="material-symbols-outlined text-danger">add</i>
+                                                <div class="small text-danger mt-1">افزودن آزمون</div>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="rounded-3 border border-danger border-opacity-10 bg-danger bg-opacity-10" style="min-height:110px;"></div>
+                                    @endif
+
+                                @elseif(isset($day['parts'][$i]))
+                                    @php $part = $day['parts'][$i]; @endphp
+
+                                    @if($bulkDeleteMode)
+                                        @php $isSel = in_array($part->id, $bulkDeleteSelectedIds); @endphp
+                                        <div class="rounded-3 border p-2 position-relative {{ $isSel ? 'border-danger border-2 bg-danger bg-opacity-10' : '' }}"
+                                             wire:click="toggleBulkDeleteSelection({{ $part->id }})"
+                                             style="cursor:pointer;min-height:110px;">
+                                            <i class="material-symbols-outlined position-absolute top-0 end-0 m-1 {{ $isSel ? 'text-danger' : 'text-muted' }}" style="font-size:18px;">
+                                                {{ $isSel ? 'check_box' : 'check_box_outline_blank' }}
+                                            </i>
+                                            <div class="fw-semibold small pe-4">{{ $part->lesson_name }}</div>
+                                            <div class="small text-muted mt-1">{{ $part->duration_minutes }} دقیقه</div>
+                                        </div>
+
+                                    @elseif($partSelectMode)
+                                        @php $isSel = in_array($part->id, $selectedPartIds); @endphp
+                                        <div class="rounded-3 border p-2 position-relative {{ $isSel ? ($cutMode ? 'border-danger border-2' : 'border-warning border-2') : '' }}"
+                                             wire:click="togglePartSelection({{ $part->id }})"
+                                             style="cursor:pointer;min-height:110px;">
+                                            <i class="material-symbols-outlined position-absolute top-0 end-0 m-1 {{ $isSel ? ($cutMode ? 'text-danger' : 'text-warning') : 'text-muted' }}" style="font-size:18px;">
+                                                {{ $isSel ? 'check_box' : 'check_box_outline_blank' }}
+                                            </i>
+                                            <div class="fw-semibold small pe-4">{{ $part->lesson_name }}</div>
+                                            @if($part->source_type && $part->source_type !== 'normal')
+                                                <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }}" style="font-size:10px;">{{ $part->source_type_label }}</span>
+                                            @endif
+                                            <div class="small text-muted mt-1">{{ $part->duration_minutes }} دقیقه</div>
+                                        </div>
+
+                                    @else
+                                        <div class="rounded-3 border p-2 position-relative {{ $part->color_class ?? '' }}"
+                                             wire:click="editPart({{ $part->id }})"
+                                             style="cursor:pointer;min-height:110px;">
+                                            <div class="d-flex align-items-start gap-1 mb-1">
+                                                <i class="material-symbols-outlined text-muted drag-handle" style="font-size:15px;cursor:grab;" wire:click.stop>drag_handle</i>
+                                                <span class="fw-semibold small flex-fill">{{ $part->lesson_name }}</span>
+                                                <span class="badge bg-body-tertiary text-body border" style="font-size:10px;">{{ $part->grade_label }}</span>
+                                            </div>
+                                            @if($part->source_type && $part->source_type !== 'normal')
+                                                <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }}" style="font-size:10px;">{{ $part->source_type_label }}</span>
+                                            @endif
+                                            <p class="small mb-1 text-muted">{{ Str::limit($part->description, 50) }}</p>
+                                            <div class="small text-muted d-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size:13px;">schedule</i>
+                                                {{ $part->duration_minutes }} دقیقه
+                                                @if($part->test_count)
+                                                    · <i class="material-symbols-outlined" style="font-size:13px;">quiz</i> {{ $part->test_count }}
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                @elseif($i === count($day['parts']))
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center"
+                                         style="min-height:110px;cursor:pointer;border:1px dashed var(--bs-border-color);background:var(--bs-tertiary-bg);"
+                                         wire:click="openPartModal({{ $day['index'] }})">
+                                        <div class="text-center">
+                                            <i class="material-symbols-outlined text-primary">add_circle</i>
+                                            <div class="small text-primary mt-1">افزودن پارت</div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="rounded-3" style="min-height:110px;background:var(--bs-tertiary-bg);border:1px dashed var(--bs-border-color);"></div>
+                                @endif
+                            </td>
+                        @endfor
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {{-- ====== STATS ====== --}}
+    @if($weeklyProgram && $weeklyProgram->parts->count() > 0)
+        <div class="card mb-4 border rounded-4 shadow-sm">
+            <div class="card-header d-flex align-items-center gap-2 rounded-top-4">
+                <i class="material-symbols-outlined text-info">analytics</i>
+                <h5 class="mb-0">خلاصه برنامه</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-6 col-md-3">
+                        <div class="rounded-3 p-3 border bg-primary bg-opacity-10 text-center">
+                            <div class="fs-3 fw-bold text-primary">{{ $weeklyProgram->total_hours }}</div>
+                            <div class="small text-muted">ساعت کل</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="rounded-3 p-3 border bg-warning bg-opacity-10 text-center">
+                            <div class="fs-3 fw-bold text-warning">{{ $weeklyProgram->total_tests }}</div>
+                            <div class="small text-muted">تست کل</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="rounded-3 p-3 border bg-success bg-opacity-10 text-center">
+                            <div class="fs-3 fw-bold text-success">{{ $weeklyProgram->total_parts }}</div>
+                            <div class="small text-muted">تعداد پارت</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="rounded-3 p-3 border bg-secondary bg-opacity-10 text-center">
+                            <div class="fs-3 fw-bold text-secondary">{{ $weeklyProgram->total_plans }}</div>
+                            <div class="small text-muted">پلن درسی</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row g-2">
+                    @foreach([
+                        ['label'=>'پارت تستی','value'=>$weeklyProgram->test_parts_count,'color'=>'primary'],
+                        ['label'=>'پارت تشریحی','value'=>$weeklyProgram->descriptive_parts_count,'color'=>'warning'],
+                        ['label'=>'پارت ویدئو','value'=>$weeklyProgram->video_parts_count,'color'=>'secondary'],
+                        ['label'=>'پارت دهم','value'=>$weeklyProgram->grade_10_parts_count,'color'=>'success'],
+                        ['label'=>'پارت یازدهم','value'=>$weeklyProgram->grade_11_parts_count,'color'=>'danger'],
+                        ['label'=>'پارت دوازدهم','value'=>$weeklyProgram->grade_12_parts_count,'color'=>'info'],
+                    ] as $stat)
+                        <div class="col-6 col-md-2">
+                            <div class="rounded-3 p-2 border bg-body-tertiary text-center">
+                                <div class="fs-4 fw-bold text-{{ $stat['color'] }}">{{ $stat['value'] }}</div>
+                                <div class="small text-muted">{{ $stat['label'] }}</div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    @endif
+
+    {{-- ====== SAVE BUTTON ====== --}}
+    <div class="d-flex justify-content-end gap-2 mb-4">
+        <a href="{{ route('admin.advising-sessions') }}" class="btn btn-outline-secondary">بازگشت</a>
+        <button wire:click="finalSave" class="btn btn-primary">
+            <span wire:loading.remove>ذخیره برنامه</span>
+            <span wire:loading>در حال ذخیره...</span>
+        </button>
+    </div>
+
+    {{-- ================================================================
+         MODALS
+    ================================================================ --}}
+
+    {{-- ====== MODAL: افزودن/ویرایش پارت ====== --}}
     @if($showPartModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
+        <div class="modal  fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1055;">
             <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header text-white"
-                         style="background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 40%, #0ea5e9 100%);">
+                <div class="modal-content rounded-4 border-0 shadow">
+                    <div class="modal-header text-white rounded-top-4" style="background:linear-gradient(135deg,#1d4ed8,#2563eb,#0ea5e9);">
                         <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
                             <i class="material-symbols-outlined">{{ $editingPartId ? 'edit' : 'add_circle' }}</i>
                             {{ $editingPartId ? 'ویرایش پارت' : 'افزودن پارت جدید' }}
                         </h5>
                         <button type="button" class="btn-close btn-close-white" wire:click="closePartModal"></button>
                     </div>
-
                     <div class="modal-body">
                         {{-- جستجوی سریع --}}
                         <div class="mb-3 position-relative">
-                            <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                <i class="material-symbols-outlined text-primary" style="font-size: 20px;">search</i>
-                                جستجوی سریع
+                            <label class="form-label fw-semibold">
+                                <i class="material-symbols-outlined text-primary align-middle">search</i> جستجوی سریع
                             </label>
-                            <div class="position-relative">
-                                <input type="text"
-                                       wire:model.live.debounce.300ms="globalSearch"
-                                       class="form-control pe-5"
-                                       placeholder="نام درس، فصل یا مبحث را جستجو کنید..."
-                                       autocomplete="off">
-                                <div wire:loading wire:target="globalSearch"
-                                     class="position-absolute top-50 translate-middle-y"
-                                     style="left: 12px;">
-                                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                                </div>
+                            <input type="text" wire:model.live.debounce.300ms="globalSearch"
+                                   class="form-control" placeholder="نام درس، فصل یا مبحث..." autocomplete="off">
+                            <div wire:loading wire:target="updatedGlobalSearch" class="position-absolute top-50 translate-middle-y" style="left:12px;">
+                                <span class="spinner-border spinner-border-sm text-primary"></span>
                             </div>
                             @if(count($globalSearchResults) > 0)
-                                <div
-                                    class="list-group position-absolute w-100 mt-1 shadow-lg rounded-3 overflow-auto border"
-                                    style="z-index: 1060; max-height: 280px;">
-                                    @foreach($globalSearchResults as $index => $result)
-                                        <button type="button"
-                                                wire:click="selectGlobalResult({{ $index }})"
+                                <div class="list-group position-absolute w-100 mt-1 shadow rounded-3 border overflow-auto" style="z-index:1060;max-height:280px;">
+                                    @foreach($globalSearchResults as $idx => $result)
+                                        <button type="button" wire:click="selectGlobalResult({{ $idx }})"
                                                 class="list-group-item list-group-item-action py-2 px-3 d-flex align-items-center gap-2 flex-wrap">
-
                                             @if($result['type'] === 'topic')
                                                 <span class="badge bg-success-subtle text-success small">مبحث</span>
                                             @elseif($result['type'] === 'chapter')
                                                 <span class="badge bg-info-subtle text-info small">فصل</span>
-                                            @elseif($result['type'] === 'subject')
-                                                <span class="badge bg-warning-subtle text-warning small">درس</span>
                                             @else
-                                                <span class="badge bg-secondary-subtle text-secondary small">درس</span>
+                                                <span class="badge bg-warning-subtle text-warning small">درس</span>
                                             @endif
                                             @if(!empty($result['grade_name']))
                                                 <span class="badge bg-primary-subtle text-primary small">پایه {{ $result['grade_name'] }}</span>
@@ -2092,1536 +791,1315 @@
                                     @endforeach
                                 </div>
                             @endif
-                            <small class="text-muted-2">با جستجو تمام فیلدها خودکار پر می‌شوند</small>
+                            <small class="text-muted">با جستجو تمام فیلدها خودکار پر می‌شوند</small>
                         </div>
-
-                        <hr class="mb-3 mt-1">
-
-                        {{-- انتخاب دوره تحصیلی و پایه --}}
+                        <hr>
+                        {{-- دوره و پایه --}}
                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                    <i class="material-symbols-outlined text-primary"
-                                       style="font-size: 20px;">school</i>
-                                    دوره تحصیلی <span class="text-danger">*</span>
-                                    <span wire:loading wire:target="partForm.education_level_id">
-                                        <span class="spinner-border spinner-border-sm text-primary"></span>
-                                    </span>
-                                </label>
+                                <label class="form-label fw-semibold">دوره تحصیلی <span class="text-danger">*</span></label>
                                 <div wire:ignore>
-                                    <select id="education-level-select"
-                                            class="form-select select2-modal @error('partForm.education_level_id') is-invalid @enderror">
+                                    <select id="education-level-select" class="form-select select2-modal">
                                         <option value="">انتخاب کنید</option>
                                         @foreach($educationLevels as $level)
-                                            <option
-                                                value="{{ $level->id }}" {{ $partForm['education_level_id'] == $level->id ? 'selected' : '' }}>
-                                                {{ $level->name }}
-                                            </option>
+                                            <option value="{{ $level->id }}" {{ $partForm['education_level_id'] == $level->id ? 'selected' : '' }}>{{ $level->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-                                @error('partForm.education_level_id')
-                                <div class="text-danger small">{{ $message }}</div>
-                                @enderror
                             </div>
-
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                    <i class="material-symbols-outlined text-success"
-                                       style="font-size: 20px;">stairs</i>
-                                    پایه تحصیلی <span class="text-danger">*</span>
-                                    <span wire:loading wire:target="partForm.cc_grade_id">
-                                        <span class="spinner-border spinner-border-sm text-success"></span>
-                                    </span>
-                                </label>
+                                <label class="form-label fw-semibold">پایه تحصیلی <span class="text-danger">*</span></label>
                                 <div wire:ignore>
-                                    <select id="grade-select"
-                                            class="form-select select2-modal @error('partForm.cc_grade_id') is-invalid @enderror"
-                                        {{ empty($grades) ? 'disabled' : '' }}>
-                                        <option
-                                            value="">{{ empty($grades) ? 'ابتدا دوره را انتخاب کنید' : 'انتخاب کنید' }}</option>
+                                    <select id="grade-select" class="form-select select2-modal" {{ empty($grades) ? 'disabled' : '' }}>
+                                        <option value="">{{ empty($grades) ? 'ابتدا دوره را انتخاب کنید' : 'انتخاب کنید' }}</option>
                                         @foreach($grades as $grade)
-                                            <option
-                                                value="{{ $grade->id }}" {{ $partForm['cc_grade_id'] == $grade->id ? 'selected' : '' }}>
-                                                {{ $grade->name }}
-                                            </option>
+                                            <option value="{{ $grade->id }}" {{ $partForm['cc_grade_id'] == $grade->id ? 'selected' : '' }}>{{ $grade->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
-                                @error('partForm.cc_grade_id')
-                                <div class="text-danger small">{{ $message }}</div>
-                                @enderror
                             </div>
                         </div>
-
                         {{-- رشته و درس --}}
                         <div class="row g-3 mb-3">
-                            <div class="col-md-4" wire:ignore.self id="field-select-wrapper"
-                                 style="{{ !(count($fields) > 0 && $partForm['cc_grade_id']) ? 'display:none;' : '' }}">
-                                <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                    رشته
-                                    <span wire:loading wire:target="partForm.cc_field_id">
-                                        <span class="spinner-border spinner-border-sm text-secondary"></span>
-                                    </span>
-                                </label>
-                                <div wire:ignore>
-                                    <select id="field-select" class="form-select select2-modal">
-                                        <option value="">بدون رشته</option>
-                                        @foreach($fields as $field)
-                                            <option
-                                                value="{{ $field->id }}" {{ $partForm['cc_field_id'] == $field->id ? 'selected' : '' }}>
-                                                {{ $field->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <small class="text-muted-2">برای متوسطه اول خالی بگذارید</small>
-                            </div>
-
-                            <div class="{{ count($fields) > 0 && $partForm['cc_grade_id'] ? 'col-md-8' : 'col-12' }}">
-                                <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                    <i class="material-symbols-outlined text-warning" style="font-size: 20px;">book</i>
-                                    درس <span class="text-danger">*</span>
-                                    <span wire:loading wire:target="partForm.cc_subject_id">
-                                        <span class="spinner-border spinner-border-sm text-warning"></span>
-                                    </span>
-                                </label>
-                                <div wire:ignore>
-                                    <select id="subject-select"
-                                            class="form-select select2-modal @error('partForm.cc_subject_id') is-invalid @enderror"
-                                        {{ empty($subjects) ? 'disabled' : '' }}>
-                                        <option
-                                            value="">{{ empty($subjects) ? 'ابتدا پایه را انتخاب کنید' : 'انتخاب کنید' }}</option>
-                                        @foreach($subjects as $subject)
-                                            <option
-                                                value="{{ $subject->id }}" {{ $partForm['cc_subject_id'] == $subject->id ? 'selected' : '' }}>
-                                                {{ $subject->name }}
-                                                ({{ $subject->type === 'general' ? 'عمومی' : 'تخصصی' }})
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                @error('partForm.cc_subject_id')
-                                <div class="text-danger small">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-
-                        {{-- فصل و مبحث --}}
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                    <i class="material-symbols-outlined text-info" style="font-size: 20px;">bookmark</i>
-                                    فصل
-                                    <span wire:loading wire:target="partForm.cc_chapter_id">
-                                        <span class="spinner-border spinner-border-sm text-info"></span>
-                                    </span>
-                                </label>
-                                <div wire:ignore>
-                                    <select id="chapter-select"
-                                            class="form-select select2-modal"
-                                        {{ empty($chapters) ? 'disabled' : '' }}>
-                                        <option
-                                            value="">{{ empty($chapters) ? 'ابتدا درس را انتخاب کنید' : 'انتخاب کنید' }}</option>
-                                        @foreach($chapters as $chapter)
-                                            <option
-                                                value="{{ $chapter->id }}" {{ $partForm['cc_chapter_id'] == $chapter->id ? 'selected' : '' }}>
-                                                {{ $chapter->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                    <i class="material-symbols-outlined text-secondary"
-                                       style="font-size: 20px;">topic</i>
-                                    مبحث
-                                    <span wire:loading wire:target="partForm.cc_topic_id">
-                                        <span class="spinner-border spinner-border-sm text-secondary"></span>
-                                    </span>
-                                </label>
-                                <div wire:ignore>
-                                    <select id="topic-select"
-                                            class="form-select select2-modal"
-                                        {{ empty($topics) ? 'disabled' : '' }}>
-                                        <option
-                                            value="">{{ empty($topics) ? 'ابتدا فصل را انتخاب کنید' : 'انتخاب کنید' }}</option>
-                                        @foreach($topics as $topic)
-                                            <option
-                                                value="{{ $topic->id }}" {{ $partForm['cc_topic_id'] == $topic->id ? 'selected' : '' }}>
-                                                {{ $topic->name }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- توضیحات --}}
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                <i class="material-symbols-outlined text-secondary"
-                                   style="font-size: 20px;">description</i>
-                                توضیحات پارت
-                            </label>
-                            <textarea wire:model="partForm.description"
-                                      rows="2"
-                                      class="form-control"
-                                      placeholder="مسیر انتخاب شده یا توضیحات دلخواه"></textarea>
-                        </div>
-
-                        {{-- نوع پارت، مدت زمان، تعداد تست --}}
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                    <i class="material-symbols-outlined text-danger"
-                                       style="font-size: 20px;">category</i>
-                                    نوع پارت <span class="text-danger">*</span>
-                                </label>
-                                <select wire:model.live="partForm.part_type" class="form-select">
-                                    <option value="descriptive">تشریحی</option>
-                                    <option value="test">تستی</option>
-                                    <option value="video">ویدئو</option>
-                                    <option value="topic_exam">آزمون مبحثی</option>
-
-                                </select>
-                            </div>
-
-                            <div class="col-md-4" x-data="{
-                                    totalMinutes: $wire.entangle('partForm.duration_minutes'),
-                                    hours: 0,
-                                    minutes: 0,
-                                    init() {
-                                        let val = parseInt(this.totalMinutes) || 0;
-                                        this.hours = Math.floor(val / 60);
-                                        this.minutes = val % 60;
-                                        this.$watch('totalMinutes', (v) => {
-                                            let val = parseInt(v) || 0;
-                                            this.hours = Math.floor(val / 60);
-                                            this.minutes = val % 60;
-                                        });
-                                    },
-                                    update() {
-                                        let h = Math.min(Math.max(parseInt(this.hours) || 0, 0), 24);
-                                        let m = Math.min(Math.max(parseInt(this.minutes) || 0, 0), 59);
-                                        this.hours = h;
-                                        this.minutes = m;
-                                        this.totalMinutes = (h * 60) + m;
-                                    }
-                                }" x-init="init()">
-                                <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                    <i class="material-symbols-outlined text-primary"
-                                       style="font-size: 20px;">schedule</i>
-                                    مدت زمان <span class="text-danger">*</span>
-                                </label>
-                                <div class="d-flex align-items-center gap-2">
-                                    <div class="flex-fill position-relative">
-                                        <input type="number" min="0" max="24"
-                                               x-model.number="hours"
-                                               @input="update()"
-                                               class="form-control text-center @error('partForm.duration_minutes') is-invalid @enderror"
-                                               placeholder="0">
-                                        <small class="position-absolute top-50 translate-middle-y text-muted"
-                                               style="left:8px;font-size:10px;">ساعت</small>
-                                    </div>
-                                    <span class="fw-bold text-muted fs-5">:</span>
-                                    <div class="flex-fill position-relative">
-                                        <input type="number" min="0" max="59"
-                                               x-model.number="minutes"
-                                               @input="update()"
-                                               class="form-control text-center"
-                                               placeholder="0">
-                                        <small class="position-absolute top-50 translate-middle-y text-muted"
-                                               style="left:8px;font-size:10px;">دقیقه</small>
-                                    </div>
-                                </div>
-                                <small class="text-muted d-block mt-1" x-show="totalMinutes > 0">
-                                    مجموع: <span x-text="totalMinutes"></span> دقیقه
-                                </small>
-                                @error('partForm.duration_minutes')
-                                <div class="text-danger small">{{ $message }}</div>
-                                @enderror
-                            </div>
-
-                            @if($partForm['part_type'] === 'test' || $partForm['part_type'] === 'topic_exam')
+                            @if(count($fields) > 0 && $partForm['cc_grade_id'])
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                        <i class="material-symbols-outlined text-warning"
-                                           style="font-size: 20px;">quiz</i>
-                                        تعداد تست <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="number"
-                                           min="1"
-                                           wire:model="partForm.test_count"
-                                           class="form-control @error('partForm.test_count') is-invalid @enderror"
-                                           placeholder="تعداد تست را وارد کنید">
-                                    @error('partForm.test_count')
-                                    <div class="text-danger small">{{ $message }}</div>
-                                    @enderror
+                                    <label class="form-label fw-semibold">رشته</label>
+                                    <div wire:ignore>
+                                        <select id="field-select" class="form-select select2-modal">
+                                            <option value="">بدون رشته</option>
+                                            @foreach($fields as $field)
+                                                <option value="{{ $field->id }}" {{ $partForm['cc_field_id'] == $field->id ? 'selected' : '' }}>{{ $field->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
+                                <div class="col-md-8">
+                                    @else
+                                        <div class="col-12">
+                                            @endif
+                                            <label class="form-label fw-semibold">درس <span class="text-danger">*</span></label>
+                                            <div wire:ignore>
+                                                <select id="subject-select" class="form-select select2-modal @error('partForm.cc_subject_id') is-invalid @enderror" {{ empty($subjects) ? 'disabled' : '' }}>
+                                                    <option value="">{{ empty($subjects) ? 'ابتدا پایه را انتخاب کنید' : 'انتخاب کنید' }}</option>
+                                                    @foreach($subjects as $subject)
+                                                        <option value="{{ $subject->id }}" {{ $partForm['cc_subject_id'] == $subject->id ? 'selected' : '' }}>
+                                                            {{ $subject->name }} ({{ $subject->type === 'general' ? 'عمومی' : 'تخصصی' }})
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            @error('partForm.cc_subject_id')<div class="text-danger small">{{ $message }}</div>@enderror
+                                        </div>
+                                </div>
+                                {{-- فصل و مبحث --}}
+                                <div class="row g-3 mb-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">فصل</label>
+                                        <div wire:ignore>
+                                            <select id="chapter-select" class="form-select select2-modal" {{ empty($chapters) ? 'disabled' : '' }}>
+                                                <option value="">{{ empty($chapters) ? 'ابتدا درس را انتخاب کنید' : 'انتخاب کنید' }}</option>
+                                                @foreach($chapters as $chapter)
+                                                    <option value="{{ $chapter->id }}" {{ $partForm['cc_chapter_id'] == $chapter->id ? 'selected' : '' }}>{{ $chapter->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">مبحث</label>
+                                        <div wire:ignore>
+                                            <select id="topic-select" class="form-select select2-modal" {{ empty($topics) ? 'disabled' : '' }}>
+                                                <option value="">{{ empty($topics) ? 'ابتدا فصل را انتخاب کنید' : 'انتخاب کنید' }}</option>
+                                                @foreach($topics as $topic)
+                                                    <option value="{{ $topic->id }}" {{ $partForm['cc_topic_id'] == $topic->id ? 'selected' : '' }}>{{ $topic->name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                {{-- توضیحات --}}
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">توضیحات</label>
+                                    <textarea wire:model="partForm.description" rows="2" class="form-control" placeholder="مسیر انتخاب شده یا توضیحات دلخواه"></textarea>
+                                </div>
+                                {{-- نوع / زمان / تست --}}
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">نوع پارت <span class="text-danger">*</span></label>
+                                        <select wire:model.live="partForm.part_type" class="form-select">
+                                            <option value="descriptive">تشریحی</option>
+                                            <option value="test">تستی</option>
+                                            <option value="video">ویدئو</option>
+                                            <option value="topic_exam">آزمون مبحثی</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-{{ in_array($partForm['part_type'], ['test','topic_exam']) ? '4' : '8' }}"
+                                         x-data="{
+                                    totalMinutes: $wire.entangle('partForm.duration_minutes'),
+                                    hours:0, minutes:0,
+                                    init(){ let v=parseInt(this.totalMinutes)||0; this.hours=Math.floor(v/60); this.minutes=v%60; this.$watch('totalMinutes',(v)=>{ let val=parseInt(v)||0; this.hours=Math.floor(val/60); this.minutes=val%60; }); },
+                                    update(){ let h=Math.min(Math.max(parseInt(this.hours)||0,0),24); let m=Math.min(Math.max(parseInt(this.minutes)||0,0),59); this.hours=h; this.minutes=m; this.totalMinutes=(h*60)+m; }
+                                 }" x-init="init()">
+                                        <label class="form-label fw-semibold">مدت زمان <span class="text-danger">*</span></label>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <div class="position-relative flex-fill">
+                                                <input type="number" min="0" max="24" x-model.number="hours" @input="update()" class="form-control text-center" placeholder="0">
+                                                <small class="position-absolute top-50 translate-middle-y text-muted" style="left:6px;font-size:10px;">ساعت</small>
+                                            </div>
+                                            <span class="fw-bold text-muted">:</span>
+                                            <div class="position-relative flex-fill">
+                                                <input type="number" min="0" max="59" x-model.number="minutes" @input="update()" class="form-control text-center" placeholder="0">
+                                                <small class="position-absolute top-50 translate-middle-y text-muted" style="left:6px;font-size:10px;">دقیقه</small>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted" x-show="totalMinutes>0">مجموع: <span x-text="totalMinutes"></span> دقیقه</small>
+                                        @error('partForm.duration_minutes')<div class="text-danger small">{{ $message }}</div>@enderror
+                                    </div>
+                                    @if(in_array($partForm['part_type'], ['test','topic_exam']))
+                                        <div class="col-md-4">
+                                            <label class="form-label fw-semibold">تعداد تست <span class="text-danger">*</span></label>
+                                            <input type="number" min="1" wire:model="partForm.test_count" class="form-control" placeholder="تعداد تست">
+                                            @error('partForm.test_count')<div class="text-danger small">{{ $message }}</div>@enderror
+                                        </div>
+                                    @endif
+                                </div>
+                        </div>
+                        <div class="modal-footer bg-body-tertiary rounded-bottom-4">
+                            @if($editingPartId)
+                                <button type="button" class="btn btn-outline-danger"
+                                        wire:click="deletePart({{ $editingPartId }})"
+                                        wire:confirm="آیا از حذف این پارت اطمینان دارید؟">حذف</button>
                             @endif
-                        </div>
-                    </div>
-
-                    <div class="modal-footer bg-body-tertiary">
-                        @if($editingPartId)
-                            <button type="button"
-                                    class="btn btn-outline-danger"
-                                    wire:click="deletePart({{ $editingPartId }})"
-                                    wire:confirm="آیا از حذف این پارت اطمینان دارید؟">
-                                حذف
+                            <button type="button" class="btn btn-outline-secondary" wire:click="closePartModal">انصراف</button>
+                            <button type="button" class="btn btn-primary" wire:click="savePart">
+                                <span wire:loading.remove wire:target="savePart">ذخیره</span>
+                                <span wire:loading wire:target="savePart">در حال ذخیره...</span>
                             </button>
-                        @endif
-
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closePartModal">
-                            انصراف
-                        </button>
-
-                        <button type="button" class="btn btn-primary" wire:click="savePart">
-                            <span wire:loading.remove wire:target="savePart">ذخیره</span>
-                            <span wire:loading wire:target="savePart">در حال ذخیره...</span>
-                        </button>
+                        </div>
                     </div>
-
                 </div>
             </div>
-        </div>
-    @endif
+            @endif
 
-    {{-- Modal تأیید حذف گروهی --}}
-    @if($showBulkDeleteConfirmModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.70); backdrop-filter: blur(4px); z-index: 1090;">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header text-white"
-                         style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">delete_forever</i>
-                            تأیید حذف گروهی
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeBulkDeleteConfirmModal"></button>
-                    </div>
-
-                    <div class="modal-body py-3">
-                        <div class="text-center mb-3">
-                            <i class="material-symbols-outlined text-danger" style="font-size: 56px;">delete_sweep</i>
-                        </div>
-                        <p class="fw-semibold text-center mb-3">
-                            <span class="text-danger fw-bold">{{ count($bulkDeleteSelectedIds) }}</span> پارت زیر حذف
-                            خواهند شد. این عمل قابل بازگشت نیست.
-                        </p>
-                        @php
-                            $confirmDeleteInfo = [];
-                            foreach($weekDays as $wd) {
-                                foreach($wd['parts'] as $wp) {
-                                    if(in_array($wp->id, $bulkDeleteSelectedIds)) {
-                                        $confirmDeleteInfo[] = [
-                                            'part' => $wp,
-                                            'day_name' => $wd['name'],
-                                            'jalali_date' => $wd['jalali_date'],
-                                        ];
-                                    }
-                                }
-                            }
-                        @endphp
-                        <div class="border border-danger rounded-3 bg-danger bg-opacity-10"
-                             style="max-height:200px;overflow-y:auto;">
-                            @foreach($confirmDeleteInfo as $info)
-                                <div
-                                    class="d-flex align-items-start gap-2 px-3 py-2 border-bottom border-danger border-opacity-25 small">
-                                    <i class="material-symbols-outlined text-danger"
-                                       style="font-size:15px;margin-top:1px;">delete</i>
-                                    <div>
-                                        <span class="fw-semibold">{{ $info['part']->lesson_name }}</span>
-                                        @if($info['part']->description)
-                                            <span
-                                                class="text-muted-2"> — {{ Str::limit($info['part']->description, 50) }}</span>
-                                        @endif
-                                        <div class="mt-1">
-                                            <span class="badge bg-danger-subtle text-danger border rounded-pill"
-                                                  style="font-size:10px;">
-                                                <i class="material-symbols-outlined" style="font-size:11px;">calendar_today</i>
-                                                {{ $info['day_name'] }} {{ $info['jalali_date'] }}
-                                            </span>
-                                        </div>
+            {{-- ====== MODAL: برنامه درسی جلسه قبلی ====== --}}
+            @if($showPrevProgramModal)
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.65);backdrop-filter:blur(4px);z-index:1060;">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-header text-white rounded-top-4" style="background:linear-gradient(135deg,#d97706,#f59e0b,#fbbf24);">
+                                <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                    <i class="material-symbols-outlined">history</i> برنامه درسی جلسه قبلی
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" wire:click="closePrevProgramModal"></button>
+                            </div>
+                            <div class="modal-body">
+                                @if(count($prevSessionParts) > 0)
+                                    {{-- Sort --}}
+                                    <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                                        <span class="small fw-semibold text-muted">مرتب‌سازی:</span>
+                                        <select wire:model.live="prevProgramSortField" class="form-select form-select-sm w-auto">
+                                            <option value="day">روز</option>
+                                            <option value="rating_desc">امتیاز: زیاد به کم</option>
+                                            <option value="rating_asc">امتیاز: کم به زیاد</option>
+                                        </select>
+                                        <select wire:model.live="prevProgramFilterGrade" class="form-select form-select-sm w-auto">
+                                            <option value="">همه پایه‌ها</option>
+                                            <option value="12">دوازدهم</option>
+                                            <option value="11">یازدهم</option>
+                                            <option value="10">دهم</option>
+                                            <option value="9">نهم</option>
+                                        </select>
+                                        <select wire:model.live="prevProgramFilterType" class="form-select form-select-sm w-auto">
+                                            <option value="">عمومی/تخصصی (همه)</option>
+                                            <option value="general">فقط عمومی</option>
+                                            <option value="specialized">فقط تخصصی</option>
+                                        </select>
+                                        <select wire:model.live="prevProgramFilterDay" class="form-select form-select-sm w-auto">
+                                            <option value="">همه روزها</option>
+                                            @foreach($weekDays as $wd)
+                                                <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
+                                            @endforeach
+                                        </select>
                                     </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
 
-                    <div class="modal-footer bg-body-tertiary justify-content-center gap-2">
-                        <button type="button" class="btn btn-outline-secondary"
-                                wire:click="closeBulkDeleteConfirmModal">
-                            انصراف
-                        </button>
-                        <button type="button" class="btn btn-danger" wire:click="executeBulkDelete">
-                            <span wire:loading.remove wire:target="executeBulkDelete">
-                                <i class="material-symbols-outlined" style="font-size:18px;">delete_forever</i>
-                                بله، حذف کن
-                            </span>
-                            <span wire:loading wire:target="executeBulkDelete">در حال حذف...</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                            <tr>
+                                                <th style="width:36px;">#</th>
+                                                <th>درس / مبحث</th>
+                                                <th class="text-center">روز</th>
+                                                <th class="text-center">تایم</th>
+                                                <th class="text-center">نوع</th>
+                                                <th class="text-center">امتیاز</th>
+                                                <th class="text-center">افزودن</th>
+                                            </tr>
+                                            </thead>
 
-    {{-- Rest Day Confirmation Modal --}}
-    @if($showRestDayConfirmModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header bg-warning text-white">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">warning</i>
-                            تایید روز استراحت
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeRestDayConfirmModal"></button>
-                    </div>
-
-                    <div class="modal-body text-center py-4">
-                        <div class="mb-3">
-                            <i class="material-symbols-outlined text-warning"
-                               style="font-size: 64px;">self_improvement</i>
-                        </div>
-                        <h5 class="mb-3">آیا مطمئن هستید؟</h5>
-                        <p class="text-muted-2 mb-0">
-                            این روز <strong class="text-danger">{{ $partsCountForRestDay }}</strong> پارت دارد.
-                            <br>
-                            با تایید، تمام پارت‌های این روز حذف شده و روز به عنوان
-                            <span class="text-success fw-bold">استراحت</span> ثبت می‌شود.
-                        </p>
-                    </div>
-
-                    <div class="modal-footer justify-content-center gap-2 bg-body-tertiary">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeRestDayConfirmModal">
-                            انصراف
-                        </button>
-                        <button type="button" class="btn btn-success" wire:click="confirmRestDay">
-                            <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
-                            تایید و ثبت استراحت
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-    {{-- Modal مشاهده برنامه کلاسی دانش‌آموز --}}
-    @if($showClassScheduleModal && $classScheduleData['schedule'])
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header text-white"
-                         style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 40%, #c084fc 100%);">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">menu_book</i>
-                            برنامه کلاسی دانش‌آموز
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeClassScheduleModal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        {{-- جدول برنامه کلاسی --}}
-                        <div class="table-responsive mb-4">
-                            <table class="table table-bordered table-hover align-middle mb-0">
-                                <thead>
-                                <tr>
-                                    <th class="text-center"
-                                        style="background: linear-gradient(90deg, #7c3aed, #a855f7); color: #fff; width: 110px;">
-                                        روز
-                                    </th>
-                                    @for($p = 1; $p <= 5; $p++)
-                                        <th class="text-center"
-                                            style="background: linear-gradient(90deg, #7c3aed, #a855f7); color: #fff;">
-                                            پارت {{ $p }}</th>
-                                    @endfor
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @for($d = 0; $d < 7; $d++)
-                                    <tr>
-                                        <td class="text-center">
-                                            <span
-                                                class="badge {{ in_array($d, [5, 6]) ? 'bg-secondary' : 'bg-primary' }} rounded-pill px-3 py-2 fw-bold">
-                                                {{ \App\Models\ClassSchedule::getDayName($d) }}
-                                            </span>
-                                        </td>
-                                        @for($p = 1; $p <= 5; $p++)
-                                            @php
-                                                $part = $classScheduleData['days'][$d]['parts']->where('part_order', $p)->first();
-                                            @endphp
-                                            <td class="text-center">
-                                                @if($part)
-                                                    <span
-                                                        class="badge bg-success-subtle text-success rounded-pill px-3 py-2">
-                                                        {{ $part->lesson_name }}
-                                                    </span>
-                                                @else
-                                                    <span class="text-muted-2">-</span>
+                                            <tbody>
+                                            @forelse($filteredPrevParts as $idx => $pPart)
+                                                <tr class="{{ isset($copiedFromPrevPartIds[$pPart['id']]) ? 'table-success bg-success bg-opacity-10' : '' }}">
+                                                    <td class="text-muted small">{{ $idx + 1 }}</td>
+                                                    <td>
+                                                        <div class="fw-semibold small">{{ $pPart['lesson_name'] }}</div>
+                                                        @if($pPart['subject_name'])
+                                                            <div class="small text-muted">
+                                                                {{ $pPart['subject_name'] }}
+                                                                @if($pPart['chapter_name']) › {{ $pPart['chapter_name'] }} @endif
+                                                                @if($pPart['topic_name']) › {{ $pPart['topic_name'] }} @endif
+                                                            </div>
+                                                        @endif
+                                                        @if($pPart['grade_label'])
+                                                            <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">{{ $pPart['grade_label'] }}</span>
+                                                        @endif
+                                                        <span class="badge bg-body-tertiary text-body border" style="font-size:10px;">{{ $pPart['lesson_type_label'] }}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge bg-body-tertiary text-body border rounded-pill small">{{ $pPart['day_name'] }}</span>
+                                                    </td>
+                                                    <td class="text-center small fw-semibold">{{ $pPart['duration_minutes'] }} دقیقه</td>
+                                                    <td class="text-center">
+                                                        <span class="badge bg-body-tertiary text-body border small">{{ $pPart['part_type_label'] }}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if($pPart['avg_rating'] !== null)
+                                                            <span class="fw-bold {{ $pPart['avg_rating']>=8?'text-success':($pPart['avg_rating']>=5?'text-info':'text-danger') }}">
+                    {{ $pPart['avg_rating'] }}/10
+                </span>
+                                                            <span class="badge d-block mt-1 {{ $pPart['avg_rating']>=8?'bg-success-subtle text-success':($pPart['avg_rating']>=5?'bg-info-subtle text-info':'bg-danger-subtle text-danger') }}" style="font-size:10px;">
+                    {{ $pPart['avg_label'] }}
+                </span>
+                                                        @else
+                                                            <span class="text-muted small">ثبت نشده</span>
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @if(isset($copiedFromPrevPartIds[$pPart['id']]))
+                                                            <span class="badge bg-success text-white d-block mb-1" style="font-size:10px;">
+                    <i class="material-symbols-outlined" style="font-size:11px;">check_circle</i> اضافه شده
+                </span>
+                                                            <button class="btn btn-sm btn-outline-danger w-100"
+                                                                    wire:click="revertAddedPrevPart({{ $pPart['id'] }})">
+                                                                <i class="material-symbols-outlined" style="font-size:12px;">undo</i> برگشت
+                                                            </button>
+                                                        @else
+                                                            <button class="btn btn-sm btn-outline-warning"
+                                                                    wire:click="showPrevPartInlineAddForm({{ $pPart['id'] }})">
+                                                                <i class="material-symbols-outlined" style="font-size:13px;">add_circle</i> افزودن
+                                                            </button>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                                {{-- Inline form زیر همین ردیف --}}
+                                                @if($showPrevPartInlineForm && $prevPartInlineSelectedId === $pPart['id'])
+                                                    <tr class="bg-body-tertiary">
+                                                        <td colspan="7">
+                                                            <div class="p-3 border rounded-3">
+                                                                <div class="row g-2 align-items-end">
+                                                                    <div class="col-md-3">
+                                                                        <label class="form-label small fw-semibold mb-1">روز مقصد</label>
+                                                                        <select class="form-select form-select-sm" wire:model="prevPartInlineForm.day_index">
+                                                                            <option value="">انتخاب روز...</option>
+                                                                            @foreach($weekDays as $wd)
+                                                                                @if(!$wd['is_rest_day'])
+                                                                                    <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
+                                                                                @endif
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        <label class="form-label small fw-semibold mb-1">نوع پارت</label>
+                                                                        <select class="form-select form-select-sm" wire:model.live="prevPartInlineForm.part_type">
+                                                                            <option value="descriptive">تشریحی</option>
+                                                                            <option value="test">تستی</option>
+                                                                            <option value="video">ویدئو</option>
+                                                                            <option value="topic_exam">آزمون مبحثی</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    @if(in_array($prevPartInlineForm['part_type'] ?? 'descriptive', ['test','topic_exam']))
+                                                                        <div class="col-md-1">
+                                                                            <label class="form-label small fw-semibold mb-1">تعداد تست</label>
+                                                                            <input type="number" min="1" class="form-control form-control-sm text-center"
+                                                                                   wire:model="prevPartInlineForm.test_count" placeholder="0">
+                                                                        </div>
+                                                                    @endif
+                                                                    <div class="col-md-1">
+                                                                        <label class="form-label small fw-semibold mb-1">ساعت</label>
+                                                                        <input type="number" min="0" max="24" class="form-control form-control-sm text-center"
+                                                                               wire:model="prevPartInlineForm.duration_hours" placeholder="0">
+                                                                    </div>
+                                                                    <div class="col-md-1">
+                                                                        <label class="form-label small fw-semibold mb-1">دقیقه</label>
+                                                                        <input type="number" min="0" max="59" class="form-control form-control-sm text-center"
+                                                                               wire:model="prevPartInlineForm.duration_minutes" placeholder="0">
+                                                                    </div>
+                                                                    <div class="col d-flex gap-2">
+                                                                        <button type="button" class="btn btn-sm btn-warning text-white flex-fill"
+                                                                                wire:click="addSinglePrevPartToProgram">
+                                <span wire:loading.remove wire:target="addSinglePrevPartToProgram">
+                                    <i class="material-symbols-outlined" style="font-size:13px;">check</i> ثبت
+                                </span>
+                                                                            <span wire:loading wire:target="addSinglePrevPartToProgram">...</span>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                                wire:click="hidePrevPartInlineAddForm">
+                                                                            <i class="material-symbols-outlined" style="font-size:13px;">close</i>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
                                                 @endif
-                                            </td>
-                                        @endfor
-                                    </tr>
-                                @endfor
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {{-- دکمه‌های پیش‌خوانی و روزخوانی --}}
-                        <hr>
-                        <div class="mb-3">
-                            <p class="small text-muted-2 mb-2 d-flex align-items-center gap-1">
-                                <i class="material-symbols-outlined" style="font-size:16px;">auto_fix_high</i>
-                                پیش‌خوانی و روزخوانی بر اساس برنامه کلاسی و تایم‌های جلسه قبلی محاسبه می‌شوند.
-                            </p>
-                            {{-- پیش‌نمایش با جدول قابل ویرایش (یک ردیف برای هر درس) --}}
-                            @if(empty($weeklyReadingsPreview))
-                                <div class="d-flex justify-content-center">
-                                    <button wire:click="previewWeeklyReadings"
-                                            class="btn btn-outline-secondary d-flex align-items-center gap-2">
-                                        <i class="material-symbols-outlined" style="font-size:18px;">refresh</i>
-                                        بارگذاری پیش‌نمایش
-                                        <span wire:loading wire:target="previewWeeklyReadings">
-                                            <span class="spinner-border spinner-border-sm"></span>
-                                        </span>
-                                    </button>
-                                </div>
-                            @else
-                                {{-- جدول ویرایش تایم‌ها - یک ردیف برای هر درس --}}
-                                <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
-
-                                    <h6 class="fw-bold mb-0 d-flex align-items-center gap-1">
-                                        <i class="material-symbols-outlined text-success" style="font-size:18px;">edit_note</i>
-                                        تایم پیش‌خوانی و روزخوانی هر درس
-                                    </h6>
-                                    <div class="d-flex align-items-center gap-2">
-                                        {{-- فیلتر نوع --}}
-                                        <div class="btn-group btn-group-sm" role="group">
-                                            <button wire:click="$set('readingTypeFilter', '')"
-                                                    class="btn {{ $readingTypeFilter === '' ? 'btn-secondary' : 'btn-outline-secondary' }}">
-                                                همه
-                                            </button>
-                                            <button wire:click="$set('readingTypeFilter', 'daily')"
-                                                    class="btn {{ $readingTypeFilter === 'daily' ? 'btn-primary' : 'btn-outline-primary' }}">
-                                                روزخوانی
-                                            </button>
-                                            <button wire:click="$set('readingTypeFilter', 'pre')"
-                                                    class="btn {{ $readingTypeFilter === 'pre' ? 'btn-info' : 'btn-outline-info' }}">
-                                                پیش‌خوانی
-                                            </button>
-                                        </div>
-                                        <button wire:click="previewWeeklyReadings"
-                                                class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1">
-                                            <i class="material-symbols-outlined" style="font-size:15px;">refresh</i>
-                                            بازنشانی
-                                            <span wire:loading wire:target="previewWeeklyReadings"><span
-                                                    class="spinner-border spinner-border-sm"></span></span>
-                                        </button>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="7" class="text-center text-muted py-4">
+                                                        <i class="material-symbols-outlined d-block mb-2" style="font-size:40px;">filter_list_off</i>
+                                                        موردی یافت نشد
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                            </tbody>
+                                        </table>
                                     </div>
-                                </div>
-                                <div class="alert alert-info small d-flex align-items-center gap-2 mb-2 py-2">
-                                    <i class="material-symbols-outlined" style="font-size:16px;">info</i>
-                                    برای هر درس <strong>یک تایم</strong> وارد کنید. این تایم برای تمام روزهایی که آن درس
-                                    قرار است خوانده شود اعمال می‌شود. اگر تایم ۰ باشد، آن درس به برنامه اضافه نمی‌شود.
-                                </div>
-                                <div class="table-responsive mb-3" style="max-height:320px;overflow-y:auto;">
-                                    <table class="table table-sm align-middle mb-0">
-                                        <thead class="sticky-top bg-body-tertiary">
-                                        <tr class="text-muted-2">
-                                            <th>نوع</th>
-                                            <th>درس</th>
-                                            <th>روزهای اعمال</th>
-                                            <th class="text-center" style="width:90px;">دقیقه</th>
+
+
+                                @else
+                                    <div class="text-center py-5">
+                                        <i class="material-symbols-outlined text-muted" style="font-size:48px;">inbox</i>
+                                        <p class="text-muted mt-2">برنامه‌ای برای جلسه قبلی ثبت نشده</p>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="modal-footer bg-body-tertiary rounded-bottom-4">
+                                <button type="button" class="btn btn-outline-secondary" wire:click="closePrevProgramModal">بستن</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ====== MODAL: گزارش / ساعت مطالعه جلسه قبلی ====== --}}
+            @if($showPrevReportModal)
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.65);backdrop-filter:blur(4px);z-index:1062;">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-header text-white rounded-top-4"
+                                 style="background:{{ $prevReportType === 'study' ? 'linear-gradient(135deg,#059669,#10b981)' : 'linear-gradient(135deg,#7c3aed,#a855f7)' }};">
+                                <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                    <i class="material-symbols-outlined">{{ $prevReportType === 'study' ? 'schedule' : 'summarize' }}</i>
+                                    {{ $prevReportData['type_label'] ?? '' }} — جلسه قبلی
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" wire:click="closePrevReportModal"></button>
+                            </div>
+                            <div class="modal-body">
+                                @if(!empty($prevReportData))
+                                    {{-- Info --}}
+                                    <div class="d-flex flex-wrap gap-3 mb-3 small">
+                                        <span>تاریخ جلسه: <strong>{{ $prevReportData['session_date'] ?? '—' }}</strong></span>
+                                        <span class="badge bg-success text-white">{{ $prevReportData['result_status'] ?? '' }}</span>
+                                        @if($prevReportType === 'study' && !empty($prevReportData['total_label']))
+                                            <span>جمع کل: <strong class="text-primary">{{ $prevReportData['total_label'] }}</strong></span>
+                                        @endif
+                                    </div>
+
+                                    {{-- Summary --}}
+                                    <div class="row g-3 mb-3">
+                                        @if($prevReportType === 'report')
+                                            <div class="col-6 col-md-3">
+                                                <div class="rounded-3 border bg-success bg-opacity-10 text-center p-3">
+                                                    <div class="fw-bold fs-4 text-success">{{ $prevReportData['sent_days_count'] ?? 0 }}</div>
+                                                    <div class="small text-success">روز ارسال شده</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-3">
+                                                <div class="rounded-3 border bg-danger bg-opacity-10 text-center p-3">
+                                                    <div class="fw-bold fs-4 text-danger">{{ $prevReportData['not_sent_days_count'] ?? 0 }}</div>
+                                                    <div class="small text-danger">روز ارسال نشده</div>
+                                                </div>
+                                            </div>
+                                        @elseif($prevReportType === 'study')
+                                            <div class="col-6 col-md-3">
+                                                <div class="rounded-3 border bg-primary bg-opacity-10 text-center p-3">
+                                                    <div class="fw-bold fs-4 text-primary">{{ $prevReportData['total_assigned_parts'] ?? 0 }}</div>
+                                                    <div class="small text-primary">پارت برنامه</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-3">
+                                                <div class="rounded-3 border bg-success bg-opacity-10 text-center p-3">
+                                                    <div class="fw-bold fs-4 text-success">{{ $prevReportData['total_done_parts'] ?? 0 }}</div>
+                                                    <div class="small text-success">پارت ثبت شده</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-3">
+                                                <div class="rounded-3 border bg-danger bg-opacity-10 text-center p-3">
+                                                    <div class="fw-bold fs-4 text-danger">{{ max(0, ($prevReportData['total_assigned_parts'] ?? 0) - ($prevReportData['total_done_parts'] ?? 0)) }}</div>
+                                                    <div class="small text-danger">پارت ثبت نشده</div>
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    @if(!empty($prevReportData['items']))
+                                        @if($prevReportType === 'study')
+                                            <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                                                <span class="small fw-semibold text-muted">مرتب‌سازی:</span>
+
+                                                <select wire:model.live="prevStudySortField" class="form-select form-select-sm w-auto">
+                                                    <option value="day">روز</option>
+                                                    <option value="rating_desc">امتیاز: زیاد به کم</option>
+                                                    <option value="rating_asc">امتیاز: کم به زیاد</option>
+                                                    <option value="not_registered">ثبت نشده اول</option>
+                                                </select>
+
+                                                <select wire:model.live="prevStudyFilterTypeField" class="form-select form-select-sm w-auto">
+                                                    <option value="">عمومی/تخصصی (همه)</option>
+                                                    <option value="general">فقط عمومی</option>
+                                                    <option value="specialized">فقط تخصصی</option>
+                                                </select>
+
+                                                <select wire:model.live="prevStudyFilterDayField" class="form-select form-select-sm w-auto">
+                                                    <option value="">همه روزها</option>
+                                                    @foreach($weekDays as $wd)
+                                                        <option value="{{ $wd['index'] }}">{{ $wd['name'] }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        @endif
+                                        <div class="table-responsive">
+                                            <table class="table table-hover align-middle mb-0 small">
+                                                <thead class="table-light">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>روز</th>
+                                                    <th>تاریخ</th>
+                                                    @if($prevReportType === 'study')
+                                                        <th>درس</th>
+                                                        <th class="text-center">برنامه</th>
+                                                        <th class="text-center">واقعی</th>
+                                                        <th class="text-center">ساعت</th>
+                                                        <th class="text-center">امتیاز</th>
+                                                        <th>بازخورد</th>
+                                                    @else
+                                                        <th class="text-center">پارت انجام شده</th>
+                                                        <th>وضعیت</th>
+                                                        <th>علت عدم انجام</th>
+                                                    @endif
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach(($prevReportType === 'study' ? $filteredStudyItems : ($prevReportData['items'] ?? [])) as $i => $item)
+                                                    @php
+                                                        $isSent = $item['is_sent'] ?? ($prevReportType === 'study' ? ($item['is_registered'] ?? false) : true);
+                                                        $rowClass = '';
+                                                        if($prevReportType === 'study') {
+                                                            $rowClass = !$isSent ? 'table-secondary opacity-75' : (($item['is_suspicious'] ?? false) ? 'table-danger bg-danger bg-opacity-10' : '');
+                                                        } else {
+                                                            $rowClass = !$isSent ? 'table-secondary opacity-75' : '';
+                                                        }
+                                                    @endphp
+                                                    <tr class="{{ $rowClass }}">
+                                                        <td class="text-muted">{{ $i + 1 }}</td>
+                                                        <td>
+                                                    <span class="badge rounded-pill {{ $isSent ? 'bg-body-tertiary text-body border' : 'bg-danger-subtle text-danger' }}">
+                                                        {{ $item['day_name'] }}
+                                                    </span>
+                                                        </td>
+                                                        <td>{{ $item['date'] ?: '—' }}</td>
+                                                        @if($prevReportType === 'study')
+                                                            <td>
+                                                                <div class="fw-semibold">{{ $item['subject'] }}</div>
+                                                                @if(!$isSent)
+                                                                    <span class="badge bg-danger-subtle text-danger" style="font-size:10px;">ثبت نشده</span>
+                                                                @endif
+                                                                @if(!empty($item['grade_label']))
+                                                                    <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">{{ $item['grade_label'] }}</span>
+                                                                @endif
+                                                            </td>
+                                                            <td class="text-center">{{ $item['planned_minutes'] ?? 0 }} دقیقه</td>
+                                                            <td class="text-center {{ ($item['is_suspicious'] ?? false) ? 'text-danger fw-bold' : '' }}">
+                                                                {{ $item['duration_label'] ?? '—' }}
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @if(!empty($item['started_at']))
+                                                                    {{ $item['started_at'] }}@if(!empty($item['ended_at'])) — {{ $item['ended_at'] }}@endif
+                                                                @else
+                                                                    <span class="text-muted">—</span>
+                                                                @endif
+                                                            </td>
+                                                            <td class="text-center">
+                                                                @if(isset($item['rating']) && $item['rating'] !== null)
+                                                                    @php $rc = $item['rating'] >= 8 ? 'success' : ($item['rating'] >= 5 ? 'info' : 'danger'); @endphp
+                                                                    <span class="badge bg-{{ $rc }}-subtle text-{{ $rc }} fw-bold">{{ $item['rating'] }}/10</span>
+                                                                @else
+                                                                    <span class="badge bg-warning-subtle text-warning">—</span>
+                                                                @endif
+                                                            </td>
+                                                            <td class="text-muted">{{ Str::limit($item['feedback'] ?? '', 50) }}</td>
+                                                        @else
+                                                            <td class="text-center fw-bold">
+                                                                @if($isSent)
+                                                                    <span class="{{ ($item['parts_done'] ?? 0) >= ($item['parts_total'] ?? 0) ? 'text-success' : 'text-warning' }}">
+                                                                {{ $item['parts_done'] ?? 0 }}/{{ $item['parts_total'] ?? 0 }}
+                                                            </span>
+                                                                @else
+                                                                    <span class="text-muted">ارسال نشده</span>
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if($isSent)
+                                                                    <span class="badge bg-{{ $item['status_color'] ?? 'warning' }}-subtle text-{{ $item['status_color'] ?? 'warning' }}">{{ $item['status_label'] ?? '—' }}</span>
+                                                                @else
+                                                                    <span class="badge bg-danger-subtle text-danger">ارسال نشده</span>
+                                                                @endif
+                                                            </td>
+                                                            <td class="text-muted small">{{ Str::limit($item['missed_reason'] ?? '', 80) }}</td>
+                                                        @endif
+                                                    </tr>
+                                                @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
+                            <div class="modal-footer bg-body-tertiary rounded-bottom-4">
+                                <button type="button" class="btn btn-outline-secondary" wire:click="closePrevReportModal">بستن</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ====== MODAL: طبقه‌بندی ====== --}}
+            @if($showClassificationModal)
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1058;">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-header text-white rounded-top-4" style="background:linear-gradient(135deg,#475569,#64748b,#94a3b8);">
+                                <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                    <i class="material-symbols-outlined">category</i>
+                                    طبقه‌بندی مباحث
+                                    @if($classificationProjectName)
+                                        <span class="badge bg-white bg-opacity-25 fw-normal small">{{ $classificationProjectName }}</span>
+                                    @endif
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" wire:click="closeClassificationModal"></button>
+                            </div>
+                            <div class="modal-body">
+                                @if(count($classificationTopics) > 0)
+                                    {{-- Sort --}}
+                                    <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+                                        <span class="small fw-semibold text-muted">مرتب‌سازی:</span>
+                                        <select wire:model.live="classificationSort" class="form-select form-select-sm w-auto">
+                                            <option value="rating">رتبه (زیاد به کم)</option>
+                                            <option value="grade">پایه</option>
+                                            <option value="lesson_type">عمومی/تخصصی</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="table-responsive">
+                                        <table class="table table-hover align-middle mb-0">
+                                            <thead class="table-light">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>درس</th>
+                                                <th>فصل</th>
+                                                <th>مبحث</th>
+                                                <th class="text-center">پایه</th>
+                                                <th class="text-center">نوع</th>
+                                                <th class="text-center">رتبه</th>
+                                                <th class="text-center">عملیات</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach($classificationTopics as $idx => $item)
+                                                <tr class="{{ $item['is_added'] ? 'table-success bg-success bg-opacity-10' : '' }}">
+                                                    <td class="text-muted small">{{ $idx + 1 }}</td>
+                                                    <td class="fw-semibold small">{{ $item['subject_name'] }}</td>
+                                                    <td class="small text-muted">{{ $item['chapter_name'] }}</td>
+                                                    <td class="fw-semibold small">{{ $item['topic_name'] }}</td>
+                                                    <td class="text-center">
+                                                            <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">
+                                                                @if($item['grade'] == 12)
+                                                                    دوازدهم
+                                                                @elseif($item['grade'] == 11)
+                                                                    یازدهم
+                                                                @elseif($item['grade'] == 10)
+                                                                    دهم
+                                                                @endif
+
+                                                            </span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge bg-body-tertiary text-body border" style="font-size:10px;">{{ $item['lesson_type_label'] }}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <span class="badge bg-{{ $item['rating_color'] }}-subtle text-{{ $item['rating_color'] }} fw-bold">{{ $item['rating_label'] }}</span>
+                                                    </td>
+                                                    <td class="text-center">
+                                                        <div class="d-flex gap-1 justify-content-center flex-wrap">
+                                                            @if($item['is_added'])
+                                                                <span class="badge bg-success text-white d-block mb-1" style="font-size:10px;">
+                                                                    <i class="material-symbols-outlined" style="font-size:11px;">check_circle</i> اضافه شده
+                                                                </span>
+                                                                <button type="button" class="btn btn-sm btn-outline-danger w-100 mb-1"
+                                                                        wire:click="revertClassificationPart({{ $item['topic_id'] }})">
+                                                                    <span wire:loading.remove wire:target="revertClassificationPart({{ $item['topic_id'] }})">
+                                                                        <i class="material-symbols-outlined" style="font-size:12px;">undo</i> برگشت
+                                                                    </span>
+                                                                    <span wire:loading wire:target="revertClassificationPart({{ $item['topic_id'] }})">...</span>
+                                                                </button>
+                                                            @else
+                                                                <button type="button" class="btn btn-sm btn-outline-primary"
+                                                                        wire:click="showClassificationInlineAdd({{ $item['topic_id'] }})">
+                                                                    <i class="material-symbols-outlined" style="font-size:12px;">add_circle</i> افزودن
+                                                                </button>
+                                                            @endif
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                {{-- Inline Add --}}
+                                                @if($showClassificationAddForm && $classificationSelectedTopicId === $item['topic_id'])
+                                                    <tr class="bg-body-tertiary">
+                                                        <td colspan="8">
+                                                            <div class="p-3 rounded-3 border">
+                                                                <div class="row g-3 align-items-end">
+                                                                    <div class="col-md-3">
+                                                                        <label class="form-label small fw-semibold mb-1">روز</label>
+                                                                        <select class="form-select form-select-sm" wire:model="classificationAddForm.day_index">
+                                                                            <option value="">انتخاب روز...</option>
+                                                                            @foreach($weekDays as $wd)
+                                                                                @if(!$wd['is_rest_day'])
+                                                                                    <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
+                                                                                @endif
+                                                                            @endforeach
+                                                                        </select>
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        <label class="form-label small fw-semibold mb-1">نوع</label>
+                                                                        <select class="form-select form-select-sm" wire:model.live="classificationAddForm.part_type">
+                                                                            <option value="descriptive">تشریحی</option>
+                                                                            <option value="test">تستی</option>
+                                                                            <option value="video">ویدئو</option>
+                                                                            <option value="topic_exam">آزمون مبحثی</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    @if(in_array($classificationAddForm['part_type'] ?? '', ['test','topic_exam']))
+                                                                        <div class="col-md-1">
+                                                                            <label class="form-label small fw-semibold mb-1">تست</label>
+                                                                            <input type="number" min="0" class="form-control form-control-sm text-center" wire:model="classificationAddForm.test_count">
+                                                                        </div>
+                                                                    @endif
+                                                                    <div class="col-md-1">
+                                                                        <label class="form-label small fw-semibold mb-1">ساعت</label>
+                                                                        <input type="number" min="0" max="24" class="form-control form-control-sm text-center" wire:model="classificationAddForm.duration_hours">
+                                                                    </div>
+                                                                    <div class="col-md-1">
+                                                                        <label class="form-label small fw-semibold mb-1">دقیقه</label>
+                                                                        <input type="number" min="0" max="59" class="form-control form-control-sm text-center" wire:model="classificationAddForm.duration_minutes">
+                                                                    </div>
+                                                                    <div class="col-md-3 d-flex gap-2">
+                                                                        <button type="button" class="btn btn-sm btn-success flex-fill" wire:click="addClassificationToProgram">
+                                                                            <span wire:loading.remove wire:target="addClassificationToProgram"><i class="material-symbols-outlined" style="font-size:13px;">check</i> ثبت</span>
+                                                                            <span wire:loading wire:target="addClassificationToProgram">...</span>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-sm btn-outline-secondary" wire:click="hideClassificationInlineAdd">
+                                                                            <i class="material-symbols-outlined" style="font-size:13px;">close</i>
+                                                                        </button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endif
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @else
+                                    <div class="text-center py-5">
+                                        <i class="material-symbols-outlined text-muted" style="font-size:56px;">category</i>
+                                        <p class="text-muted mt-2">
+                                            {{ $classificationProjectName ? 'هیچ مبحثی برای این دانش‌آموز در پروژه «'.$classificationProjectName.'» ثبت نشده' : 'پروژه طبقه‌بندی فعالی یافت نشد' }}
+                                        </p>
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="modal-footer bg-body-tertiary rounded-bottom-4">
+                                <button type="button" class="btn btn-outline-secondary" wire:click="closeClassificationModal">بستن</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ====== MODAL: برنامه کلاسی ====== --}}
+            @if($showClassScheduleModal && $classScheduleData['schedule'])
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1056;">
+                    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-header text-white rounded-top-4" style="background:linear-gradient(135deg,#7c3aed,#a855f7,#c084fc);">
+                                <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                    <i class="material-symbols-outlined">menu_book</i> برنامه کلاسی دانش‌آموز
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" wire:click="closeClassScheduleModal"></button>
+                            </div>
+                            <div class="modal-body">
+                                {{-- جدول برنامه کلاسی --}}
+                                <div class="table-responsive mb-4">
+                                    <table class="table table-bordered align-middle mb-0">
+                                        <thead>
+                                        <tr style="background:linear-gradient(90deg,#7c3aed,#a855f7);">
+                                            <th class="text-center text-white fw-bold" style="width:110px;">روز</th>
+                                            @for($p = 1; $p <= 5; $p++)
+                                                <th class="text-center text-white fw-bold">پارت {{ $p }}</th>
+                                            @endfor
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        @foreach($weeklyReadingsPreview as $idx => $item)
-                                            @if($readingTypeFilter === '' || $item['type'] === $readingTypeFilter)
-
-                                                <tr>
-                                                    <td>
-                                                        @if($item['type'] === 'daily')
-                                                            <span
-                                                                class="badge bg-primary-subtle text-primary">روزخوانی</span>
+                                        @for($d = 0; $d < 7; $d++)
+                                            <tr>
+                                                <td class="text-center">
+                                            <span class="badge rounded-pill {{ in_array($d,[5,6]) ? 'bg-secondary' : 'bg-primary' }} fw-bold">
+                                                {{ \App\Models\ClassSchedule::getDayName($d) }}
+                                            </span>
+                                                </td>
+                                                @for($p = 1; $p <= 5; $p++)
+                                                    @php $part = $classScheduleData['days'][$d]['parts']->where('part_order',$p)->first(); @endphp
+                                                    <td class="text-center">
+                                                        @if($part)
+                                                            <span class="badge bg-success-subtle text-success rounded-pill px-2">{{ $part->lesson_name }}</span>
                                                         @else
-                                                            <span
-                                                                class="badge bg-info-subtle text-info">پیش‌خوانی</span>
+                                                            <span class="text-muted">-</span>
                                                         @endif
                                                     </td>
-                                                    <td class="fw-semibold small">{{ $item['subject'] }}</td>
-                                                    <td>
-                                                        <div class="d-flex flex-wrap gap-1">
-                                                            @foreach($item['day_names'] as $dn)
-                                                                <span
-                                                                    class="badge bg-body-tertiary text-body border rounded-pill"
-                                                                    style="font-size:10px;">{{ $dn }}</span>
-                                                            @endforeach
-                                                        </div>
-                                                    </td>
-                                                    <td class="text-center">
-                                                        <input type="number"
-                                                               wire:model.lazy="weeklyReadingsPreview.{{ $idx }}.duration_minutes"
-                                                               class="form-control form-control-sm text-center mx-auto {{ $item['duration_minutes'] == 0 ? 'border-warning' : '' }}"
-                                                               min="0" max="300" style="width:70px;">
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        @endforeach
+                                                @endfor
+                                            </tr>
+                                        @endfor
                                         </tbody>
                                     </table>
                                 </div>
 
-                                <div class="d-flex flex-wrap gap-2 justify-content-center">
-                                    {{-- روزخوانی --}}
-                                    @if($this->hasDailyReadings())
-                                        <button wire:click="revertDailyReadings"
-                                                wire:confirm="آیا از حذف تمام روزخوانی‌های برنامه اطمینان دارید؟"
-                                                class="btn btn-outline-danger d-flex align-items-center gap-2">
-                                            <span wire:loading.remove wire:target="revertDailyReadings">
-                                                <i class="material-symbols-outlined" style="font-size:18px;">undo</i>
-                                                بازگرداندن روزخوانی
-                                            </span>
-                                            <span wire:loading wire:target="revertDailyReadings">در حال حذف...</span>
+                                <hr>
+                                {{-- پیش‌خوانی / روزخوانی --}}
+                                <div class="mb-3">
+                                    <p class="small text-muted mb-2">
+                                        <i class="material-symbols-outlined align-middle" style="font-size:15px;">info</i>
+                                        پیش‌خوانی و روزخوانی بر اساس برنامه کلاسی و تایم‌های جلسه قبلی محاسبه می‌شوند.
+                                    </p>
+
+                                    @if(empty($weeklyReadingsPreview))
+                                        <button wire:click="previewWeeklyReadings" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                                            <i class="material-symbols-outlined" style="font-size:18px;">refresh</i> بارگذاری پیش‌نمایش
+                                            <span wire:loading wire:target="previewWeeklyReadings"><span class="spinner-border spinner-border-sm"></span></span>
                                         </button>
                                     @else
-                                        <button wire:click="applyOnlyDailyReadings"
-                                                class="btn btn-outline-primary d-flex align-items-center gap-2">
-                                            <span wire:loading.remove wire:target="applyOnlyDailyReadings">
-                                                <i class="material-symbols-outlined" style="font-size:18px;">today</i>
-                                                افزودن روزخوانی
-                                            </span>
-                                            <span wire:loading wire:target="applyOnlyDailyReadings">در حال ثبت...</span>
-                                        </button>
-                                    @endif
-                                    {{-- پیش‌خوانی --}}
-                                    @if($this->hasPreReadings())
-                                        <button wire:click="revertPreReadings"
-                                                wire:confirm="آیا از حذف تمام پیش‌خوانی‌های برنامه اطمینان دارید؟"
-                                                class="btn btn-outline-danger d-flex align-items-center gap-2">
-                                            <span wire:loading.remove wire:target="revertPreReadings">
-                                                <i class="material-symbols-outlined" style="font-size:18px;">undo</i>
-                                                بازگرداندن پیش‌خوانی
-                                            </span>
-                                            <span wire:loading wire:target="revertPreReadings">در حال حذف...</span>
-                                        </button>
-                                    @else
-                                        <button wire:click="applyOnlyPreReadings"
-                                                class="btn btn-outline-info d-flex align-items-center gap-2">
-                                            <span wire:loading.remove wire:target="applyOnlyPreReadings">
-                                                <i class="material-symbols-outlined"
-                                                   style="font-size:18px;">upcoming</i>
+                                        <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                                            <h6 class="fw-bold mb-0">تایم پیش‌خوانی و روزخوانی</h6>
+                                            <div class="d-flex gap-2 align-items-center">
+                                                <select wire:model.live="readingTypeFilter" class="form-select form-select-sm w-auto">
+                                                    <option value="">همه</option>
+                                                    <option value="daily">روزخوانی</option>
+                                                    <option value="pre">پیش‌خوانی</option>
+                                                </select>
+                                                <button wire:click="previewWeeklyReadings" class="btn btn-sm btn-outline-secondary">
+                                                    <i class="material-symbols-outlined" style="font-size:15px;">refresh</i>
+                                                    <span wire:loading wire:target="previewWeeklyReadings"><span class="spinner-border spinner-border-sm"></span></span>
+                                                </button>
+                                            </div>
+                                        </div>
 
-                                                افزودن پیش‌خوانی
-                                            </span>
-                                            <span wire:loading wire:target="applyOnlyPreReadings">در حال ثبت...</span>
-                                        </button>
-                                    @endif
+                                        <div class="alert alert-info small py-2 mb-2">
+                                            <i class="material-symbols-outlined align-middle" style="font-size:14px;">info</i>
+                                            برای هر درس یک تایم وارد کنید. اگر تایم ۰ باشد، آن درس اضافه نمی‌شود.
+                                        </div>
 
-                                    {{-- هر دو با هم --}}
-                                    <button wire:click="applyWeeklyReadings"
-                                            class="btn btn-outline-success d-flex align-items-center gap-2">
-                                        <span wire:loading.remove wire:target="applyWeeklyReadings">
-                                            <i class="material-symbols-outlined"
-                                               style="font-size:18px;">auto_fix_high</i>
-
-                                            افزودن هر دو
-                                        </span>
-                                        <span wire:loading wire:target="applyWeeklyReadings">در حال ثبت...</span>
-                                    </button>
-                                </div>
-
-                            @endif
-                        </div>
-                    </div>
-
-                    <div class="modal-footer bg-body-tertiary">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeClassScheduleModal">
-                            بستن
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- Modal برنامه کلاسی وجود ندارد --}}
-    @if($showNoScheduleModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header bg-warning text-white">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">warning</i>
-                            برنامه کلاسی
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeNoScheduleModal"></button>
-                    </div>
-
-                    <div class="modal-body text-center py-4">
-                        <div class="mb-3">
-                            <i class="material-symbols-outlined text-warning" style="font-size: 64px;">event_busy</i>
-                        </div>
-                        <h5 class="mb-3">برنامه کلاسی وجود ندارد</h5>
-                        <p class="text-muted-2 mb-0">
-                            دانش‌آموز هنوز برنامه کلاسی خود را آپلود نکرده است.
-                        </p>
-                    </div>
-
-                    <div class="modal-footer justify-content-center gap-2 bg-body-tertiary">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeNoScheduleModal">
-                            بستن
-                        </button>
-                        <button type="button" class="btn btn-warning text-white" wire:click="sendScheduleReminder">
-                            <i class="material-symbols-outlined" style="font-size: 18px;">notifications_active</i>
-                            اطلاع‌رسانی جهت ارسال برنامه کلاسی
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- Modal تایید آزمون جامع --}}
-    @if($showExamDayConfirmModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header bg-danger text-white">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">warning</i>
-                            تایید آزمون جامع
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeExamDayConfirmModal"></button>
-                    </div>
-
-                    <div class="modal-body text-center py-4">
-                        <div class="mb-3">
-                            <i class="material-symbols-outlined text-danger"
-                               style="font-size: 64px;">assignment</i>
-                        </div>
-                        <h5 class="mb-3">آیا مطمئن هستید؟</h5>
-                        <p class="text-muted-2 mb-0">
-                            این روز <strong class="text-danger">{{ $partsCountForExamDay }}</strong> پارت دارد.
-                            <br>
-                            با تایید، تمام پارت‌های این روز حذف شده و روز به عنوان
-                            <span class="text-danger fw-bold">آزمون جامع</span> ثبت می‌شود.
-                        </p>
-                    </div>
-
-                    <div class="modal-footer justify-content-center gap-2 bg-body-tertiary">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeExamDayConfirmModal">
-                            انصراف
-                        </button>
-                        <button type="button" class="btn btn-danger" wire:click="confirmExamDay">
-                            <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
-                            تایید و ثبت آزمون جامع
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- Modal افزودن/ویرایش آزمون جامع --}}
-    @if($showExamPartModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header text-white"
-                         style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 40%, #f87171 100%);">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">{{ $editingExamPartId ? 'edit' : 'add_circle' }}</i>
-                            {{ $editingExamPartId ? 'ویرایش آزمون' : 'افزودن آزمون جامع' }}
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeExamPartModal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                <i class="material-symbols-outlined text-danger" style="font-size: 20px;">assignment</i>
-                                نام آزمون <span class="text-danger">*</span>
-                            </label>
-                            <input type="text"
-                                   wire:model="examPartForm.exam_name"
-                                   class="form-control @error('examPartForm.exam_name') is-invalid @enderror"
-                                   placeholder="مثال: آزمون جامع ریاضی">
-                            @error('examPartForm.exam_name')
-                            <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3" x-data="{
-                                totalMinutes: $wire.entangle('examPartForm.duration_minutes'),
-                                hours: 0,
-                                minutes: 0,
-                                init() {
-                                    let val = parseInt(this.totalMinutes) || 0;
-                                    this.hours = Math.floor(val / 60);
-                                    this.minutes = val % 60;
-                                    this.$watch('totalMinutes', (v) => {
-                                        let val = parseInt(v) || 0;
-                                        this.hours = Math.floor(val / 60);
-                                        this.minutes = val % 60;
-                                    });
-                                },
-                                update() {
-                                    let h = Math.min(Math.max(parseInt(this.hours) || 0, 0), 24);
-                                    let m = Math.min(Math.max(parseInt(this.minutes) || 0, 0), 59);
-                                    this.hours = h;
-                                    this.minutes = m;
-                                    this.totalMinutes = (h * 60) + m;
-                                }
-                            }" x-init="init()">
-                            <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                <i class="material-symbols-outlined text-primary" style="font-size: 20px;">schedule</i>
-                                مدت زمان <span class="text-danger">*</span>
-                            </label>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="flex-fill position-relative">
-                                    <input type="number" min="0" max="24"
-                                           x-model.number="hours"
-                                           @input="update()"
-                                           class="form-control text-center @error('examPartForm.duration_minutes') is-invalid @enderror"
-                                           placeholder="0">
-                                    <small class="position-absolute top-50 translate-middle-y text-muted"
-                                           style="left:8px;font-size:10px;">ساعت</small>
-                                </div>
-                                <span class="fw-bold text-muted fs-5">:</span>
-                                <div class="flex-fill position-relative">
-                                    <input type="number" min="0" max="59"
-                                           x-model.number="minutes"
-                                           @input="update()"
-                                           class="form-control text-center"
-                                           placeholder="0">
-                                    <small class="position-absolute top-50 translate-middle-y text-muted"
-                                           style="left:8px;font-size:10px;">دقیقه</small>
-                                </div>
-                            </div>
-                            <small class="text-muted d-block mt-1" x-show="totalMinutes > 0">
-                                مجموع: <span x-text="totalMinutes"></span> دقیقه
-                            </small>
-                            @error('examPartForm.duration_minutes')
-                            <div class="text-danger small">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold d-flex align-items-center gap-2">
-                                <i class="material-symbols-outlined text-secondary"
-                                   style="font-size: 20px;">description</i>
-                                توضیحات
-                            </label>
-                            <textarea wire:model="examPartForm.description"
-                                      rows="3"
-                                      class="form-control"
-                                      placeholder="توضیحات آزمون..."></textarea>
-                        </div>
-
-                        <div class="alert alert-info small mb-0">
-                            <i class="material-symbols-outlined" style="font-size: 16px;">info</i>
-                            با ذخیره آزمون، یک پارت «تحلیل آزمون» نیز به صورت خودکار اضافه خواهد شد.
-                        </div>
-                    </div>
-
-                    <div class="modal-footer bg-body-tertiary">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeExamPartModal">
-                            انصراف
-                        </button>
-                        <button type="button" class="btn btn-danger" wire:click="saveExamPart">
-                            <span wire:loading.remove wire:target="saveExamPart">ذخیره</span>
-                            <span wire:loading wire:target="saveExamPart">در حال ذخیره...</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- Modal توزیع تکالیف --}}
-    @if($showDistributeHomeworkModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header text-white"
-                         style="background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #c084fc 100%);">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">assignment</i>
-                            پیش‌نمایش توزیع تکالیف در برنامه
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeDistributionModal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        @if(count($distributionPreview) > 0)
-                            <div class="alert alert-info small">
-                                <i class="material-symbols-outlined" style="font-size: 16px;">info</i>
-                                پارت‌های زیر بر اساس قوانین توزیع تکالیف محاسبه شده‌اند. با کلیک روی «اعمال» در برنامه
-                                ثبت می‌شوند.
-                            </div>
-                            <div class="weekly-scroll">
-                                <table class="table table-sm table-bordered align-middle">
-                                    <thead>
-                                    <tr class="bg-body-tertiary">
-                                        <th class="text-center">#</th>
-                                        <th>درس</th>
-                                        <th class="text-center">روز</th>
-                                        <th class="text-center">تاریخ</th>
-                                        <th class="text-center">مدت (دقیقه)</th>
-                                        <th>توضیحات</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach($distributionPreview as $idx => $item)
-                                        <tr>
-                                            <td class="text-center">{{ $idx + 1 }}</td>
-                                            <td class="fw-semibold">{{ $item['subject'] }}</td>
-                                            <td class="text-center"><span
-                                                    class="badge bg-primary rounded-pill">{{ $item['day_name'] }}</span>
-                                            </td>
-                                            <td class="text-center">{{ $item['jalali_date'] }}</td>
-                                            <td class="text-center">{{ $item['duration_minutes'] }}</td>
-                                            <td class="small">{{ $item['description'] }}</td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @else
-                            <p class="text-muted-2 text-center">موردی برای نمایش وجود ندارد.</p>
-                        @endif
-                    </div>
-
-                    <div class="modal-footer bg-body-tertiary">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeDistributionModal">
-                            انصراف
-                        </button>
-                        @if(count($distributionPreview) > 0)
-                            <button type="button" class="btn btn-success" wire:click="applyDistribution">
-                                <span wire:loading.remove wire:target="applyDistribution">
-                                    <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
-                                    اعمال در برنامه
-                                </span>
-                                <span wire:loading wire:target="applyDistribution">در حال اعمال...</span>
-                            </button>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- Modal توزیع امتحانات --}}
-    @if($showDistributeExamModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header text-white"
-                         style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 50%, #1d4ed8 100%);">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">school</i>
-                            پیش‌نمایش توزیع امتحانات در برنامه
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeDistributionModal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        @if(count($distributionPreview) > 0)
-                            <div class="alert alert-info small">
-                                <i class="material-symbols-outlined" style="font-size: 16px;">info</i>
-                                پارت‌ها بر اساس تاریخ امتحان به‌صورت یکنواخت تا روز قبل امتحان توزیع شده‌اند.
-                            </div>
-                            <div class="weekly-scroll">
-                                <table class="table table-sm table-bordered align-middle">
-                                    <thead>
-                                    <tr class="bg-body-tertiary">
-                                        <th class="text-center">#</th>
-                                        <th>درس</th>
-                                        <th class="text-center">روز</th>
-                                        <th class="text-center">تاریخ</th>
-                                        <th class="text-center">مدت (دقیقه)</th>
-                                        <th>توضیحات</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach($distributionPreview as $idx => $item)
-                                        <tr>
-                                            <td class="text-center">{{ $idx + 1 }}</td>
-                                            <td class="fw-semibold">{{ $item['subject'] }}</td>
-                                            <td class="text-center"><span
-                                                    class="badge bg-info rounded-pill">{{ $item['day_name'] }}</span>
-                                            </td>
-                                            <td class="text-center">{{ $item['jalali_date'] }}</td>
-                                            <td class="text-center">{{ $item['duration_minutes'] }}</td>
-                                            <td class="small">{{ $item['description'] }}</td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @else
-                            <p class="text-muted-2 text-center">موردی برای نمایش وجود ندارد.</p>
-                        @endif
-                    </div>
-
-                    <div class="modal-footer bg-body-tertiary">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeDistributionModal">
-                            انصراف
-                        </button>
-                        @if(count($distributionPreview) > 0)
-                            <button type="button" class="btn btn-success" wire:click="applyDistribution">
-                                <span wire:loading.remove wire:target="applyDistribution">
-                                    <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
-                                    اعمال در برنامه
-                                </span>
-                                <span wire:loading wire:target="applyDistribution">در حال اعمال...</span>
-                            </button>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- Modal توزیع پرسش و پاسخ --}}
-    @if($showDistributeQaModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px);">
-            <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header text-white"
-                         style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">forum</i>
-                            پیش‌نمایش توزیع پرسش و پاسخ در برنامه
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeDistributionModal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        @if(count($distributionPreview) > 0)
-                            <div class="alert alert-info small">
-                                <i class="material-symbols-outlined" style="font-size: 16px;">info</i>
-                                پارت‌ها یک روز قبل از تاریخ مشخص‌شده توزیع شده‌اند.
-                            </div>
-                            <div class="weekly-scroll">
-                                <table class="table table-sm table-bordered align-middle">
-                                    <thead>
-                                    <tr class="bg-body-tertiary">
-                                        <th class="text-center">#</th>
-                                        <th>درس</th>
-                                        <th class="text-center">روز</th>
-                                        <th class="text-center">تاریخ</th>
-                                        <th class="text-center">مدت (دقیقه)</th>
-                                        <th>توضیحات</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach($distributionPreview as $idx => $item)
-                                        <tr>
-                                            <td class="text-center">{{ $idx + 1 }}</td>
-                                            <td class="fw-semibold">{{ $item['subject'] }}</td>
-                                            <td class="text-center"><span
-                                                    class="badge bg-success rounded-pill">{{ $item['day_name'] }}</span>
-                                            </td>
-                                            <td class="text-center">{{ $item['jalali_date'] }}</td>
-                                            <td class="text-center">{{ $item['duration_minutes'] }}</td>
-                                            <td class="small">{{ $item['description'] }}</td>
-                                        </tr>
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @else
-                            <p class="text-muted-2 text-center">موردی برای نمایش وجود ندارد.</p>
-                        @endif
-                    </div>
-
-                    <div class="modal-footer bg-body-tertiary">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeDistributionModal">
-                            انصراف
-                        </button>
-                        @if(count($distributionPreview) > 0)
-                            <button type="button" class="btn btn-success" wire:click="applyDistribution">
-                                <span wire:loading.remove wire:target="applyDistribution">
-                                    <i class="material-symbols-outlined" style="font-size: 18px;">check</i>
-                                    اعمال در برنامه
-                                </span>
-                                <span wire:loading wire:target="applyDistribution">در حال اعمال...</span>
-                            </button>
-                        @endif
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-    {{-- Modal طبقه‌بندی --}}
-    @if($showClassificationModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px); z-index: 1075;">
-            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header text-white"
-                         style="background: linear-gradient(135deg, #475569 0%, #64748b 50%, #94a3b8 100%);">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">category</i>
-                            طبقه‌بندی مباحث
-                            @if($classificationProjectName)
-                                <span class="badge bg-white bg-opacity-25 fw-normal small">{{ $classificationProjectName }}</span>
-                            @endif
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeClassificationModal"></button>
-                    </div>
-
-                    <div class="modal-body">
-                        @if(count($classificationTopics) > 0)
-                            {{-- Sort Controls --}}
-                            <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
-                                <span class="small fw-semibold text-muted-2">مرتب‌سازی:</span>
-                                <button wire:click="sortClassification('rating')"
-                                        class="btn btn-sm {{ $classificationSort === 'rating' ? 'btn-secondary' : 'btn-outline-secondary' }}">
-                                    <i class="material-symbols-outlined" style="font-size:14px;">star</i>
-                                    رتبه
-                                </button>
-                                <button wire:click="sortClassification('grade')"
-                                        class="btn btn-sm {{ $classificationSort === 'grade' ? 'btn-secondary' : 'btn-outline-secondary' }}">
-                                    <i class="material-symbols-outlined" style="font-size:14px;">school</i>
-                                    پایه
-                                </button>
-                                <button wire:click="sortClassification('lesson_type')"
-                                        class="btn btn-sm {{ $classificationSort === 'lesson_type' ? 'btn-secondary' : 'btn-outline-secondary' }}">
-                                    <i class="material-symbols-outlined" style="font-size:14px;">category</i>
-                                    عمومی/تخصصی
-                                </button>
-                                <span class="text-muted-2 small ms-2">
-                                    <i class="material-symbols-outlined" style="font-size:14px;">info</i>
-                                    برای افزودن مبحث روی «افزودن» کلیک کنید.
-                                </span>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>درس</th>
-                                        <th>فصل</th>
-                                        <th>مبحث</th>
-                                        <th class="text-center">پایه</th>
-                                        <th class="text-center">نوع</th>
-                                        <th class="text-center">رتبه</th>
-                                        <th class="text-center">عملیات</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    @foreach($classificationTopics as $idx => $item)
-                                        <tr class="{{ $item['is_added'] ? 'table-success bg-success bg-opacity-10' : '' }}">
-                                            <td class="text-muted-2">{{ $idx + 1 }}</td>
-                                            <td class="fw-semibold">{{ $item['subject_name'] }}</td>
-                                            <td class="small text-muted-2">{{ $item['chapter_name'] }}</td>
-                                            <td class="fw-semibold">{{ $item['topic_name'] }}</td>
-                                            <td class="text-center">
-                                                @if($item['grade_label'])
-                                                    <span class="badge bg-primary-subtle text-primary small">{{ $item['grade_label'] }}</span>
-                                                @else
-                                                    <span class="text-muted-2 small">—</span>
-                                                @endif
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-body-tertiary text-body border small">{{ $item['lesson_type_label'] }}</span>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-{{ $item['rating_color'] }}-subtle text-{{ $item['rating_color'] }} fw-bold px-2">
-                                                    {{ $item['rating_label'] }}
-                                                </span>
-                                            </td>
-                                            <td class="text-center">
-                                                <div class="d-flex gap-1 justify-content-center flex-wrap">
-                                                    @if($item['is_added'])
-                                                        <span class="badge bg-success text-white px-2 py-1 d-inline-flex align-items-center gap-1 mb-1">
-                                                            <i class="material-symbols-outlined" style="font-size:13px;">check_circle</i>
-                                                            اضافه شده
+                                        <div class="table-responsive mb-3" style="max-height:300px;overflow-y:auto;">
+                                            <table class="table table-sm align-middle mb-0">
+                                                <thead class="table-light sticky-top">
+                                                <tr>
+                                                    <th>نوع</th><th>درس</th><th>روزهای اعمال</th><th class="text-center" style="width:90px;">دقیقه</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach($weeklyReadingsPreview as $idx => $item)
+                                                    @if($readingTypeFilter === '' || $item['type'] === $readingTypeFilter)
+                                                        <tr>
+                                                            <td>
+                                                        <span class="badge {{ $item['type'] === 'daily' ? 'bg-primary-subtle text-primary' : 'bg-info-subtle text-info' }}">
+                                                            {{ $item['type'] === 'daily' ? 'روزخوانی' : 'پیش‌خوانی' }}
                                                         </span>
-                                                        <button type="button"
-                                                                class="btn btn-sm btn-outline-danger"
-                                                                wire:click.stop="revertClassificationPart({{ $item['topic_id'] }})"
-                                                                wire:loading.attr="disabled"
-                                                                wire:target="revertClassificationPart({{ $item['topic_id'] }})">
-                                                            <span wire:loading.remove wire:target="revertClassificationPart({{ $item['topic_id'] }})">
-                                                                <i class="material-symbols-outlined" style="font-size:13px;">undo</i>
-                                                                برگشت
-                                                            </span>
-                                                            <span wire:loading wire:target="revertClassificationPart({{ $item['topic_id'] }})">...</span>
-                                                        </button>
-                                                    @endif
-                                                    <button type="button" class="btn btn-sm btn-outline-primary"
-                                                            wire:click.stop="showClassificationInlineAdd({{ $item['topic_id'] }})">
-                                                        <i class="material-symbols-outlined" style="font-size:14px;">add_circle</i>
-                                                        افزودن
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        {{-- Inline add form --}}
-                                        @if($showClassificationAddForm && $classificationSelectedTopicId === $item['topic_id'])
-                                            <tr class="bg-body-tertiary">
-                                                <td colspan="8">
-                                                    <div class="p-3 rounded-3 border"
-                                                         style="border-color: var(--ui-border) !important;">
-                                                        <div class="row g-3 align-items-end">
-                                                            <div class="col-md-3">
-                                                                <label class="form-label small fw-semibold mb-1">انتخاب روز</label>
-                                                                <select class="form-select form-select-sm"
-                                                                        wire:model="classificationAddForm.day_index">
-                                                                    <option value="">انتخاب کنید...</option>
-                                                                    @foreach($weekDays as $wd)
-                                                                        @if(!$wd['is_rest_day'])
-                                                                            <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
-                                                                        @endif
+                                                            </td>
+                                                            <td class="fw-semibold small">{{ $item['subject'] }}</td>
+                                                            <td>
+                                                                <div class="d-flex flex-wrap gap-1">
+                                                                    @foreach($item['day_names'] as $dn)
+                                                                        <span class="badge bg-body-tertiary text-body border rounded-pill" style="font-size:10px;">{{ $dn }}</span>
                                                                     @endforeach
-                                                                </select>
-                                                            </div>
-                                                            <div class="col-md-2">
-                                                                <label class="form-label small fw-semibold mb-1">نوع پارت</label>
-                                                                <select class="form-select form-select-sm"
-                                                                        wire:model.live="classificationAddForm.part_type">
-                                                                    <option value="descriptive">تشریحی</option>
-                                                                    <option value="test">تستی</option>
-                                                                    <option value="video">ویدئو</option>
-                                                                    <option value="topic_exam">آزمون مبحثی</option>
-                                                                </select>
-                                                            </div>
-                                                            @if(in_array($classificationAddForm['part_type'] ?? 'descriptive', ['test', 'topic_exam']))
-                                                                <div class="col-md-1">
-                                                                    <label class="form-label small fw-semibold mb-1">تعداد تست</label>
-                                                                    <input type="number" min="0"
-                                                                           class="form-control form-control-sm text-center"
-                                                                           wire:model="classificationAddForm.test_count"
-                                                                           placeholder="0">
                                                                 </div>
-                                                            @endif
-                                                            <div class="col-md-1">
-                                                                <label class="form-label small fw-semibold mb-1">ساعت</label>
-                                                                <input type="number" min="0" max="24"
-                                                                       class="form-control form-control-sm text-center"
-                                                                       wire:model="classificationAddForm.duration_hours"
-                                                                       placeholder="0">
-                                                            </div>
-                                                            <div class="col-md-1">
-                                                                <label class="form-label small fw-semibold mb-1">دقیقه</label>
-                                                                <input type="number" min="0" max="59"
-                                                                       class="form-control form-control-sm text-center"
-                                                                       wire:model="classificationAddForm.duration_minutes"
-                                                                       placeholder="0">
-                                                            </div>
-                                                            <div class="col-md-3 d-flex gap-2">
-                                                                <button type="button"
-                                                                        class="btn btn-sm btn-success flex-fill"
-                                                                        wire:click="addClassificationToProgram">
-                                                                    <span wire:loading.remove wire:target="addClassificationToProgram">
-                                                                        <i class="material-symbols-outlined" style="font-size:14px;">check</i>
-                                                                        ثبت نهایی
-                                                                    </span>
-                                                                    <span wire:loading wire:target="addClassificationToProgram">در حال ثبت...</span>
-                                                                </button>
-                                                                <button type="button"
-                                                                        class="btn btn-sm btn-outline-secondary"
-                                                                        wire:click="hideClassificationInlineAdd">
-                                                                    <i class="material-symbols-outlined" style="font-size:14px;">close</i>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endif
-                                    @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @else
-                            <div class="text-center py-5">
-                                <i class="material-symbols-outlined text-muted-2" style="font-size:64px;">category</i>
-                                <p class="text-muted-2 mt-3">
-                                    @if($classificationProjectName)
-                                        هیچ مبحثی برای این دانش‌آموز در پروژه «{{ $classificationProjectName }}» ثبت نشده است.
-                                    @else
-                                        پروژه طبقه‌بندی فعالی یافت نشد.
+                                                            </td>
+                                                            <td class="text-center">
+                                                                <input type="number" wire:model.lazy="weeklyReadingsPreview.{{ $idx }}.duration_minutes"
+                                                                       class="form-control form-control-sm text-center mx-auto {{ $item['duration_minutes'] == 0 ? 'border-warning' : '' }}"
+                                                                       min="0" max="300" style="width:70px;">
+                                                            </td>
+                                                        </tr>
+                                                    @endif
+                                                @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                            @if($this->hasDailyReadings())
+                                                <button wire:click="revertDailyReadings" wire:confirm="آیا مطمئنید؟" class="btn btn-outline-danger d-flex align-items-center gap-1">
+                                                    <span wire:loading.remove wire:target="revertDailyReadings"><i class="material-symbols-outlined" style="font-size:17px;">undo</i> بازگرداندن روزخوانی</span>
+                                                    <span wire:loading wire:target="revertDailyReadings">...</span>
+                                                </button>
+                                            @else
+                                                <button wire:click="applyOnlyDailyReadings" class="btn btn-outline-primary d-flex align-items-center gap-1">
+                                                    <span wire:loading.remove wire:target="applyOnlyDailyReadings"><i class="material-symbols-outlined" style="font-size:17px;">today</i> افزودن روزخوانی</span>
+                                                    <span wire:loading wire:target="applyOnlyDailyReadings">...</span>
+                                                </button>
+                                            @endif
+                                            @if($this->hasPreReadings())
+                                                <button wire:click="revertPreReadings" wire:confirm="آیا مطمئنید؟" class="btn btn-outline-danger d-flex align-items-center gap-1">
+                                                    <span wire:loading.remove wire:target="revertPreReadings"><i class="material-symbols-outlined" style="font-size:17px;">undo</i> بازگرداندن پیش‌خوانی</span>
+                                                    <span wire:loading wire:target="revertPreReadings">...</span>
+                                                </button>
+                                            @else
+                                                <button wire:click="applyOnlyPreReadings" class="btn btn-outline-info d-flex align-items-center gap-1">
+                                                    <span wire:loading.remove wire:target="applyOnlyPreReadings"><i class="material-symbols-outlined" style="font-size:17px;">upcoming</i> افزودن پیش‌خوانی</span>
+                                                    <span wire:loading wire:target="applyOnlyPreReadings">...</span>
+                                                </button>
+                                            @endif
+                                            <button wire:click="applyWeeklyReadings" class="btn btn-outline-success d-flex align-items-center gap-1">
+                                                <span wire:loading.remove wire:target="applyWeeklyReadings"><i class="material-symbols-outlined" style="font-size:17px;">auto_fix_high</i> افزودن هر دو</span>
+                                                <span wire:loading wire:target="applyWeeklyReadings">...</span>
+                                            </button>
+                                        </div>
                                     @endif
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-body-tertiary rounded-bottom-4">
+                                <button type="button" class="btn btn-outline-secondary" wire:click="closeClassScheduleModal">بستن</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ====== MODAL: آزمون جامع (افزودن/ویرایش) ====== --}}
+            @if($showExamPartModal)
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1060;">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-header text-white rounded-top-4" style="background:linear-gradient(135deg,#dc2626,#ef4444,#f87171);">
+                                <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                    <i class="material-symbols-outlined">{{ $editingExamPartId ? 'edit' : 'add_circle' }}</i>
+                                    {{ $editingExamPartId ? 'ویرایش آزمون' : 'افزودن آزمون جامع' }}
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" wire:click="closeExamPartModal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">نام آزمون <span class="text-danger">*</span></label>
+                                    <input type="text" wire:model="examPartForm.exam_name" class="form-control @error('examPartForm.exam_name') is-invalid @enderror" placeholder="مثال: آزمون جامع ریاضی">
+                                    @error('examPartForm.exam_name')<div class="text-danger small">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="mb-3" x-data="{
+                            totalMinutes: $wire.entangle('examPartForm.duration_minutes'),
+                            hours:0, minutes:0,
+                            init(){ let v=parseInt(this.totalMinutes)||0; this.hours=Math.floor(v/60); this.minutes=v%60; this.$watch('totalMinutes',(v)=>{ let val=parseInt(v)||0; this.hours=Math.floor(val/60); this.minutes=val%60; }); },
+                            update(){ let h=Math.min(Math.max(parseInt(this.hours)||0,0),24); let m=Math.min(Math.max(parseInt(this.minutes)||0,0),59); this.hours=h; this.minutes=m; this.totalMinutes=(h*60)+m; }
+                        }" x-init="init()">
+                                    <label class="form-label fw-semibold">مدت زمان <span class="text-danger">*</span></label>
+                                    <div class="d-flex gap-2 align-items-center">
+                                        <div class="position-relative flex-fill">
+                                            <input type="number" min="0" max="24" x-model.number="hours" @input="update()" class="form-control text-center" placeholder="0">
+                                            <small class="position-absolute top-50 translate-middle-y text-muted" style="left:6px;font-size:10px;">ساعت</small>
+                                        </div>
+                                        <span class="fw-bold text-muted">:</span>
+                                        <div class="position-relative flex-fill">
+                                            <input type="number" min="0" max="59" x-model.number="minutes" @input="update()" class="form-control text-center" placeholder="0">
+                                            <small class="position-absolute top-50 translate-middle-y text-muted" style="left:6px;font-size:10px;">دقیقه</small>
+                                        </div>
+                                    </div>
+                                    @error('examPartForm.duration_minutes')<div class="text-danger small">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label fw-semibold">توضیحات</label>
+                                    <textarea wire:model="examPartForm.description" rows="2" class="form-control" placeholder="توضیحات آزمون..."></textarea>
+                                </div>
+                                <div class="alert alert-info small py-2 mb-0">
+                                    <i class="material-symbols-outlined align-middle" style="font-size:14px;">info</i>
+                                    با ذخیره آزمون، یک پارت «تحلیل آزمون» نیز به صورت خودکار اضافه می‌شود.
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-body-tertiary rounded-bottom-4">
+                                <button type="button" class="btn btn-outline-secondary" wire:click="closeExamPartModal">انصراف</button>
+                                <button type="button" class="btn btn-danger" wire:click="saveExamPart">
+                                    <span wire:loading.remove wire:target="saveExamPart">ذخیره</span>
+                                    <span wire:loading wire:target="saveExamPart">در حال ذخیره...</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ====== MODAL: انتخاب روز امتحان کلاسی ====== --}}
+            @if($showExamDaySelectModal)
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1060;">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-header text-white rounded-top-4" style="background:linear-gradient(135deg,#d97706,#f59e0b,#fbbf24);">
+                                <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                    <i class="material-symbols-outlined">event</i> انتخاب روز امتحان کلاسی
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" wire:click="closeExamDaySelectModal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p class="fw-semibold mb-1">درس: {{ $examDaySelectData['subject'] ?? '' }}</p>
+                                <p class="small text-muted mb-3">
+                                    {{ $examDaySelectData['part_count'] ?? 0 }} پارت — {{ $examDaySelectData['time_per_part'] ?? 0 }} دقیقه هر پارت
+                                    — تاریخ امتحان: {{ isset($examDaySelectData['exam_date']) ? jalali($examDaySelectData['exam_date'])->format('%d %B %Y') : '' }}
+                                </p>
+                                <div class="d-flex flex-wrap gap-2 mb-3 small">
+                                    <span class="d-flex align-items-center gap-1"><span class="badge bg-success">&nbsp;</span> قبل از امتحان</span>
+                                    <span class="d-flex align-items-center gap-1"><span class="badge bg-warning">&nbsp;</span> روز امتحان</span>
+                                    <span class="d-flex align-items-center gap-1"><span class="badge bg-danger">&nbsp;</span> بعد از امتحان</span>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @if(isset($weekDays))
+                                        @php $examDateCarbon = \Carbon\Carbon::parse($examDaySelectData['exam_date'] ?? null)->startOfDay(); @endphp
+                                        @foreach($weekDays as $day)
+                                            @if(!$day['is_rest_day'])
+                                                @php
+                                                    $dayDate = $day['date']->copy()->startOfDay();
+                                                    $isExamDate = $dayDate->isSameDay($examDateCarbon);
+                                                    $isBefore = $dayDate->lt($examDateCarbon);
+                                                @endphp
+                                                <button type="button"
+                                                        wire:click="$set('examDaySelectTarget', {{ $day['index'] }})"
+                                                        class="btn btn-sm {{ $examDaySelectTarget === $day['index'] ? 'btn-primary' : ($isExamDate ? 'btn-warning text-white' : ($isBefore ? 'btn-outline-success' : 'btn-outline-danger')) }}">
+                                                    {{ $day['name'] }}
+                                                    @if($isExamDate)<span class="badge bg-white text-warning ms-1" style="font-size:9px;">امتحان</span>@endif
+                                                </button>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-body-tertiary rounded-bottom-4">
+                                <button type="button" class="btn btn-outline-secondary" wire:click="closeExamDaySelectModal">انصراف</button>
+                                <button type="button" class="btn btn-warning text-white" wire:click="applyExamToDay" {{ $examDaySelectTarget === null ? 'disabled' : '' }}>
+                                    <span wire:loading.remove wire:target="applyExamToDay"><i class="material-symbols-outlined" style="font-size:17px;">check</i> ثبت در برنامه</span>
+                                    <span wire:loading wire:target="applyExamToDay">...</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ====== MODALS: توزیع (تکالیف / امتحان / پرسش و پاسخ) ====== --}}
+            @foreach([
+                ['show' => $showDistributeHomeworkModal, 'title' => 'توزیع تکالیف', 'color' => 'linear-gradient(135deg,#7c3aed,#a855f7,#c084fc)', 'icon' => 'assignment'],
+                ['show' => $showDistributeExamModal, 'title' => 'توزیع امتحانات', 'color' => 'linear-gradient(135deg,#0ea5e9,#2563eb,#1d4ed8)', 'icon' => 'school'],
+                ['show' => $showDistributeQaModal, 'title' => 'توزیع پرسش و پاسخ', 'color' => 'linear-gradient(135deg,#059669,#10b981,#34d399)', 'icon' => 'forum'],
+            ] as $dist)
+                @if($dist['show'])
+                    <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1060;">
+                        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                            <div class="modal-content rounded-4 border-0 shadow">
+                                <div class="modal-header text-white rounded-top-4" style="background:{{ $dist['color'] }};">
+                                    <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                        <i class="material-symbols-outlined">{{ $dist['icon'] }}</i> پیش‌نمایش {{ $dist['title'] }}
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" wire:click="closeDistributionModal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    @if(count($distributionPreview) > 0)
+                                        <div class="alert alert-info small py-2 mb-3">
+                                            <i class="material-symbols-outlined align-middle" style="font-size:14px;">info</i>
+                                            با کلیک روی «اعمال» پارت‌ها در برنامه ثبت می‌شوند.
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-bordered align-middle">
+                                                <thead class="table-light">
+                                                <tr><th>#</th><th>درس</th><th class="text-center">روز</th><th class="text-center">تاریخ</th><th class="text-center">دقیقه</th><th>توضیحات</th></tr>
+                                                </thead>
+                                                <tbody>
+                                                @foreach($distributionPreview as $idx => $item)
+                                                    <tr>
+                                                        <td>{{ $idx+1 }}</td>
+                                                        <td class="fw-semibold small">{{ $item['subject'] }}</td>
+                                                        <td class="text-center"><span class="badge bg-primary rounded-pill">{{ $item['day_name'] }}</span></td>
+                                                        <td class="text-center small">{{ $item['jalali_date'] }}</td>
+                                                        <td class="text-center small">{{ $item['duration_minutes'] }}</td>
+                                                        <td class="small text-muted">{{ $item['description'] }}</td>
+                                                    </tr>
+                                                @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    @else
+                                        <p class="text-muted text-center">موردی برای نمایش وجود ندارد.</p>
+                                    @endif
+                                </div>
+                                <div class="modal-footer bg-body-tertiary rounded-bottom-4">
+                                    <button type="button" class="btn btn-outline-secondary" wire:click="closeDistributionModal">انصراف</button>
+                                    @if(count($distributionPreview) > 0)
+                                        <button type="button" class="btn btn-success" wire:click="applyDistribution">
+                                            <span wire:loading.remove wire:target="applyDistribution"><i class="material-symbols-outlined" style="font-size:17px;">check</i> اعمال در برنامه</span>
+                                            <span wire:loading wire:target="applyDistribution">در حال اعمال...</span>
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+            @endforeach
+
+            {{-- ====== MODAL: تایید روز استراحت ====== --}}
+            @if($showRestDayConfirmModal)
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1065;">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-header bg-warning text-white rounded-top-4">
+                                <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                    <i class="material-symbols-outlined">warning</i> تایید روز استراحت
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" wire:click="closeRestDayConfirmModal"></button>
+                            </div>
+                            <div class="modal-body text-center py-4">
+                                <i class="material-symbols-outlined text-warning" style="font-size:56px;">self_improvement</i>
+                                <h5 class="mb-3 mt-2">آیا مطمئن هستید؟</h5>
+                                <p class="text-muted mb-0">
+                                    این روز <strong class="text-danger">{{ $partsCountForRestDay }}</strong> پارت دارد.
+                                    با تایید، تمام پارت‌ها حذف و روز به عنوان <span class="text-success fw-bold">استراحت</span> ثبت می‌شود.
                                 </p>
                             </div>
-                        @endif
-                    </div>
-
-                    <div class="modal-footer bg-body-tertiary">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeClassificationModal">
-                            بستن
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    {{-- Modal هشدار پارت با تایم صفر --}}
-    @if($showZeroTimeWarningModal)
-        <div class="modal fade show d-block" tabindex="-1"
-             style="background: rgba(2, 6, 23, 0.60); backdrop-filter: blur(4px); z-index: 1080;">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content shadow-lg border-0">
-                    <div class="modal-header bg-warning text-white">
-                        <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
-                            <i class="material-symbols-outlined">warning</i>
-                            هشدار — پارت‌های بدون تایم
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white"
-                                wire:click="closeZeroTimeWarningModal"></button>
-                    </div>
-
-                    <div class="modal-body text-center py-4">
-                        <div class="mb-3">
-                            <i class="material-symbols-outlined text-warning" style="font-size:64px;">schedule</i>
+                            <div class="modal-footer bg-body-tertiary rounded-bottom-4 justify-content-center gap-2">
+                                <button type="button" class="btn btn-outline-secondary" wire:click="closeRestDayConfirmModal">انصراف</button>
+                                <button type="button" class="btn btn-success" wire:click="confirmRestDay">
+                                    <i class="material-symbols-outlined" style="font-size:17px;">check</i> تایید
+                                </button>
+                            </div>
                         </div>
-                        <h5 class="mb-3">برنامه دارای پارت‌های بدون تایم است</h5>
-                        <p class="text-muted-2 mb-0">
-                            <strong class="text-danger">{{ $zeroTimePartsCount }}</strong> پارت با مدت زمان ۰ دقیقه در
-                            برنامه وجود دارد.
-                            <br>
-                            لطفاً ابتدا تایم پارت‌ها را تنظیم کنید یا برنامه را بدون تایید نهایی ذخیره کنید.
-                        </p>
-                    </div>
-
-                    <div class="modal-footer justify-content-center gap-2 bg-body-tertiary">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="closeZeroTimeWarningModal">
-                            بازگشت و ویرایش
-                        </button>
-                        <button type="button" class="btn btn-warning text-white" wire:click="forceFinalSave">
-                            <i class="material-symbols-outlined" style="font-size:18px;">save</i>
-                            ذخیره بدون تایید نهایی
-                        </button>
                     </div>
                 </div>
-            </div>
+            @endif
+
+            {{-- ====== MODAL: تایید آزمون جامع ====== --}}
+            @if($showExamDayConfirmModal)
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1065;">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-header bg-danger text-white rounded-top-4">
+                                <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                    <i class="material-symbols-outlined">warning</i> تایید آزمون جامع
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" wire:click="closeExamDayConfirmModal"></button>
+                            </div>
+                            <div class="modal-body text-center py-4">
+                                <i class="material-symbols-outlined text-danger" style="font-size:56px;">assignment</i>
+                                <h5 class="mb-3 mt-2">آیا مطمئن هستید؟</h5>
+                                <p class="text-muted mb-0">
+                                    این روز <strong class="text-danger">{{ $partsCountForExamDay }}</strong> پارت دارد.
+                                    با تایید، تمام پارت‌ها حذف و روز به عنوان <span class="text-danger fw-bold">آزمون جامع</span> ثبت می‌شود.
+                                </p>
+                            </div>
+                            <div class="modal-footer bg-body-tertiary rounded-bottom-4 justify-content-center gap-2">
+                                <button type="button" class="btn btn-outline-secondary" wire:click="closeExamDayConfirmModal">انصراف</button>
+                                <button type="button" class="btn btn-danger" wire:click="confirmExamDay">
+                                    <i class="material-symbols-outlined" style="font-size:17px;">check</i> تایید
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ====== MODAL: برنامه کلاسی وجود ندارد ====== --}}
+            @if($showNoScheduleModal)
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1060;">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-header bg-warning text-white rounded-top-4">
+                                <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                    <i class="material-symbols-outlined">warning</i> برنامه کلاسی
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" wire:click="closeNoScheduleModal"></button>
+                            </div>
+                            <div class="modal-body text-center py-4">
+                                <i class="material-symbols-outlined text-warning" style="font-size:56px;">event_busy</i>
+                                <h5 class="mt-2 mb-2">برنامه کلاسی وجود ندارد</h5>
+                                <p class="text-muted mb-0">دانش‌آموز هنوز برنامه کلاسی خود را آپلود نکرده است.</p>
+                            </div>
+                            <div class="modal-footer bg-body-tertiary rounded-bottom-4 justify-content-center gap-2">
+                                <button type="button" class="btn btn-outline-secondary" wire:click="closeNoScheduleModal">بستن</button>
+                                <button type="button" class="btn btn-warning text-white" wire:click="sendScheduleReminder">
+                                    <i class="material-symbols-outlined" style="font-size:17px;">notifications_active</i> اطلاع‌رسانی
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ====== MODAL: حذف گروهی ====== --}}
+            @if($showBulkDeleteConfirmModal)
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.7);backdrop-filter:blur(4px);z-index:1070;">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-header text-white rounded-top-4" style="background:linear-gradient(135deg,#dc2626,#ef4444);">
+                                <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                    <i class="material-symbols-outlined">delete_forever</i> تأیید حذف گروهی
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" wire:click="closeBulkDeleteConfirmModal"></button>
+                            </div>
+                            <div class="modal-body py-3">
+                                <div class="text-center mb-3">
+                                    <i class="material-symbols-outlined text-danger" style="font-size:52px;">delete_sweep</i>
+                                </div>
+                                <p class="fw-semibold text-center mb-3">
+                                    <span class="text-danger fw-bold">{{ count($bulkDeleteSelectedIds) }}</span> پارت حذف خواهند شد.
+                                </p>
+                                @php
+                                    $confirmDeleteInfo = [];
+                                    foreach($weekDays as $wd) {
+                                        foreach($wd['parts'] as $wp) {
+                                            if(in_array($wp->id, $bulkDeleteSelectedIds)) {
+                                                $confirmDeleteInfo[] = ['part' => $wp, 'day_name' => $wd['name']];
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                <div class="border border-danger rounded-3 bg-danger bg-opacity-10" style="max-height:200px;overflow-y:auto;">
+                                    @foreach($confirmDeleteInfo as $info)
+                                        <div class="d-flex align-items-start gap-2 px-3 py-2 border-bottom border-danger border-opacity-25 small">
+                                            <i class="material-symbols-outlined text-danger" style="font-size:14px;margin-top:1px;">delete</i>
+                                            <div>
+                                                <span class="fw-semibold">{{ $info['part']->lesson_name }}</span>
+                                                <span class="badge bg-danger-subtle text-danger border d-block mt-1" style="font-size:10px;width:fit-content;">{{ $info['day_name'] }}</span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                            <div class="modal-footer bg-body-tertiary rounded-bottom-4 justify-content-center gap-2">
+                                <button type="button" class="btn btn-outline-secondary" wire:click="closeBulkDeleteConfirmModal">انصراف</button>
+                                <button type="button" class="btn btn-danger" wire:click="executeBulkDelete">
+                                    <span wire:loading.remove wire:target="executeBulkDelete"><i class="material-symbols-outlined" style="font-size:17px;">delete_forever</i> بله، حذف کن</span>
+                                    <span wire:loading wire:target="executeBulkDelete">در حال حذف...</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            {{-- ====== MODAL: هشدار پارت بدون تایم ====== --}}
+            @if($showZeroTimeWarningModal)
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.6);backdrop-filter:blur(4px);z-index:1070;">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content rounded-4 border-0 shadow">
+                            <div class="modal-header bg-warning text-white rounded-top-4">
+                                <h5 class="modal-title d-flex align-items-center gap-2 mb-0">
+                                    <i class="material-symbols-outlined">warning</i> هشدار — پارت‌های بدون تایم
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" wire:click="closeZeroTimeWarningModal"></button>
+                            </div>
+                            <div class="modal-body text-center py-4">
+                                <i class="material-symbols-outlined text-warning" style="font-size:56px;">schedule</i>
+                                <h5 class="mt-2 mb-3">برنامه دارای پارت‌های بدون تایم است</h5>
+                                <p class="text-muted mb-0">
+                                    <strong class="text-danger">{{ $zeroTimePartsCount }}</strong> پارت با مدت زمان ۰ دقیقه وجود دارد.
+                                </p>
+                            </div>
+                            <div class="modal-footer bg-body-tertiary rounded-bottom-4 justify-content-center gap-2">
+                                <button type="button" class="btn btn-outline-secondary" wire:click="closeZeroTimeWarningModal">بازگشت و ویرایش</button>
+                                <button type="button" class="btn btn-warning text-white" wire:click="forceFinalSave">
+                                    <i class="material-symbols-outlined" style="font-size:17px;">save</i> ذخیره بدون تایید
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
+            @push('script')
+                <script src="/admin/assets/js/Sortable.min.js"></script>
+                <script>
+                    let draggedPartId = null;
+                    let draggedFromDayIndex = null;
+
+                    function initSortableRows() {
+                        document.querySelectorAll('tr[data-sortable-row]').forEach(function (row) {
+                            if (row._sortable) row._sortable.destroy();
+                            row._sortable = Sortable.create(row, {
+                                animation: 150,
+                                handle: '.drag-handle',
+                                draggable: '.plan-part-cell',
+                                group: 'weeklyParts',
+                                onStart: function (evt) {
+                                    draggedPartId = evt.item.getAttribute('data-part-id') ? parseInt(evt.item.getAttribute('data-part-id')) : null;
+                                    draggedFromDayIndex = parseInt(row.getAttribute('data-day-index'));
+                                },
+                                onEnd: function (evt) {
+                                    const targetRow = evt.to;
+                                    const targetDayIndex = parseInt(targetRow.getAttribute('data-day-index'));
+                                    const sourceDayIndex = draggedFromDayIndex;
+
+                                    if (sourceDayIndex === targetDayIndex) {
+                                        const partIds = [];
+                                        targetRow.querySelectorAll('.plan-part-cell[data-part-id]').forEach(td => {
+                                            const pid = td.getAttribute('data-part-id');
+                                            if (pid) partIds.push(parseInt(pid));
+                                        });
+                                        if (partIds.length > 0) @this.call('reorderParts', partIds, targetDayIndex);
+                                    } else if (draggedPartId) {
+                                        const targetPartId = evt.related ? evt.related.getAttribute('data-part-id') : null;
+                                        if (targetPartId && parseInt(targetPartId) !== draggedPartId) {
+                                        @this.call('swapParts', draggedPartId, parseInt(targetPartId));
+                                        } else {
+                                        @this.call('movePartToDay', draggedPartId, targetDayIndex);
+                                        }
+                                    }
+                                    draggedPartId = null;
+                                    draggedFromDayIndex = null;
+                                }
+                            });
+                        });
+                    }
+
+                    document.addEventListener('DOMContentLoaded', () => setTimeout(initSortableRows, 300));
+                    document.addEventListener('livewire:navigated', initSortableRows);
+                    document.addEventListener('livewire:updated', () => setTimeout(initSortableRows, 100));
+
+                    document.addEventListener('livewire:init', () => {
+                        const select2Config = { dir: 'rtl', language: 'fa', allowClear: true, width: '100%' };
+                        const selectMappings = {
+                            'education-level-select': 'partForm.education_level_id',
+                            'grade-select': 'partForm.cc_grade_id',
+                            'field-select': 'partForm.cc_field_id',
+                            'subject-select': 'partForm.cc_subject_id',
+                            'chapter-select': 'partForm.cc_chapter_id',
+                            'topic-select': 'partForm.cc_topic_id',
+                        };
+
+                        function destroySelect2(id) {
+                            const $el = $('#' + id);
+                            if ($el.length && $el.hasClass('select2-hidden-accessible')) $el.off('change').select2('destroy');
+                        }
+
+                        function initSingleSelect2(id) {
+                            const $el = $('#' + id);
+                            if (!$el.length) return;
+                            const $modal = $el.closest('.modal-content');
+                            if (!$modal.length) return;
+                            destroySelect2(id);
+                            $el.select2({ ...select2Config, dropdownParent: $modal, placeholder: $el.find('option:first').text() });
+                            $el.on('change', function () {
+                                const prop = selectMappings[id];
+                                if (prop) @this.set(prop, $(this).val() || '');
+                            });
+                        }
+
+                        function rebuildSelect2(id, options, selected, disabled) {
+                            const $el = $('#' + id);
+                            if (!$el.length) return;
+                            const $modal = $el.closest('.modal-content');
+                            if (!$modal.length) return;
+                            destroySelect2(id);
+                            $el.empty();
+                            options.forEach(opt => $el.append(new Option(opt.text, String(opt.value), false, String(opt.value) === String(selected))));
+                            $el.prop('disabled', !!disabled);
+                            $el.select2({ ...select2Config, dropdownParent: $modal, placeholder: options[0]?.text || '' });
+                            if (selected) $el.val(String(selected)).trigger('change.select2');
+                            $el.on('change', function () {
+                                const prop = selectMappings[id];
+                                if (prop) @this.set(prop, $(this).val() || '');
+                            });
+                        }
+
+                        Livewire.on('modal-opened', () => setTimeout(() => Object.keys(selectMappings).forEach(initSingleSelect2), 250));
+                        Livewire.on('modal-closed', () => Object.keys(selectMappings).forEach(destroySelect2));
+                        Livewire.on('select2-update', (params) => {
+                            const d = Array.isArray(params) ? params[0] : params;
+                            if (!d?.id) return;
+                            setTimeout(() => rebuildSelect2(d.id, d.options || [], d.selected || '', d.disabled || false), 50);
+                        });
+                    });
+                    document.addEventListener('livewire:updated', function() {
+                        const hasModal = document.querySelector('.modal.show.d-block');
+                        document.body.classList.toggle('modal-open-custom', !!hasModal);
+                    });
+                </script>
+            @endpush
+
         </div>
-    @endif
-
-    @push('script')
-        <script src="/admin/assets/js/Sortable.min.js"></script>
-        <script>
-            // Cross-day drag-and-drop system
-            let draggedPartId = null;
-            let draggedFromDayIndex = null;
-
-            function initSortableRows() {
-                document.querySelectorAll('tr[data-sortable-row]').forEach(function (row) {
-                    if (row._sortable) {
-                        row._sortable.destroy();
-                    }
-                    row._sortable = Sortable.create(row, {
-                        animation: 150,
-                        handle: '.drag-handle',
-                        draggable: '.plan-part-cell',
-                        ghostClass: 'sortable-ghost-cell',
-                        chosenClass: 'sortable-chosen-cell',
-                        group: 'weeklyParts',
-                        onStart: function (evt) {
-                            var cell = evt.item;
-                            draggedPartId = cell.getAttribute('data-part-id') ? parseInt(cell.getAttribute('data-part-id')) : null;
-                            draggedFromDayIndex = parseInt(row.getAttribute('data-day-index'));
-                        },
-                        onEnd: function (evt) {
-                            var targetRow = evt.to;
-                            var targetDayIndex = parseInt(targetRow.getAttribute('data-day-index'));
-                            var sourceDayIndex = draggedFromDayIndex;
-
-                            if (sourceDayIndex === targetDayIndex) {
-                                // Same day - reorder within day
-                                var partIds = [];
-                                targetRow.querySelectorAll('.plan-part-cell[data-part-id]').forEach(function (td) {
-                                    var pid = td.getAttribute('data-part-id');
-                                    if (pid) partIds.push(parseInt(pid));
-                                });
-                                if (partIds.length > 0) {
-                                @this.call('reorderParts', partIds, targetDayIndex)
-                                    ;
-                                }
-                            } else if (draggedPartId) {
-                                // Cross-day move: check if dropped on another part (swap) or empty area (move)
-                                var dropTargetCell = evt.related;
-                                var targetPartId = dropTargetCell ? dropTargetCell.getAttribute('data-part-id') : null;
-
-                                if (targetPartId && parseInt(targetPartId) !== draggedPartId) {
-                                    // Swap parts
-                                @this.call('swapParts', draggedPartId, parseInt(targetPartId))
-                                    ;
-                                } else {
-                                    // Move to day
-                                @this.call('movePartToDay', draggedPartId, targetDayIndex)
-                                    ;
-                                }
-                            }
-
-                            draggedPartId = null;
-                            draggedFromDayIndex = null;
-                        }
-                    });
-                });
-                // Add drop zone visual feedback
-                document.querySelectorAll('tr[data-sortable-row]').forEach(function (row) {
-                    row.addEventListener('dragover', function () {
-                        row.classList.add('drag-over-day');
-                    });
-                    row.addEventListener('dragleave', function () {
-                        row.classList.remove('drag-over-day');
-                    });
-                    row.addEventListener('drop', function () {
-                        row.classList.remove('drag-over-day');
-                    });
-                });
-            }
-
-            document.addEventListener('livewire:navigated', initSortableRows);
-            document.addEventListener('livewire:updated', function () {
-                setTimeout(initSortableRows, 100);
-            });
-
-            document.addEventListener('DOMContentLoaded', function () {
-                setTimeout(initSortableRows, 300);
-            });
-            document.addEventListener('livewire:init', () => {
-                const select2Config = {
-                    dir: "rtl",
-                    language: "fa",
-                    allowClear: true,
-                    width: '100%'
-                };
-
-                const selectMappings = {
-                    'education-level-select': 'partForm.education_level_id',
-                    'grade-select': 'partForm.cc_grade_id',
-                    'field-select': 'partForm.cc_field_id',
-                    'subject-select': 'partForm.cc_subject_id',
-                    'chapter-select': 'partForm.cc_chapter_id',
-                    'topic-select': 'partForm.cc_topic_id'
-                };
-
-                function destroySelect2(selectId) {
-                    const $el = $('#' + selectId);
-                    if ($el.length && $el.hasClass('select2-hidden-accessible')) {
-                        $el.off('change').select2('destroy');
-                    }
-                }
-
-                function initSingleSelect2(selectId) {
-                    const $el = $('#' + selectId);
-                    if (!$el.length) return;
-
-                    const $modal = $el.closest('.modal-content');
-                    if (!$modal.length) return;
-
-                    destroySelect2(selectId);
-
-                    $el.select2({
-                        ...select2Config,
-                        dropdownParent: $modal,
-                        placeholder: $el.find('option:first').text()
-                    });
-
-                    $el.on('change', function () {
-                        const val = $(this).val() || '';
-                        const prop = selectMappings[selectId];
-                        if (prop) {
-                        @this.set(prop, val)
-                            ;
-                        }
-                    });
-                }
-
-                function initAllSelect2() {
-                    Object.keys(selectMappings).forEach(id => initSingleSelect2(id));
-                }
-
-                function destroyAllSelect2() {
-                    Object.keys(selectMappings).forEach(id => destroySelect2(id));
-                }
-
-                function rebuildSelect2(selectId, options, selectedValue, disabled) {
-                    const $el = $('#' + selectId);
-                    if (!$el.length) return;
-
-                    const $modal = $el.closest('.modal-content');
-                    if (!$modal.length) return;
-
-                    destroySelect2(selectId);
-
-                    $el.empty();
-                    options.forEach(opt => {
-                        $el.append(new Option(opt.text, String(opt.value), false, String(opt.value) === String(selectedValue)));
-                    });
-
-                    $el.prop('disabled', !!disabled);
-
-                    $el.select2({
-                        ...select2Config,
-                        dropdownParent: $modal,
-                        placeholder: options.length > 0 ? options[0].text : ''
-                    });
-
-                    if (selectedValue) {
-                        $el.val(String(selectedValue)).trigger('change.select2');
-                    }
-
-                    $el.on('change', function () {
-                        const val = $(this).val() || '';
-                        const prop = selectMappings[selectId];
-                        if (prop) {
-                        @this.set(prop, val)
-                            ;
-                        }
-                    });
-                }
-
-                // Modal opened - initialize all selects
-                Livewire.on('modal-opened', () => {
-                    setTimeout(initAllSelect2, 250);
-                });
-
-                // Modal closed - destroy all selects
-                Livewire.on('modal-closed', () => {
-                    destroyAllSelect2();
-                });
-
-                // Cascading select update from PHP
-                Livewire.on('select2-update', (params) => {
-                    const data = Array.isArray(params) ? params[0] : params;
-                    if (!data || !data.id) return;
-
-                    setTimeout(() => {
-                        rebuildSelect2(data.id, data.options || [], data.selected || '', data.disabled || false);
-                    }, 50);
-                });
-            });
-        </script>
-    @endpush
 </div>
