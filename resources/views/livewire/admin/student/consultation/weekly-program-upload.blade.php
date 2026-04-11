@@ -5,10 +5,7 @@
         $showExamPartModal || $showExamDaySelectModal || $showDistributeHomeworkModal || $showDistributeExamModal ||
         $showDistributeQaModal || $showBulkDeleteConfirmModal || $showZeroTimeWarningModal)
         @push('link')
-            <style>
-                body { overflow: hidden !important; }
-                body.modal-open-custom { overflow: hidden !important; }
-            </style>
+            <style>body { overflow: hidden !important; }</style>
         @endpush
     @endif
 
@@ -879,7 +876,7 @@
                                 {{-- توضیحات --}}
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">توضیحات</label>
-                                    <textarea wire:model="partForm.description" rows="2" class="form-control" placeholder="مسیر انتخاب شده یا توضیحات دلخواه"></textarea>
+                                    <textarea wire:model="partForm.description" rows="3" class="form-control" placeholder="مسیر انتخاب شده یا توضیحات دلخواه"></textarea>
                                 </div>
                                 {{-- نوع / زمان / تست --}}
                                 <div class="row g-3">
@@ -975,7 +972,7 @@
                                         </select>
                                         <select wire:model.live="prevProgramFilterDay" class="form-select form-select-sm w-auto">
                                             <option value="">همه روزها</option>
-                                            @foreach($weekDays as $wd)
+                                            @foreach(($prevWeekDays ?: $weekDays) as $wd)
                                                 <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
                                             @endforeach
                                         </select>
@@ -1015,6 +1012,9 @@
                                                     </td>
                                                     <td class="text-center">
                                                         <span class="badge bg-body-tertiary text-body border rounded-pill small">{{ $pPart['day_name'] }}</span>
+                                                        @if(!empty($pPart['day_date']))
+                                                            <div class="text-muted" style="font-size:10px;">{{ $pPart['day_date'] }}</div>
+                                                        @endif
                                                     </td>
                                                     <td class="text-center small fw-semibold">{{ $pPart['duration_minutes'] }} دقیقه</td>
                                                     <td class="text-center">
@@ -1054,17 +1054,26 @@
                                                     <tr class="bg-body-tertiary">
                                                         <td colspan="7">
                                                             <div class="p-3 border rounded-3">
-                                                                <div class="row g-2 align-items-end">
+                                                                <div class="row g-3 align-items-start">
+                                                                    {{-- انتخاب روز (چند انتخابی) A1 --}}
+
                                                                     <div class="col-md-3">
-                                                                        <label class="form-label small fw-semibold mb-1">روز مقصد</label>
-                                                                        <select class="form-select form-select-sm" wire:model="prevPartInlineForm.day_index">
-                                                                            <option value="">انتخاب روز...</option>
+                                                                        <label class="form-label small fw-semibold mb-1">روز(های) مقصد <span class="text-danger">*</span></label>
+                                                                        <div class="border rounded p-2" style="max-height:160px;overflow-y:auto;">
                                                                             @foreach($weekDays as $wd)
                                                                                 @if(!$wd['is_rest_day'])
-                                                                                    <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
+                                                                                    <div class="form-check form-check-sm mb-1">
+                                                                                        <input class="form-check-input" type="checkbox"
+                                                                                               wire:model="prevPartInlineForm.day_indices"
+                                                                                               value="{{ $wd['index'] }}"
+                                                                                               id="prev_day_{{ $wd['index'] }}_{{ $pPart['id'] }}">
+                                                                                        <label class="form-check-label small" for="prev_day_{{ $wd['index'] }}_{{ $pPart['id'] }}">
+                                                                                            {{ $wd['name'] }} <span class="text-muted">({{ $wd['jalali_date'] }})</span>
+                                                                                        </label>
+                                                                                    </div>
                                                                                 @endif
                                                                             @endforeach
-                                                                        </select>
+                                                                        </div>
                                                                     </div>
                                                                     <div class="col-md-2">
                                                                         <label class="form-label small fw-semibold mb-1">نوع پارت</label>
@@ -1074,14 +1083,12 @@
                                                                             <option value="video">ویدئو</option>
                                                                             <option value="topic_exam">آزمون مبحثی</option>
                                                                         </select>
-                                                                    </div>
-                                                                    @if(in_array($prevPartInlineForm['part_type'] ?? 'descriptive', ['test','topic_exam']))
-                                                                        <div class="col-md-1">
-                                                                            <label class="form-label small fw-semibold mb-1">تعداد تست</label>
+                                                                        @if(in_array($prevPartInlineForm['part_type'] ?? 'descriptive', ['test','topic_exam']))
+                                                                            <label class="form-label small fw-semibold mb-1 mt-2">تعداد تست</label>
                                                                             <input type="number" min="1" class="form-control form-control-sm text-center"
                                                                                    wire:model="prevPartInlineForm.test_count" placeholder="0">
-                                                                        </div>
-                                                                    @endif
+                                                                        @endif
+                                                                    </div>
                                                                     <div class="col-md-1">
                                                                         <label class="form-label small fw-semibold mb-1">ساعت</label>
                                                                         <input type="number" min="0" max="24" class="form-control form-control-sm text-center"
@@ -1093,16 +1100,25 @@
                                                                                wire:model="prevPartInlineForm.duration_minutes" placeholder="0">
                                                                     </div>
                                                                     <div class="col d-flex gap-2">
-                                                                        <button type="button" class="btn btn-sm btn-warning text-white flex-fill"
-                                                                                wire:click="addSinglePrevPartToProgram">
-                                <span wire:loading.remove wire:target="addSinglePrevPartToProgram">
-                                    <i class="material-symbols-outlined" style="font-size:13px;">check</i> ثبت
-                                </span>
+                                                                        {{-- توضیحات (A2) --}}
+                                                                        <div class="col-md-3">
+                                                                            <label class="form-label small fw-semibold mb-1">توضیحات <span class="text-muted">(اختیاری)</span></label>
+                                                                            <textarea class="form-control form-control-sm" rows="3"
+                                                                                      wire:model="prevPartInlineForm.description"
+                                                                                      placeholder="در صورت خالی بودن، توضیحات پارت قبلی استفاده می‌شود"></textarea>
+                                                                        </div>
+                                                                        <div class="col-md-2 d-flex flex-column gap-2 justify-content-end">
+                                                                            <button type="button" class="btn btn-sm btn-warning text-white"
+                                                                                    wire:click="addSinglePrevPartToProgram">
+                                                                            <span wire:loading.remove wire:target="addSinglePrevPartToProgram">
+                                                                                <i class="material-symbols-outlined" style="font-size:13px;">check</i> ثبت
+                                                                            </span>
+
                                                                             <span wire:loading wire:target="addSinglePrevPartToProgram">...</span>
                                                                         </button>
                                                                         <button type="button" class="btn btn-sm btn-outline-secondary"
                                                                                 wire:click="hidePrevPartInlineAddForm">
-                                                                            <i class="material-symbols-outlined" style="font-size:13px;">close</i>
+                                                                            <i class="material-symbols-outlined" style="font-size:13px;">close</i> لغو
                                                                         </button>
                                                                     </div>
                                                                 </div>
@@ -1219,8 +1235,9 @@
 
                                                 <select wire:model.live="prevStudyFilterDayField" class="form-select form-select-sm w-auto">
                                                     <option value="">همه روزها</option>
-                                                    @foreach($weekDays as $wd)
-                                                        <option value="{{ $wd['index'] }}">{{ $wd['name'] }}</option>
+                                                    @foreach(($prevWeekDays ?: $weekDays) as $wd)
+                                                        <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
+
                                                     @endforeach
                                                 </select>
                                             </div>
@@ -1423,17 +1440,25 @@
                                                     <tr class="bg-body-tertiary">
                                                         <td colspan="8">
                                                             <div class="p-3 rounded-3 border">
-                                                                <div class="row g-3 align-items-end">
+                                                                <div class="row g-3 align-items-start">
+                                                                    {{-- انتخاب روز (چند انتخابی) A1 --}}
                                                                     <div class="col-md-3">
-                                                                        <label class="form-label small fw-semibold mb-1">روز</label>
-                                                                        <select class="form-select form-select-sm" wire:model="classificationAddForm.day_index">
-                                                                            <option value="">انتخاب روز...</option>
-                                                                            @foreach($weekDays as $wd)
+                                                                        <label class="form-label small fw-semibold mb-1">روز(های) هدف <span class="text-danger">*</span></label>
+                                                                        <div class="border rounded p-2" style="max-height:160px;overflow-y:auto;">
+
+                                                                        @foreach($weekDays as $wd)
                                                                                 @if(!$wd['is_rest_day'])
-                                                                                    <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
-                                                                                @endif
+                                                                                    <div class="form-check form-check-sm mb-1">
+                                                                                        <input class="form-check-input" type="checkbox"
+                                                                                               wire:model="classificationAddForm.day_indices"
+                                                                                               value="{{ $wd['index'] }}"
+                                                                                               id="clf_day_{{ $wd['index'] }}_{{ $item['topic_id'] }}">
+                                                                                        <label class="form-check-label small" for="clf_day_{{ $wd['index'] }}_{{ $item['topic_id'] }}">
+                                                                                            {{ $wd['name'] }} <span class="text-muted">({{ $wd['jalali_date'] }})</span>
+                                                                                        </label>
+                                                                                    </div>                                                                                @endif
                                                                             @endforeach
-                                                                        </select>
+                                                                        </div>
                                                                     </div>
                                                                     <div class="col-md-2">
                                                                         <label class="form-label small fw-semibold mb-1">نوع</label>
@@ -1443,13 +1468,11 @@
                                                                             <option value="video">ویدئو</option>
                                                                             <option value="topic_exam">آزمون مبحثی</option>
                                                                         </select>
-                                                                    </div>
-                                                                    @if(in_array($classificationAddForm['part_type'] ?? '', ['test','topic_exam']))
-                                                                        <div class="col-md-1">
-                                                                            <label class="form-label small fw-semibold mb-1">تست</label>
+                                                                        @if(in_array($classificationAddForm['part_type'] ?? '', ['test','topic_exam']))
+                                                                            <label class="form-label small fw-semibold mb-1 mt-2">تعداد تست</label>
                                                                             <input type="number" min="0" class="form-control form-control-sm text-center" wire:model="classificationAddForm.test_count">
-                                                                        </div>
-                                                                    @endif
+                                                                        @endif
+                                                                    </div>
                                                                     <div class="col-md-1">
                                                                         <label class="form-label small fw-semibold mb-1">ساعت</label>
                                                                         <input type="number" min="0" max="24" class="form-control form-control-sm text-center" wire:model="classificationAddForm.duration_hours">
@@ -1458,13 +1481,21 @@
                                                                         <label class="form-label small fw-semibold mb-1">دقیقه</label>
                                                                         <input type="number" min="0" max="59" class="form-control form-control-sm text-center" wire:model="classificationAddForm.duration_minutes">
                                                                     </div>
-                                                                    <div class="col-md-3 d-flex gap-2">
-                                                                        <button type="button" class="btn btn-sm btn-success flex-fill" wire:click="addClassificationToProgram">
-                                                                            <span wire:loading.remove wire:target="addClassificationToProgram"><i class="material-symbols-outlined" style="font-size:13px;">check</i> ثبت</span>
+                                                                    {{-- توضیحات (A2) --}}
+                                                                    <div class="col-md-3">
+                                                                        <label class="form-label small fw-semibold mb-1">توضیحات <span class="text-muted">(اختیاری)</span></label>
+                                                                        <textarea class="form-control form-control-sm" rows="3"
+                                                                                  wire:model="classificationAddForm.description"
+                                                                                  placeholder="در صورت خالی بودن، مسیر مبحث استفاده می‌شود"></textarea>
+                                                                    </div>
+                                                                    <div class="col-md-2 d-flex flex-column gap-2 justify-content-end">
+                                                                        <button type="button" class="btn btn-sm btn-success" wire:click="addClassificationToProgram">
+
+                                                                        <span wire:loading.remove wire:target="addClassificationToProgram"><i class="material-symbols-outlined" style="font-size:13px;">check</i> ثبت</span>
                                                                             <span wire:loading wire:target="addClassificationToProgram">...</span>
                                                                         </button>
                                                                         <button type="button" class="btn btn-sm btn-outline-secondary" wire:click="hideClassificationInlineAdd">
-                                                                            <i class="material-symbols-outlined" style="font-size:13px;">close</i>
+                                                                            <i class="material-symbols-outlined" style="font-size:13px;">close</i> لغو
                                                                         </button>
                                                                     </div>
                                                                 </div>
@@ -1689,7 +1720,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label class="form-label fw-semibold">توضیحات</label>
-                                    <textarea wire:model="examPartForm.description" rows="2" class="form-control" placeholder="توضیحات آزمون..."></textarea>
+                                    <textarea wire:model="examPartForm.description" rows="3" class="form-control" placeholder="توضیحات آزمون..."></textarea>
                                 </div>
                                 <div class="alert alert-info small py-2 mb-0">
                                     <i class="material-symbols-outlined align-middle" style="font-size:14px;">info</i>
