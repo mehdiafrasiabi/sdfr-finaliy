@@ -27,13 +27,22 @@
         }
     </style>
     {!! SEO::generate() !!}
+    <script>
+        (function() {
+            var theme = localStorage.getItem('admin-theme') || 'dark';
+            document.documentElement.setAttribute('data-bs-theme', theme);
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+        })();
+    </script>
     @include('layouts.admin.link')
+
+
     <link rel="stylesheet" href="/admin/assets/css/bootstrap-icons.min.css">
     <link href="/admin/assets/css/select2.min.css" rel="stylesheet">
     <link href="/admin/assets/css/jalalidatepicker.min.css" rel="stylesheet">
 
 </head>
-<body class="dark">
+<body>
 <div class="page-layout">
     <!-- begin::NexLink Page Header -->
     <livewire:admin.layout.menu/>

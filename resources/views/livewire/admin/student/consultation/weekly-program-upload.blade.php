@@ -1114,15 +1114,15 @@
                                                                                 <i class="material-symbols-outlined" style="font-size:13px;">check</i> ثبت
                                                                             </span>
 
-                                                                            <span wire:loading wire:target="addSinglePrevPartToProgram">...</span>
-                                                                        </button>
-                                                                        <button type="button" class="btn btn-sm btn-outline-secondary"
-                                                                                wire:click="hidePrevPartInlineAddForm">
-                                                                            <i class="material-symbols-outlined" style="font-size:13px;">close</i> لغو
-                                                                        </button>
+                                                                                <span wire:loading wire:target="addSinglePrevPartToProgram">...</span>
+                                                                            </button>
+                                                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                                    wire:click="hidePrevPartInlineAddForm">
+                                                                                <i class="material-symbols-outlined" style="font-size:13px;">close</i> لغو
+                                                                            </button>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
                                                         </td>
                                                     </tr>
                                                 @endif
@@ -1191,6 +1191,12 @@
                                                 <div class="rounded-3 border bg-danger bg-opacity-10 text-center p-3">
                                                     <div class="fw-bold fs-4 text-danger">{{ $prevReportData['not_sent_days_count'] ?? 0 }}</div>
                                                     <div class="small text-danger">روز ارسال نشده</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6 col-md-3">
+                                                <div class="rounded-3 border bg-body-tertiary text-center p-3">
+                                                    <div class="fw-bold fs-4 text-secondary">{{ $prevReportData['rest_days_count'] ?? 0 }}</div>
+                                                    <div class="small text-secondary">روز استراحت</div>
                                                 </div>
                                             </div>
                                         @elseif($prevReportType === 'study')
@@ -1266,18 +1272,23 @@
                                                 <tbody>
                                                 @foreach(($prevReportType === 'study' ? $filteredStudyItems : ($prevReportData['items'] ?? [])) as $i => $item)
                                                     @php
+                                                        $isRestDay = $item['is_rest_day'] ?? false;
                                                         $isSent = $item['is_sent'] ?? ($prevReportType === 'study' ? ($item['is_registered'] ?? false) : true);
                                                         $rowClass = '';
                                                         if($prevReportType === 'study') {
                                                             $rowClass = !$isSent ? 'table-secondary opacity-75' : (($item['is_suspicious'] ?? false) ? 'table-danger bg-danger bg-opacity-10' : '');
                                                         } else {
-                                                            $rowClass = !$isSent ? 'table-secondary opacity-75' : '';
+                                                            if ($isRestDay) {
+                                                                $rowClass = 'table-success';
+                                                            } elseif (!$isSent) {
+                                                                $rowClass = 'table-secondary opacity-75';
+                                                            }
                                                         }
                                                     @endphp
                                                     <tr class="{{ $rowClass }}">
                                                         <td class="text-muted">{{ $i + 1 }}</td>
                                                         <td>
-                                                    <span class="badge rounded-pill {{ $isSent ? 'bg-body-tertiary text-body border' : 'bg-danger-subtle text-danger' }}">
+                                                    <span class="badge rounded-pill {{ $isRestDay ? 'bg-success text-white' : ($isSent ? 'bg-body-tertiary text-body border' : 'bg-danger-subtle text-danger') }}">
                                                         {{ $item['day_name'] }}
                                                     </span>
                                                         </td>
@@ -1314,22 +1325,29 @@
                                                             <td class="text-muted">{{ Str::limit($item['feedback'] ?? '', 50) }}</td>
                                                         @else
                                                             <td class="text-center fw-bold">
-                                                                @if($isSent)
+                                                                @if($isRestDay)
+                                                                    <span class="badge bg-success-subtle text-success">
+                                                                        <i class="material-symbols-outlined" style="font-size:12px;">self_improvement</i>
+                                                                        استراحت
+                                                                    </span>
+                                                                @elseif($isSent)
                                                                     <span class="{{ ($item['parts_done'] ?? 0) >= ($item['parts_total'] ?? 0) ? 'text-success' : 'text-warning' }}">
-                                                                {{ $item['parts_done'] ?? 0 }}/{{ $item['parts_total'] ?? 0 }}
-                                                            </span>
+                                                                        {{ $item['parts_done'] ?? 0 }}/{{ $item['parts_total'] ?? 0 }}
+                                                                    </span>
                                                                 @else
                                                                     <span class="text-muted">ارسال نشده</span>
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                @if($isSent)
+                                                                @if($isRestDay)
+                                                                    <span class="badge bg-success-subtle text-success">روز استراحت</span>
+                                                                @elseif($isSent)
                                                                     <span class="badge bg-{{ $item['status_color'] ?? 'warning' }}-subtle text-{{ $item['status_color'] ?? 'warning' }}">{{ $item['status_label'] ?? '—' }}</span>
                                                                 @else
                                                                     <span class="badge bg-danger-subtle text-danger">ارسال نشده</span>
                                                                 @endif
                                                             </td>
-                                                            <td class="text-muted small">{{ Str::limit($item['missed_reason'] ?? '', 80) }}</td>
+                                                            <td class="text-muted small">{{ $isRestDay ? '' : Str::limit($item['missed_reason'] ?? '', 80) }}</td>
                                                         @endif
                                                     </tr>
                                                 @endforeach
@@ -1446,7 +1464,7 @@
                                                                         <label class="form-label small fw-semibold mb-1">روز(های) هدف <span class="text-danger">*</span></label>
                                                                         <div class="border rounded p-2" style="max-height:160px;overflow-y:auto;">
 
-                                                                        @foreach($weekDays as $wd)
+                                                                            @foreach($weekDays as $wd)
                                                                                 @if(!$wd['is_rest_day'])
                                                                                     <div class="form-check form-check-sm mb-1">
                                                                                         <input class="form-check-input" type="checkbox"
@@ -1491,7 +1509,7 @@
                                                                     <div class="col-md-2 d-flex flex-column gap-2 justify-content-end">
                                                                         <button type="button" class="btn btn-sm btn-success" wire:click="addClassificationToProgram">
 
-                                                                        <span wire:loading.remove wire:target="addClassificationToProgram"><i class="material-symbols-outlined" style="font-size:13px;">check</i> ثبت</span>
+                                                                            <span wire:loading.remove wire:target="addClassificationToProgram"><i class="material-symbols-outlined" style="font-size:13px;">check</i> ثبت</span>
                                                                             <span wire:loading wire:target="addClassificationToProgram">...</span>
                                                                         </button>
                                                                         <button type="button" class="btn btn-sm btn-outline-secondary" wire:click="hideClassificationInlineAdd">

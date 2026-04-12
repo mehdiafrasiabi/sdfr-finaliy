@@ -86,6 +86,10 @@ class DailyReport extends Model
     }
     public function getTotalPartsAttribute(): int
     {
+        // Compensatory reports only contain the explicitly compensated parts
+        if ($this->is_compensatory) {
+            return $this->reportParts()->count();
+        }
         $allParts = $this->getProgramPartsForDay();
         return $allParts->isNotEmpty() ? $allParts->count() : $this->reportParts()->count();
     }
@@ -144,6 +148,13 @@ class DailyReport extends Model
     }
     public function getTotalTestsAttribute(): int
     {
+        if ($this->is_compensatory) {
+            // For compensatory reports, sum test_count from the actual reported parts
+            if ($this->relationLoaded('reportParts')) {
+                return (int) $this->reportParts->sum(fn($rp) => $rp->programPart?->test_count ?? 0);
+            }
+            return (int) $this->reportParts()->with('programPart')->get()->sum(fn($rp) => $rp->programPart?->test_count ?? 0);
+        }
         $allParts = $this->getProgramPartsForDay();
         if ($allParts->isNotEmpty()) {
             return (int) $allParts->sum('test_count');
@@ -152,16 +163,27 @@ class DailyReport extends Model
     }
     /**
      * Calculate average rating from session feedbacks for all program parts of this day.
-     * * Parts without feedback count as 0.
-     * * Example: 3 parts, 1 has rating 8 → (8+0+0)/3 = 2.67
- */
+     * For compensatory reports, uses the reported parts directly (they span multiple days).
+     * Parts without feedback count as 0.
+     */
     public function getCalculatedRatingAttribute(): float
     {
-        $allParts = $this->getProgramPartsForDay();
-        if ($allParts->isEmpty()) return 0;
+        if ($this->is_compensatory) {
+            // Use the actually reported part IDs for compensatory reports
+            if ($this->relationLoaded('reportParts')) {
+                $partIds = $this->reportParts->pluck('program_part_id')->filter()->toArray();
+            } else {
+                $partIds = $this->reportParts()->pluck('program_part_id')->toArray();
+            }
+            $totalParts = count($partIds);
+        } else {
+            $allParts = $this->getProgramPartsForDay();
+            if ($allParts->isEmpty()) return 0;
+            $partIds = $allParts->pluck('id')->filter()->toArray();
+            $totalParts = $allParts->count();
+        }
 
-        $partIds = $allParts->pluck('id')->filter()->toArray();
-        $totalParts = $allParts->count();
+        if (empty($partIds) || $totalParts === 0) return 0;
 
         $studySessions = StudyPartSession::where('student_id', $this->student_id)
             ->whereIn('program_part_id', $partIds)
@@ -172,11 +194,11 @@ class DailyReport extends Model
             ->map(fn($sessions) => $sessions->sortByDesc('started_at')->first());
 
         $totalRating = 0;
-        foreach ($allParts as $part) {
-            $session = $studySessions->get($part->id);
+        foreach ($partIds as $partId) {
+            $session = $studySessions->get($partId);
             $totalRating += $session?->feedback?->rating ?? 0;
         }
 
-        return $totalParts > 0 ? round($totalRating / $totalParts, 1) : 0;
+        return round($totalRating / $totalParts, 1);
     }
 }

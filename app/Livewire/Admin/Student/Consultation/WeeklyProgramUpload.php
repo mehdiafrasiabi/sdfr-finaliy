@@ -2561,17 +2561,22 @@ class WeeklyProgramUpload extends Component
                 }
             }
 
-            // محاسبه روزهای استراحت و آزمون برای حذف از لیست ارسال‌نشده (رفع مشکل A3)
-            $specialDates = collect();
+            // محاسبه روزهای استراحت و آزمون — جداگانه برای نمایش استراحت در لیست
+            $restDayDates = collect();
+            $examDayDates = collect();
             if ($prevProgram && $programStartDate) {
                 $restDayIndices = WeeklyProgramRestDay::where('weekly_program_id', $prevProgram->id)
                     ->pluck('day_index')->toArray();
                 $examDayIndices = WeeklyProgramExamDay::where('weekly_program_id', $prevProgram->id)
                     ->pluck('day_index')->toArray();
-                foreach (array_unique(array_merge($restDayIndices, $examDayIndices)) as $idx) {
-                    $specialDates->push($programStartDate->copy()->addDays($idx)->toDateString());
+                foreach ($restDayIndices as $idx) {
+                    $restDayDates->push($programStartDate->copy()->addDays($idx)->toDateString());
+                }
+                foreach ($examDayIndices as $idx) {
+                    $examDayDates->push($programStartDate->copy()->addDays($idx)->toDateString());
                 }
             }
+            $specialDates = $restDayDates->merge($examDayDates);
 
             $reports    = DailyReport::where('student_id', $this->studentId)
                 ->where('session_id', $prevSession->id)
@@ -2612,13 +2617,22 @@ class WeeklyProgramUpload extends Component
             })->toArray();
 
             $missingDayItems = $missingDates->map(fn($dateStr) => [
-                'date'     => jdate($dateStr)->format('Y/m/d'),
-                'day_name' => $this->getJalaliDayName($dateStr),
-                'is_sent'  => false,
+                'date'        => jdate($dateStr)->format('Y/m/d'),
+                'day_name'    => $this->getJalaliDayName($dateStr),
+                'is_sent'     => false,
+                'is_rest_day' => false,
             ])->toArray();
 
-            // ترکیب ارسال شده و نشده در یک لیست (مرتب‌سازی بر اساس تاریخ)
-            $allItems = array_merge($reportItems, $missingDayItems);
+            // آیتم‌های روز استراحت برای نمایش در لیست
+            $restDayItems = $restDayDates->map(fn($dateStr) => [
+                'date'        => jdate($dateStr)->format('Y/m/d'),
+                'day_name'    => $this->getJalaliDayName($dateStr),
+                'is_sent'     => false,
+                'is_rest_day' => true,
+            ])->toArray();
+
+            // ترکیب ارسال شده، نشده و روزهای استراحت (مرتب‌سازی بر اساس تاریخ)
+            $allItems = array_merge($reportItems, $missingDayItems, $restDayItems);
             usort($allItems, fn($a, $b) => strcmp($a['date'], $b['date']));
 
             $this->prevReportData = [
@@ -2628,6 +2642,7 @@ class WeeklyProgramUpload extends Component
                 'type_label'          => 'گزارش فعالیت روزانه',
                 'sent_days_count'     => count($reportItems),
                 'not_sent_days_count' => $missingDates->count(),
+                'rest_days_count'     => $restDayDates->count(),
             ];
         } elseif ($type === 'study') {
             $prevProgram = WeeklyProgram::where('advising_session_id', $prevSession->id)->first();
@@ -2635,12 +2650,10 @@ class WeeklyProgramUpload extends Component
             // ذخیره تاریخ شروع جلسه قبلی برای فیلتر روز (رفع مشکل D)
             $this->prevProgramStartDate = $prevProgram->start_date?->format('Y-m-d');
 
-            $totalAssignedParts = ProgramPart::where('weekly_program_id', $prevProgram->id)
-                ->whereNotIn('part_type', ['comprehensive_exam', 'exam_analysis'])->count();
+            $totalAssignedParts = ProgramPart::where('weekly_program_id', $prevProgram->id)->count();
 
-            // همه پارت‌های برنامه (شامل ثبت نشده)
+            // همه پارت‌های برنامه (شامل ثبت نشده و پارت‌های روز آزمون)
             $allProgramParts = ProgramPart::where('weekly_program_id', $prevProgram->id)
-                ->whereNotIn('part_type', ['comprehensive_exam', 'exam_analysis'])
                 ->orderBy('day_of_week')->orderBy('part_order')->get();
 
             $studySessionsCollection = StudyPartSession::where('weekly_program_id', $prevProgram->id)

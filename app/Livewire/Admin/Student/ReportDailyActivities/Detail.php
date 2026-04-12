@@ -29,6 +29,9 @@ class Detail extends Component
     // Month Filter (multi-select tags)
     public array $selectedMonths = [];
     public array $monthOptions = [];
+    // Jalali date range filter
+    public string $filterStartDate = '';
+    public string $filterEndDate = '';
     // Status Filter
     public string $statusFilter = 'all'; // all, approved, rejected, not_sent
     // Stats
@@ -99,6 +102,26 @@ class Detail extends Component
                 ];
             })
             ->toArray();
+    }
+
+    public function updatedFilterStartDate()
+    {
+        $this->resetPage();
+        $this->loadStats();
+    }
+
+    public function updatedFilterEndDate()
+    {
+        $this->resetPage();
+        $this->loadStats();
+    }
+
+    public function clearDateFilter()
+    {
+        $this->filterStartDate = '';
+        $this->filterEndDate = '';
+        $this->resetPage();
+        $this->loadStats();
     }
 
     public function toggleMonth($month)
@@ -213,6 +236,16 @@ class Detail extends Component
     }
 
 
+    protected function parseDateFilter(string $jalali): ?Carbon
+    {
+        if (empty(trim($jalali))) return null;
+        try {
+            return \Morilog\Jalali\Jalalian::fromFormat('Y/m/d', trim($jalali))->toCarbon();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
     protected function getFilteredReportsQuery()
     {
         $query = DailyReport::with(['student.user', 'reportParts.programPart', 'detail', 'feedback', 'weeklyProgram.parts'])
@@ -227,6 +260,11 @@ class Detail extends Component
         if ($this->statusFilter !== 'all' && $this->statusFilter !== 'not_sent') {
             $query->whereHas('detail', fn($q) => $q->where('status', $this->statusFilter));
         }
+        // Jalali date range filter
+        $start = $this->parseDateFilter($this->filterStartDate);
+        $end   = $this->parseDateFilter($this->filterEndDate);
+        if ($start) $query->whereDate('report_date', '>=', $start);
+        if ($end)   $query->whereDate('report_date', '<=', $end);
         return $query;
     }
 
@@ -243,6 +281,11 @@ class Detail extends Component
                 return collect([]);
             }
         }
+        // Jalali date range filter
+        $start = $this->parseDateFilter($this->filterStartDate);
+        $end   = $this->parseDateFilter($this->filterEndDate);
+        if ($start) $query->whereDate('report_date', '>=', $start);
+        if ($end)   $query->whereDate('report_date', '<=', $end);
         // Get all reports first
         $reports = $query->orderBy('report_date', 'desc')->get();
 
@@ -266,7 +309,7 @@ class Detail extends Component
      * Get non-report days for the current session filter.
      * * Returns rest days ('rest_day'), future days ('future'), and not-sent past days ('not_sent').
      * * When no session is selected but months are active, gathers from all sessions.
-    **/
+     **/
     protected function getNotSentDays()
     {
         $dayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
@@ -503,41 +546,49 @@ class Detail extends Component
             'submit_window_start' => jdate($reportDateStart)->format('Y/m/d') . ' ۰۰:۰۰',
             'submit_window_end' => jdate($reportDateEnd)->format('Y/m/d') . ' ۰۶:۰۰',
         ];
-        // Get ALL program parts for this day from weekly program
-
         $reportPartsMap = $report->reportParts->keyBy('program_part_id');
         $programParts = collect();
-        if ($report->weeklyProgram) {
-            $startDate = Carbon::parse($report->weeklyProgram->start_date);
-            $dayIndex = $startDate->diffInDays(Carbon::parse($report->report_date));
-            $programParts = $report->weeklyProgram
-                ->parts()
-                ->where('day_of_week', $dayIndex)
 
-                ->orderBy('part_order')
-                ->with(['ccSubject', 'ccTopic', 'ccChapter'])
-                ->get();
-        }
-
-        // Fallback: if no parts found from weekly program, use reportParts
-        if ($programParts->isEmpty()) {
-            $reportPartProgramIds = $report->reportParts->pluck('program_part_id')->filter()->toArray();
-            if (!empty($reportPartProgramIds) && $report->weeklyProgram) {
+        if ($report->is_compensatory) {
+            // Compensatory reports: use the reported parts directly (they span multiple days)
+            $programParts = $report->reportParts
+                ->map(fn($rp) => $rp->programPart)
+                ->filter()
+                ->values();
+        } else {
+            // Normal reports: use the program parts for this specific day
+            if ($report->weeklyProgram) {
+                $startDate = Carbon::parse($report->weeklyProgram->start_date);
+                $dayIndex = $startDate->diffInDays(Carbon::parse($report->report_date));
                 $programParts = $report->weeklyProgram
                     ->parts()
-                    ->whereIn('id', $reportPartProgramIds)
-                    ->orderBy('day_of_week')
+                    ->where('day_of_week', $dayIndex)
                     ->orderBy('part_order')
                     ->with(['ccSubject', 'ccTopic', 'ccChapter'])
                     ->get();
             }
+
+            // Fallback: if no parts found from weekly program, use reportParts
             if ($programParts->isEmpty()) {
-                $programParts = $report->reportParts
-                    ->map(fn($rp) => $rp->programPart)
-                    ->filter()
-                    ->values();
+                $reportPartProgramIds = $report->reportParts->pluck('program_part_id')->filter()->toArray();
+                if (!empty($reportPartProgramIds) && $report->weeklyProgram) {
+                    $programParts = $report->weeklyProgram
+                        ->parts()
+                        ->whereIn('id', $reportPartProgramIds)
+                        ->orderBy('day_of_week')
+                        ->orderBy('part_order')
+                        ->with(['ccSubject', 'ccTopic', 'ccChapter'])
+                        ->get();
+                }
+                if ($programParts->isEmpty()) {
+                    $programParts = $report->reportParts
+                        ->map(fn($rp) => $rp->programPart)
+                        ->filter()
+                        ->values();
+                }
             }
         }
+
         // Get study session feedback ratings for rating calculation
         $partIds = $programParts->pluck('id')->filter()->toArray();
         $studySessionsMap = \App\Models\StudyPartSession::where('student_id', $report->student_id)

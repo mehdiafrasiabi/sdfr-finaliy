@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\Student\StudySession;
 
 use App\Models\MakeupSession;
+use App\Models\ProgramPart;
 use App\Models\SessionFeedback;
 use App\Models\StudyPartSession;
 use App\Models\StudySession;
@@ -30,6 +31,7 @@ class Show extends Component
     public $sortDirection = 'desc';
     public $sessionType = 'all';
     public $partTypeFilter = 'all';
+    public $sourceTypeFilter = 'all';
     public $advisingSessionFilter = '';
     // Statistics
     public $totalSessions = 0;
@@ -65,6 +67,7 @@ class Show extends Component
         'dateFrom' => ['except' => ''],
         'dateTo' => ['except' => ''],
         'partTypeFilter' => ['except' => 'all'],
+        'sourceTypeFilter' => ['except' => 'all'],
         'advisingSessionFilter' => ['except' => ''],
     ];
 
@@ -213,13 +216,21 @@ class Show extends Component
     {
         $this->makeupCount = MakeupSession::where('student_id', $this->studentId)->count();
         $this->regularCount = StudySession::where('student_id', $this->studentId)->count();
-        $this->programPartsCount = StudyPartSession::where('student_id', $this->studentId)
-            ->where('is_completed', true)
-            ->count();
 
-        $this->completedPartsCount = $this->programPartsCount;
+        // کل پارت‌های برنامه‌ریزی شده برای این دانش‌آموز در همه برنامه‌های هفتگی
+        $this->programPartsCount = ProgramPart::whereHas('weeklyProgram', function ($q) {
+            $q->where('student_id', $this->studentId);
+        })->count();
 
-        $this->feedbackAvg = round(SessionFeedback::where('student_id', $this->studentId)->avg('rating') ?? 0, 1);
+        // تعداد پارت‌های ثبت‌شده (لاگ‌شده)
+        $this->completedPartsCount = StudyPartSession::where('student_id', $this->studentId)->count();
+
+        // میانگین بازخورد از تمام پارت‌های برنامه (از طریق sps_id)
+        $spsIds = StudyPartSession::where('student_id', $this->studentId)->pluck('id');
+        $this->feedbackAvg = round(
+            SessionFeedback::whereIn('sps_id', $spsIds)->avg('rating') ?? 0,
+            1
+        );
     }
 
     protected function loadStudySessions()
@@ -256,6 +267,12 @@ class Show extends Component
         if ($this->partTypeFilter !== 'all') {
             $query->whereHas('programPart', function ($q) {
                 $q->where('part_type', $this->partTypeFilter);
+            });
+        }
+
+        if ($this->sourceTypeFilter !== 'all') {
+            $query->whereHas('programPart', function ($q) {
+                $q->where('source_type', $this->sourceTypeFilter);
             });
         }
 
@@ -302,6 +319,7 @@ class Show extends Component
 
     public function updatedSearch() { $this->loadStudySessions(); $this->loadMakeupSessions(); }
     public function updatedPartTypeFilter() { $this->loadStudySessions(); $this->loadMakeupSessions(); }
+    public function updatedSourceTypeFilter() { $this->loadStudySessions(); }
     public function updatedAdvisingSessionFilter() { $this->loadStudySessions(); $this->loadFilteredAdvisingPlans(); }
     public function updatedDateFrom() { $this->loadStudySessions(); $this->loadMakeupSessions(); }
     public function updatedDateTo() { $this->loadStudySessions(); $this->loadMakeupSessions(); }
@@ -370,6 +388,7 @@ class Show extends Component
         $this->sortDirection = 'desc';
 
         $this->partTypeFilter = 'all';
+        $this->sourceTypeFilter = 'all';
         $this->advisingSessionFilter = '';
 
         $this->loadStudySessions();

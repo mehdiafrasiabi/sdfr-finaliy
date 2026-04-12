@@ -190,8 +190,9 @@
                 <div class="col-md-3">
                     <div class="card stat-card shadow-sm border-0 position-relative overflow-hidden">
                         <div class="card-body text-center py-3">
-                            <div class="badge-soft badge-soft-blue mb-2 d-inline-block">تعداد ثبت پارت‌های برنامه</div>
+                            <div class="badge-soft badge-soft-blue mb-2 d-inline-block">کل پارت‌های برنامه‌ریزی شده</div>
                             <div class="h3 fw-black text-primary mb-0">{{ $programPartsCount }}</div>
+                            <div class="small text-muted mt-1">ثبت‌شده: <span class="fw-bold text-dark">{{ $completedPartsCount }}</span></div>
                         </div>
                     </div>
                 </div>
@@ -199,7 +200,7 @@
                 <div class="col-md-3">
                     <div class="card stat-card shadow-sm border-0 position-relative overflow-hidden">
                         <div class="card-body text-center py-3">
-                            <div class="badge-soft badge-soft-violet mb-2 d-inline-block">جلسات جبرانی</div>
+                            <div class="badge-soft badge-soft-violet mb-2 d-inline-block">پارت اضافه بر سازمان</div>
                             <div class="h3 fw-black mb-0" style="color:#7c3aed;">{{ $makeupCount }}</div>
                         </div>
                     </div>
@@ -217,7 +218,7 @@
                 <div class="col-md-3">
                     <div class="card stat-card shadow-sm border-0 position-relative overflow-hidden">
                         <div class="card-body text-center py-3">
-                            <div class="badge-soft badge-soft-green mb-2 d-inline-block">میانگین (دقیقه)</div>
+                            <div class="badge-soft badge-soft-green mb-2 d-inline-block">میانگین مطالعه (دقیقه)</div>
                             <div class="h3 fw-black text-success mb-0">{{ $averageDuration ?? 0 }}</div>
                         </div>
                     </div>
@@ -280,10 +281,10 @@
                              style="width:8rem;height:8rem;background:radial-gradient(circle,#8b5cf6,#6d28d9);opacity:.18;transform:translate(-30%,-30%);"></div>
                         <div class="card-body position-relative">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <span class="badge-soft badge-soft-violet">جبرانی</span>
+                                <span class="badge-soft badge-soft-violet">اضافه بر سازمان</span>
                             </div>
                             <div class="h2 fw-black mb-0"
-                                 style="color:#7c3aed;">{{ $studyTime['makeup'] ?? '00:00:00' }}</div>
+                                 style="color:#7c3aed;">{{ $studyTime['makeup'] ?? '00:00' }}</div>
                         </div>
                         <div class="progress rounded-0" style="height:4px;">
                             <div class="progress-bar" style="width: 100%;background:#8b5cf6;"></div>
@@ -303,9 +304,8 @@
                                       style="background: rgba(239, 68, 68, .1);color: #dc2626;">کل</span>
                             </div>
                             <div class="small text-muted mb-1">برنامه: <span class="fw-bold text-dark">{{ $studyTime['total_planned'] ?? '00:00' }}</span></div>
-                            <div class="small text-muted mb-1">واقعی: <span class="fw-bold text-dark">{{ $studyTime['total_actual'] ?? '00:00' }}</span></div>
-                            <div class="h6 fw-black text-danger mb-0">اختلاف + جبرانی: {{ $studyTime['final_total'] ?? '00:00' }}</div>
-{{--                            <div class="h2 fw-black text-danger mb-0">{{ $studyTime['total'] }}</div>--}}
+                            <div class="small text-muted mb-1"></div>
+                            <div class="h6 fw-black text-danger mb-0">انجام شده: <span class="fw-bold text-dark">{{ $studyTime['total_actual'] ?? '00:00' }}</span></div>
                         </div>
                         <div class="progress rounded-0" style="height:4px;">
                             <div class="progress-bar bg-danger" style="width: 100%;"></div>
@@ -317,24 +317,8 @@
                 <div class="col-md-4">
                     <div class="card shadow-sm border-0">
                         <div class="card-body">
-                            <div class="small text-muted">کل ساعت ثبت شده (عادی+اضافه)</div>
-                            <div class="h5 fw-bold mb-0">{{ $studyTime['regular_plus_extra'] ?? '00:00+00:00' }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body">
                             <div class="small text-muted">ساعت مطالعه انجام نشده</div>
                             <div class="h5 fw-bold mb-0">{{ $studyTime['unmet'] ?? '00:00' }}</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-body">
-                            <div class="small text-muted">میانگین روزانه</div>
-                            <div class="h5 fw-bold mb-0">{{ $studyTime['daily_average'] ?? '00:00' }}</div>
                         </div>
                     </div>
                 </div>
@@ -362,14 +346,32 @@
                         <div class="col-md-2">
                             <label class="form-label fw-semibold small mb-1">نوع پارت</label>
                             <select wire:model.live="partTypeFilter" class="form-select form-select-sm">
-                                <option value="all">همه</option>
+                                <option value="all">همه انواع</option>
                                 <option value="test">تستی</option>
                                 <option value="descriptive">تشریحی</option>
-                                <option value="video">ویدیویی</option>
+                                <option value="video">ویدئو</option>
+                                <option value="topic_exam">آزمون مبحثی</option>
+                                <option value="comprehensive_exam">آزمون جامع</option>
+                                <option value="exam_analysis">تحلیل آزمون</option>
                             </select>
                         </div>
 
-                        <div class="col-md-10">
+                        <div class="col-md-2">
+                            <label class="form-label fw-semibold small mb-1">منبع پارت</label>
+                            <select wire:model.live="sourceTypeFilter" class="form-select form-select-sm">
+                                <option value="all">همه منابع</option>
+                                <option value="normal">عادی</option>
+                                <option value="daily_reading">روزخوانی</option>
+                                <option value="pre_reading">پیش‌خوانی</option>
+                                <option value="classification">طبقه‌بندی</option>
+                                <option value="exam">امتحانات</option>
+                                <option value="homework">تکالیف</option>
+                                <option value="class_qa">پرسش و پاسخ کلاسی</option>
+                                <option value="comprehensive_exam">آزمون جامع</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-8">
                             <label class="form-label fw-semibold small mb-1">جلسه مشاوره</label>
                             <select wire:model.live="advisingSessionFilter" class="form-select form-select-sm">
                                 <option value="">همه جلسات مشاوره</option>
@@ -434,14 +436,14 @@
                     </div>
                 </div>
             @endif
-            {{-- جدول جلسات جبرانی --}}
+            {{-- جدول پارت‌های اضافه بر سازمان --}}
             @if($sessionType !== 'program' && count($makeupSessions) > 0)
                 <div class="card shadow-sm mb-4">
                     <div class="card-header bg-light border-0 px-4 py-3">
                         <div class="d-flex align-items-center gap-2">
-                            <h2 class="h5 fw-bold mb-0">جلسات مطالعه جبرانی</h2>
+                            <h2 class="h5 fw-bold mb-0">پارت‌های اضافه بر سازمان</h2>
                             <span
-                                class="badge bg-white border text-muted px-3 py-2">{{ count($makeupSessions) }} جلسه</span>
+                                class="badge bg-white border text-muted px-3 py-2">{{ count($makeupSessions) }} پارت</span>
                         </div>
                     </div>
 
@@ -614,18 +616,26 @@
                                                         <span class="small text-muted">مبحث: {{ $session->programPart->ccTopic->name }}</span>
                                                     @endif
                                                 @elseif($session->programPart?->description)
-                                                    <span class="small text-muted">{{ Str::limit($session->programPart->description, 60) }}</span>
+                                                    <span class="small text-muted">{{ Str::limit($session->programPart->description, 90) }}</span>
                                                 @endif
                                             </div>
                                         </td>
 
                                         <td>
-                                            <span class="badge rounded-pill px-2 py-1
-                                                {{ $session->programPart?->part_type === 'test' ? 'text-bg-primary' : '' }}
-                                                {{ $session->programPart?->part_type === 'descriptive' ? 'text-bg-purple' : '' }}
-                                                {{ $session->programPart?->part_type === 'video' ? 'text-bg-warning' : '' }}">
-                                                {{ $session->programPart?->part_type_label ?? '-' }}
-                                            </span>
+                                            <div class="d-flex flex-column gap-1">
+                                                <span class="badge rounded-pill px-2 py-1
+                                                    {{ $session->programPart?->part_type === 'test' ? 'text-bg-primary' : '' }}
+                                                    {{ $session->programPart?->part_type === 'descriptive' ? 'text-bg-success' : '' }}
+                                                    {{ $session->programPart?->part_type === 'video' ? 'text-bg-warning' : '' }}
+                                                    {{ in_array($session->programPart?->part_type, ['topic_exam','comprehensive_exam','exam_analysis']) ? 'text-bg-danger' : '' }}">
+                                                    {{ $session->programPart?->part_type_label ?? '-' }}
+                                                </span>
+                                                @if($session->programPart?->source_type && $session->programPart->source_type !== 'normal')
+                                                    <span class="badge rounded-pill px-2 py-1 text-bg-secondary" style="font-size:.7rem;">
+                                                        {{ $session->programPart->source_type_label }}
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </td>
 
                                         <td class="small text-muted">
@@ -722,9 +732,9 @@
                     <div class="modal-header border-0 pb-0">
                         <h5 class="modal-title fw-bold">
                             @if($selectedSessionType === 'makeup')
-                                جزئیات جلسه جبرانی
+                                جزئیات پارت اضافه بر سازمان
                             @else
-                                جزئیات جلسه مطالعه
+                                جزئیات پارت مطالعه
                             @endif
                         </h5>
                         <button type="button" wire:click="closeDetailModal" class="btn-close"></button>
@@ -855,8 +865,18 @@
                                         <span class="badge rounded-pill px-3 py-2
                                             {{ $selectedSession->programPart?->part_type === 'test' ? 'text-bg-primary' : '' }}
                                             {{ $selectedSession->programPart?->part_type === 'descriptive' ? 'text-bg-purple' : '' }}
-                                            {{ $selectedSession->programPart?->part_type === 'video' ? 'text-bg-warning' : '' }}">
+                                            {{ $selectedSession->programPart?->part_type === 'video' ? 'text-bg-warning' : '' }}
+                                            {{ in_array($selectedSession->programPart?->part_type, ['topic_exam','comprehensive_exam','exam_analysis']) ? 'text-bg-danger' : '' }}">
                                             {{ $selectedSession->programPart?->part_type_label ?? '-' }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="small text-muted mb-1">منبع پارت</label>
+                                    <div>
+                                        <span class="badge rounded-pill text-bg-info px-3 py-2">
+                                            {{ $selectedSession->programPart?->source_type_label ?? 'عادی' }}
                                         </span>
                                     </div>
                                 </div>
@@ -965,33 +985,33 @@
             </div>
         </div>
     @endif
-        @push('script')
-            <script>
-                document.addEventListener('livewire:navigated', function () {
-                    const fromInput = document.getElementById('show_date_from');
-                    const toInput = document.getElementById('show_date_to');
-                    if (window.jalaliDatepicker) {
-                        window.jalaliDatepicker.startWatch({
-                            minDate: 'attr',
-                            maxDate: 'attr',
-                            autoHide: true,
-                        });
-                    }
-                    if (fromInput) {
-                        fromInput.setAttribute('data-jdp', '');
-                        fromInput.setAttribute('data-jdp-only-date', '');
-                        fromInput.addEventListener('change', (e) => {
-                            window.Livewire.find(fromInput.closest('[wire\:id]').getAttribute('wire:id')).set('dateFrom', e.target.value);
-                        });
-                    }
-                    if (toInput) {
-                        toInput.setAttribute('data-jdp', '');
-                        toInput.setAttribute('data-jdp-only-date', '');
-                        toInput.addEventListener('change', (e) => {
-                            window.Livewire.find(toInput.closest('[wire\:id]').getAttribute('wire:id')).set('dateTo', e.target.value);
-                        });
-                    }
-                });
-            </script>
-        @endpush
+    @push('script')
+        <script>
+            document.addEventListener('livewire:navigated', function () {
+                const fromInput = document.getElementById('show_date_from');
+                const toInput = document.getElementById('show_date_to');
+                if (window.jalaliDatepicker) {
+                    window.jalaliDatepicker.startWatch({
+                        minDate: 'attr',
+                        maxDate: 'attr',
+                        autoHide: true,
+                    });
+                }
+                if (fromInput) {
+                    fromInput.setAttribute('data-jdp', '');
+                    fromInput.setAttribute('data-jdp-only-date', '');
+                    fromInput.addEventListener('change', (e) => {
+                        window.Livewire.find(fromInput.closest('[wire\:id]').getAttribute('wire:id')).set('dateFrom', e.target.value);
+                    });
+                }
+                if (toInput) {
+                    toInput.setAttribute('data-jdp', '');
+                    toInput.setAttribute('data-jdp-only-date', '');
+                    toInput.addEventListener('change', (e) => {
+                        window.Livewire.find(toInput.closest('[wire\:id]').getAttribute('wire:id')).set('dateTo', e.target.value);
+                    });
+                }
+            });
+        </script>
+    @endpush
 </div>

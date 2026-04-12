@@ -277,7 +277,7 @@
                                             <div class="p-4 sm:p-6">
                                                 <div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-4">
 
-                                                <div class="bg-muted/30 rounded-xl p-3 sm:p-4 hover:bg-muted/50 transition-colors">
+                                                    <div class="bg-muted/30 rounded-xl p-3 sm:p-4 hover:bg-muted/50 transition-colors">
                                                         <div class="flex items-center gap-2 mb-2">
                                                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-green-500/20">
                                                                 <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -339,6 +339,28 @@
                                                         @endif
                                                     </div>
                                                 </div>
+
+                                                {{-- Description & Missed Parts Reason --}}
+                                                @php
+                                                    $rptDesc = $report->detail?->description;
+                                                    $rptMissed = $report->detail?->missed_parts_reason;
+                                                @endphp
+                                                @if($rptDesc || $rptMissed)
+                                                    <div class="mb-3 space-y-2">
+                                                        @if($rptDesc)
+                                                            <div class="bg-muted/20 rounded-xl p-3 border border-border">
+                                                                <p class="text-xs font-semibold text-muted mb-1">توضیحات:</p>
+                                                                <p class="text-sm text-foreground leading-6">{{ $rptDesc }}</p>
+                                                            </div>
+                                                        @endif
+                                                        @if($rptMissed)
+                                                            <div class="bg-red-500/5 rounded-xl p-3 border border-red-300/30">
+                                                                <p class="text-xs font-semibold text-red-500 mb-1">علت عدم انجام پارت:</p>
+                                                                <p class="text-sm text-foreground leading-6">{{ $rptMissed }}</p>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @endif
 
                                                 {{-- Advisor Comment --}}
                                                 @if($report->advisor_comment)
@@ -457,11 +479,15 @@
                         @endif
                         <div class="grid grid-cols-1 gap-2.5 sm:gap-3">
                             @foreach($selectedDay['parts'] as $part)
-                                @php $partHasStudyHours = in_array($part->id, $completedStudyParts); @endphp
+                                @php
+                                    $partHasStudyHours = in_array($part->id, $completedStudyParts);
+                                    $partIsSelected = in_array($part->id, $selectedParts);
+                                    $partIsLocked = $partHasStudyHours && $partIsSelected; // completed parts are locked-selected
+                                @endphp
                                 <div wire:key="part-select-{{ $part->id }}"
-                                     class="relative bg-secondary rounded-xl border-2 transition-all duration-200 hover:-translate-y-px
-                                     {{ in_array($part->id, $selectedParts) ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : '' }}
-                                     {{ !$partHasStudyHours ? 'border-red-300 dark:border-red-800 opacity-70' : (!in_array($part->id, $selectedParts) ? 'border-transparent' : '') }}">
+                                     class="relative bg-secondary rounded-xl border-2 transition-all duration-200
+                                     {{ $partIsSelected ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : '' }}
+                                     {{ !$partHasStudyHours ? 'border-red-300 dark:border-red-800 opacity-70' : (!$partIsSelected ? 'border-transparent hover:-translate-y-px' : '') }}">
 
                                     @if(!$partHasStudyHours)
                                         <div class="flex items-center gap-2 px-3 sm:px-3.5 pt-2.5 pb-1">
@@ -470,12 +496,19 @@
                                             </svg>
                                             <span class="text-[10px] sm:text-xs text-red-600 dark:text-red-400 font-semibold">ساعت مطالعه ثبت نشده — ابتدا از بخش «ثبت ساعت مطالعه» اقدام کنید</span>
                                         </div>
+                                    @elseif($partIsLocked)
+                                        <div class="flex items-center gap-2 px-3 sm:px-3.5 pt-2.5 pb-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-green-500 shrink-0">
+                                                <path fill-rule="evenodd" d="M12 1.5a5.25 5.25 0 00-5.25 5.25v3a3 3 0 00-3 3v6.75a3 3 0 003 3h10.5a3 3 0 003-3v-6.75a3 3 0 00-3-3v-3c0-2.9-2.35-5.25-5.25-5.25zm3.75 8.25v-3a3.75 3.75 0 10-7.5 0v3h7.5z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <span class="text-[10px] sm:text-xs text-green-600 dark:text-green-400 font-semibold">ساعت مطالعه ثبت شده — انتخاب خودکار</span>
+                                        </div>
                                     @endif
 
                                     <div wire:click="togglePart({{ $part->id }})"
-                                         class="flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 {{ !$partHasStudyHours ? 'cursor-not-allowed' : 'cursor-pointer' }}">
-                                        <div class="mt-0.5 shrink-0 {{ in_array($part->id, $selectedParts) ? 'text-green-500' : (!$partHasStudyHours ? 'text-red-400' : 'text-muted') }}">
-                                            @if(in_array($part->id, $selectedParts))
+                                         class="flex items-start gap-2.5 sm:gap-3 p-3 sm:p-3.5 {{ !$partHasStudyHours ? 'cursor-not-allowed' : ($partIsLocked ? 'cursor-default' : 'cursor-pointer') }}">
+                                        <div class="mt-0.5 shrink-0 {{ $partIsSelected ? 'text-green-500' : (!$partHasStudyHours ? 'text-red-400' : 'text-muted') }}">
+                                            @if($partIsSelected)
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 sm:w-6 sm:h-6">
                                                     <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clip-rule="evenodd"/>
                                                 </svg>
@@ -497,9 +530,9 @@
                                                 @if($part->ccTopic)
                                                     <span class="text-[10px] sm:text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded">{{ $part->ccTopic->name }}</span>
                                                 @endif
-                                                    @if($part->source_type && $part->source_type !== 'normal')
-                                                        <span class="text-[10px] sm:text-xs rounded-full px-2 py-0.5 font-medium {{ $part->source_type_tw_class }}">{{ $part->source_type_label }}</span>
-                                                    @endif
+                                                @if($part->source_type && $part->source_type !== 'normal')
+                                                    <span class="text-[10px] sm:text-xs rounded-full px-2 py-0.5 font-medium {{ $part->source_type_tw_class }}">{{ $part->source_type_label }}</span>
+                                                @endif
                                             </div>
                                             <div class="flex items-center gap-2 mt-1.5 text-xs text-muted">
                                                 <span class="flex items-center gap-1">
@@ -521,15 +554,21 @@
                                         </div>
                                     </div>
 
-                                    @if(in_array($part->id, $selectedParts))
+                                    @if($partIsSelected)
                                         <div class="px-3 sm:px-3.5 pb-3 sm:pb-3.5 space-y-2.5 border-t border-border/50" wire:click.stop>
 
                                             @if($part->test_count)
                                                 <div>
-                                                    <label class="text-xs text-muted block mb-1">تعداد تست زده شده:</label>
+                                                    <label class="text-xs text-muted block mb-1">
+                                                        تعداد تست زده شده:
+                                                        <span class="text-red-500 font-semibold">(اجباری — حداقل ۰)</span>
+                                                    </label>
                                                     <input type="number" wire:model="testsDone.{{ $part->id }}" min="0" max="{{ $part->test_count }}"
-                                                           class="w-full h-9 sm:h-10 rounded-lg border border-border bg-background text-foreground text-sm px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                                           placeholder="از {{ $part->test_count }} تست">
+                                                           class="w-full h-9 sm:h-10 rounded-lg border {{ $errors->has('testsDone.'.$part->id) ? 'border-red-400' : 'border-border' }} bg-background text-foreground text-sm px-3 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                                           placeholder="عدد وارد کنید (از ۰ تا {{ $part->test_count }})">
+                                                    @error('testsDone.'.$part->id)
+                                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                                    @enderror
                                                 </div>
                                             @endif
                                         </div>
@@ -539,8 +578,10 @@
                         </div>
                     </div>
 
-                    {{-- Missed Parts Reason --}}
-                    @if($this->unreadPartsCount > 1)
+                    @php $unreadCount = $this->unreadPartsCount; @endphp
+
+                    {{-- Missed Parts Reason (required when 2+ parts unread) OR Description (when 0-1 parts unread) --}}
+                    @if($unreadCount >= 2)
                         <div class="space-y-2">
                             <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
                                 <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -549,26 +590,28 @@
                                 علت عدم انجام پارت:
                                 <span class="text-red-500 text-xs font-normal">(اجباری)</span>
                             </label>
-                            <p class="text-xs text-muted">{{ $this->unreadPartsCount }} پارت از برنامه امروز انجام نشده — لطفاً دلیل را توضیح دهید.</p>
+                            <p class="text-xs text-muted">{{ $unreadCount }} پارت از برنامه امروز انجام نشده — لطفاً دلیل را توضیح دهید.</p>
                             <textarea wire:model="missedPartsReason" rows="3"
-                                      class="w-full rounded-xl border border-red-300 dark:border-red-700 bg-secondary text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
+                                      class="w-full rounded-xl border {{ $errors->has('missedPartsReason') ? 'border-red-400' : 'border-red-300 dark:border-red-700' }} bg-secondary text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
                                       placeholder="لطفاً توضیح دهید چرا پارت‌های مطالعاتی انجام نشدند..."></textarea>
                             @error('missedPartsReason')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                         </div>
+                    @else
+                        {{-- Description: shown when all parts done or exactly 1 part unread --}}
+                        <div class="space-y-2">
+                            <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
+                                <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                </svg>
+                                توضیحات
+                                <span class="text-muted text-xs font-normal">(اختیاری)</span>
+                            </label>
+                            <textarea wire:model="description" rows="3"
+                                      class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                      placeholder="اگر توضیحی دارید اینجا بنویسید..."></textarea>
+                            @error('description')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
+                        </div>
                     @endif
-                    {{-- Description --}}
-                    <div class="space-y-2">
-                        <label class="font-semibold text-foreground text-sm sm:text-base flex items-center gap-2">
-                            <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                            </svg>
-                            توضیحات (اختیاری):
-                        </label>
-                        <textarea wire:model="description" rows="3"
-                                  class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                  placeholder="اگر توضیحی دارید اینجا بنویسید..."></textarea>
-                        @error('description')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
-                    </div>
 
 
                     {{-- Makeup Sessions (اضافه بر سازمان) --}}
@@ -783,19 +826,13 @@
                                 <svg class="w-4 h-4 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
-                                علت عدم انجام پارت (اختیاری):
+                                علت عدم انجام پارت
+                                <span class="text-muted text-xs font-normal">(اختیاری)</span>
                             </label>
                             <textarea wire:model="compensatoryMissedPartsReason" rows="3"
                                       class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                       placeholder="در صورت تمایل توضیح دهید چرا پارت‌ها در زمان اصلی انجام نشدند..."></textarea>
                             @error('compensatoryMissedPartsReason')<p class="text-red-500 text-xs">{{ $message }}</p>@enderror
-                        </div>
-                        <div class="space-y-2">
-                            <label class="font-semibold text-foreground">توضیحات (اختیاری):</label>
-                            <textarea wire:model="compensatoryDescription" rows="3"
-                                      class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                                      placeholder="توضیحات خود را بنویسید..."></textarea>
-                            @error('compensatoryDescription')<p class="text-red-500 text-xs">{{ $message }}</p>@enderror
                         </div>
 
                     @endif

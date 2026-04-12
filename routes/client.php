@@ -102,6 +102,13 @@ Route::name('client.')->group(function () {
             Route::get('/exam/{assignmentId}/test', TypedExamTest::class)->name('typed-exam.test');
             Route::get('/exam/result/{attemptId}', TypedExamResult::class)->name('typed-exam.result');
 
+            // Essay Exam Routes (آزمون‌های تشریحی مبحثی)
+            Route::get('/essay-exam/{assignmentId}/test', \App\Livewire\Client\Profile\EssayExam\EssayExamTest::class)
+                ->name('essay-exam.test');
+            Route::get('/essay-exam/result/{attemptId}', \App\Livewire\Client\Profile\EssayExam\EssayExamResult::class)
+                ->name('essay-exam.result');
+            Route::get('/essay-exam/{assignmentId}/answer-sheet', [\App\Http\Controllers\EssayExamAnswerSheetController::class, 'studentDownload'])
+                ->name('essay-exam.answer-sheet');
 
             // Classification Routes
             Route::get('/classification', ProjectList::class)->name('classification.projects');

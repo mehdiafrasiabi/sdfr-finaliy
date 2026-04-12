@@ -1,6 +1,6 @@
 // App settings default
 let appSettings = {
-	appTheme: 'light',
+    appTheme: localStorage.getItem('admin-theme') || 'dark',
 	appSidebar: 'full',
 	appColor: 'blue',
 };

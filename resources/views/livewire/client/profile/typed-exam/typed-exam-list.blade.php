@@ -94,7 +94,29 @@
                             </div>
                         </div>
                         <!-- End Guide Section -->
-                        @if($assignments->isEmpty())
+
+                        <!-- Tabs: Typed vs Essay -->
+                        <div class="flex gap-2 border-b border-border mb-2">
+                            <button type="button" wire:click="setTab('typed')"
+                                    class="px-4 py-2 text-sm font-semibold rounded-t-lg transition
+                                       {{ $activeTab === 'typed' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted hover:text-foreground' }}">
+                                آزمون تستی
+                            </button>
+                            <button type="button" wire:click="setTab('essay')"
+                                    class="px-4 py-2 text-sm font-semibold rounded-t-lg transition
+                                       {{ $activeTab === 'essay' ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted hover:text-foreground' }}">
+                                آزمون تشریحی
+                                @if($essayAssignments->count() > 0)
+                                    <span class="inline-flex items-center justify-center w-5 h-5 ml-1 text-[10px] rounded-full bg-white/30">
+                                        {{ $essayAssignments->count() }}
+                                    </span>
+                                @endif
+                            </button>
+                        </div>
+
+                        @if($activeTab === 'essay')
+                            @include('livewire.client.profile.typed-exam._essay-list', ['essayAssignments' => $essayAssignments])
+                        @elseif($assignments->isEmpty())
                             <div class="flex flex-col items-center justify-center space-y-12 py-16">
                                 <div class="flex flex-col items-center justify-center space-y-12">
                                     <img src="/client/empty/exam.png" class="w-full max-w-xs"
@@ -427,4 +449,3 @@
         </div>
     @endif
 </div>
-

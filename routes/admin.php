@@ -94,6 +94,19 @@ Route::name('admin.')->group(function () {
         Route::get('/typed-exams/{examId}/student-result/{attemptId}', \App\Livewire\Admin\TypedExam\StudentResult::class)->name('typed-exams.student-result')
             ->middleware('admin.permission:admin.typed-exams.results');
         // طبقه‌بندی آموزشی
+
+        // آزمون‌های تشریحی (مبحثی)
+        Route::prefix('essay-exams')->name('essay-exams.')->group(function () {
+            Route::get('/', \App\Livewire\Admin\EssayExam\ExamList::class)->name('index');
+            Route::get('/create', \App\Livewire\Admin\EssayExam\ExamWizard::class)->name('create');
+            Route::get('/{examId}/edit', \App\Livewire\Admin\EssayExam\ExamWizard::class)->name('edit');
+            Route::get('/{examId}/assign', \App\Livewire\Admin\EssayExam\ExamAssign::class)->name('assign');
+            Route::get('/{examId}/assignments', \App\Livewire\Admin\EssayExam\AssignmentList::class)->name('assignments');
+            Route::get('/attempt/{attemptId}/review', \App\Livewire\Admin\EssayExam\AttemptReview::class)->name('attempt.review');
+            Route::get('/{examId}/answer-sheet', [\App\Http\Controllers\EssayExamAnswerSheetController::class, 'download'])
+                ->name('answer-sheet');
+        });
+
         // تیکت‌ها و پشتیبانی
         Route::get('/tickets', TicketIndex::class)->name('ticket.index');
 //            ->middleware('admin.permission:admin.tickets.view');

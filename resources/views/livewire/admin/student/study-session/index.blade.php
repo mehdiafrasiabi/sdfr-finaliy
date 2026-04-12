@@ -79,7 +79,6 @@
                                     <tr>
                                         <th data-dt-column="0">#</th>
                                         <th data-dt-column="1">دانش آموز</th>
-                                        <th data-dt-column="2">کل ساعت (عادی+اضافه)</th>
                                         <th data-dt-column="3"></th>
                                     </tr>
                                     </thead>
@@ -187,10 +186,6 @@
                                                         </small>
                                                     </div>
                                                 </div>
-                                            </td>
-
-                                            <td>
-                                                <span class="badge rounded-pill bg-info-subtle text-info-emphasis">{{ $studentTotalDisplays[$student->id] ?? '00:00+00:00' }}</span>
                                             </td>
                                             <td>
                                                 <div class="btn-group float-end">

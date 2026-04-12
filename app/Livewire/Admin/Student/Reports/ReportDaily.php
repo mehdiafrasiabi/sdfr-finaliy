@@ -494,8 +494,8 @@ class ReportDaily extends Component
             'student_field' => $this->getFieldLabel($personalInfo->field ?? ''),
             'report_date' => jdate($report->report_date)->format('Y/m/d'),
             'day_name' => $dayNames[jdate($report->report_date)->getDayOfWeek()] ?? '-',
-            'description' => $report->detail->description ?? '',
-            'missed_parts_reason' => $report->detail->missed_parts_reason ?? '',
+            'description' => $report->detail?->description ?? '',
+            'missed_parts_reason' => $report->detail?->missed_parts_reason ?? '',
             'rating' => 0,
             'rating_label' => 'ثبت نشده',
             'is_compensatory' => $report->is_compensatory,
@@ -506,50 +506,60 @@ class ReportDaily extends Component
         ];
 
 
-        // Get ALL program parts for this day from weekly program
-
         $reportPartsMap = $report->reportParts->keyBy('program_part_id');
-
         $programParts = collect();
-        if ($report->weeklyProgram) {
-            $startDate = Carbon::parse($report->weeklyProgram->start_date);
-            $dayIndex = $startDate->diffInDays(Carbon::parse($report->report_date));
-            $programParts = $report->weeklyProgram
-                ->parts()
-                ->where('day_of_week', $dayIndex)
-                ->orderBy('part_order')
-                ->with(['ccSubject', 'ccTopic', 'ccChapter'])
-                ->get();
-        }
 
-        // Fallback: if no parts found from weekly program, use reportParts
-        if ($programParts->isEmpty()) {
-            $reportPartProgramIds = $report->reportParts->pluck('program_part_id')->filter()->toArray();
-            if (!empty($reportPartProgramIds) && $report->weeklyProgram) {
+        if ($report->is_compensatory) {
+            // Compensatory reports: use the reported parts directly (they span multiple days)
+            $programParts = $report->reportParts
+                ->map(fn($rp) => $rp->programPart)
+                ->filter()
+                ->values();
+        } else {
+            // Normal reports: use the program parts for this specific day
+            if ($report->weeklyProgram) {
+                $startDate = Carbon::parse($report->weeklyProgram->start_date);
+                $dayIndex = $startDate->diffInDays(Carbon::parse($report->report_date));
                 $programParts = $report->weeklyProgram
                     ->parts()
-                    ->whereIn('id', $reportPartProgramIds)
-                    ->orderBy('day_of_week')
+                    ->where('day_of_week', $dayIndex)
                     ->orderBy('part_order')
                     ->with(['ccSubject', 'ccTopic', 'ccChapter'])
                     ->get();
             }
+
+            // Fallback: if no parts found from weekly program, use reportParts
             if ($programParts->isEmpty()) {
-                $programParts = $report->reportParts
-                    ->map(fn($rp) => $rp->programPart)
-                    ->filter()
-                    ->values();
+                $reportPartProgramIds = $report->reportParts->pluck('program_part_id')->filter()->toArray();
+                if (!empty($reportPartProgramIds) && $report->weeklyProgram) {
+                    $programParts = $report->weeklyProgram
+                        ->parts()
+                        ->whereIn('id', $reportPartProgramIds)
+                        ->orderBy('day_of_week')
+                        ->orderBy('part_order')
+                        ->with(['ccSubject', 'ccTopic', 'ccChapter'])
+                        ->get();
+                }
+                if ($programParts->isEmpty()) {
+                    $programParts = $report->reportParts
+                        ->map(fn($rp) => $rp->programPart)
+                        ->filter()
+                        ->values();
+                }
             }
         }
 
         $partIds = $programParts->pluck('id')->filter()->toArray();
 
-        // Get study sessions with timing and feedback for all parts
-        $studySessionsMap = StudyPartSession::where('student_id', $report->student_id)
-            ->whereIn('program_part_id', $partIds)
-            ->where('is_completed', true)
-            ->with(['timing', 'feedback'])
-            ->get()->groupBy('program_part_id')->map(fn($sessions) => $sessions->sortByDesc('started_at')->first());
+        // Get study sessions with timing and feedback for all parts (only if we have part IDs)
+        $studySessionsMap = collect();
+        if (!empty($partIds)) {
+            $studySessionsMap = StudyPartSession::where('student_id', $report->student_id)
+                ->whereIn('program_part_id', $partIds)
+                ->where('is_completed', true)
+                ->with(['timing', 'feedback'])
+                ->get()->groupBy('program_part_id')->map(fn($sessions) => $sessions->sortByDesc('started_at')->first());
+        }
         $this->reportPartsDetails = [];
         $totalTests = 0;
         $doneTests = 0;
@@ -687,9 +697,15 @@ class ReportDaily extends Component
             ->latest()
             ->get()
             ->map(function ($report) {
-                // Get ALL program parts for this day from weekly program
-                $allDayParts = $report->getProgramPartsForDay();
                 $reportPartsMap = $report->reportParts->keyBy('program_part_id');
+
+                // Compensatory reports span multiple days; use reportParts directly
+                if ($report->is_compensatory) {
+                    $allDayParts = collect();
+                } else {
+                    // Get ALL program parts for this day from weekly program
+                    $allDayParts = $report->getProgramPartsForDay();
+                }
 
                 if ($allDayParts->isNotEmpty()) {
                     $totalParts = $allDayParts->count();

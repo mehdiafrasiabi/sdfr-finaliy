@@ -98,6 +98,33 @@
                     </div>
                     <small class="text-muted mt-1 d-block">می‌توانید چند ماه را انتخاب کنید</small>
                 </div>
+                <!-- Jalali Date Range Filter -->
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="material-symbols-outlined align-middle" style="font-size: 18px;">date_range</i>
+                            بازه تاریخ (شمسی)
+                        </span>
+                        @if($filterStartDate || $filterEndDate)
+                            <button wire:click="clearDateFilter" class="btn btn-sm btn-outline-secondary py-0 px-2">
+                                پاک کردن
+                            </button>
+                        @endif
+                    </label>
+                    <div class="d-flex gap-2">
+                        <div class="flex-1">
+                            <input type="text" wire:model.live.debounce.600ms="filterStartDate"
+                                   class="form-control form-control-sm"
+                                   placeholder="از: 1404/01/01" dir="ltr">
+                        </div>
+                        <div class="flex-1">
+                            <input type="text" wire:model.live.debounce.600ms="filterEndDate"
+                                   class="form-control form-control-sm"
+                                   placeholder="تا: 1404/12/29" dir="ltr">
+                        </div>
+                    </div>
+                    <small class="text-muted mt-1 d-block">فرمت: سال/ماه/روز (مثال: 1404/06/01)</small>
+                </div>
             </div>
         </div>
     </div>
@@ -272,10 +299,14 @@
                                 @php
 
                                     $report = $item['data'];
-
-                                                                      // Get ALL program parts for this day from weekly program
-                                    $allDayParts = $report->getProgramPartsForDay();
                                     $reportPartsMap = $report->reportParts->keyBy('program_part_id');
+
+                                    // For compensatory reports, use reportParts directly (they span multiple days)
+                                    if (!$report->is_compensatory) {
+                                        $allDayParts = $report->getProgramPartsForDay();
+                                    } else {
+                                        $allDayParts = collect();
+                                    }
 
                                     if ($allDayParts->isNotEmpty()) {
                                         $totalParts = $allDayParts->count();
@@ -386,7 +417,7 @@
                                 {{-- Fallback for old format --}}
                                 @php
                                     $report = $item;
-                                    $readParts = $report->reportParts->where('is_read', true)->count();
+                                    $readParts  = $report->reportParts->where('is_read', true)->count();
                                     $totalParts = $report->reportParts->count();
                                     $totalTests = $report->reportParts->sum(fn($p) => $p->programPart?->test_count ?? 0);
                                     $doneTests = $report->reportParts->sum('tests_done');
@@ -642,9 +673,9 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Rating & Description -->
+                        <!-- Rating & Description & Missed Parts Reason -->
                         <div class="row g-3 mb-4">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="card border h-100">
                                     <div class="card-body">
                                         <h6 class="card-title text-muted mb-2">امتیاز روز</h6>
@@ -661,11 +692,23 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="card border h-100">
                                     <div class="card-body">
                                         <h6 class="card-title text-muted mb-2">توضیحات</h6>
-                                        <p class="mb-0">{{ $selectedReportData['description'] ?: 'بدون توضیحات' }}</p>
+                                        <p class="mb-0 {{ !($selectedReportData['description'] ?? '') ? 'text-muted fst-italic' : '' }}">
+                                            {{ $selectedReportData['description'] ?: 'وجود ندارد' }}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card border h-100">
+                                    <div class="card-body">
+                                        <h6 class="card-title text-muted mb-2">علت عدم انجام پارت</h6>
+                                        <p class="mb-0 {{ !($selectedReportData['missed_parts_reason'] ?? '') ? 'text-muted fst-italic' : '' }}">
+                                            {{ $selectedReportData['missed_parts_reason'] ?? 'وجود ندارد' ?: 'وجود ندارد' }}
+                                        </p>
                                     </div>
                                 </div>
                             </div>

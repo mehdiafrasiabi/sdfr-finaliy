@@ -363,9 +363,14 @@ class Report extends Component
     public function togglePart(int $partId)
     {
         if (in_array($partId, $this->selectedParts)) {
+            // Parts with logged study hours cannot be deselected
+            if (in_array($partId, $this->completedStudyParts)) {
+                $this->dispatch('warning', 'پارت‌هایی که ساعت مطالعه برایشان ثبت شده قابل حذف از انتخاب نیستند.');
+                return;
+            }
             $this->selectedParts = array_values(array_diff($this->selectedParts, [$partId]));
         } else {
-            // ✅ بررسی ثبت ساعت مطالعه قبل از انتخاب پارت
+            // بررسی ثبت ساعت مطالعه قبل از انتخاب پارت
             if (!in_array($partId, $this->completedStudyParts)) {
                 $this->dispatch('warning', 'شما هنوز ساعت مطالعه این پارت را ثبت نکرده‌اید. ابتدا از بخش «ثبت ساعت مطالعه» اقدام کنید.');
                 return;
@@ -418,24 +423,37 @@ class Report extends Component
 
     public function submitReport()
     {
-        $this->validate([
-            'description' => 'nullable|string|max:350',
-            'missedPartsReason' => 'nullable|string|min:20|max:500',
-        ], [
-            'description.max' => 'توضیحات نمی‌تواند بیشتر از 350 کاراکتر باشد.',
-            'missedPartsReason.max' => 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.',
-            'missedPartsReason.min' => 'توضیحات علت عدم انجام پارت نمی‌تواند کمتر از 20 کاراکتر باشد.',
-        ]);
-
         $student = Auth::user()->student;
         $day = $this->weekDays[$this->selectedDayIndex];
 
-        // ✅ بررسی اجباری بودن علت عدم انجام پارت
         $unreadCount = count($day['parts']) - count($this->selectedParts);
-        if ($unreadCount > 1 && empty(trim($this->missedPartsReason))) {
-            $this->addError('missedPartsReason', 'چون بیشتر از یک پارت انجام نشده، توضیح دادن علت عدم انجام پارت‌ها الزامی است.');
-            return;
+
+        // Validate test counts for selected parts that have tests
+        foreach ($day['parts'] as $part) {
+            if (in_array($part->id, $this->selectedParts) && ($part->test_count ?? 0) > 0) {
+                $val = $this->testsDone[$part->id] ?? null;
+                if ($val === null || $val === '') {
+                    $this->addError('testsDone.' . $part->id, 'تعداد تست «' . $part->lesson_name . '» را وارد کنید (حداقل ۰).');
+                    return;
+                }
+            }
         }
+
+        $rules = ['description' => 'nullable|string|max:350'];
+        $messages = ['description.max' => 'توضیحات نمی‌تواند بیشتر از 350 کاراکتر باشد.'];
+
+        // missedPartsReason is required when 2+ parts are unread
+        if ($unreadCount >= 2) {
+            $rules['missedPartsReason'] = 'required|string|min:20|max:500';
+            $messages['missedPartsReason.required'] = 'چون بیشتر از یک پارت انجام نشده، وارد کردن علت عدم انجام پارت‌ها الزامی است.';
+            $messages['missedPartsReason.min'] = 'علت عدم انجام پارت باید حداقل ۲۰ کاراکتر باشد.';
+            $messages['missedPartsReason.max'] = 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.';
+        } else {
+            $rules['missedPartsReason'] = 'nullable|string|max:500';
+            $messages['missedPartsReason.max'] = 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.';
+        }
+
+        $this->validate($rules, $messages);
 
         if (!$this->canSubmitForDate($day['date'])) {
             $this->dispatch('warning', 'مهلت ارسال گزارش این روز تمام شده است.');
@@ -458,7 +476,8 @@ class Report extends Component
         DailyReportDetail::create([
             'daily_report_id' => $dailyReport->id,
             'phone_hours' => 0,
-            'description' => $this->description,
+            'description' => $this->description ?: null,
+            'missed_parts_reason' => $this->missedPartsReason ?: null,
             'rating' => $avgRating,
             'status' => 'pending',
         ]);
@@ -547,12 +566,9 @@ class Report extends Component
         }
 
         $this->validate([
-            'compensatoryDescription' => 'nullable|string|max:350',
             'compensatoryMissedPartsReason' => 'nullable|string|max:2000',
-
         ], [
-            'compensatoryDescription.max' => 'توضیحات نمی‌تواند بیشتر از 350 کاراکتر باشد.',
-            'compensatoryMissedPartsReason.max' => 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.',
+            'compensatoryMissedPartsReason.max' => 'علت عدم انجام پارت نمی‌تواند بیشتر از 2000 کاراکتر باشد.',
         ]);
 
 
@@ -585,7 +601,8 @@ class Report extends Component
         DailyReportDetail::create([
             'daily_report_id' => $dailyReport->id,
             'phone_hours' => 0,
-            'description' => $this->compensatoryDescription ?: 'گزارش جبرانی',
+            'description' => null,
+            'missed_parts_reason' => $this->compensatoryMissedPartsReason ?: null,
             'rating' => $avgRating,
             'status' => 'pending',
         ]);
@@ -711,7 +728,7 @@ class Report extends Component
         $studentId = Auth::user()->student->id ?? null;
         $reportsQuery = DailyReport::query()
             ->where('student_id', $studentId)
-            ->with(['reportParts.programPart', 'weeklyProgram', 'detail', 'feedback']);
+            ->with(['reportParts.programPart', 'weeklyProgram.parts', 'detail', 'feedback']);
 
         // فقط گزارش‌های مربوط به جلسه مشاوره فعال فعلی را نمایش بده
         if ($this->currentSession) {
@@ -721,7 +738,7 @@ class Report extends Component
             $reportsQuery->whereRaw('1 = 0');
         }
 
-        $reports = $reportsQuery->latest()->paginate(10);
+        $reports = $reportsQuery->orderBy('report_date', 'desc')->orderBy('created_at', 'desc')->paginate(10);
 
         return view('livewire.client.profile.report', [
             'reports' => $reports,

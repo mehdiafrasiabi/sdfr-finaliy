@@ -1,5 +1,5 @@
 const initAppToggler = () => {
-	
+
 	const appTogglers = document.querySelectorAll(".app-toggler");
 	const appMenubars = document.getElementById("appMenubar");
 
@@ -61,9 +61,9 @@ const saerchList = () => {
 		let searchContainer = $("#searchContainer");
 		searchContainer.empty();
 		searchContainer.hide();
-		
+
 		$('#recentlyResults').hide();
-		
+
 		if (query.length === 0) {
 			searchContainer.hide();
 			$('#recentlyResults').show();
@@ -129,17 +129,17 @@ const setElementHeight = () => {
 		const footerHeight = footer ? footer.offsetHeight : 0;
 		document.documentElement.style.setProperty('--footer-height', `${footerHeight}px`);
 	}
-	
+
 	const chatBox = document.querySelector('.chat-wrapper');
 	if (chatBox) {
 		const chatHeight = chatBox.offsetHeight;
 		document.documentElement.style.setProperty('--chat-height', `${chatHeight}px`);
 	}
-	
+
 };
 
 const initSelectPicker = () => {
-	
+
 	document.querySelectorAll('.select-status').forEach(dropdown => {
 		const toggleButton = dropdown.querySelector('.dropdown-toggle');
 		const items = dropdown.querySelectorAll('.dropdown-item');
@@ -218,10 +218,10 @@ function initPopover() {
 }
 
 function initSidebarMenu() {
-	
+
 	jQuery('.app-navbar .menubar > li.menu-arrow > a').next('.menu-inner').slideUp();
 	jQuery('.app-navbar .menu-inner > li > a').next('.menu-inner').slideUp();
-	
+
 	jQuery('.app-navbar .menubar > li.menu-arrow > a, .app-navbar .menu-inner > li > a').unbind().on('click', function(e){
 		if(jQuery(this).hasClass('open')){
 			jQuery(this).removeClass('open');
@@ -231,7 +231,7 @@ function initSidebarMenu() {
 				jQuery(this).addClass('open');
 			}
 			if(jQuery(this).parent('li').children('.menu-inner').length > 0){
-				
+
 				e.preventDefault();
 				jQuery(this).next('.menu-inner').slideDown();
 				jQuery(this).parent('li').siblings('li').find('a:first').removeClass('open');
@@ -241,7 +241,7 @@ function initSidebarMenu() {
 			}
 		}
 	});
-	
+
 	for (var nk = window.location,
 		o = $(".app-navbar .menubar a").filter(function(){
 		return this.href == nk;
@@ -332,7 +332,7 @@ function initChatSidebarToggle() {
             sidebar.classList.remove('open');
             overlay.classList.remove('show');
         });
-		
+
 		btnClose.addEventListener('click', () => {
             sidebar.classList.remove('open');
             overlay.classList.remove('show');
@@ -352,20 +352,8 @@ function initBookmarks() {
 const ThemeSwitcher = () => {
 	'use strict';
 
-	// Cookie helpers
-	const getCookie = (name) => {
-	  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-	  return match ? match[2] : null;
-	};
-
-	const setCookie = (name, value, days = 365) => {
-	  const expires = new Date(Date.now() + days * 864e5).toUTCString();
-	  document.cookie = `${name}=${value}; expires=${expires}; path=/`;
-	};
-
-	const getStoredTheme = () => getCookie('theme');
-	const setStoredTheme = (theme) => setCookie('theme', theme);
-
+    const getStoredTheme = () => localStorage.getItem('admin-theme');
+    const setStoredTheme = (theme) => localStorage.setItem('admin-theme', theme);
 	// Preferred theme
 	const getPreferredTheme = () => {
 	  const storedTheme = getStoredTheme();
@@ -376,7 +364,11 @@ const ThemeSwitcher = () => {
 	// Apply theme
 	const setTheme = (theme) => {
 	  document.documentElement.setAttribute('data-bs-theme', theme);
-	};
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+        if (document.body) {
+            document.body.classList.toggle('dark', theme === 'dark');
+        }
+    };
 
 	// Page Ready
 	$(document).ready(function () {
@@ -434,7 +426,7 @@ function initPriceSwitch() {
 
 			monthlyPrices.forEach(price => price.classList.toggle("d-none", isYearly));
 			yearlyPrices.forEach(price => price.classList.toggle("d-none", !isYearly));
-		});	
+		});
 	}
 }
 
@@ -462,7 +454,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 $(document).ready(function () {
     if (typeof jalaliDatepicker !== 'undefined') {
-        
+
         jalaliDatepicker.startWatch({
             minDate: "attr",
             maxDate: "attr",
@@ -471,12 +463,12 @@ $(document).ready(function () {
 
             onSelect: function(input, d) {
 
-                const date = d.year + "/" + 
-                             String(d.month).padStart(2, '0') + "/" + 
+                const date = d.year + "/" +
+                             String(d.month).padStart(2, '0') + "/" +
                              String(d.day).padStart(2, '0');
-                
+
                 input.value = date;
-                
+
 
                 $(input).trigger('change');
             }
@@ -495,7 +487,7 @@ $(document).ready(function () {
 });
 
 $(document).ready(function() {
-    
+
     // ۱. تاریخ و زمان
     $(".p-date-time").pDatepicker({
         timePicker: { enabled: true, second: { enabled: false } },
@@ -516,7 +508,7 @@ $(document).ready(function() {
         autoClose: true,
         viewMode: 'month',
         minViewMode: 'month',
-        onlySelectOnDate: false 
+        onlySelectOnDate: false
     });
 
     // ۴. فقط زمان
@@ -537,7 +529,7 @@ $(document).on('mousedown', '.week-input-target', function() {
 
     var checkExist = setInterval(function() {
         var datePickerInstance = $input.data('datepicker');
-        
+
         if (datePickerInstance && datePickerInstance.container) {
             var $calendar = $(datePickerInstance.container.element);
             var calendarId = $calendar.attr('id');
@@ -545,7 +537,7 @@ $(document).on('mousedown', '.week-input-target', function() {
             if (calendarId) {
                 $("#" + calendarId).addClass("is-week-mode");
                 $input.data('calendar-linked', true);
-                
+
                 console.log("اتصال موفق به تقویم اختصاصی: " + calendarId);
                 clearInterval(checkExist);
             }
@@ -611,7 +603,7 @@ $(document).on('mousedown', '.range-input-target', function() {
 
     var checkExist = setInterval(function() {
         var datePickerInstance = $input.data('datepicker');
-        
+
         if (datePickerInstance && datePickerInstance.container) {
             var $calendar = $(datePickerInstance.container.element);
             var calendarId = $calendar.attr('id');
@@ -620,7 +612,7 @@ $(document).on('mousedown', '.range-input-target', function() {
                 // اختصاص کلاس مخصوص رنج
                 $("#" + calendarId).addClass("is-range-mode");
                 $input.data('calendar-linked', true);
-                
+
                 console.log("تقویم رنج متصل شد: " + calendarId);
                 clearInterval(checkExist);
             }
@@ -698,7 +690,7 @@ $(document).ready(function() {
     function applyRangeStyles() {
         setTimeout(function() {
             var $container = $(".datepicker-container").not(".pwt-hide");
-            
+
             // حذف تمام کلاس‌های قبلی
             $container.find('td').removeClass('range-start-custom range-end-custom range-between-custom');
 
@@ -779,7 +771,7 @@ $(document).ready(function() {
     function applyMultipleStyles() {
         setTimeout(function() {
             var $container = $(".datepicker-container").not(".pwt-hide");
-            
+
             // پاک کردن کلاس‌های قبلی
             $container.find('td').removeClass('selected-multiple');
 
@@ -808,8 +800,8 @@ $(document).ready(function() {
     $holder.pDatepicker({
         inline: true,
         autoClose: false,
-        timePicker: { 
-            enabled: true, 
+        timePicker: {
+            enabled: true,
             second: { enabled: false },
             meridian: { enabled: true }
         },
@@ -823,10 +815,10 @@ $(document).ready(function() {
 
     // ۳. پیدا کردن المان ساخته شده و حذف کلاس‌های مخفی‌ساز
     const $datepicker = $holder.find('.datepicker-container');
-    
+
     if ($datepicker.length > 0) {
         $datepicker.removeClass('pwt-hide').show();
-        
+
         // ناظر برای اینکه اگر پلاگین خواست مخفی‌اش کند، جلویش را بگیریم
         const observer = new MutationObserver(() => {
             if ($datepicker.hasClass('pwt-hide') || $datepicker.css('display') === 'none') {
