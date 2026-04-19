@@ -299,6 +299,96 @@ class OrderItemsTableSeeder extends Seeder
                 'created_at' => '2025-11-13 18:31:14',
                 'updated_at' => '2025-11-13 18:31:14',
             ),
+            28 => 
+            array (
+                'id' => 29,
+                'price' => 25000000,
+                'order_id' => 29,
+                'product_id' => 7,
+                'deleted_at' => NULL,
+                'created_at' => '2026-02-19 18:46:15',
+                'updated_at' => '2026-02-19 18:46:15',
+            ),
+            29 => 
+            array (
+                'id' => 30,
+                'price' => 25000000,
+                'order_id' => 30,
+                'product_id' => 7,
+                'deleted_at' => NULL,
+                'created_at' => '2026-02-22 12:35:39',
+                'updated_at' => '2026-02-22 12:35:39',
+            ),
+            30 => 
+            array (
+                'id' => 31,
+                'price' => 25000000,
+                'order_id' => 31,
+                'product_id' => 7,
+                'deleted_at' => NULL,
+                'created_at' => '2026-02-22 12:42:26',
+                'updated_at' => '2026-02-22 12:42:26',
+            ),
+            31 => 
+            array (
+                'id' => 32,
+                'price' => 25000000,
+                'order_id' => 32,
+                'product_id' => 7,
+                'deleted_at' => NULL,
+                'created_at' => '2026-02-24 12:42:26',
+                'updated_at' => '2026-02-24 12:42:26',
+            ),
+            32 => 
+            array (
+                'id' => 33,
+                'price' => 25000000,
+                'order_id' => 33,
+                'product_id' => 7,
+                'deleted_at' => NULL,
+                'created_at' => '2026-02-24 12:42:26',
+                'updated_at' => '2026-02-24 12:42:26',
+            ),
+            33 => 
+            array (
+                'id' => 34,
+                'price' => 25000000,
+                'order_id' => 34,
+                'product_id' => 7,
+                'deleted_at' => NULL,
+                'created_at' => '2026-02-24 15:33:35',
+                'updated_at' => '2026-02-24 15:33:35',
+            ),
+            34 => 
+            array (
+                'id' => 35,
+                'price' => 25000000,
+                'order_id' => 35,
+                'product_id' => 7,
+                'deleted_at' => NULL,
+                'created_at' => '2026-02-24 19:10:54',
+                'updated_at' => '2026-02-24 19:10:54',
+            ),
+            35 => 
+            array (
+                'id' => 36,
+                'price' => 25000000,
+                'order_id' => 36,
+                'product_id' => 7,
+                'deleted_at' => NULL,
+                'created_at' => '2026-02-24 19:19:03',
+                'updated_at' => '2026-02-24 19:19:03',
+            ),
+            36 => 
+            array (
+                'id' => 37,
+                'price' => 25000000,
+                'order_id' => 37,
+                'product_id' => 7,
+                'deleted_at' => NULL,
+                'created_at' => '2026-02-25 13:37:30',
+                'updated_at' => '2026-02-25 13:37:30',
+            ),
         ));
         
         

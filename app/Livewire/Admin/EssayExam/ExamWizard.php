@@ -238,7 +238,7 @@ class ExamWizard extends Component
         $totalScorePreview = array_sum(array_map(fn($q) => (float) ($q['score'] ?? 0), $this->questions));
 
         $previewPdfUrl = $this->question_pdf_path
-            ? rtrim(config('filesystems.disks.public_html.url'), '/') . '/' . ltrim($this->question_pdf_path, '/')
+            ? rtrim(config('app.url'), '/') . '/' . ltrim($this->question_pdf_path, '/')
             : null;
 
 

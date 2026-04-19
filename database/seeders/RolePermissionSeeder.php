@@ -182,6 +182,16 @@ class RolePermissionSeeder extends Seeder
             // دسترسی‌های تیکت و پشتیبانی
             'admin.tickets.view',
             'admin.tickets.reply',
+
+            // دسترسی‌های مدیر آموزشی
+            'admin.educational-manager.appointments.view',
+            'admin.educational-manager.appointments.approve',
+            'admin.educational-manager.reschedule.view',
+            'admin.educational-manager.reschedule.manage',
+            'admin.admin-users.manage',
+            'admin.consultants.view',
+            'admin.supporters.view',
+            'admin.students.view',
         ];
 
         //ایجاد دسترسی در دیتابیس
@@ -354,6 +364,23 @@ class RolePermissionSeeder extends Seeder
             'view_typed_exam_stats',
 
             'view_typed_exam_results',
+        ]);
+
+        // نقش جدید: مدیر آموزشی
+        $educationalManager = Role::query()->firstOrCreate([
+            'name' => 'educational-manager',
+            'guard_name' => 'admin'
+        ]);
+        $educationalManager->givePermissionTo([
+            'admin.educational-manager.appointments.view',
+            'admin.educational-manager.appointments.approve',
+            'admin.educational-manager.reschedule.view',
+            'admin.educational-manager.reschedule.manage',
+            'admin.admin-users.manage',
+            'admin.consultants.view',
+            'admin.supporters.view',
+            'admin.students.view',
+            'view students with support info',
         ]);
 
         $superAdminUser = Admin::query()->firstOrCreate(

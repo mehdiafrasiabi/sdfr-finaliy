@@ -221,38 +221,51 @@ class Index extends Component
     public function render()
     {
         $adminId = auth()->id();
-        // دانش‌آموزانی که برای روز انتخابی جلسه دارند
+        // تبدیل روز انتخابی از کنوانسیون Carbon (0=Sun..6=Sat)
+        // به کنوانسیون ایرانی مورد استفاده در student_schedule_preference_times (0=شنبه..6=جمعه)
+        $iranianDay = ($this->selectedDay + 1) % 7;
+
+        // دانش‌آموزانی که برنامه‌ی هفتگی ثابت‌شان، روز انتخابی را پوشش می‌دهد.
+        // جلسات همان روز را هم برای نمایش زمینه‌ای ضمیمه می‌کنیم.
+
         $dayStudents = Student::query()
             ->with([
                 'user.profile',
+                'user.personalInformation',
                 'payment.order.user',
+                'activeSchedulePreference.times',
+                'activeSchedulePreference.assignedAdvisor',
                 'advisingSessions' => function ($q) {
                     $q->whereRaw('DAYOFWEEK(activation_date) = ?', [$this->selectedDay + 1])
                         ->orderBy('activation_date');
                 },
-                'user.personalInformation',
 
             ])
             ->where('supporter_id', $adminId)
-            ->whereHas('advisingSessions', function ($q) {
-                $q->whereRaw('DAYOFWEEK(activation_date) = ?', [$this->selectedDay + 1]);
+            ->whereHas('activeSchedulePreference.times', function ($q) use ($iranianDay) {
+                $q->where('day_of_week', $iranianDay);
             })
             ->get();
 
-        // تعداد دانش‌آموز به ازای هر روز (برای badge تب‌ها)
-        $dayCountsRaw = DB::table('advising_sessions')
-            ->join('students', 'students.id', '=', 'advising_sessions.student_id')
+        // تعداد دانش‌آموز به ازای هر روز بر اساس برنامه‌ی هفتگی ثابت (approved preferences)
+        $prefDayCountsRaw = DB::table('student_schedule_preferences')
+            ->join('student_schedule_preference_times',
+                'student_schedule_preferences.id',
+                '=',
+                'student_schedule_preference_times.student_schedule_preference_id')
+            ->join('students', 'students.id', '=', 'student_schedule_preferences.student_id')
             ->where('students.supporter_id', $adminId)
-            ->whereNull('advising_sessions.deleted_at')
-            ->selectRaw('(DAYOFWEEK(activation_date) - 1) as carbon_day, COUNT(DISTINCT advising_sessions.student_id) as cnt')
-            ->groupByRaw('DAYOFWEEK(activation_date), (DAYOFWEEK(activation_date) - 1)')
-            ->get()
-            ->pluck('cnt', 'carbon_day')
-            ->toArray();
+            ->where('student_schedule_preferences.status', 'approved')
+            ->selectRaw('student_schedule_preference_times.day_of_week as ir_day,
+                         COUNT(DISTINCT students.id) as cnt')
+            ->groupBy('student_schedule_preference_times.day_of_week')
+            ->get();
 
         $dayCounts = array_fill(0, 7, 0);
-        foreach ($dayCountsRaw as $carbonDay => $cnt) {
-            $dayCounts[(int)$carbonDay] = (int)$cnt;
+        foreach ($prefDayCountsRaw as $row) {
+            // تبدیل Iranian day → Carbon day برای نمایش در تب‌های موجود
+            $carbonDay = (((int) $row->ir_day) + 6) % 7;
+            $dayCounts[$carbonDay] = (int) $row->cnt;
         }
         // تعداد کل دانش‌آموزان این مشاور
         $totalStudentCount = Student::where('supporter_id', $adminId)->count();
@@ -283,6 +296,7 @@ class Index extends Component
             'modalStudents'     => $modalStudents,
             'totalStudentCount' => $totalStudentCount,
             'dayCounts'         => $dayCounts,
+            'iranianDay'        => $iranianDay,
         ])->layout('layouts.admin.app');
     }
 }

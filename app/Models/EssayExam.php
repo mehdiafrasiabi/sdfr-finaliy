@@ -49,14 +49,14 @@ class EssayExam extends Model
     public function questionPdfUrl(): ?string
     {
         return $this->question_pdf_path
-            ? rtrim(config('filesystems.disks.public_html.url'), '/') . '/' . ltrim($this->question_pdf_path, '/')
+            ? rtrim(config('app.url'), '/') . '/' . ltrim($this->question_pdf_path, '/')
             : null;
     }
 
     public function answerPdfUrl(): ?string
     {
         return $this->answer_pdf_path
-            ? rtrim(config('filesystems.disks.public_html.url'), '/') . '/' . ltrim($this->answer_pdf_path, '/')
+            ? rtrim(config('app.url'), '/') . '/' . ltrim($this->answer_pdf_path, '/')
             : null;
     }
 }

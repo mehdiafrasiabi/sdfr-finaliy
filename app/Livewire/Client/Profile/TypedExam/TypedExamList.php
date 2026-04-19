@@ -123,6 +123,15 @@ class TypedExamList extends Component
                     elseif ($now->gt($a->time->end_at))   $status = 'expired';
                     else { $canStart = true; $status = 'available'; }
                 }
+                // اگر دانش‌آموز شروع کرده ولی تایمر شخصی‌اش تمام شده، ورود مجدد ممنوع
+                if ($canStart && $a->latestAttempt && $a->latestAttempt->started_at && $a->time && $a->time->duration_minutes) {
+                    $individualDeadline = $a->latestAttempt->started_at->copy()->addMinutes($a->time->duration_minutes);
+                    $effectiveEnd = $individualDeadline->lt($a->time->end_at) ? $individualDeadline : $a->time->end_at;
+                    if ($now->gte($effectiveEnd)) {
+                        $canStart = false;
+                        $status = 'expired';
+                    }
+                }
                 if (in_array($a->status, ['submitted', 'graded'])) {
                     $status = $a->status === 'graded' ? 'completed' : 'submitted';
                     $canStart = false;

@@ -108,7 +108,7 @@ class Index extends Component
 
     public function render()
     {
-        $admins = Admin::query()->with('roles.permissions')->paginate(10);
+        $admins = Admin::query()->with(['roles.permissions', 'workSchedules'])->paginate(10);
         return view('livewire.admin.admin-user.index',
             ['admins'=>$admins]
         )->layout('layouts.admin.app');

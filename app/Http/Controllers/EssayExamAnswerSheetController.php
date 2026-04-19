@@ -51,6 +51,12 @@ class EssayExamAnswerSheetController extends Controller
 
     protected function renderPdf(EssayExam $exam, ?string $studentName, string $examTitle)
     {
+        // اطمینان از وجود دایرکتوری cache فونت
+        $fontCacheDir = storage_path('fonts');
+        if (!is_dir($fontCacheDir)) {
+            mkdir($fontCacheDir, 0755, true);
+        }
+
         $pdf = Pdf::loadView('pdf.essay-exam-answer-sheet', [
             'exam'         => $exam,
             'studentName'  => $studentName,
@@ -58,10 +64,14 @@ class EssayExamAnswerSheetController extends Controller
             'questions'    => $exam->questions,
         ])->setPaper('a4', 'portrait');
 
-        $pdf->getDomPDF()->getOptions()->set('isRemoteEnabled', true);
-        $pdf->getDomPDF()->getOptions()->set('defaultFont', 'dejavu sans');
-
+        $options = $pdf->getDomPDF()->getOptions();
+        $options->set('isRemoteEnabled', true);
+        $options->set('defaultFont', 'dejavu sans');
+        $options->set('fontDir', $fontCacheDir);
+        $options->set('fontCache', $fontCacheDir);
+        $options->set('chroot', base_path('public_html'));
         $filename = 'answer-sheet-' . $exam->id . '.pdf';
+
         return $pdf->stream($filename);
     }
 }

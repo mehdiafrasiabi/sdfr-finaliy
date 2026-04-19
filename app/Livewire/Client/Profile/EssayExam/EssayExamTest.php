@@ -55,6 +55,16 @@ class EssayExamTest extends Component
 
         // Start or resume attempt
         $this->attempt = $this->assignment->latestAttempt;
+        // بررسی اینکه دانش‌آموز قبلاً شروع کرده و تایمر شخصی‌اش تمام شده
+        if ($this->attempt && $this->attempt->started_at && $this->assignment->time?->duration_minutes) {
+            $individualDeadline = $this->attempt->started_at->copy()->addMinutes($this->assignment->time->duration_minutes);
+            $effectiveEnd = $individualDeadline->lt($this->assignment->time->end_at) ? $individualDeadline : $this->assignment->time->end_at;
+            if (now()->gte($effectiveEnd)) {
+                session()->flash('error', 'زمان آزمون شما به پایان رسیده است و امکان ورود مجدد وجود ندارد.');
+                redirect()->route('client.profile.typed-exam.list')->send();
+                return;
+            }
+        }
         if (!$this->attempt) {
             $this->attempt = EssayExamAttempt::create([
                 'assignment_id' => $this->assignment->id,

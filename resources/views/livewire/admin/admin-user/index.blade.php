@@ -209,6 +209,8 @@
                                 <th scope="col">اطلاعات تماس</th>
                                 <th class="text-center" scope="col">نقش</th>
                                 <th class="text-center" scope="col">دسترسی</th>
+                                <th class="text-center" scope="col">برنامه کاری</th>
+
 
                                 <th class="text-center" scope="col"></th>
                             </tr>
@@ -246,6 +248,25 @@
                                                 <div>{{$permission->name}}</div>
                                             @endforeach
                                         @endforeach
+                                    </td>
+                                    <td class="text-center">
+                                        @php
+                                            $activeSchedules = $admin->workSchedules->where('is_active', true)->sortBy('day_of_week');
+                                            $dayMap = \App\Models\AdminWorkSchedule::DAYS;
+                                        @endphp
+                                        @forelse($activeSchedules as $schedule)
+                                            <div class="small">
+                                                <strong>{{ $dayMap[$schedule->day_of_week] ?? '' }}</strong>
+                                                از {{ substr($schedule->start_time, 0, 5) }}
+                                                تا {{ substr($schedule->end_time, 0, 5) }}
+                                            </div>
+                                        @empty
+                                            <span class="text-muted small">تعریف نشده</span>
+                                        @endforelse
+                                        <a href="{{ route('admin.admin-user.work-schedule', $admin->id) }}"
+                                           class="btn btn-sm btn-outline-primary mt-2">
+                                            مدیریت برنامه کاری
+                                        </a>
                                     </td>
                                     <td class="text-center">
                                         <div class="action-btns">

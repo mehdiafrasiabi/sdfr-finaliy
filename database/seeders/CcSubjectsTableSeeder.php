@@ -805,11 +805,11 @@ class CcSubjectsTableSeeder extends Seeder
                 'id' => 100,
                 'cc_grade_id' => 9,
                 'cc_field_id' => 1,
-                'name' => 'ریاضی',
+                'name' => 'ریاضی1',
                 'type' => 'specialized',
                 'order' => 0,
                 'created_at' => '2026-02-07 16:00:04',
-                'updated_at' => '2026-02-07 16:00:04',
+                'updated_at' => '2026-02-27 21:32:09',
             ),
             72 => 
             array (

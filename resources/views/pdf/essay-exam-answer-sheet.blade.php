@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 @php
     use App\Helpers\PersianShaper;
-    $fontPath = public_path('manager/assets/fonts/dana/DanaFaNum-Regular.ttf');
-    $logoPath = public_path('client/assets/images/logo.png');
+      // مسیر فونت — باید با base_path('public_html') شروع شود
+    $fontPath = base_path('public_html/manager/assets/fonts/dana/DanaFaNum-Regular.ttf');
+    if (!file_exists($fontPath)) {
+        $fontPath = null;
+    }
+    $logoPath = base_path('public_html/client/assets/images/logo.png');
     if (!file_exists($logoPath)) {
         $logoPath = null;
     }

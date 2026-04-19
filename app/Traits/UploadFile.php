@@ -256,6 +256,33 @@ trait UploadFile
         return "students/$folder/$studentId/" . $filename . '.webp';
     }
 
+    protected function uploadImageInWebpFormatPercentCalculator($photo, $width = null, $height = null): string
+    {
+        $path = public_path('percent-calculator');
+
+        if (!file_exists($path)) {
+            mkdir($path, 0755, true);
+        }
+
+        $filename = sha1($photo->getClientOriginalName() . now() . uniqid()) . '.webp';
+
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($photo->getRealPath());
+
+        if ($width && $height) {
+            $image->cover($width, $height);
+        } elseif ($width) {
+            $image->scaleDown($width, null);
+        }
+
+        $image->toWebp(85)->save($path . '/' . $filename);
+
+        if (file_exists($photo->getRealPath())) {
+            @unlink($photo->getRealPath());
+        }
+
+        return $filename;
+    }
 
     /**
      * آپلود عکس سوالات با hash کردن نام فایل و فولدر

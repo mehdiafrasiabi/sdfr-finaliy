@@ -28,7 +28,7 @@ class EssayExamAnswerUpload extends Model
 
     public function getUrlAttribute(): string
     {
-        return rtrim(config('filesystems.disks.public_html.url'), '/') . '/' . ltrim($this->file_path, '/');
+        return rtrim(config('app.url'), '/') . '/' . ltrim($this->file_path, '/');
     }
 }
 

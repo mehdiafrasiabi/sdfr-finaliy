@@ -120,6 +120,20 @@
                         </svg>
                     </a>
                 </li>
+                <li class="nav-item" data-bs-placement="right" data-bs-title="مدیریت ادمین‌ها"
+                    data-bs-toggle="tooltip">
+                    <a aria-controls="adminUsersTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
+                       href="#adminUsersTab" role="tab">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                             class="icon icon-tabler icons-tabler-outline icon-tabler-user-shield menu-icon">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M6 21v-2a4 4 0 0 1 4 -4h2"></path>
+                            <path d="M12 11a4 4 0 1 0 0 -8a4 4 0 0 0 0 8z"></path>
+                            <path d="M22 16c0 4 -2.5 6 -3.5 6s-3.5 -2 -3.5 -6c1 0 2.5 -.5 3.5 -1.5c1 1 2.5 1.5 3.5 1.5z"></path>
+                        </svg>
+                    </a>
+                </li>
                 </li>
                 <li class="nav-item" data-bs-placement="right" data-bs-title="اعلانات"
                     data-bs-toggle="tooltip">
@@ -327,13 +341,72 @@
                             </ul>
                         </nav>
                     </div>
+                    <div class="tab-pane fade" id="adminUsersTab" role="tabpanel" tabindex="0">
+                        <nav class="app-navbar" data-simplebar="">
+                            <ul class="side-menubar">
+                                <li class="menu-heading">
+                                    <span class="menu-label">مدیریت ادمین‌ها</span>
+                                </li>
+                                <li class="menu-item">
+                                    <a class="menu-link" href="{{ route('admin.admin-user.index') }}">
+                                        <i class="fi fi-rr-users-alt"></i>
+                                        <span class="menu-label">
+                                            ادمین‌ها و برنامه کاری
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a class="menu-link" href="{{ route('admin.consultants.index') }}">
+                                        <i class="fi fi-rr-user-headset"></i>
+                                        <span class="menu-label">لیست مشاوران</span>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a class="menu-link" href="{{ route('admin.supporters.index') }}">
+                                        <i class="fi fi-rr-user-shield"></i>
+                                        <span class="menu-label">لیست پشتیبانان</span>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a class="menu-link" href="{{ route('admin.student.index') }}">
+                                        <i class="fi fi-rr-graduation-cap"></i>
+                                        <span class="menu-label">لیست دانش‌آموزان</span>
+                                    </a>
+                                </li>
+                                <li><div class="menu-divider"></div></li>
+                                <li class="menu-heading">
+                                    <span class="menu-label">مدیر آموزشی</span>
+                                </li>
+                                <li class="menu-item">
+                                    <a class="menu-link" href="{{ route('admin.educational-manager.appointments') }}">
+                                        <i class="fi fi-rr-calendar-check"></i>
+                                        <span class="menu-label">درخواست‌های تعیین وقت</span>
+                                    </a>
+                                </li>
+                                <li class="menu-item">
+                                    <a class="menu-link" href="{{ route('admin.educational-manager.reschedule') }}">
+                                        <i class="fi fi-rr-calendar-clock"></i>
+                                        <span class="menu-label">درخواست‌های جابجایی</span>
+                                    </a>
+                                </li>
+                                <li><div class="menu-divider"></div></li>
+                                <li class="menu-heading">
+                                    <span class="menu-label">مشاور</span>
+                                </li>
+                                <li class="menu-item">
+                                    <a class="menu-link" href="{{ route('admin.consultant.reschedule') }}">
+                                        <i class="fi fi-rr-calendar-clock"></i>
+                                        <span class="menu-label">درخواست‌های جابجایی من</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
                     <div class="tab-pane fade" id="extendedTab" role="tabpanel" tabindex="0">
                         <nav class="app-navbar" data-simplebar="">
                             <ul class="side-menubar">
                                 <li class="menu-heading">
-		   <span class="menu-label">
-			اعلانات
-		   </span>
+                                    <span class="menu-label">اعلانات</span>
                                 </li>
                                 <li class="menu-item">
                                     <a class="menu-link" href="{{route('admin.student.notification')}}">

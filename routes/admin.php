@@ -16,6 +16,8 @@ use App\Livewire\Admin\Student\StudySession\Index as StudentStudySessionIndex;
 use App\Livewire\Admin\Student\StudySession\Show as StudentStudySessionShow;
 use App\Livewire\Admin\Ticket\Index as TicketIndex;
 use App\Livewire\Admin\Ticket\Show as TicketShow;
+use App\Livewire\Admin\AdminUser\Index as AdminUserIndex;
+use App\Livewire\Admin\AdminUser\WorkSchedule as AdminUserWorkSchedule;
 use App\Livewire\Admin\ContactDocumentation\Index as ContactDocumentationIndex;
 use Illuminate\Support\Facades\Route;
 
@@ -44,7 +46,29 @@ Route::name('admin.')->group(function () {
         Route::get('/studentReportDay', StudentReportDaily::class)->name('reportStudentDay')
             ->middleware('admin.permission:admin.daily-report.view');
 
+        // مدیریت ادمین‌ها و برنامه کاری آن‌ها
+        Route::get('/admin-users', AdminUserIndex::class)->name('admin-user.index');
+        Route::get('/admin-users/{admin}/work-schedule', AdminUserWorkSchedule::class)
+            ->name('admin-user.work-schedule');
 
+        // لیست مشاوران و پشتیبانان
+        Route::get('/consultants', \App\Livewire\Admin\Consultant\Index::class)
+            ->name('consultants.index');
+        Route::get('/supporters', \App\Livewire\Admin\Supporter\Index::class)
+            ->name('supporters.index');
+
+        // مدیر آموزشی — درخواست‌های تعیین وقت و جابجایی
+        Route::get('/educational-manager/appointments',
+            \App\Livewire\Admin\EducationalManager\Appointment\Index::class)
+            ->name('educational-manager.appointments');
+        Route::get('/educational-manager/reschedule',
+            \App\Livewire\Admin\EducationalManager\Reschedule\Index::class)
+            ->name('educational-manager.reschedule');
+
+        // پنل مشاور — درخواست‌های جابجایی مربوط به خودش
+        Route::get('/consultant/reschedule',
+            \App\Livewire\Admin\Consultant\Reschedule\Index::class)
+            ->name('consultant.reschedule');
         // اعلان‌ها
 
         Route::get('/notification', NotificationCreate::class)->name('student.notification')

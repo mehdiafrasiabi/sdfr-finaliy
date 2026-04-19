@@ -7,7 +7,7 @@
         @media print { body { display: none; } }
     </style>
 
-    <!-- Anti-screenshot warning overlay (shown when window loses focus) -->
+    <!-- Anti-screenshot warning overlay -->
     <div x-show="warned" x-cloak
          class="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4">
         <div class="bg-background border border-error rounded-2xl max-w-md p-6 text-center space-y-4">
@@ -39,9 +39,16 @@
     </div>
 
     <div class="grid md:grid-cols-5 gap-5">
-        <!-- PDF Viewer (read-only) -->
-        <div class="md:col-span-3 no-screenshot">
-            <div class="bg-secondary border border-border rounded-2xl overflow-hidden">
+        <!-- PDF Viewer (read-only) — سیاه می‌شود هنگام اسکرین‌شات -->
+        <div class="md:col-span-3 no-screenshot relative">
+            <!-- لایه سیاه هنگام اسکرین‌شات -->
+            <div x-show="warned"
+                 class="absolute inset-0 bg-black z-10 rounded-2xl flex items-center justify-center"
+                 style="display:none;">
+                <span class="text-white text-sm opacity-60">محتوا پنهان است</span>
+            </div>
+
+            <div class="bg-secondary border border-border rounded-2xl overflow-hidden" :class="warned ? 'invisible' : ''">
                 <div class="p-3 flex items-center justify-between border-b border-border">
                     <span class="font-semibold text-foreground text-sm">سوالات آزمون</span>
                     <span class="text-xs text-red-500">دانلود یا کپی مجاز نیست.</span>
@@ -128,33 +135,65 @@
                 remaining: seconds,
                 formatted: '00:00:00',
                 warned: false,
-                init() {
-                    this.tick();
-                    setInterval(() => this.tick(), 1000);
 
-                    // Warning on blur (possible screenshot / tab switch)
-                    window.addEventListener('blur', () => { this.warned = true; });
-                    // Detect print
-                    window.addEventListener('beforeprint', (e) => { this.warned = true; });
-                    // Basic screenshot-key detection
-                    document.addEventListener('keyup', (e) => {
-                        if (e.key === 'PrintScreen') {
-                            navigator.clipboard.writeText('');
-                            this.warned = true;
+                init() {
+                    // فقط نمایش را آپدیت می‌کنیم — بدون کم کردن
+                    this._updateFormatted();
+
+                    // جلوگیری از اجرای چندگانه interval در صورت re-render
+                    if (window._essayTimerInterval) {
+                        clearInterval(window._essayTimerInterval);
+                    }
+                    window._essayTimerInterval = setInterval(() => this.tick(), 1000);
+
+                    // حذف listener های قبلی و ثبت listener جدید
+                    if (window._essayTimerHandlers) {
+                        document.removeEventListener('visibilitychange', window._essayTimerHandlers.visibility);
+                        window.removeEventListener('beforeprint', window._essayTimerHandlers.print);
+                        document.removeEventListener('keyup', window._essayTimerHandlers.keyup);
+                    }
+
+                    const self = this;
+                    window._essayTimerHandlers = {
+                        // تشخیص تغییر تب (به جای blur که با iframe تداخل داشت)
+                        visibility: () => {
+                            if (document.hidden) {
+                                self.warned = true;
+                            }
+                        },
+                        print: () => {
+                            self.warned = true;
+                        },
+                        keyup: (e) => {
+                            if (e.key === 'PrintScreen') {
+                                navigator.clipboard?.writeText('').catch(() => {});
+                                self.warned = true;
+                            }
                         }
-                    });
+                    };
+
+                    document.addEventListener('visibilitychange', window._essayTimerHandlers.visibility);
+                    window.addEventListener('beforeprint', window._essayTimerHandlers.print);
+                    document.addEventListener('keyup', window._essayTimerHandlers.keyup);
                 },
+
+                _updateFormatted() {
+                    const r = Math.max(0, this.remaining);
+                    const h = Math.floor(r / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((r % 3600) / 60).toString().padStart(2, '0');
+                    const s = (r % 60).toString().padStart(2, '0');
+                    this.formatted = `${h}:${m}:${s}`;
+                },
+
                 tick() {
                     if (this.remaining <= 0) {
                         this.formatted = '00:00:00';
+                        clearInterval(window._essayTimerInterval);
                     @this.call('submitExam');
                         return;
                     }
                     this.remaining--;
-                    const h = Math.floor(this.remaining / 3600).toString().padStart(2, '0');
-                    const m = Math.floor((this.remaining % 3600) / 60).toString().padStart(2, '0');
-                    const s = (this.remaining % 60).toString().padStart(2, '0');
-                    this.formatted = `${h}:${m}:${s}`;
+                    this._updateFormatted();
                 },
             }
         }

@@ -1,4 +1,8 @@
 <div x-data="{ zoom: 1, answerModal: false }">
+    @push('link')
+        <style>[x-cloak] { display: none !important; }</style>
+
+    @endpush
     <div class="container-fluid">
         @if(session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
@@ -103,9 +107,10 @@
     </div>
 
     <!-- Answer PDF Modal -->
-    <div x-show="answerModal" x-cloak
-         class="modal fade show d-block"
-         style="background: rgba(0,0,0,0.6);"
+    <div x-show="answerModal"
+         x-cloak
+         x-transition.opacity
+         style="display:none; position:fixed; inset:0; z-index:1055; background:rgba(0,0,0,0.6);"
          @keydown.escape.window="answerModal = false">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">

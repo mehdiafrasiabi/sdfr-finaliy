@@ -1,4 +1,4 @@
-<div dir="rtl">
+<div dir="rtl" class="py-0">
     @if($setting)
         {{-- بنر بالای صفحه --}}
         <div class="bg-primary py-10 px-4">
@@ -18,11 +18,12 @@
                             </svg>
                             <h1 class="font-black text-white text-3xl sm:text-4xl leading-snug">
                                 {{ $setting->title }}
+                                <p class="text-white/80 text-sm sm:text-base max-w-lg mx-auto md:mx-0" style="margin-top: 25px;">
+                                    {{ $setting->subtitle }}
+                                </p>
                             </h1>
                         </div>
-                        <p class="text-white/80 text-sm sm:text-base max-w-lg mx-auto md:mx-0">
-                            {{ $setting->subtitle }}
-                        </p>
+
                     </div>
 
                     <div class=" flex-shrink-0 flex justify-center order-2 md:order-2">

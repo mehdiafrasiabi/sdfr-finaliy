@@ -280,7 +280,11 @@ class CreateAdvisingSession extends Component
 
     public function render()
     {
-        $student = Student::with(['user.personalInformation'])->find($this->studentId);
+        $student = Student::with([
+            'user.personalInformation',
+            'activeSchedulePreference.times',
+            'activeSchedulePreference.assignedAdvisor',
+        ])->find($this->studentId);
         $sessions = AdvisingSession::where('student_id', $this->studentId)
             ->with(['preSession', 'weeklyProgram'])
             ->orderBy('created_at', 'desc')
@@ -290,8 +294,9 @@ class CreateAdvisingSession extends Component
             $session->activateIfNeeded();
         }
         return view('livewire.admin.student.consultation.create-advising-session', [
-            'student' => $student,
-            'sessions' => $sessions,
+            'student'     => $student,
+            'sessions'    => $sessions,
+            'weekDays'    => \App\Models\AdminWorkSchedule::DAYS,
         ])->layout('layouts.admin.app');
 
     }

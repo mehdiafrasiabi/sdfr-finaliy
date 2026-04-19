@@ -52,6 +52,8 @@ class DatabaseSeeder extends Seeder
             CcChaptersTableSeeder::class,
             CcTopicsTableSeeder::class,
             SubjectsTableSeeder::class,
+            ExamCountdownSettingsTableSeeder::class,
+            ExamCountdownEventsTableSeeder::class,
         ]);
     }
 }

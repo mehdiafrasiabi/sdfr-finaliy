@@ -41,6 +41,7 @@ use App\Livewire\Client\ExamCountdown\Index as ExamCountdownIndex;
 use App\Livewire\Client\Terms\Index as RuleIndex;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Client\Profile\Wallet as ProfileWallet;
+use App\Livewire\Client\PercentCalculator\Index as PercentCalculatorIndex;
 
 
 
@@ -59,6 +60,7 @@ Route::name('client.')->group(function () {
 
     Route::get('/blog',WeblogIndex::class)->name('blog');
     Route::get('/konkur', ExamCountdownIndex::class)->name('exam-countdown');
+    Route::get('/percentCalculator', PercentCalculatorIndex::class)->name('percent-calculator');
 
 
     Route::middleware('guest')->group(function () {
@@ -113,7 +115,9 @@ Route::name('client.')->group(function () {
             // Classification Routes
             Route::get('/classification', ProjectList::class)->name('classification.projects');
             Route::get('/{project}/classify/{grade}', Classify::class)->name('classification.classify');
-
+            // تعیین وقت و جابجایی جلسات
+            Route::get('/appointment', \App\Livewire\Client\Profile\Appointment\Index::class)
+                ->name('appointment');
             // Consultation Routes (جلسات مشاوره)
             Route::prefix('consultation')->name('consultation.')->group(function () {
                 Route::get('/sessions', ConsultationSessionList::class)->name('sessions');

@@ -121,7 +121,7 @@ class ExamCountdown extends Component
     private function jalaliToGregorian(string $jalaliDate): string
     {
         try {
-            return \Verta::parse($jalaliDate)->toCarbon()->toDateString();
+            return \Hekmatinasser\Verta\Facades\Verta::parse($jalaliDate)->toCarbon()->toDateString();
         } catch (\Exception $e) {
             return $jalaliDate;
         }

@@ -48,5 +48,22 @@ class Admin extends Authenticatable
     {
         return $this->hasMany(CommentReply::class);
     }
+
+    public function workSchedules()
+    {
+        return $this->hasMany(AdminWorkSchedule::class);
+    }
+
+    /**
+     * آیا ادمین در یک روز و ساعت مشخص در ساعت کاری است؟
+     *
+     * @param  int    $dayOfWeek 0=شنبه .. 6=جمعه
+     * @param  string $time       HH:MM
+     */
+    public function isWorkingAt(int $dayOfWeek, string $time): bool
+    {
+        return $this->workSchedules
+            ->contains(fn (AdminWorkSchedule $s) => $s->coversTime($dayOfWeek, $time));
+    }
 }
 

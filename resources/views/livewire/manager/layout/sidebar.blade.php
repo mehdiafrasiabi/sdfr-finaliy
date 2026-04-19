@@ -466,7 +466,10 @@
                                             <a href="{{route('manager.setting.examCountdown')}}" class="nav-link "
                                                data-key="t-basic">روزشمار کنکور</a>
                                         </li>
-
+                                        <li class="nav-item">
+                                            <a href="{{route('manager.setting.percentCalculator')}}" class="nav-link "
+                                               data-key="t-basic">درصد گیر</a>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>

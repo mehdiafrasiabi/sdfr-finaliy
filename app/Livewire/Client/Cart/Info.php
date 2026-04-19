@@ -248,6 +248,23 @@ class Info extends Component
                 'user_id' => $user->id,
                 'payment_id' => $payment->id,
             ]);
+
+            // ارسال پیامک تبریک به دانش‌آموز همراه با لینک صفحه تعیین وقت مشاوره
+            try {
+                if (!empty($user->mobile)) {
+                    $link = route('client.profile.appointment');
+                    $user->notify(new \App\Notifications\SendAppointmentSchedulingSms(
+                        $user->mobile,
+                        $user->name ?: 'دانش‌آموز عزیز',
+                        $link
+                    ));
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Failed to send appointment scheduling SMS', [
+                    'user_id' => $user->id,
+                    'error'   => $e->getMessage(),
+                ]);
+            }
         }
     }
 

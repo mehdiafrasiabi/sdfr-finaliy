@@ -35,7 +35,11 @@ class FileHelper
 
         // ذخیره فایل در public_html
         $file->storeAs($directory, $filename, 'public_html');
-
+        // پاک‌سازی فایل موقت از livewire-tmp / storage
+        $realPath = method_exists($file, 'getRealPath') ? $file->getRealPath() : null;
+        if ($realPath && file_exists($realPath)) {
+            @unlink($realPath);
+        }
         return "{$directory}/{$filename}";
     }
     public static function publicUrl(string $relativePath): string

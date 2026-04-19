@@ -106,4 +106,35 @@ class Student extends Model
     {
         return $this->hasMany(ClassSchedule::class);
     }
+
+    public function schedulePreferences(): HasMany
+    {
+        return $this->hasMany(StudentSchedulePreference::class);
+    }
+
+    /**
+     * ترجیح برنامه‌ی فعالِ جاری دانش‌آموز (تاییدشده توسط مدیر آموزشی).
+     */
+    public function activeSchedulePreference()
+    {
+        return $this->hasOne(StudentSchedulePreference::class)
+            ->where('status', StudentSchedulePreference::STATUS_APPROVED)
+            ->latest('approved_at');
+    }
+
+    public function rescheduleRequests(): HasMany
+    {
+        return $this->hasMany(SessionRescheduleRequest::class);
+    }
+
+    /**
+     * تعداد تغییرات برنامه‌ی هفتگی در سال میلادی جاری.
+     */
+    public function scheduleChangesThisYear(): int
+    {
+        return $this->schedulePreferences()
+            ->where('year_period', (int) now()->year)
+            ->where('change_index', '>', 0)
+            ->count();
+    }
 }

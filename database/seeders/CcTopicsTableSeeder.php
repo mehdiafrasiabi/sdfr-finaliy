@@ -5832,12 +5832,12 @@ class CcTopicsTableSeeder extends Seeder
                 'id' => 497,
                 'cc_chapter_id' => 164,
                 'parent_id' => NULL,
-                'name' => 'خط، نقطه و صفحه',
+                'name' => 'خط نقطه و صفحه',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 15:06:35',
-                'updated_at' => '2026-02-08 15:06:35',
+                'updated_at' => '2026-02-27 21:38:14',
             ),
             485 => 
             array (
@@ -5928,12 +5928,12 @@ class CcTopicsTableSeeder extends Seeder
                 'id' => 505,
                 'cc_chapter_id' => 166,
                 'parent_id' => NULL,
-                'name' => 'هواکره و ویژگی‌های آن:',
+                'name' => 'هواکره و ویژگی‌ های آن',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 15:09:08',
-                'updated_at' => '2026-02-08 15:09:08',
+                'updated_at' => '2026-02-27 21:39:15',
             ),
             493 => 
             array (
@@ -5988,12 +5988,12 @@ class CcTopicsTableSeeder extends Seeder
                 'id' => 510,
                 'cc_chapter_id' => 166,
                 'parent_id' => NULL,
-                'name' => 'اوزون، دگرشکلی از اکسیژن در هواکره',
+                'name' => 'اوزون  دگرشکلی از اکسیژن در هواکره',
                 'has_subtopics' => 0,
                 'order' => 5,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 15:10:11',
-                'updated_at' => '2026-02-08 15:10:11',
+                'updated_at' => '2026-02-27 21:39:27',
             ),
             498 => 
             array (
@@ -6050,12 +6050,12 @@ class CcTopicsTableSeeder extends Seeder
                 'id' => 515,
                 'cc_chapter_id' => 167,
                 'parent_id' => NULL,
-                'name' => 'ترکیب‌های یونی چندتایی',
+                'name' => 'ترکیب‌ های یونی چندتایی',
                 'has_subtopics' => 0,
                 'order' => 1,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 15:11:52',
-                'updated_at' => '2026-02-08 15:11:52',
+                'updated_at' => '2026-02-27 21:39:59',
             ),
             3 => 
             array (
@@ -6122,36 +6122,36 @@ class CcTopicsTableSeeder extends Seeder
                 'id' => 521,
                 'cc_chapter_id' => 167,
                 'parent_id' => NULL,
-                'name' => 'ردّ پای آب در زندگی',
+                'name' => 'رد پای آب در زندگی',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 15:12:36',
-                'updated_at' => '2026-02-08 15:12:36',
+                'updated_at' => '2026-02-27 21:39:54',
             ),
             9 => 
             array (
                 'id' => 522,
                 'cc_chapter_id' => 168,
                 'parent_id' => NULL,
-                'name' => 'فیزیک، دانش بنیادی - مدل‌سازی',
+                'name' => 'فیزیک دانش بنیادی مدل‌سازی',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 15:14:03',
-                'updated_at' => '2026-02-08 15:14:03',
+                'updated_at' => '2026-02-27 21:40:32',
             ),
             10 => 
             array (
                 'id' => 523,
                 'cc_chapter_id' => 168,
                 'parent_id' => NULL,
-                'name' => 'اندازه‌گیری و کمیت‌های فیزیکی - دستگاه بین‌المللی یکاها',
+                'name' => 'اندازه‌گیری و کمیت‌های فیزیکی دستگاه بین‌المللی یکاها',
                 'has_subtopics' => 0,
                 'order' => 1,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 15:14:11',
-                'updated_at' => '2026-02-08 15:14:11',
+                'updated_at' => '2026-02-27 21:40:38',
             ),
             11 => 
             array (
@@ -6506,12 +6506,12 @@ class CcTopicsTableSeeder extends Seeder
                 'id' => 553,
                 'cc_chapter_id' => 173,
                 'parent_id' => NULL,
-                'name' => 'از آموختن، ننگ مدار',
+                'name' => 'از آموختن ننگ مدار',
                 'has_subtopics' => 0,
                 'order' => 1,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 15:41:36',
-                'updated_at' => '2026-02-08 15:41:36',
+                'updated_at' => '2026-02-27 21:44:05',
             ),
             41 => 
             array (
@@ -7730,12 +7730,12 @@ class CcTopicsTableSeeder extends Seeder
                 'id' => 655,
                 'cc_chapter_id' => 205,
                 'parent_id' => NULL,
-                'name' => 'جغرافیا، علمی برای زندگی بهتر‌‎',
+                'name' => 'جغرافیا علمی برای زندگی بهتر‌‎',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 16:40:55',
-                'updated_at' => '2026-02-08 16:40:55',
+                'updated_at' => '2026-02-27 21:49:17',
             ),
             143 => 
             array (
@@ -7744,10 +7744,10 @@ class CcTopicsTableSeeder extends Seeder
                 'parent_id' => NULL,
                 'name' => 'روش مطالعه در جغرافیا',
                 'has_subtopics' => 0,
-                'order' => 3,
+                'order' => 1,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 16:42:05',
-                'updated_at' => '2026-02-08 16:42:05',
+                'updated_at' => '2026-02-27 21:49:24',
             ),
             144 => 
             array (
@@ -7802,12 +7802,12 @@ class CcTopicsTableSeeder extends Seeder
                 'id' => 663,
                 'cc_chapter_id' => 207,
                 'parent_id' => NULL,
-                'name' => 'ویژگی‌های جمعیت ایران‌‎',
+                'name' => 'ویژگی‌ های جمعیت ایران‌‎',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 16:45:45',
-                'updated_at' => '2026-02-08 16:45:45',
+                'updated_at' => '2026-02-27 21:50:08',
             ),
             149 => 
             array (
@@ -7826,24 +7826,24 @@ class CcTopicsTableSeeder extends Seeder
                 'id' => 665,
                 'cc_chapter_id' => 207,
                 'parent_id' => NULL,
-                'name' => 'سکونتگاه‌های ایران‌‎',
+                'name' => 'سکونتگاه‌ های ایران‌‎',
                 'has_subtopics' => 0,
                 'order' => 2,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 16:46:10',
-                'updated_at' => '2026-02-08 16:46:10',
+                'updated_at' => '2026-02-27 21:50:15',
             ),
             151 => 
             array (
                 'id' => 666,
                 'cc_chapter_id' => 207,
                 'parent_id' => NULL,
-                'name' => 'توان‌های اقتصادی ایران‌‎',
+                'name' => 'توان‌ های اقتصادی ایران‌‎',
                 'has_subtopics' => 0,
                 'order' => 3,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 16:48:23',
-                'updated_at' => '2026-02-08 16:48:23',
+                'updated_at' => '2026-02-27 21:50:04',
             ),
             152 => 
             array (
@@ -10622,12 +10622,12 @@ class CcTopicsTableSeeder extends Seeder
                 'id' => 916,
                 'cc_chapter_id' => 284,
                 'parent_id' => NULL,
-                'name' => 'مقدمه ای بر علم آمار، جامعه و نمونه',
+                'name' => 'مقدمه ای بر علم آمار جامعه و نمونه',
                 'has_subtopics' => 0,
                 'order' => 1,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-27 21:56:23',
             ),
             384 => 
             array (
@@ -10922,24 +10922,24 @@ class CcTopicsTableSeeder extends Seeder
                 'id' => 951,
                 'cc_chapter_id' => 292,
                 'parent_id' => NULL,
-                'name' => 'فیزیک، دانش بنیادی - مدل‌سازی',
+                'name' => 'فیزیک دانش بنیادی مدل‌سازی',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-27 21:57:15',
             ),
             409 => 
             array (
                 'id' => 952,
                 'cc_chapter_id' => 292,
                 'parent_id' => NULL,
-                'name' => 'اندازه‌گیری و کمیت‌های فیزیکی - دستگاه بین‌المللی یکاها',
+                'name' => 'اندازه‌گیری و کمیت‌های فیزیکی دستگاه بین‌المللی یکاها',
                 'has_subtopics' => 0,
                 'order' => 1,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-27 21:57:23',
             ),
             410 => 
             array (
@@ -11123,18 +11123,6 @@ class CcTopicsTableSeeder extends Seeder
             ),
             425 => 
             array (
-                'id' => 968,
-                'cc_chapter_id' => 294,
-                'parent_id' => NULL,
-                'name' => 'دما و گرما',
-                'has_subtopics' => 0,
-                'order' => 7,
-                'is_active' => 1,
-                'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-02-08 19:20:43',
-            ),
-            426 => 
-            array (
                 'id' => 969,
                 'cc_chapter_id' => 295,
                 'parent_id' => NULL,
@@ -11145,7 +11133,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            427 => 
+            426 => 
             array (
                 'id' => 970,
                 'cc_chapter_id' => 295,
@@ -11157,7 +11145,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            428 => 
+            427 => 
             array (
                 'id' => 971,
                 'cc_chapter_id' => 295,
@@ -11169,7 +11157,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            429 => 
+            428 => 
             array (
                 'id' => 972,
                 'cc_chapter_id' => 295,
@@ -11181,7 +11169,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            430 => 
+            429 => 
             array (
                 'id' => 973,
                 'cc_chapter_id' => 295,
@@ -11193,7 +11181,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            431 => 
+            430 => 
             array (
                 'id' => 974,
                 'cc_chapter_id' => 295,
@@ -11205,7 +11193,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            432 => 
+            431 => 
             array (
                 'id' => 981,
                 'cc_chapter_id' => 297,
@@ -11217,19 +11205,19 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            433 => 
+            432 => 
             array (
                 'id' => 982,
                 'cc_chapter_id' => 297,
                 'parent_id' => NULL,
-                'name' => 'از آموختن، ننگ مدار',
+                'name' => 'از آموختن ننگ مدار',
                 'has_subtopics' => 0,
                 'order' => 1,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-27 21:59:46',
             ),
-            434 => 
+            433 => 
             array (
                 'id' => 983,
                 'cc_chapter_id' => 298,
@@ -11241,7 +11229,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            435 => 
+            434 => 
             array (
                 'id' => 984,
                 'cc_chapter_id' => 298,
@@ -11253,7 +11241,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            436 => 
+            435 => 
             array (
                 'id' => 985,
                 'cc_chapter_id' => 298,
@@ -11265,7 +11253,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            437 => 
+            436 => 
             array (
                 'id' => 986,
                 'cc_chapter_id' => 299,
@@ -11277,7 +11265,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            438 => 
+            437 => 
             array (
                 'id' => 987,
                 'cc_chapter_id' => 299,
@@ -11289,7 +11277,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            439 => 
+            438 => 
             array (
                 'id' => 988,
                 'cc_chapter_id' => 299,
@@ -11301,7 +11289,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            440 => 
+            439 => 
             array (
                 'id' => 989,
                 'cc_chapter_id' => 300,
@@ -11313,7 +11301,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            441 => 
+            440 => 
             array (
                 'id' => 990,
                 'cc_chapter_id' => 300,
@@ -11325,7 +11313,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            442 => 
+            441 => 
             array (
                 'id' => 991,
                 'cc_chapter_id' => 301,
@@ -11337,7 +11325,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            443 => 
+            442 => 
             array (
                 'id' => 992,
                 'cc_chapter_id' => 301,
@@ -11349,7 +11337,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            444 => 
+            443 => 
             array (
                 'id' => 993,
                 'cc_chapter_id' => 302,
@@ -11361,7 +11349,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            445 => 
+            444 => 
             array (
                 'id' => 994,
                 'cc_chapter_id' => 302,
@@ -11373,7 +11361,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            446 => 
+            445 => 
             array (
                 'id' => 995,
                 'cc_chapter_id' => 302,
@@ -11385,7 +11373,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            447 => 
+            446 => 
             array (
                 'id' => 996,
                 'cc_chapter_id' => 303,
@@ -11397,7 +11385,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            448 => 
+            447 => 
             array (
                 'id' => 997,
                 'cc_chapter_id' => 303,
@@ -11409,7 +11397,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            449 => 
+            448 => 
             array (
                 'id' => 998,
                 'cc_chapter_id' => 304,
@@ -11421,7 +11409,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            450 => 
+            449 => 
             array (
                 'id' => 999,
                 'cc_chapter_id' => 304,
@@ -11433,7 +11421,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            451 => 
+            450 => 
             array (
                 'id' => 1000,
                 'cc_chapter_id' => 305,
@@ -11445,7 +11433,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            452 => 
+            451 => 
             array (
                 'id' => 1001,
                 'cc_chapter_id' => 305,
@@ -11457,7 +11445,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            453 => 
+            452 => 
             array (
                 'id' => 1002,
                 'cc_chapter_id' => 305,
@@ -11469,7 +11457,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            454 => 
+            453 => 
             array (
                 'id' => 1003,
                 'cc_chapter_id' => 306,
@@ -11481,7 +11469,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            455 => 
+            454 => 
             array (
                 'id' => 1004,
                 'cc_chapter_id' => 306,
@@ -11493,7 +11481,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            456 => 
+            455 => 
             array (
                 'id' => 1005,
                 'cc_chapter_id' => 306,
@@ -11505,7 +11493,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            457 => 
+            456 => 
             array (
                 'id' => 1006,
                 'cc_chapter_id' => 307,
@@ -11517,7 +11505,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            458 => 
+            457 => 
             array (
                 'id' => 1007,
                 'cc_chapter_id' => 307,
@@ -11529,7 +11517,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            459 => 
+            458 => 
             array (
                 'id' => 1008,
                 'cc_chapter_id' => 307,
@@ -11541,7 +11529,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            460 => 
+            459 => 
             array (
                 'id' => 1009,
                 'cc_chapter_id' => 308,
@@ -11553,7 +11541,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            461 => 
+            460 => 
             array (
                 'id' => 1010,
                 'cc_chapter_id' => 308,
@@ -11565,7 +11553,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            462 => 
+            461 => 
             array (
                 'id' => 1011,
                 'cc_chapter_id' => 308,
@@ -11577,7 +11565,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            463 => 
+            462 => 
             array (
                 'id' => 1012,
                 'cc_chapter_id' => 309,
@@ -11589,7 +11577,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            464 => 
+            463 => 
             array (
                 'id' => 1013,
                 'cc_chapter_id' => 309,
@@ -11601,7 +11589,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            465 => 
+            464 => 
             array (
                 'id' => 1014,
                 'cc_chapter_id' => 309,
@@ -11613,7 +11601,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            466 => 
+            465 => 
             array (
                 'id' => 1015,
                 'cc_chapter_id' => 310,
@@ -11625,7 +11613,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            467 => 
+            466 => 
             array (
                 'id' => 1016,
                 'cc_chapter_id' => 310,
@@ -11637,7 +11625,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            468 => 
+            467 => 
             array (
                 'id' => 1017,
                 'cc_chapter_id' => 310,
@@ -11649,7 +11637,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            469 => 
+            468 => 
             array (
                 'id' => 1018,
                 'cc_chapter_id' => 311,
@@ -11661,7 +11649,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            470 => 
+            469 => 
             array (
                 'id' => 1019,
                 'cc_chapter_id' => 311,
@@ -11673,7 +11661,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            471 => 
+            470 => 
             array (
                 'id' => 1020,
                 'cc_chapter_id' => 311,
@@ -11685,7 +11673,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            472 => 
+            471 => 
             array (
                 'id' => 1021,
                 'cc_chapter_id' => 312,
@@ -11697,7 +11685,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            473 => 
+            472 => 
             array (
                 'id' => 1022,
                 'cc_chapter_id' => 312,
@@ -11709,7 +11697,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            474 => 
+            473 => 
             array (
                 'id' => 1023,
                 'cc_chapter_id' => 312,
@@ -11721,7 +11709,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            475 => 
+            474 => 
             array (
                 'id' => 1024,
                 'cc_chapter_id' => 313,
@@ -11733,7 +11721,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            476 => 
+            475 => 
             array (
                 'id' => 1025,
                 'cc_chapter_id' => 313,
@@ -11745,7 +11733,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            477 => 
+            476 => 
             array (
                 'id' => 1026,
                 'cc_chapter_id' => 313,
@@ -11757,7 +11745,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            478 => 
+            477 => 
             array (
                 'id' => 1027,
                 'cc_chapter_id' => 314,
@@ -11769,7 +11757,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            479 => 
+            478 => 
             array (
                 'id' => 1028,
                 'cc_chapter_id' => 314,
@@ -11781,7 +11769,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            480 => 
+            479 => 
             array (
                 'id' => 1029,
                 'cc_chapter_id' => 314,
@@ -11793,7 +11781,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            481 => 
+            480 => 
             array (
                 'id' => 1030,
                 'cc_chapter_id' => 315,
@@ -11805,7 +11793,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            482 => 
+            481 => 
             array (
                 'id' => 1031,
                 'cc_chapter_id' => 315,
@@ -11817,7 +11805,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            483 => 
+            482 => 
             array (
                 'id' => 1032,
                 'cc_chapter_id' => 315,
@@ -11829,7 +11817,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            484 => 
+            483 => 
             array (
                 'id' => 1033,
                 'cc_chapter_id' => 316,
@@ -11841,7 +11829,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            485 => 
+            484 => 
             array (
                 'id' => 1034,
                 'cc_chapter_id' => 316,
@@ -11853,7 +11841,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            486 => 
+            485 => 
             array (
                 'id' => 1035,
                 'cc_chapter_id' => 316,
@@ -11865,7 +11853,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            487 => 
+            486 => 
             array (
                 'id' => 1036,
                 'cc_chapter_id' => 317,
@@ -11877,7 +11865,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            488 => 
+            487 => 
             array (
                 'id' => 1037,
                 'cc_chapter_id' => 317,
@@ -11889,7 +11877,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            489 => 
+            488 => 
             array (
                 'id' => 1038,
                 'cc_chapter_id' => 317,
@@ -11901,7 +11889,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            490 => 
+            489 => 
             array (
                 'id' => 1039,
                 'cc_chapter_id' => 317,
@@ -11913,7 +11901,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            491 => 
+            490 => 
             array (
                 'id' => 1040,
                 'cc_chapter_id' => 317,
@@ -11925,7 +11913,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            492 => 
+            491 => 
             array (
                 'id' => 1041,
                 'cc_chapter_id' => 317,
@@ -11937,7 +11925,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            493 => 
+            492 => 
             array (
                 'id' => 1042,
                 'cc_chapter_id' => 318,
@@ -11949,7 +11937,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            494 => 
+            493 => 
             array (
                 'id' => 1043,
                 'cc_chapter_id' => 318,
@@ -11961,7 +11949,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            495 => 
+            494 => 
             array (
                 'id' => 1044,
                 'cc_chapter_id' => 318,
@@ -11973,7 +11961,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            496 => 
+            495 => 
             array (
                 'id' => 1045,
                 'cc_chapter_id' => 318,
@@ -11985,7 +11973,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            497 => 
+            496 => 
             array (
                 'id' => 1046,
                 'cc_chapter_id' => 318,
@@ -11997,7 +11985,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            498 => 
+            497 => 
             array (
                 'id' => 1047,
                 'cc_chapter_id' => 318,
@@ -12009,7 +11997,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            499 => 
+            498 => 
             array (
                 'id' => 1048,
                 'cc_chapter_id' => 319,
@@ -12021,9 +12009,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-        ));
-        \DB::table('cc_topics')->insert(array (
-            0 => 
+            499 => 
             array (
                 'id' => 1049,
                 'cc_chapter_id' => 319,
@@ -12035,7 +12021,9 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            1 => 
+        ));
+        \DB::table('cc_topics')->insert(array (
+            0 => 
             array (
                 'id' => 1050,
                 'cc_chapter_id' => 319,
@@ -12047,7 +12035,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            2 => 
+            1 => 
             array (
                 'id' => 1051,
                 'cc_chapter_id' => 319,
@@ -12059,7 +12047,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            3 => 
+            2 => 
             array (
                 'id' => 1052,
                 'cc_chapter_id' => 319,
@@ -12071,7 +12059,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            4 => 
+            3 => 
             array (
                 'id' => 1053,
                 'cc_chapter_id' => 319,
@@ -12083,7 +12071,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            5 => 
+            4 => 
             array (
                 'id' => 1054,
                 'cc_chapter_id' => 320,
@@ -12095,7 +12083,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            6 => 
+            5 => 
             array (
                 'id' => 1055,
                 'cc_chapter_id' => 320,
@@ -12107,7 +12095,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            7 => 
+            6 => 
             array (
                 'id' => 1056,
                 'cc_chapter_id' => 320,
@@ -12119,7 +12107,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            8 => 
+            7 => 
             array (
                 'id' => 1057,
                 'cc_chapter_id' => 320,
@@ -12131,7 +12119,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            9 => 
+            8 => 
             array (
                 'id' => 1058,
                 'cc_chapter_id' => 320,
@@ -12143,7 +12131,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            10 => 
+            9 => 
             array (
                 'id' => 1059,
                 'cc_chapter_id' => 320,
@@ -12155,7 +12143,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            11 => 
+            10 => 
             array (
                 'id' => 1060,
                 'cc_chapter_id' => 321,
@@ -12167,7 +12155,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            12 => 
+            11 => 
             array (
                 'id' => 1061,
                 'cc_chapter_id' => 321,
@@ -12179,7 +12167,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            13 => 
+            12 => 
             array (
                 'id' => 1062,
                 'cc_chapter_id' => 321,
@@ -12191,7 +12179,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            14 => 
+            13 => 
             array (
                 'id' => 1063,
                 'cc_chapter_id' => 321,
@@ -12203,7 +12191,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            15 => 
+            14 => 
             array (
                 'id' => 1064,
                 'cc_chapter_id' => 321,
@@ -12215,7 +12203,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            16 => 
+            15 => 
             array (
                 'id' => 1065,
                 'cc_chapter_id' => 321,
@@ -12227,7 +12215,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            17 => 
+            16 => 
             array (
                 'id' => 1066,
                 'cc_chapter_id' => 322,
@@ -12239,7 +12227,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            18 => 
+            17 => 
             array (
                 'id' => 1067,
                 'cc_chapter_id' => 322,
@@ -12251,7 +12239,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            19 => 
+            18 => 
             array (
                 'id' => 1068,
                 'cc_chapter_id' => 322,
@@ -12263,7 +12251,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            20 => 
+            19 => 
             array (
                 'id' => 1069,
                 'cc_chapter_id' => 322,
@@ -12275,7 +12263,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            21 => 
+            20 => 
             array (
                 'id' => 1070,
                 'cc_chapter_id' => 322,
@@ -12287,7 +12275,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            22 => 
+            21 => 
             array (
                 'id' => 1071,
                 'cc_chapter_id' => 322,
@@ -12299,7 +12287,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            23 => 
+            22 => 
             array (
                 'id' => 1072,
                 'cc_chapter_id' => 323,
@@ -12311,7 +12299,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            24 => 
+            23 => 
             array (
                 'id' => 1073,
                 'cc_chapter_id' => 323,
@@ -12323,7 +12311,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            25 => 
+            24 => 
             array (
                 'id' => 1074,
                 'cc_chapter_id' => 323,
@@ -12335,7 +12323,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            26 => 
+            25 => 
             array (
                 'id' => 1075,
                 'cc_chapter_id' => 323,
@@ -12347,7 +12335,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            27 => 
+            26 => 
             array (
                 'id' => 1076,
                 'cc_chapter_id' => 323,
@@ -12359,7 +12347,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            28 => 
+            27 => 
             array (
                 'id' => 1077,
                 'cc_chapter_id' => 323,
@@ -12371,7 +12359,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            29 => 
+            28 => 
             array (
                 'id' => 1078,
                 'cc_chapter_id' => 324,
@@ -12383,7 +12371,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            30 => 
+            29 => 
             array (
                 'id' => 1079,
                 'cc_chapter_id' => 324,
@@ -12395,7 +12383,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            31 => 
+            30 => 
             array (
                 'id' => 1080,
                 'cc_chapter_id' => 324,
@@ -12407,7 +12395,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            32 => 
+            31 => 
             array (
                 'id' => 1081,
                 'cc_chapter_id' => 324,
@@ -12419,7 +12407,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            33 => 
+            32 => 
             array (
                 'id' => 1082,
                 'cc_chapter_id' => 324,
@@ -12431,7 +12419,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            34 => 
+            33 => 
             array (
                 'id' => 1083,
                 'cc_chapter_id' => 324,
@@ -12443,19 +12431,19 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            35 => 
+            34 => 
             array (
                 'id' => 1084,
                 'cc_chapter_id' => 325,
                 'parent_id' => NULL,
-                'name' => 'جغرافیا، علمی برای زندگی بهتر‌‎',
+                'name' => 'جغرافیا علمی برای زندگی بهتر‌‎',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-27 22:03:51',
             ),
-            36 => 
+            35 => 
             array (
                 'id' => 1085,
                 'cc_chapter_id' => 325,
@@ -12467,7 +12455,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            37 => 
+            36 => 
             array (
                 'id' => 1086,
                 'cc_chapter_id' => 326,
@@ -12479,7 +12467,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            38 => 
+            37 => 
             array (
                 'id' => 1087,
                 'cc_chapter_id' => 326,
@@ -12491,7 +12479,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            39 => 
+            38 => 
             array (
                 'id' => 1088,
                 'cc_chapter_id' => 326,
@@ -12503,7 +12491,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            40 => 
+            39 => 
             array (
                 'id' => 1089,
                 'cc_chapter_id' => 326,
@@ -12515,19 +12503,19 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            41 => 
+            40 => 
             array (
                 'id' => 1090,
                 'cc_chapter_id' => 327,
                 'parent_id' => NULL,
-                'name' => 'ویژگی‌های جمعیت ایران‌‎',
+                'name' => 'ویژگی‌ های جمعیت ایران‌‎',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-27 22:04:15',
             ),
-            42 => 
+            41 => 
             array (
                 'id' => 1091,
                 'cc_chapter_id' => 327,
@@ -12539,19 +12527,19 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            43 => 
+            42 => 
             array (
                 'id' => 1092,
                 'cc_chapter_id' => 327,
                 'parent_id' => NULL,
-                'name' => 'سکونتگاه‌های ایران‌‎',
+                'name' => 'سکونتگاه‌ های ایران‌‎',
                 'has_subtopics' => 0,
                 'order' => 2,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 19:20:43',
-                'updated_at' => '2026-02-08 19:20:43',
+                'updated_at' => '2026-02-27 22:04:20',
             ),
-            44 => 
+            43 => 
             array (
                 'id' => 1093,
                 'cc_chapter_id' => 327,
@@ -12563,7 +12551,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            45 => 
+            44 => 
             array (
                 'id' => 1094,
                 'cc_chapter_id' => 328,
@@ -12575,7 +12563,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            46 => 
+            45 => 
             array (
                 'id' => 1095,
                 'cc_chapter_id' => 328,
@@ -12587,7 +12575,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            47 => 
+            46 => 
             array (
                 'id' => 1096,
                 'cc_chapter_id' => 328,
@@ -12599,7 +12587,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            48 => 
+            47 => 
             array (
                 'id' => 1097,
                 'cc_chapter_id' => 328,
@@ -12611,7 +12599,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            49 => 
+            48 => 
             array (
                 'id' => 1098,
                 'cc_chapter_id' => 328,
@@ -12623,7 +12611,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            50 => 
+            49 => 
             array (
                 'id' => 1099,
                 'cc_chapter_id' => 329,
@@ -12635,7 +12623,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            51 => 
+            50 => 
             array (
                 'id' => 1100,
                 'cc_chapter_id' => 329,
@@ -12647,7 +12635,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            52 => 
+            51 => 
             array (
                 'id' => 1101,
                 'cc_chapter_id' => 329,
@@ -12659,7 +12647,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            53 => 
+            52 => 
             array (
                 'id' => 1102,
                 'cc_chapter_id' => 329,
@@ -12671,7 +12659,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            54 => 
+            53 => 
             array (
                 'id' => 1103,
                 'cc_chapter_id' => 329,
@@ -12683,7 +12671,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            55 => 
+            54 => 
             array (
                 'id' => 1104,
                 'cc_chapter_id' => 330,
@@ -12695,7 +12683,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            56 => 
+            55 => 
             array (
                 'id' => 1105,
                 'cc_chapter_id' => 330,
@@ -12707,7 +12695,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            57 => 
+            56 => 
             array (
                 'id' => 1106,
                 'cc_chapter_id' => 330,
@@ -12719,7 +12707,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            58 => 
+            57 => 
             array (
                 'id' => 1107,
                 'cc_chapter_id' => 330,
@@ -12731,7 +12719,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            59 => 
+            58 => 
             array (
                 'id' => 1108,
                 'cc_chapter_id' => 330,
@@ -12743,7 +12731,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            60 => 
+            59 => 
             array (
                 'id' => 1109,
                 'cc_chapter_id' => 331,
@@ -12755,7 +12743,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            61 => 
+            60 => 
             array (
                 'id' => 1110,
                 'cc_chapter_id' => 331,
@@ -12767,7 +12755,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            62 => 
+            61 => 
             array (
                 'id' => 1111,
                 'cc_chapter_id' => 331,
@@ -12779,7 +12767,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            63 => 
+            62 => 
             array (
                 'id' => 1112,
                 'cc_chapter_id' => 331,
@@ -12791,7 +12779,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            64 => 
+            63 => 
             array (
                 'id' => 1113,
                 'cc_chapter_id' => 331,
@@ -12803,7 +12791,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            65 => 
+            64 => 
             array (
                 'id' => 1114,
                 'cc_chapter_id' => 332,
@@ -12815,7 +12803,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            66 => 
+            65 => 
             array (
                 'id' => 1115,
                 'cc_chapter_id' => 332,
@@ -12827,7 +12815,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            67 => 
+            66 => 
             array (
                 'id' => 1116,
                 'cc_chapter_id' => 333,
@@ -12839,7 +12827,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            68 => 
+            67 => 
             array (
                 'id' => 1117,
                 'cc_chapter_id' => 333,
@@ -12851,7 +12839,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            69 => 
+            68 => 
             array (
                 'id' => 1118,
                 'cc_chapter_id' => 333,
@@ -12863,7 +12851,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            70 => 
+            69 => 
             array (
                 'id' => 1119,
                 'cc_chapter_id' => 333,
@@ -12875,7 +12863,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            71 => 
+            70 => 
             array (
                 'id' => 1120,
                 'cc_chapter_id' => 334,
@@ -12887,7 +12875,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            72 => 
+            71 => 
             array (
                 'id' => 1121,
                 'cc_chapter_id' => 334,
@@ -12899,7 +12887,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            73 => 
+            72 => 
             array (
                 'id' => 1122,
                 'cc_chapter_id' => 334,
@@ -12911,7 +12899,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            74 => 
+            73 => 
             array (
                 'id' => 1123,
                 'cc_chapter_id' => 335,
@@ -12923,7 +12911,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            75 => 
+            74 => 
             array (
                 'id' => 1124,
                 'cc_chapter_id' => 335,
@@ -12935,7 +12923,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            76 => 
+            75 => 
             array (
                 'id' => 1125,
                 'cc_chapter_id' => 335,
@@ -12947,7 +12935,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            77 => 
+            76 => 
             array (
                 'id' => 1126,
                 'cc_chapter_id' => 335,
@@ -12959,7 +12947,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            78 => 
+            77 => 
             array (
                 'id' => 1127,
                 'cc_chapter_id' => 336,
@@ -12971,7 +12959,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            79 => 
+            78 => 
             array (
                 'id' => 1128,
                 'cc_chapter_id' => 336,
@@ -12983,7 +12971,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            80 => 
+            79 => 
             array (
                 'id' => 1129,
                 'cc_chapter_id' => 336,
@@ -12995,7 +12983,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            81 => 
+            80 => 
             array (
                 'id' => 1130,
                 'cc_chapter_id' => 336,
@@ -13007,7 +12995,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            82 => 
+            81 => 
             array (
                 'id' => 1131,
                 'cc_chapter_id' => 336,
@@ -13019,7 +13007,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            83 => 
+            82 => 
             array (
                 'id' => 1132,
                 'cc_chapter_id' => 337,
@@ -13031,7 +13019,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            84 => 
+            83 => 
             array (
                 'id' => 1133,
                 'cc_chapter_id' => 337,
@@ -13043,7 +13031,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            85 => 
+            84 => 
             array (
                 'id' => 1134,
                 'cc_chapter_id' => 337,
@@ -13055,7 +13043,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            86 => 
+            85 => 
             array (
                 'id' => 1135,
                 'cc_chapter_id' => 337,
@@ -13067,7 +13055,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            87 => 
+            86 => 
             array (
                 'id' => 1136,
                 'cc_chapter_id' => 337,
@@ -13079,7 +13067,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            88 => 
+            87 => 
             array (
                 'id' => 1137,
                 'cc_chapter_id' => 337,
@@ -13091,7 +13079,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            89 => 
+            88 => 
             array (
                 'id' => 1138,
                 'cc_chapter_id' => 337,
@@ -13103,7 +13091,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            90 => 
+            89 => 
             array (
                 'id' => 1139,
                 'cc_chapter_id' => 338,
@@ -13115,7 +13103,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            91 => 
+            90 => 
             array (
                 'id' => 1140,
                 'cc_chapter_id' => 338,
@@ -13127,7 +13115,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            92 => 
+            91 => 
             array (
                 'id' => 1141,
                 'cc_chapter_id' => 338,
@@ -13139,7 +13127,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            93 => 
+            92 => 
             array (
                 'id' => 1142,
                 'cc_chapter_id' => 339,
@@ -13151,7 +13139,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            94 => 
+            93 => 
             array (
                 'id' => 1143,
                 'cc_chapter_id' => 339,
@@ -13163,7 +13151,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            95 => 
+            94 => 
             array (
                 'id' => 1144,
                 'cc_chapter_id' => 339,
@@ -13175,7 +13163,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            96 => 
+            95 => 
             array (
                 'id' => 1145,
                 'cc_chapter_id' => 339,
@@ -13187,7 +13175,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            97 => 
+            96 => 
             array (
                 'id' => 1146,
                 'cc_chapter_id' => 340,
@@ -13199,7 +13187,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            98 => 
+            97 => 
             array (
                 'id' => 1147,
                 'cc_chapter_id' => 340,
@@ -13211,7 +13199,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            99 => 
+            98 => 
             array (
                 'id' => 1148,
                 'cc_chapter_id' => 340,
@@ -13223,7 +13211,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            100 => 
+            99 => 
             array (
                 'id' => 1149,
                 'cc_chapter_id' => 340,
@@ -13235,7 +13223,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            101 => 
+            100 => 
             array (
                 'id' => 1150,
                 'cc_chapter_id' => 340,
@@ -13247,7 +13235,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            102 => 
+            101 => 
             array (
                 'id' => 1160,
                 'cc_chapter_id' => 344,
@@ -13259,7 +13247,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            103 => 
+            102 => 
             array (
                 'id' => 1161,
                 'cc_chapter_id' => 344,
@@ -13271,7 +13259,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            104 => 
+            103 => 
             array (
                 'id' => 1162,
                 'cc_chapter_id' => 344,
@@ -13283,7 +13271,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            105 => 
+            104 => 
             array (
                 'id' => 1163,
                 'cc_chapter_id' => 344,
@@ -13295,7 +13283,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            106 => 
+            105 => 
             array (
                 'id' => 1164,
                 'cc_chapter_id' => 344,
@@ -13307,7 +13295,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            107 => 
+            106 => 
             array (
                 'id' => 1165,
                 'cc_chapter_id' => 344,
@@ -13319,7 +13307,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            108 => 
+            107 => 
             array (
                 'id' => 1166,
                 'cc_chapter_id' => 344,
@@ -13331,7 +13319,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            109 => 
+            108 => 
             array (
                 'id' => 1167,
                 'cc_chapter_id' => 344,
@@ -13343,7 +13331,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            110 => 
+            109 => 
             array (
                 'id' => 1168,
                 'cc_chapter_id' => 345,
@@ -13355,7 +13343,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            111 => 
+            110 => 
             array (
                 'id' => 1169,
                 'cc_chapter_id' => 345,
@@ -13367,7 +13355,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            112 => 
+            111 => 
             array (
                 'id' => 1170,
                 'cc_chapter_id' => 345,
@@ -13379,7 +13367,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            113 => 
+            112 => 
             array (
                 'id' => 1171,
                 'cc_chapter_id' => 345,
@@ -13391,7 +13379,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            114 => 
+            113 => 
             array (
                 'id' => 1172,
                 'cc_chapter_id' => 345,
@@ -13403,7 +13391,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            115 => 
+            114 => 
             array (
                 'id' => 1173,
                 'cc_chapter_id' => 345,
@@ -13415,7 +13403,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            116 => 
+            115 => 
             array (
                 'id' => 1174,
                 'cc_chapter_id' => 345,
@@ -13427,7 +13415,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            117 => 
+            116 => 
             array (
                 'id' => 1175,
                 'cc_chapter_id' => 345,
@@ -13439,7 +13427,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            118 => 
+            117 => 
             array (
                 'id' => 1176,
                 'cc_chapter_id' => 345,
@@ -13451,7 +13439,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            119 => 
+            118 => 
             array (
                 'id' => 1177,
                 'cc_chapter_id' => 346,
@@ -13463,7 +13451,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            120 => 
+            119 => 
             array (
                 'id' => 1178,
                 'cc_chapter_id' => 346,
@@ -13475,7 +13463,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            121 => 
+            120 => 
             array (
                 'id' => 1179,
                 'cc_chapter_id' => 346,
@@ -13487,7 +13475,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            122 => 
+            121 => 
             array (
                 'id' => 1180,
                 'cc_chapter_id' => 346,
@@ -13499,7 +13487,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            123 => 
+            122 => 
             array (
                 'id' => 1181,
                 'cc_chapter_id' => 347,
@@ -13511,7 +13499,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            124 => 
+            123 => 
             array (
                 'id' => 1182,
                 'cc_chapter_id' => 347,
@@ -13523,7 +13511,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            125 => 
+            124 => 
             array (
                 'id' => 1183,
                 'cc_chapter_id' => 347,
@@ -13535,7 +13523,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            126 => 
+            125 => 
             array (
                 'id' => 1184,
                 'cc_chapter_id' => 347,
@@ -13547,7 +13535,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            127 => 
+            126 => 
             array (
                 'id' => 1185,
                 'cc_chapter_id' => 347,
@@ -13559,7 +13547,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            128 => 
+            127 => 
             array (
                 'id' => 1186,
                 'cc_chapter_id' => 347,
@@ -13571,7 +13559,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            129 => 
+            128 => 
             array (
                 'id' => 1187,
                 'cc_chapter_id' => 347,
@@ -13583,7 +13571,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            130 => 
+            129 => 
             array (
                 'id' => 1188,
                 'cc_chapter_id' => 348,
@@ -13595,7 +13583,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            131 => 
+            130 => 
             array (
                 'id' => 1189,
                 'cc_chapter_id' => 348,
@@ -13607,7 +13595,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            132 => 
+            131 => 
             array (
                 'id' => 1190,
                 'cc_chapter_id' => 348,
@@ -13619,7 +13607,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            133 => 
+            132 => 
             array (
                 'id' => 1191,
                 'cc_chapter_id' => 348,
@@ -13631,7 +13619,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            134 => 
+            133 => 
             array (
                 'id' => 1192,
                 'cc_chapter_id' => 348,
@@ -13643,7 +13631,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            135 => 
+            134 => 
             array (
                 'id' => 1193,
                 'cc_chapter_id' => 349,
@@ -13655,7 +13643,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            136 => 
+            135 => 
             array (
                 'id' => 1194,
                 'cc_chapter_id' => 349,
@@ -13667,7 +13655,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            137 => 
+            136 => 
             array (
                 'id' => 1195,
                 'cc_chapter_id' => 349,
@@ -13679,7 +13667,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            138 => 
+            137 => 
             array (
                 'id' => 1196,
                 'cc_chapter_id' => 349,
@@ -13691,7 +13679,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            139 => 
+            138 => 
             array (
                 'id' => 1197,
                 'cc_chapter_id' => 349,
@@ -13703,7 +13691,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            140 => 
+            139 => 
             array (
                 'id' => 1198,
                 'cc_chapter_id' => 349,
@@ -13715,7 +13703,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            141 => 
+            140 => 
             array (
                 'id' => 1199,
                 'cc_chapter_id' => 350,
@@ -13727,7 +13715,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            142 => 
+            141 => 
             array (
                 'id' => 1200,
                 'cc_chapter_id' => 350,
@@ -13739,7 +13727,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            143 => 
+            142 => 
             array (
                 'id' => 1201,
                 'cc_chapter_id' => 350,
@@ -13751,7 +13739,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            144 => 
+            143 => 
             array (
                 'id' => 1213,
                 'cc_chapter_id' => 355,
@@ -13763,7 +13751,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            145 => 
+            144 => 
             array (
                 'id' => 1214,
                 'cc_chapter_id' => 355,
@@ -13775,7 +13763,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            146 => 
+            145 => 
             array (
                 'id' => 1215,
                 'cc_chapter_id' => 355,
@@ -13787,7 +13775,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            147 => 
+            146 => 
             array (
                 'id' => 1216,
                 'cc_chapter_id' => 356,
@@ -13799,7 +13787,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            148 => 
+            147 => 
             array (
                 'id' => 1217,
                 'cc_chapter_id' => 356,
@@ -13811,7 +13799,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            149 => 
+            148 => 
             array (
                 'id' => 1218,
                 'cc_chapter_id' => 357,
@@ -13823,7 +13811,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            150 => 
+            149 => 
             array (
                 'id' => 1219,
                 'cc_chapter_id' => 357,
@@ -13835,7 +13823,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            151 => 
+            150 => 
             array (
                 'id' => 1220,
                 'cc_chapter_id' => 357,
@@ -13847,7 +13835,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            152 => 
+            151 => 
             array (
                 'id' => 1221,
                 'cc_chapter_id' => 358,
@@ -13859,7 +13847,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            153 => 
+            152 => 
             array (
                 'id' => 1222,
                 'cc_chapter_id' => 358,
@@ -13871,7 +13859,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            154 => 
+            153 => 
             array (
                 'id' => 1223,
                 'cc_chapter_id' => 359,
@@ -13883,7 +13871,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            155 => 
+            154 => 
             array (
                 'id' => 1224,
                 'cc_chapter_id' => 359,
@@ -13895,7 +13883,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            156 => 
+            155 => 
             array (
                 'id' => 1225,
                 'cc_chapter_id' => 359,
@@ -13907,7 +13895,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            157 => 
+            156 => 
             array (
                 'id' => 1226,
                 'cc_chapter_id' => 360,
@@ -13919,7 +13907,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            158 => 
+            157 => 
             array (
                 'id' => 1227,
                 'cc_chapter_id' => 360,
@@ -13931,7 +13919,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            159 => 
+            158 => 
             array (
                 'id' => 1228,
                 'cc_chapter_id' => 360,
@@ -13943,7 +13931,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            160 => 
+            159 => 
             array (
                 'id' => 1229,
                 'cc_chapter_id' => 361,
@@ -13955,7 +13943,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:43',
                 'updated_at' => '2026-02-08 19:20:43',
             ),
-            161 => 
+            160 => 
             array (
                 'id' => 1230,
                 'cc_chapter_id' => 361,
@@ -13967,7 +13955,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            162 => 
+            161 => 
             array (
                 'id' => 1231,
                 'cc_chapter_id' => 362,
@@ -13979,7 +13967,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            163 => 
+            162 => 
             array (
                 'id' => 1232,
                 'cc_chapter_id' => 362,
@@ -13991,7 +13979,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            164 => 
+            163 => 
             array (
                 'id' => 1233,
                 'cc_chapter_id' => 363,
@@ -14003,7 +13991,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            165 => 
+            164 => 
             array (
                 'id' => 1234,
                 'cc_chapter_id' => 363,
@@ -14015,7 +14003,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            166 => 
+            165 => 
             array (
                 'id' => 1235,
                 'cc_chapter_id' => 363,
@@ -14027,7 +14015,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            167 => 
+            166 => 
             array (
                 'id' => 1236,
                 'cc_chapter_id' => 364,
@@ -14039,7 +14027,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            168 => 
+            167 => 
             array (
                 'id' => 1237,
                 'cc_chapter_id' => 364,
@@ -14051,7 +14039,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            169 => 
+            168 => 
             array (
                 'id' => 1238,
                 'cc_chapter_id' => 364,
@@ -14063,7 +14051,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            170 => 
+            169 => 
             array (
                 'id' => 1239,
                 'cc_chapter_id' => 365,
@@ -14075,7 +14063,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            171 => 
+            170 => 
             array (
                 'id' => 1240,
                 'cc_chapter_id' => 365,
@@ -14087,7 +14075,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            172 => 
+            171 => 
             array (
                 'id' => 1241,
                 'cc_chapter_id' => 365,
@@ -14099,7 +14087,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            173 => 
+            172 => 
             array (
                 'id' => 1242,
                 'cc_chapter_id' => 366,
@@ -14111,7 +14099,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            174 => 
+            173 => 
             array (
                 'id' => 1243,
                 'cc_chapter_id' => 366,
@@ -14123,7 +14111,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            175 => 
+            174 => 
             array (
                 'id' => 1244,
                 'cc_chapter_id' => 366,
@@ -14135,7 +14123,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            176 => 
+            175 => 
             array (
                 'id' => 1245,
                 'cc_chapter_id' => 367,
@@ -14147,7 +14135,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            177 => 
+            176 => 
             array (
                 'id' => 1246,
                 'cc_chapter_id' => 367,
@@ -14159,7 +14147,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            178 => 
+            177 => 
             array (
                 'id' => 1247,
                 'cc_chapter_id' => 367,
@@ -14171,7 +14159,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            179 => 
+            178 => 
             array (
                 'id' => 1248,
                 'cc_chapter_id' => 368,
@@ -14183,7 +14171,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            180 => 
+            179 => 
             array (
                 'id' => 1249,
                 'cc_chapter_id' => 368,
@@ -14195,7 +14183,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            181 => 
+            180 => 
             array (
                 'id' => 1250,
                 'cc_chapter_id' => 368,
@@ -14207,7 +14195,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            182 => 
+            181 => 
             array (
                 'id' => 1251,
                 'cc_chapter_id' => 369,
@@ -14219,7 +14207,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            183 => 
+            182 => 
             array (
                 'id' => 1252,
                 'cc_chapter_id' => 369,
@@ -14231,7 +14219,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            184 => 
+            183 => 
             array (
                 'id' => 1253,
                 'cc_chapter_id' => 369,
@@ -14243,7 +14231,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            185 => 
+            184 => 
             array (
                 'id' => 1254,
                 'cc_chapter_id' => 370,
@@ -14255,7 +14243,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            186 => 
+            185 => 
             array (
                 'id' => 1255,
                 'cc_chapter_id' => 370,
@@ -14267,7 +14255,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            187 => 
+            186 => 
             array (
                 'id' => 1256,
                 'cc_chapter_id' => 370,
@@ -14279,7 +14267,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            188 => 
+            187 => 
             array (
                 'id' => 1257,
                 'cc_chapter_id' => 371,
@@ -14291,7 +14279,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            189 => 
+            188 => 
             array (
                 'id' => 1258,
                 'cc_chapter_id' => 371,
@@ -14303,7 +14291,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            190 => 
+            189 => 
             array (
                 'id' => 1259,
                 'cc_chapter_id' => 371,
@@ -14315,7 +14303,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            191 => 
+            190 => 
             array (
                 'id' => 1260,
                 'cc_chapter_id' => 372,
@@ -14327,7 +14315,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            192 => 
+            191 => 
             array (
                 'id' => 1261,
                 'cc_chapter_id' => 372,
@@ -14339,7 +14327,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            193 => 
+            192 => 
             array (
                 'id' => 1262,
                 'cc_chapter_id' => 372,
@@ -14351,7 +14339,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            194 => 
+            193 => 
             array (
                 'id' => 1263,
                 'cc_chapter_id' => 373,
@@ -14363,7 +14351,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            195 => 
+            194 => 
             array (
                 'id' => 1264,
                 'cc_chapter_id' => 373,
@@ -14375,7 +14363,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            196 => 
+            195 => 
             array (
                 'id' => 1265,
                 'cc_chapter_id' => 374,
@@ -14387,7 +14375,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            197 => 
+            196 => 
             array (
                 'id' => 1266,
                 'cc_chapter_id' => 374,
@@ -14399,7 +14387,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            198 => 
+            197 => 
             array (
                 'id' => 1267,
                 'cc_chapter_id' => 374,
@@ -14411,7 +14399,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            199 => 
+            198 => 
             array (
                 'id' => 1268,
                 'cc_chapter_id' => 375,
@@ -14423,7 +14411,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            200 => 
+            199 => 
             array (
                 'id' => 1269,
                 'cc_chapter_id' => 375,
@@ -14435,7 +14423,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            201 => 
+            200 => 
             array (
                 'id' => 1270,
                 'cc_chapter_id' => 375,
@@ -14447,7 +14435,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            202 => 
+            201 => 
             array (
                 'id' => 1271,
                 'cc_chapter_id' => 375,
@@ -14459,7 +14447,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            203 => 
+            202 => 
             array (
                 'id' => 1272,
                 'cc_chapter_id' => 375,
@@ -14471,7 +14459,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            204 => 
+            203 => 
             array (
                 'id' => 1273,
                 'cc_chapter_id' => 375,
@@ -14483,7 +14471,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            205 => 
+            204 => 
             array (
                 'id' => 1274,
                 'cc_chapter_id' => 375,
@@ -14495,7 +14483,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            206 => 
+            205 => 
             array (
                 'id' => 1275,
                 'cc_chapter_id' => 382,
@@ -14507,7 +14495,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            207 => 
+            206 => 
             array (
                 'id' => 1276,
                 'cc_chapter_id' => 383,
@@ -14519,7 +14507,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            208 => 
+            207 => 
             array (
                 'id' => 1277,
                 'cc_chapter_id' => 384,
@@ -14531,7 +14519,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            209 => 
+            208 => 
             array (
                 'id' => 1278,
                 'cc_chapter_id' => 385,
@@ -14543,7 +14531,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            210 => 
+            209 => 
             array (
                 'id' => 1279,
                 'cc_chapter_id' => 386,
@@ -14555,7 +14543,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            211 => 
+            210 => 
             array (
                 'id' => 1280,
                 'cc_chapter_id' => 387,
@@ -14567,7 +14555,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            212 => 
+            211 => 
             array (
                 'id' => 1281,
                 'cc_chapter_id' => 388,
@@ -14579,7 +14567,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            213 => 
+            212 => 
             array (
                 'id' => 1282,
                 'cc_chapter_id' => 389,
@@ -14591,7 +14579,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            214 => 
+            213 => 
             array (
                 'id' => 1283,
                 'cc_chapter_id' => 390,
@@ -14603,7 +14591,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            215 => 
+            214 => 
             array (
                 'id' => 1284,
                 'cc_chapter_id' => 391,
@@ -14615,7 +14603,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            216 => 
+            215 => 
             array (
                 'id' => 1285,
                 'cc_chapter_id' => 392,
@@ -14627,7 +14615,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            217 => 
+            216 => 
             array (
                 'id' => 1286,
                 'cc_chapter_id' => 393,
@@ -14639,7 +14627,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            218 => 
+            217 => 
             array (
                 'id' => 1287,
                 'cc_chapter_id' => 394,
@@ -14651,7 +14639,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            219 => 
+            218 => 
             array (
                 'id' => 1288,
                 'cc_chapter_id' => 395,
@@ -14663,7 +14651,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            220 => 
+            219 => 
             array (
                 'id' => 1289,
                 'cc_chapter_id' => 396,
@@ -14675,7 +14663,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            221 => 
+            220 => 
             array (
                 'id' => 1290,
                 'cc_chapter_id' => 397,
@@ -14687,7 +14675,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            222 => 
+            221 => 
             array (
                 'id' => 1291,
                 'cc_chapter_id' => 398,
@@ -14699,7 +14687,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            223 => 
+            222 => 
             array (
                 'id' => 1292,
                 'cc_chapter_id' => 399,
@@ -14711,7 +14699,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            224 => 
+            223 => 
             array (
                 'id' => 1293,
                 'cc_chapter_id' => 400,
@@ -14723,7 +14711,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            225 => 
+            224 => 
             array (
                 'id' => 1294,
                 'cc_chapter_id' => 401,
@@ -14735,7 +14723,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            226 => 
+            225 => 
             array (
                 'id' => 1295,
                 'cc_chapter_id' => 402,
@@ -14747,7 +14735,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            227 => 
+            226 => 
             array (
                 'id' => 1296,
                 'cc_chapter_id' => 403,
@@ -14759,7 +14747,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            228 => 
+            227 => 
             array (
                 'id' => 1297,
                 'cc_chapter_id' => 404,
@@ -14771,7 +14759,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            229 => 
+            228 => 
             array (
                 'id' => 1298,
                 'cc_chapter_id' => 405,
@@ -14783,7 +14771,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            230 => 
+            229 => 
             array (
                 'id' => 1299,
                 'cc_chapter_id' => 406,
@@ -14795,7 +14783,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            231 => 
+            230 => 
             array (
                 'id' => 1300,
                 'cc_chapter_id' => 407,
@@ -14807,7 +14795,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            232 => 
+            231 => 
             array (
                 'id' => 1301,
                 'cc_chapter_id' => 408,
@@ -14819,7 +14807,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            233 => 
+            232 => 
             array (
                 'id' => 1302,
                 'cc_chapter_id' => 408,
@@ -14831,7 +14819,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            234 => 
+            233 => 
             array (
                 'id' => 1303,
                 'cc_chapter_id' => 408,
@@ -14843,7 +14831,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            235 => 
+            234 => 
             array (
                 'id' => 1304,
                 'cc_chapter_id' => 408,
@@ -14855,7 +14843,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            236 => 
+            235 => 
             array (
                 'id' => 1305,
                 'cc_chapter_id' => 408,
@@ -14867,7 +14855,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            237 => 
+            236 => 
             array (
                 'id' => 1306,
                 'cc_chapter_id' => 409,
@@ -14879,7 +14867,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            238 => 
+            237 => 
             array (
                 'id' => 1307,
                 'cc_chapter_id' => 409,
@@ -14891,7 +14879,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            239 => 
+            238 => 
             array (
                 'id' => 1308,
                 'cc_chapter_id' => 409,
@@ -14903,7 +14891,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            240 => 
+            239 => 
             array (
                 'id' => 1309,
                 'cc_chapter_id' => 409,
@@ -14915,7 +14903,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            241 => 
+            240 => 
             array (
                 'id' => 1310,
                 'cc_chapter_id' => 409,
@@ -14927,7 +14915,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            242 => 
+            241 => 
             array (
                 'id' => 1311,
                 'cc_chapter_id' => 410,
@@ -14939,7 +14927,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            243 => 
+            242 => 
             array (
                 'id' => 1312,
                 'cc_chapter_id' => 410,
@@ -14951,7 +14939,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            244 => 
+            243 => 
             array (
                 'id' => 1313,
                 'cc_chapter_id' => 410,
@@ -14963,7 +14951,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            245 => 
+            244 => 
             array (
                 'id' => 1314,
                 'cc_chapter_id' => 410,
@@ -14975,7 +14963,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            246 => 
+            245 => 
             array (
                 'id' => 1315,
                 'cc_chapter_id' => 410,
@@ -14987,7 +14975,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            247 => 
+            246 => 
             array (
                 'id' => 1316,
                 'cc_chapter_id' => 411,
@@ -14999,7 +14987,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            248 => 
+            247 => 
             array (
                 'id' => 1317,
                 'cc_chapter_id' => 411,
@@ -15011,7 +14999,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            249 => 
+            248 => 
             array (
                 'id' => 1318,
                 'cc_chapter_id' => 411,
@@ -15023,7 +15011,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            250 => 
+            249 => 
             array (
                 'id' => 1319,
                 'cc_chapter_id' => 411,
@@ -15035,7 +15023,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            251 => 
+            250 => 
             array (
                 'id' => 1320,
                 'cc_chapter_id' => 411,
@@ -15047,7 +15035,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            252 => 
+            251 => 
             array (
                 'id' => 1321,
                 'cc_chapter_id' => 411,
@@ -15059,7 +15047,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            253 => 
+            252 => 
             array (
                 'id' => 1322,
                 'cc_chapter_id' => 411,
@@ -15071,7 +15059,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            254 => 
+            253 => 
             array (
                 'id' => 1323,
                 'cc_chapter_id' => 411,
@@ -15083,7 +15071,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            255 => 
+            254 => 
             array (
                 'id' => 1324,
                 'cc_chapter_id' => 411,
@@ -15095,7 +15083,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            256 => 
+            255 => 
             array (
                 'id' => 1325,
                 'cc_chapter_id' => 412,
@@ -15107,7 +15095,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            257 => 
+            256 => 
             array (
                 'id' => 1326,
                 'cc_chapter_id' => 412,
@@ -15119,7 +15107,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            258 => 
+            257 => 
             array (
                 'id' => 1327,
                 'cc_chapter_id' => 412,
@@ -15131,7 +15119,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            259 => 
+            258 => 
             array (
                 'id' => 1328,
                 'cc_chapter_id' => 412,
@@ -15143,7 +15131,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            260 => 
+            259 => 
             array (
                 'id' => 1329,
                 'cc_chapter_id' => 412,
@@ -15155,7 +15143,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            261 => 
+            260 => 
             array (
                 'id' => 1330,
                 'cc_chapter_id' => 412,
@@ -15167,7 +15155,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            262 => 
+            261 => 
             array (
                 'id' => 1331,
                 'cc_chapter_id' => 412,
@@ -15179,7 +15167,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            263 => 
+            262 => 
             array (
                 'id' => 1332,
                 'cc_chapter_id' => 412,
@@ -15191,7 +15179,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            264 => 
+            263 => 
             array (
                 'id' => 1333,
                 'cc_chapter_id' => 412,
@@ -15203,7 +15191,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            265 => 
+            264 => 
             array (
                 'id' => 1334,
                 'cc_chapter_id' => 413,
@@ -15215,7 +15203,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            266 => 
+            265 => 
             array (
                 'id' => 1335,
                 'cc_chapter_id' => 413,
@@ -15227,7 +15215,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            267 => 
+            266 => 
             array (
                 'id' => 1336,
                 'cc_chapter_id' => 413,
@@ -15239,7 +15227,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            268 => 
+            267 => 
             array (
                 'id' => 1337,
                 'cc_chapter_id' => 413,
@@ -15251,7 +15239,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            269 => 
+            268 => 
             array (
                 'id' => 1338,
                 'cc_chapter_id' => 413,
@@ -15263,7 +15251,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            270 => 
+            269 => 
             array (
                 'id' => 1339,
                 'cc_chapter_id' => 414,
@@ -15275,7 +15263,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            271 => 
+            270 => 
             array (
                 'id' => 1340,
                 'cc_chapter_id' => 414,
@@ -15287,7 +15275,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            272 => 
+            271 => 
             array (
                 'id' => 1341,
                 'cc_chapter_id' => 414,
@@ -15299,7 +15287,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            273 => 
+            272 => 
             array (
                 'id' => 1342,
                 'cc_chapter_id' => 414,
@@ -15311,7 +15299,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            274 => 
+            273 => 
             array (
                 'id' => 1343,
                 'cc_chapter_id' => 414,
@@ -15323,7 +15311,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            275 => 
+            274 => 
             array (
                 'id' => 1344,
                 'cc_chapter_id' => 414,
@@ -15335,7 +15323,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            276 => 
+            275 => 
             array (
                 'id' => 1345,
                 'cc_chapter_id' => 414,
@@ -15347,7 +15335,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            277 => 
+            276 => 
             array (
                 'id' => 1346,
                 'cc_chapter_id' => 414,
@@ -15359,7 +15347,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            278 => 
+            277 => 
             array (
                 'id' => 1347,
                 'cc_chapter_id' => 414,
@@ -15371,7 +15359,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            279 => 
+            278 => 
             array (
                 'id' => 1348,
                 'cc_chapter_id' => 414,
@@ -15383,7 +15371,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            280 => 
+            279 => 
             array (
                 'id' => 1349,
                 'cc_chapter_id' => 414,
@@ -15395,7 +15383,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            281 => 
+            280 => 
             array (
                 'id' => 1350,
                 'cc_chapter_id' => 414,
@@ -15407,7 +15395,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            282 => 
+            281 => 
             array (
                 'id' => 1351,
                 'cc_chapter_id' => 414,
@@ -15419,7 +15407,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            283 => 
+            282 => 
             array (
                 'id' => 1352,
                 'cc_chapter_id' => 414,
@@ -15431,7 +15419,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            284 => 
+            283 => 
             array (
                 'id' => 1353,
                 'cc_chapter_id' => 415,
@@ -15443,7 +15431,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            285 => 
+            284 => 
             array (
                 'id' => 1354,
                 'cc_chapter_id' => 415,
@@ -15455,7 +15443,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            286 => 
+            285 => 
             array (
                 'id' => 1355,
                 'cc_chapter_id' => 415,
@@ -15467,7 +15455,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            287 => 
+            286 => 
             array (
                 'id' => 1356,
                 'cc_chapter_id' => 415,
@@ -15479,7 +15467,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            288 => 
+            287 => 
             array (
                 'id' => 1357,
                 'cc_chapter_id' => 415,
@@ -15491,7 +15479,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            289 => 
+            288 => 
             array (
                 'id' => 1358,
                 'cc_chapter_id' => 415,
@@ -15503,7 +15491,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            290 => 
+            289 => 
             array (
                 'id' => 1359,
                 'cc_chapter_id' => 416,
@@ -15515,7 +15503,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            291 => 
+            290 => 
             array (
                 'id' => 1360,
                 'cc_chapter_id' => 416,
@@ -15527,7 +15515,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            292 => 
+            291 => 
             array (
                 'id' => 1361,
                 'cc_chapter_id' => 416,
@@ -15539,7 +15527,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            293 => 
+            292 => 
             array (
                 'id' => 1362,
                 'cc_chapter_id' => 416,
@@ -15551,7 +15539,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            294 => 
+            293 => 
             array (
                 'id' => 1363,
                 'cc_chapter_id' => 416,
@@ -15563,7 +15551,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            295 => 
+            294 => 
             array (
                 'id' => 1364,
                 'cc_chapter_id' => 416,
@@ -15575,7 +15563,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            296 => 
+            295 => 
             array (
                 'id' => 1365,
                 'cc_chapter_id' => 416,
@@ -15587,7 +15575,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            297 => 
+            296 => 
             array (
                 'id' => 1366,
                 'cc_chapter_id' => 416,
@@ -15599,7 +15587,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            298 => 
+            297 => 
             array (
                 'id' => 1367,
                 'cc_chapter_id' => 416,
@@ -15611,7 +15599,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            299 => 
+            298 => 
             array (
                 'id' => 1368,
                 'cc_chapter_id' => 417,
@@ -15623,7 +15611,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            300 => 
+            299 => 
             array (
                 'id' => 1369,
                 'cc_chapter_id' => 417,
@@ -15635,7 +15623,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            301 => 
+            300 => 
             array (
                 'id' => 1370,
                 'cc_chapter_id' => 417,
@@ -15647,7 +15635,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            302 => 
+            301 => 
             array (
                 'id' => 1371,
                 'cc_chapter_id' => 417,
@@ -15659,7 +15647,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            303 => 
+            302 => 
             array (
                 'id' => 1372,
                 'cc_chapter_id' => 417,
@@ -15671,7 +15659,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            304 => 
+            303 => 
             array (
                 'id' => 1373,
                 'cc_chapter_id' => 417,
@@ -15683,7 +15671,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            305 => 
+            304 => 
             array (
                 'id' => 1374,
                 'cc_chapter_id' => 417,
@@ -15695,7 +15683,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            306 => 
+            305 => 
             array (
                 'id' => 1375,
                 'cc_chapter_id' => 417,
@@ -15707,7 +15695,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            307 => 
+            306 => 
             array (
                 'id' => 1376,
                 'cc_chapter_id' => 417,
@@ -15719,7 +15707,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            308 => 
+            307 => 
             array (
                 'id' => 1377,
                 'cc_chapter_id' => 418,
@@ -15731,7 +15719,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            309 => 
+            308 => 
             array (
                 'id' => 1378,
                 'cc_chapter_id' => 419,
@@ -15743,7 +15731,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            310 => 
+            309 => 
             array (
                 'id' => 1379,
                 'cc_chapter_id' => 420,
@@ -15755,7 +15743,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            311 => 
+            310 => 
             array (
                 'id' => 1380,
                 'cc_chapter_id' => 421,
@@ -15767,7 +15755,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            312 => 
+            311 => 
             array (
                 'id' => 1381,
                 'cc_chapter_id' => 422,
@@ -15779,7 +15767,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            313 => 
+            312 => 
             array (
                 'id' => 1382,
                 'cc_chapter_id' => 423,
@@ -15791,7 +15779,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            314 => 
+            313 => 
             array (
                 'id' => 1383,
                 'cc_chapter_id' => 424,
@@ -15803,7 +15791,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:20:44',
                 'updated_at' => '2026-02-08 19:20:44',
             ),
-            315 => 
+            314 => 
             array (
                 'id' => 1384,
                 'cc_chapter_id' => 425,
@@ -15815,7 +15803,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:45:37',
                 'updated_at' => '2026-02-08 19:45:37',
             ),
-            316 => 
+            315 => 
             array (
                 'id' => 1385,
                 'cc_chapter_id' => 425,
@@ -15827,7 +15815,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:45:46',
                 'updated_at' => '2026-02-08 19:45:46',
             ),
-            317 => 
+            316 => 
             array (
                 'id' => 1386,
                 'cc_chapter_id' => 425,
@@ -15839,7 +15827,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:45:55',
                 'updated_at' => '2026-02-08 19:45:55',
             ),
-            318 => 
+            317 => 
             array (
                 'id' => 1387,
                 'cc_chapter_id' => 426,
@@ -15851,7 +15839,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:46:26',
                 'updated_at' => '2026-02-08 19:46:26',
             ),
-            319 => 
+            318 => 
             array (
                 'id' => 1388,
                 'cc_chapter_id' => 426,
@@ -15863,7 +15851,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:46:33',
                 'updated_at' => '2026-02-08 19:46:33',
             ),
-            320 => 
+            319 => 
             array (
                 'id' => 1389,
                 'cc_chapter_id' => 426,
@@ -15875,7 +15863,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:46:40',
                 'updated_at' => '2026-02-08 19:46:40',
             ),
-            321 => 
+            320 => 
             array (
                 'id' => 1390,
                 'cc_chapter_id' => 427,
@@ -15887,7 +15875,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:46:58',
                 'updated_at' => '2026-02-08 19:46:58',
             ),
-            322 => 
+            321 => 
             array (
                 'id' => 1391,
                 'cc_chapter_id' => 427,
@@ -15899,7 +15887,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:47:07',
                 'updated_at' => '2026-02-08 19:47:07',
             ),
-            323 => 
+            322 => 
             array (
                 'id' => 1392,
                 'cc_chapter_id' => 428,
@@ -15911,7 +15899,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:47:24',
                 'updated_at' => '2026-02-08 19:47:24',
             ),
-            324 => 
+            323 => 
             array (
                 'id' => 1393,
                 'cc_chapter_id' => 428,
@@ -15923,7 +15911,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:47:35',
                 'updated_at' => '2026-02-08 19:47:35',
             ),
-            325 => 
+            324 => 
             array (
                 'id' => 1394,
                 'cc_chapter_id' => 428,
@@ -15935,7 +15923,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:47:53',
                 'updated_at' => '2026-02-08 19:47:53',
             ),
-            326 => 
+            325 => 
             array (
                 'id' => 1395,
                 'cc_chapter_id' => 429,
@@ -15947,7 +15935,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:48:04',
                 'updated_at' => '2026-02-08 19:48:04',
             ),
-            327 => 
+            326 => 
             array (
                 'id' => 1396,
                 'cc_chapter_id' => 429,
@@ -15959,7 +15947,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:48:15',
                 'updated_at' => '2026-02-08 19:48:15',
             ),
-            328 => 
+            327 => 
             array (
                 'id' => 1397,
                 'cc_chapter_id' => 429,
@@ -15971,7 +15959,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:48:21',
                 'updated_at' => '2026-02-08 19:48:21',
             ),
-            329 => 
+            328 => 
             array (
                 'id' => 1398,
                 'cc_chapter_id' => 430,
@@ -15983,7 +15971,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:48:36',
                 'updated_at' => '2026-02-08 19:48:36',
             ),
-            330 => 
+            329 => 
             array (
                 'id' => 1399,
                 'cc_chapter_id' => 430,
@@ -15995,7 +15983,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:48:42',
                 'updated_at' => '2026-02-08 19:48:42',
             ),
-            331 => 
+            330 => 
             array (
                 'id' => 1400,
                 'cc_chapter_id' => 430,
@@ -16007,7 +15995,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:48:48',
                 'updated_at' => '2026-02-08 19:48:48',
             ),
-            332 => 
+            331 => 
             array (
                 'id' => 1401,
                 'cc_chapter_id' => 431,
@@ -16019,7 +16007,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:49:07',
                 'updated_at' => '2026-02-08 19:49:07',
             ),
-            333 => 
+            332 => 
             array (
                 'id' => 1402,
                 'cc_chapter_id' => 431,
@@ -16031,7 +16019,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:49:13',
                 'updated_at' => '2026-02-08 19:49:13',
             ),
-            334 => 
+            333 => 
             array (
                 'id' => 1403,
                 'cc_chapter_id' => 431,
@@ -16043,7 +16031,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:49:19',
                 'updated_at' => '2026-02-08 19:49:19',
             ),
-            335 => 
+            334 => 
             array (
                 'id' => 1404,
                 'cc_chapter_id' => 432,
@@ -16055,7 +16043,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:49:30',
                 'updated_at' => '2026-02-08 19:49:30',
             ),
-            336 => 
+            335 => 
             array (
                 'id' => 1405,
                 'cc_chapter_id' => 432,
@@ -16067,7 +16055,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:49:36',
                 'updated_at' => '2026-02-08 19:49:36',
             ),
-            337 => 
+            336 => 
             array (
                 'id' => 1406,
                 'cc_chapter_id' => 432,
@@ -16079,7 +16067,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:49:43',
                 'updated_at' => '2026-02-08 19:49:43',
             ),
-            338 => 
+            337 => 
             array (
                 'id' => 1408,
                 'cc_chapter_id' => 433,
@@ -16091,7 +16079,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:58:14',
                 'updated_at' => '2026-02-08 20:19:51',
             ),
-            339 => 
+            338 => 
             array (
                 'id' => 1410,
                 'cc_chapter_id' => 434,
@@ -16103,7 +16091,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:58:57',
                 'updated_at' => '2026-02-08 20:20:19',
             ),
-            340 => 
+            339 => 
             array (
                 'id' => 1411,
                 'cc_chapter_id' => 434,
@@ -16115,7 +16103,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:59:07',
                 'updated_at' => '2026-02-08 20:20:28',
             ),
-            341 => 
+            340 => 
             array (
                 'id' => 1412,
                 'cc_chapter_id' => 434,
@@ -16127,7 +16115,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:59:18',
                 'updated_at' => '2026-02-08 20:20:38',
             ),
-            342 => 
+            341 => 
             array (
                 'id' => 1413,
                 'cc_chapter_id' => 435,
@@ -16139,7 +16127,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:59:42',
                 'updated_at' => '2026-02-08 20:20:54',
             ),
-            343 => 
+            342 => 
             array (
                 'id' => 1414,
                 'cc_chapter_id' => 435,
@@ -16151,7 +16139,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 19:59:56',
                 'updated_at' => '2026-02-08 20:21:21',
             ),
-            344 => 
+            343 => 
             array (
                 'id' => 1416,
                 'cc_chapter_id' => 436,
@@ -16163,7 +16151,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:00:51',
                 'updated_at' => '2026-02-08 20:22:01',
             ),
-            345 => 
+            344 => 
             array (
                 'id' => 1417,
                 'cc_chapter_id' => 436,
@@ -16175,7 +16163,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:00:56',
                 'updated_at' => '2026-02-08 20:22:13',
             ),
-            346 => 
+            345 => 
             array (
                 'id' => 1418,
                 'cc_chapter_id' => 436,
@@ -16187,7 +16175,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:01:04',
                 'updated_at' => '2026-02-08 20:22:22',
             ),
-            347 => 
+            346 => 
             array (
                 'id' => 1420,
                 'cc_chapter_id' => 437,
@@ -16199,7 +16187,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:01:49',
                 'updated_at' => '2026-02-08 20:23:14',
             ),
-            348 => 
+            347 => 
             array (
                 'id' => 1421,
                 'cc_chapter_id' => 437,
@@ -16211,7 +16199,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:02:05',
                 'updated_at' => '2026-02-08 20:23:36',
             ),
-            349 => 
+            348 => 
             array (
                 'id' => 1422,
                 'cc_chapter_id' => 437,
@@ -16223,7 +16211,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:02:27',
                 'updated_at' => '2026-02-08 20:24:12',
             ),
-            350 => 
+            349 => 
             array (
                 'id' => 1423,
                 'cc_chapter_id' => 438,
@@ -16235,7 +16223,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:02:51',
                 'updated_at' => '2026-02-08 20:24:36',
             ),
-            351 => 
+            350 => 
             array (
                 'id' => 1424,
                 'cc_chapter_id' => 438,
@@ -16247,7 +16235,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:03:18',
                 'updated_at' => '2026-02-08 20:24:45',
             ),
-            352 => 
+            351 => 
             array (
                 'id' => 1425,
                 'cc_chapter_id' => 438,
@@ -16259,7 +16247,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:03:23',
                 'updated_at' => '2026-02-08 20:24:53',
             ),
-            353 => 
+            352 => 
             array (
                 'id' => 1426,
                 'cc_chapter_id' => 439,
@@ -16271,7 +16259,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:04:36',
                 'updated_at' => '2026-02-08 20:25:21',
             ),
-            354 => 
+            353 => 
             array (
                 'id' => 1427,
                 'cc_chapter_id' => 439,
@@ -16283,7 +16271,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:04:48',
                 'updated_at' => '2026-02-08 20:25:33',
             ),
-            355 => 
+            354 => 
             array (
                 'id' => 1428,
                 'cc_chapter_id' => 439,
@@ -16295,7 +16283,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:04:54',
                 'updated_at' => '2026-02-08 20:25:42',
             ),
-            356 => 
+            355 => 
             array (
                 'id' => 1429,
                 'cc_chapter_id' => 440,
@@ -16307,7 +16295,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:09:44',
                 'updated_at' => '2026-02-08 20:26:00',
             ),
-            357 => 
+            356 => 
             array (
                 'id' => 1430,
                 'cc_chapter_id' => 440,
@@ -16319,19 +16307,19 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:09:54',
                 'updated_at' => '2026-02-08 20:26:08',
             ),
-            358 => 
+            357 => 
             array (
                 'id' => 1432,
                 'cc_chapter_id' => 441,
                 'parent_id' => NULL,
-                'name' => 'ساختار و عملکرد لولۀ گوارش',
+                'name' => 'ساختار و عملکرد لوله گوارش',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 20:10:20',
-                'updated_at' => '2026-02-08 20:10:20',
+                'updated_at' => '2026-02-27 21:53:15',
             ),
-            359 => 
+            358 => 
             array (
                 'id' => 1433,
                 'cc_chapter_id' => 441,
@@ -16343,7 +16331,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:10:27',
                 'updated_at' => '2026-02-08 20:10:27',
             ),
-            360 => 
+            359 => 
             array (
                 'id' => 1434,
                 'cc_chapter_id' => 441,
@@ -16355,7 +16343,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:10:37',
                 'updated_at' => '2026-02-08 20:10:37',
             ),
-            361 => 
+            360 => 
             array (
                 'id' => 1435,
                 'cc_chapter_id' => 442,
@@ -16367,19 +16355,19 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:10:57',
                 'updated_at' => '2026-02-08 20:10:57',
             ),
-            362 => 
+            361 => 
             array (
                 'id' => 1436,
                 'cc_chapter_id' => 442,
                 'parent_id' => NULL,
-                'name' => 'تهویۀ ششی',
+                'name' => 'تهویه ششی',
                 'has_subtopics' => 0,
                 'order' => 1,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 20:11:05',
-                'updated_at' => '2026-02-08 20:11:05',
+                'updated_at' => '2026-02-27 21:53:26',
             ),
-            363 => 
+            362 => 
             array (
                 'id' => 1437,
                 'cc_chapter_id' => 442,
@@ -16391,7 +16379,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:11:13',
                 'updated_at' => '2026-02-08 20:11:13',
             ),
-            364 => 
+            363 => 
             array (
                 'id' => 1438,
                 'cc_chapter_id' => 443,
@@ -16403,7 +16391,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:11:53',
                 'updated_at' => '2026-02-08 20:11:53',
             ),
-            365 => 
+            364 => 
             array (
                 'id' => 1439,
                 'cc_chapter_id' => 443,
@@ -16415,7 +16403,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:12:01',
                 'updated_at' => '2026-02-08 20:12:01',
             ),
-            366 => 
+            365 => 
             array (
                 'id' => 1440,
                 'cc_chapter_id' => 443,
@@ -16427,7 +16415,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:12:10',
                 'updated_at' => '2026-02-08 20:12:10',
             ),
-            367 => 
+            366 => 
             array (
                 'id' => 1441,
                 'cc_chapter_id' => 443,
@@ -16439,7 +16427,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:12:20',
                 'updated_at' => '2026-02-08 20:12:20',
             ),
-            368 => 
+            367 => 
             array (
                 'id' => 1442,
                 'cc_chapter_id' => 444,
@@ -16451,7 +16439,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:12:34',
                 'updated_at' => '2026-02-08 20:12:34',
             ),
-            369 => 
+            368 => 
             array (
                 'id' => 1443,
                 'cc_chapter_id' => 444,
@@ -16463,7 +16451,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:12:40',
                 'updated_at' => '2026-02-08 20:12:40',
             ),
-            370 => 
+            369 => 
             array (
                 'id' => 1444,
                 'cc_chapter_id' => 444,
@@ -16475,19 +16463,19 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:12:48',
                 'updated_at' => '2026-02-08 20:12:48',
             ),
-            371 => 
+            370 => 
             array (
                 'id' => 1445,
                 'cc_chapter_id' => 445,
                 'parent_id' => NULL,
-                'name' => 'ویژگی های یاختۀ گیاهی',
+                'name' => 'ویژگی های یاخته گیاهی',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 20:13:05',
-                'updated_at' => '2026-02-08 20:13:05',
+                'updated_at' => '2026-02-27 21:53:54',
             ),
-            372 => 
+            371 => 
             array (
                 'id' => 1446,
                 'cc_chapter_id' => 445,
@@ -16499,7 +16487,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:13:14',
                 'updated_at' => '2026-02-08 20:13:14',
             ),
-            373 => 
+            372 => 
             array (
                 'id' => 1447,
                 'cc_chapter_id' => 445,
@@ -16511,31 +16499,31 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:13:25',
                 'updated_at' => '2026-02-08 20:13:25',
             ),
-            374 => 
+            373 => 
             array (
                 'id' => 1448,
                 'cc_chapter_id' => 446,
                 'parent_id' => NULL,
-                'name' => 'تغذیۀ گیاهی',
+                'name' => 'تغذیه گیاهی',
                 'has_subtopics' => 0,
                 'order' => 0,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 20:13:39',
-                'updated_at' => '2026-02-08 20:13:39',
+                'updated_at' => '2026-02-27 21:54:07',
             ),
-            375 => 
+            374 => 
             array (
                 'id' => 1449,
                 'cc_chapter_id' => 446,
                 'parent_id' => NULL,
-                'name' => 'جانداران مؤثر در تغذیۀ گیاهی',
+                'name' => 'جانداران موثر در تغذیۀ گیاهی',
                 'has_subtopics' => 0,
                 'order' => 1,
                 'is_active' => 1,
                 'created_at' => '2026-02-08 20:13:49',
-                'updated_at' => '2026-02-08 20:13:49',
+                'updated_at' => '2026-02-27 21:54:14',
             ),
-            376 => 
+            375 => 
             array (
                 'id' => 1450,
                 'cc_chapter_id' => 446,
@@ -16547,7 +16535,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:13:59',
                 'updated_at' => '2026-02-08 20:13:59',
             ),
-            377 => 
+            376 => 
             array (
                 'id' => 1451,
                 'cc_chapter_id' => 433,
@@ -16559,7 +16547,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:19:16',
                 'updated_at' => '2026-02-08 20:19:16',
             ),
-            378 => 
+            377 => 
             array (
                 'id' => 1452,
                 'cc_chapter_id' => 438,
@@ -16571,7 +16559,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:25:03',
                 'updated_at' => '2026-02-08 20:25:03',
             ),
-            379 => 
+            378 => 
             array (
                 'id' => 1453,
                 'cc_chapter_id' => 447,
@@ -16583,7 +16571,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:28:44',
                 'updated_at' => '2026-02-08 20:28:44',
             ),
-            380 => 
+            379 => 
             array (
                 'id' => 1454,
                 'cc_chapter_id' => 447,
@@ -16595,7 +16583,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-08 20:28:51',
                 'updated_at' => '2026-02-08 20:28:51',
             ),
-            381 => 
+            380 => 
             array (
                 'id' => 1455,
                 'cc_chapter_id' => 449,
@@ -16607,7 +16595,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:00:25',
                 'updated_at' => '2026-02-16 15:00:25',
             ),
-            382 => 
+            381 => 
             array (
                 'id' => 1456,
                 'cc_chapter_id' => 450,
@@ -16619,7 +16607,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:00:44',
                 'updated_at' => '2026-02-16 15:00:44',
             ),
-            383 => 
+            382 => 
             array (
                 'id' => 1457,
                 'cc_chapter_id' => 451,
@@ -16631,7 +16619,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:01:06',
                 'updated_at' => '2026-02-16 15:01:06',
             ),
-            384 => 
+            383 => 
             array (
                 'id' => 1458,
                 'cc_chapter_id' => 452,
@@ -16643,7 +16631,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:01:32',
                 'updated_at' => '2026-02-16 15:01:32',
             ),
-            385 => 
+            384 => 
             array (
                 'id' => 1459,
                 'cc_chapter_id' => 453,
@@ -16655,7 +16643,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:01:52',
                 'updated_at' => '2026-02-16 15:01:52',
             ),
-            386 => 
+            385 => 
             array (
                 'id' => 1460,
                 'cc_chapter_id' => 454,
@@ -16667,7 +16655,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:02:12',
                 'updated_at' => '2026-02-16 15:02:12',
             ),
-            387 => 
+            386 => 
             array (
                 'id' => 1461,
                 'cc_chapter_id' => 455,
@@ -16679,7 +16667,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:02:42',
                 'updated_at' => '2026-02-16 15:02:42',
             ),
-            388 => 
+            387 => 
             array (
                 'id' => 1462,
                 'cc_chapter_id' => 456,
@@ -16691,7 +16679,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:03:01',
                 'updated_at' => '2026-02-16 15:03:01',
             ),
-            389 => 
+            388 => 
             array (
                 'id' => 1463,
                 'cc_chapter_id' => 457,
@@ -16703,7 +16691,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:03:18',
                 'updated_at' => '2026-02-16 15:03:18',
             ),
-            390 => 
+            389 => 
             array (
                 'id' => 1464,
                 'cc_chapter_id' => 458,
@@ -16715,7 +16703,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:03:34',
                 'updated_at' => '2026-02-16 15:03:34',
             ),
-            391 => 
+            390 => 
             array (
                 'id' => 1465,
                 'cc_chapter_id' => 459,
@@ -16727,7 +16715,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:03:52',
                 'updated_at' => '2026-02-16 15:03:52',
             ),
-            392 => 
+            391 => 
             array (
                 'id' => 1466,
                 'cc_chapter_id' => 460,
@@ -16739,7 +16727,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:06:56',
                 'updated_at' => '2026-02-16 15:07:02',
             ),
-            393 => 
+            392 => 
             array (
                 'id' => 1467,
                 'cc_chapter_id' => 460,
@@ -16751,7 +16739,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:07:15',
                 'updated_at' => '2026-02-16 15:07:21',
             ),
-            394 => 
+            393 => 
             array (
                 'id' => 1468,
                 'cc_chapter_id' => 460,
@@ -16763,7 +16751,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:07:39',
                 'updated_at' => '2026-02-16 15:07:39',
             ),
-            395 => 
+            394 => 
             array (
                 'id' => 1469,
                 'cc_chapter_id' => 460,
@@ -16775,7 +16763,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:07:52',
                 'updated_at' => '2026-02-16 15:07:52',
             ),
-            396 => 
+            395 => 
             array (
                 'id' => 1470,
                 'cc_chapter_id' => 460,
@@ -16787,7 +16775,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:08:18',
                 'updated_at' => '2026-02-16 15:08:18',
             ),
-            397 => 
+            396 => 
             array (
                 'id' => 1473,
                 'cc_chapter_id' => 460,
@@ -16799,7 +16787,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:09:07',
                 'updated_at' => '2026-02-16 15:09:07',
             ),
-            398 => 
+            397 => 
             array (
                 'id' => 1474,
                 'cc_chapter_id' => 460,
@@ -16811,7 +16799,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:09:23',
                 'updated_at' => '2026-02-16 15:09:23',
             ),
-            399 => 
+            398 => 
             array (
                 'id' => 1476,
                 'cc_chapter_id' => 460,
@@ -16823,7 +16811,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:09:52',
                 'updated_at' => '2026-02-16 15:09:52',
             ),
-            400 => 
+            399 => 
             array (
                 'id' => 1478,
                 'cc_chapter_id' => 460,
@@ -16835,7 +16823,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:10:26',
                 'updated_at' => '2026-02-16 15:10:26',
             ),
-            401 => 
+            400 => 
             array (
                 'id' => 1479,
                 'cc_chapter_id' => 460,
@@ -16847,7 +16835,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:10:39',
                 'updated_at' => '2026-02-16 15:10:39',
             ),
-            402 => 
+            401 => 
             array (
                 'id' => 1480,
                 'cc_chapter_id' => 460,
@@ -16859,7 +16847,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:11:06',
                 'updated_at' => '2026-02-16 15:11:06',
             ),
-            403 => 
+            402 => 
             array (
                 'id' => 1481,
                 'cc_chapter_id' => 460,
@@ -16871,7 +16859,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:11:24',
                 'updated_at' => '2026-02-16 15:11:24',
             ),
-            404 => 
+            403 => 
             array (
                 'id' => 1483,
                 'cc_chapter_id' => 460,
@@ -16883,7 +16871,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:12:26',
                 'updated_at' => '2026-02-16 15:12:26',
             ),
-            405 => 
+            404 => 
             array (
                 'id' => 1484,
                 'cc_chapter_id' => 460,
@@ -16895,7 +16883,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:12:49',
                 'updated_at' => '2026-02-16 15:12:49',
             ),
-            406 => 
+            405 => 
             array (
                 'id' => 1485,
                 'cc_chapter_id' => 461,
@@ -16907,7 +16895,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:13:37',
                 'updated_at' => '2026-02-16 15:13:43',
             ),
-            407 => 
+            406 => 
             array (
                 'id' => 1486,
                 'cc_chapter_id' => 461,
@@ -16919,7 +16907,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:13:56',
                 'updated_at' => '2026-02-16 15:13:56',
             ),
-            408 => 
+            407 => 
             array (
                 'id' => 1487,
                 'cc_chapter_id' => 461,
@@ -16931,7 +16919,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:14:07',
                 'updated_at' => '2026-02-16 15:16:05',
             ),
-            409 => 
+            408 => 
             array (
                 'id' => 1488,
                 'cc_chapter_id' => 461,
@@ -16943,7 +16931,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:14:22',
                 'updated_at' => '2026-02-16 15:14:22',
             ),
-            410 => 
+            409 => 
             array (
                 'id' => 1489,
                 'cc_chapter_id' => 461,
@@ -16955,7 +16943,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:14:37',
                 'updated_at' => '2026-02-16 15:14:37',
             ),
-            411 => 
+            410 => 
             array (
                 'id' => 1490,
                 'cc_chapter_id' => 461,
@@ -16967,7 +16955,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:14:50',
                 'updated_at' => '2026-02-16 15:14:50',
             ),
-            412 => 
+            411 => 
             array (
                 'id' => 1491,
                 'cc_chapter_id' => 461,
@@ -16979,7 +16967,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:15:08',
                 'updated_at' => '2026-02-16 15:15:08',
             ),
-            413 => 
+            412 => 
             array (
                 'id' => 1492,
                 'cc_chapter_id' => 461,
@@ -16991,7 +16979,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:15:27',
                 'updated_at' => '2026-02-16 15:15:27',
             ),
-            414 => 
+            413 => 
             array (
                 'id' => 1493,
                 'cc_chapter_id' => 461,
@@ -17003,7 +16991,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:16:13',
                 'updated_at' => '2026-02-16 15:16:13',
             ),
-            415 => 
+            414 => 
             array (
                 'id' => 1495,
                 'cc_chapter_id' => 461,
@@ -17015,7 +17003,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:16:38',
                 'updated_at' => '2026-02-16 15:16:38',
             ),
-            416 => 
+            415 => 
             array (
                 'id' => 1496,
                 'cc_chapter_id' => 462,
@@ -17027,7 +17015,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:17:06',
                 'updated_at' => '2026-02-16 15:17:11',
             ),
-            417 => 
+            416 => 
             array (
                 'id' => 1497,
                 'cc_chapter_id' => 462,
@@ -17039,7 +17027,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:17:18',
                 'updated_at' => '2026-02-16 15:17:18',
             ),
-            418 => 
+            417 => 
             array (
                 'id' => 1498,
                 'cc_chapter_id' => 462,
@@ -17051,7 +17039,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:17:29',
                 'updated_at' => '2026-02-16 15:17:29',
             ),
-            419 => 
+            418 => 
             array (
                 'id' => 1499,
                 'cc_chapter_id' => 462,
@@ -17063,7 +17051,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:17:37',
                 'updated_at' => '2026-02-16 15:17:37',
             ),
-            420 => 
+            419 => 
             array (
                 'id' => 1500,
                 'cc_chapter_id' => 462,
@@ -17075,7 +17063,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:17:46',
                 'updated_at' => '2026-02-16 15:17:46',
             ),
-            421 => 
+            420 => 
             array (
                 'id' => 1501,
                 'cc_chapter_id' => 463,
@@ -17087,7 +17075,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:18:17',
                 'updated_at' => '2026-02-16 15:18:17',
             ),
-            422 => 
+            421 => 
             array (
                 'id' => 1502,
                 'cc_chapter_id' => 463,
@@ -17099,7 +17087,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:18:26',
                 'updated_at' => '2026-02-16 15:18:26',
             ),
-            423 => 
+            422 => 
             array (
                 'id' => 1503,
                 'cc_chapter_id' => 463,
@@ -17111,7 +17099,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:18:38',
                 'updated_at' => '2026-02-16 15:18:56',
             ),
-            424 => 
+            423 => 
             array (
                 'id' => 1504,
                 'cc_chapter_id' => 463,
@@ -17123,7 +17111,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:18:49',
                 'updated_at' => '2026-02-16 15:19:00',
             ),
-            425 => 
+            424 => 
             array (
                 'id' => 1505,
                 'cc_chapter_id' => 463,
@@ -17135,7 +17123,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:19:11',
                 'updated_at' => '2026-02-16 15:19:11',
             ),
-            426 => 
+            425 => 
             array (
                 'id' => 1506,
                 'cc_chapter_id' => 463,
@@ -17147,7 +17135,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:19:24',
                 'updated_at' => '2026-02-16 15:19:24',
             ),
-            427 => 
+            426 => 
             array (
                 'id' => 1507,
                 'cc_chapter_id' => 463,
@@ -17159,7 +17147,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:19:45',
                 'updated_at' => '2026-02-16 15:19:45',
             ),
-            428 => 
+            427 => 
             array (
                 'id' => 1508,
                 'cc_chapter_id' => 463,
@@ -17171,7 +17159,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:20:04',
                 'updated_at' => '2026-02-16 15:20:04',
             ),
-            429 => 
+            428 => 
             array (
                 'id' => 1509,
                 'cc_chapter_id' => 464,
@@ -17183,7 +17171,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:20:30',
                 'updated_at' => '2026-02-16 15:21:13',
             ),
-            430 => 
+            429 => 
             array (
                 'id' => 1510,
                 'cc_chapter_id' => 464,
@@ -17195,7 +17183,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:20:48',
                 'updated_at' => '2026-02-16 15:20:48',
             ),
-            431 => 
+            430 => 
             array (
                 'id' => 1511,
                 'cc_chapter_id' => 464,
@@ -17207,7 +17195,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:21:04',
                 'updated_at' => '2026-02-16 15:21:04',
             ),
-            432 => 
+            431 => 
             array (
                 'id' => 1512,
                 'cc_chapter_id' => 464,
@@ -17219,7 +17207,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:21:36',
                 'updated_at' => '2026-02-16 15:21:36',
             ),
-            433 => 
+            432 => 
             array (
                 'id' => 1513,
                 'cc_chapter_id' => 464,
@@ -17231,7 +17219,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:21:51',
                 'updated_at' => '2026-02-16 15:21:51',
             ),
-            434 => 
+            433 => 
             array (
                 'id' => 1514,
                 'cc_chapter_id' => 464,
@@ -17243,7 +17231,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:22:14',
                 'updated_at' => '2026-02-16 15:22:14',
             ),
-            435 => 
+            434 => 
             array (
                 'id' => 1515,
                 'cc_chapter_id' => 464,
@@ -17255,7 +17243,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:22:29',
                 'updated_at' => '2026-02-16 15:22:29',
             ),
-            436 => 
+            435 => 
             array (
                 'id' => 1516,
                 'cc_chapter_id' => 464,
@@ -17267,7 +17255,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:23:36',
                 'updated_at' => '2026-02-16 15:23:36',
             ),
-            437 => 
+            436 => 
             array (
                 'id' => 1517,
                 'cc_chapter_id' => 464,
@@ -17279,7 +17267,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:24:21',
                 'updated_at' => '2026-02-16 15:24:21',
             ),
-            438 => 
+            437 => 
             array (
                 'id' => 1518,
                 'cc_chapter_id' => 464,
@@ -17291,7 +17279,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:24:34',
                 'updated_at' => '2026-02-16 15:24:34',
             ),
-            439 => 
+            438 => 
             array (
                 'id' => 1519,
                 'cc_chapter_id' => 465,
@@ -17303,7 +17291,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:25:08',
                 'updated_at' => '2026-02-16 15:25:42',
             ),
-            440 => 
+            439 => 
             array (
                 'id' => 1520,
                 'cc_chapter_id' => 465,
@@ -17315,7 +17303,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:25:17',
                 'updated_at' => '2026-02-16 15:26:28',
             ),
-            441 => 
+            440 => 
             array (
                 'id' => 1521,
                 'cc_chapter_id' => 465,
@@ -17327,7 +17315,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:25:27',
                 'updated_at' => '2026-02-16 15:27:23',
             ),
-            442 => 
+            441 => 
             array (
                 'id' => 1522,
                 'cc_chapter_id' => 465,
@@ -17339,7 +17327,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:25:52',
                 'updated_at' => '2026-02-16 15:25:52',
             ),
-            443 => 
+            442 => 
             array (
                 'id' => 1523,
                 'cc_chapter_id' => 465,
@@ -17351,7 +17339,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:26:08',
                 'updated_at' => '2026-02-16 15:26:08',
             ),
-            444 => 
+            443 => 
             array (
                 'id' => 1524,
                 'cc_chapter_id' => 465,
@@ -17363,7 +17351,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:26:39',
                 'updated_at' => '2026-02-16 15:26:39',
             ),
-            445 => 
+            444 => 
             array (
                 'id' => 1525,
                 'cc_chapter_id' => 465,
@@ -17375,7 +17363,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:26:55',
                 'updated_at' => '2026-02-16 15:26:55',
             ),
-            446 => 
+            445 => 
             array (
                 'id' => 1526,
                 'cc_chapter_id' => 465,
@@ -17387,7 +17375,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:27:32',
                 'updated_at' => '2026-02-16 15:27:32',
             ),
-            447 => 
+            446 => 
             array (
                 'id' => 1527,
                 'cc_chapter_id' => 465,
@@ -17399,7 +17387,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:27:50',
                 'updated_at' => '2026-02-16 15:27:50',
             ),
-            448 => 
+            447 => 
             array (
                 'id' => 1528,
                 'cc_chapter_id' => 466,
@@ -17411,7 +17399,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:28:11',
                 'updated_at' => '2026-02-16 15:28:11',
             ),
-            449 => 
+            448 => 
             array (
                 'id' => 1529,
                 'cc_chapter_id' => 466,
@@ -17423,7 +17411,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:28:26',
                 'updated_at' => '2026-02-16 15:28:26',
             ),
-            450 => 
+            449 => 
             array (
                 'id' => 1530,
                 'cc_chapter_id' => 466,
@@ -17435,7 +17423,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:28:41',
                 'updated_at' => '2026-02-16 15:28:41',
             ),
-            451 => 
+            450 => 
             array (
                 'id' => 1531,
                 'cc_chapter_id' => 466,
@@ -17447,7 +17435,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:28:53',
                 'updated_at' => '2026-02-16 15:28:53',
             ),
-            452 => 
+            451 => 
             array (
                 'id' => 1532,
                 'cc_chapter_id' => 466,
@@ -17459,7 +17447,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:29:08',
                 'updated_at' => '2026-02-16 15:29:08',
             ),
-            453 => 
+            452 => 
             array (
                 'id' => 1533,
                 'cc_chapter_id' => 466,
@@ -17471,7 +17459,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:29:31',
                 'updated_at' => '2026-02-16 15:29:31',
             ),
-            454 => 
+            453 => 
             array (
                 'id' => 1535,
                 'cc_chapter_id' => 466,
@@ -17483,7 +17471,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:30:12',
                 'updated_at' => '2026-02-16 15:30:12',
             ),
-            455 => 
+            454 => 
             array (
                 'id' => 1536,
                 'cc_chapter_id' => 467,
@@ -17495,7 +17483,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:30:52',
                 'updated_at' => '2026-02-16 15:31:18',
             ),
-            456 => 
+            455 => 
             array (
                 'id' => 1537,
                 'cc_chapter_id' => 467,
@@ -17507,7 +17495,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:31:01',
                 'updated_at' => '2026-02-16 15:31:58',
             ),
-            457 => 
+            456 => 
             array (
                 'id' => 1538,
                 'cc_chapter_id' => 467,
@@ -17519,7 +17507,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:31:10',
                 'updated_at' => '2026-02-16 15:33:02',
             ),
-            458 => 
+            457 => 
             array (
                 'id' => 1539,
                 'cc_chapter_id' => 467,
@@ -17531,7 +17519,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:31:29',
                 'updated_at' => '2026-02-16 15:31:29',
             ),
-            459 => 
+            458 => 
             array (
                 'id' => 1540,
                 'cc_chapter_id' => 467,
@@ -17543,7 +17531,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:31:45',
                 'updated_at' => '2026-02-16 15:31:45',
             ),
-            460 => 
+            459 => 
             array (
                 'id' => 1541,
                 'cc_chapter_id' => 467,
@@ -17555,7 +17543,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:32:17',
                 'updated_at' => '2026-02-16 15:32:17',
             ),
-            461 => 
+            460 => 
             array (
                 'id' => 1542,
                 'cc_chapter_id' => 467,
@@ -17567,7 +17555,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:32:34',
                 'updated_at' => '2026-02-16 15:32:34',
             ),
-            462 => 
+            461 => 
             array (
                 'id' => 1543,
                 'cc_chapter_id' => 467,
@@ -17579,7 +17567,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:33:10',
                 'updated_at' => '2026-02-16 15:33:10',
             ),
-            463 => 
+            462 => 
             array (
                 'id' => 1544,
                 'cc_chapter_id' => 467,
@@ -17591,7 +17579,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:33:27',
                 'updated_at' => '2026-02-16 15:33:27',
             ),
-            464 => 
+            463 => 
             array (
                 'id' => 1545,
                 'cc_chapter_id' => 467,
@@ -17603,7 +17591,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:33:46',
                 'updated_at' => '2026-02-16 15:33:46',
             ),
-            465 => 
+            464 => 
             array (
                 'id' => 1546,
                 'cc_chapter_id' => 467,
@@ -17615,7 +17603,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:34:05',
                 'updated_at' => '2026-02-16 15:34:05',
             ),
-            466 => 
+            465 => 
             array (
                 'id' => 1547,
                 'cc_chapter_id' => 468,
@@ -17627,7 +17615,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:34:48',
                 'updated_at' => '2026-02-16 15:34:48',
             ),
-            467 => 
+            466 => 
             array (
                 'id' => 1548,
                 'cc_chapter_id' => 469,
@@ -17639,7 +17627,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:39:08',
                 'updated_at' => '2026-02-16 15:39:08',
             ),
-            468 => 
+            467 => 
             array (
                 'id' => 1549,
                 'cc_chapter_id' => 469,
@@ -17651,7 +17639,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:39:13',
                 'updated_at' => '2026-02-16 15:39:13',
             ),
-            469 => 
+            468 => 
             array (
                 'id' => 1550,
                 'cc_chapter_id' => 469,
@@ -17663,7 +17651,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:39:20',
                 'updated_at' => '2026-02-16 15:39:20',
             ),
-            470 => 
+            469 => 
             array (
                 'id' => 1551,
                 'cc_chapter_id' => 469,
@@ -17675,7 +17663,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:39:27',
                 'updated_at' => '2026-02-16 15:39:27',
             ),
-            471 => 
+            470 => 
             array (
                 'id' => 1552,
                 'cc_chapter_id' => 470,
@@ -17687,7 +17675,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:39:45',
                 'updated_at' => '2026-02-16 15:39:45',
             ),
-            472 => 
+            471 => 
             array (
                 'id' => 1553,
                 'cc_chapter_id' => 470,
@@ -17699,7 +17687,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:39:53',
                 'updated_at' => '2026-02-16 15:39:53',
             ),
-            473 => 
+            472 => 
             array (
                 'id' => 1554,
                 'cc_chapter_id' => 470,
@@ -17711,7 +17699,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:40:03',
                 'updated_at' => '2026-02-16 15:40:03',
             ),
-            474 => 
+            473 => 
             array (
                 'id' => 1555,
                 'cc_chapter_id' => 471,
@@ -17723,7 +17711,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:40:21',
                 'updated_at' => '2026-02-16 15:40:21',
             ),
-            475 => 
+            474 => 
             array (
                 'id' => 1556,
                 'cc_chapter_id' => 471,
@@ -17735,7 +17723,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:40:26',
                 'updated_at' => '2026-02-16 15:40:26',
             ),
-            476 => 
+            475 => 
             array (
                 'id' => 1557,
                 'cc_chapter_id' => 471,
@@ -17747,7 +17735,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:40:32',
                 'updated_at' => '2026-02-16 15:40:32',
             ),
-            477 => 
+            476 => 
             array (
                 'id' => 1558,
                 'cc_chapter_id' => 472,
@@ -17759,7 +17747,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:40:50',
                 'updated_at' => '2026-02-16 15:40:50',
             ),
-            478 => 
+            477 => 
             array (
                 'id' => 1559,
                 'cc_chapter_id' => 472,
@@ -17771,7 +17759,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:40:55',
                 'updated_at' => '2026-02-16 15:40:55',
             ),
-            479 => 
+            478 => 
             array (
                 'id' => 1560,
                 'cc_chapter_id' => 472,
@@ -17783,7 +17771,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:41:01',
                 'updated_at' => '2026-02-16 15:41:01',
             ),
-            480 => 
+            479 => 
             array (
                 'id' => 1561,
                 'cc_chapter_id' => 472,
@@ -17795,7 +17783,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:41:07',
                 'updated_at' => '2026-02-16 15:41:07',
             ),
-            481 => 
+            480 => 
             array (
                 'id' => 1562,
                 'cc_chapter_id' => 473,
@@ -17807,7 +17795,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:41:20',
                 'updated_at' => '2026-02-16 15:41:20',
             ),
-            482 => 
+            481 => 
             array (
                 'id' => 1563,
                 'cc_chapter_id' => 473,
@@ -17819,7 +17807,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:41:26',
                 'updated_at' => '2026-02-16 15:41:26',
             ),
-            483 => 
+            482 => 
             array (
                 'id' => 1564,
                 'cc_chapter_id' => 473,
@@ -17831,7 +17819,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:41:32',
                 'updated_at' => '2026-02-16 15:41:32',
             ),
-            484 => 
+            483 => 
             array (
                 'id' => 1565,
                 'cc_chapter_id' => 473,
@@ -17843,7 +17831,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:41:39',
                 'updated_at' => '2026-02-16 15:41:39',
             ),
-            485 => 
+            484 => 
             array (
                 'id' => 1566,
                 'cc_chapter_id' => 473,
@@ -17855,7 +17843,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:41:50',
                 'updated_at' => '2026-02-16 15:41:50',
             ),
-            486 => 
+            485 => 
             array (
                 'id' => 1567,
                 'cc_chapter_id' => 474,
@@ -17867,7 +17855,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:42:04',
                 'updated_at' => '2026-02-16 15:42:04',
             ),
-            487 => 
+            486 => 
             array (
                 'id' => 1568,
                 'cc_chapter_id' => 474,
@@ -17879,7 +17867,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:42:10',
                 'updated_at' => '2026-02-16 15:42:10',
             ),
-            488 => 
+            487 => 
             array (
                 'id' => 1569,
                 'cc_chapter_id' => 474,
@@ -17891,7 +17879,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:42:18',
                 'updated_at' => '2026-02-16 15:42:18',
             ),
-            489 => 
+            488 => 
             array (
                 'id' => 1570,
                 'cc_chapter_id' => 474,
@@ -17903,7 +17891,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:42:25',
                 'updated_at' => '2026-02-16 15:42:25',
             ),
-            490 => 
+            489 => 
             array (
                 'id' => 1571,
                 'cc_chapter_id' => 474,
@@ -17915,7 +17903,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:42:31',
                 'updated_at' => '2026-02-16 15:42:31',
             ),
-            491 => 
+            490 => 
             array (
                 'id' => 1572,
                 'cc_chapter_id' => 475,
@@ -17927,7 +17915,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:42:49',
                 'updated_at' => '2026-02-16 15:42:49',
             ),
-            492 => 
+            491 => 
             array (
                 'id' => 1573,
                 'cc_chapter_id' => 475,
@@ -17939,7 +17927,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:42:56',
                 'updated_at' => '2026-02-16 15:42:56',
             ),
-            493 => 
+            492 => 
             array (
                 'id' => 1574,
                 'cc_chapter_id' => 475,
@@ -17951,7 +17939,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:43:09',
                 'updated_at' => '2026-02-16 15:43:09',
             ),
-            494 => 
+            493 => 
             array (
                 'id' => 1575,
                 'cc_chapter_id' => 475,
@@ -17963,7 +17951,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:43:14',
                 'updated_at' => '2026-02-16 15:43:14',
             ),
-            495 => 
+            494 => 
             array (
                 'id' => 1576,
                 'cc_chapter_id' => 476,
@@ -17975,7 +17963,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:43:29',
                 'updated_at' => '2026-02-16 15:43:29',
             ),
-            496 => 
+            495 => 
             array (
                 'id' => 1577,
                 'cc_chapter_id' => 476,
@@ -17987,7 +17975,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:43:34',
                 'updated_at' => '2026-02-16 15:43:34',
             ),
-            497 => 
+            496 => 
             array (
                 'id' => 1578,
                 'cc_chapter_id' => 476,
@@ -17999,7 +17987,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:43:40',
                 'updated_at' => '2026-02-16 15:43:40',
             ),
-            498 => 
+            497 => 
             array (
                 'id' => 1579,
                 'cc_chapter_id' => 476,
@@ -18011,7 +17999,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:43:48',
                 'updated_at' => '2026-02-16 15:43:48',
             ),
-            499 => 
+            498 => 
             array (
                 'id' => 1580,
                 'cc_chapter_id' => 477,
@@ -18023,9 +18011,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:44:06',
                 'updated_at' => '2026-02-16 15:44:06',
             ),
-        ));
-        \DB::table('cc_topics')->insert(array (
-            0 => 
+            499 => 
             array (
                 'id' => 1581,
                 'cc_chapter_id' => 477,
@@ -18037,7 +18023,9 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:44:12',
                 'updated_at' => '2026-02-16 15:44:12',
             ),
-            1 => 
+        ));
+        \DB::table('cc_topics')->insert(array (
+            0 => 
             array (
                 'id' => 1582,
                 'cc_chapter_id' => 477,
@@ -18049,7 +18037,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:44:23',
                 'updated_at' => '2026-02-16 15:44:23',
             ),
-            2 => 
+            1 => 
             array (
                 'id' => 1583,
                 'cc_chapter_id' => 477,
@@ -18061,7 +18049,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:44:32',
                 'updated_at' => '2026-02-16 15:44:32',
             ),
-            3 => 
+            2 => 
             array (
                 'id' => 1584,
                 'cc_chapter_id' => 477,
@@ -18073,7 +18061,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:44:37',
                 'updated_at' => '2026-02-16 15:44:37',
             ),
-            4 => 
+            3 => 
             array (
                 'id' => 1585,
                 'cc_chapter_id' => 477,
@@ -18085,7 +18073,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:44:43',
                 'updated_at' => '2026-02-16 15:44:43',
             ),
-            5 => 
+            4 => 
             array (
                 'id' => 1586,
                 'cc_chapter_id' => 477,
@@ -18097,7 +18085,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:44:52',
                 'updated_at' => '2026-02-16 15:44:52',
             ),
-            6 => 
+            5 => 
             array (
                 'id' => 1587,
                 'cc_chapter_id' => 478,
@@ -18109,7 +18097,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:45:08',
                 'updated_at' => '2026-02-16 15:45:08',
             ),
-            7 => 
+            6 => 
             array (
                 'id' => 1588,
                 'cc_chapter_id' => 478,
@@ -18121,7 +18109,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:45:13',
                 'updated_at' => '2026-02-16 15:45:13',
             ),
-            8 => 
+            7 => 
             array (
                 'id' => 1589,
                 'cc_chapter_id' => 478,
@@ -18133,7 +18121,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:45:18',
                 'updated_at' => '2026-02-16 15:45:18',
             ),
-            9 => 
+            8 => 
             array (
                 'id' => 1590,
                 'cc_chapter_id' => 478,
@@ -18145,7 +18133,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:45:26',
                 'updated_at' => '2026-02-16 15:45:26',
             ),
-            10 => 
+            9 => 
             array (
                 'id' => 1591,
                 'cc_chapter_id' => 478,
@@ -18157,7 +18145,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:45:32',
                 'updated_at' => '2026-02-16 15:45:32',
             ),
-            11 => 
+            10 => 
             array (
                 'id' => 1592,
                 'cc_chapter_id' => 479,
@@ -18169,7 +18157,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:45:48',
                 'updated_at' => '2026-02-16 15:45:48',
             ),
-            12 => 
+            11 => 
             array (
                 'id' => 1593,
                 'cc_chapter_id' => 479,
@@ -18181,7 +18169,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:45:54',
                 'updated_at' => '2026-02-16 15:45:54',
             ),
-            13 => 
+            12 => 
             array (
                 'id' => 1594,
                 'cc_chapter_id' => 479,
@@ -18193,7 +18181,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:46:00',
                 'updated_at' => '2026-02-16 15:46:00',
             ),
-            14 => 
+            13 => 
             array (
                 'id' => 1595,
                 'cc_chapter_id' => 479,
@@ -18205,7 +18193,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:46:08',
                 'updated_at' => '2026-02-16 15:46:08',
             ),
-            15 => 
+            14 => 
             array (
                 'id' => 1596,
                 'cc_chapter_id' => 479,
@@ -18217,7 +18205,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:46:14',
                 'updated_at' => '2026-02-16 15:46:14',
             ),
-            16 => 
+            15 => 
             array (
                 'id' => 1597,
                 'cc_chapter_id' => 479,
@@ -18229,7 +18217,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-16 15:46:21',
                 'updated_at' => '2026-02-16 15:46:21',
             ),
-            17 => 
+            16 => 
             array (
                 'id' => 1598,
                 'cc_chapter_id' => 484,
@@ -18241,7 +18229,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:52',
                 'updated_at' => '2026-02-17 18:10:52',
             ),
-            18 => 
+            17 => 
             array (
                 'id' => 1599,
                 'cc_chapter_id' => 484,
@@ -18253,7 +18241,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:58',
                 'updated_at' => '2026-02-17 18:10:58',
             ),
-            19 => 
+            18 => 
             array (
                 'id' => 1600,
                 'cc_chapter_id' => 484,
@@ -18265,7 +18253,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:05',
                 'updated_at' => '2026-02-17 18:11:47',
             ),
-            20 => 
+            19 => 
             array (
                 'id' => 1601,
                 'cc_chapter_id' => 484,
@@ -18277,7 +18265,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:55',
                 'updated_at' => '2026-02-17 18:11:55',
             ),
-            21 => 
+            20 => 
             array (
                 'id' => 1602,
                 'cc_chapter_id' => 484,
@@ -18289,7 +18277,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:12:01',
                 'updated_at' => '2026-02-17 18:12:01',
             ),
-            22 => 
+            21 => 
             array (
                 'id' => 1603,
                 'cc_chapter_id' => 485,
@@ -18301,7 +18289,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:52',
                 'updated_at' => '2026-02-17 18:10:52',
             ),
-            23 => 
+            22 => 
             array (
                 'id' => 1604,
                 'cc_chapter_id' => 485,
@@ -18313,7 +18301,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:58',
                 'updated_at' => '2026-02-17 18:10:58',
             ),
-            24 => 
+            23 => 
             array (
                 'id' => 1605,
                 'cc_chapter_id' => 485,
@@ -18325,7 +18313,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:05',
                 'updated_at' => '2026-02-17 18:11:47',
             ),
-            25 => 
+            24 => 
             array (
                 'id' => 1606,
                 'cc_chapter_id' => 485,
@@ -18337,7 +18325,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:55',
                 'updated_at' => '2026-02-17 18:11:55',
             ),
-            26 => 
+            25 => 
             array (
                 'id' => 1607,
                 'cc_chapter_id' => 485,
@@ -18349,7 +18337,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:12:01',
                 'updated_at' => '2026-02-17 18:12:01',
             ),
-            27 => 
+            26 => 
             array (
                 'id' => 1608,
                 'cc_chapter_id' => 486,
@@ -18361,7 +18349,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:52',
                 'updated_at' => '2026-02-17 18:10:52',
             ),
-            28 => 
+            27 => 
             array (
                 'id' => 1609,
                 'cc_chapter_id' => 486,
@@ -18373,7 +18361,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:58',
                 'updated_at' => '2026-02-17 18:10:58',
             ),
-            29 => 
+            28 => 
             array (
                 'id' => 1610,
                 'cc_chapter_id' => 486,
@@ -18385,7 +18373,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:05',
                 'updated_at' => '2026-02-17 18:11:47',
             ),
-            30 => 
+            29 => 
             array (
                 'id' => 1611,
                 'cc_chapter_id' => 486,
@@ -18397,7 +18385,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:55',
                 'updated_at' => '2026-02-17 18:11:55',
             ),
-            31 => 
+            30 => 
             array (
                 'id' => 1612,
                 'cc_chapter_id' => 486,
@@ -18409,7 +18397,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:12:01',
                 'updated_at' => '2026-02-17 18:12:01',
             ),
-            32 => 
+            31 => 
             array (
                 'id' => 1613,
                 'cc_chapter_id' => 487,
@@ -18421,7 +18409,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:52',
                 'updated_at' => '2026-02-17 18:10:52',
             ),
-            33 => 
+            32 => 
             array (
                 'id' => 1614,
                 'cc_chapter_id' => 487,
@@ -18433,7 +18421,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:58',
                 'updated_at' => '2026-02-17 18:10:58',
             ),
-            34 => 
+            33 => 
             array (
                 'id' => 1615,
                 'cc_chapter_id' => 487,
@@ -18445,7 +18433,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:05',
                 'updated_at' => '2026-02-17 18:11:47',
             ),
-            35 => 
+            34 => 
             array (
                 'id' => 1616,
                 'cc_chapter_id' => 487,
@@ -18457,7 +18445,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:55',
                 'updated_at' => '2026-02-17 18:11:55',
             ),
-            36 => 
+            35 => 
             array (
                 'id' => 1617,
                 'cc_chapter_id' => 487,
@@ -18469,7 +18457,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:12:01',
                 'updated_at' => '2026-02-17 18:12:01',
             ),
-            37 => 
+            36 => 
             array (
                 'id' => 1618,
                 'cc_chapter_id' => 488,
@@ -18481,7 +18469,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:52',
                 'updated_at' => '2026-02-17 18:10:52',
             ),
-            38 => 
+            37 => 
             array (
                 'id' => 1619,
                 'cc_chapter_id' => 488,
@@ -18493,7 +18481,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:58',
                 'updated_at' => '2026-02-17 18:10:58',
             ),
-            39 => 
+            38 => 
             array (
                 'id' => 1620,
                 'cc_chapter_id' => 488,
@@ -18505,7 +18493,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:05',
                 'updated_at' => '2026-02-17 18:11:47',
             ),
-            40 => 
+            39 => 
             array (
                 'id' => 1621,
                 'cc_chapter_id' => 488,
@@ -18517,7 +18505,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:55',
                 'updated_at' => '2026-02-17 18:11:55',
             ),
-            41 => 
+            40 => 
             array (
                 'id' => 1622,
                 'cc_chapter_id' => 488,
@@ -18529,7 +18517,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:12:01',
                 'updated_at' => '2026-02-17 18:12:01',
             ),
-            42 => 
+            41 => 
             array (
                 'id' => 1623,
                 'cc_chapter_id' => 489,
@@ -18541,7 +18529,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:52',
                 'updated_at' => '2026-02-17 18:10:52',
             ),
-            43 => 
+            42 => 
             array (
                 'id' => 1624,
                 'cc_chapter_id' => 489,
@@ -18553,7 +18541,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:10:58',
                 'updated_at' => '2026-02-17 18:10:58',
             ),
-            44 => 
+            43 => 
             array (
                 'id' => 1625,
                 'cc_chapter_id' => 489,
@@ -18565,7 +18553,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:05',
                 'updated_at' => '2026-02-17 18:11:47',
             ),
-            45 => 
+            44 => 
             array (
                 'id' => 1626,
                 'cc_chapter_id' => 489,
@@ -18577,7 +18565,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:11:55',
                 'updated_at' => '2026-02-17 18:11:55',
             ),
-            46 => 
+            45 => 
             array (
                 'id' => 1627,
                 'cc_chapter_id' => 489,
@@ -18589,7 +18577,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:12:01',
                 'updated_at' => '2026-02-17 18:12:01',
             ),
-            47 => 
+            46 => 
             array (
                 'id' => 1628,
                 'cc_chapter_id' => 490,
@@ -18601,7 +18589,7 @@ class CcTopicsTableSeeder extends Seeder
                 'created_at' => '2026-02-17 18:21:52',
                 'updated_at' => '2026-02-17 18:21:52',
             ),
-            48 => 
+            47 => 
             array (
                 'id' => 1629,
                 'cc_chapter_id' => 490,

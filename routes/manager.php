@@ -63,7 +63,8 @@ use App\Livewire\Manager\Notification\Index as NotificationIndex;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Manager\GiftCode\Index as GiftCodeIndex;
 
-
+use App\Livewire\Manager\Setting\PercentCalculator as SettingPercentCalculator;
+use App\Livewire\Manager\Setting\PercentCalculatorCkUpload;
 use App\Livewire\Manager\Setting\General as SettingGeneral;
 use App\Livewire\Manager\Comment\Index as CommentIndex;
 use App\Livewire\Manager\Setting\ExamCountdown as SettingExamCountdown;
@@ -118,6 +119,9 @@ Route::name('manager.')->group(function () {
         Route::get('/setting/sdfrSchool', SettingHomeSchoolSdfr::class)->name('setting.schoolSdfr');
         Route::get('/setting/examCountdown', SettingExamCountdown::class)->name('setting.examCountdown');
         Route::post('/setting/exam-countdown/ck-upload', [ExamCountdownCkUpload::class, 'upload'])->name('setting.exam-countdown.ck-upload');
+        Route::get('/setting/percent-calculator', SettingPercentCalculator::class)->name('setting.percentCalculator');
+        Route::post('/setting/percent-calculator/ck-upload', [PercentCalculatorCkUpload::class, 'upload'])->name('setting.percent-calculator.ck-upload');
+
 // مسیر مدیریت آزمون‌ها
         Route::get('/exams', ExamIndex::class)->name('exam.index');
         Route::get('/exams/questions', QuestionManager::class)->name('exam.questions');

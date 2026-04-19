@@ -136,11 +136,35 @@
                                                     </span>
                                                 @endif
                                             </div>
+
+                                            {{-- برنامه هفتگی ثابت در این روز --}}
+                                            @php
+                                                $pref = $student->activeSchedulePreference ?? null;
+                                                $fixedSlot = $pref?->times
+                                                    ->firstWhere('day_of_week', $iranianDay);
+                                                $advisorName = $pref?->assignedAdvisor?->name;
+                                            @endphp
+                                            @if($fixedSlot)
+                                                <div class="mt-2 p-2 rounded" style="background-color: #e7f1ff;">
+                                                    <div class="small fw-semibold text-primary">
+                                                        <i class="fi fi-rr-calendar-clock me-1"></i>
+                                                        برنامه هفتگی ثابت:
+                                                        {{ substr($fixedSlot->start_time, 0, 5) }}
+                                                        تا
+                                                        {{ substr($fixedSlot->end_time, 0, 5) }}
+                                                    </div>
+                                                    @if($advisorName)
+                                                        <div class="small text-muted">
+                                                            مشاور اختصاصی: <strong>{{ $advisorName }}</strong>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endif
                                             {{-- لیست جلسات --}}
                                             <div class="mt-2 pt-2 border-top">
                                                 <div class="small text-muted mb-2 fw-semibold">
                                                     <i class="fi fi-rr-list me-1"></i>
-                                                    لیست جلسات:
+                                                    جلسات ثبت‌شده در این روز:
                                                 </div>
                                                 <div class="d-flex flex-wrap gap-2">
                                                     @foreach($student->advisingSessions as $session)
@@ -190,7 +214,14 @@
                         @empty
                             <div class="text-center text-muted py-5">
                                 <i class="fi fi-rr-calendar-xmark" style="font-size:2.5rem; opacity:0.4;"></i>
-                                <p class="mt-2 mb-1">هیچ دانش‌آموزی برای روز <strong>{{ $weekDays[$selectedDay] ?? '' }}</strong> ثبت نشده است.</p>
+                                <p class="mt-2 mb-1">
+                                    هیچ دانش‌آموزی با برنامه‌ی ثابت در روز
+                                    <strong>{{ $weekDays[$selectedDay] ?? '' }}</strong>
+                                    وجود ندارد.
+                                </p>
+                                <p class="small text-muted">
+                                    دانش‌آموزان پس از تایید برنامه‌ی هفتگی توسط مدیر آموزشی در این لیست ظاهر می‌شوند.
+                                </p>
                                 <button wire:click="openStudentSelectModal"
                                         class="btn btn-primary btn-sm mt-2">
                                     <i class="fi fi-rr-calendar-plus me-1"></i>

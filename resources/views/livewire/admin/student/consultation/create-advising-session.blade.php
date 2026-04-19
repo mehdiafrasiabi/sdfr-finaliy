@@ -104,6 +104,37 @@
                         </div>
                     </div>
                     <div class="card-body">
+                        @php
+                            $pref = $student->activeSchedulePreference ?? null;
+                        @endphp
+                        @if ($pref && $pref->times->isNotEmpty())
+                            <div class="alert alert-info mb-3">
+                                <div class="fw-semibold mb-2">
+                                    <i class="fi fi-rr-calendar-clock me-1"></i>
+                                    برنامه‌ی هفتگی ثابت این دانش‌آموز:
+                                </div>
+                                <div class="d-flex flex-wrap gap-2">
+                                    @foreach ($pref->times->sortBy('day_of_week') as $t)
+                                        <span class="badge bg-light text-dark border">
+                                            <strong>{{ $weekDays[$t->day_of_week] ?? '' }}</strong>
+                                            از {{ substr($t->start_time, 0, 5) }}
+                                            تا {{ substr($t->end_time, 0, 5) }}
+                                        </span>
+                                    @endforeach
+                                </div>
+                                @if ($pref->assignedAdvisor)
+                                    <div class="small mt-2">
+                                        مشاور اختصاصی:
+                                        <strong>{{ $pref->assignedAdvisor->name }}</strong>
+                                    </div>
+                                @endif
+                            </div>
+                        @else
+                            <div class="alert alert-warning mb-3 small">
+                                این دانش‌آموز هنوز برنامه‌ی هفتگی ثابت تاییدشده ندارد.
+                                ابتدا باید درخواست تعیین وقت از سمت دانش‌آموز ارسال و توسط مدیر آموزشی تایید شود.
+                            </div>
+                        @endif
                         <form wire:submit.prevent="{{ $editingSessionId ? 'updateSession' : 'createSession' }}">
                             {{-- عنوان جلسه --}}
                             <div class="mb-3">
