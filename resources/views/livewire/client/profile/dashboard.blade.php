@@ -13,6 +13,17 @@
             <div class="lg:col-span-9 md:col-span-8">
                 <div class="space-y-6">
 
+
+
+                    <!-- Section Title -->
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-1">
+                            <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                            <div class="w-2 h-2 bg-foreground rounded-full"></div>
+                        </div>
+                        <div class="font-black text-foreground text-lg">پیشخوان</div>
+                    </div>
+
                     <!-- Notification Alert -->
                     @if($student && $unreadNotificationsCount > 0)
                         <a wire:navigate
@@ -38,16 +49,6 @@
                             </div>
                         </a>
                     @endif
-
-                    <!-- Section Title -->
-                    <div class="flex items-center gap-3">
-                        <div class="flex items-center gap-1">
-                            <div class="w-1 h-1 bg-foreground rounded-full"></div>
-                            <div class="w-2 h-2 bg-foreground rounded-full"></div>
-                        </div>
-                        <div class="font-black text-foreground text-lg">پیشخوان</div>
-                    </div>
-
                     <!-- Support & Advisor Cards -->
                     <div class="grid md:grid-cols-2 grid-cols-1 gap-5">
 

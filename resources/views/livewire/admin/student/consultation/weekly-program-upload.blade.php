@@ -402,6 +402,292 @@
         @endforeach
     @endif
 
+    {{-- ====== PREVIOUS WEEK PREVIEW (TIMETABLE) ====== --}}
+    @if(!empty($prevWeekPreview['exists']))
+        @php $pw = $prevWeekPreview; @endphp
+        <div class="card mb-4 border rounded-4 shadow-sm">
+            <div class="card-header rounded-top-4"
+                 style="background:linear-gradient(135deg,#7c3aed 0%,#6366f1 50%,#2563eb 100%);">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 text-white">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="material-symbols-outlined">event_available</i>
+                        <div>
+                            <h5 class="mb-0 fw-bold">پیش‌نمایش برنامه هفته قبل</h5>
+                            <small class="text-white-50">
+                                جلسه قبلی: {{ $pw['session_date'] ?? '---' }}
+                                · شروع: {{ $pw['program_start_date'] }}
+                                · پایان: {{ $pw['program_end_date'] }}
+                            </small>
+                        </div>
+                    </div>
+                    <button type="button" wire:click="togglePrevWeekPreview"
+                            class="btn btn-sm btn-light d-flex align-items-center gap-1">
+                        <i class="material-symbols-outlined" style="font-size:16px;">
+                            {{ $prevWeekPreviewCollapsed ? 'expand_more' : 'expand_less' }}
+                        </i>
+                        {{ $prevWeekPreviewCollapsed ? 'نمایش' : 'بستن' }}
+                    </button>
+                </div>
+            </div>
+
+            @if(!$prevWeekPreviewCollapsed)
+                <div class="card-body">
+                    {{-- Summary chips --}}
+                    <div class="row g-2 mb-3">
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="rounded-3 p-2 border bg-primary bg-opacity-10 text-center">
+                                <div class="fs-5 fw-bold text-primary">{{ $pw['total_hours'] }}</div>
+                                <div class="small text-muted">ساعت برنامه‌ریزی‌شده</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="rounded-3 p-2 border bg-success bg-opacity-10 text-center">
+                                <div class="fs-5 fw-bold text-success">{{ $pw['total_study_hours'] }}</div>
+                                <div class="small text-muted">ساعت مطالعه ثبت شده</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="rounded-3 p-2 border bg-info bg-opacity-10 text-center">
+                                <div class="fs-5 fw-bold text-info">{{ $pw['total_parts'] }}</div>
+                                <div class="small text-muted">تعداد پارت‌ها</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="rounded-3 p-2 border bg-success bg-opacity-10 text-center">
+                                <div class="fs-5 fw-bold text-success">{{ $pw['sent_reports_count'] }}</div>
+                                <div class="small text-muted">گزارش ارسال‌شده</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="rounded-3 p-2 border bg-secondary bg-opacity-10 text-center">
+                                <div class="fs-5 fw-bold text-secondary">{{ $pw['missing_reports_count'] }}</div>
+                                <div class="small text-muted">گزارش ارسال نشده</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="rounded-3 p-2 border bg-danger bg-opacity-10 text-center">
+                                <div class="fs-5 fw-bold text-danger">{{ $pw['rejected_reports_count'] }}</div>
+                                <div class="small text-muted">گزارش رد شده</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="rounded-3 p-2 border bg-warning bg-opacity-10 text-center">
+                                <div class="fs-5 fw-bold text-warning">{{ $pw['compensatory_parts_count'] }}</div>
+                                <div class="small text-muted">پارت‌های جبرانی</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="rounded-3 p-2 border bg-dark bg-opacity-10 text-center">
+                                <div class="fs-5 fw-bold text-dark">{{ $pw['extra_parts_count'] }}</div>
+                                <div class="small text-muted">اضافه بر سازمان</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="rounded-3 p-2 border bg-success bg-opacity-10 text-center">
+                                <div class="fs-5 fw-bold text-success">{{ $pw['rest_days_count'] }}</div>
+                                <div class="small text-muted">روز استراحت</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
+                            <div class="rounded-3 p-2 border bg-danger bg-opacity-10 text-center">
+                                <div class="fs-5 fw-bold text-danger">{{ $pw['exam_days_count'] }}</div>
+                                <div class="small text-muted">روز آزمون</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Timetable --}}
+                    <div class="border rounded-4 overflow-hidden bg-body">
+                        <div class="overflow-x-auto">
+                            @php $pwCols = max($pw['max_parts_per_day'], 1); @endphp
+                            <table class="table table-bordered align-middle mb-0"
+                                   style="min-width:{{ 520 + ($pwCols * 220) }}px;table-layout:fixed;border-collapse:separate;border-spacing:0;">
+                                <thead>
+                                <tr style="background:linear-gradient(90deg,#6d28d9,#4f46e5);">
+                                    <th class="text-center text-white fw-bold" style="width:150px;position:sticky;right:0;z-index:6;background:linear-gradient(90deg,#6d28d9,#4f46e5);">روز / تاریخ</th>
+                                    <th class="text-center text-white fw-bold" style="width:130px;position:sticky;right:150px;z-index:6;background:linear-gradient(90deg,#6d28d9,#4f46e5);">ساعت</th>
+                                    <th class="text-center text-white fw-bold" style="width:210px;position:sticky;right:280px;z-index:6;background:linear-gradient(90deg,#6d28d9,#4f46e5);">وضعیت گزارش</th>
+                                    @for($i = 1; $i <= $pwCols; $i++)
+                                        <th class="text-center text-white fw-bold" style="width:220px;min-width:200px;">پارت {{ $i }}</th>
+                                    @endfor
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($pw['days'] as $day)
+                                    <tr class="{{ $day['is_rest_day'] ? 'table-success' : ($day['is_exam_day'] ? 'table-danger' : '') }}">
+                                        {{-- روز / تاریخ --}}
+                                        <td class="text-center" style="position:sticky;right:0;z-index:2;background-color:var(--bs-body-bg);">
+                                            <span class="badge rounded-pill fw-bold d-block mb-1 {{ $day['is_rest_day'] ? 'bg-success' : ($day['is_exam_day'] ? 'bg-danger' : 'bg-primary') }}">
+                                                {{ $day['name'] }}
+                                            </span>
+                                            <div class="small text-muted">{{ $day['jalali_date'] }}</div>
+                                        </td>
+
+                                        {{-- ساعت --}}
+                                        <td class="text-center" style="position:sticky;right:150px;z-index:2;background-color:var(--bs-body-bg);">
+                                            @if($day['is_rest_day'])
+                                                <span class="text-success fw-bold">-</span>
+                                            @else
+                                                <div class="fw-bold text-primary small">برنامه: {{ $day['total_hours'] }}س</div>
+                                                <div class="fw-bold text-success small">مطالعه: {{ $day['total_study_hours'] }}س</div>
+                                                @if($day['day_avg_rating'] !== null)
+                                                    @php
+                                                        $rc = $day['day_avg_rating'] >= 8 ? 'success' : ($day['day_avg_rating'] >= 5 ? 'info' : 'danger');
+                                                    @endphp
+                                                    <span class="badge bg-{{ $rc }}-subtle text-{{ $rc }} mt-1" style="font-size:10px;">
+                                                        میانگین {{ $day['day_avg_rating'] }}
+                                                    </span>
+                                                @endif
+                                            @endif
+                                        </td>
+
+                                        {{-- وضعیت گزارش --}}
+                                        <td class="text-center" style="position:sticky;right:280px;z-index:2;background-color:var(--bs-body-bg);box-shadow:-4px 0 10px rgba(0,0,0,.05);">
+                                            <div class="d-flex flex-column gap-1 align-items-center">
+                                                @if($day['is_rest_day'])
+                                                    <span class="badge bg-success-subtle text-success fw-bold d-flex align-items-center gap-1">
+                                                        <i class="material-symbols-outlined" style="font-size:13px;">self_improvement</i>
+                                                        روز استراحت
+                                                    </span>
+                                                @else
+                                                    <span class="badge bg-{{ $day['report_status_color'] }}-subtle text-{{ $day['report_status_color'] }} fw-bold">
+                                                        {{ $day['report_status_label'] }}
+                                                    </span>
+                                                    @if($day['is_exam_day'])
+                                                        <span class="badge bg-danger-subtle text-danger" style="font-size:10px;">روز آزمون</span>
+                                                    @endif
+                                                    @if($day['report_status'] === 'sent')
+                                                        <small class="text-muted">
+                                                            انجام شده: {{ $day['report_done_parts'] }}/{{ $day['parts_count'] }}
+                                                        </small>
+                                                        @if($day['report_compensatory_parts'] > 0)
+                                                            <span class="badge bg-warning-subtle text-warning" style="font-size:10px;">
+                                                                جبرانی: {{ $day['report_compensatory_parts'] }}
+                                                            </span>
+                                                        @endif
+                                                        @if($day['report_rating'])
+                                                            <span class="badge bg-info-subtle text-info" style="font-size:10px;">
+                                                                امتیاز {{ $day['report_rating'] }}
+                                                            </span>
+                                                        @endif
+                                                    @endif
+                                                @endif
+                                            </div>
+                                        </td>
+
+                                        {{-- پارت‌ها --}}
+                                        @for($i = 0; $i < $pwCols; $i++)
+                                            <td style="vertical-align:top;padding:6px;">
+                                                @if($day['is_rest_day'])
+                                                    @if($i === 0)
+                                                        <div class="rounded-3 border border-success bg-success bg-opacity-10 d-flex align-items-center justify-content-center p-3" style="min-height:130px;">
+                                                            <div class="text-center">
+                                                                <i class="material-symbols-outlined text-success" style="font-size:32px;">self_improvement</i>
+                                                                <div class="small text-success fw-semibold mt-1">استراحت</div>
+                                                            </div>
+                                                        </div>
+                                                    @else
+                                                        <div class="rounded-3 border border-success border-opacity-25 bg-success bg-opacity-10" style="min-height:130px;"></div>
+                                                    @endif
+                                                @elseif(isset($day['parts'][$i]))
+                                                    @php $p = $day['parts'][$i]; @endphp
+                                                    <div class="rounded-3 border p-2 position-relative h-100"
+                                                         style="min-height:130px;
+                                                                {{ $p['avg_color'] ? 'border-color:var(--bs-' . $p['avg_color'] . ')!important;border-width:2px!important;' : '' }}">
+
+                                                        {{-- Header: lesson_name + grade --}}
+                                                        <div class="d-flex align-items-start gap-1 mb-1">
+                                                            <span class="fw-semibold small flex-fill">{{ $p['lesson_name'] }}</span>
+                                                            @if($p['grade_label'])
+                                                                <span class="badge bg-body-tertiary text-body border" style="font-size:10px;">
+                                                                    {{ $p['grade_label'] }}
+                                                                </span>
+                                                            @endif
+                                                        </div>
+
+                                                        {{-- Badges: part_type, source_type, extra --}}
+                                                        <div class="d-flex flex-wrap gap-1 mb-1">
+                                                            <span class="badge bg-secondary-subtle text-secondary" style="font-size:10px;">
+                                                                {{ $p['part_type_label'] }}
+                                                            </span>
+                                                            <span class="badge bg-body-tertiary text-body border" style="font-size:10px;">
+                                                                {{ $p['lesson_type_label'] }}
+                                                            </span>
+                                                            @if($p['is_extra'])
+                                                                <span class="badge bg-{{ $p['source_type_color'] }}-subtle text-{{ $p['source_type_color'] }}" style="font-size:10px;">
+                                                                    {{ $p['source_type_label'] }}
+                                                                </span>
+                                                            @endif
+                                                        </div>
+
+                                                        {{-- Description --}}
+                                                        @if($p['description'])
+                                                            <p class="small mb-1 text-muted">{{ Str::limit($p['description'], 45) }}</p>
+                                                        @endif
+
+                                                        {{-- Planned duration + test count --}}
+                                                        <div class="small text-muted d-flex align-items-center gap-1 mb-1">
+                                                            <i class="material-symbols-outlined" style="font-size:13px;">schedule</i>
+                                                            {{ $p['duration_minutes'] }} دقیقه
+                                                            @if($p['test_count'])
+                                                                · <i class="material-symbols-outlined" style="font-size:13px;">quiz</i> {{ $p['test_count'] }}
+                                                            @endif
+                                                        </div>
+
+                                                        {{-- Study time registered --}}
+                                                        <div class="small d-flex align-items-center gap-1 {{ $p['is_studied'] ? 'text-success' : 'text-danger' }}">
+                                                            <i class="material-symbols-outlined" style="font-size:13px;">timer</i>
+                                                            @if($p['is_studied'])
+                                                                {{ $p['study_minutes'] }} دقیقه مطالعه
+                                                            @else
+                                                                ثبت نشده
+                                                            @endif
+                                                        </div>
+
+                                                        {{-- Avg rating --}}
+                                                        @if($p['avg_rating'] !== null)
+                                                            <div class="mt-1 pt-1 border-top d-flex align-items-center justify-content-between gap-1">
+                                                                <span class="badge bg-{{ $p['avg_color'] }}-subtle text-{{ $p['avg_color'] }}" style="font-size:10px;">
+                                                                    {{ $p['avg_label'] }}
+                                                                </span>
+                                                                <span class="small fw-bold text-{{ $p['avg_color'] }}">
+                                                                    {{ $p['avg_rating'] }}/10
+                                                                </span>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <div class="rounded-3" style="min-height:130px;background:var(--bs-tertiary-bg);border:1px dashed var(--bs-border-color);"></div>
+                                                @endif
+                                            </td>
+                                        @endfor
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-3 mt-3 small text-muted">
+                        <span class="d-flex align-items-center gap-1">
+                            <span class="d-inline-block rounded" style="width:12px;height:12px;background:var(--bs-success);"></span>
+                            مطالعه عالی (8+)
+                        </span>
+                        <span class="d-flex align-items-center gap-1">
+                            <span class="d-inline-block rounded" style="width:12px;height:12px;background:var(--bs-info);"></span>
+                            مطالعه با کیفیت (5-7)
+                        </span>
+                        <span class="d-flex align-items-center gap-1">
+                            <span class="d-inline-block rounded" style="width:12px;height:12px;background:var(--bs-danger);"></span>
+                            مطالعه بی‌کیفیت (کمتر از 5)
+                        </span>
+                    </div>
+                </div>
+            @endif
+        </div>
+    @endif
+
+
     {{-- ====== ACTION BAR ====== --}}
     <div class="d-flex align-items-center flex-wrap gap-2 p-2 mb-2 border rounded-3 bg-body shadow-sm sticky-top" style="z-index:10;top:0;">
         @if($partSelectMode)

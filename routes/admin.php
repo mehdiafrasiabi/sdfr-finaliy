@@ -21,6 +21,7 @@ use App\Livewire\Admin\AdminUser\WorkSchedule as AdminUserWorkSchedule;
 use App\Livewire\Admin\ContactDocumentation\Index as ContactDocumentationIndex;
 use Illuminate\Support\Facades\Route;
 
+use App\Livewire\Admin\Student\SmartReportCard\Index as SmartReportCardIndex;
 
 Route::name('admin.')->group(function () {
 
@@ -106,6 +107,10 @@ Route::name('admin.')->group(function () {
         Route::get('/contact-documentation', ContactDocumentationIndex::class)->name('contact-documentation.index')
             ->middleware('admin.permission:admin.contact-documentation.view');
         // گزارش‌های ارسال نشده
+        // کارنامه هوشمند
+        Route::get('/smart-report-card/{student}', SmartReportCardIndex::class)
+            ->name('student.smart-report-card');
+
         Route::get('/report-not-send', ReportMissingIndex::class)->name('reportMissing')
             ->middleware('admin.permission:admin.report-missing.view');
         // آزمون‌های تایپی

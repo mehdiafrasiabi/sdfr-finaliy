@@ -140,6 +140,9 @@ class WeeklyProgramUpload extends Component
     public array  $copiedFromPrevPartIds     = [];
     public ?string $prevProgramStartDate    = null;
 
+// ==================== Previous Week Preview (Timetable) ====================
+    public array $prevWeekPreview = ['exists' => false];
+    public bool  $prevWeekPreviewCollapsed = false;
 
     // Inline add form for previous session
     public ?int  $prevPartInlineSelectedId = null;
@@ -234,6 +237,204 @@ class WeeklyProgramUpload extends Component
                 $this->parts[$i] = [];
             }
         }
+
+        $this->buildPrevWeekPreview();
+    }
+
+    public function togglePrevWeekPreview(): void
+    {
+        $this->prevWeekPreviewCollapsed = !$this->prevWeekPreviewCollapsed;
+    }
+
+    // ==================== Previous Week Preview ====================
+    protected function buildPrevWeekPreview(): void
+    {
+        $this->prevWeekPreview = ['exists' => false];
+        if (!$this->sessionId) return;
+
+        $prevSession = AdvisingSession::where('student_id', $this->studentId)
+            ->where('result_status', AdvisingSession::RESULT_HELD)
+            ->where('id', '!=', $this->sessionId)
+            ->latest()->first();
+        if (!$prevSession) return;
+
+        $prevProgram = WeeklyProgram::where('advising_session_id', $prevSession->id)
+            ->with(['parts.studyPartSessions.feedback'])
+            ->first();
+        if (!$prevProgram) return;
+
+        $startDate      = Carbon::parse($prevProgram->start_date);
+        $jalaliDayNames = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+
+        $restDayIndices = WeeklyProgramRestDay::where('weekly_program_id', $prevProgram->id)->pluck('day_index')->toArray();
+        $examDayIndices = WeeklyProgramExamDay::where('weekly_program_id', $prevProgram->id)->pluck('day_index')->toArray();
+
+        $reports = DailyReport::where('student_id', $this->studentId)
+            ->where('session_id', $prevSession->id)
+            ->with(['detail', 'reportParts'])
+            ->get()
+            ->keyBy(fn($r) => Carbon::parse($r->report_date)->toDateString());
+
+        $compensatoryPartsCount = 0;
+        foreach ($reports as $r) {
+            $compensatoryPartsCount += $r->reportParts->where('is_compensatory', true)->count();
+        }
+
+        $days               = [];
+        $totalParts         = 0;
+        $totalMinutes       = 0;
+        $totalStudyMinutes  = 0;
+        $sentReportsCount   = 0;
+        $missingReportsCount = 0;
+        $rejectedReportsCount = 0;
+        $extraPartsCount    = 0;
+        $maxPartsPerDay     = 0;
+
+        for ($i = 0; $i < 8; $i++) {
+            $dayDate   = $startDate->copy()->addDays($i);
+            $jalaliDate = jdate($dayDate);
+            $dayName   = $jalaliDayNames[$jalaliDate->getDayOfWeek()] ?? '';
+            $isRest    = in_array($i, $restDayIndices);
+            $isExam    = in_array($i, $examDayIndices);
+
+            $dayParts = $prevProgram->parts->where('day_of_week', $i)->sortBy('part_order')->values();
+
+            $partsData       = [];
+            $dayMinutes      = 0;
+            $dayStudyMinutes = 0;
+            $dayRatings      = [];
+
+            foreach ($dayParts as $part) {
+                $sessions = $part->studyPartSessions;
+                $feedbackRatings = $sessions->pluck('feedback.rating')->filter()->values();
+                $avgRating = $feedbackRatings->isNotEmpty() ? round($feedbackRatings->avg()) : null;
+                $avgLabel  = $avgColor = null;
+                if ($avgRating !== null) {
+                    if ($avgRating >= 8)       { $avgLabel = 'عالی';             $avgColor = 'success'; }
+                    elseif ($avgRating >= 5)   { $avgLabel = 'مطالعه با کیفیت'; $avgColor = 'info'; }
+                    else                       { $avgLabel = 'مطالعه بی‌کیفیت'; $avgColor = 'danger'; }
+                    $dayRatings[] = $avgRating;
+                }
+
+                $studyMinutes = (int) round($sessions->sum('duration_seconds') / 60);
+                $studySessionsCount = $sessions->count();
+                $isExtra = $part->source_type && $part->source_type !== ProgramPart::SOURCE_NORMAL;
+
+                $partsData[] = [
+                    'id'                 => $part->id,
+                    'lesson_name'        => $part->lesson_name,
+                    'description'        => $part->description,
+                    'duration_minutes'   => (int) ($part->duration_minutes ?? 0),
+                    'test_count'         => $part->test_count,
+                    'part_type'          => $part->part_type,
+                    'part_type_label'    => $part->part_type_label,
+                    'source_type'        => $part->source_type ?? 'normal',
+                    'source_type_label'  => $part->source_type_label,
+                    'source_type_color'  => $part->source_type_color,
+                    'grade_label'        => $part->grade_label,
+                    'lesson_type'        => $part->lesson_type,
+                    'lesson_type_label'  => $part->lesson_type === 'general' ? 'عمومی' : 'تخصصی',
+                    'avg_rating'         => $avgRating,
+                    'avg_label'          => $avgLabel,
+                    'avg_color'          => $avgColor,
+                    'study_minutes'      => $studyMinutes,
+                    'study_sessions_count' => $studySessionsCount,
+                    'is_studied'         => $studySessionsCount > 0,
+                    'is_extra'           => $isExtra,
+                ];
+
+                $dayMinutes      += (int) ($part->duration_minutes ?? 0);
+                $dayStudyMinutes += $studyMinutes;
+                $totalParts++;
+                if ($isExtra) $extraPartsCount++;
+            }
+
+            $maxPartsPerDay = max($maxPartsPerDay, count($partsData));
+
+            $dateKey = $dayDate->toDateString();
+            $report  = $reports->get($dateKey);
+
+            $reportStatus = null; $reportStatusLabel = null; $reportStatusColor = null;
+            $reportRating = null; $reportDetailStatus = null;
+            $reportDonePartsCount = 0; $reportCompensatoryPartsCount = 0;
+
+            if ($isRest) {
+                $reportStatus      = 'rest';
+                $reportStatusLabel = 'روز استراحت';
+                $reportStatusColor = 'success';
+            } elseif ($report) {
+                $reportStatus         = 'sent';
+                $reportRating         = $report->detail?->rating;
+                $reportDetailStatus   = $report->detail?->status ?? 'pending';
+                $reportStatusLabel    = match ($reportDetailStatus) {
+                    'approved' => 'گزارش تایید شده',
+                    'rejected' => 'گزارش رد شده',
+                    default    => 'گزارش در انتظار',
+                };
+                $reportStatusColor    = match ($reportDetailStatus) {
+                    'approved' => 'success',
+                    'rejected' => 'danger',
+                    default    => 'warning',
+                };
+                $reportDonePartsCount          = $report->reportParts->where('is_read', true)->count();
+                $reportCompensatoryPartsCount  = $report->reportParts->where('is_compensatory', true)->count();
+                $sentReportsCount++;
+                if ($reportDetailStatus === 'rejected') $rejectedReportsCount++;
+            } else {
+                $reportStatus      = 'not_sent';
+                $reportStatusLabel = 'گزارش ارسال نشده';
+                $reportStatusColor = 'secondary';
+                if (!$isExam) $missingReportsCount++;
+            }
+
+            $dayAvgRating = !empty($dayRatings) ? round(array_sum($dayRatings) / count($dayRatings)) : null;
+
+            $totalMinutes      += $dayMinutes;
+            $totalStudyMinutes += $dayStudyMinutes;
+
+            $days[] = [
+                'index'                => $i,
+                'name'                 => $dayName,
+                'jalali_date'          => $jalaliDate->format('Y/m/d'),
+                'is_rest_day'          => $isRest,
+                'is_exam_day'          => $isExam,
+                'parts'                => $partsData,
+                'parts_count'          => count($partsData),
+                'total_minutes'        => $dayMinutes,
+                'total_hours'          => round($dayMinutes / 60, 1),
+                'total_study_minutes'  => $dayStudyMinutes,
+                'total_study_hours'    => round($dayStudyMinutes / 60, 1),
+                'report_status'        => $reportStatus,
+                'report_status_label'  => $reportStatusLabel,
+                'report_status_color'  => $reportStatusColor,
+                'report_detail_status' => $reportDetailStatus,
+                'report_rating'        => $reportRating,
+                'report_done_parts'    => $reportDonePartsCount,
+                'report_compensatory_parts' => $reportCompensatoryPartsCount,
+                'day_avg_rating'       => $dayAvgRating,
+            ];
+        }
+
+        $this->prevWeekPreview = [
+            'exists'                  => true,
+            'session_date'            => $prevSession->activation_date ? jdate($prevSession->activation_date)->format('Y/m/d') : null,
+            'program_start_date'      => jdate($prevProgram->start_date)->format('Y/m/d'),
+            'program_end_date'        => jdate($startDate->copy()->addDays(7))->format('Y/m/d'),
+            'days'                    => $days,
+            'max_parts_per_day'       => max($maxPartsPerDay, 1),
+            'total_parts'             => $totalParts,
+            'total_minutes'           => $totalMinutes,
+            'total_hours'             => round($totalMinutes / 60, 1),
+            'total_study_minutes'     => $totalStudyMinutes,
+            'total_study_hours'       => round($totalStudyMinutes / 60, 1),
+            'sent_reports_count'      => $sentReportsCount,
+            'missing_reports_count'   => $missingReportsCount,
+            'rejected_reports_count'  => $rejectedReportsCount,
+            'rest_days_count'         => count($restDayIndices),
+            'exam_days_count'         => count($examDayIndices),
+            'compensatory_parts_count'=> $compensatoryPartsCount,
+            'extra_parts_count'       => $extraPartsCount,
+        ];
     }
 
     // ==================== Load Parts ====================
