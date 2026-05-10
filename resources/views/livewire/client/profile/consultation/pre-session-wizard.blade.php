@@ -127,23 +127,56 @@
                                     />
                                 </div>
 
-                                <div class="md:col-span-2">
-                                    <label class="mb-1 block text-xs font-medium text-foreground">
-                                        تاریخ امتحان
-                                        @if($examForm['exam_date'])
-                                            <span class="text-blue-600 font-bold mr-1">{{ $examForm['exam_date'] }}</span>
-                                        @endif
-                                    </label>
-                                    <div class="flex flex-wrap gap-1.5">
-                                        @foreach($availableDates as $dateItem)
-                                            <button type="button" wire:click="$set('examForm.exam_date', '{{ $dateItem['value'] }}')"
-                                                    class="flex flex-col items-center justify-center min-w-[70px] px-2.5 py-2 rounded-xl border text-xs transition-all duration-150
-                                                    {{ $examForm['exam_date'] === $dateItem['value'] ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30' : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600' }}">
-                                                <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
-                                                <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
-                                            </button>
-                                        @endforeach
+                                <div class="md:col-span-2"
+                                     x-data="{ examDateOpen: false }"
+                                     @keydown.escape.window="examDateOpen = false">
+                                    <label class="mb-1 block text-xs font-medium text-foreground">تاریخ امتحان</label>
+
+                                    <button type="button" @click="examDateOpen = true"
+                                            class="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border border-border bg-background hover:border-blue-400 transition-colors text-sm text-right">
+                                        <span class="{{ $examForm['exam_date'] ? 'text-blue-600 font-bold' : 'text-muted-foreground' }}">
+                                            {{ $examForm['exam_date'] ?: 'انتخاب تاریخ امتحان...' }}
+                                        </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-muted-foreground shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </button>
+
+                                    {{-- Exam Date Modal --}}
+                                    <div x-show="examDateOpen" x-cloak
+                                         class="fixed inset-0 z-[100] flex flex-col justify-end sm:items-center sm:justify-center">
+                                        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="examDateOpen = false"></div>
+                                        <div class="relative z-10 w-full sm:max-w-md bg-secondary rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                                             x-transition:enter="transition ease-out duration-300"
+                                             x-transition:enter-start="opacity-0 translate-y-8"
+                                             x-transition:enter-end="opacity-100 translate-y-0"
+                                             x-transition:leave="transition ease-in duration-200"
+                                             x-transition:leave-start="opacity-100 translate-y-0"
+                                             x-transition:leave-end="opacity-0 translate-y-8">
+                                            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                                                <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                                            </div>
+                                            <div class="shrink-0 p-4 border-b border-border flex items-center justify-between">
+                                                <h3 class="font-bold text-foreground text-base">تاریخ امتحان</h3>
+                                                <button @click="examDateOpen = false" type="button" class="text-muted hover:text-foreground">
+                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                </button>
+                                            </div>
+                                            <div class="p-4 grid grid-cols-3 gap-2 overflow-y-auto max-h-[60vh]">
+                                                @foreach($availableDates as $dateItem)
+                                                    <button type="button"
+                                                            wire:click="$set('examForm.exam_date', '{{ $dateItem['value'] }}')"
+                                                            @click="examDateOpen = false"
+                                                            class="flex flex-col items-center justify-center px-2 py-3 rounded-xl border text-xs transition-all duration-150
+                                                            {{ $examForm['exam_date'] === $dateItem['value'] ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30' : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600' }}">
+                                                        <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
+                                                        <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        </div>
                                     </div>
+
                                     @error('examForm.exam_date')<span class="mt-1 block text-xs text-red-500">{{ $message }}</span>@enderror
                                 </div>
 
@@ -233,23 +266,56 @@
                                     />
                                 </div>
 
-                                <div class="md:col-span-2">
-                                    <label class="mb-1 block text-xs font-medium text-foreground">
-                                        تاریخ
-                                        @if($qaForm['qa_date'])
-                                            <span class="text-blue-600 font-bold mr-1">{{ $qaForm['qa_date'] }}</span>
-                                        @endif
-                                    </label>
-                                    <div class="flex flex-wrap gap-1.5">
-                                        @foreach($availableDates as $dateItem)
-                                            <button type="button" wire:click="$set('qaForm.qa_date', '{{ $dateItem['value'] }}')"
-                                                    class="flex flex-col items-center justify-center min-w-[70px] px-2.5 py-2 rounded-xl border text-xs transition-all duration-150
-                                                    {{ $qaForm['qa_date'] === $dateItem['value'] ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30' : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600' }}">
-                                                <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
-                                                <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
-                                            </button>
-                                        @endforeach
+                                <div class="md:col-span-2"
+                                     x-data="{ qaDateOpen: false }"
+                                     @keydown.escape.window="qaDateOpen = false">
+                                    <label class="mb-1 block text-xs font-medium text-foreground">تاریخ</label>
+
+                                    <button type="button" @click="qaDateOpen = true"
+                                            class="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border border-border bg-background hover:border-blue-400 transition-colors text-sm text-right">
+                                        <span class="{{ $qaForm['qa_date'] ? 'text-blue-600 font-bold' : 'text-muted-foreground' }}">
+                                            {{ $qaForm['qa_date'] ?: 'انتخاب تاریخ...' }}
+                                        </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-muted-foreground shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </button>
+
+                                    {{-- QA Date Modal --}}
+                                    <div x-show="qaDateOpen" x-cloak
+                                         class="fixed inset-0 z-[100] flex flex-col justify-end sm:items-center sm:justify-center">
+                                        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="qaDateOpen = false"></div>
+                                        <div class="relative z-10 w-full sm:max-w-md bg-secondary rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                                             x-transition:enter="transition ease-out duration-300"
+                                             x-transition:enter-start="opacity-0 translate-y-8"
+                                             x-transition:enter-end="opacity-100 translate-y-0"
+                                             x-transition:leave="transition ease-in duration-200"
+                                             x-transition:leave-start="opacity-100 translate-y-0"
+                                             x-transition:leave-end="opacity-0 translate-y-8">
+                                            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                                                <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                                            </div>
+                                            <div class="shrink-0 p-4 border-b border-border flex items-center justify-between">
+                                                <h3 class="font-bold text-foreground text-base">تاریخ پرسش و پاسخ</h3>
+                                                <button @click="qaDateOpen = false" type="button" class="text-muted hover:text-foreground">
+                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                </button>
+                                            </div>
+                                            <div class="p-4 grid grid-cols-3 gap-2 overflow-y-auto max-h-[60vh]">
+                                                @foreach($availableDates as $dateItem)
+                                                    <button type="button"
+                                                            wire:click="$set('qaForm.qa_date', '{{ $dateItem['value'] }}')"
+                                                            @click="qaDateOpen = false"
+                                                            class="flex flex-col items-center justify-center px-2 py-3 rounded-xl border text-xs transition-all duration-150
+                                                            {{ $qaForm['qa_date'] === $dateItem['value'] ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30' : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600' }}">
+                                                        <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
+                                                        <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        </div>
                                     </div>
+
                                     @error('qaForm.qa_date')<span class="mt-1 block text-xs text-red-500">{{ $message }}</span>@enderror
                                 </div>
 
@@ -327,23 +393,56 @@
                                     @error('assignmentForm.subject')<span class="mt-1 block text-xs text-red-500">{{ $message }}</span>@enderror
                                 </div>
 
-                                <div class="md:col-span-2">
-                                    <label class="mb-1 block text-xs font-medium text-foreground">
-                                        تاریخ تحویل
-                                        @if($assignmentForm['due_date'])
-                                            <span class="text-blue-600 font-bold mr-1">{{ $assignmentForm['due_date'] }}</span>
-                                        @endif
-                                    </label>
-                                    <div class="flex flex-wrap gap-1.5">
-                                        @foreach($availableDates as $dateItem)
-                                            <button type="button" wire:click="$set('assignmentForm.due_date', '{{ $dateItem['value'] }}')"
-                                                    class="flex flex-col items-center justify-center min-w-[70px] px-2.5 py-2 rounded-xl border text-xs transition-all duration-150
-                                                    {{ $assignmentForm['due_date'] === $dateItem['value'] ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30' : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600' }}">
-                                                <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
-                                                <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
-                                            </button>
-                                        @endforeach
+                                <div class="md:col-span-2"
+                                     x-data="{ dueDateOpen: false }"
+                                     @keydown.escape.window="dueDateOpen = false">
+                                    <label class="mb-1 block text-xs font-medium text-foreground">تاریخ تحویل</label>
+
+                                    <button type="button" @click="dueDateOpen = true"
+                                            class="w-full flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border border-border bg-background hover:border-blue-400 transition-colors text-sm text-right">
+                                        <span class="{{ $assignmentForm['due_date'] ? 'text-blue-600 font-bold' : 'text-muted-foreground' }}">
+                                            {{ $assignmentForm['due_date'] ?: 'انتخاب تاریخ تحویل...' }}
+                                        </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-muted-foreground shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                    </button>
+
+                                    {{-- Due Date Modal --}}
+                                    <div x-show="dueDateOpen" x-cloak
+                                         class="fixed inset-0 z-[100] flex flex-col justify-end sm:items-center sm:justify-center">
+                                        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="dueDateOpen = false"></div>
+                                        <div class="relative z-10 w-full sm:max-w-md bg-secondary rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                                             x-transition:enter="transition ease-out duration-300"
+                                             x-transition:enter-start="opacity-0 translate-y-8"
+                                             x-transition:enter-end="opacity-100 translate-y-0"
+                                             x-transition:leave="transition ease-in duration-200"
+                                             x-transition:leave-start="opacity-100 translate-y-0"
+                                             x-transition:leave-end="opacity-0 translate-y-8">
+                                            <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                                                <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                                            </div>
+                                            <div class="shrink-0 p-4 border-b border-border flex items-center justify-between">
+                                                <h3 class="font-bold text-foreground text-base">تاریخ تحویل تکلیف</h3>
+                                                <button @click="dueDateOpen = false" type="button" class="text-muted hover:text-foreground">
+                                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                </button>
+                                            </div>
+                                            <div class="p-4 grid grid-cols-3 gap-2 overflow-y-auto max-h-[60vh]">
+                                                @foreach($availableDates as $dateItem)
+                                                    <button type="button"
+                                                            wire:click="$set('assignmentForm.due_date', '{{ $dateItem['value'] }}')"
+                                                            @click="dueDateOpen = false"
+                                                            class="flex flex-col items-center justify-center px-2 py-3 rounded-xl border text-xs transition-all duration-150
+                                                            {{ $assignmentForm['due_date'] === $dateItem['value'] ? 'border-blue-500 bg-blue-600 text-white shadow-md shadow-blue-500/30' : 'border-border bg-background text-muted-foreground hover:border-blue-400 hover:bg-blue-500/10 hover:text-blue-600' }}">
+                                                        <span class="font-semibold text-[11px] mb-0.5">{{ $dateItem['day_name'] }}</span>
+                                                        <span class="text-[11px] opacity-80">{{ $dateItem['day'] }} {{ $dateItem['month_name'] }}</span>
+                                                    </button>
+                                                @endforeach
+                                            </div>
+                                        </div>
                                     </div>
+
                                     @error('assignmentForm.due_date')<span class="mt-1 block text-xs text-red-500">{{ $message }}</span>@enderror
                                 </div>
 

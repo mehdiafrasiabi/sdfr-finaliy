@@ -15,8 +15,6 @@
             </ol>
         </nav>
     </div>
-
-
     <div class="row">
         <div class="col-lg-12">
             <div class="card overflow-hidden">
@@ -78,7 +76,6 @@
                                         <th data-dt-column="1">دانش آموز</th>
                                         <th data-dt-column="2">پدر</th>
                                         <th data-dt-column="3">مادر</th>
-                                        <th data-dt-column="4">پایه + رشته</th>
                                         <th data-dt-column="5">تاریخ تولد</th>
                                         <th data-dt-column="6">استان</th>
                                         <th data-dt-column="7">شهر</th>
@@ -164,6 +161,24 @@
                                                           <span class="text-truncate fw-medium">
                                                             {{ $personalInfo->name ?? '-' }}
                                                               {{ $personalInfo->name_full ?? '' }}
+
+                                                              [
+                                                              @if($student->user->personalInformation->grade == 12)
+                                                                  دوازدهم
+                                                              @elseif($student->user->personalInformation->grade == 11)
+                                                                  یازدهم
+                                                              @elseif($student->user->personalInformation->grade == 10)
+                                                                  دهم
+                                                              @endif
+
+                                                              @if($student->user->personalInformation->field == 'math')
+                                                                  ریاضی
+                                                              @elseif($student->user->personalInformation->field == 'experimental')
+                                                                  تجربی
+                                                              @elseif($student->user->personalInformation->field == 'human')
+                                                                  انسانی
+                                                              @endif
+                                                              ]
                                                         </span>
                                                         <small class="text-truncate text-muted">
                                                             {{ $student->user->mobile ?? '' }}
@@ -178,24 +193,6 @@
 
                                             <td>
                                                 {{$student->user->personalInformation->mother_mobile}}
-                                            </td>
-
-                                            <td>
-                                                @if($student->user->personalInformation->grade == 12)
-                                                    دوازدهم
-                                                @elseif($student->user->personalInformation->grade == 11)
-                                                    یازدهم
-                                                @elseif($student->user->personalInformation->grade == 10)
-                                                    دهم
-                                                @endif
-
-                                                @if($student->user->personalInformation->field == 'math')
-                                                    ریاضی
-                                                @elseif($student->user->personalInformation->field == 'experimental')
-                                                    تجربی
-                                                @elseif($student->user->personalInformation->field == 'human')
-                                                    انسانی
-                                                @endif
                                             </td>
                                             <td>
                                                 {{ jalali($student->user->personalInformation->birth_date)->format('%d %B %Y') }}

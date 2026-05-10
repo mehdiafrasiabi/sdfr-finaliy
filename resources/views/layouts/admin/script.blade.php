@@ -28,7 +28,7 @@
 
 // تنظیمات پیش‌فرض Toast
     const TOAST_CONFIG = {
-        duration: 3000,
+        duration: 500,
         gravity: "top",
         position: "center",
         stopOnFocus: true,

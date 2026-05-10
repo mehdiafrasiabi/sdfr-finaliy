@@ -144,6 +144,11 @@ class WeeklyProgramUpload extends Component
     public array $prevWeekPreview = ['exists' => false];
     public bool  $prevWeekPreviewCollapsed = false;
 
+    // Copy-from-preview selection
+    public bool  $prevWeekSelectMode     = false;
+    public array $prevWeekSelectedPartIds = [];
+    public array $prevWeekCopyTargetDays  = [];
+
     // Inline add form for previous session
     public ?int  $prevPartInlineSelectedId = null;
     public array $prevPartInlineForm = [
@@ -183,10 +188,15 @@ class WeeklyProgramUpload extends Component
     public int  $zeroTimePartsCount       = 0;
 
     // ==================== Prev Program Filters ====================
-    public string $prevFilterGrade    = ''; // '', '10', '11', '12'
-    public string $prevFilterType     = ''; // '', 'general', 'specialized'
-    public string $prevFilterRating   = 'desc'; // 'desc', 'asc'
-    public string $prevFilterDay      = ''; // روز هفته
+    public string $prevFilterGrade        = ''; // '', '10', '11', '12'
+    public string $prevFilterType         = ''; // '', 'general', 'specialized'
+    public string $prevFilterRating       = 'desc'; // 'desc', 'asc'
+    public string $prevFilterDay          = ''; // روز هفته
+    public string $prevFilterStudyQuality = ''; // '', 'excellent', 'good', 'poor'
+    public string $prevFilterStudyStatus  = ''; // '', 'not_studied', 'no_rating'
+
+    // ==================== Prev Week Preview Sort ====================
+    public string $prevWeekSortByRating  = ''; // '', 'asc', 'desc'
 
     // ==================== Prev Study Filters ====================
     public string $prevStudyFilterType       = ''; // '', 'general', 'specialized'
@@ -271,7 +281,7 @@ class WeeklyProgramUpload extends Component
 
         $reports = DailyReport::where('student_id', $this->studentId)
             ->where('session_id', $prevSession->id)
-            ->with(['detail', 'reportParts'])
+            ->with(['detail', 'reportParts.programPart'])
             ->get()
             ->keyBy(fn($r) => Carbon::parse($r->report_date)->toDateString());
 
@@ -320,11 +330,27 @@ class WeeklyProgramUpload extends Component
                 $studySessionsCount = $sessions->count();
                 $isExtra = $part->source_type && $part->source_type !== ProgramPart::SOURCE_NORMAL;
 
+                // Cheating detection: if session ended more than 10 min after expected end
+                $cheatMinutes = null;
+                $isCheat = false;
+                $partDuration = (int) ($part->duration_minutes ?? 0);
+                foreach ($sessions as $session) {
+                    if ($session->started_at && ($session->ended_at || $session->completed_at)) {
+                        $endTime = $session->ended_at ?? $session->completed_at;
+                        $expectedEnd = $session->started_at->copy()->addMinutes($partDuration);
+                        $delay = (int) $expectedEnd->diffInMinutes($endTime, false);
+                        if ($delay > 10) {
+                            $isCheat = true;
+                            $cheatMinutes = max($cheatMinutes ?? 0, $delay);
+                        }
+                    }
+                }
+
                 $partsData[] = [
                     'id'                 => $part->id,
                     'lesson_name'        => $part->lesson_name,
                     'description'        => $part->description,
-                    'duration_minutes'   => (int) ($part->duration_minutes ?? 0),
+                    'duration_minutes'   => $partDuration,
                     'test_count'         => $part->test_count,
                     'part_type'          => $part->part_type,
                     'part_type_label'    => $part->part_type_label,
@@ -341,12 +367,21 @@ class WeeklyProgramUpload extends Component
                     'study_sessions_count' => $studySessionsCount,
                     'is_studied'         => $studySessionsCount > 0,
                     'is_extra'           => $isExtra,
+                    'is_cheat'           => $isCheat,
+                    'cheat_minutes'      => $cheatMinutes,
                 ];
 
                 $dayMinutes      += (int) ($part->duration_minutes ?? 0);
                 $dayStudyMinutes += $studyMinutes;
                 $totalParts++;
                 if ($isExtra) $extraPartsCount++;
+            }
+
+            // Sort parts by rating within each day
+            if ($this->prevWeekSortByRating === 'asc') {
+                usort($partsData, fn($a, $b) => ($a['avg_rating'] ?? -1) <=> ($b['avg_rating'] ?? -1));
+            } elseif ($this->prevWeekSortByRating === 'desc') {
+                usort($partsData, fn($a, $b) => ($b['avg_rating'] ?? -1) <=> ($a['avg_rating'] ?? -1));
             }
 
             $maxPartsPerDay = max($maxPartsPerDay, count($partsData));
@@ -358,6 +393,10 @@ class WeeklyProgramUpload extends Component
             $reportRating = null; $reportDetailStatus = null;
             $reportDonePartsCount = 0; $reportCompensatoryPartsCount = 0;
 
+            $reportDetailParts = [];
+            $reportMissedReason = null;
+            $reportCompensatoryReports = [];
+
             if ($isRest) {
                 $reportStatus      = 'rest';
                 $reportStatusLabel = 'روز استراحت';
@@ -366,6 +405,7 @@ class WeeklyProgramUpload extends Component
                 $reportStatus         = 'sent';
                 $reportRating         = $report->detail?->rating;
                 $reportDetailStatus   = $report->detail?->status ?? 'pending';
+                $reportMissedReason   = $report->detail?->missed_parts_reason;
                 $reportStatusLabel    = match ($reportDetailStatus) {
                     'approved' => 'گزارش تایید شده',
                     'rejected' => 'گزارش رد شده',
@@ -378,6 +418,19 @@ class WeeklyProgramUpload extends Component
                 };
                 $reportDonePartsCount          = $report->reportParts->where('is_read', true)->count();
                 $reportCompensatoryPartsCount  = $report->reportParts->where('is_compensatory', true)->count();
+
+                foreach ($report->reportParts as $rp) {
+                    $rpPart = $rp->programPart;
+                    $reportDetailParts[] = [
+                        'lesson_name'     => $rpPart?->lesson_name ?? '—',
+                        'duration_minutes'=> $rpPart?->duration_minutes ?? 0,
+                        'is_read'         => (bool) $rp->is_read,
+                        'is_compensatory' => (bool) $rp->is_compensatory,
+                        'tests_done'      => $rp->tests_done,
+                        'part_rating'     => $rp->part_rating ?? null,
+                    ];
+                }
+
                 $sentReportsCount++;
                 if ($reportDetailStatus === 'rejected') $rejectedReportsCount++;
             } else {
@@ -385,6 +438,30 @@ class WeeklyProgramUpload extends Component
                 $reportStatusLabel = 'گزارش ارسال نشده';
                 $reportStatusColor = 'secondary';
                 if (!$isExam) $missingReportsCount++;
+            }
+
+            // Also collect compensatory reports for this date (is_compensatory=true reports sent on this date)
+            $compensatoryReportForDay = $reports->filter(function($r) use ($dateKey) {
+                return $r->is_compensatory && Carbon::parse($r->report_date)->toDateString() === $dateKey;
+            });
+            foreach ($compensatoryReportForDay as $compReport) {
+                $compParts = [];
+                foreach ($compReport->reportParts as $rp) {
+                    $rpPart = $rp->programPart;
+                    $compParts[] = [
+                        'lesson_name'     => $rpPart?->lesson_name ?? '—',
+                        'duration_minutes'=> $rpPart?->duration_minutes ?? 0,
+                        'is_read'         => (bool) $rp->is_read,
+                        'tests_done'      => $rp->tests_done,
+                    ];
+                }
+                if (!empty($compParts)) {
+                    $reportCompensatoryReports[] = [
+                        'jalali_date' => jdate(Carbon::parse($compReport->report_date))->format('Y/m/d'),
+                        'description' => $compReport->detail?->description,
+                        'parts'       => $compParts,
+                    ];
+                }
             }
 
             $dayAvgRating = !empty($dayRatings) ? round(array_sum($dayRatings) / count($dayRatings)) : null;
@@ -411,6 +488,9 @@ class WeeklyProgramUpload extends Component
                 'report_rating'        => $reportRating,
                 'report_done_parts'    => $reportDonePartsCount,
                 'report_compensatory_parts' => $reportCompensatoryPartsCount,
+                'report_detail_parts'  => $reportDetailParts,
+                'report_missed_reason' => $reportMissedReason,
+                'report_compensatory_reports' => $reportCompensatoryReports,
                 'day_avg_rating'       => $dayAvgRating,
             ];
         }
@@ -435,6 +515,79 @@ class WeeklyProgramUpload extends Component
             'compensatory_parts_count'=> $compensatoryPartsCount,
             'extra_parts_count'       => $extraPartsCount,
         ];
+    }
+
+    public function togglePrevWeekSelectMode(): void
+    {
+        $this->prevWeekSelectMode      = !$this->prevWeekSelectMode;
+        $this->prevWeekSelectedPartIds = [];
+        $this->prevWeekCopyTargetDays  = [];
+    }
+
+    public function togglePrevWeekPartSelection(int $partId): void
+    {
+        if (in_array($partId, $this->prevWeekSelectedPartIds)) {
+            $this->prevWeekSelectedPartIds = array_values(array_filter($this->prevWeekSelectedPartIds, fn($id) => $id !== $partId));
+        } else {
+            $this->prevWeekSelectedPartIds[] = $partId;
+        }
+    }
+
+    public function copyPrevWeekPartsToProgram(): void
+    {
+        if (empty($this->prevWeekSelectedPartIds) || empty($this->prevWeekCopyTargetDays)) {
+            $this->dispatch('warning', 'لطفاً پارت‌ها و روزهای مقصد را انتخاب کنید.');
+            return;
+        }
+
+        if (!$this->weeklyProgramId) $this->saveProgram();
+
+        $startDate = Carbon::parse($this->start_date);
+        $copied    = 0;
+
+        foreach (array_map('intval', $this->prevWeekCopyTargetDays) as $dayIndex) {
+            foreach ($this->prevWeekSelectedPartIds as $partId) {
+                $part = ProgramPart::find($partId);
+                if (!$part) continue;
+
+                $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                    ->where('day_of_week', $dayIndex)->count();
+                if ($existingCount >= 20) break;
+
+                ProgramPart::create([
+                    'weekly_program_id'  => $this->weeklyProgramId,
+                    'lesson_name'        => $part->lesson_name,
+                    'part_date'          => $startDate->copy()->addDays($dayIndex),
+                    'day_of_week'        => $dayIndex,
+                    'part_order'         => $existingCount + 1,
+                    'description'        => $part->description,
+                    'duration_minutes'   => $part->duration_minutes,
+                    'test_count'         => $part->test_count,
+                    'part_type'          => $part->part_type,
+                    'source_type'        => $part->source_type,
+                    'lesson_type'        => $part->lesson_type,
+                    'grade'              => $part->grade,
+                    'education_level_id' => $part->education_level_id,
+                    'cc_grade_id'        => $part->cc_grade_id,
+                    'cc_field_id'        => $part->cc_field_id,
+                    'cc_subject_id'      => $part->cc_subject_id,
+                    'cc_chapter_id'      => $part->cc_chapter_id,
+                    'cc_topic_id'        => $part->cc_topic_id,
+                    'grade_label'        => $part->grade_label,
+                ]);
+                $copied++;
+            }
+        }
+
+        $this->reorderAllDays();
+        $this->loadExistingParts();
+        $this->prevWeekSelectedPartIds = [];
+        $this->prevWeekCopyTargetDays  = [];
+        $this->prevWeekSelectMode      = false;
+
+        $copied > 0
+            ? $this->dispatch('success', $copied . ' پارت از برنامه هفته قبل کپی شد.')
+            : $this->dispatch('warning', 'هیچ پارتی کپی نشد.');
     }
 
     // ==================== Load Parts ====================
@@ -3093,7 +3246,7 @@ class WeeklyProgramUpload extends Component
 
         foreach ($this->selectedPartIds as $partId) {
             $part = ProgramPart::find($partId);
-            if (!$part || $part->weekly_program_id !== $this->weeklyProgramId) continue;
+            if (!$part || (int)$part->weekly_program_id !== (int)$this->weeklyProgramId) continue;
 
             $existingCount = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)->where('day_of_week', $dayIndex)->count();
             if ($existingCount >= 20) break;
@@ -3197,7 +3350,7 @@ class WeeklyProgramUpload extends Component
             $collection = $collection->filter(fn($p) => (string)($p['grade'] ?? '') === $this->prevProgramFilterGrade);
         }
 
-        // فیلتر نوع
+        // فیلتر نوع درس
         if ($this->prevProgramFilterType === 'general') {
             $collection = $collection->filter(fn($p) => $p['lesson_type'] === 'general');
         } elseif ($this->prevProgramFilterType === 'specialized') {
@@ -3209,12 +3362,32 @@ class WeeklyProgramUpload extends Component
             $collection = $collection->filter(fn($p) => (string)($p['day_of_week'] ?? '') === $this->prevProgramFilterDay);
         }
 
+        // فیلتر کیفیت مطالعه
+        if ($this->prevFilterStudyQuality === 'excellent') {
+            $collection = $collection->filter(fn($p) => isset($p['avg_rating']) && $p['avg_rating'] !== null && $p['avg_rating'] >= 8);
+        } elseif ($this->prevFilterStudyQuality === 'good') {
+            $collection = $collection->filter(fn($p) => isset($p['avg_rating']) && $p['avg_rating'] !== null && $p['avg_rating'] >= 5 && $p['avg_rating'] < 8);
+        } elseif ($this->prevFilterStudyQuality === 'poor') {
+            $collection = $collection->filter(fn($p) => isset($p['avg_rating']) && $p['avg_rating'] !== null && $p['avg_rating'] < 5);
+        }
+
+        // فیلتر وضعیت مطالعه
+        if ($this->prevFilterStudyStatus === 'not_studied') {
+            $collection = $collection->filter(fn($p) => empty($p['is_studied']));
+        } elseif ($this->prevFilterStudyStatus === 'no_rating') {
+            $collection = $collection->filter(fn($p) => !isset($p['avg_rating']) || $p['avg_rating'] === null);
+        }
+
         // مرتب‌سازی
         return match ($this->prevProgramSortField) {
             'rating_asc'  => $collection->sortBy('avg_rating')->values()->toArray(),
             'rating_desc' => $collection->sortByDesc('avg_rating')->values()->toArray(),
             default       => $collection->sortBy('day_of_week')->values()->toArray(),
         };
+    }
+    public function updatedPrevWeekSortByRating(): void
+    {
+        $this->buildPrevWeekPreview();
     }
     public function updatedReadingTypeFilter(): void {} // trigger re-render
     public function getFilteredStudyItems(): array

@@ -1,84 +1,84 @@
 <div>
     @assets
-        <!-- Tom Select CSS -->
-{{--        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">--}}
-        <style>
-            .tom-select .ts-control {
-                background: hsl(var(--secondary)) !important;
-                border: 2px solid hsl(var(--border)) !important;
-                border-radius: 0.75rem !important;
-                min-height: 3rem !important;
-                padding: 0.5rem 1.25rem !important;
-                color: hsl(var(--foreground)) !important;
-            }
+    <!-- Tom Select CSS -->
+    {{--        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">--}}
+    <style>
+        .tom-select .ts-control {
+            background: hsl(var(--secondary)) !important;
+            border: 2px solid hsl(var(--border)) !important;
+            border-radius: 0.75rem !important;
+            min-height: 3rem !important;
+            padding: 0.5rem 1.25rem !important;
+            color: hsl(var(--foreground)) !important;
+        }
 
-            .tom-select .ts-control input {
-                color: hsl(var(--foreground)) !important;
-            }
+        .tom-select .ts-control input {
+            color: hsl(var(--foreground)) !important;
+        }
 
-            .tom-select .ts-dropdown {
-                background: hsl(var(--secondary)) !important;
-                border: 2px solid hsl(var(--border)) !important;
-                border-radius: 0.75rem !important;
-                margin-top: 0.25rem !important;
-            }
+        .tom-select .ts-dropdown {
+            background: hsl(var(--secondary)) !important;
+            border: 2px solid hsl(var(--border)) !important;
+            border-radius: 0.75rem !important;
+            margin-top: 0.25rem !important;
+        }
 
-            .tom-select .ts-dropdown .option {
-                padding: 0.5rem 1rem !important;
-                color: hsl(var(--foreground)) !important;
-            }
+        .tom-select .ts-dropdown .option {
+            padding: 0.5rem 1rem !important;
+            color: hsl(var(--foreground)) !important;
+        }
 
-            .tom-select .ts-dropdown .option.active {
-                background: hsl(var(--primary)) !important;
-                color: hsl(var(--primary-foreground)) !important;
-            }
+        .tom-select .ts-dropdown .option.active {
+            background: hsl(var(--primary)) !important;
+            color: hsl(var(--primary-foreground)) !important;
+        }
 
-            .tom-select .ts-dropdown .option:hover {
-                background: hsl(var(--accent)) !important;
-            }
+        .tom-select .ts-dropdown .option:hover {
+            background: hsl(var(--accent)) !important;
+        }
 
-            .remove-image-btn {
-                position: absolute;
-                top: -0.5rem;
-                right: -0.5rem;
-                background: #ef4444;
-                color: white;
-                border-radius: 9999px;
-                width: 2rem;
-                height: 2rem;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                transition: all 0.2s;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            }
+        .remove-image-btn {
+            position: absolute;
+            top: -0.5rem;
+            right: -0.5rem;
+            background: #ef4444;
+            color: white;
+            border-radius: 9999px;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
 
-            .remove-image-btn:hover {
-                background: #dc2626;
-                transform: scale(1.1);
-            }
-        </style>
-        <style>
-            .password-eye-btn{
-                position:absolute;
-                inset-inline-end: .75rem; /* راست در RTL */
-                top:50%;
-                transform: translateY(-50%);
-                display:flex;
-                align-items:center;
-                justify-content:center;
-                width:2.5rem;
-                height:2.5rem;
-                border-radius: .75rem;
-                color: hsl(var(--muted-foreground));
-                transition: all .15s ease;
-            }
-            .password-eye-btn:hover{
-                background: hsl(var(--secondary));
-                color: hsl(var(--foreground));
-            }
-        </style>
+        .remove-image-btn:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
+    </style>
+    <style>
+        .password-eye-btn{
+            position:absolute;
+            inset-inline-end: .75rem; /* راست در RTL */
+            top:50%;
+            transform: translateY(-50%);
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            width:2.5rem;
+            height:2.5rem;
+            border-radius: .75rem;
+            color: hsl(var(--muted-foreground));
+            transition: all .15s ease;
+        }
+        .password-eye-btn:hover{
+            background: hsl(var(--secondary));
+            color: hsl(var(--foreground));
+        }
+    </style>
 
     @endassets
 
@@ -350,7 +350,19 @@
                                                 @enderror
                                             </div>
 
-                                            <div class="space-y-2">
+                                            {{-- استان (modal picker) --}}
+                                            <div class="space-y-2"
+                                                 x-data="{
+                                                    stateOpen: false,
+                                                    stateSearch: '',
+                                                    states: @js($states->map(fn($s) => ['id' => $s->id, 'name' => $s->name])->values()->all()),
+                                                    get filtered() {
+                                                        const q = this.stateSearch.trim();
+                                                        if (!q) return this.states;
+                                                        return this.states.filter(s => s.name.includes(q));
+                                                    }
+                                                 }"
+                                                 @keydown.escape.window="stateOpen = false">
                                                 <label class="flex items-center gap-2 font-semibold text-sm text-foreground">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-primary">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -359,15 +371,51 @@
                                                     استان
                                                 </label>
 
-                                                <x-ui.select
-                                                    wire:model.live="state_id"
-                                                    :options="$states->map(fn($s) => ['id' => $s->id, 'name' => $s->name])->values()->toArray()"
-                                                    value-key="id"
-                                                    label-key="name"
-                                                    placeholder="جستجو و انتخاب استان..."
-                                                    :searchable="true"
-                                                    search-placeholder="جستجوی استان..."
-                                                />
+                                                <button type="button" @click="stateOpen = true"
+                                                        class="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl border-2 border-border bg-secondary hover:border-primary/50 transition-colors text-sm text-right">
+                                                    <span class="{{ $state_id ? 'text-foreground' : 'text-muted' }}">
+                                                        {{ $state_id ? ($states->firstWhere('id', $state_id)?->name ?? 'انتخاب استان') : 'انتخاب استان' }}
+                                                    </span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                    </svg>
+                                                </button>
+
+                                                {{-- State Modal --}}
+                                                <div x-show="stateOpen" x-cloak
+                                                     class="fixed inset-0 z-[100] flex flex-col justify-end sm:items-center sm:justify-center">
+                                                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="stateOpen = false"></div>
+                                                    <div class="relative z-10 w-full sm:max-w-md bg-secondary rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col max-h-[80vh] pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                                                         x-transition:enter="transition ease-out duration-300"
+                                                         x-transition:enter-start="opacity-0 translate-y-8"
+                                                         x-transition:enter-end="opacity-100 translate-y-0"
+                                                         x-transition:leave="transition ease-in duration-200"
+                                                         x-transition:leave-start="opacity-100 translate-y-0"
+                                                         x-transition:leave-end="opacity-0 translate-y-8">
+                                                        <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                                                            <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                                                        </div>
+                                                        <div class="shrink-0 p-4 border-b border-border flex items-center gap-3">
+                                                            <input x-model="stateSearch" type="search" placeholder="جستجوی استان..."
+                                                                   x-ref="stateSearchInput"
+                                                                   x-init="$watch('stateOpen', v => v && $nextTick(() => $refs.stateSearchInput.focus()))"
+                                                                   class="flex-1 rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                                                            <button @click="stateOpen = false; stateSearch = ''" type="button" class="text-muted hover:text-foreground shrink-0">
+                                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                            </button>
+                                                        </div>
+                                                        <div class="flex-1 overflow-y-auto p-2">
+                                                            <template x-for="state in filtered" :key="state.id">
+                                                                <button type="button"
+                                                                        @click="$wire.set('state_id', state.id); $wire.set('city_id', null); stateOpen = false; stateSearch = '';"
+                                                                        :class="state.id == {{ $state_id ?? 'null' }} ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted/40 text-foreground'"
+                                                                        class="w-full text-right px-4 py-3 rounded-xl transition-colors text-sm">
+                                                                    <span x-text="state.name"></span>
+                                                                </button>
+                                                            </template>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
                                                 @error('state_id')
                                                 <div class="font-medium text-xs text-red-500 flex items-center gap-1 mt-1">
@@ -379,7 +427,19 @@
                                                 @enderror
                                             </div>
 
-                                            <div class="space-y-2">
+                                            {{-- شهر (modal picker) --}}
+                                            <div class="space-y-2"
+                                                 x-data="{
+                                                    cityOpen: false,
+                                                    citySearch: '',
+                                                    cities: @js($cities->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values()->all()),
+                                                    get filtered() {
+                                                        const q = this.citySearch.trim();
+                                                        if (!q) return this.cities;
+                                                        return this.cities.filter(c => c.name.includes(q));
+                                                    }
+                                                 }"
+                                                 @keydown.escape.window="cityOpen = false">
                                                 <label class="flex items-center gap-2 font-semibold text-sm text-foreground">
                                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-primary">
                                                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z" />
@@ -387,17 +447,60 @@
                                                     شهر
                                                 </label>
 
-                                                <x-ui.select
-                                                    wire:model.live="city_id"
-                                                    wire:key="select-city-{{ $state_id }}"
-                                                    :options="$cities->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values()->toArray()"
-                                                    value-key="id"
-                                                    label-key="name"
-                                                    placeholder="جستجو و انتخاب شهر..."
-                                                    :searchable="true"
-                                                    search-placeholder="جستجوی شهر..."
-                                                    :disabled="!$state_id"
-                                                />
+                                                <button type="button"
+                                                        @click="{{ $state_id ? 'cityOpen = true' : '' }}"
+                                                @disabled="{{ !$state_id ? 'true' : 'false' }}"
+                                                class="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl border-2 border-border bg-secondary transition-colors text-sm text-right {{ !$state_id ? 'opacity-50 cursor-not-allowed' : 'hover:border-primary/50' }}">
+                                                <span class="{{ $city_id ? 'text-foreground' : 'text-muted' }}">
+                                                        {{ $city_id ? ($cities->firstWhere('id', $city_id)?->name ?? 'انتخاب شهر') : ($state_id ? 'انتخاب شهر' : 'ابتدا استان را انتخاب کنید') }}
+                                                    </span>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                </svg>
+                                                </button>
+
+                                                {{-- City Modal --}}
+                                                <div x-show="cityOpen" x-cloak
+                                                     class="fixed inset-0 z-[100] flex flex-col justify-end sm:items-center sm:justify-center">
+                                                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="cityOpen = false"></div>
+                                                    <div class="relative z-10 w-full sm:max-w-md bg-secondary rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col max-h-[80vh] pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                                                         x-transition:enter="transition ease-out duration-300"
+                                                         x-transition:enter-start="opacity-0 translate-y-8"
+                                                         x-transition:enter-end="opacity-100 translate-y-0"
+                                                         x-transition:leave="transition ease-in duration-200"
+                                                         x-transition:leave-start="opacity-100 translate-y-0"
+                                                         x-transition:leave-end="opacity-0 translate-y-8">
+                                                        <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                                                            <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                                                        </div>
+                                                        <div class="shrink-0 p-4 border-b border-border flex items-center gap-3">
+                                                            <input x-model="citySearch" type="search" placeholder="جستجوی شهر..."
+                                                                   x-ref="citySearchInput"
+                                                                   x-init="$watch('cityOpen', v => v && $nextTick(() => $refs.citySearchInput.focus()))"
+                                                                   class="flex-1 rounded-xl border border-border bg-background px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30">
+                                                            <button @click="cityOpen = false; citySearch = ''" type="button" class="text-muted hover:text-foreground shrink-0">
+                                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                            </button>
+                                                        </div>
+                                                        <div class="flex-1 overflow-y-auto p-2">
+                                                            <div wire:loading wire:target="state_id" class="space-y-2 p-2">
+                                                                @for($i = 0; $i < 6; $i++)
+                                                                    <div class="h-10 bg-muted/40 rounded-xl animate-pulse"></div>
+                                                                @endfor
+                                                            </div>
+                                                            <div wire:loading.remove wire:target="state_id">
+                                                                <template x-for="city in filtered" :key="city.id">
+                                                                    <button type="button"
+                                                                            @click="$wire.set('city_id', city.id); cityOpen = false; citySearch = '';"
+                                                                            :class="city.id == {{ $city_id ?? 'null' }} ? 'bg-primary/10 text-primary font-bold' : 'hover:bg-muted/40 text-foreground'"
+                                                                            class="w-full text-right px-4 py-3 rounded-xl transition-colors text-sm">
+                                                                        <span x-text="city.name"></span>
+                                                                    </button>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
                                                 @error('city_id')
                                                 <div class="font-medium text-xs text-red-500 flex items-center gap-1 mt-1">
@@ -407,6 +510,72 @@
                                                     {{ $message }}
                                                 </div>
                                                 @enderror
+                                            </div>
+
+                                            {{-- تاریخ تولد (modal picker) --}}
+                                            <div class="space-y-2"
+                                                 x-data="{ dateOpen: false }"
+                                                 @keydown.escape.window="dateOpen = false">
+                                                <label class="flex items-center gap-2 font-semibold text-sm text-foreground">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-primary">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                                                    </svg>
+                                                    تاریخ تولد
+                                                </label>
+
+                                                <button type="button" @click="dateOpen = true"
+                                                        class="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl border-2 border-border bg-secondary hover:border-primary/50 transition-colors text-sm text-right">
+                                                    <span class="{{ $birth_date ? 'text-foreground' : 'text-muted' }}">
+                                                        {{ $birth_date ?: 'انتخاب تاریخ تولد' }}
+                                                    </span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                    </svg>
+                                                </button>
+
+                                                {{-- Date Modal --}}
+                                                <div x-show="dateOpen" x-cloak
+                                                     class="fixed inset-0 z-[100] flex flex-col justify-end sm:items-center sm:justify-center">
+                                                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="dateOpen = false"></div>
+                                                    <div class="relative z-10 w-full sm:max-w-md bg-secondary rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                                                         x-transition:enter="transition ease-out duration-300"
+                                                         x-transition:enter-start="opacity-0 translate-y-8"
+                                                         x-transition:enter-end="opacity-100 translate-y-0"
+                                                         x-transition:leave="transition ease-in duration-200"
+                                                         x-transition:leave-start="opacity-100 translate-y-0"
+                                                         x-transition:leave-end="opacity-0 translate-y-8">
+                                                        <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                                                            <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                                                        </div>
+                                                        <div class="shrink-0 p-4 border-b border-border flex items-center justify-between">
+                                                            <h3 class="font-bold text-foreground text-base">تاریخ تولد</h3>
+                                                            <button @click="dateOpen = false" type="button" class="text-muted hover:text-foreground">
+                                                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                            </button>
+                                                        </div>
+                                                        <div class="p-5 space-y-4">
+                                                            <p class="text-sm text-muted">تاریخ تولد خود را به فرمت شمسی وارد کنید:</p>
+                                                            <div class="relative">
+                                                                <input type="text"
+                                                                       wire:model="birth_date"
+                                                                       placeholder="مثال: ۱۳۸۰/۰۱/۰۱"
+                                                                       dir="ltr"
+                                                                       class="w-full rounded-xl border-2 border-border bg-background px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary text-center tracking-wider">
+                                                            </div>
+                                                            <p class="text-xs text-muted text-center">فرمت: سال/ماه/روز (شمسی)</p>
+                                                        </div>
+                                                        <div class="shrink-0 flex gap-3 p-4 border-t border-border">
+                                                            <button @click="dateOpen = false" type="button"
+                                                                    class="flex-1 py-3 rounded-xl border border-border text-foreground font-semibold text-sm hover:bg-muted/40 transition-colors">
+                                                                انصراف
+                                                            </button>
+                                                            <button @click="dateOpen = false" type="button"
+                                                                    class="flex-1 py-3 rounded-xl bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-colors">
+                                                                تأیید
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                         </div>

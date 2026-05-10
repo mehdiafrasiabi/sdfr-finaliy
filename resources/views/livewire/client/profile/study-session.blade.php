@@ -450,22 +450,22 @@
                                                                     @if($dayFilter === 'missed' && $isPartMissed)
                                                                         <span class="mr-1 px-1.5 py-0.5 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 text-[9px] font-bold">ثبت نشده</span>
                                                                     @endif
-                                                            </div>
+                                                                </div>
 
-                                                            @if($part->ccTopic)
-                                                                <div class="text-[11px] text-primary mt-0.5">{{ $part->ccTopic->name }}</div>
-                                                            @endif
-                                                            @if($part->description)
-                                                                <div class="text-[11px] text-muted mt-0.5">{{ Str::limit($part->description, 300) }}</div>
-                                                            @endif
-                                                        </td>
+                                                                @if($part->ccTopic)
+                                                                    <div class="text-[11px] text-primary mt-0.5">{{ $part->ccTopic->name }}</div>
+                                                                @endif
+                                                                @if($part->description)
+                                                                    <div class="text-[11px] text-muted mt-0.5">{{ Str::limit($part->description, 300) }}</div>
+                                                                @endif
+                                                            </td>
 
-                                                        <td class="px-3 py-3 text-center text-foreground" dir="ltr">
-                                                            {{ floor($part->duration_minutes / 60) }}:{{ str_pad($part->duration_minutes % 60, 2, '0', STR_PAD_LEFT) }}
-                                                        </td>
+                                                            <td class="px-3 py-3 text-center text-foreground" dir="ltr">
+                                                                {{ floor($part->duration_minutes / 60) }}:{{ str_pad($part->duration_minutes % 60, 2, '0', STR_PAD_LEFT) }}
+                                                            </td>
 
-                                                        <td class="px-3 py-3 text-center">
-                                                            <div class="flex flex-wrap items-center justify-center gap-1">
+                                                            <td class="px-3 py-3 text-center">
+                                                                <div class="flex flex-wrap items-center justify-center gap-1">
                                                                 <span class="px-2 py-1 rounded-full text-[10px]
                                                                     {{ $part->part_type === 'test' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' : '' }}
                                                                     {{ $part->part_type === 'descriptive' ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400' : '' }}
@@ -475,39 +475,39 @@
                                                                     {{ $part->part_type_label }}
                                                                 </span>
 
-                                                                <span class="px-2 py-1 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
+                                                                    <span class="px-2 py-1 rounded-full text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200">
                                                                     {{ $part->lesson_type_label }}
                                                                 </span>
 
-                                                                @if($part->source_type && $part->source_type !== 'normal')
-                                                                    <span class="px-2 py-1 rounded-full text-[10px] font-medium {{ $part->source_type_tw_class }}">
+                                                                    @if($part->source_type && $part->source_type !== 'normal')
+                                                                        <span class="px-2 py-1 rounded-full text-[10px] font-medium {{ $part->source_type_tw_class }}">
                                                                         {{ $part->source_type_label }}
                                                                     </span>
-                                                                @endif
-                                                            </div>
-                                                        </td>
+                                                                    @endif
+                                                                </div>
+                                                            </td>
 
-                                                        <td class="px-3 py-3 text-left">
-                                                            @if($this->isPartCompleted($part->id))
-                                                                <span class="text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">✓ تکمیل شده</span>
-                                                            @elseif($currentPartId == $part->id)
-                                                                <span class="text-blue-600 dark:text-blue-400 font-bold text-[11px]">در حال مطالعه...</span>
-                                                            @elseif($dayFilter === 'missed')
-                                                                <span class="text-red-500 dark:text-red-400 font-bold text-[11px]">✗ انجام نشده</span>
-                                                            @else
-                                                                <button wire:click="startPart({{ $part->id }})"
-                                                                        wire:loading.attr="disabled"
-                                                                        wire:target="startPart({{ $part->id }})"
-                                                                        class="px-4 h-9 rounded-full bg-primary hover:bg-primary/90 text-white text-[11px] font-semibold transition
+                                                            <td class="px-3 py-3 text-left">
+                                                                @if($this->isPartCompleted($part->id))
+                                                                    <span class="text-emerald-600 dark:text-emerald-400 font-bold text-[11px]">✓ تکمیل شده</span>
+                                                                @elseif($currentPartId == $part->id)
+                                                                    <span class="text-blue-600 dark:text-blue-400 font-bold text-[11px]">در حال مطالعه...</span>
+                                                                @elseif($dayFilter === 'missed')
+                                                                    <span class="text-red-500 dark:text-red-400 font-bold text-[11px]">✗ انجام نشده</span>
+                                                                @else
+                                                                    <button wire:click="startPart({{ $part->id }})"
+                                                                            wire:loading.attr="disabled"
+                                                                            wire:target="startPart({{ $part->id }})"
+                                                                            class="px-4 h-9 rounded-full bg-primary hover:bg-primary/90 text-white text-[11px] font-semibold transition
                                                                                disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
-                                                                    {{ $currentPartId || $makeupTimerRunning ? 'disabled' : '' }}>
-                                                                    <span wire:loading.remove wire:target="startPart({{ $part->id }})">شروع</span>
-                                                                    <span wire:loading wire:target="startPart({{ $part->id }})"
-                                                                          class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
-                                                                </button>
-                                                            @endif
-                                                        </td>
-                                                    </tr>
+                                                                        {{ $currentPartId || $makeupTimerRunning ? 'disabled' : '' }}>
+                                                                        <span wire:loading.remove wire:target="startPart({{ $part->id }})">شروع</span>
+                                                                        <span wire:loading wire:target="startPart({{ $part->id }})"
+                                                                              class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                                                    </button>
+                                                                @endif
+                                                            </td>
+                                                        </tr>
                                                     @endif
                                                 @endforeach
                                                 </tbody>
@@ -568,25 +568,25 @@
                                     <div class="border-t border-dashed border-slate-300/35 dark:border-slate-600/35"></div>
                                 @endif
                             @endforeach
-                                @if($dayFilter === 'missed')
-                                    @php
-                                        $hasMissedDays = false;
-                                        foreach($programDays as $d) {
-                                            $effectiveDateStr2 = now()->hour < 6 ? now()->subDay()->toDateString() : now()->toDateString();
-                                            if (!$d['is_rest_day'] && $d['date'] < $effectiveDateStr2 && $d['parts']->filter(fn($p) => !in_array($p->id, $completedParts))->count() > 0) {
-                                                $hasMissedDays = true;
-                                                break;
-                                            }
+                            @if($dayFilter === 'missed')
+                                @php
+                                    $hasMissedDays = false;
+                                    foreach($programDays as $d) {
+                                        $effectiveDateStr2 = now()->hour < 6 ? now()->subDay()->toDateString() : now()->toDateString();
+                                        if (!$d['is_rest_day'] && $d['date'] < $effectiveDateStr2 && $d['parts']->filter(fn($p) => !in_array($p->id, $completedParts))->count() > 0) {
+                                            $hasMissedDays = true;
+                                            break;
                                         }
-                                    @endphp
-                                    @if(!$hasMissedDays)
-                                        <div class="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-8 text-center">
-                                            <div class="text-3xl mb-3">✅</div>
-                                            <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-1">همه پارت‌ها انجام شده‌اند</h4>
-                                            <p class="text-sm text-emerald-600/80 dark:text-emerald-400/70">هیچ پارت انجام نشده‌ای وجود ندارد.</p>
-                                        </div>
-                                    @endif
+                                    }
+                                @endphp
+                                @if(!$hasMissedDays)
+                                    <div class="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-900/10 p-8 text-center">
+                                        <div class="text-3xl mb-3">✅</div>
+                                        <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-1">همه پارت‌ها انجام شده‌اند</h4>
+                                        <p class="text-sm text-emerald-600/80 dark:text-emerald-400/70">هیچ پارت انجام نشده‌ای وجود ندارد.</p>
+                                    </div>
                                 @endif
+                            @endif
                         </div>
                     @endif
 
@@ -596,7 +596,7 @@
                             <img src="/client/empty/studySession.png" class="w-full max-w-xs" alt="empty"/>
                             <div class="text-center space-y-3">
                                 <h2 class="font-bold text-xl text-foreground">
-                                   ساعت مطالعه برای شما وجود ندارد!
+                                    ساعت مطالعه برای شما وجود ندارد!
                                     <p class="text-muted text-sm">هنوز ساعت مطالعه برای شما ثبت نشده است.</p>
                                 </h2>
                             </div>
@@ -607,10 +607,20 @@
 
                 {{-- مودال دسترسی --}}
                 <div x-cloak x-show="permissionModal"
-                     class="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-                     x-transition>
-                    <div class="w-full max-w-md mx-4 bg-secondary border border-border rounded-2xl shadow-2xl"
-                         @click.away="permissionModal = false">
+                     class="fixed inset-0 z-[150] flex flex-col justify-end sm:items-center sm:justify-center"
+                     @keydown.escape.window="permissionModal = false">
+                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="permissionModal = false"></div>
+                    <div class="relative z-10 w-full sm:max-w-md bg-secondary rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 translate-y-8"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 translate-y-8">
+
+                        <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                            <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                        </div>
 
                         <div class="flex items-center justify-between px-6 py-4 border-b border-border">
                             <h3 class="text-base font-bold text-foreground">درخواست دسترسی</h3>
@@ -633,7 +643,7 @@
                             </div>
                         </div>
 
-                        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl">
+                        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl sm:rounded-b-2xl">
                             <button type="button"
                                     class="px-6 h-11 rounded-full bg-primary text-white font-semibold hover:bg-primary/90 transition"
                                     wire:click="permissionUnderstood">
@@ -646,10 +656,20 @@
 
                 {{-- مودال پایان پارت عادی --}}
                 <div x-cloak x-show="finishModal"
-                     class="fixed inset-0 z-[75] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-                     x-transition>
-                    <div class="w-full max-w-md mx-4 bg-secondary border-2 border-green-500 rounded-3xl shadow-2xl"
-                         @click.away="finishModal = false">
+                     class="fixed inset-0 z-[75] flex flex-col justify-end sm:items-center sm:justify-center"
+                     @keydown.escape.window="finishModal = false">
+                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="finishModal = false"></div>
+                    <div class="relative z-10 w-full sm:max-w-md bg-secondary border-t-2 sm:border-2 border-green-500 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 translate-y-8"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 translate-y-8">
+
+                        <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                            <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                        </div>
 
                         <div class="px-6 py-8 text-center space-y-4">
                             <div class="flex justify-center">
@@ -693,10 +713,20 @@
 
                 {{-- مودال پایان جبرانی --}}
                 <div x-cloak x-show="makeupFinishModal"
-                     class="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-                     x-transition>
-                    <div class="w-full max-w-md mx-4 bg-secondary border-2 border-violet-500 rounded-3xl shadow-2xl"
-                         @click.away="makeupFinishModal = false">
+                     class="fixed inset-0 z-[70] flex flex-col justify-end sm:items-center sm:justify-center"
+                     @keydown.escape.window="makeupFinishModal = false">
+                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="makeupFinishModal = false"></div>
+                    <div class="relative z-10 w-full sm:max-w-md bg-secondary border-t-2 sm:border-2 border-violet-500 rounded-t-3xl sm:rounded-3xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 translate-y-8"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 translate-y-8">
+
+                        <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                            <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                        </div>
 
                         <div class="px-6 py-8 text-center space-y-4">
                             <div class="flex justify-center">
@@ -740,9 +770,20 @@
 
                 {{-- مودال بازخورد --}}
                 <div x-cloak x-show="feedbackModal"
-                     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-                     x-transition>
-                    <div class="w-full max-w-md mx-4 bg-secondary border border-border rounded-2xl shadow-2xl">
+                     class="fixed inset-0 z-[60] flex flex-col justify-end sm:items-center sm:justify-center"
+                     @keydown.escape.window="feedbackModal = false">
+                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="feedbackModal = false"></div>
+                    <div class="relative z-10 w-full sm:max-w-md bg-secondary rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 translate-y-8"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 translate-y-8">
+
+                        <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                            <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                        </div>
 
                         <div class="flex items-center justify-between px-6 py-4 border-b border-border">
                             <h3 class="text-base font-bold text-foreground">بازخورد جلسه مطالعه</h3>
@@ -830,12 +871,22 @@
 
                 {{-- مودال مطالعه جبرانی --}}
                 <div x-cloak x-show="makeupModal"
-                     class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
-                     x-transition>
-                    <div class="w-full max-w-lg mx-4 bg-secondary border border-border rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto"
-                         @click.away="makeupModal = false">
+                     class="fixed inset-0 z-[100] flex flex-col justify-end sm:items-center sm:justify-center"
+                     @keydown.escape.window="makeupModal = false">
+                    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="makeupModal = false"></div>
+                    <div class="relative z-10 w-full sm:max-w-lg bg-secondary rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col max-h-[90vh] pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                         x-transition:enter="transition ease-out duration-300"
+                         x-transition:enter-start="opacity-0 translate-y-8"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-200"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 translate-y-8">
 
-                        <div class="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-secondary z-10 rounded-t-2xl">
+                        <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                            <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                        </div>
+
+                        <div class="flex items-center justify-between px-6 py-4 border-b border-border sticky top-0 bg-secondary z-10 rounded-t-2xl sm:rounded-t-2xl">
                             <h3 class="text-base font-bold text-foreground">ثبت ساعت مطالعه اضافه بر سازمان برنامه</h3>
                             <button type="button" wire:click="closeMakeupModal" class="text-muted hover:text-foreground transition">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -845,7 +896,7 @@
                             </button>
                         </div>
 
-                        <div class="px-6 py-5 space-y-5">
+                        <div class="flex-1 overflow-y-auto px-6 py-5 space-y-5">
 
                             {{-- جستجوی سریع --}}
                             <div>
@@ -1011,58 +1062,58 @@
                                 @endif
 
                                 {{-- انتخاب نوع پارت --}}
-                            <div class="border-t border-border pt-4">
-                                <label class="block text-xs font-semibold text-foreground mb-2">نوع مطالعه</label>
-                                <div class="grid grid-cols-3 gap-2">
-                                    <button type="button"
-                                            wire:click="$set('makeupPartType', 'test')"
-                                            class="px-4 py-3 rounded-xl border-2 text-sm font-semibold transition transform hover:-translate-y-0.5
+                                <div class="border-t border-border pt-4">
+                                    <label class="block text-xs font-semibold text-foreground mb-2">نوع مطالعه</label>
+                                    <div class="grid grid-cols-3 gap-2">
+                                        <button type="button"
+                                                wire:click="$set('makeupPartType', 'test')"
+                                                class="px-4 py-3 rounded-xl border-2 text-sm font-semibold transition transform hover:-translate-y-0.5
                                             {{ $makeupPartType === 'test'
                                                 ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
                                                 : 'border-border bg-secondary text-muted hover:border-blue-300' }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-1">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                  d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/>
-                                        </svg>
-                                        تستی
-                                    </button>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-1">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/>
+                                            </svg>
+                                            تستی
+                                        </button>
 
-                                    <button type="button"
-                                            wire:click="$set('makeupPartType', 'descriptive')"
-                                            class="px-4 py-3 rounded-xl border-2 text-sm font-semibold transition transform hover:-translate-y-0.5
+                                        <button type="button"
+                                                wire:click="$set('makeupPartType', 'descriptive')"
+                                                class="px-4 py-3 rounded-xl border-2 text-sm font-semibold transition transform hover:-translate-y-0.5
                                             {{ $makeupPartType === 'descriptive'
                                                 ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400'
                                                 : 'border-border bg-secondary text-muted hover:border-purple-300' }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-1">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                  d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/>
-                                        </svg>
-                                        تشریحی
-                                    </button>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-1">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/>
+                                            </svg>
+                                            تشریحی
+                                        </button>
 
-                                    <button type="button"
-                                            wire:click="$set('makeupPartType', 'video')"
-                                            class="px-4 py-3 rounded-xl border-2 text-sm font-semibold transition transform hover:-translate-y-0.5
+                                        <button type="button"
+                                                wire:click="$set('makeupPartType', 'video')"
+                                                class="px-4 py-3 rounded-xl border-2 text-sm font-semibold transition transform hover:-translate-y-0.5
                                             {{ $makeupPartType === 'video'
                                                 ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400'
                                                 : 'border-border bg-secondary text-muted hover:border-orange-300' }}">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-1">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                  d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"/>
-                                        </svg>
-                                        ویدیویی
-                                    </button>
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="w-5 h-5 mx-auto mb-1">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25h-9A2.25 2.25 0 0 0 2.25 7.5v9a2.25 2.25 0 0 0 2.25 2.25Z"/>
+                                            </svg>
+                                            ویدیویی
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="border-t border-border pt-4">
-                                <label class="block text-xs font-semibold text-foreground mb-2">مدت زمان مطالعه</label>
+                                <div class="border-t border-border pt-4">
+                                    <label class="block text-xs font-semibold text-foreground mb-2">مدت زمان مطالعه</label>
 
-                                <div
-                                    x-data="{
+                                    <div
+                                        x-data="{
             hours: @entangle('makeupDurationHours'),
             minutes: @entangle('makeupDurationMinutes'),
             incrementHours()   { if(this.hours < 24)  { this.hours++;   } },
@@ -1073,173 +1124,174 @@
             setMinutes(m) { this.minutes = Math.min(Math.max(parseInt(m)||0, 0), 59); },
             get totalMinutes() { return (this.hours * 60) + this.minutes; }
         }"
-                                    class="flex items-center gap-3 justify-start"
-                                    dir="ltr"
-                                >
-                                    {{-- ساعت --}}
-                                    <div class="flex flex-col items-center gap-1">
-                                        <button type="button" @click="incrementHours"
-                                                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
+                                        class="flex items-center gap-3 justify-start"
+                                        dir="ltr"
+                                    >
+                                        {{-- ساعت --}}
+                                        <div class="flex flex-col items-center gap-1">
+                                            <button type="button" @click="incrementHours"
+                                                    class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
                        hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-600 transition active:scale-95">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                                            </svg>
-                                        </button>
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                                </svg>
+                                            </button>
 
-                                        <input type="number" min="0" max="24"
-                                               x-model.number="hours"
-                                               @input="setHours($event.target.value)"
-                                               class="w-16 h-12 rounded-xl border border-border bg-secondary text-foreground font-bold text-lg text-center
+                                            <input type="number" min="0" max="24"
+                                                   x-model.number="hours"
+                                                   @input="setHours($event.target.value)"
+                                                   class="w-16 h-12 rounded-xl border border-border bg-secondary text-foreground font-bold text-lg text-center
                        shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
                        [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                               placeholder="0">
+                                                   placeholder="0">
 
-                                        <button type="button" @click="decrementHours"
-                                                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
+                                            <button type="button" @click="decrementHours"
+                                                    class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
                        hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-600 transition active:scale-95">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                            </svg>
-                                        </button>
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                </svg>
+                                            </button>
 
-                                        <span class="text-[10px] text-muted font-medium">ساعت</span>
-                                    </div>
+                                            <span class="text-[10px] text-muted font-medium">ساعت</span>
+                                        </div>
 
-                                    {{-- جداکننده --}}
-                                    <div class="text-2xl font-black text-muted pb-5">:</div>
+                                        {{-- جداکننده --}}
+                                        <div class="text-2xl font-black text-muted pb-5">:</div>
 
-                                    {{-- دقیقه --}}
-                                    <div class="flex flex-col items-center gap-1">
-                                        <button type="button" @click="incrementMinutes"
-                                                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
+                                        {{-- دقیقه --}}
+                                        <div class="flex flex-col items-center gap-1">
+                                            <button type="button" @click="incrementMinutes"
+                                                    class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
                        hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-600 transition active:scale-95">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
-                                            </svg>
-                                        </button>
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                                </svg>
+                                            </button>
 
-                                        <input type="number" min="0" max="59"
-                                               x-model.number="minutes"
-                                               @input="setMinutes($event.target.value)"
-                                               class="w-16 h-12 rounded-xl border border-border bg-secondary text-foreground font-bold text-lg text-center
+                                            <input type="number" min="0" max="59"
+                                                   x-model.number="minutes"
+                                                   @input="setMinutes($event.target.value)"
+                                                   class="w-16 h-12 rounded-xl border border-border bg-secondary text-foreground font-bold text-lg text-center
                        shadow-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
                        [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                               placeholder="30">
+                                                   placeholder="30">
 
-                                        <button type="button" @click="decrementMinutes"
-                                                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
+                                            <button type="button" @click="decrementMinutes"
+                                                    class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-background text-foreground
                        hover:bg-blue-500/10 hover:border-blue-400 hover:text-blue-600 transition active:scale-95">
-                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                            </svg>
-                                        </button>
+                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                </svg>
+                                            </button>
 
-                                        <span class="text-[10px] text-muted font-medium">دقیقه</span>
-                                    </div>
+                                            <span class="text-[10px] text-muted font-medium">دقیقه</span>
+                                        </div>
 
-                                    {{-- نمایش مجموع --}}
-                                    <div class="pb-5 mr-1" x-show="totalMinutes > 0">
-                                        <div class="flex flex-col items-center justify-center bg-blue-500/10 rounded-xl px-3 py-2 border border-blue-200 dark:border-blue-500/30">
-                                            <span class="text-blue-700 dark:text-blue-400 font-bold text-sm" x-text="totalMinutes"></span>
-                                            <span class="text-blue-600/70 dark:text-blue-400/70 text-[10px]">دقیقه</span>
+                                        {{-- نمایش مجموع --}}
+                                        <div class="pb-5 mr-1" x-show="totalMinutes > 0">
+                                            <div class="flex flex-col items-center justify-center bg-blue-500/10 rounded-xl px-3 py-2 border border-blue-200 dark:border-blue-500/30">
+                                                <span class="text-blue-700 dark:text-blue-400 font-bold text-sm" x-text="totalMinutes"></span>
+                                                <span class="text-blue-600/70 dark:text-blue-400/70 text-[10px]">دقیقه</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
+
+                                <div>
+                                    <label class="block text-xs font-semibold text-foreground mb-1.5">یادداشت (اختیاری)</label>
+                                    <textarea wire:model="makeupNote" rows="2"
+                                              class="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
+                                              placeholder="توضیحات..."></textarea>
+                                </div>
                             </div>
 
-                            <div>
-                                <label class="block text-xs font-semibold text-foreground mb-1.5">یادداشت (اختیاری)</label>
-                                <textarea wire:model="makeupNote" rows="2"
-                                          class="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none"
-                                          placeholder="توضیحات..."></textarea>
-                            </div>
-                        </div>
+                            <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl sticky bottom-0">
+                                <button type="button" wire:click="closeMakeupModal"
+                                        class="px-5 h-10 rounded-full border border-border text-foreground font-semibold text-sm hover:bg-secondary/60 transition">
+                                    انصراف
+                                </button>
 
-                        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border bg-secondary rounded-b-2xl sticky bottom-0">
-                            <button type="button" wire:click="closeMakeupModal"
-                                    class="px-5 h-10 rounded-full border border-border text-foreground font-semibold text-sm hover:bg-secondary/60 transition">
-                                انصراف
-                            </button>
-
-                            <button type="button" wire:click="startMakeupTimer"
-                                    wire:loading.attr="disabled"
-                                    wire:target="startMakeupTimer"
-                                    class="px-6 h-10 rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold text-sm transition
+                                <button type="button" wire:click="startMakeupTimer"
+                                        wire:loading.attr="disabled"
+                                        wire:target="startMakeupTimer"
+                                        class="px-6 h-10 rounded-full bg-violet-600 hover:bg-violet-700 text-white font-semibold text-sm transition
                                            disabled:opacity-60 inline-flex items-center gap-2"
-                                {{ !$makeupTopicId ? 'disabled' : '' }}>
-                                <span wire:loading.remove wire:target="startMakeupTimer">شروع تایمر</span>
-                                <span wire:loading wire:target="startMakeupTimer"
-                                      class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
-                                <span wire:loading wire:target="startMakeupTimer" class="text-xs">در حال شروع...</span>
-                            </button>
+                                    {{ !$makeupTopicId ? 'disabled' : '' }}>
+                                    <span wire:loading.remove wire:target="startMakeupTimer">شروع تایمر</span>
+                                    <span wire:loading wire:target="startMakeupTimer"
+                                          class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/35 border-t-white animate-spin"></span>
+                                    <span wire:loading wire:target="startMakeupTimer" class="text-xs">در حال شروع...</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                </div>
 
+                </div>
             </div>
         </div>
-    </div>
 
 
-    @script
-    <script>
-        // اگر قبلاً دسترسی داده شده، مستقیم به Livewire اطلاع بده
-        window.addEventListener('livewire:initialized', () => {
-            if ('Notification' in window && Notification.permission === 'granted') {
-            @this.call('onPermissionsGranted');
-            }
-        });
-
-        // وقتی کاربر روی "متوجه شدم" کلیک کرد
-        window.addEventListener('request-permissions', async () => {
-            try {
-                if ('Notification' in window && Notification.permission !== 'granted') {
-                    await Notification.requestPermission();
-                }
-
-                // تست صدا برای unlock کردن audio context
-                const testAudio = new Audio('/client/sounds/Alarmclock.ogg');
-                testAudio.volume = 0.01;
-                await testAudio.play();
-                testAudio.pause();
-
-            } catch (error) {
-                console.warn('Permission request error:', error);
-            } finally {
-                // در هر صورت (با یا بدون خطا) دسترسی رو granted در نظر بگیر
-            @this.call('onPermissionsGranted');
-            }
-        });
-
-        window.addEventListener('play-alarm', () => {
-            try {
-                const audio = new Audio('/client/sounds/Alarmclock.ogg');
-                audio.volume = 1;
-                audio.play().catch(e => console.warn("Sound play blocked:", e));
-
+        @script
+        <script>
+            // اگر قبلاً دسترسی داده شده، مستقیم به Livewire اطلاع بده
+            window.addEventListener('livewire:initialized', () => {
                 if ('Notification' in window && Notification.permission === 'granted') {
-                    new Notification('⏰ زمان مطالعه به پایان رسید!', {
-                        body: 'پارت مطالعاتی شما با موفقیت تکمیل شد.',
-                        icon: '/favicon.ico',
-                        badge: '/favicon.ico'
-                    });
+                @this.call('onPermissionsGranted');
                 }
-            } catch (error) {
-                console.warn('Alarm error:', error);
-            }
-        });
+            });
 
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
+            // وقتی کاربر روی "متوجه شدم" کلیک کرد
+            window.addEventListener('request-permissions', async () => {
+                try {
+                    if ('Notification' in window && Notification.permission !== 'granted') {
+                        await Notification.requestPermission();
+                    }
+
+                    // تست صدا برای unlock کردن audio context
+                    const testAudio = new Audio('/client/sounds/Alarmclock.ogg');
+                    testAudio.volume = 0.01;
+                    await testAudio.play();
+                    testAudio.pause();
+
+                } catch (error) {
+                    console.warn('Permission request error:', error);
+                } finally {
+                    // در هر صورت (با یا بدون خطا) دسترسی رو granted در نظر بگیر
+                @this.call('onPermissionsGranted');
+                }
+            });
+
+            window.addEventListener('play-alarm', () => {
+                try {
+                    const audio = new Audio('/client/sounds/Alarmclock.ogg');
+                    audio.volume = 1;
+                    audio.play().catch(e => console.warn("Sound play blocked:", e));
+
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification('⏰ زمان مطالعه به پایان رسید!', {
+                            body: 'پارت مطالعاتی شما با موفقیت تکمیل شد.',
+                            icon: '/favicon.ico',
+                            badge: '/favicon.ico'
+                        });
+                    }
+                } catch (error) {
+                    console.warn('Alarm error:', error);
+                }
+            });
+
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                @this.call('syncTimers');
+                }
+            });
+
+            window.addEventListener('focus', () => {
             @this.call('syncTimers');
-            }
-        });
+            });
 
-        window.addEventListener('focus', () => {
-        @this.call('syncTimers');
-        });
+        </script>
+        @endscript
 
-    </script>
-    @endscript
-
+    </div>
 </div>

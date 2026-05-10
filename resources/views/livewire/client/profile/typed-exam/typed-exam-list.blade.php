@@ -373,68 +373,73 @@
             $selectedAssignment = $assignments->firstWhere('id', $confirmingExamId);
             $selectedExam = $selectedAssignment?->typedExam;
         @endphp
-        <div class="fixed inset-0 z-50 overflow-y-auto" x-data="{ modalOpen: true }">
-            <div class="flex items-center justify-center min-h-screen px-4">
-                <!-- Modal Content -->
-                <div x-show="modalOpen"
-                     x-transition:enter="transition ease-out duration-300 transform"
-                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave="transition ease-in duration-200 transform"
-                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     class="relative w-full max-w-md my-20 overflow-hidden transition-all transform bg-secondary border border-border rounded-2xl shadow-2xl z-20">
-                    <!-- Modal Body -->
-                    <div class="p-6">
-                        <div class="flex flex-col items-center justify-center space-y-5">
-                            <!-- green Circle with Clock Icon -->
-                            <div class="flex items-center justify-center w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                     xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-500">
-                                    <path
-                                        d="M12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19Z"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                    <path d="M12 9V12L13.5 13.5" stroke="currentColor" stroke-width="2"
-                                          stroke-linecap="round" stroke-linejoin="round"></path>
-                                    <path
-                                        d="M16.51 17.35L16.16 21.18C16.1149 21.6787 15.8845 22.1423 15.5142 22.4792C15.1439 22.8162 14.6607 23.002 14.16 23H9.82998C9.32931 23.002 8.84609 22.8162 8.47578 22.4792C8.10548 22.1423 7.87504 21.6787 7.82998 21.18L7.47998 17.35M7.48998 6.65002L7.83998 2.82002C7.88489 2.32309 8.11391 1.8609 8.4821 1.52417C8.85028 1.18744 9.33103 1.00049 9.82998 1.00002H14.18C14.6807 0.997985 15.1639 1.18381 15.5342 1.52079C15.9045 1.85776 16.1349 2.32137 16.18 2.82002L16.53 6.65002"
-                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round"></path>
-                                </svg>
-                            </div>
-                            <!-- Exam Title -->
-                            <h3 class="font-bold text-xl text-foreground">{{ $selectedExam?->title ?? 'آزمون' }}</h3>
-                            <!-- Warning Text -->
-                            <p class="text-center text-muted text-sm leading-relaxed">
-                                حواستون باشه از زمانی که دکمه شرکت در آزمون رو می‌زنید، زمان برای شما در نظر گرفته میشه!
-                            </p>
-                        </div>
-                    </div>
-                    <!-- Modal Footer -->
-                    <div class="flex items-center gap-x-4 border-t border-border p-4">
-                        <button type="button" wire:click="closeModal"
-                                class="flex items-center justify-center gap-x-2 w-full bg-background border border-border rounded-xl text-foreground py-3 px-4 hover:bg-secondary transition-colors">
-                            <span class="font-bold text-sm">لغو</span>
-                        </button>
-                        <button wire:click="enterExam"
-                                class="flex items-center justify-center gap-x-2 w-full bg-primary hover:bg-primary/90 border border-transparent rounded-xl text-primary-foreground py-3 px-4 transition-colors">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
-                                 stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <div class="fixed inset-0 z-50 flex flex-col justify-end sm:items-center sm:justify-center"
+             wire:keydown.escape.window="closeModal">
+            <!-- Backdrop -->
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
+                 wire:click="closeModal"></div>
+            <!-- Modal Content -->
+            <div class="relative z-10 w-full sm:max-w-md bg-secondary border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                 x-data="{}"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-8"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 translate-y-8">
+
+                <!-- Mobile handle bar -->
+                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="p-6">
+                    <div class="flex flex-col items-center justify-center space-y-5">
+                        <!-- green Circle with Clock Icon -->
+                        <div class="flex items-center justify-center w-20 h-20 bg-green-100 dark:bg-green-900/30 rounded-full">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-green-500">
+                                <path
+                                    d="M12 19C15.866 19 19 15.866 19 12C19 8.13401 15.866 5 12 5C8.13401 5 5 8.13401 5 12C5 15.866 8.13401 19 12 19Z"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"></path>
+                                <path d="M12 9V12L13.5 13.5" stroke="currentColor" stroke-width="2"
+                                      stroke-linecap="round" stroke-linejoin="round"></path>
+                                <path
+                                    d="M16.51 17.35L16.16 21.18C16.1149 21.6787 15.8845 22.1423 15.5142 22.4792C15.1439 22.8162 14.6607 23.002 14.16 23H9.82998C9.32931 23.002 8.84609 22.8162 8.47578 22.4792C8.10548 22.1423 7.87504 21.6787 7.82998 21.18L7.47998 17.35M7.48998 6.65002L7.83998 2.82002C7.88489 2.32309 8.11391 1.8609 8.4821 1.52417C8.85028 1.18744 9.33103 1.00049 9.82998 1.00002H14.18C14.6807 0.997985 15.1639 1.18381 15.5342 1.52079C15.9045 1.85776 16.1349 2.32137 16.18 2.82002L16.53 6.65002"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round"></path>
                             </svg>
-                            <span class="font-bold text-sm">شروع</span>
-                        </button>
+                        </div>
+                        <!-- Exam Title -->
+                        <h3 class="font-bold text-xl text-foreground">{{ $selectedExam?->title ?? 'آزمون' }}</h3>
+                        <!-- Warning Text -->
+                        <p class="text-center text-muted text-sm leading-relaxed">
+                            حواستون باشه از زمانی که دکمه شرکت در آزمون رو می‌زنید، زمان برای شما در نظر گرفته میشه!
+                        </p>
                     </div>
                 </div>
-                <!-- Backdrop -->
-                <div x-show="modalOpen"
-                     wire:click="closeModal"
-                     class="fixed inset-0 bg-secondary/80 cursor-pointer transition-all z-10"></div>
+                <!-- Modal Footer -->
+                <div class="flex items-center gap-x-4 border-t border-border p-4">
+                    <button type="button" wire:click="closeModal"
+                            class="flex items-center justify-center gap-x-2 w-full bg-background border border-border rounded-xl text-foreground py-3 px-4 hover:bg-secondary transition-colors">
+                        <span class="font-bold text-sm">لغو</span>
+                    </button>
+                    <button wire:click="enterExam"
+                            class="flex items-center justify-center gap-x-2 w-full bg-primary hover:bg-primary/90 border border-transparent rounded-xl text-primary-foreground py-3 px-4 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24"
+                             stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <span class="font-bold text-sm">شروع</span>
+                    </button>
+                </div>
             </div>
         </div>
-    @endif
+</div>
+@endif
 </div>

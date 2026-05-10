@@ -1,13 +1,20 @@
 <div>
     @assets
-        <style>
-            [x-cloak] {
-                display: none !important;
-            }
-        </style>
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+    </style>
     @endassets
 
-    <div class="max-w-7xl space-y-14 px-4 mx-auto" x-data="{ showPreSessionModal: @entangle('showPreSessionModal') }">
+    <div class="max-w-7xl space-y-14 px-4 mx-auto" x-data="{
+        showPreSessionModal: @entangle('showPreSessionModal'),
+        selectedTitle: '',
+        openModal(title) {
+            this.selectedTitle = title;
+            this.showPreSessionModal = true;
+        }
+    }">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
             <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
@@ -133,7 +140,7 @@
                                            {{ $statusFilter === 'completed'
                                                ? 'bg-emerald-500 text-white shadow-md'
                                                : 'bg-secondary text-foreground border border-border hover:bg-secondary/80' }}">
-                                 برگزار شده
+                                برگزار شده
                             </button>
                             <button wire:click="$set('statusFilter', 'pending')"
                                     class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors
@@ -147,7 +154,7 @@
                                            {{ $statusFilter === 'cancelled'
                                                ? 'bg-red-500 text-white shadow-md'
                                                : 'bg-secondary text-foreground border border-border hover:bg-secondary/80' }}">
-                                 لغو شده
+                                لغو شده
                             </button>
                         </div>
                         <!-- لیست جلسات به صورت کارت -->
@@ -311,7 +318,7 @@
                                                 @else
                                                     {{-- جلسه باز است: نمایش دکمه‌های معمولی --}}
                                                     @if($session->canFillPreSession() && $session->preSession && $session->preSession->status !== 'completed')
-                                                        <button wire:click="openPreSessionModal({{$session->id}})"
+                                                        <button @click="openModal('{{ addslashes($session->title) }}')" wire:click="openPreSessionModal({{$session->id}})"
                                                                 class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold text-sm transition-colors">
                                                             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -416,56 +423,68 @@
         </div>
 
         {{-- Modal تایید پیش‌جلسه --}}
-        <div x-show="showPreSessionModal" x-cloak x-transition.opacity
-             class="fixed inset-0 z-[100] overflow-y-auto ">
-            <div class="flex items-center justify-center min-h-screen px-4">
-                <div x-show="showPreSessionModal"
-                     x-transition:enter="transition ease-out duration-300 transform"
-                     x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave="transition ease-in duration-200 transform"
-                     x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                     x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                     class="relative w-full max-w-md my-20 overflow-hidden transition-all  transform bg-secondary border border-border rounded-2xl shadow-2xl z-20">
+        <div x-show="showPreSessionModal" x-cloak
+             class="fixed inset-0 z-[100] flex flex-col justify-end sm:items-center sm:justify-center"
+             @keydown.escape.window="showPreSessionModal = false">
 
+            {{-- backdrop --}}
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                 x-show="showPreSessionModal"
+                 x-transition:enter="transition ease-out duration-200"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="transition ease-in duration-150"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"
+                 @click="showPreSessionModal = false; $wire.closePreSessionModal()"></div>
 
+            {{-- content --}}
+            <div class="relative z-10 w-full sm:max-w-md bg-secondary rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                 x-show="showPreSessionModal"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-8"
+                 x-transition:enter-end="opacity-100 translate-y-0"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0"
+                 x-transition:leave-end="opacity-0 translate-y-8">
 
-                    <hr class="border-border">
+                {{-- handle --}}
+                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                </div>
 
-                    <div class="p-6">
-                        <div class="flex flex-col items-center justify-center space-y-5">
-                            <div class="flex items-center justify-center w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                </svg>
-                            </div>
-
-                            <h3 class="font-bold text-xl text-foreground">پر کردن پیش‌جلسه</h3>
-
-                            @if($selectedSession)
-                                <p class="text-center text-muted text-sm leading-relaxed">
-                                    آیا می‌خواهید پیش‌جلسه <strong>{{ $selectedSession->title }}</strong> را پر کنید؟
-                                </p>
-                                <p class="text-center text-amber-600 dark:text-amber-400 text-xs bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl">
-                                    ⚠️ توجه: پس از رسیدن به تاریخ جلسه، امکان ویرایش پیش‌جلسه وجود نخواهد داشت.
-                                </p>
-                            @endif
+                <div class="p-6">
+                    <div class="flex flex-col items-center justify-center space-y-5">
+                        <div class="flex items-center justify-center w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
                         </div>
-                    </div>
 
-                    <div class="flex items-center gap-x-4 border-t border-border p-4">
-                        <button type="button" wire:click="closePreSessionModal"
-                                class="flex items-center justify-center gap-x-2 w-full bg-background border border-border rounded-xl text-foreground py-3 px-4 hover:bg-secondary transition-colors">
-                            <span class="font-bold text-sm">لغو</span>
-                        </button>
-                        <button wire:click="confirmStartPreSession"
-                                class="flex items-center justify-center gap-x-2 w-full bg-primary hover:bg-primary/90 border border-transparent rounded-xl text-primary-foreground py-3 px-4 transition-colors">
-                            <span class="font-bold text-sm">بله، شروع می‌کنم</span>
-                        </button>
+                        <h3 class="font-bold text-xl text-foreground">پر کردن پیش‌جلسه</h3>
+
+                        <p class="text-center text-muted text-sm leading-relaxed">
+                            آیا می‌خواهید پیش‌جلسه <strong x-text="selectedTitle"></strong> را پر کنید؟
+                        </p>
+                        <p class="text-center text-amber-600 dark:text-amber-400 text-xs bg-amber-50 dark:bg-amber-900/20 p-3 rounded-xl">
+                            ⚠️ توجه: پس از رسیدن به تاریخ جلسه، امکان ویرایش پیش‌جلسه وجود نخواهد داشت.
+                        </p>
                     </div>
                 </div>
 
-                <div x-show="showPreSessionModal" wire:click="closePreSessionModal" class="fixed inset-0 bg-secondary/80 cursor-pointer transition-all z-10"></div>
+                <div class="flex items-center gap-x-4 border-t border-border p-4 pb-safe">
+                    <button type="button" @click="showPreSessionModal = false" wire:click="closePreSessionModal"
+                            class="flex items-center justify-center gap-x-2 w-full bg-background border border-border rounded-xl text-foreground py-3 px-4 hover:bg-secondary transition-colors">
+                        <span class="font-bold text-sm">لغو</span>
+                    </button>
+                    <button wire:click="confirmStartPreSession"
+                            wire:loading.attr="disabled"
+                            wire:target="confirmStartPreSession"
+                            class="flex items-center justify-center gap-x-2 w-full bg-primary hover:bg-primary/90 border border-transparent rounded-xl text-primary-foreground py-3 px-4 transition-colors disabled:opacity-60">
+                        <span wire:loading.remove wire:target="confirmStartPreSession" class="font-bold text-sm">بله، شروع می‌کنم</span>
+                        <span wire:loading wire:target="confirmStartPreSession" class="inline-block w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

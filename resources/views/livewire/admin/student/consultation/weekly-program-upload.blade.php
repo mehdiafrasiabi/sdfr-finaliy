@@ -144,44 +144,26 @@
 
             <hr class="my-3">
             <div class="d-flex align-items-center gap-2 mb-3">
-                <i class="material-symbols-outlined text-warning">history</i>
-                <h6 class="mb-0 fw-bold">آرشیو جلسه قبلی</h6>
-                <small class="text-muted">داده‌های جلسه برگزار شده قبلی</small>
+                <i class="material-symbols-outlined text-primary">quiz</i>
+                <h6 class="mb-0 fw-bold">آزمون‌ها</h6>
+                <small class="text-muted">به زودی</small>
             </div>
             <div class="row g-3">
-                <div class="col-6 col-md-4">
-                    <a href="#" wire:click.prevent="openPrevProgramModal"
-                       class="d-block p-3 text-center text-reset text-decoration-none border border-warning border-opacity-25 rounded-4 h-100 bg-body shadow-sm">
-                        <i class="material-symbols-outlined d-block mb-2 text-warning" style="font-size:28px;">calendar_today</i>
-                        <span class="small fw-semibold d-block">برنامه درسی</span>
-                        <span class="small text-muted">جلسه قبلی</span>
-                        <span wire:loading wire:target="openPrevProgramModal" class="d-block mt-1">
-                            <span class="spinner-border spinner-border-sm text-warning"></span>
-                        </span>
-                    </a>
+                <div class="col-6">
+                    <div class="d-flex flex-column align-items-center justify-content-center p-4 text-center border border-2 border-dashed rounded-4 h-100 bg-body-tertiary"
+                         style="border-style:dashed!important;min-height:100px;">
+                        <i class="material-symbols-outlined d-block mb-2 text-muted" style="font-size:32px;">description</i>
+                        <span class="fw-semibold d-block text-muted">آزمون تشریحی</span>
+                        <span class="small text-muted mt-1">به زودی</span>
+                    </div>
                 </div>
-                <div class="col-6 col-md-4">
-                    <a href="#" wire:click.prevent="openPrevReportModal('report')"
-                       class="d-block p-3 text-center text-reset text-decoration-none border rounded-4 h-100 bg-body shadow-sm"
-                       style="border-color:rgba(124,58,237,.25)!important;">
-                        <i class="material-symbols-outlined d-block mb-2" style="font-size:28px;color:#7c3aed;">summarize</i>
-                        <span class="small fw-semibold d-block">گزارش فعالیت</span>
-                        <span class="small text-muted">جلسه قبلی</span>
-                        <span wire:loading wire:target="openPrevReportModal" class="d-block mt-1">
-                            <span class="spinner-border spinner-border-sm" style="color:#7c3aed;"></span>
-                        </span>
-                    </a>
-                </div>
-                <div class="col-6 col-md-4">
-                    <a href="#" wire:click.prevent="openPrevReportModal('study')"
-                       class="d-block p-3 text-center text-reset text-decoration-none border border-success border-opacity-25 rounded-4 h-100 bg-body shadow-sm">
-                        <i class="material-symbols-outlined d-block mb-2 text-success" style="font-size:28px;">schedule</i>
-                        <span class="small fw-semibold d-block">ساعت مطالعه</span>
-                        <span class="small text-muted">جلسه قبلی</span>
-                        <span wire:loading wire:target="openPrevReportModal" class="d-block mt-1">
-                            <span class="spinner-border spinner-border-sm text-success"></span>
-                        </span>
-                    </a>
+                <div class="col-6">
+                    <div class="d-flex flex-column align-items-center justify-content-center p-4 text-center border border-2 border-dashed rounded-4 h-100 bg-body-tertiary"
+                         style="border-style:dashed!important;min-height:100px;">
+                        <i class="material-symbols-outlined d-block mb-2 text-muted" style="font-size:32px;">check_box</i>
+                        <span class="fw-semibold d-block text-muted">آزمون تستی</span>
+                        <span class="small text-muted mt-1">به زودی</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -420,30 +402,70 @@
                             </small>
                         </div>
                     </div>
-                    <button type="button" wire:click="togglePrevWeekPreview"
-                            class="btn btn-sm btn-light d-flex align-items-center gap-1">
-                        <i class="material-symbols-outlined" style="font-size:16px;">
-                            {{ $prevWeekPreviewCollapsed ? 'expand_more' : 'expand_less' }}
-                        </i>
-                        {{ $prevWeekPreviewCollapsed ? 'نمایش' : 'بستن' }}
-                    </button>
+                    <div class="d-flex align-items-center gap-2">
+                        @if(!$prevWeekPreviewCollapsed)
+                            <button type="button" wire:click="togglePrevWeekSelectMode"
+                                    class="btn btn-sm {{ $prevWeekSelectMode ? 'btn-warning' : 'btn-outline-light' }} d-flex align-items-center gap-1">
+                                <i class="material-symbols-outlined" style="font-size:15px;">{{ $prevWeekSelectMode ? 'close' : 'content_copy' }}</i>
+                                {{ $prevWeekSelectMode ? 'لغو انتخاب' : 'کپی پارت‌ها' }}
+                            </button>
+                        @endif
+                        <button type="button" wire:click="togglePrevWeekPreview"
+                                class="btn btn-sm btn-light d-flex align-items-center gap-1">
+                            <i class="material-symbols-outlined" style="font-size:16px;">
+                                {{ $prevWeekPreviewCollapsed ? 'expand_more' : 'expand_less' }}
+                            </i>
+                            {{ $prevWeekPreviewCollapsed ? 'نمایش' : 'بستن' }}
+                        </button>
+                    </div>
                 </div>
             </div>
 
             @if(!$prevWeekPreviewCollapsed)
-                <div class="card-body">
+                @php
+                    $fmtMins = function($mins) {
+                        $mins = (int) $mins;
+                        $h = intdiv($mins, 60);
+                        $m = $mins % 60;
+                        if ($h > 0 && $m > 0) return $h . ' ساعت ' . $m . ' دقیقه';
+                        if ($h > 0) return $h . ' ساعت';
+                        return $m . ' دقیقه';
+                    };
+                @endphp
+                <div class="card-body" x-data="{
+                    fq: '',
+                    fs: '',
+                    fl: '',
+                    fr: '',
+                    matchPart(rating, isStudied, lessonType) {
+                        if (this.fq === 'excellent' && (rating === null || rating < 8)) return false;
+                        if (this.fq === 'good' && (rating === null || rating < 5 || rating >= 8)) return false;
+                        if (this.fq === 'poor' && (rating === null || rating >= 5)) return false;
+                        if (this.fs === 'not_studied' && isStudied) return false;
+                        if (this.fs === 'no_rating' && rating !== null) return false;
+                        if (this.fl !== '' && lessonType !== this.fl) return false;
+                        return true;
+                    },
+                    matchRow(reportStatus, detailStatus) {
+                        if (this.fr === '') return true;
+                        if (this.fr === 'sent') return reportStatus === 'sent';
+                        if (this.fr === 'not_sent') return reportStatus === 'not_sent';
+                        if (this.fr === 'rejected') return reportStatus === 'sent' && detailStatus === 'rejected';
+                        return true;
+                    }
+                }">
                     {{-- Summary chips --}}
                     <div class="row g-2 mb-3">
                         <div class="col-6 col-md-3 col-lg-2">
                             <div class="rounded-3 p-2 border bg-primary bg-opacity-10 text-center">
-                                <div class="fs-5 fw-bold text-primary">{{ $pw['total_hours'] }}</div>
-                                <div class="small text-muted">ساعت برنامه‌ریزی‌شده</div>
+                                <div class="fs-6 fw-bold text-primary">{{ $fmtMins($pw['total_minutes']) }}</div>
+                                <div class="small text-muted">زمان برنامه‌ریزی‌شده</div>
                             </div>
                         </div>
                         <div class="col-6 col-md-3 col-lg-2">
                             <div class="rounded-3 p-2 border bg-success bg-opacity-10 text-center">
-                                <div class="fs-5 fw-bold text-success">{{ $pw['total_study_hours'] }}</div>
-                                <div class="small text-muted">ساعت مطالعه ثبت شده</div>
+                                <div class="fs-6 fw-bold text-success">{{ $fmtMins($pw['total_study_minutes']) }}</div>
+                                <div class="small text-muted">زمان مطالعه ثبت شده</div>
                             </div>
                         </div>
                         <div class="col-6 col-md-3 col-lg-2">
@@ -496,6 +518,88 @@
                         </div>
                     </div>
 
+                    {{-- Filter / Sort row --}}
+                    <div class="d-flex flex-wrap gap-2 align-items-center mb-3 p-2 rounded-3 bg-body-tertiary border">
+                        <span class="small fw-semibold text-muted d-flex align-items-center gap-1">
+                            <i class="material-symbols-outlined" style="font-size:15px;">filter_list</i> فیلتر:
+                        </span>
+                        <select x-model="fq" class="form-select form-select-sm w-auto">
+                            <option value="">امتیاز مطالعه (همه)</option>
+                            <option value="excellent">مطالعه عالی (8-10)</option>
+                            <option value="good">مطالعه با کیفیت (5-7)</option>
+                            <option value="poor">مطالعه بی‌کیفیت (کمتر از 5)</option>
+                        </select>
+                        <select x-model="fs" class="form-select form-select-sm w-auto">
+                            <option value="">پارت مطالعاتی (همه)</option>
+                            <option value="not_studied">ثبت نشده</option>
+                            <option value="no_rating">امتیاز داده نشده</option>
+                        </select>
+                        <select x-model="fl" class="form-select form-select-sm w-auto">
+                            <option value="">نوع درس (همه)</option>
+                            <option value="general">عمومی</option>
+                            <option value="specialized">تخصصی</option>
+                        </select>
+                        <select wire:model.live="prevWeekSortByRating" class="form-select form-select-sm w-auto">
+                            <option value="">امتیاز (پیش‌فرض)</option>
+                            <option value="asc">از کم به زیاد</option>
+                            <option value="desc">از زیاد به کم</option>
+                        </select>
+                        <select x-model="fr" class="form-select form-select-sm w-auto">
+                            <option value="">وضعیت گزارش (همه)</option>
+                            <option value="sent">ارسال شده</option>
+                            <option value="not_sent">ارسال نشده</option>
+                            <option value="rejected">رد شده</option>
+                        </select>
+                        <button type="button"
+                                @click="fq='';fs='';fl='';fr=''"
+                                x-show="fq!=='' || fs!=='' || fl!=='' || fr!==''"
+                                class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" style="font-size:11px;">
+                            <i class="material-symbols-outlined" style="font-size:13px;">close</i> پاک کردن فیلترها
+                        </button>
+                    </div>
+
+                    {{-- Selection panel for copying prev week parts --}}
+                    @if($prevWeekSelectMode)
+                        <div class="border border-warning rounded-3 p-3 mb-3 bg-warning bg-opacity-10">
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                <i class="material-symbols-outlined text-warning">content_copy</i>
+                                <span class="fw-semibold">
+                                    @if(count($prevWeekSelectedPartIds) > 0)
+                                        {{ count($prevWeekSelectedPartIds) }} پارت انتخاب شده
+                                    @else
+                                        روی پارت‌ها کلیک کنید تا انتخاب شوند
+                                    @endif
+                                </span>
+                            </div>
+                            @if(count($prevWeekSelectedPartIds) > 0)
+                                <div class="mb-2">
+                                    <div class="small fw-semibold mb-1">روزهای مقصد در برنامه جاری:</div>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @foreach($weekDays as $wd)
+                                            @if(!$wd['is_rest_day'] && !$wd['is_exam_day'])
+                                                @php $isChecked = in_array((string)$wd['index'], array_map('strval', $prevWeekCopyTargetDays)); @endphp
+                                                <label class="border rounded-pill px-2 py-1 small d-flex align-items-center gap-1 {{ $isChecked ? 'bg-primary text-white border-primary' : 'bg-body-tertiary' }}" style="cursor:pointer;">
+                                                    <input type="checkbox" wire:model.live="prevWeekCopyTargetDays" value="{{ $wd['index'] }}" class="form-check-input mb-0" style="width:13px;height:13px;">
+                                                    {{ $wd['name'] }}
+                                                    <span class="text-muted" style="font-size:10px;">{{ $wd['jalali_date'] }}</span>
+                                                </label>
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <button wire:click="copyPrevWeekPartsToProgram"
+                                        class="btn btn-sm btn-primary d-flex align-items-center gap-1"
+                                    {{ empty($prevWeekCopyTargetDays) ? 'disabled' : '' }}>
+                                    <span wire:loading.remove wire:target="copyPrevWeekPartsToProgram">
+                                        <i class="material-symbols-outlined" style="font-size:15px;">content_copy</i>
+                                        کپی به برنامه جاری
+                                    </span>
+                                    <span wire:loading wire:target="copyPrevWeekPartsToProgram">در حال کپی...</span>
+                                </button>
+                            @endif
+                        </div>
+                    @endif
+
                     {{-- Timetable --}}
                     <div class="border rounded-4 overflow-hidden bg-body">
                         <div class="overflow-x-auto">
@@ -512,9 +616,11 @@
                                     @endfor
                                 </tr>
                                 </thead>
-                                <tbody>
-                                @foreach($pw['days'] as $day)
-                                    <tr class="{{ $day['is_rest_day'] ? 'table-success' : ($day['is_exam_day'] ? 'table-danger' : '') }}">
+                                <tbody x-data="{ openDay: null }">
+                                @foreach($pw['days'] as $dayIdx => $day)
+                                    <tr class="{{ $day['is_rest_day'] ? 'table-success' : ($day['is_exam_day'] ? 'table-danger' : '') }}"
+                                        x-show="matchRow('{{ $day['report_status'] }}', '{{ $day['report_detail_status'] ?? '' }}')"
+                                        style="display:table-row;">
                                         {{-- روز / تاریخ --}}
                                         <td class="text-center" style="position:sticky;right:0;z-index:2;background-color:var(--bs-body-bg);">
                                             <span class="badge rounded-pill fw-bold d-block mb-1 {{ $day['is_rest_day'] ? 'bg-success' : ($day['is_exam_day'] ? 'bg-danger' : 'bg-primary') }}">
@@ -528,8 +634,8 @@
                                             @if($day['is_rest_day'])
                                                 <span class="text-success fw-bold">-</span>
                                             @else
-                                                <div class="fw-bold text-primary small">برنامه: {{ $day['total_hours'] }}س</div>
-                                                <div class="fw-bold text-success small">مطالعه: {{ $day['total_study_hours'] }}س</div>
+                                                <div class="fw-bold text-primary small">برنامه: {{ $fmtMins($day['total_minutes']) }}</div>
+                                                <div class="fw-bold text-success small">مطالعه: {{ $fmtMins($day['total_study_minutes']) }}</div>
                                                 @if($day['day_avg_rating'] !== null)
                                                     @php
                                                         $rc = $day['day_avg_rating'] >= 8 ? 'success' : ($day['day_avg_rating'] >= 5 ? 'info' : 'danger');
@@ -571,6 +677,63 @@
                                                             </span>
                                                         @endif
                                                     @endif
+
+                                                    {{-- دکمه جزییات --}}
+                                                    @if($day['report_status'] === 'sent' || !empty($day['report_detail_parts']) || !empty($day['report_compensatory_reports']))
+                                                        <div class="w-100">
+                                                            <button @click="openDay = (openDay === {{ $dayIdx }}) ? null : {{ $dayIdx }}"
+                                                                    class="btn btn-xs btn-outline-secondary w-100 d-flex align-items-center justify-content-center gap-1 mt-1"
+                                                                    style="font-size:11px;padding:2px 6px;">
+                                                                <i class="material-symbols-outlined" style="font-size:12px;">info</i>
+                                                                جزییات
+                                                                <i class="material-symbols-outlined" style="font-size:12px;" x-text="openDay === {{ $dayIdx }} ? 'expand_less' : 'expand_more'">expand_more</i>
+                                                            </button>
+                                                            <div x-show="openDay === {{ $dayIdx }}" x-cloak
+                                                                 class="text-start mt-1 border rounded-3 p-2 bg-body shadow-sm"
+                                                                 style="min-width:200px;max-width:280px;font-size:11px;z-index:10;position:relative;">
+                                                                @if(!empty($day['report_missed_reason']))
+                                                                    <div class="mb-2 p-2 rounded-2 bg-warning bg-opacity-10 border border-warning border-opacity-25">
+                                                                        <div class="fw-semibold text-warning mb-1">علت عدم انجام:</div>
+                                                                        <div class="text-muted" style="white-space:pre-line;">{{ $day['report_missed_reason'] }}</div>
+                                                                    </div>
+                                                                @endif
+                                                                @if(!empty($day['report_detail_parts']))
+                                                                    <div class="fw-semibold mb-1">پارت‌های ارسال شده:</div>
+                                                                    @foreach($day['report_detail_parts'] as $dp)
+                                                                        <div class="d-flex align-items-center gap-1 py-1 border-bottom border-opacity-25">
+                                                                            <i class="material-symbols-outlined {{ $dp['is_read'] ? 'text-success' : 'text-danger' }}" style="font-size:13px;">
+                                                                                {{ $dp['is_read'] ? 'check_circle' : 'cancel' }}
+                                                                            </i>
+                                                                            <span class="flex-fill text-truncate">{{ $dp['lesson_name'] }}</span>
+                                                                            <span class="text-muted">{{ $fmtMins($dp['duration_minutes']) }}</span>
+                                                                            @if($dp['is_compensatory'])
+                                                                                <span class="badge bg-warning-subtle text-warning" style="font-size:9px;">جبرانی</span>
+                                                                            @endif
+                                                                        </div>
+                                                                    @endforeach
+                                                                @endif
+                                                                @if(!empty($day['report_compensatory_reports']))
+                                                                    <div class="fw-semibold mt-2 mb-1 text-warning">گزارشات جبرانی:</div>
+                                                                    @foreach($day['report_compensatory_reports'] as $cr)
+                                                                        <div class="border rounded-2 p-1 mb-1 bg-warning bg-opacity-10">
+                                                                            @if($cr['description'])
+                                                                                <div class="text-muted mb-1" style="white-space:pre-line;">{{ Str::limit($cr['description'], 60) }}</div>
+                                                                            @endif
+                                                                            @foreach($cr['parts'] as $cp)
+                                                                                <div class="d-flex align-items-center gap-1 py-1">
+                                                                                    <i class="material-symbols-outlined {{ $cp['is_read'] ? 'text-success' : 'text-danger' }}" style="font-size:12px;">
+                                                                                        {{ $cp['is_read'] ? 'check_circle' : 'cancel' }}
+                                                                                    </i>
+                                                                                    <span class="flex-fill text-truncate">{{ $cp['lesson_name'] }}</span>
+                                                                                    <span class="text-muted">{{ $fmtMins($cp['duration_minutes']) }}</span>
+                                                                                </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                    @endforeach
+                                                                @endif
+                                                            </div>
+                                                        </div>
+                                                    @endif
                                                 @endif
                                             </div>
                                         </td>
@@ -590,13 +753,26 @@
                                                         <div class="rounded-3 border border-success border-opacity-25 bg-success bg-opacity-10" style="min-height:130px;"></div>
                                                     @endif
                                                 @elseif(isset($day['parts'][$i]))
-                                                    @php $p = $day['parts'][$i]; @endphp
-                                                    <div class="rounded-3 border p-2 position-relative h-100"
+                                                    @php
+                                                        $p = $day['parts'][$i];
+                                                        $pwIsSel = $prevWeekSelectMode && in_array($p['id'], $prevWeekSelectedPartIds);
+                                                    @endphp
+                                                    <div class="rounded-3 border p-2 position-relative h-100 {{ $pwIsSel ? 'border-primary border-2 bg-primary bg-opacity-10' : '' }}"
                                                          style="min-height:130px;
-                                                                {{ $p['avg_color'] ? 'border-color:var(--bs-' . $p['avg_color'] . ')!important;border-width:2px!important;' : '' }}">
+                                                                {{ (!$pwIsSel && $p['avg_color']) ? 'border-color:var(--bs-' . $p['avg_color'] . ')!important;border-width:2px!important;' : '' }}
+                                                                {{ $prevWeekSelectMode ? 'cursor:pointer;' : '' }}"
+                                                         :class="{ 'opacity-25': !matchPart({{ $p['avg_rating'] ?? 'null' }}, {{ $p['is_studied'] ? 'true' : 'false' }}, '{{ $p['lesson_type'] }}') }"
+                                                         @if($prevWeekSelectMode) wire:click="togglePrevWeekPartSelection({{ $p['id'] }})" @endif>
+
+                                                        {{-- Checkbox overlay when select mode --}}
+                                                        @if($prevWeekSelectMode)
+                                                            <i class="material-symbols-outlined position-absolute top-0 end-0 m-1 {{ $pwIsSel ? 'text-primary' : 'text-muted' }}" style="font-size:18px;">
+                                                                {{ $pwIsSel ? 'check_box' : 'check_box_outline_blank' }}
+                                                            </i>
+                                                        @endif
 
                                                         {{-- Header: lesson_name + grade --}}
-                                                        <div class="d-flex align-items-start gap-1 mb-1">
+                                                        <div class="d-flex align-items-start gap-1 mb-1 {{ $prevWeekSelectMode ? 'pe-4' : '' }}">
                                                             <span class="fw-semibold small flex-fill">{{ $p['lesson_name'] }}</span>
                                                             @if($p['grade_label'])
                                                                 <span class="badge bg-body-tertiary text-body border" style="font-size:10px;">
@@ -628,7 +804,7 @@
                                                         {{-- Planned duration + test count --}}
                                                         <div class="small text-muted d-flex align-items-center gap-1 mb-1">
                                                             <i class="material-symbols-outlined" style="font-size:13px;">schedule</i>
-                                                            {{ $p['duration_minutes'] }} دقیقه
+                                                            {{ $fmtMins($p['duration_minutes']) }}
                                                             @if($p['test_count'])
                                                                 · <i class="material-symbols-outlined" style="font-size:13px;">quiz</i> {{ $p['test_count'] }}
                                                             @endif
@@ -638,11 +814,21 @@
                                                         <div class="small d-flex align-items-center gap-1 {{ $p['is_studied'] ? 'text-success' : 'text-danger' }}">
                                                             <i class="material-symbols-outlined" style="font-size:13px;">timer</i>
                                                             @if($p['is_studied'])
-                                                                {{ $p['study_minutes'] }} دقیقه مطالعه
+                                                                {{ $fmtMins($p['study_minutes']) }} مطالعه
                                                             @else
                                                                 ثبت نشده
                                                             @endif
                                                         </div>
+
+                                                        {{-- Cheat warning --}}
+                                                        @if(!empty($p['is_cheat']))
+                                                            <div class="mt-1 rounded-2 px-2 py-1 d-flex align-items-center gap-1"
+                                                                 style="background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.3);"
+                                                                 title="تقلب: ثبت پارت {{ $p['cheat_minutes'] }} دقیقه دیرتر از زمان پایان مورد انتظار">
+                                                                <i class="material-symbols-outlined text-danger" style="font-size:13px;">warning</i>
+                                                                <span class="small text-danger fw-semibold">تقلب: {{ $p['cheat_minutes'] }} دقیقه دیر</span>
+                                                            </div>
+                                                        @endif
 
                                                         {{-- Avg rating --}}
                                                         @if($p['avg_rating'] !== null)
@@ -669,6 +855,11 @@
                     </div>
 
                     <div class="d-flex flex-wrap gap-3 mt-3 small text-muted">
+                        <span class="d-flex align-items-center gap-1 text-danger fw-semibold">
+                            <i class="material-symbols-outlined" style="font-size:14px;">warning</i>
+                            تقلب: ثبت پارت بیش از ۱۰ دقیقه دیرتر از زمان پایان مورد انتظار
+                            <span class="text-muted fw-normal">(شروع + مدت پارت)</span>
+                        </span>
                         <span class="d-flex align-items-center gap-1">
                             <span class="d-inline-block rounded" style="width:12px;height:12px;background:var(--bs-success);"></span>
                             مطالعه عالی (8+)
@@ -689,18 +880,21 @@
 
 
     {{-- ====== ACTION BAR ====== --}}
-    <div class="d-flex align-items-center flex-wrap gap-2 p-2 mb-2 border rounded-3 bg-body shadow-sm sticky-top" style="z-index:10;top:0;">
+    <div class="d-flex align-items-center flex-wrap gap-2 p-2 mb-2 border rounded-3 bg-body shadow-sm sticky-top"
+         x-data="{}"
+         @keydown.delete.window="if ($wire.bulkDeleteMode && $wire.bulkDeleteSelectedIds.length > 0) $wire.openBulkDeleteConfirm()"
+         @keydown.backspace.window="if ($wire.bulkDeleteMode && $wire.bulkDeleteSelectedIds.length > 0) $wire.openBulkDeleteConfirm()"
+         style="z-index:10;top:0;">
         @if($partSelectMode)
-            <button wire:click="togglePartSelectMode({{ $cutMode ? 'true' : 'false' }})"
-                    class="btn btn-sm {{ $cutMode ? 'btn-danger' : 'btn-warning' }} d-flex align-items-center gap-1">
-                <i class="material-symbols-outlined" style="font-size:16px;">close</i>
-                خروج از {{ $cutMode ? 'کات' : 'کپی' }}
-            </button>
             @if(count($selectedPartIds) > 0)
+                {{-- پارت انتخاب شده: فقط لغو نشان بده --}}
+                <button wire:click="clearPartSelection"
+                        class="btn btn-sm {{ $cutMode ? 'btn-danger' : 'btn-warning' }} d-flex align-items-center gap-1">
+                    <i class="material-symbols-outlined" style="font-size:16px;">close</i> لغو
+                </button>
                 <span class="fw-semibold small {{ $cutMode ? 'text-danger' : 'text-warning' }}">
                     {{ count($selectedPartIds) }} پارت انتخاب شده
                 </span>
-                <button wire:click="clearPartSelection" class="btn btn-sm btn-outline-secondary">لغو</button>
 
                 <div class="w-100 pt-2 mt-1 border-top d-flex flex-wrap gap-2 align-items-center">
                     <span class="small fw-semibold">روز{{ $cutMode ? '' : 'های' }} مقصد:</span>
@@ -734,20 +928,31 @@
                     @endif
                 </div>
             @else
+                {{-- هیچ پارتی انتخاب نشده: خروج از کپی/کات نشان بده --}}
+                <button wire:click="togglePartSelectMode({{ $cutMode ? 'true' : 'false' }})"
+                        class="btn btn-sm {{ $cutMode ? 'btn-danger' : 'btn-warning' }} d-flex align-items-center gap-1">
+                    <i class="material-symbols-outlined" style="font-size:16px;">close</i>
+                    خروج از {{ $cutMode ? 'کات' : 'کپی' }}
+                </button>
                 <span class="small text-muted">روی پارت‌ها کلیک کنید</span>
             @endif
 
         @elseif($bulkDeleteMode)
-            <button wire:click="toggleBulkDeleteMode" class="btn btn-sm btn-danger d-flex align-items-center gap-1">
-                <i class="material-symbols-outlined" style="font-size:16px;">close</i> خروج از حذف گروهی
-            </button>
             @if(count($bulkDeleteSelectedIds) > 0)
+                {{-- پارت انتخاب شده: فقط لغو + حذف --}}
+                <button wire:click="toggleBulkDeleteMode" class="btn btn-sm btn-danger d-flex align-items-center gap-1">
+                    <i class="material-symbols-outlined" style="font-size:16px;">close</i> لغو
+                </button>
                 <span class="fw-semibold text-danger small">{{ count($bulkDeleteSelectedIds) }} پارت</span>
                 <button wire:click="openBulkDeleteConfirm" class="btn btn-sm btn-danger">
                     <i class="material-symbols-outlined" style="font-size:15px;">delete_forever</i>
                     حذف {{ count($bulkDeleteSelectedIds) }} پارت
                 </button>
             @else
+                {{-- هیچ پارتی انتخاب نشده: خروج از حذف گروهی --}}
+                <button wire:click="toggleBulkDeleteMode" class="btn btn-sm btn-danger d-flex align-items-center gap-1">
+                    <i class="material-symbols-outlined" style="font-size:16px;">close</i> خروج از حذف گروهی
+                </button>
                 <span class="small text-muted">روی پارت‌ها کلیک کنید</span>
             @endif
 
@@ -900,8 +1105,25 @@
                                             <i class="material-symbols-outlined position-absolute top-0 end-0 m-1 {{ $isSel ? 'text-danger' : 'text-muted' }}" style="font-size:18px;">
                                                 {{ $isSel ? 'check_box' : 'check_box_outline_blank' }}
                                             </i>
-                                            <div class="fw-semibold small pe-4">{{ $part->lesson_name }}</div>
-                                            <div class="small text-muted mt-1">{{ $part->duration_minutes }} دقیقه</div>
+                                            <div class="d-flex align-items-start gap-1 mb-1 pe-4">
+                                                <span class="fw-semibold small flex-fill">{{ $part->lesson_name }}</span>
+                                                @if($part->grade_label)
+                                                    <span class="badge bg-body-tertiary text-body border" style="font-size:10px;">{{ $part->grade_label }}</span>
+                                                @endif
+                                            </div>
+                                            @if($part->source_type && $part->source_type !== 'normal')
+                                                <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }}" style="font-size:10px;">{{ $part->source_type_label }}</span>
+                                            @endif
+                                            @if($part->description)
+                                                <p class="small mb-1 text-muted">{{ Str::limit($part->description, 50) }}</p>
+                                            @endif
+                                            <div class="small text-muted d-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size:13px;">schedule</i>
+                                                {{ $part->duration_minutes }} دقیقه
+                                                @if($part->test_count)
+                                                    · <i class="material-symbols-outlined" style="font-size:13px;">quiz</i> {{ $part->test_count }}
+                                                @endif
+                                            </div>
                                         </div>
 
                                     @elseif($partSelectMode)
@@ -912,11 +1134,25 @@
                                             <i class="material-symbols-outlined position-absolute top-0 end-0 m-1 {{ $isSel ? ($cutMode ? 'text-danger' : 'text-warning') : 'text-muted' }}" style="font-size:18px;">
                                                 {{ $isSel ? 'check_box' : 'check_box_outline_blank' }}
                                             </i>
-                                            <div class="fw-semibold small pe-4">{{ $part->lesson_name }}</div>
+                                            <div class="d-flex align-items-start gap-1 mb-1 pe-4">
+                                                <span class="fw-semibold small flex-fill">{{ $part->lesson_name }}</span>
+                                                @if($part->grade_label)
+                                                    <span class="badge bg-body-tertiary text-body border" style="font-size:10px;">{{ $part->grade_label }}</span>
+                                                @endif
+                                            </div>
                                             @if($part->source_type && $part->source_type !== 'normal')
                                                 <span class="badge bg-{{ $part->source_type_color }}-subtle text-{{ $part->source_type_color }}" style="font-size:10px;">{{ $part->source_type_label }}</span>
                                             @endif
-                                            <div class="small text-muted mt-1">{{ $part->duration_minutes }} دقیقه</div>
+                                            @if($part->description)
+                                                <p class="small mb-1 text-muted">{{ Str::limit($part->description, 50) }}</p>
+                                            @endif
+                                            <div class="small text-muted d-flex align-items-center gap-1">
+                                                <i class="material-symbols-outlined" style="font-size:13px;">schedule</i>
+                                                {{ $part->duration_minutes }} دقیقه
+                                                @if($part->test_count)
+                                                    · <i class="material-symbols-outlined" style="font-size:13px;">quiz</i> {{ $part->test_count }}
+                                                @endif
+                                            </div>
                                         </div>
 
                                     @else
@@ -1261,6 +1497,17 @@
                                             @foreach(($prevWeekDays ?: $weekDays) as $wd)
                                                 <option value="{{ $wd['index'] }}">{{ $wd['name'] }} ({{ $wd['jalali_date'] }})</option>
                                             @endforeach
+                                        </select>
+                                        <select wire:model.live="prevFilterStudyQuality" class="form-select form-select-sm w-auto">
+                                            <option value="">امتیاز مطالعه (همه)</option>
+                                            <option value="excellent">مطالعه عالی (8-10)</option>
+                                            <option value="good">مطالعه با کیفیت (5-7)</option>
+                                            <option value="poor">مطالعه بی‌کیفیت (زیر 5)</option>
+                                        </select>
+                                        <select wire:model.live="prevFilterStudyStatus" class="form-select form-select-sm w-auto">
+                                            <option value="">وضعیت مطالعه (همه)</option>
+                                            <option value="not_studied">ثبت نشده</option>
+                                            <option value="no_rating">امتیاز داده نشده</option>
                                         </select>
                                     </div>
 
@@ -2247,7 +2494,8 @@
 
             {{-- ====== MODAL: حذف گروهی ====== --}}
             @if($showBulkDeleteConfirmModal)
-                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.7);backdrop-filter:blur(4px);z-index:1070;">
+                <div class="modal fade show d-block" tabindex="-1" style="background:rgba(2,6,23,.7);backdrop-filter:blur(4px);z-index:1070;"
+                     x-data="{}" @keydown.enter.window="$wire.executeBulkDelete()">
                     <div class="modal-dialog modal-dialog-centered">
                         <div class="modal-content rounded-4 border-0 shadow">
                             <div class="modal-header text-white rounded-top-4" style="background:linear-gradient(135deg,#dc2626,#ef4444);">

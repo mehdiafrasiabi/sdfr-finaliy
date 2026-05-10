@@ -22,7 +22,7 @@ class Edit extends Component
 
 
     public $name, $email, $mobile, $photo, $new_photo;
-    public $full_name, $gender, $state_id, $city_id;
+    public $full_name, $gender, $state_id, $city_id, $birth_date;
 
     public $states = [];
     public $cities = [];
@@ -67,6 +67,7 @@ class Edit extends Component
         $this->gender = $profile?->gender;
         $this->state_id = $profile?->state_id;
         $this->city_id = $profile?->city_id;
+        $this->birth_date = $profile?->birth_date;
 
         $this->states = State::query()->select('id', 'name')->get();
         $this->cities = $this->state_id
@@ -100,6 +101,7 @@ class Edit extends Component
             'gender' => ['required', 'in:male,female'],
             'state_id' => ['nullable', 'exists:states,id'],
             'city_id' => ['nullable', 'exists:cities,id'],
+            'birth_date' => ['nullable', 'string', 'max:20'],
             'new_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'],
         ], [
             'name.required' => 'وارد کردن نام الزامی است.',
@@ -136,6 +138,7 @@ class Edit extends Component
         $profile->gender = $this->gender;
         $profile->state_id = $this->state_id;
         $profile->city_id = $this->city_id;
+        $profile->birth_date = $this->birth_date;
 
         if ($this->new_photo) {
             // حذف عکس قبلی

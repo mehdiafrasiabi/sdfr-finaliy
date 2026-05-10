@@ -435,14 +435,23 @@
     @if($showReportModal && isset($weekDays[$selectedDayIndex]))
         @php $selectedDay = $weekDays[$selectedDayIndex]; @endphp
 
-        <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4"
-             wire:click.self="closeReportModal">
+        <div class="fixed inset-0 z-[60] flex flex-col justify-end sm:items-center sm:justify-center"
+             wire:keydown.escape.window="closeReportModal">
 
-            <div class="w-full sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] overflow-hidden
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                 wire:click="closeReportModal"></div>
+
+            <div class="relative z-10 w-full sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] overflow-hidden
                         bg-secondary border-t sm:border border-border
                         rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col
-                        pb-[env(safe-area-inset-bottom,80px)] sm:pb-0"
-                 wire:keydown.escape.window="closeReportModal">
+                        pb-[env(safe-area-inset-bottom,80px)] sm:pb-0
+                        transition-all duration-300 ease-out
+                        translate-y-0 opacity-100">
+
+                {{-- Mobile handle bar --}}
+                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                </div>
 
                 {{-- Header --}}
                 <div class="shrink-0 bg-secondary border-b border-border px-4 sm:px-6 py-3 sm:py-4">
@@ -704,11 +713,18 @@
 
     {{-- ===== Compensatory Modal ===== --}}
     @if($showCompensatoryModal)
-        <div class="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-             wire:click.self="closeCompensatoryModal">
+        <div class="fixed inset-0 z-[80] flex flex-col justify-end sm:items-center sm:justify-center"
+             wire:keydown.escape.window="closeCompensatoryModal">
 
-            <div class="w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-secondary border border-border rounded-2xl shadow-2xl"
-                 wire:keydown.escape.window="closeCompensatoryModal">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                 wire:click="closeCompensatoryModal"></div>
+
+            <div class="relative z-10 w-full sm:max-w-2xl max-h-[90vh] overflow-hidden bg-secondary border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0">
+
+                {{-- Mobile handle bar --}}
+                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                </div>
 
                 {{-- Header --}}
                 <div class="sticky top-0 z-[85] bg-secondary border-b border-border px-6 py-4">
@@ -732,7 +748,7 @@
                     </div>
                 </div>
 
-                <div class="px-6 py-5 space-y-4 bg-secondary">
+                <div class="flex-1 overflow-y-auto px-6 py-5 space-y-4 bg-secondary">
 
                     @if($compensatoryStep === 1)
                         @foreach($missedParts as $missed)
@@ -872,11 +888,18 @@
     @endif
     {{-- ===== Reply Modal ===== --}}
     @if($replyModalOpen)
-        <div class="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
-             wire:click.self="closeReplyModal">
+        <div class="fixed inset-0 z-[90] flex flex-col justify-end sm:items-center sm:justify-center"
+             wire:keydown.escape.window="closeReplyModal">
 
-            <div class="w-full max-w-lg bg-secondary border border-border rounded-2xl shadow-2xl"
-                 wire:keydown.escape.window="closeReplyModal">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                 wire:click="closeReplyModal"></div>
+
+            <div class="relative z-10 w-full sm:max-w-lg bg-secondary border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0">
+
+                {{-- Mobile handle bar --}}
+                <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
+                    <div class="w-10 h-1 rounded-full bg-foreground/20"></div>
+                </div>
 
                 {{-- Header --}}
                 <div class="flex items-center justify-between px-6 py-4 border-b border-border">

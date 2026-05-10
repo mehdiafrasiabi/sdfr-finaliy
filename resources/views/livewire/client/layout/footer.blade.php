@@ -22,6 +22,9 @@
                         </span>
                     </a>
                 </div>
+                git clone https://github.com/bwya77/vscode-dark-islands.git islands-dark
+cd islands-dark
+code --install-extension .
                 <div class="md:w-7/12 w-full">
                     <div class="flex flex-wrap items-center gap-10">
                         <div class="flex items-center gap-5">
