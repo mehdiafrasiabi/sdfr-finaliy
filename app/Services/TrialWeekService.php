@@ -1,0 +1,244 @@
+<?php
+
+namespace App\Services;
+
+use App\Models\Admin;
+use App\Models\AdvisingSession;
+use App\Models\AdvisingPreSession;
+use App\Models\ProgramPart;
+use App\Models\Student;
+use App\Models\StudentClassification;
+use App\Models\TrialWeek;
+use App\Models\User;
+use App\Models\WeeklyProgram;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+
+class TrialWeekService
+{
+    // ایجاد هفته آزمایشی جدید + رکورد Student برای استفاده از سیستم موجود
+    public function start(User $user, int $grade, ?string $field, string $fatherMobile, string $motherMobile): TrialWeek
+    {
+        return DB::transaction(function () use ($user, $grade, $field, $fatherMobile, $motherMobile) {
+            $student = Student::create([
+                'user_id'  => $user->id,
+                'is_trial' => true,
+            ]);
+
+            return TrialWeek::create([
+                'user_id'       => $user->id,
+                'student_id'    => $student->id,
+                'grade'         => $grade,
+                'field'         => $grade == 9 ? null : $field,
+                'father_mobile' => $fatherMobile,
+                'mother_mobile' => $motherMobile,
+                'status'        => TrialWeek::STATUS_PENDING,
+                'expires_at'    => Carbon::now()->addDays(7),
+            ]);
+        });
+    }
+
+    // تخصیص پشتیبان توسط مدیر + ایجاد جلسه آزمایشی
+    public function assignSupporter(TrialWeek $trialWeek, Admin $supporter): void
+    {
+        DB::transaction(function () use ($trialWeek, $supporter) {
+            $trialWeek->student()->update(['supporter_id' => $supporter->id]);
+
+            $session = AdvisingSession::create([
+                'student_id'      => $trialWeek->student_id,
+                'advisor_id'      => null,
+                'title'           => 'جلسه آزمایشی',
+                'activation_date' => Carbon::now()->addDay(),
+                'status'          => AdvisingSession::STATUS_ACTIVE,
+                'location_type'   => 'online',
+                'is_active'       => true,
+            ]);
+
+            AdvisingPreSession::create([
+                'advising_session_id' => $session->id,
+                'student_id'          => $trialWeek->student_id,
+                'title'               => 'پیش‌جلسه آزمایشی',
+                'status'              => AdvisingPreSession::STATUS_PENDING,
+            ]);
+
+            $trialWeek->update([
+                'supporter_id'          => $supporter->id,
+                'advising_session_id'   => $session->id,
+                'status'                => TrialWeek::STATUS_SUPPORTER_ASSIGNED,
+                'supporter_assigned_at' => Carbon::now(),
+            ]);
+        });
+    }
+
+    // قفل طبقه‌بندی پس از تایید دانش‌آموز
+    public function lockClassification(TrialWeek $trialWeek): void
+    {
+        $trialWeek->update([
+            'status'                   => TrialWeek::STATUS_CLASSIFICATION_DONE,
+            'classification_locked_at' => Carbon::now(),
+        ]);
+    }
+
+    // تکمیل پیش‌جلسه
+    public function completePreSession(TrialWeek $trialWeek): void
+    {
+        $trialWeek->update([
+            'status'                   => TrialWeek::STATUS_PRE_SESSION_DONE,
+            'pre_session_completed_at' => Carbon::now(),
+        ]);
+    }
+
+    // ساخت برنامه هفتگی آزمایشی
+    public function buildProgram(TrialWeek $trialWeek, int $dailyHours): WeeklyProgram
+    {
+        return DB::transaction(function () use ($trialWeek, $dailyHours) {
+            $subjectPriorities = $this->calculateSubjectPriorities($trialWeek->user_id);
+
+            $program = WeeklyProgram::create([
+                'student_id'  => $trialWeek->student_id,
+                'advisor_id'  => null,
+                'start_date'  => Carbon::now()->toDateString(),
+                'end_date'    => Carbon::now()->addDays(6)->toDateString(),
+                'is_active'   => true,
+            ]);
+
+            $this->generateProgramParts($program, $subjectPriorities, $dailyHours, $trialWeek->grade);
+
+            $trialWeek->update([
+                'daily_study_hours' => $dailyHours,
+                'status'            => TrialWeek::STATUS_PROGRAM_BUILT,
+                'program_built_at'  => Carbon::now(),
+            ]);
+
+            return $program;
+        });
+    }
+
+    // تحلیل وضعیت طبقه‌بندی برای نمودار
+    public function getClassificationAnalysis(int $userId): array
+    {
+        $classifications = StudentClassification::where('user_id', $userId)
+            ->with('topic.chapter.subject')
+            ->get();
+
+        $ratingCounts = array_fill_keys(array_values(StudentClassification::RATINGS), 0);
+
+        $subjectBreakdown = [];
+        foreach ($classifications as $c) {
+            $label = StudentClassification::RATINGS[$c->rating] ?? '?';
+            if (isset($ratingCounts[$label])) {
+                $ratingCounts[$label]++;
+            }
+
+            $subjectName = optional(optional(optional($c->topic)->chapter)->subject)->name ?? 'سایر';
+            if (!isset($subjectBreakdown[$subjectName])) {
+                $subjectBreakdown[$subjectName] = ['total' => 0, 'sum' => 0];
+            }
+            $subjectBreakdown[$subjectName]['total']++;
+            $subjectBreakdown[$subjectName]['sum'] += $c->rating;
+        }
+
+        $subjectAverages = [];
+        foreach ($subjectBreakdown as $name => $data) {
+            if ($data['total'] > 0) {
+                $avg = $data['sum'] / $data['total'];
+                $subjectAverages[$name] = [
+                    'average' => round($avg, 1),
+                    'count'   => $data['total'],
+                    'label'   => StudentClassification::RATINGS[(int) round($avg)] ?? '?',
+                ];
+            }
+        }
+
+        arsort($subjectAverages);
+
+        return [
+            'total'            => $classifications->count(),
+            'rating_counts'    => $ratingCounts,
+            'subject_averages' => $subjectAverages,
+            'weak_count'       => $classifications->where('rating', '<=', 3)->count(),
+            'medium_count'     => $classifications->whereBetween('rating', [4, 5])->count(),
+            'strong_count'     => $classifications->where('rating', '>=', 6)->count(),
+        ];
+    }
+
+    private function calculateSubjectPriorities(int $userId): array
+    {
+        $classifications = StudentClassification::where('user_id', $userId)
+            ->with('topic.chapter.subject')
+            ->get();
+
+        $subjects = [];
+        foreach ($classifications as $c) {
+            $name = optional(optional(optional($c->topic)->chapter)->subject)->name ?? 'سایر';
+            if (!isset($subjects[$name])) {
+                $subjects[$name] = ['count' => 0, 'sum' => 0];
+            }
+            $subjects[$name]['count']++;
+            $subjects[$name]['sum'] += $c->rating;
+        }
+
+        if (empty($subjects)) {
+            return ['مطالعه عمومی' => 1.0];
+        }
+
+        $priorities = [];
+        foreach ($subjects as $name => $data) {
+            $avg = $data['count'] > 0 ? $data['sum'] / $data['count'] : 4;
+            // درس‌های ضعیف‌تر اولویت بیشتر
+            $priorities[$name] = max(0.5, 9 - $avg);
+        }
+
+        $total = array_sum($priorities);
+        foreach ($priorities as $name => $weight) {
+            $priorities[$name] = $weight / $total;
+        }
+
+        arsort($priorities);
+        return array_slice($priorities, 0, 6, true);
+    }
+
+    private function generateProgramParts(WeeklyProgram $program, array $priorities, int $dailyHours, int $grade): void
+    {
+        $gradeForPart = match (true) {
+            $grade >= 10 => (string) $grade,
+            default      => '10', // پایه ۹ → از مطالب پایه ۱۰ شروع می‌کند
+        };
+
+        $dayNames = ['شنبه', 'یک‌شنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
+        $subjectList = array_keys($priorities);
+        $weightList  = array_values($priorities);
+        $count = count($subjectList);
+
+        for ($dayIdx = 0; $dayIdx < 7; $dayIdx++) {
+            $date = Carbon::now()->addDays($dayIdx)->toDateString();
+            $remainingMinutes = $dailyHours * 60;
+            $order = 1;
+
+            foreach ($subjectList as $i => $subjectName) {
+                $isLast = ($i === $count - 1);
+                $minutes = $isLast
+                    ? $remainingMinutes
+                    : (int) round($weightList[$i] * $dailyHours * 60);
+
+                $remainingMinutes -= $minutes;
+
+                if ($minutes <= 0) {
+                    continue;
+                }
+
+                ProgramPart::create([
+                    'weekly_program_id' => $program->id,
+                    'lesson_name'       => $subjectName,
+                    'part_date'         => $date,
+                    'day_of_week'       => $dayIdx,
+                    'part_order'        => $order++,
+                    'duration_minutes'  => $minutes,
+                    'part_type'         => 'descriptive',
+                    'lesson_type'       => 'specialized',
+                    'grade'             => in_array($gradeForPart, ['10','11','12']) ? $gradeForPart : '10',
+                ]);
+            }
+        }
+    }
+}

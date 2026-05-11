@@ -10,6 +10,8 @@ class Student extends Model
 {
     protected $guarded = [];
 
+    protected $casts = ['is_trial' => 'boolean'];
+
     public function payment()
     {
         return $this->belongsTo(Payment::class)->where('status', '=', 'completed');
@@ -136,5 +138,10 @@ class Student extends Model
             ->where('year_period', (int) now()->year)
             ->where('change_index', '>', 0)
             ->count();
+    }
+
+    public function trialWeek()
+    {
+        return $this->hasOne(\App\Models\TrialWeek::class);
     }
 }

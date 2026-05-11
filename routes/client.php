@@ -22,6 +22,8 @@ use App\Livewire\Client\Profile\Consultation\WeeklyProgramView as ConsultationWe
 use App\Livewire\Client\Profile\Dashboard as ProfileDashboard;
 use App\Livewire\Client\Profile\Consultation\ClassScheduleUpload as ConsultationClassScheduleUpload;
 use App\Livewire\Client\Profile\Edit as ProfileEdit;
+use App\Livewire\Client\Profile\TrialWeek\Guide as TrialWeekGuide;
+use App\Livewire\Client\Profile\TrialWeek\SessionAnalysis as TrialWeekSessionAnalysis;
 use App\Livewire\Client\Profile\Financial as ProfileFinancial;
 use App\Livewire\Client\Profile\Installment\Installment as ProfileInstallment;
 use App\Livewire\Client\Profile\Installment\InstallmentDetail as ProfileInstallmentDetail;
@@ -118,6 +120,12 @@ Route::name('client.')->group(function () {
             // تعیین وقت و جابجایی جلسات
             Route::get('/appointment', \App\Livewire\Client\Profile\Appointment\Index::class)
                 ->name('appointment');
+            // Trial Week Routes (هفته آزمایشی)
+            Route::prefix('trial')->name('trial.')->group(function () {
+                Route::get('/guide', TrialWeekGuide::class)->name('guide');
+                Route::get('/session-analysis', TrialWeekSessionAnalysis::class)->name('session-analysis');
+            });
+
             // Consultation Routes (جلسات مشاوره)
             Route::prefix('consultation')->name('consultation.')->group(function () {
                 Route::get('/sessions', ConsultationSessionList::class)->name('sessions');

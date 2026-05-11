@@ -58,6 +58,10 @@ Route::name('admin.')->group(function () {
         Route::get('/supporters', \App\Livewire\Admin\Supporter\Index::class)
             ->name('supporters.index');
 
+        // پشتیبان آزمایشی — مدیریت هفته آزمایشی
+        Route::get('/trial-week', \App\Livewire\Admin\TrialWeek\Index::class)
+            ->name('trial-week.index');
+
         // مدیر آموزشی — درخواست‌های تعیین وقت و جابجایی
         Route::get('/educational-manager/appointments',
             \App\Livewire\Admin\EducationalManager\Appointment\Index::class)

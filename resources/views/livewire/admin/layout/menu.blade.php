@@ -367,6 +367,15 @@
                                         <span class="menu-label">لیست پشتیبانان</span>
                                     </a>
                                 </li>
+                                @if(auth('admin')->user()?->hasRole('trial-supporter') || auth('admin')->user()?->hasRole('super admin'))
+                                <li class="menu-item">
+                                    <a class="menu-link {{ request()->routeIs('admin.trial-week.*') ? 'active' : '' }}"
+                                       href="{{ route('admin.trial-week.index') }}">
+                                        <i class="fi fi-rr-bolt"></i>
+                                        <span class="menu-label">دانش‌آموزان آزمایشی</span>
+                                    </a>
+                                </li>
+                                @endif
                                 <li class="menu-item">
                                     <a class="menu-link" href="{{ route('admin.student.index') }}">
                                         <i class="fi fi-rr-graduation-cap"></i>

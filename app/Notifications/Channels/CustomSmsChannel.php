@@ -11,8 +11,8 @@ class CustomSmsChannel
         $data = $notification->toCustomSms($notifiable);
 
         $postData = [
-            'username' => '989940682693',
-            'password' => '4BYMC',
+            'username' => '9020029757',
+            'password' => '$681C',
             'text' => $data['text'] ?? $data['code'] ?? '',
             'to' => $data['mobile'],
             'bodyId' => $data['bodyId'] ?? 254707,

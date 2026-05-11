@@ -239,6 +239,14 @@
                                             <a href="{{route('manager.advisors')}}" class="nav-link"
                                                data-key="t-basic">مشاور ها</a>
                                         </li>
+                                        <li class="nav-item">
+                                            <a href="{{ route('manager.trial-week.index') }}"
+                                               class="nav-link {{ request()->routeIs('manager.trial-week.*') ? 'active' : '' }}"
+                                               data-key="t-basic">
+                                                <i class="ri-flashlight-line me-1 text-warning"></i>
+                                                هفته‌های آزمایشی
+                                            </a>
+                                        </li>
                                     </ul>
                                 </div>
                             </div>

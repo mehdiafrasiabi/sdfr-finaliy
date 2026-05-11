@@ -10,6 +10,7 @@ use App\Models\PersonalInformation;
 use App\Models\ProjectGradeSetting;
 use App\Models\StudentClassification;
 use App\Models\StudentClassificationSubmission;
+use App\Models\TrialWeek;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 class Classify extends Component
@@ -44,18 +45,22 @@ class Classify extends Component
     }
     protected function loadStudentInfo()
     {
-        $personalInfo = PersonalInformation::where('user_id', auth()->id())->first();
+        $userId = auth()->id();
+        $personalInfo = PersonalInformation::where('user_id', $userId)->first();
         if ($personalInfo) {
             $this->studentGrade = (int)$personalInfo->grade;
             $this->studentField = $personalInfo->field;
-            // Map to cc_fields slug
-            $fieldMapping = [
-                'math' => 'math',
-                'experimental' => 'experimental',
-                'human' => 'human',
-            ];
-            $this->studentFieldSlug = $fieldMapping[$this->studentField] ?? null;
+        } else {
+            // کاربران آزمایشی بدون PersonalInformation
+            $trial = TrialWeek::where('user_id', $userId)->latest()->first();
+            if ($trial) {
+                $this->studentGrade = $trial->grade >= 10 ? $trial->grade : 10;
+                $this->studentField = $trial->field;
+            }
         }
+
+        $fieldMapping = ['math' => 'math', 'experimental' => 'experimental', 'human' => 'human'];
+        $this->studentFieldSlug = $fieldMapping[$this->studentField] ?? null;
     }
     protected function loadAvailableTags()
     {

@@ -4,6 +4,7 @@ namespace App\Livewire\Client\Profile\Classification;
 use App\Models\ClassificationProject;
 use App\Models\PersonalInformation;
 use App\Models\StudentClassificationSubmission;
+use App\Models\TrialWeek;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 class ProjectList extends Component
@@ -14,6 +15,7 @@ class ProjectList extends Component
     public $availableGrades = [];
     public $studentGrade = null;
     public $studentField = null;
+    public bool $isTrialUser = false;
     public function mount()
     {
         $this->seoConfig();
@@ -25,10 +27,27 @@ class ProjectList extends Component
     }
     protected function loadStudentInfo()
     {
-        $personalInfo = PersonalInformation::where('user_id', auth()->id())->first();
+        $userId = auth()->id();
+        $personalInfo = PersonalInformation::where('user_id', $userId)->first();
         if ($personalInfo) {
             $this->studentGrade = (int)$personalInfo->grade;
             $this->studentField = $personalInfo->field;
+            return;
+        }
+        // برای کاربران آزمایشی که PersonalInformation ندارند
+        $trial = TrialWeek::where('user_id', $userId)
+            ->whereIn('status', [
+                TrialWeek::STATUS_SUPPORTER_ASSIGNED,
+                TrialWeek::STATUS_CLASSIFICATION_DONE,
+                TrialWeek::STATUS_PRE_SESSION_DONE,
+                TrialWeek::STATUS_PROGRAM_BUILT,
+            ])
+            ->latest()
+            ->first();
+        if ($trial) {
+            $this->isTrialUser   = true;
+            $this->studentGrade  = $trial->grade >= 10 ? $trial->grade : 10;
+            $this->studentField  = $trial->field;
         }
     }
     public function selectProject($projectId)

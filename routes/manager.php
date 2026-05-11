@@ -1,5 +1,7 @@
 <?php
 use App\Livewire\Manager\AdminManage\Index as AdminManage;
+use App\Livewire\Manager\TrialWeek\Index as TrialWeekIndex;
+use App\Livewire\Manager\TrialWeek\Detail as TrialWeekDetail;
 use App\Livewire\Manager\AssignStudents\Index as AssignStudents;
 use App\Livewire\Manager\Blog\Blog\Index;
 use App\Livewire\Manager\Blog\ExampleQuestion;
@@ -157,6 +159,12 @@ Route::name('manager.')->group(function () {
         Route::get('/typed-exams', TypedExamList::class)->name('typed-exams.index');
         Route::get('/typed-exams/form/{id?}', TypedExamWizard::class)->name('typed-exams.form');
         Route::get('/academic-year', ExamPeriodIndex::class)->name('academicYear');
+        // Trial Week Routes (هفته آزمایشی)
+        Route::prefix('trial-week')->name('trial-week.')->group(function () {
+            Route::get('/', TrialWeekIndex::class)->name('index');
+            Route::get('/{id}', TrialWeekDetail::class)->name('detail');
+        });
+
         // Classification Routes
         Route::prefix('classification')->name('classification.')->group(function () {
             Route::get('/education-levels', EducationLevels::class)->name('education-levels');

@@ -201,6 +201,11 @@ class User extends Authenticatable
 
     }
 
+    public function trialWeek()
+    {
+        return $this->hasOne(TrialWeek::class);
+    }
+
 
 
     public function getWalletBalanceAttribute()

@@ -24,8 +24,86 @@
                         <div class="font-black text-foreground text-lg">پیشخوان</div>
                     </div>
 
+                    {{-- بنر هفته آزمایشی: فقط برای کاربران غیر دانش‌آموز یا دانش‌آموزان آزمایشی --}}
+                    @php
+                        $trialWeek = \App\Models\TrialWeek::where('user_id', $user->id)->latest()->first();
+                        $isTrialStudent = $student && $student->is_trial;
+                        $showTrialBanner = !$student || $isTrialStudent;
+                    @endphp
+
+                    @if($showTrialBanner && !$trialWeek)
+                    {{-- دکمه شروع آزمایشی --}}
+                    <div class="relative overflow-hidden bg-gradient-to-l from-emerald-500/10 via-teal-500/5 to-transparent border border-emerald-500/30 rounded-2xl p-6">
+                        <div class="absolute inset-0 bg-gradient-to-l from-emerald-500/5 to-transparent pointer-events-none"></div>
+                        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div>
+                                <h3 class="font-black text-foreground text-lg mb-1 flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                    </svg>
+                                    یک هفته آزمایشی رایگان
+                                </h3>
+                                <p class="text-sm text-muted leading-relaxed max-w-lg">
+                                    با شروع دوره آزمایشی، طبقه‌بندی دروس، برنامه مطالعاتی شخصی و پشتیبان اختصاصی دریافت کنید.
+                                </p>
+                                <div class="flex items-center gap-4 mt-3">
+                                    <div class="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        طبقه‌بندی دروس
+                                    </div>
+                                    <div class="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        برنامه شخصی‌سازی شده
+                                    </div>
+                                    <div class="flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                        پشتیبان اختصاصی
+                                    </div>
+                                </div>
+                            </div>
+                            <livewire:client.profile.trial-week.start />
+                        </div>
+                    </div>
+                    @elseif($trialWeek)
+                    {{-- نمایش وضعیت آزمایشی --}}
+                    <a wire:navigate href="{{ route('client.profile.trial.guide') }}"
+                       class="flex items-center justify-between p-5 bg-gradient-to-l from-emerald-500/10 to-teal-500/5 border border-emerald-500/30 rounded-2xl hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="font-bold text-foreground">هفته آزمایشی — {{ $trialWeek->statusLabel }}</div>
+                                <div class="text-xs text-muted mt-0.5">
+                                    @if($trialWeek->isExpired())
+                                        <span class="text-red-500">دوره آزمایشی منقضی شده است</span>
+                                    @else
+                                        {{ $trialWeek->daysRemaining }} روز باقی‌مانده • برای مشاهده راهنمای مراحل کلیک کنید
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            @php
+                                $stepPercent = ($trialWeek->step / 4) * 100;
+                            @endphp
+                            <div class="hidden md:flex items-center gap-2">
+                                <div class="w-24 h-2 bg-border rounded-full overflow-hidden">
+                                    <div class="bg-emerald-500 h-2 rounded-full" style="width: {{ $stepPercent }}%"></div>
+                                </div>
+                                <span class="text-xs text-muted">{{ (int)$stepPercent }}%</span>
+                            </div>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-muted group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </div>
+                    </a>
+                    @endif
+
                     <!-- Notification Alert -->
-                    @if($student && $unreadNotificationsCount > 0)
+                    @if($student && !$isTrialStudent && $unreadNotificationsCount > 0)
                         <a wire:navigate
                            href="{{ route('client.profile.notification') }}"
                            class="flex items-center justify-between p-4 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/40 rounded-2xl hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 group">
