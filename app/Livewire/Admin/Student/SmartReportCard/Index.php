@@ -92,7 +92,6 @@ class Index extends Component
             'profile',
             'student.advisor',
             'student.supporter',
-            'student.product',
         ])->find($this->userId);
 
         if (!$user) return;
@@ -117,7 +116,7 @@ class Index extends Component
             'state'       => $pi?->state?->name ?? '-',
             'advisor'     => $student?->advisor?->name ?? '-',
             'supporter'   => $student?->supporter?->name ?? '-',
-            'product'     => $student?->product?->title ?? '-',
+            'product'     => '-',
         ];
     }
 

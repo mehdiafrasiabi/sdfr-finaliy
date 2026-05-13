@@ -52,12 +52,6 @@ class User extends Authenticatable
         return $this->hasMany(CouponUsage::class);
     }
 
-    public function orders()
-    {
-        return $this->hasMany(Order::class);
-
-    }
-
     public function student()
     {
         return $this->hasOne(Student::class);
@@ -71,9 +65,9 @@ class User extends Authenticatable
         return $this->hasOne(PersonalInformation::class);
     }
 
-    public function payments()
+    public function enrollments()
     {
-        return $this->hasMany(Payment::class);
+        return $this->hasMany(Enrollment::class);
     }
 
     public function supportedStudents()
@@ -149,14 +143,6 @@ class User extends Authenticatable
     public function isStudent(): bool
     {
         return $this->student !== null;
-    }
-    public function productComments()
-    {
-        return $this->hasMany(ProductComment::class);
-    }
-    public function commentLikes()
-    {
-        return $this->hasMany(CommentLike::class);
     }
     public function wallet()
 

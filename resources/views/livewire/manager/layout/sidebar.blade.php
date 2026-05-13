@@ -85,10 +85,17 @@
                         </div>
                     </li>
                     <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.category.index') ? 'active' : '' }}"
-                           href="{{route('manager.category.index')}}" role="button"
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.grade-price.index') ? 'active' : '' }}"
+                           href="{{route('manager.grade-price.index')}}" role="button"
                            aria-expanded="false" aria-controls="sidebarDashboards">
-                            <i class="ri-apps-2-line"></i> <span data-key="t-dashboards">دسته بندی</span>
+                            <i class="ri-price-tag-3-line"></i> <span data-key="t-dashboards">قیمت‌گذاری پایه‌ها</span>
+                        </a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.enrollment.index') ? 'active' : '' }}"
+                           href="{{route('manager.enrollment.index')}}" role="button"
+                           aria-expanded="false" aria-controls="sidebarDashboards">
+                            <i class="ri-user-add-line"></i> <span data-key="t-dashboards">ثبت‌نام‌های پرداخت‌شده</span>
                         </a>
                     </li>
 {{--                    <li class="nav-item ">--}}
@@ -224,7 +231,7 @@
                                                data-key="t-basic">کل دانش اموزان</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a href="{{route('manager.studentAssign')}}" class="nav-link"
+                                            <a href="{{route('manager.enrollment.index')}}" class="nav-link"
                                                data-key="t-basic">نیاز به انتخاب پشتیبان</a>
                                         </li>
                                         <li class="nav-item">
@@ -403,13 +410,6 @@
                     {{--                            <i class="ri-book-2-line"></i> <span data-key="t-dashboards">ساختار آموزشی</span>--}}
                     {{--                        </a>--}}
                     {{--                    </li>--}}
-                    <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.paymentMethod') ? 'active' : '' }}"
-                           href="{{route('manager.paymentMethod')}}" role="button"
-                           aria-expanded="false" aria-controls="sidebarDashboards">
-                            <i class=" ri-product-hunt-line"></i> <span data-key="t-dashboards">درگاه های پرداخت</span>
-                        </a>
-                    </li>
                     <li class="nav-item ">
                         <a class="nav-link menu-link {{ request()->routeIs('manager.ticket.index') ? 'active' : '' }}"
                            href="#ticket" data-bs-toggle="collapse" role="button"

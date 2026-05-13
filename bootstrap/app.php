@@ -16,6 +16,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'admin.permission' => \App\Http\Middleware\CheckAdminPermission::class,
+            'onboarding.complete' => \App\Http\Middleware\EnsureOnboardingComplete::class,
         ]);
 
         $middleware->redirectGuestsTo(function () {

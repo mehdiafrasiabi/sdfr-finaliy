@@ -3,24 +3,22 @@
 namespace App\Providers;
 
 use App\Contracts\PaymentGateWayInterface;
-use App\Models\PaymentMethod;
+use App\Services\PaymentGateWay\Zarinpal;
+use App\Services\PaymentGateWay\Zibal;
 use Illuminate\Support\ServiceProvider;
 
 class PaymentServiceProvider extends ServiceProvider
 {
-    /**
-     * Register services.
-     */
     public function register(): void
     {
-        $this->app->singleton(PaymentGateWayInterface::class,function (){
-            $activePayment = PaymentMethod::query()->where("active",true)->first();
-            $gateWayClass = 'App\\Services\\PaymentGateWay\\'.$activePayment->name;
-            if(!$activePayment ||!class_exists($gateWayClass)){
-                throw new \Exception("هیچ درگاهی وجود ندارد");
-            }
-            return new $gateWayClass;
+        $this->app->singleton(PaymentGateWayInterface::class, function () {
+            $name = config('services.payment.default', 'zibal');
+
+            return match ($name) {
+                'zarinpal' => new Zarinpal(),
+                'zibal'    => new Zibal(),
+                default    => throw new \Exception("Unknown payment gateway: {$name}"),
+            };
         });
     }
-
 }

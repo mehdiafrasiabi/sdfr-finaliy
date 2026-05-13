@@ -2,7 +2,6 @@
 
 namespace App\Livewire\Client\Layout;
 
-use App\Models\Cart;
 use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -10,8 +9,6 @@ use Livewire\Attributes\On;
 
 class Header extends Component
 {
-    public $cart=0;
-
     public ?string $profilePictureUrl = null;
 
     public ?string $gender = null;
@@ -21,9 +18,6 @@ class Header extends Component
     {
         $this->loadUnreadCount();
         $this->loadUserProfileData();
-        $this->cart = Cart::query()
-            ->where('user_id', Auth()->id())->count();
-
     }
     public function loadUnreadCount()
     {
@@ -75,17 +69,6 @@ class Header extends Component
     public function getDefaultAvatarTypeProperty(): string
     {
         return $this->gender === 'female' ? 'female' : 'male';
-    }
-    #[On('add-to-cart')]
-    public function getUserCart()
-    {
-        $this->cart = $this->cart + 1;
-    }
-
-    #[On('remove-from-cart')]
-    public function removeUserCart($newCount)
-    {
-        $this->cart = $newCount;
     }
 
     #[On('notificationAdded')]

@@ -15,13 +15,6 @@ class Student extends Model
 
     protected $casts = ['is_trial' => 'boolean'];
 
-    public function payment()
-    {
-        return $this->belongsTo(Payment::class)->where('status', '=', 'completed');
-    }
-
-
-
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -52,14 +45,14 @@ class Student extends Model
         return $this->hasMany(StudySession::class);
     }
 
-    public function product()
+    public function enrollments()
     {
-        return $this->belongsTo(Product::class);
+        return $this->hasMany(Enrollment::class);
     }
 
-    public function order()
+    public function paidEnrollment()
     {
-        return $this->belongsTo(Order::class);
+        return $this->hasOne(Enrollment::class)->where('status', 'paid')->latest();
     }
 
     public function supporterStudent()

@@ -38,9 +38,18 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => 'http://127.0.0.1:8000/auth/gmail/callback',
-    ],'zibal' =>[
-        'merchant'=>env('ZIBAL_MERCHANT_ID'),
-    ],'ghasedak' => [
+    ],
+    'payment' => [
+        'default' => env('PAYMENT_GATEWAY', 'zibal'),
+    ],
+    'zibal' => [
+        'merchant' => env('ZIBAL_MERCHANT_ID', 'zibal'),
+    ],
+    'zarinpal' => [
+        'merchant_id' => env('ZARINPAL_MERCHANT_ID'),
+        'sandbox'     => env('ZARINPAL_SANDBOX', false),
+    ],
+    'ghasedak' => [
     'key' => env('GHASEDAKAPI_KEY'),
 ],
 

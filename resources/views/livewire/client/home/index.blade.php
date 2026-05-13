@@ -16,10 +16,6 @@
 
 {{--            <livewire:client.home.collaboration.index lazy/>--}}
 
-            <!-- section:latest-courses -->
-            <livewire:client.home.latest-course.index/>
-            <!-- end section:latest-courses -->
-
             <!-- section:sdfr-help -->
             <livewire:client.home.sdfr-help.index lazy/>
             <!-- end section:sdfr-help -->

@@ -18,11 +18,6 @@
                                         <i class="ri-search-line search-icon"></i>
                                     </div>
                                 </div>
-                                <form wire:submit.prevent="export" class="me-2">
-                                    <button type="submit" class="btn btn-success btn-sm">
-                                        <i class="ri-download-2-fill align-middle me-1"></i> دانلود اکسل تراکنش‌ها
-                                    </button>
-                                </form>
                             </div>
                         </div>
 
@@ -52,15 +47,15 @@
                                             {{$loop->iteration + $transactions->firstItem() - 1}}
                                         </th>
                                         <td class="customer_name">{{$item->order_number}}</td>
-                                        <td class="phone">{{@$item->order->user->name}}</td>
-                                        <td class="phone"> {{@$item->order->user->mobile}}</td>
+                                        <td class="phone">{{@$item->enrollment->user->name}}</td>
+                                        <td class="phone"> {{@$item->enrollment->user->mobile}}</td>
 
                                         <td>
                                             <span
                                                 class=" badge badge-light-{{@$item->statusPaymentColor}} text-start action-delete">
-                                                {{@$item->status=='pending' ? 'درحال پردازش خرید ' : ''}}
-                                                {{@$item->status=='completed' ? 'پرداخت شده' : ''}}
-                                                {{@$item->status=='cancelled' ? 'لغو شده' : ''}}
+                                                {{@$item->status=='pending' ? 'درحال پردازش' : ''}}
+                                                {{@$item->status=='success' ? 'موفق' : ''}}
+                                                {{@$item->status=='failed' ? 'ناموفق' : ''}}
                                             </span>
                                         </td>
                                         <td class="phone"> {{number_format($item->amount)}}تومان</td>
@@ -69,13 +64,7 @@
 
                                         <td class="time">{{jalali($item->created_at)->format('%d %B %Y | H:i')}}</td>
                                         <td class="time">
-                                            <a href="{{route('manager.order.details',$item->order->id)}}"
-                                               class="btn btn-primary"
-                                               data-toggle="tooltip" data-placement="top" title=""
-                                               data-bs-original-title="جزییات">
-                                                جزیات سفارش
-
-                                            </a>
+                                            {{ $item->enrollment?->user?->name ?? '-' }}
                                         </td>
                                     </tr>
                                 @empty

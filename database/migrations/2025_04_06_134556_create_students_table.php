@@ -16,8 +16,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->foreignId('supporter_id')->nullable()->constrained('admins'); // پشتیبان
             $table->foreignId('advisor_id')->nullable()->constrained('admins'); // مشاور
-            $table->foreignId('payment_id')->nullable()->constrained();
-            $table->foreignId('product_id')->nullable()->constrained();
             $table->enum('star', ['A', 'B','C','D'])->default('D')->nullable();
             $table->timestamps();
         });

@@ -4,12 +4,14 @@ use App\Http\Controllers\FileDownloadController;
 use App\Livewire\Client\AboutUs\Index as AboutUs;
 use App\Livewire\Client\Auth\ForgotPassword as ForgotPassword;
 use App\Livewire\Client\Auth\Login as authLogin;
-use App\Livewire\Client\Onboarding\TrialWeekOnboarding;
+use App\Livewire\Client\Auth\Signup as authSignup;
 use App\Livewire\Client\Blog\Weblog\Index as WeblogIndex;
 use App\Livewire\Client\ContactUs\Index as ContactUs;
 use App\Livewire\Client\Home\Index as HomeIndex;
 use App\Livewire\Client\Download\Index as DownloadIndex;
-use App\Livewire\Client\Payment\Callback as PaymentCallback;
+use App\Livewire\Client\Purchase\Callback as PaymentCallback;
+use App\Livewire\Client\Purchase\Checkout as PurchaseCheckout;
+use App\Livewire\Client\Welcome\Index as WelcomeIndex;
 use App\Livewire\Client\Profile\plan as ProfilePlan;
 use App\Livewire\Client\Profile\Classification\Classify;
 use App\Livewire\Client\Profile\Classification\ProjectList;
@@ -21,6 +23,7 @@ use App\Livewire\Client\Profile\Consultation\ClassScheduleUpload as Consultation
 use App\Livewire\Client\Profile\Edit as ProfileEdit;
 use App\Livewire\Client\Profile\TrialWeek\Guide as TrialWeekGuide;
 use App\Livewire\Client\Profile\TrialWeek\SessionAnalysis as TrialWeekSessionAnalysis;
+use App\Livewire\Client\Profile\TrialWeek\WaitingForSupporter;
 use App\Livewire\Client\Profile\Financial as ProfileFinancial;
 use App\Livewire\Client\Profile\Installment\Installment as ProfileInstallment;
 use App\Livewire\Client\Profile\Installment\InstallmentDetail as ProfileInstallmentDetail;
@@ -42,76 +45,71 @@ use App\Livewire\Client\Profile\Wallet as ProfileWallet;
 use App\Livewire\Client\PercentCalculator\Index as PercentCalculatorIndex;
 
 
-
 Route::name('client.')->group(function () {
     Route::get('/download/{token}', [FileDownloadController::class, 'download'])
         ->name('secure.download');
 
     Route::get('/', HomeIndex::class)->name('home');
     Route::get('/application', DownloadIndex::class)->name('download');
-    Route::redirect('/shop', '/')->name('shop');
-    Route::redirect('/product/{p_code}/{slug?}', '/')->name('product');
 
-    Route::get('/terms',RuleIndex::class)->name('terms');
-    Route::get('/about-us',AboutUs::class)->name('about-us');
-    Route::get('/contact-us',ContactUs::class)->name('contact-us');
+    Route::get('/terms', RuleIndex::class)->name('terms');
+    Route::get('/about-us', AboutUs::class)->name('about-us');
+    Route::get('/contact-us', ContactUs::class)->name('contact-us');
 
-    Route::get('/blog',WeblogIndex::class)->name('blog');
+    Route::get('/blog', WeblogIndex::class)->name('blog');
     Route::get('/konkur', ExamCountdownIndex::class)->name('exam-countdown');
     Route::get('/percentCalculator', PercentCalculatorIndex::class)->name('percent-calculator');
 
-
-    // ثبت‌نام فقط از طریق هفته آزمایشی
-    Route::get('/start', TrialWeekOnboarding::class)->name('onboarding')->middleware('guest');
-    Route::redirect('/sign-up', '/start')->name('auth.signup');
-
     Route::middleware('guest')->group(function () {
         Route::get('/login', authLogin::class)->name('auth.login');
-        Route::get('/forgot-password',ForgotPassword::class)->name('auth.forgotPassword');
+        Route::get('/sign-up', authSignup::class)->name('auth.signup');
+        Route::get('/forgot-password', ForgotPassword::class)->name('auth.forgotPassword');
     });
 
-    // صفحه انتظار برای تخصیص پشتیبان (auth)
-    Route::get('/profile/waiting-for-supporter',
-        \App\Livewire\Client\Profile\TrialWeek\WaitingForSupporter::class)
-        ->middleware('auth')
-        ->name('profile.waiting-for-supporter');
-
     Route::middleware('auth')->group(function () {
-        Route::redirect('/shopping-cart', '/')->name('checkout.cart');
-        Route::redirect('/shopping-cart-info', '/')->name('checkout.cart.info');
-        Route::get('/logout', [authLogin::class,'clientLogout'])->name('logout');
-        Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
+        Route::get('/logout', [authLogin::class, 'clientLogout'])->name('logout');
 
+        // صفحه راهنمای انتخاب مسیر (آزمایشی یا خرید مستقیم)
+        Route::get('/welcome', WelcomeIndex::class)->name('welcome');
 
-        Route::prefix('profile')->name('profile.')->group(function () {
-            //Profile
-            Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
-            Route::get('/star',Star::class)->name('star');
-            Route::get('/reportStudentStudy',ProfileReportStudentStudy::class)->name('reportStudentStudy');
-            Route::get('/edit',ProfileEdit::class)->name('edit');
-            Route::get('/financial',ProfileFinancial::class)->name('financial');
-            Route::get('/installment',ProfileInstallment::class)->name('installment');
-            Route::get('/installmentDetail',ProfileInstallmentDetail::class)->name('installmentDetail');
-            Route::get('/plan',ProfilePlan::class)->name('plan');
-            Route::get('/report',ProfileReport::class)->name('report');
-            Route::get('/studySession',StudySession::class)->name('studySession');
+        // خرید مستقیم بر اساس پایه
+        Route::get('/purchase', PurchaseCheckout::class)->name('purchase');
 
-//          Ticketing Route
-            Route::get('/ticket',ProfileTicketIndex::class)->name('ticket');
-            Route::get('/ticket/{ticket}/show',ProfileTicketShow::class)->name('ticket.show');
-            Route::get('/ticket-create',ProfileTicketCreate::class)->name('ticket.create');
+        // بازگشت از درگاه پرداخت
+        Route::get('/payment/callback', PaymentCallback::class)->name('payment.callback');
 
-            //کیف پوال
-            Route::get('/wallet',ProfileWallet::class)->name('wallet');
+        // صفحه انتظار برای تخصیص پشتیبان
+        Route::get('/profile/waiting-for-supporter', WaitingForSupporter::class)
+            ->name('profile.waiting-for-supporter');
+
+        Route::prefix('profile')->name('profile.')->middleware('onboarding.complete')->group(function () {
+            Route::get('/dashboard', ProfileDashboard::class)->name('dashboard');
+            Route::get('/star', Star::class)->name('star');
+            Route::get('/reportStudentStudy', ProfileReportStudentStudy::class)->name('reportStudentStudy');
+            Route::get('/edit', ProfileEdit::class)->name('edit');
+            Route::get('/financial', ProfileFinancial::class)->name('financial');
+            Route::get('/installment', ProfileInstallment::class)->name('installment');
+            Route::get('/installmentDetail', ProfileInstallmentDetail::class)->name('installmentDetail');
+            Route::get('/plan', ProfilePlan::class)->name('plan');
+            Route::get('/report', ProfileReport::class)->name('report');
+            Route::get('/studySession', StudySession::class)->name('studySession');
+
+            // Ticketing
+            Route::get('/ticket', ProfileTicketIndex::class)->name('ticket');
+            Route::get('/ticket/{ticket}/show', ProfileTicketShow::class)->name('ticket.show');
+            Route::get('/ticket-create', ProfileTicketCreate::class)->name('ticket.create');
+
+            // کیف پول
+            Route::get('/wallet', ProfileWallet::class)->name('wallet');
             // نوتیفیکیشن
-            Route::get('/notification',ProfileNotification::class)->name('notification');
+            Route::get('/notification', ProfileNotification::class)->name('notification');
 
-            // Typed Exam Routes (آزمون‌های تایپی)
+            // Typed Exam Routes
             Route::get('/exams', TypedExamList::class)->name('typed-exam.list');
             Route::get('/exam/{assignmentId}/test', TypedExamTest::class)->name('typed-exam.test');
             Route::get('/exam/result/{attemptId}', TypedExamResult::class)->name('typed-exam.result');
 
-            // Essay Exam Routes (آزمون‌های تشریحی مبحثی)
+            // Essay Exam Routes
             Route::get('/essay-exam/{assignmentId}/test', \App\Livewire\Client\Profile\EssayExam\EssayExamTest::class)
                 ->name('essay-exam.test');
             Route::get('/essay-exam/result/{attemptId}', \App\Livewire\Client\Profile\EssayExam\EssayExamResult::class)
@@ -122,9 +120,11 @@ Route::name('client.')->group(function () {
             // Classification Routes
             Route::get('/classification', ProjectList::class)->name('classification.projects');
             Route::get('/{project}/classify/{grade}', Classify::class)->name('classification.classify');
+
             // تعیین وقت و جابجایی جلسات
             Route::get('/appointment', \App\Livewire\Client\Profile\Appointment\Index::class)
                 ->name('appointment');
+
             // Trial Week Routes (هفته آزمایشی)
             Route::prefix('trial')->name('trial.')->group(function () {
                 Route::get('/guide', TrialWeekGuide::class)->name('guide');
@@ -138,9 +138,6 @@ Route::name('client.')->group(function () {
                 Route::get('/weekly-program/{program}', ConsultationWeeklyProgramView::class)->name('weekly-program');
                 Route::get('/class-schedule', ConsultationClassScheduleUpload::class)->name('class-schedule');
             });
-
         });
-
-
     });
 });
