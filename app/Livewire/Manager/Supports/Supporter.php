@@ -17,7 +17,7 @@ class Supporter extends Component
     }
     public function render()
     {
-        $supporters = Admin::role('academic support')->withCount('supportedStudents')->paginate(10);
+        $supporters = Admin::role('acquisition_supporter')->withCount('supportedStudents')->paginate(10);
 
         return view('livewire.manager.supports.supporter',['supporters'=>$supporters])->layout('layouts.manager.app');
     }

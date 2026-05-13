@@ -292,79 +292,49 @@ class RolePermissionSeeder extends Seeder
             'view states', 'create states','edit states','delete states',
         ]);
 
-        // تعریف نقش پشتیبان تحصیلی و دادن دسترسی های مربوطه
-        $academicSupport = Role::query()->firstOrCreate([
-            'name' => 'academic support',
+        // نقش پشتیبان جذب سایت
+        $acquisitionSupporter = Role::query()->firstOrCreate([
+            'name' => 'acquisition_supporter',
             'guard_name' => 'admin'
         ]);
-        $academicSupport->givePermissionTo([
-            // دسترسی به لیست و مشخصات دانش آموزان
-            'view_students_for_academic_support',
-            'view personal_information',
-
-            // دسترسی به کل سیستم گزارش دهی
-            'view_reports_for_academic_support',
-            'create_reports_for_academic_support',
-            'edit_reports_for_academic_support',
-            'delete_reports_for_academic_support',
-            'view_report_monthlies_for_academic_support',
-            'create_report_monthlies_for_academic_support',
-            'edit_report_monthlies_for_academic_support',
-            'delete_report_monthlies_for_academic_support',
-
-            // دسترسی به کل سیستم برگزاری آزمون
-            'view_exams_for_academic_support',
-            'create_exams_for_academic_support',
-            'edit_exams_for_academic_support',
-            'delete_exams_for_academic_support',
-            'publish_exams_for_academic_support',
-            'grade_exams_for_academic_support',
-
-            // دسترسی به کل سیستم کارنامه
-            'view_report_cards_for_academic_support',
-            'create_report_cards_for_academic_support',
-            'edit_report_cards_for_academic_support',
-            'delete_report_cards_for_academic_support',
-            'publish_report_cards_for_academic_support',
-            // دسترسی به آزمون‌های تایپی (فقط مشاهده و اختصاص)
-
-            'view_typed_exams',
-
-            'view_questions',
-
-            'assign_typed_exams',
-
-            'view_typed_exam_stats',
-
-            'view_typed_exam_results',
+        // permissions تعریف می‌شوند در پایین (firstOrCreate) و assign
+        foreach ([
+            'admin.acquisition.students.view',
+            'admin.acquisition.calls.manage',
+            'admin.acquisition.prediction.submit',
+            'admin.acquisition.plan.write',
+        ] as $perm) {
+            \Spatie\Permission\Models\Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'admin']);
+        }
+        $acquisitionSupporter->syncPermissions([
+            'admin.acquisition.students.view',
+            'admin.acquisition.calls.manage',
+            'admin.acquisition.prediction.submit',
+            'admin.acquisition.plan.write',
         ]);
 
-        // نقش جدید مشاور تحصیلی
-        $academicAdvisor = Role::query()->firstOrCreate([
-            'name' => 'academic_advisor',
+        // نقش جدید مشاور تحصیلی (advisor)
+        $advisor = Role::query()->firstOrCreate([
+            'name' => 'advisor',
             'guard_name' => 'admin'
         ]);
-        $academicAdvisor->givePermissionTo([
+        $advisor->givePermissionTo([
             'view students with support info',
             'view student reports with support info',
             'view exams',
             'upload weekly program',
-            'view_exams_for_academic_advisor',
-            'create_exams_for_academic_advisor',
-            'publish_exams_for_academic_advisor',
-
-            // دسترسی به آزمون‌های تایپی (فقط مشاهده و اختصاص)
-
             'view_typed_exams',
-
             'view_questions',
-
             'assign_typed_exams',
-
             'view_typed_exam_stats',
-
             'view_typed_exam_results',
         ]);
+
+        // حذف نقش‌های قدیمی academic support و academic_advisor در صورت وجود
+        foreach (['academic support', 'academic_advisor'] as $legacy) {
+            $r = Role::where(['name' => $legacy, 'guard_name' => 'admin'])->first();
+            if ($r) { $r->delete(); }
+        }
 
         // نقش جدید: مدیر آموزشی
         $educationalManager = Role::query()->firstOrCreate([
@@ -502,29 +472,26 @@ class RolePermissionSeeder extends Seeder
         );
         $userAdminUser->assignRole('user admin');
 
-        $academicSupportUser = Admin::query()->firstOrCreate(
+        // پشتیبان جذب سایت (acquisition supporter)
+        $acquisitionSupporterUser = Admin::query()->firstOrCreate(
+            [ 'email' => 'acquisition@gmail.com' ],
             [
-                'email' => 'academicsupport@gmail.com',
-            ],
-            [
-                'name' => 'پشتیبان تحصیلی',
+                'name' => 'پشتیبان جذب سایت',
                 'password' => bcrypt('password'),
                 'mobile' => '09123458795'
             ]
         );
-        $academicSupportUser->assignRole('academic support');
+        $acquisitionSupporterUser->syncRoles(['acquisition_supporter']);
 
-        // کاربر جدید مشاور تحصیلی
-        $academicAdvisorUser = Admin::query()->firstOrCreate(
-            [
-                'email' => 'academicadvisor@gmail.com',
-            ],
+        // مشاور تحصیلی (advisor)
+        $advisorUser = Admin::query()->firstOrCreate(
+            [ 'email' => 'advisor@gmail.com' ],
             [
                 'name' => 'مشاور تحصیلی',
                 'password' => bcrypt('password'),
                 'mobile' => '09121234567'
             ]
         );
-        $academicAdvisorUser->assignRole('academic_advisor');
+        $advisorUser->syncRoles(['advisor']);
     }
 }

@@ -11,7 +11,7 @@ class SupportersExport implements FromCollection, WithHeadings
 {
     public function collection(): Collection
     {
-        return Admin::role('academic support')
+        return Admin::role('acquisition_supporter')
             ->withCount('students')
             ->get()
             ->map(function ($admin) {

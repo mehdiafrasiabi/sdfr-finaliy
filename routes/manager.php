@@ -137,8 +137,11 @@ Route::name('manager.')->group(function () {
         Route::get('/typed-exams/form/{id?}', TypedExamWizard::class)->name('typed-exams.form');
         Route::get('/academic-year', ExamPeriodIndex::class)->name('academicYear');
         // قیمت‌گذاری بر اساس پایه تحصیلی
-        Route::get('/grade-prices', \App\Livewire\Manager\GradePrice\Index::class)
-            ->name('grade-price.index');
+        Route::prefix('grade-prices')->name('grade-prices.')->group(function () {
+            Route::get('/', \App\Livewire\Manager\GradePrice\Index::class)->name('index');
+            Route::get('/create', \App\Livewire\Manager\GradePrice\Create::class)->name('create');
+            Route::get('/{gradePrice}/edit', \App\Livewire\Manager\GradePrice\Edit::class)->name('edit');
+        });
 
         // Trial Week Routes (هفته آزمایشی)
         Route::prefix('trial-week')->name('trial-week.')->group(function () {

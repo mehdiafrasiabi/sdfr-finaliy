@@ -79,11 +79,12 @@ Route::name('client.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::redirect('/shopping-cart', '/')->name('checkout.cart');
         Route::redirect('/shopping-cart-info', '/')->name('checkout.cart.info');
+        Route::get('/checkout', \App\Livewire\Client\Checkout\Index::class)->name('checkout');
         Route::get('/logout', [authLogin::class,'clientLogout'])->name('logout');
         Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
 
 
-        Route::prefix('profile')->name('profile.')->group(function () {
+        Route::prefix('profile')->middleware('trial.gate')->name('profile.')->group(function () {
             //Profile
             Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
             Route::get('/star',Star::class)->name('star');

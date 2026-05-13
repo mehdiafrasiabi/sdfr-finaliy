@@ -63,7 +63,9 @@ Route::name('admin.')->group(function () {
             ->name('trial-week.index');
 
         // پشتیبان جذب سایت
-        Route::prefix('acquisition-supporter')->name('acquisition-supporter.')->group(function () {
+        Route::prefix('acquisition-supporter')->name('acquisition-supporter.')
+            ->middleware('admin.permission:admin.acquisition.students.view')
+            ->group(function () {
             Route::get('/dashboard', \App\Livewire\Admin\AcquisitionSupporter\Dashboard::class)
                 ->name('dashboard');
             Route::get('/student/{id}', \App\Livewire\Admin\AcquisitionSupporter\StudentDetail::class)
@@ -77,6 +79,13 @@ Route::name('admin.')->group(function () {
         Route::get('/educational-manager/reschedule',
             \App\Livewire\Admin\EducationalManager\Reschedule\Index::class)
             ->name('educational-manager.reschedule');
+
+        Route::get('/educational-manager/assign-acquisition-supporter',
+            \App\Livewire\Admin\EducationalManager\AssignAcquisitionSupporter::class)
+            ->name('educational-manager.assign-acquisition-supporter');
+        Route::get('/educational-manager/assign-advisor',
+            \App\Livewire\Admin\EducationalManager\AssignAdvisor::class)
+            ->name('educational-manager.assign-advisor');
 
         // پنل مشاور — درخواست‌های جابجایی مربوط به خودش
         Route::get('/consultant/reschedule',

@@ -21,7 +21,7 @@ class Index extends Component
 
     public function render()
     {
-        $advisors = Admin::role('academic_advisor')
+        $advisors = Admin::role('advisor')
             ->where(function ($query) {
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orWhere('email', 'like', '%' . $this->search . '%')

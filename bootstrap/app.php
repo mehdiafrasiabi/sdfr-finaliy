@@ -16,6 +16,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'admin.permission' => \App\Http\Middleware\CheckAdminPermission::class,
+            'trial.gate' => \App\Http\Middleware\EnsureSupporterAssigned::class,
         ]);
 
         $middleware->redirectGuestsTo(function () {

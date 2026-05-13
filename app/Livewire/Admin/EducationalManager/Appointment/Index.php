@@ -41,7 +41,7 @@ class Index extends Component
      */
     protected function computeMatches(StudentSchedulePreference $pref): array
     {
-        $consultants = Admin::role('academic_advisor')
+        $consultants = Admin::role('advisor')
             ->with('workSchedules')
             ->withCount('advisedStudents')
             ->get();

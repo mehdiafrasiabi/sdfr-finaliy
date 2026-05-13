@@ -20,7 +20,7 @@ class Index extends Component
     public function render()
     {
         $supporters = Admin::query()
-            ->role('academic support')
+            ->role('acquisition_supporter')
             ->when($this->search !== '', function ($q) {
                 $q->where(function ($q2) {
                     $q2->where('name', 'like', "%{$this->search}%")

@@ -55,9 +55,29 @@ class TrialWeek extends Model
         return $this->belongsTo(Student::class);
     }
 
-    public function acquisitionContacts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function acquisitionCalls(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
-        return $this->hasMany(AcquisitionContact::class)->orderBy('contacted_at');
+        return $this->hasMany(AcquisitionCall::class)->orderBy('called_at');
+    }
+
+    public function initialCall()
+    {
+        return $this->hasOne(AcquisitionCall::class)->where('type', AcquisitionCall::TYPE_INITIAL);
+    }
+
+    public function secondaryCall()
+    {
+        return $this->hasOne(AcquisitionCall::class)->where('type', AcquisitionCall::TYPE_SECONDARY);
+    }
+
+    public function isDecisionDeclined(): bool
+    {
+        return ($this->trial_decision ?? null) === 'declined';
+    }
+
+    public function isLocked(): bool
+    {
+        return $this->isExpired() || !($this->is_active ?? true);
     }
 
     public function advisingSession(): BelongsTo

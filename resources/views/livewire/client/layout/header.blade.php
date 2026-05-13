@@ -66,12 +66,6 @@
                         </div>
                         <ul class="flex items-center gap-5">
                             <li>
-                                <a href="{{route('client.shop')}}" wire:navigate
-                                   class="inline-flex text-muted transition-colors hover:text-foreground">
-                                    <span class="font-semibold">دوره ها</span>
-                                </a>
-                            </li>
-                            <li>
                                 <a href="{{route('client.blog')}}" wire:navigate
                                    class="inline-flex text-muted transition-colors hover:text-foreground">
                                     <span class="font-semibold">مقالات</span>
@@ -447,22 +441,14 @@
                                     </svg>
                                 </a>
 
-                                <a href="{{route('client.shop')}}" wire:navigate @click="closeMenu()"
+                                <a href="#" style="display:none"
                                    class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
                                     <div class="flex items-center gap-3">
                                         <div
                                             class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                 stroke-linecap="round" stroke-linejoin="round"
-                                                 class="w-5 h-5 text-blue-600 dark:text-blue-400">
-                                                <polyline points="21 8 21 21 3 21 3 8"></polyline>
-                                                <rect x="1" y="3" width="22" height="5"></rect>
-                                                <line x1="10" y1="12" x2="14" y2="12"></line>
-                                            </svg>
                                         </div>
                                         <span
-                                            class="text-sm font-semibold text-foreground">فروشگاه سال تحصیلی ۱۴۰۴-۱۴۰۵</span>
+                                            class="text-sm font-semibold text-foreground">حذف شده</span>
                                     </div>
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                          stroke-width="2" stroke="currentColor"

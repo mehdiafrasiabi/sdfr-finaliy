@@ -45,7 +45,7 @@ class Index extends Component
 
     public function render()
     {
-        $admins = Admin::role('academic support')->get();
+        $admins = Admin::role('acquisition_supporter')->get();
 
         // کاربران با پرداخت کامل که student دارند ولی هنوز supporter_id ثبت نشده
         $students = User::whereHas('student', function ($q) {

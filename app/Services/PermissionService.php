@@ -127,11 +127,9 @@ class PermissionService
 
             'super admin' => 'مدیر کل',
 
-            'مشاور تحصیلی' => 'مشاور تحصیلی',
+            'advisor' => 'مشاور تحصیلی',
 
-            'academic support' => 'پشتیبان تحصیلی',
-
-            'academic_advisor' => 'مشاور تحصیلی (قدیمی)',
+            'acquisition_supporter' => 'پشتیبان جذب سایت',
 
             'product admin' => 'مدیر محصولات',
 

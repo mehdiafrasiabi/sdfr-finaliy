@@ -40,7 +40,7 @@ class CheckAdminPermission
 
         // اگر super admin یا مشاور تحصیلی باشه، همه دسترسی‌ها رو داره
 
-        if ($admin->hasRole('super admin') || $admin->hasRole('مشاور تحصیلی')) {
+        if ($admin->hasRole('super admin')) {
 
             return $next($request);
 
