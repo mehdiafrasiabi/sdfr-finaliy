@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SessionRescheduleRequest extends Model
@@ -29,6 +30,8 @@ class SessionRescheduleRequest extends Model
         self::STATUS_REJECTED                  => 'رد شده',
         self::STATUS_CONSULTANT_CHANGE         => 'درخواست تعویض مشاور',
     ];
+
+    use HasFactory;
 
     protected $fillable = [
         'student_id',

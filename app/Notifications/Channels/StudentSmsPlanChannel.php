@@ -12,11 +12,11 @@ class StudentSmsPlanChannel
         $link = $data['link'];
         $studentName = $data['studentName'];
         $postData = [
-            'username' => '989940682693',
-            'password' => '4BYMC',
+            'username' => '9020029757',
+            'password' => '7b1b0fdb-dddd-4c93-b02d-a069edf44693',
             'text' => "$studentName;$link",
             'to' => $data['mobile'],
-            'bodyId' => 384664,
+            'bodyId' => 397165,
         ];
 
         $post_data = http_build_query($postData);

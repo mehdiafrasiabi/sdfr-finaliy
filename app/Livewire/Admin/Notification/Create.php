@@ -87,12 +87,7 @@ class Create extends Component
         $adminId = auth('admin')->id();
 
         return Student::query()
-            ->where(function ($query) use ($adminId) {
-
-                $query->where('supporter_id', $adminId)
-                    ->orWhere('advisor_id', $adminId);
-
-            })
+            ->where('advisor_id', $adminId)
             ->with(['user.personalInformation'])
             ->get();
 
@@ -110,21 +105,7 @@ class Create extends Component
         $adminId = auth('admin')->id();
 
 
-        if ($student->advisor_id == $adminId && $student->supporter_id == $adminId) {
-
-            // اگر هم مشاور و هم پشتیبان یکی است
-
-            return 'sdfr';
-
-        } elseif ($student->advisor_id == $adminId) {
-
-            return Notification::CATEGORY_ADVISOR;
-
-        } else {
-
-            return Notification::CATEGORY_SUPPORTER;
-
-        }
+        return Notification::CATEGORY_SUPPORTER;
 
     }
 

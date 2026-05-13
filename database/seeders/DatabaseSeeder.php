@@ -44,6 +44,7 @@ class DatabaseSeeder extends Seeder
             CcFieldSeeder::class,
             ExamPeriodSeeder::class,
             AcademicAdvisorPermissionSeeder::class,
+            SiteAcquisitionRoleSeeder::class,
             GeneralSettingsTableSeeder::class,
             EducationLevelsTableSeeder::class,
             CcFieldsTableSeeder::class,

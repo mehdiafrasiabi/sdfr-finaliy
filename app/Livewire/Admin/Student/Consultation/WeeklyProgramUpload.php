@@ -1156,12 +1156,12 @@ class WeeklyProgramUpload extends Component
     {
         $this->validate([
             'partForm.cc_subject_id'      => 'required|exists:cc_subjects,id',
-            'partForm.duration_minutes'   => 'required|integer|min:1',
+            'partForm.duration_minutes'   => 'required|integer|min:15',
             'partForm.part_type'          => 'required|in:test,descriptive,video,topic_exam',
         ], [
             'partForm.cc_subject_id.required'    => 'انتخاب درس الزامی است.',
             'partForm.duration_minutes.required' => 'مدت زمان الزامی است.',
-            'partForm.duration_minutes.min'      => 'مدت زمان باید حداقل ۱ دقیقه باشد.',
+            'partForm.duration_minutes.min'      => 'حداقل مدت زمان هر پارت ۱۵ دقیقه است.',
             'partForm.part_type.required'        => 'نوع پارت الزامی است.',
         ]);
 

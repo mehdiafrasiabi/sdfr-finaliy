@@ -28,8 +28,7 @@ class Index extends Component
                         ->orWhere('mobile', 'like', "%{$this->search}%");
                 });
             })
-            ->with(['roles.permissions', 'permissions', 'workSchedules', 'advisedStudents'])
-            ->withCount('advisedStudents')
+            ->with(['roles.permissions', 'permissions', 'workSchedules'])
             ->orderBy('name')
             ->paginate(15);
 

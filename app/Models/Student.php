@@ -3,11 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Student extends Model
 {
+    use HasFactory;
+
     protected $guarded = [];
 
     protected $casts = ['is_trial' => 'boolean'];
@@ -62,11 +65,6 @@ class Student extends Model
     public function supporterStudent()
     {
         return $this->belongsTo(Admin::class, 'supporter_id');
-    }
-
-    public function advisor()
-    {
-        return $this->belongsTo(Admin::class, 'advisor_id');
     }
 
     public function supporter()

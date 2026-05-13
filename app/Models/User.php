@@ -82,11 +82,6 @@ class User extends Authenticatable
         return $this->hasMany(Student::class, 'supporter_id');
     }
 
-    public function advisor()
-    {
-        return $this->belongsTo(Admin::class, 'advisor_id');
-    }
-
     /**
      * اعلان‌های دریافتی این کاربر
      */

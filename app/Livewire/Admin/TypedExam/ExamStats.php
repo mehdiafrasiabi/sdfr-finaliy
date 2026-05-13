@@ -73,17 +73,10 @@ class ExamStats extends Component
 
 
         // Get all attempts for students under this admin
-
         $attempts = TypedExamAttempt::whereHas('assignment', function ($q) use ($admin) {
-
             $q->where('typed_exam_id', $this->examId)
-
                 ->whereHas('student', function ($sq) use ($admin) {
-
-                    $sq->where('supporter_id', $admin->id)
-
-                        ->orWhere('advisor_id', $admin->id);
-
+                    $sq->where('advisor_id', $admin->id);
                 });
 
         })

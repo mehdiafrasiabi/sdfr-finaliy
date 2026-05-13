@@ -14,7 +14,8 @@ use Illuminate\Support\Facades\File;
 
 class Product extends Model
 {
-    //
+    
+    use HasFactory;//
     use HasFactory, softDeletes, UploadFile;
 
     protected $guarded = [];

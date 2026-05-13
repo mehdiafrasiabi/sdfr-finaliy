@@ -118,10 +118,7 @@ class Index extends Component
                 },
             ])
             ->withMax('reportdaily as latest_student_reply_at', 'student_replied_at')
-            ->where(function (Builder $query) use ($adminId) {
-                $query->where('supporter_id', $adminId)
-                    ->orWhere('advisor_id', $adminId);
-            });
+            ->where('advisor_id', $adminId);
     }
     /**
      * Batch-compute not-sent report counts for a set of student IDs.

@@ -12,10 +12,10 @@ class CustomSmsChannel
 
         $postData = [
             'username' => '9020029757',
-            'password' => '$681C',
+            'password' => '7b1b0fdb-dddd-4c93-b02d-a069edf44693',
             'text' => $data['text'] ?? $data['code'] ?? '',
             'to' => $data['mobile'],
-            'bodyId' => $data['bodyId'] ?? 254707,
+            'bodyId' => $data['bodyId'] ?? 397165,
         ];
 
 

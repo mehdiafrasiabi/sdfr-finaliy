@@ -91,64 +91,64 @@
                             <i class="ri-apps-2-line"></i> <span data-key="t-dashboards">دسته بندی</span>
                         </a>
                     </li>
-                    <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.product.index') ? 'active' : '' }}"
-                           href="{{route('manager.product.index')}}" role="button"
-                           aria-expanded="false" aria-controls="sidebarDashboards">
-                            <i class=" ri-archive-line"></i> <span data-key="t-dashboards">محصولات</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.coupon') ? 'active' : '' }}"
-                           href="{{route('manager.coupon')}}" role="button"
-                           aria-expanded="false" aria-controls="sidebarDashboards">
-                            <i class=" ri-percent-line"></i> <span data-key="t-dashboards">کد تخفیف</span>
-                        </a>
-                    </li>
-                    <li class="nav-item ">
-                        <a class="nav-link menu-link {{ request()->routeIs('manager.order.index') ? 'active' : '' }}"
-                           href="#order" data-bs-toggle="collapse" role="button"
-                           aria-expanded="false" aria-controls="order">
-                            <i class=" ri-list-ordered"></i>
-                            <span data-key="t-base-ui">سفارشات</span>
-                        </a>
-                        <div class="collapse menu-dropdown mega-dropdown-menu" id="order">
-                            <div class="row">
-                                <div class="col-lg-4">
-                                    <ul class="nav nav-sm flex-column">
+{{--                    <li class="nav-item ">--}}
+{{--                        <a class="nav-link menu-link {{ request()->routeIs('manager.product.index') ? 'active' : '' }}"--}}
+{{--                           href="{{route('manager.product.index')}}" role="button"--}}
+{{--                           aria-expanded="false" aria-controls="sidebarDashboards">--}}
+{{--                            <i class=" ri-archive-line"></i> <span data-key="t-dashboards">محصولات</span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                    <li class="nav-item ">--}}
+{{--                        <a class="nav-link menu-link {{ request()->routeIs('manager.coupon') ? 'active' : '' }}"--}}
+{{--                           href="{{route('manager.coupon')}}" role="button"--}}
+{{--                           aria-expanded="false" aria-controls="sidebarDashboards">--}}
+{{--                            <i class=" ri-percent-line"></i> <span data-key="t-dashboards">کد تخفیف</span>--}}
+{{--                        </a>--}}
+{{--                    </li>--}}
+{{--                    <li class="nav-item ">--}}
+{{--                        <a class="nav-link menu-link {{ request()->routeIs('manager.order.index') ? 'active' : '' }}"--}}
+{{--                           href="#order" data-bs-toggle="collapse" role="button"--}}
+{{--                           aria-expanded="false" aria-controls="order">--}}
+{{--                            <i class=" ri-list-ordered"></i>--}}
+{{--                            <span data-key="t-base-ui">سفارشات</span>--}}
+{{--                        </a>--}}
+{{--                        <div class="collapse menu-dropdown mega-dropdown-menu" id="order">--}}
+{{--                            <div class="row">--}}
+{{--                                <div class="col-lg-4">--}}
+{{--                                    <ul class="nav nav-sm flex-column">--}}
 
-                                        <li class="nav-item">
-                                            <a class="text-warning nav-link" data-key="t-basic"
-                                               href="{{route('manager.order.index')}}?status=all"> کل
+{{--                                        <li class="nav-item">--}}
+{{--                                            <a class="text-warning nav-link" data-key="t-basic"--}}
+{{--                                               href="{{route('manager.order.index')}}?status=all"> کل--}}
 
-                                                سفارشات </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="text-secondary nav-link" data-key="t-basic"
-                                               href="{{route('manager.order.index')}}?status=pending">
-                                                درانتظار </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="text-info nav-link" data-key="t-basic"
-                                               href="{{route('manager.order.index')}}?status=processing">
-                                                درحال پردازش </a>
-                                        </li>
-                                        <li class="nav-item ">
-                                            <a class="text-success nav-link" data-key="t-basic"
-                                               href="{{route('manager.order.index')}}?status=completed">
-                                                کامل شده </a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a class="text-danger nav-link" data-key="t-basic"
-                                               href="{{route('manager.order.index')}}?status=cancelled">
-                                                لغوشده </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
+{{--                                                سفارشات </a>--}}
+{{--                                        </li>--}}
+{{--                                        <li class="nav-item">--}}
+{{--                                            <a class="text-secondary nav-link" data-key="t-basic"--}}
+{{--                                               href="{{route('manager.order.index')}}?status=pending">--}}
+{{--                                                درانتظار </a>--}}
+{{--                                        </li>--}}
+{{--                                        <li class="nav-item">--}}
+{{--                                            <a class="text-info nav-link" data-key="t-basic"--}}
+{{--                                               href="{{route('manager.order.index')}}?status=processing">--}}
+{{--                                                درحال پردازش </a>--}}
+{{--                                        </li>--}}
+{{--                                        <li class="nav-item ">--}}
+{{--                                            <a class="text-success nav-link" data-key="t-basic"--}}
+{{--                                               href="{{route('manager.order.index')}}?status=completed">--}}
+{{--                                                کامل شده </a>--}}
+{{--                                        </li>--}}
+{{--                                        <li class="nav-item">--}}
+{{--                                            <a class="text-danger nav-link" data-key="t-basic"--}}
+{{--                                               href="{{route('manager.order.index')}}?status=cancelled">--}}
+{{--                                                لغوشده </a>--}}
+{{--                                        </li>--}}
+{{--                                    </ul>--}}
+{{--                                </div>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
 
-                    </li>
+{{--                    </li>--}}
                     <li class="nav-item ">
                         <a class="nav-link menu-link {{ request()->routeIs('manager.transaction') ? 'active' : '' }}"
                            href="#transaction" data-bs-toggle="collapse" role="button"
@@ -231,14 +231,14 @@
                                             <a href="{{route('manager.supporters')}}" class="nav-link"
                                                data-key="t-basic">پشتیبان ها</a>
                                         </li>
-                                        <li class="nav-item">
-                                            <a href="{{route('manager.advisorAssign')}}" class="nav-link"
-                                               data-key="t-basic">نیاز به انتخاب مشاور</a>
-                                        </li>
-                                        <li class="nav-item">
-                                            <a href="{{route('manager.advisors')}}" class="nav-link"
-                                               data-key="t-basic">مشاور ها</a>
-                                        </li>
+{{--                                        <li class="nav-item">--}}
+{{--                                            <a href="{{route('manager.advisorAssign')}}" class="nav-link"--}}
+{{--                                               data-key="t-basic">نیاز به انتخاب مشاور</a>--}}
+{{--                                        </li>--}}
+{{--                                        <li class="nav-item">--}}
+{{--                                            <a href="{{route('manager.advisors')}}" class="nav-link"--}}
+{{--                                               data-key="t-basic">مشاور ها</a>--}}
+{{--                                        </li>--}}
                                         <li class="nav-item">
                                             <a href="{{ route('manager.trial-week.index') }}"
                                                class="nav-link {{ request()->routeIs('manager.trial-week.*') ? 'active' : '' }}"

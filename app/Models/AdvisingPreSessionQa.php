@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AdvisingPreSessionQa extends Model
@@ -10,6 +11,8 @@ class AdvisingPreSessionQa extends Model
 {
 
     protected $table = 'advising_pre_session_qas';
+
+    use HasFactory;
 
     protected $guarded = [];
 

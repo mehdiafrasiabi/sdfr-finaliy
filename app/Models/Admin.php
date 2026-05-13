@@ -40,10 +40,6 @@ class Admin extends Authenticatable
         return $this->hasMany(Student::class, 'supporter_id');
     }
 
-    public function advisedStudents()
-    {
-        return $this->hasMany(Student::class, 'advisor_id');
-    }
     public function commentReplies()
     {
         return $this->hasMany(CommentReply::class);

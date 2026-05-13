@@ -22,7 +22,8 @@ class AdvisingPreSession extends Model
 
 {
     use SoftDeletes;
-    protected $guarded = [];
+
+    use HasFactory;    protected $guarded = [];
 
 
 

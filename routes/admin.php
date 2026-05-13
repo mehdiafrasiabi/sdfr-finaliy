@@ -62,6 +62,14 @@ Route::name('admin.')->group(function () {
         Route::get('/trial-week', \App\Livewire\Admin\TrialWeek\Index::class)
             ->name('trial-week.index');
 
+        // پشتیبان جذب سایت
+        Route::prefix('acquisition-supporter')->name('acquisition-supporter.')->group(function () {
+            Route::get('/dashboard', \App\Livewire\Admin\AcquisitionSupporter\Dashboard::class)
+                ->name('dashboard');
+            Route::get('/student/{id}', \App\Livewire\Admin\AcquisitionSupporter\StudentDetail::class)
+                ->name('student');
+        });
+
         // مدیر آموزشی — درخواست‌های تعیین وقت و جابجایی
         Route::get('/educational-manager/appointments',
             \App\Livewire\Admin\EducationalManager\Appointment\Index::class)

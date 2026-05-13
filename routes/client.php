@@ -4,15 +4,12 @@ use App\Http\Controllers\FileDownloadController;
 use App\Livewire\Client\AboutUs\Index as AboutUs;
 use App\Livewire\Client\Auth\ForgotPassword as ForgotPassword;
 use App\Livewire\Client\Auth\Login as authLogin;
-use App\Livewire\Client\Auth\Signup as authSignup;
+use App\Livewire\Client\Onboarding\TrialWeekOnboarding;
 use App\Livewire\Client\Blog\Weblog\Index as WeblogIndex;
-use App\Livewire\Client\Cart\Index as CartIndex;
-use App\Livewire\Client\Cart\Info as cartInfo;
 use App\Livewire\Client\ContactUs\Index as ContactUs;
 use App\Livewire\Client\Home\Index as HomeIndex;
 use App\Livewire\Client\Download\Index as DownloadIndex;
 use App\Livewire\Client\Payment\Callback as PaymentCallback;
-use App\Livewire\Client\Product\Index as ProductIndex;
 use App\Livewire\Client\Profile\plan as ProfilePlan;
 use App\Livewire\Client\Profile\Classification\Classify;
 use App\Livewire\Client\Profile\Classification\ProjectList;
@@ -38,7 +35,6 @@ use App\Livewire\Client\Profile\Ticket\Show as ProfileTicketShow;
 use App\Livewire\Client\Profile\TypedExam\TypedExamList;
 use App\Livewire\Client\Profile\TypedExam\TypedExamResult;
 use App\Livewire\Client\Profile\TypedExam\TypedExamTest;
-use App\Livewire\Client\Shop\Index as ShopIndex;
 use App\Livewire\Client\ExamCountdown\Index as ExamCountdownIndex;
 use App\Livewire\Client\Terms\Index as RuleIndex;
 use Illuminate\Support\Facades\Route;
@@ -53,8 +49,8 @@ Route::name('client.')->group(function () {
 
     Route::get('/', HomeIndex::class)->name('home');
     Route::get('/application', DownloadIndex::class)->name('download');
-    Route::get('/shop',ShopIndex::class)->name('shop');
-    Route::get('/product/{p_code}/{slug?}', ProductIndex::class)->name('product');
+    Route::redirect('/shop', '/')->name('shop');
+    Route::redirect('/product/{p_code}/{slug?}', '/')->name('product');
 
     Route::get('/terms',RuleIndex::class)->name('terms');
     Route::get('/about-us',AboutUs::class)->name('about-us');
@@ -65,15 +61,24 @@ Route::name('client.')->group(function () {
     Route::get('/percentCalculator', PercentCalculatorIndex::class)->name('percent-calculator');
 
 
+    // ثبت‌نام فقط از طریق هفته آزمایشی
+    Route::get('/start', TrialWeekOnboarding::class)->name('onboarding')->middleware('guest');
+    Route::redirect('/sign-up', '/start')->name('auth.signup');
+
     Route::middleware('guest')->group(function () {
         Route::get('/login', authLogin::class)->name('auth.login');
-        Route::get('/sign-up', authSignup::class)->name('auth.signup');
         Route::get('/forgot-password',ForgotPassword::class)->name('auth.forgotPassword');
     });
 
+    // صفحه انتظار برای تخصیص پشتیبان (auth)
+    Route::get('/profile/waiting-for-supporter',
+        \App\Livewire\Client\Profile\TrialWeek\WaitingForSupporter::class)
+        ->middleware('auth')
+        ->name('profile.waiting-for-supporter');
+
     Route::middleware('auth')->group(function () {
-        Route::get('/shopping-cart',CartIndex::class)->name('checkout.cart');
-        Route::get('/shopping-cart-info',cartInfo::class)->name('checkout.cart.info');
+        Route::redirect('/shopping-cart', '/')->name('checkout.cart');
+        Route::redirect('/shopping-cart-info', '/')->name('checkout.cart.info');
         Route::get('/logout', [authLogin::class,'clientLogout'])->name('logout');
         Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
 

@@ -4,10 +4,13 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TrialWeek extends Model
 {
+    use HasFactory;
+
     protected $guarded = [];
 
     protected $casts = [
@@ -50,6 +53,11 @@ class TrialWeek extends Model
     public function student(): BelongsTo
     {
         return $this->belongsTo(Student::class);
+    }
+
+    public function acquisitionContacts(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(AcquisitionContact::class)->orderBy('contacted_at');
     }
 
     public function advisingSession(): BelongsTo

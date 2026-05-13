@@ -5,10 +5,8 @@ use App\Livewire\Manager\TrialWeek\Detail as TrialWeekDetail;
 use App\Livewire\Manager\AssignStudents\Index as AssignStudents;
 use App\Livewire\Manager\Blog\Blog\Index;
 use App\Livewire\Manager\Blog\ExampleQuestion;
-use App\Livewire\Manager\Coupon\Index as CouponIndex;
 use App\Livewire\Manager\Dashboard\Analytics;
 use App\Livewire\Manager\Exam\QuestionManager;
-use App\Livewire\Manager\Advisors\Index as AdvisorIndex;
 use App\Livewire\Manager\Dashboard\Crm;
 use App\Livewire\Manager\Exam\ExamForm as ExamForm;
 use App\Livewire\Manager\Exam\Index as ExamIndex;
@@ -40,19 +38,10 @@ use App\Livewire\Manager\TypedExam\TypedExamWizard;
 use App\Livewire\Manager\Users\Index as UserIndex;
 use App\Livewire\Manager\Users\Detail as UserDetail;
 use App\Livewire\Manager\Transaction\Index as TransactionIndex;
-use App\Livewire\Manager\Product\Index as ProductIndex;
-use App\Livewire\Manager\Product\Create as ProductCreate;
-use App\Livewire\Manager\Product\Content as ProductContent;
-use App\Livewire\Manager\Product\CkUpload;
-use App\Livewire\Manager\Order\Detail as OrderDetails;
-use App\Livewire\Manager\Order\Index as OrderIndex;
 use App\Livewire\Manager\Auth\Index as AuthIndex;
 use App\Livewire\Manager\Ticket\Department as DepartmentIndex;
 use App\Livewire\Manager\Ticket\Index as TicketIndex;
 use App\Livewire\Manager\Ticket\Show as TicketShow;
-use App\Livewire\Manager\Advisors\AdvisorStudent;
-use App\Livewire\Manager\Advisors\AdvisorStudentDetail;
-use App\Livewire\Manager\Advisors\AdvisorStudents as AdvisorAssignStudents;
 use App\Livewire\Manager\Newsletter\Index as NewsletterIndex;
 use App\Livewire\Manager\Classification\Chapters;
 use App\Livewire\Manager\Classification\EducationLevels;
@@ -79,11 +68,10 @@ Route::name('manager.')->group(function () {
         Route::get('/logout', [AuthIndex::class, 'logout'])->name('logout');
         Route::get('/dashboard/crm', Crm::class)->name('dashboard.crm');
         Route::get('/dashboard/analytics', Analytics::class)->name('dashboard.analytics');
-        Route::get('/gift-code', GiftCodeIndex::class)->name('giftcode');
+        Route::get('/a', GiftCodeIndex::class)->name('giftcode');
 
 
         Route::get('/paymentMethod', PaymentIndex::class)->name('paymentMethod');
-        Route::get('/coupon', CouponIndex::class)->name('coupon');
         Route::get('/map/country', MapCountry::class)->name('map.country');
         Route::get('/map/state', MapState::class)->name('map.state');
         Route::get('/map/city', MapCity::class)->name('map.city');
@@ -95,13 +83,6 @@ Route::name('manager.')->group(function () {
         Route::get('/user', UserIndex::class)->name('user');
         Route::get('/user/{id}', UserDetail::class)->name('user.detail');
         Route::get('/transaction', TransactionIndex::class)->name('transaction');
-        Route::get('/product', ProductIndex::class)->name('product.index');
-        Route::get('/product/create', ProductCreate::class)->name('product.create');
-        Route::get('/product/content/{product}', ProductContent::class)->name('product.content');
-        Route::post('/ck-upload/{productId}', [CkUpload::class, 'upload'])->name('ck-upload');
-        Route::get('/order', OrderIndex::class)->name('order.index');
-        Route::get('/order/{order}', OrderDetails::class)->name('order.details');
-
         Route::get('/admin', AdminManage::class)->name('adminManage');
         Route::get('/studentManager', AssignStudents::class)->name('studentAssign');
         Route::get('/student', StudentIndex::class)->name('student');
@@ -146,10 +127,6 @@ Route::name('manager.')->group(function () {
 
         Route::get('/tasks', TaskBoard::class)->name('task.board');
 
-        Route::get('/advisorManager', AdvisorAssignStudents::class)->name('advisorAssign');
-        Route::get('/advisors', AdvisorIndex::class)->name('advisors');
-        Route::get('/advisors/{advisor}/students', AdvisorStudent::class)->name('advisors.students');
-        Route::get('/advisors/students/{student}/detail', AdvisorStudentDetail::class)->name('advisors.students.detail');
         Route::get('/newsletter', NewsletterIndex::class)->name('newsletter');
         // Question Bank Routes (بانک سوالات)
         Route::get('/questions', QuestionList::class)->name('questions.index');
@@ -159,6 +136,10 @@ Route::name('manager.')->group(function () {
         Route::get('/typed-exams', TypedExamList::class)->name('typed-exams.index');
         Route::get('/typed-exams/form/{id?}', TypedExamWizard::class)->name('typed-exams.form');
         Route::get('/academic-year', ExamPeriodIndex::class)->name('academicYear');
+        // قیمت‌گذاری بر اساس پایه تحصیلی
+        Route::get('/grade-prices', \App\Livewire\Manager\GradePrice\Index::class)
+            ->name('grade-price.index');
+
         // Trial Week Routes (هفته آزمایشی)
         Route::prefix('trial-week')->name('trial-week.')->group(function () {
             Route::get('/', TrialWeekIndex::class)->name('index');

@@ -48,7 +48,7 @@ class Detail extends Component
 
     public function render(): \Illuminate\Contracts\View\View
     {
-        $supporters = Admin::role(['academic support'])
+        $supporters = Admin::role(['academic support', 'site acquisition'])
             ->orderBy('name')
             ->get(['id', 'name', 'mobile', 'email']);
 

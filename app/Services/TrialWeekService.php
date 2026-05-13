@@ -198,6 +198,9 @@ class TrialWeekService
         return array_slice($priorities, 0, 6, true);
     }
 
+    const MIN_PART_MINUTES = 15;  // حداقل ۱۵ دقیقه برای هر پارت
+    const MIN_DAILY_MINUTES = 60; // حداقل ۱ ساعت مطالعه در روز
+
     private function generateProgramParts(WeeklyProgram $program, array $priorities, int $dailyHours, int $grade): void
     {
         $gradeForPart = match (true) {
@@ -205,25 +208,31 @@ class TrialWeekService
             default      => '10', // پایه ۹ → از مطالب پایه ۱۰ شروع می‌کند
         };
 
-        $dayNames = ['شنبه', 'یک‌شنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنج‌شنبه', 'جمعه'];
         $subjectList = array_keys($priorities);
         $weightList  = array_values($priorities);
         $count = count($subjectList);
 
+        // حداقل ۱ ساعت روزانه رعایت شود
+        $dailyMinutes = max($dailyHours * 60, self::MIN_DAILY_MINUTES);
+
         for ($dayIdx = 0; $dayIdx < 7; $dayIdx++) {
             $date = Carbon::now()->addDays($dayIdx)->toDateString();
-            $remainingMinutes = $dailyHours * 60;
+            $remainingMinutes = $dailyMinutes;
             $order = 1;
+            $partsCreated = 0;
 
             foreach ($subjectList as $i => $subjectName) {
                 $isLast = ($i === $count - 1);
                 $minutes = $isLast
                     ? $remainingMinutes
-                    : (int) round($weightList[$i] * $dailyHours * 60);
+                    : (int) round($weightList[$i] * $dailyMinutes);
 
                 $remainingMinutes -= $minutes;
 
-                if ($minutes <= 0) {
+                // حداقل ۱۵ دقیقه برای هر پارت — اگر کمتر است به پارت بعدی اضافه شود
+                if ($minutes < self::MIN_PART_MINUTES) {
+                    // باقی‌مانده را به آخرین پارت اضافه می‌کنیم
+                    $remainingMinutes += $minutes;
                     continue;
                 }
 
@@ -235,6 +244,24 @@ class TrialWeekService
                     'part_order'        => $order++,
                     'duration_minutes'  => $minutes,
                     'part_type'         => 'descriptive',
+                    'source_type'       => ProgramPart::SOURCE_DAILY_READING,
+                    'lesson_type'       => 'specialized',
+                    'grade'             => in_array($gradeForPart, ['10','11','12']) ? $gradeForPart : '10',
+                ]);
+                $partsCreated++;
+            }
+
+            // اگر هیچ پارتی ایجاد نشد ولی زمان باقی داشتیم، یک پارت پیش‌فرض بساز
+            if ($partsCreated === 0 && $dailyMinutes >= self::MIN_PART_MINUTES) {
+                ProgramPart::create([
+                    'weekly_program_id' => $program->id,
+                    'lesson_name'       => 'مطالعه روزانه',
+                    'part_date'         => $date,
+                    'day_of_week'       => $dayIdx,
+                    'part_order'        => 1,
+                    'duration_minutes'  => $dailyMinutes,
+                    'part_type'         => 'descriptive',
+                    'source_type'       => ProgramPart::SOURCE_DAILY_READING,
                     'lesson_type'       => 'specialized',
                     'grade'             => in_array($gradeForPart, ['10','11','12']) ? $gradeForPart : '10',
                 ]);
