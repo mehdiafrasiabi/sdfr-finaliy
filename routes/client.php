@@ -83,7 +83,7 @@ Route::name('client.')->group(function () {
         Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
 
 
-        Route::prefix('profile')->name('profile.')->group(function () {
+        Route::prefix('profile')->name('profile.')->middleware('client.active')->group(function () {
             //Profile
             Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
             Route::get('/star',Star::class)->name('star');
