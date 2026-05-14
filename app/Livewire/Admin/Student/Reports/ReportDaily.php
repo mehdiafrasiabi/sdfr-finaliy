@@ -170,7 +170,7 @@ class ReportDaily extends Component
     {
         $reportDate = $this->getReportDate();
         $eligibleStudents = Student::with(['user.personalInformation', 'user.profile'])
-            ->where('supporter_id', auth()->id())
+            ->where('advisor_id', auth()->id())
             ->whereHas('advisingSessions', function ($query) {
                 $query->where('status', 'completed')
                     ->where('result_status', 'held');

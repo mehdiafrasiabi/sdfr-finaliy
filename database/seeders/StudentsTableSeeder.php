@@ -23,7 +23,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 1,
                     'user_id' => 1,
-                    'supporter_id' => 11,
+                    'advisor_id' => 11,
 
                     'payment_id' => 1,
                     'product_id' => NULL,
@@ -35,7 +35,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 2,
                     'user_id' => 3,
-                    'supporter_id' => 11,
+                    'advisor_id' => 11,
 
                     'payment_id' => 2,
                     'product_id' => NULL,
@@ -47,7 +47,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 3,
                     'user_id' => 5,
-                    'supporter_id' => 11,
+                    'advisor_id' => 11,
 
                     'payment_id' => 3,
                     'product_id' => NULL,
@@ -59,7 +59,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 4,
                     'user_id' => 6,
-                    'supporter_id' => 11,
+                    'advisor_id' => 11,
                     'payment_id' => 4,
                     'product_id' => NULL,
                     'star' => 'D',
@@ -70,7 +70,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 5,
                     'user_id' => 14,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 5,
                     'product_id' => NULL,
@@ -82,7 +82,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 6,
                     'user_id' => 15,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 6,
                     'product_id' => NULL,
@@ -94,7 +94,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 7,
                     'user_id' => 16,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 7,
                     'product_id' => NULL,
@@ -106,7 +106,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 8,
                     'user_id' => 7,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 8,
                     'product_id' => NULL,
@@ -118,7 +118,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 9,
                     'user_id' => 8,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 9,
                     'product_id' => NULL,
@@ -130,7 +130,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 10,
                     'user_id' => 17,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 10,
                     'product_id' => NULL,
@@ -142,7 +142,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 11,
                     'user_id' => 18,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 12,
                     'product_id' => NULL,
@@ -154,7 +154,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 12,
                     'user_id' => 20,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 13,
                     'product_id' => NULL,
@@ -166,7 +166,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 13,
                     'user_id' => 21,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 14,
                     'product_id' => NULL,
@@ -178,7 +178,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 14,
                     'user_id' => 22,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 15,
                     'product_id' => NULL,
@@ -190,7 +190,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 15,
                     'user_id' => 23,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 16,
                     'product_id' => NULL,
@@ -202,7 +202,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 16,
                     'user_id' => 11,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 17,
                     'product_id' => NULL,
@@ -214,7 +214,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 17,
                     'user_id' => 25,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 18,
                     'product_id' => NULL,
@@ -226,7 +226,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 18,
                     'user_id' => 26,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 19,
                     'product_id' => NULL,
@@ -238,7 +238,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 19,
                     'user_id' => 9,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 20,
                     'product_id' => NULL,
@@ -250,7 +250,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 20,
                     'user_id' => 10,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 22,
                     'product_id' => NULL,
@@ -262,7 +262,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 21,
                     'user_id' => 27,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 21,
                     'product_id' => NULL,
@@ -274,7 +274,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 22,
                     'user_id' => 29,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 23,
                     'product_id' => NULL,
@@ -286,7 +286,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 23,
                     'user_id' => 12,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 24,
                     'product_id' => NULL,
@@ -298,7 +298,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 24,
                     'user_id' => 30,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 25,
                     'product_id' => NULL,
@@ -310,7 +310,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 25,
                     'user_id' => 31,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 26,
                     'product_id' => NULL,
@@ -322,7 +322,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 26,
                     'user_id' => 33,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 27,
                     'product_id' => NULL,
@@ -334,7 +334,7 @@ class StudentsTableSeeder extends Seeder
                 array (
                     'id' => 27,
                     'user_id' => 28,
-                    'supporter_id' => 17,
+                    'advisor_id' => 17,
 
                     'payment_id' => 28,
                     'product_id' => NULL,

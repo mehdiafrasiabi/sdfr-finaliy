@@ -62,14 +62,9 @@ class Student extends Model
         return $this->belongsTo(Order::class);
     }
 
-    public function supporterStudent()
+    public function advisor()
     {
-        return $this->belongsTo(Admin::class, 'supporter_id');
-    }
-
-    public function supporter()
-    {
-        return $this->belongsTo(Admin::class, 'supporter_id');
+        return $this->belongsTo(Admin::class, 'advisor_id');
     }
 
     public function advisingSessions()

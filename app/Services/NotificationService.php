@@ -110,28 +110,9 @@ class NotificationService
 
         $isAdvisor = $student->advisor_id === $adminId;
 
-        $isSupporter = $student->supporter_id === $adminId;
-
-
-        // اگر هم مشاور و هم پشتیبان است، به advisor ارسال می‌شود (یا sdfr)
-
-        if ($isAdvisor && $isSupporter) {
-
-            return Notification::CATEGORY_ADVISOR; // یا می‌توان supporter هم گذاشت
-
-        }
-
-
         if ($isAdvisor) {
 
             return Notification::CATEGORY_ADVISOR;
-
-        }
-
-
-        if ($isSupporter) {
-
-            return Notification::CATEGORY_SUPPORTER;
 
         }
 

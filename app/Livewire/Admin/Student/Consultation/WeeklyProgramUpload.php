@@ -3478,7 +3478,6 @@ class WeeklyProgramUpload extends Component
             'prevWeekDays'      => $prevWeekDays,
             'preSessions'       => $preSessions,
             'advisorName'       => $student->advisor?->name ?? '-',
-            'supporterName'     => $student->supporter?->name ?? '-',
             'classScheduleData' => $classScheduleData,
             'filteredPrevParts' => $this->getFilteredPrevParts(),
             'filteredStudyItems' => $this->getFilteredStudyItems(),

@@ -116,7 +116,6 @@ class Index extends Component
             'city'        => $pi?->city?->name ?? '-',
             'state'       => $pi?->state?->name ?? '-',
             'advisor'     => $student?->advisor?->name ?? '-',
-            'supporter'   => $student?->supporter?->name ?? '-',
             'product'     => $student?->product?->title ?? '-',
         ];
     }

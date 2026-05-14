@@ -87,7 +87,7 @@ class Create extends Component
         $adminId = auth('admin')->id();
 
         return Student::query()
-            ->where('supporter_id', $adminId)
+            ->where('advisor_id', $adminId)
             ->with(['user.personalInformation'])
             ->get();
 
@@ -105,7 +105,7 @@ class Create extends Component
         $adminId = auth('admin')->id();
 
 
-        return Notification::CATEGORY_SUPPORTER;
+        return Notification::CATEGORY_ADVISOR;
 
     }
 

@@ -35,9 +35,20 @@ class Admin extends Authenticatable
         return $this->belongsTo(User::class); // اگر admin → user_id دارد
     }
 
-    public function supportedStudents()
+    /**
+     * دانش‌آموزانی که این ادمین به عنوان «مشاور تحصیلی» مسئول آن‌هاست.
+     */
+    public function advisedStudents()
     {
-        return $this->hasMany(Student::class, 'supporter_id');
+        return $this->hasMany(Student::class, 'advisor_id');
+    }
+
+    /**
+     * هفته‌های آزمایشی که این ادمین به عنوان «پشتیبان جذب» به آن‌ها اختصاص داده شده است.
+     */
+    public function acquisitionTrialWeeks()
+    {
+        return $this->hasMany(TrialWeek::class, 'acquisition_supporter_id');
     }
 
     public function commentReplies()

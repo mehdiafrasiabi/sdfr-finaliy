@@ -26,7 +26,7 @@ class StudentDetail extends Component
             'acquisitionContacts.admin',
             'student',
         ])
-            ->where('supporter_id', Auth::guard('admin')->id())
+            ->where('acquisition_supporter_id', Auth::guard('admin')->id())
             ->findOrFail($id);
     }
 

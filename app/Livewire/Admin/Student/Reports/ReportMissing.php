@@ -258,11 +258,7 @@ class ReportMissing extends Component
     {
         $adminId = auth()->id();
 
-        return Student::query()
-            ->where(function ($query) use ($adminId) {
-                $query->where('supporter_id', $adminId)
-                    ->orWhere('advisor_id', $adminId);
-            });
+        return Student::query()->where('advisor_id', $adminId);
     }
 
     protected function normalizeStudentId(?int $studentId): ?int

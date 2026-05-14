@@ -18,7 +18,7 @@ class TrialWeekFactory extends Factory
             'field'                    => $grade === 9 ? null : fake()->randomElement(['math', 'experimental', 'human']),
             'father_mobile'            => '09' . fake()->numerify('#########'),
             'mother_mobile'            => '09' . fake()->numerify('#########'),
-            'supporter_id'             => null,
+            'acquisition_supporter_id' => null,
             'student_id'               => null,
             'advising_session_id'      => null,
             'daily_study_hours'        => null,
@@ -39,10 +39,10 @@ class TrialWeekFactory extends Factory
     public function supporterAssigned(): static
     {
         return $this->state(fn () => [
-            'status'                => 'supporter_assigned',
-            'supporter_id'          => Admin::factory(),
-            'supporter_assigned_at' => now(),
-            'expires_at'            => now()->addDays(7),
+            'status'                   => 'supporter_assigned',
+            'acquisition_supporter_id' => Admin::factory(),
+            'supporter_assigned_at'    => now(),
+            'expires_at'               => now()->addDays(7),
         ]);
     }
 

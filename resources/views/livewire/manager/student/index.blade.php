@@ -56,7 +56,7 @@
                                         <td class="phone">{{ $student->user->personalInformation->father_mobile ?? '---' }}</td>
                                         <td class="phone">{{ $student->user->personalInformation->mother_mobile ?? '---' }}</td>
                                         <td class="status">
-                                            {{ $student->supporterStudent->name ?? '---' }}
+                                            {{ $student->advisor->name ?? '---' }}
                                         </td>
                                         <td class="time">{{jalali($student->updated_at)->format('%d %B %Y | H:i')}}</td>
 

@@ -30,7 +30,7 @@ class Dashboard extends Component
             'user.personalInformation',
             'acquisitionContacts' => fn($q) => $q->latest('contacted_at')->limit(3),
         ])
-            ->where('supporter_id', $adminId)
+            ->where('acquisition_supporter_id', $adminId)
             ->when($this->search, fn($q) =>
                 $q->whereHas('user', fn($u) =>
                     $u->where('name', 'like', "%{$this->search}%")

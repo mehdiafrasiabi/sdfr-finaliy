@@ -20,7 +20,7 @@ class Index extends Component
     public function render()
     {
         $supporters = Admin::query()
-            ->role('academic support')
+            ->role('site acquisition')
             ->when($this->search !== '', function ($q) {
                 $q->where(function ($q2) {
                     $q2->where('name', 'like', "%{$this->search}%")
@@ -28,8 +28,8 @@ class Index extends Component
                         ->orWhere('mobile', 'like', "%{$this->search}%");
                 });
             })
-            ->with(['roles.permissions', 'workSchedules', 'supportedStudents'])
-            ->withCount('supportedStudents')
+            ->with(['roles.permissions', 'workSchedules', 'acquisitionTrialWeeks'])
+            ->withCount('acquisitionTrialWeeks')
             ->orderBy('name')
             ->paginate(15);
 

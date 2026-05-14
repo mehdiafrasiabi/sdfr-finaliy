@@ -11,18 +11,18 @@ class StudentFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id'      => User::factory(),
-            'supporter_id' => null,
-            'payment_id'   => null,
-            'product_id'   => null,
-            'star'         => fake()->randomElement(['A', 'B', 'C', 'D']),
-            'is_trial'     => fake()->boolean(30),
+            'user_id'    => User::factory(),
+            'advisor_id' => null,
+            'payment_id' => null,
+            'product_id' => null,
+            'star'       => fake()->randomElement(['A', 'B', 'C', 'D']),
+            'is_trial'   => fake()->boolean(30),
         ];
     }
 
-    public function withSupporter(): static
+    public function withAdvisor(): static
     {
-        return $this->state(fn () => ['supporter_id' => Admin::factory()]);
+        return $this->state(fn () => ['advisor_id' => Admin::factory()]);
     }
 
     public function trial(): static

@@ -38,12 +38,10 @@ class TrialWeekService
         });
     }
 
-    // تخصیص پشتیبان توسط مدیر + ایجاد جلسه آزمایشی
+    // تخصیص «پشتیبان جذب» توسط مدیر آموزشی + ایجاد جلسهٔ آزمایشی
     public function assignSupporter(TrialWeek $trialWeek, Admin $supporter): void
     {
         DB::transaction(function () use ($trialWeek, $supporter) {
-            $trialWeek->student()->update(['supporter_id' => $supporter->id]);
-
             $session = AdvisingSession::create([
                 'student_id'      => $trialWeek->student_id,
                 'advisor_id'      => null,
@@ -62,10 +60,10 @@ class TrialWeekService
             ]);
 
             $trialWeek->update([
-                'supporter_id'          => $supporter->id,
-                'advising_session_id'   => $session->id,
-                'status'                => TrialWeek::STATUS_SUPPORTER_ASSIGNED,
-                'supporter_assigned_at' => Carbon::now(),
+                'acquisition_supporter_id' => $supporter->id,
+                'advising_session_id'      => $session->id,
+                'status'                   => TrialWeek::STATUS_SUPPORTER_ASSIGNED,
+                'supporter_assigned_at'    => Carbon::now(),
             ]);
         });
     }

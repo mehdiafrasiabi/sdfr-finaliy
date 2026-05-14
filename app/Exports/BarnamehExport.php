@@ -35,7 +35,7 @@ class BarnamehExport implements FromCollection, WithHeadings
         return $query->get()->map(function ($barnameh) {
             return [
                 'عنوان' => $barnameh->title,
-                'پشتیبان' => $barnameh->supporter->name ?? '---',
+                'مشاور' => $barnameh->advisor->name ?? '---',
                 'تاریخ ایجاد' => jdate($barnameh->created_at)->format('Y/m/d H:i:s'),
                 'وضعیت مشاهده' => $barnameh->views->isNotEmpty() ? 'دیده شده' : 'دیده نشده',
             ];
@@ -44,6 +44,6 @@ class BarnamehExport implements FromCollection, WithHeadings
 
     public function headings(): array
     {
-        return ['عنوان', 'پشتیبان', 'تاریخ ایجاد', 'وضعیت مشاهده'];
+        return ['عنوان', 'مشاور', 'تاریخ ایجاد', 'وضعیت مشاهده'];
     }
 }

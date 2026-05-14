@@ -130,12 +130,12 @@
                         <i class="ri-user-add-line me-1"></i>
                         تخصیص پشتیبان آزمایشی
                     </button>
-                    @elseif($trialWeek->supporter)
+                    @elseif($trialWeek->acquisitionSupporter)
                     <div class="alert alert-success d-flex align-items-center gap-3">
                         <i class="ri-shield-check-line fs-20"></i>
                         <div>
-                            <strong>پشتیبان تخصیص یافته: {{ $trialWeek->supporter->name }}</strong>
-                            <p class="mb-0 mt-1 fs-12">{{ $trialWeek->supporter->mobile }}</p>
+                            <strong>پشتیبان تخصیص یافته: {{ $trialWeek->acquisitionSupporter->name }}</strong>
+                            <p class="mb-0 mt-1 fs-12">{{ $trialWeek->acquisitionSupporter->mobile }}</p>
                         </div>
                     </div>
                     @endif

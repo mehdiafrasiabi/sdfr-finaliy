@@ -76,12 +76,6 @@ class User extends Authenticatable
         return $this->hasMany(Payment::class);
     }
 
-    public function supportedStudents()
-    {
-        // این رابطه همه دانش‌آموزانی را که این کاربر (با role 'admin' یا 'supporter') پشتیبان آن‌هاست، برمی‌گرداند.
-        return $this->hasMany(Student::class, 'supporter_id');
-    }
-
     /**
      * اعلان‌های دریافتی این کاربر
      */

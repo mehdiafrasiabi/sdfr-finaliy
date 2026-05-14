@@ -41,9 +41,9 @@ class ClassScheduleUpload extends Component
             return redirect()->route('client.profile.consultation.sessions');
         }
 
-        // بررسی وجود مشاور و پشتیبان
-        if (!$student->advisor_id || !$student->supporter_id) {
-            session()->flash('error', 'برای دسترسی به این بخش باید مشاور و پشتیبان داشته باشید.');
+        // بررسی وجود مشاور
+        if (! $student->advisor_id) {
+            session()->flash('error', 'برای دسترسی به این بخش باید مشاور داشته باشید.');
             return redirect()->route('client.profile.consultation.sessions');
         }
 

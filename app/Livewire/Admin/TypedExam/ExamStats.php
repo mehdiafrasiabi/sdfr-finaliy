@@ -80,9 +80,7 @@ class ExamStats extends Component
 
                 ->whereHas('student', function ($sq) use ($admin) {
 
-                    $sq->where('supporter_id', $admin->id)
-
-                        ->orWhere('advisor_id', $admin->id);
+                    $sq->where('advisor_id', $admin->id);
 
                 });
 
