@@ -11,7 +11,7 @@ class AdvisorsExport implements FromCollection, WithHeadings
 {
     public function collection(): Collection
     {
-        return Admin::role('academic_advisor')
+        return Admin::role('مشاور تحصیلی')
             ->withCount('advisedStudents')
             ->get()
             ->map(function ($admin) {

@@ -125,31 +125,13 @@ class PermissionService
 
         $persianRoles = [
 
-            'super admin' => 'مدیر کل',
+            'super admin'         => 'مدیر کل',
 
-            'مشاور تحصیلی' => 'مشاور تحصیلی',
+            'educational-manager' => 'مدیر آموزشی',
 
-            'academic support' => 'پشتیبان تحصیلی',
+            'مشاور تحصیلی'        => 'مشاور تحصیلی',
 
-            'academic_advisor' => 'مشاور تحصیلی (قدیمی)',
-
-            'product admin' => 'مدیر محصولات',
-
-            'order admin' => 'مدیر سفارشات',
-
-            'payment admin' => 'مدیر پرداخت',
-
-            'user admin' => 'مدیر کاربران',
-
-            'story admin' => 'مدیر استوری',
-
-            'student admin' => 'مدیر دانش‌آموزان',
-
-            'map admin' => 'مدیر نقشه',
-
-            'contactUs admin' => 'مدیر تماس با ما',
-
-            'payment_method admin' => 'مدیر درگاه پرداخت',
+            'site acquisition'    => 'پشتیبان جذب',
 
         ];
 
