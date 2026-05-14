@@ -72,6 +72,8 @@ Route::name('manager.')->group(function () {
 
 
         Route::get('/paymentMethod', PaymentIndex::class)->name('paymentMethod');
+        Route::get('/payments/details', \App\Livewire\Manager\Payment\Details::class)
+            ->name('payments.details');
         Route::get('/map/country', MapCountry::class)->name('map.country');
         Route::get('/map/state', MapState::class)->name('map.state');
         Route::get('/map/city', MapCity::class)->name('map.city');
