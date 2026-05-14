@@ -40,7 +40,7 @@ class Index extends Component
                 'user.personalInformation.city',
                 'user.profile',
             ])
-            ->where('advisor_id', $adminId);
+            ->where('supporter_id', $adminId);
         if ($this->search) {
             $studentsQuery->whereHas('user.personalInformation', function ($q) {
                 $q->where('name', 'like', '%' . $this->search . '%');

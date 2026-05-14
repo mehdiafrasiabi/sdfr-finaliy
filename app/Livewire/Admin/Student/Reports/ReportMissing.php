@@ -260,7 +260,8 @@ class ReportMissing extends Component
 
         return Student::query()
             ->where(function ($query) use ($adminId) {
-                $query->where('advisor_id', $adminId);
+                $query->where('supporter_id', $adminId)
+                    ->orWhere('advisor_id', $adminId);
             });
     }
 

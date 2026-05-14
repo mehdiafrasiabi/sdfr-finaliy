@@ -87,7 +87,7 @@ class Create extends Component
         $adminId = auth('admin')->id();
 
         return Student::query()
-            ->where('advisor_id', $adminId)
+            ->where('supporter_id', $adminId)
             ->with(['user.personalInformation'])
             ->get();
 

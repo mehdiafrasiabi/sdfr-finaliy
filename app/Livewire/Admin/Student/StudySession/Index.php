@@ -123,7 +123,7 @@ class Index extends Component
                 'user.personalInformation',
                 'user.profile'
             ])
-            ->where('advisor_id', $adminId);
+            ->where('supporter_id', $adminId);
     }
     public function formatHourMinute(?int $seconds): string
     {

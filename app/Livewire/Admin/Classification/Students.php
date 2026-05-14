@@ -79,7 +79,8 @@ class Students extends Component
                 'user.personalInformation'
             ])
             ->where(function ($q) use ($adminId) {
-                $q->where('advisor_id', $adminId);
+                $q->where('supporter_id', $adminId)
+                    ->orWhere('advisor_id', $adminId);
             });
 
         if ($this->search) {
@@ -105,7 +106,7 @@ class Students extends Component
 
         $submittedCount = StudentClassificationSubmission::where('classification_project_id', $this->project->id)
             ->where('is_completed', true)
-            ->whereIn('user_id', Student::where('advisor_id', $adminId)->pluck('user_id'))
+            ->whereIn('user_id', Student::where('supporter_id', $adminId)->pluck('user_id'))
             ->count();
 
 

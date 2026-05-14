@@ -241,7 +241,7 @@ class Index extends Component
                 },
 
             ])
-            ->where('advisor_id', $adminId)
+            ->where('supporter_id', $adminId)
             ->whereHas('activeSchedulePreference.times', function ($q) use ($iranianDay) {
                 $q->where('day_of_week', $iranianDay);
             })
@@ -254,7 +254,7 @@ class Index extends Component
                 '=',
                 'student_schedule_preference_times.student_schedule_preference_id')
             ->join('students', 'students.id', '=', 'student_schedule_preferences.student_id')
-            ->where('students.advisor_id', $adminId)
+            ->where('students.supporter_id', $adminId)
             ->where('student_schedule_preferences.status', 'approved')
             ->selectRaw('student_schedule_preference_times.day_of_week as ir_day,
                          COUNT(DISTINCT students.id) as cnt')
@@ -268,12 +268,12 @@ class Index extends Component
             $dayCounts[$carbonDay] = (int) $row->cnt;
         }
         // تعداد کل دانش‌آموزان این مشاور
-        $totalStudentCount = Student::where('advisor_id', $adminId)->count();
+        $totalStudentCount = Student::where('supporter_id', $adminId)->count();
 
         // دانش‌آموزان مودال: فقط آنهایی که هیچ جلسه‌ای ندارند
         $modalStudentsQuery = Student::query()
             ->with(['user.personalInformation', 'user.profile'])
-            ->where('advisor_id', $adminId)
+            ->where('supporter_id', $adminId)
             ->whereDoesntHave('advisingSessions');
 
         if ($this->studentSearch) {

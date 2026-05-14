@@ -94,7 +94,8 @@ class ExamAssign extends Component
 
         $students = Student::with('user.personalInformation')
             ->where(function ($q) use ($admin) {
-                $q->where('advisor_id', $admin->id);
+                $q->where('supporter_id', $admin->id)
+                    ->orWhere('advisor_id', $admin->id);
             })
             ->when($this->search, function ($q) {
                 $q->whereHas('user', function ($qq) {

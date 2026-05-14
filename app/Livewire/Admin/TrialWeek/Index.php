@@ -31,7 +31,7 @@ class Index extends Component
     public function markPreSessionDone(int $trialId, TrialWeekService $service): void
     {
         $trial = TrialWeek::where('id', $trialId)
-            ->where('advisor_id', Auth::guard('admin')->id())
+            ->where('supporter_id', Auth::guard('admin')->id())
             ->firstOrFail();
 
         if ($trial->status !== TrialWeek::STATUS_CLASSIFICATION_DONE) {
@@ -48,7 +48,7 @@ class Index extends Component
         $adminId = Auth::guard('admin')->id();
 
         $query = TrialWeek::with(['user', 'student'])
-            ->where('advisor_id', $adminId)
+            ->where('supporter_id', $adminId)
             ->when($this->search, function ($q) {
                 $q->whereHas('user', fn($u) => $u->where('name', 'like', "%{$this->search}%")
                     ->orWhere('mobile', 'like', "%{$this->search}%"));

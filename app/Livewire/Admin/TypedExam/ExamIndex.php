@@ -44,7 +44,8 @@ class ExamIndex extends Component
 
                 $query->whereHas('student', function ($q) use ($admin) {
 
-                    $q->where('advisor_id', $admin->id);
+                    $q->where('supporter_id', $admin->id)
+                        ->orWhere('advisor_id', $admin->id);
 
                 })->whereNull('deleted_at');
 
@@ -53,7 +54,8 @@ class ExamIndex extends Component
 
                 $query->whereHas('student', function ($q) use ($admin) {
 
-                    $q->where('advisor_id', $admin->id);
+                    $q->where('supporter_id', $admin->id)
+                        ->orWhere('advisor_id', $admin->id);
 
                 })
                     ->where('status', 'completed')

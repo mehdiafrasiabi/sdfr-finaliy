@@ -118,7 +118,7 @@ class Index extends Component
                 },
             ])
             ->withMax('reportdaily as latest_student_reply_at', 'student_replied_at')
-            ->where('advisor_id', $adminId);
+            ->where('supporter_id', $adminId);
     }
     /**
      * Batch-compute not-sent report counts for a set of student IDs.

@@ -434,7 +434,8 @@ class ExamAssignment extends Component
         // Get students for the admin (based on supporter/advisor relationship)
         $studentsQuery = Student::with('user')
             ->where(function ($q) use ($admin) {
-                $q->where('advisor_id', $admin->id);
+                $q->where('supporter_id', $admin->id)
+                    ->orWhere('advisor_id', $admin->id);
             });
 
         if ($this->studentSearch) {
@@ -450,7 +451,8 @@ class ExamAssignment extends Component
         $assignments = TypedExamAssignment::with(['student.user', 'time', 'latestAttempt'])
             ->where('typed_exam_id', $this->examId)
             ->whereHas('student', function ($q) use ($admin) {
-                $q->where('advisor_id', $admin->id);
+                $q->where('supporter_id', $admin->id)
+                    ->orWhere('advisor_id', $admin->id);
             })
             ->latest()
             ->paginate(10);
@@ -458,7 +460,8 @@ class ExamAssignment extends Component
         // 👉 لیست دانش‌آموزانی که همین آزمون به آن‌ها اختصاص داده شده
         $assignedStudentIds = TypedExamAssignment::where('typed_exam_id', $this->examId)
             ->whereHas('student', function ($q) use ($admin) {
-                $q->where('advisor_id', $admin->id);
+                $q->where('supporter_id', $admin->id)
+                    ->orWhere('advisor_id', $admin->id);
             })
             ->whereNull('deleted_at') // اگر soft delete داری
             ->pluck('student_id')
