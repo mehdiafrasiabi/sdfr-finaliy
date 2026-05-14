@@ -76,6 +76,12 @@ Route::name('client.')->group(function () {
         ->middleware('auth')
         ->name('profile.waiting-for-supporter');
 
+    // B-2: صفحهٔ پرداخت اختصاصی (auth)
+    Route::get('/purchase',
+        \App\Livewire\Client\Purchase\Index::class)
+        ->middleware('auth')
+        ->name('purchase');
+
     Route::middleware('auth')->group(function () {
         Route::redirect('/shopping-cart', '/')->name('checkout.cart');
         Route::redirect('/shopping-cart-info', '/')->name('checkout.cart.info');

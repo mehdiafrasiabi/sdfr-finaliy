@@ -44,6 +44,24 @@ class WaitingForSupporter extends Component
         }
     }
 
+    /**
+     * B-2: لغو هفتهٔ آزمایشی توسط خود کاربر — تنها قبل از تخصیص پشتیبان جذب
+     * (status = pending) مجاز است. پس از لغو به صفحهٔ خرید بازمی‌گردد.
+     */
+    public function cancelTrial(): void
+    {
+        if (! $this->trialWeek) {
+            return;
+        }
+        if ($this->trialWeek->status !== TrialWeek::STATUS_PENDING) {
+            session()->flash('error', 'لغو پس از تخصیص پشتیبان جذب امکان‌پذیر نیست.');
+            return;
+        }
+
+        $this->trialWeek->delete();
+        $this->redirect(route('client.purchase'), navigate: true);
+    }
+
     public function render(): \Illuminate\Contracts\View\View
     {
         return view('livewire.client.profile.trial-week.waiting-for-supporter')
