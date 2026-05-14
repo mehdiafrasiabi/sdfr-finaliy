@@ -78,6 +78,14 @@ Route::name('admin.')->group(function () {
             \App\Livewire\Admin\EducationalManager\Reschedule\Index::class)
             ->name('educational-manager.reschedule');
 
+        // مدیر آموزشی — دانش‌آموزان جدید (آزمایشی و خرید کرده)
+        Route::get('/educational-manager/new-trial-students',
+            \App\Livewire\Admin\EducationalManager\NewTrialStudents\Index::class)
+            ->name('educational-manager.new-trial-students');
+        Route::get('/educational-manager/new-purchased-students',
+            \App\Livewire\Admin\EducationalManager\NewPurchasedStudents\Index::class)
+            ->name('educational-manager.new-purchased-students');
+
         // پنل مشاور — درخواست‌های جابجایی مربوط به خودش
         Route::get('/consultant/reschedule',
             \App\Livewire\Admin\Consultant\Reschedule\Index::class)
