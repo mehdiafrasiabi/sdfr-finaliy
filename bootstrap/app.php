@@ -17,6 +17,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'admin.permission' => \App\Http\Middleware\CheckAdminPermission::class,
             'client.active' => \App\Http\Middleware\EnsureClientHasActiveAccess::class,
+            'trial.step'    => \App\Http\Middleware\EnsureTrialStepUnlocked::class,
         ]);
 
         $middleware->redirectGuestsTo(function () {

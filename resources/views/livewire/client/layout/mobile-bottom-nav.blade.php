@@ -1,5 +1,14 @@
 <div>
-    @if(\Illuminate\Support\Facades\Auth::check() && (request()->is('profile*') || request()->routeIs('client.profile.*')))
+    @php
+        $authUser = \Illuminate\Support\Facades\Auth::user();
+        $trialWeek = $authUser?->trialWeek;
+        $hasFullAccess = $authUser && (
+            ! $trialWeek
+            || $trialWeek->status === \App\Models\TrialWeek::STATUS_PROGRAM_BUILT
+        );
+    @endphp
+
+    @if($hasFullAccess && (request()->is('profile*') || request()->routeIs('client.profile.*')))
         @if(!request()->routeIs('client.profile.classification.classify'))
             <div x-data="{
                 servicesOpen: false,
