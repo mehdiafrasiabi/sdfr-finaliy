@@ -68,7 +68,7 @@ Route::name('manager.')->group(function () {
         Route::get('/logout', [AuthIndex::class, 'logout'])->name('logout');
         Route::get('/dashboard/crm', Crm::class)->name('dashboard.crm');
         Route::get('/dashboard/analytics', Analytics::class)->name('dashboard.analytics');
-        Route::get('/a', GiftCodeIndex::class)->name('giftcode');
+        Route::get('/gift-code', GiftCodeIndex::class)->name('giftcode');
 
 
         Route::get('/paymentMethod', PaymentIndex::class)->name('paymentMethod');
