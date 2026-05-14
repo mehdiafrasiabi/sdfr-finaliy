@@ -139,6 +139,9 @@ Route::name('manager.')->group(function () {
         // قیمت‌گذاری بر اساس پایه تحصیلی
         Route::get('/grade-prices', \App\Livewire\Manager\GradePrice\Index::class)
             ->name('grade-price.index');
+        Route::get('/grade-prices/{price}/daily-discounts',
+            \App\Livewire\Manager\GradePrice\DailyDiscount::class)
+            ->name('grade-price.daily-discount');
 
         // Trial Week Routes (هفته آزمایشی)
         Route::prefix('trial-week')->name('trial-week.')->group(function () {
