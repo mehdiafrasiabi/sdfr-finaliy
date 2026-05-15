@@ -141,6 +141,9 @@ Route::name('manager.')->group(function () {
         // قیمت‌گذاری بر اساس پایه تحصیلی
         Route::get('/grade-prices', \App\Livewire\Manager\GradePrice\Index::class)
             ->name('grade-price.index');
+        Route::get('/grade-prices/{price}', \App\Livewire\Manager\GradePrice\Show::class)
+            ->name('grade-price.show');
+        // Legacy route for daily discounts kept for backward compatibility
         Route::get('/grade-prices/{price}/daily-discounts',
             \App\Livewire\Manager\GradePrice\DailyDiscount::class)
             ->name('grade-price.daily-discount');

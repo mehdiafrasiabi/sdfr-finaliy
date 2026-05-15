@@ -75,6 +75,7 @@ class TrialWeekOnboarding extends Component
     public function next(): void
     {
         $this->generalError = '';
+        $this->resetValidation();
 
         if ($this->currentStep === 4) {
             $this->validateStep4();
@@ -92,6 +93,9 @@ class TrialWeekOnboarding extends Component
             if ($this->currentStep === 7 && !$this->otpSent) {
                 $this->sendOtp();
             }
+            $this->dispatch('step-changed', step: $this->currentStep);
+        } else {
+            $this->dispatch('step-validation-failed');
         }
     }
 
@@ -132,7 +136,7 @@ class TrialWeekOnboarding extends Component
     {
         $rules = [
             'fatherMobile' => ['required', 'regex:/^09[0-9]{9}$/'],
-            'motherMobile' => ['required', 'regex:/^09[0-9]{9}$/'],
+            'motherMobile' => ['required', 'regex:/^09[0-9]{9}$/', 'different:fatherMobile'],
             'grade'        => ['required', 'in:9,10,11,12'],
         ];
         if ($this->grade !== '9') {
@@ -149,8 +153,11 @@ class TrialWeekOnboarding extends Component
             'fatherMobile.regex'    => 'فرمت شماره پدر صحیح نیست.',
             'motherMobile.required' => 'شماره مادر الزامی است.',
             'motherMobile.regex'    => 'فرمت شماره مادر صحیح نیست.',
+            'motherMobile.different' => 'شمارهٔ موبایل پدر و مادر نباید یکسان باشد.',
             'grade.required'        => 'پایه الزامی است.',
+            'grade.in'              => 'پایه انتخاب‌شده معتبر نیست.',
             'field.required'        => 'رشته الزامی است.',
+            'field.in'              => 'رشته انتخاب‌شده معتبر نیست.',
         ]);
 
         if ($v->fails()) {
@@ -161,27 +168,31 @@ class TrialWeekOnboarding extends Component
     private function validateStep6(): void
     {
         $v = Validator::make([
-            'stateId'     => $this->stateId,
-            'cityId'      => $this->cityId,
-            'mobile'      => $this->mobile,
-            'password'    => $this->password,
+            'stateId'      => $this->stateId,
+            'cityId'       => $this->cityId,
+            'mobile'       => $this->mobile,
+            'password'     => $this->password,
             'passwordConf' => $this->passwordConf,
+            'fatherMobile' => $this->fatherMobile,
+            'motherMobile' => $this->motherMobile,
         ], [
-            'stateId'     => ['required', 'exists:states,id'],
-            'cityId'      => ['required', 'exists:cities,id'],
-            'mobile'      => ['required', 'regex:/^09[0-9]{9}$/', 'unique:users,mobile'],
-            'password'    => ['required', 'min:8', 'regex:/^(?=.*[A-Za-z])(?=.*\d).+$/'],
+            'stateId'      => ['required', 'exists:states,id'],
+            'cityId'       => ['required', 'exists:cities,id'],
+            'mobile'       => ['required', 'regex:/^09[0-9]{9}$/', 'unique:users,mobile', 'different:fatherMobile', 'different:motherMobile'],
+            'password'     => ['required', 'min:8', 'regex:/^(?=.*[A-Za-z])(?=.*\d).+$/'],
             'passwordConf' => ['required', 'same:password'],
         ], [
-            'stateId.required'      => 'انتخاب استان الزامی است.',
-            'cityId.required'       => 'انتخاب شهر الزامی است.',
-            'mobile.required'       => 'شماره موبایل الزامی است.',
-            'mobile.regex'          => 'فرمت موبایل صحیح نیست.',
-            'mobile.unique'         => 'این شماره قبلاً ثبت شده.',
-            'password.required'     => 'رمز عبور الزامی است.',
-            'password.min'          => 'رمز باید حداقل ۸ کاراکتر باشد.',
-            'password.regex'        => 'رمز باید حرف و عدد داشته باشد.',
-            'passwordConf.same'     => 'تکرار رمز مطابقت ندارد.',
+            'stateId.required'   => 'انتخاب استان الزامی است.',
+            'cityId.required'    => 'انتخاب شهر الزامی است.',
+            'mobile.required'    => 'شماره موبایل الزامی است.',
+            'mobile.regex'       => 'فرمت موبایل صحیح نیست.',
+            'mobile.unique'      => 'این شماره قبلاً ثبت شده است.',
+            'mobile.different'   => 'شمارهٔ شما نباید با شمارهٔ پدر یا مادر یکسان باشد.',
+            'password.required'  => 'رمز عبور الزامی است.',
+            'password.min'       => 'رمز باید حداقل ۸ کاراکتر باشد.',
+            'password.regex'     => 'رمز باید شامل حرف انگلیسی و عدد باشد.',
+            'passwordConf.required' => 'تکرار رمز عبور الزامی است.',
+            'passwordConf.same'  => 'تکرار رمز با رمز عبور مطابقت ندارد.',
         ]);
 
         if ($v->fails()) {
@@ -224,10 +235,11 @@ class TrialWeekOnboarding extends Component
     private function sendOtp(): void
     {
         $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+        // اعتبار OTP در پایگاه‌داده دقیقاً ۹۰ ثانیه است تا با countdown UI هم‌خوان باشد.
         Otp::create([
             'mobile'     => $this->mobile,
             'code'       => $code,
-            'expires_at' => now()->addMinutes(5),
+            'expires_at' => now()->addSeconds(90),
         ]);
 
         try {
@@ -330,7 +342,20 @@ class TrialWeekOnboarding extends Component
 
     public function confirmTrial(TrialWeekService $service): void
     {
+        // قفل دکمه در سمت سرور تا redirect نهایی
+        if ($this->isLoading) {
+            return;
+        }
+        $this->isLoading        = true;
+        $this->showTrialConfirm = false;
+
         $user = Auth::user();
+
+        if (! $user) {
+            $this->isLoading = false;
+            $this->redirect(route('client.auth.login'), navigate: true);
+            return;
+        }
 
         if (TrialWeek::where('user_id', $user->id)->exists()) {
             $this->redirect(route('client.profile.trial.guide'), navigate: true);
@@ -346,6 +371,14 @@ class TrialWeekOnboarding extends Component
         );
 
         $this->redirect(route('client.profile.waiting-for-supporter'), navigate: true);
+    }
+
+    /**
+     * انتخاب «خرید دوره» در پایان ثبت‌نام — کاربر را به صفحهٔ خرید می‌برد.
+     */
+    public function goToPurchase(): void
+    {
+        $this->redirect(route('client.purchase'), navigate: true);
     }
 
     public function declineTrial(): void

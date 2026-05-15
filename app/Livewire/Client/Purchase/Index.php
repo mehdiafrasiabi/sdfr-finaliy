@@ -2,52 +2,56 @@
 
 namespace App\Livewire\Client\Purchase;
 
+use App\Contracts\PaymentGateWayInterface;
 use App\Models\Coupons;
 use App\Models\CouponUsage;
 use App\Models\GradePrice;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\PersonalInformation;
-use App\Models\Student;
 use App\Models\TrialWeek;
 use App\Services\TrialWeekService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 /**
- * B-2 — صفحهٔ پرداخت اختصاصی برای کاربری که در انتهای ثبت‌نام بین
- * «خرید دوره» و «۱ هفته آزمایشی» انتخاب می‌کند.
+ * B-2 (بازنویسی) — صفحهٔ پرداخت اختصاصی.
  *
- *   - نمایش قیمت پلکانی این ماه + ماه بعد
- *   - وارد کردن کد تخفیف
- *   - دکمهٔ «شروع آزمایشی» در بالای صفحه
- *   - دکمهٔ «پرداخت»  → ثبت Order/Payment در وضعیت pending و انتقال
- *     به مرحلهٔ callback درگاه (در همین پروژه شبیه‌سازی شده)
+ *   - دو دکمه: «شروع آزمایشی» و «پرداخت»
+ *   - «شروع آزمایشی»: فقط TrialWeek می‌سازد (رایگان) و کاربر به صفحهٔ
+ *     waiting-for-supporter منتقل می‌شود.
+ *   - «پرداخت»: مشابه فلوی `Cart\Info::submit` یک Order + OrderItem + Payment
+ *     در وضعیت pending ایجاد می‌کند و سپس کاربر را مستقیماً به درگاه زیبال
+ *     redirect می‌کند (callback هندل می‌شود توسط `Payment\Callback`).
+ *   - کوپن: یک‌بار-به-ازای-کاربر، با درصد تخفیف.
+ *   - نمایش قیمت پلکانی این ماه + ماه بعد + جدول ماه‌به‌ماه.
  */
 class Index extends Component
 {
     use SEOTools;
 
-    public string $couponCode    = '';
-    public ?string $couponError  = null;
-    public ?string $couponNotice = null;
-    public int $couponDiscount   = 0; // درصد تخفیف کوپن
+    public string  $couponCode    = '';
+    public ?string $couponError   = null;
+    public ?string $couponNotice  = null;
+    public int     $couponDiscount = 0; // درصد تخفیف کوپن
 
     public function mount(): void
     {
         $this->seo()->setTitle('پرداخت دوره');
 
-        // اگر کاربر قبلاً پرداخت موفق دارد یا برنامهٔ آزمایشی او ساخته شده،
-        // به داشبورد منتقل می‌شود.
         $user = Auth::user();
-        if ($user) {
-            $hasPaid = $user->payments()->where('status', 'completed')->exists();
-            if ($hasPaid) {
-                $this->redirect(route('client.profile.dashboard'), navigate: true);
-                return;
-            }
+        if (! $user) {
+            return;
+        }
+
+        // اگر پرداخت موفق دارد → داشبورد
+        $hasPaid = $user->payments()->where('status', 'completed')->exists();
+        if ($hasPaid) {
+            $this->redirect(route('client.profile.dashboard'), navigate: true);
         }
     }
 
@@ -57,19 +61,19 @@ class Index extends Component
         if (! $user) {
             return null;
         }
-
         $pi = PersonalInformation::where('user_id', $user->id)->first();
         if (! $pi || ! $pi->grade) {
             return null;
         }
-
-        return GradePrice::activeFor((int) $pi->grade, $pi->field ?? null);
+        return GradePrice::activeFor((int) $pi->grade);
     }
+
+    // ─────────────── کوپن ───────────────
 
     public function applyCoupon(): void
     {
-        $this->couponError  = null;
-        $this->couponNotice = null;
+        $this->couponError    = null;
+        $this->couponNotice   = null;
         $this->couponDiscount = 0;
 
         $code = trim($this->couponCode);
@@ -87,7 +91,6 @@ class Index extends Component
             return;
         }
 
-        // اگر کاربر قبلاً همین کوپن را استفاده کرده، اجازه استفاده مجدد نده.
         $userId = Auth::id();
         $alreadyUsed = CouponUsage::where('user_id', $userId)
             ->where('coupon_id', $coupon->id)
@@ -97,10 +100,9 @@ class Index extends Component
             return;
         }
 
-        // مقدار درصد تخفیف کوپن — ستون متداول: discount_percentage یا percentage
         $percent = (int) ($coupon->discount_percentage ?? $coupon->percentage ?? 0);
         $this->couponDiscount = max(0, min(100, $percent));
-        $this->couponNotice   = "تخفیف {$this->couponDiscount} درصدی روی این ماه اعمال شد.";
+        $this->couponNotice = "تخفیف {$this->couponDiscount} درصدی روی این ماه اعمال شد.";
     }
 
     public function removeCoupon(): void
@@ -111,21 +113,17 @@ class Index extends Component
         $this->couponNotice   = null;
     }
 
-    /**
-     * شروع هفته آزمایشی با همان اطلاعاتی که کاربر در ثبت‌نام داده.
-     */
-    public function startTrial(TrialWeekService $service): void
+    // ─────────────── شروع آزمایشی (رایگان) ───────────────
+
+    public function startTrial(TrialWeekService $service)
     {
         $user = Auth::user();
         if (! $user) {
-            $this->redirect(route('client.auth.login'), navigate: true);
-            return;
+            return $this->redirect(route('client.auth.login'), navigate: true);
         }
 
-        // اگر trial فعال قبلی دارد، به صفحهٔ انتظار برمی‌گردد.
         if ($user->trialWeek) {
-            $this->redirect(route('client.profile.waiting-for-supporter'), navigate: true);
-            return;
+            return $this->redirect(route('client.profile.waiting-for-supporter'), navigate: true);
         }
 
         $pi = PersonalInformation::where('user_id', $user->id)->first();
@@ -142,25 +140,24 @@ class Index extends Component
             $pi->mother_mobile ?? '',
         );
 
-        $this->redirect(route('client.profile.waiting-for-supporter'), navigate: true);
+        return $this->redirect(route('client.profile.waiting-for-supporter'), navigate: true);
     }
 
+    // ─────────────── خرید واقعی (Zibal) ───────────────
+
     /**
-     * شروع پرداخت — Order + Payment در وضعیت pending ایجاد می‌شود و کاربر
-     * به مسیر callback (بخش موجود سیستم) منتقل می‌شود تا با درگاه واقعی
-     * تکمیل شود.
+     * ایجاد Order/OrderItem/Payment و redirect مستقیم به درگاه زیبال.
      */
-    public function pay(): void
+    public function pay(PaymentGateWayInterface $paymentGateway)
     {
         $user = Auth::user();
         if (! $user) {
-            $this->redirect(route('client.auth.login'), navigate: true);
-            return;
+            return $this->redirect(route('client.auth.login'), navigate: true);
         }
 
         $price = $this->gradePrice();
         if (! $price) {
-            session()->flash('error', 'قیمت برای پایهٔ شما تعریف نشده است.');
+            session()->flash('error', 'قیمتی برای پایهٔ شما تعریف نشده است.');
             return;
         }
 
@@ -170,43 +167,72 @@ class Index extends Component
             return;
         }
 
+        $productId = (int) config('sdfr.course_product_id');
+        if ($productId <= 0) {
+            session()->flash('error', 'محصول دوره در سیستم تعریف نشده است.');
+            return;
+        }
+
         $finalPrice = $this->finalPriceForCurrentMonth($price);
+        if ($finalPrice <= 0) {
+            session()->flash('error', 'مبلغ نهایی نامعتبر است.');
+            return;
+        }
 
-        DB::transaction(function () use ($user, $pi, $finalPrice) {
-            $order = Order::create([
-                'user_id'     => $user->id,
-                'total_price' => $finalPrice,
-                'status'      => 'pending',
-            ]);
+        $orderNumber = 'SDFR-' . Str::uuid()->toString();
 
-            $payment = Payment::create([
-                'order_id'                => $order->id,
-                'user_id'                 => $user->id,
-                'amount'                  => $finalPrice,
-                'order_number'            => (string) $order->id,
-                'personal_information_id' => $pi->id,
-                'status'                  => 'pending',
-            ]);
+        try {
+            DB::transaction(function () use ($user, $pi, $finalPrice, $orderNumber, $productId) {
+                $order = Order::query()->create([
+                    'amount'            => $finalPrice,
+                    'order_number'      => $orderNumber,
+                    'user_id'           => $user->id,
+                    'payment_method_id' => 1, // Zibal
+                    'paid_with_wallet'  => false,
+                    'wallet_amount'     => 0,
+                    'status'            => 'pending',
+                ]);
 
-            // اگر کوپن اعمال شده، CouponUsage ثبت می‌شود.
-            if ($this->couponDiscount > 0 && $this->couponCode) {
-                $coupon = Coupons::where('code', trim($this->couponCode))->first();
-                if ($coupon) {
-                    CouponUsage::create([
-                        'coupon_id' => $coupon->id,
-                        'user_id'   => $user->id,
-                        'used_at'   => now(),
-                    ]);
+                OrderItem::query()->create([
+                    'price'      => $finalPrice,
+                    'order_id'   => $order->id,
+                    'product_id' => $productId,
+                ]);
+
+                Payment::query()->create([
+                    'order_id'                => $order->id,
+                    'user_id'                 => $user->id,
+                    'amount'                  => $finalPrice,
+                    'order_number'            => $orderNumber,
+                    'personal_information_id' => $pi->id,
+                    'status'                  => 'pending',
+                ]);
+
+                if ($this->couponDiscount > 0 && $this->couponCode) {
+                    $coupon = Coupons::where('code', trim($this->couponCode))->first();
+                    if ($coupon) {
+                        CouponUsage::create([
+                            'coupon_id' => $coupon->id,
+                            'user_id'   => $user->id,
+                            'used_at'   => now(),
+                        ]);
+                    }
                 }
-            }
-        });
+            });
+        } catch (\Throwable $e) {
+            session()->flash('error', 'خطا در ثبت سفارش: ' . $e->getMessage());
+            return;
+        }
 
-        $this->redirect(route('client.payment.callback'), navigate: true);
+        return $paymentGateway->request($finalPrice, $orderNumber);
     }
 
+    /**
+     * قیمت ماه جاری پس از اعمال تخفیف ماهانه + تخفیف روز خاص + کوپن.
+     */
     protected function finalPriceForCurrentMonth(GradePrice $price): int
     {
-        $base = $price->effectivePrice(); // پلکانی + درصد ثابت + تخفیف روز خاص
+        $base = $price->effectivePrice();
         if ($this->couponDiscount > 0) {
             $base = (int) round($base * (1 - $this->couponDiscount / 100));
         }
@@ -217,13 +243,29 @@ class Index extends Component
     {
         $price = $this->gradePrice();
 
-        $currentSteppedPrice = $price?->current_stepped_price ?? null;
-        $nextMonthPrice      = $price?->next_month_stepped_price ?? null;
+        $monthsTable = [];
+        $currentMonthIndex = null;
+        if ($price) {
+            $currentMonthIndex = $price->monthIndex();
+            $months = $price->months_count;
+            for ($i = 0; $i < $months; $i++) {
+                [$start, $end] = $price->monthRange($i);
+                $monthsTable[] = [
+                    'index'           => $i,
+                    'is_current'      => $i === $currentMonthIndex,
+                    'stepped'         => $price->priceAtMonth($i),
+                    'effective'       => $price->effectivePriceForMonth($i, $start),
+                    'jalali_label'    => \Morilog\Jalali\Jalalian::fromCarbon($start)->format('F Y'),
+                    'has_discount'    => optional($price->monthDiscountFor($i))->discount_percentage > 0,
+                    'discount_pct'    => (int) optional($price->monthDiscountFor($i))->discount_percentage,
+                ];
+            }
+        }
 
-        $effectiveThisMonth  = $price ? $this->finalPriceForCurrentMonth($price) : null;
+        $effectiveThisMonth = $price ? $this->finalPriceForCurrentMonth($price) : null;
+        $nextMonthPrice     = $price ? $price->next_month_stepped_price : null;
         $activeDailyDiscount = $price?->activeDailyDiscount();
 
-        // اگر کاربر هفته آزمایشی pending دارد، نوار «شما در حال انتظار هستید»
         $pendingTrial = TrialWeek::where('user_id', Auth::id())
             ->where('status', TrialWeek::STATUS_PENDING)
             ->latest()
@@ -231,9 +273,10 @@ class Index extends Component
 
         return view('livewire.client.purchase.index', [
             'price'               => $price,
-            'currentSteppedPrice' => $currentSteppedPrice,
-            'nextMonthPrice'      => $nextMonthPrice,
+            'monthsTable'         => $monthsTable,
+            'currentMonthIndex'   => $currentMonthIndex,
             'effectiveThisMonth'  => $effectiveThisMonth,
+            'nextMonthPrice'      => $nextMonthPrice,
             'activeDailyDiscount' => $activeDailyDiscount,
             'pendingTrial'        => $pendingTrial,
         ])->layout('layouts.client.app');

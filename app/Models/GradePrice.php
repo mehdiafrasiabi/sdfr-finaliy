@@ -8,6 +8,20 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * قیمت پایه‌ای دوره برای یک «پایه تحصیلی» (9, 10, 11, 12).
+ *
+ * مدل قیمت‌گذاری:
+ *   - مدیر مبلغ کل (`total_amount`)، تاریخ شروع و تاریخ پایان را مشخص می‌کند.
+ *   - سیستم خودش تعداد ماه‌ها را از تفاضل دو تاریخ محاسبه می‌کند.
+ *   - قیمت ثابت هر ماه پلکانی است:
+ *           priceAtMonth(i) = total_amount − floor(total_amount / months) × i
+ *     این یعنی هر ماه که می‌گذرد، (total ÷ months) تومان از قیمت کم می‌شود تا
+ *     دانش‌آموزی که دیرتر می‌پیوندد، فقط معادل خدماتی که می‌گیرد بپردازد.
+ *   - مدیر می‌تواند برای هر ماه (`GradePriceMonthDiscount`) درصد تخفیف اضافه
+ *     بگذارد و علاوه بر آن یک «روز خاص» (`GradePriceDailyDiscount`) با تخفیف
+ *     ویژه تعریف کند.
+ */
 class GradePrice extends Model
 {
     use HasFactory;
@@ -25,6 +39,11 @@ class GradePrice extends Model
         return $this->belongsTo(Admin::class, 'created_by');
     }
 
+    public function monthDiscounts(): HasMany
+    {
+        return $this->hasMany(GradePriceMonthDiscount::class);
+    }
+
     public function dailyDiscounts(): HasMany
     {
         return $this->hasMany(GradePriceDailyDiscount::class);
@@ -35,31 +54,41 @@ class GradePrice extends Model
         return TrialWeek::GRADE_LABELS[$this->grade] ?? "پایه {$this->grade}";
     }
 
-    public function getFieldLabelAttribute(): string
-    {
-        if (! $this->field) {
-            return 'همه رشته‌ها';
-        }
-        return TrialWeek::FIELD_LABELS[$this->field] ?? $this->field;
-    }
-
     // ─────────────────────────────────────────────────────────────────
-    // قیمت پلکانی ماهانه
+    // محاسبهٔ تعداد ماه‌ها و قیمت پلکانی
     // ─────────────────────────────────────────────────────────────────
 
     /**
-     * مبلغی که در هر ماه از قیمت کل کاسته می‌شود.
+     * تعداد ماهِ کامل از start_at تا end_at (حداقل ۱).
+     * مثال: 1405/04/01 تا 1406/03/29  →  12 ماه.
+     */
+    public function getMonthsCountAttribute(): int
+    {
+        if (! $this->start_at || ! $this->end_at) {
+            return 1;
+        }
+
+        $start = $this->start_at instanceof Carbon ? $this->start_at : Carbon::parse($this->start_at);
+        $end   = $this->end_at   instanceof Carbon ? $this->end_at   : Carbon::parse($this->end_at);
+
+        $months = (int) $start->copy()->startOfDay()->diffInMonths($end->copy()->endOfDay()) + 1;
+        return max(1, $months);
+    }
+
+    /**
+     * مبلغی که هر ماه از قیمت کل کاسته می‌شود.
      */
     public function getMonthlyReductionAttribute(): int
     {
-        if ($this->months <= 0) {
+        $months = $this->months_count;
+        if ($months <= 0) {
             return 0;
         }
-        return (int) floor($this->total_amount / $this->months);
+        return (int) floor($this->total_amount / $months);
     }
 
     /**
-     * چندمین ماه از شروع پایه گذشته‌ایم (۰ یعنی همان ماه اول).
+     * چندمین ماه از شروع پلن گذشته‌ایم (۰ = همان ماه اول).
      */
     public function monthIndex(?Carbon $at = null): int
     {
@@ -70,14 +99,13 @@ class GradePrice extends Model
             return 0;
         }
 
-        $months = (int) $start->diffInMonths($at);
-
-        // نباید از تعداد ماه‌های پلن بزرگ‌تر شود
-        return min($months, max($this->months - 1, 0));
+        $diff = (int) $start->copy()->startOfDay()->diffInMonths($at);
+        return min($diff, max($this->months_count - 1, 0));
     }
 
     /**
-     * قیمت ماهِ n-ام (n=0 → ماه اول).
+     * قیمت ثابت پلکانی ماه n‌ام (n=0 → ماه اول).
+     * این مقدار «سقف» قیمت آن ماه است.
      */
     public function priceAtMonth(int $monthIndex): int
     {
@@ -87,28 +115,33 @@ class GradePrice extends Model
     }
 
     /**
-     * قیمت پلکانی برای ماه جاری (قبل از تخفیف روزانه و درصد ثابت).
+     * بازهٔ تاریخی ماه n‌ام (start, end).
      */
-    public function getCurrentSteppedPriceAttribute(): int
+    public function monthRange(int $monthIndex): array
     {
-        return $this->priceAtMonth($this->monthIndex());
-    }
+        $start = ($this->start_at instanceof Carbon ? $this->start_at : Carbon::parse($this->start_at))
+            ->copy()->startOfDay()->addMonths($monthIndex);
 
-    /**
-     * قیمت پلکانی برای ماه بعد.
-     */
-    public function getNextMonthSteppedPriceAttribute(): int
-    {
-        return $this->priceAtMonth($this->monthIndex() + 1);
+        $months = $this->months_count;
+        if ($monthIndex >= $months - 1) {
+            $end = ($this->end_at instanceof Carbon ? $this->end_at : Carbon::parse($this->end_at))
+                ->copy()->endOfDay();
+        } else {
+            $end = $start->copy()->addMonth()->subDay()->endOfDay();
+        }
+
+        return [$start, $end];
     }
 
     // ─────────────────────────────────────────────────────────────────
-    // تخفیف
+    // اعمال تخفیف ماهانه + تخفیف روز خاص
     // ─────────────────────────────────────────────────────────────────
 
-    /**
-     * تخفیف روز-خاص فعال (در صورت وجود).
-     */
+    public function monthDiscountFor(int $monthIndex): ?GradePriceMonthDiscount
+    {
+        return $this->monthDiscounts()->where('month_index', $monthIndex)->first();
+    }
+
     public function activeDailyDiscount(?Carbon $at = null): ?GradePriceDailyDiscount
     {
         $at = $at ?? Carbon::now();
@@ -121,53 +154,63 @@ class GradePrice extends Model
     }
 
     /**
-     * قیمت نهایی = قیمت پلکانی − درصد ثابت (discount_percentage)
-     *                                  − درصد روز خاص (در صورت وجود).
-     * تخفیف‌ها به‌صورت ضرب‌شونده اعمال می‌شوند.
+     * قیمت نهایی ماه n‌ام = قیمت پلکانی × (1 − month_discount%) × (1 − daily_discount%)
+     * تخفیف روزانه فقط در صورتی اعمال می‌شود که روز جاری در همان ماه `i` افتاده باشد.
+     */
+    public function effectivePriceForMonth(int $monthIndex, ?Carbon $at = null): int
+    {
+        $at      = $at ?? Carbon::now();
+        $stepped = $this->priceAtMonth($monthIndex);
+
+        $multiplier = 1.0;
+
+        $md = $this->monthDiscountFor($monthIndex);
+        if ($md && $md->discount_percentage > 0) {
+            $multiplier *= (1 - $md->discount_percentage / 100);
+        }
+
+        [$monthStart, $monthEnd] = $this->monthRange($monthIndex);
+        if ($at->between($monthStart, $monthEnd)) {
+            $daily = $this->activeDailyDiscount($at);
+            if ($daily) {
+                $multiplier *= (1 - $daily->discount_percentage / 100);
+            }
+        }
+
+        return (int) round($stepped * $multiplier);
+    }
+
+    /**
+     * قیمت نهایی برای زمان فعلی (یا $at).
      */
     public function effectivePrice(?Carbon $at = null): int
     {
-        $at      = $at ?? Carbon::now();
-        $stepped = $this->priceAtMonth($this->monthIndex($at));
-
-        $multiplier = 1.0;
-
-        if ($this->discount_percentage > 0) {
-            $multiplier *= (1 - $this->discount_percentage / 100);
-        }
-
-        $daily = $this->activeDailyDiscount($at);
-        if ($daily) {
-            $multiplier *= (1 - $daily->discount_percentage / 100);
-        }
-
-        return (int) round($stepped * $multiplier);
+        return $this->effectivePriceForMonth($this->monthIndex($at), $at);
     }
 
     /**
-     * قیمت نهایی برای ماه بعد (همان منطق ولی روی month_index + 1).
+     * قیمت پلکانی ماه جاری (بدون تخفیف).
      */
-    public function effectivePriceForNextMonth(?Carbon $at = null): int
+    public function getCurrentSteppedPriceAttribute(): int
     {
-        $at      = $at ?? Carbon::now();
-        $stepped = $this->priceAtMonth($this->monthIndex($at) + 1);
-
-        // تخفیف روز-خاص فقط برای امروز اعمال می‌شود، نه برای ماه بعد.
-        $multiplier = 1.0;
-        if ($this->discount_percentage > 0) {
-            $multiplier *= (1 - $this->discount_percentage / 100);
-        }
-
-        return (int) round($stepped * $multiplier);
+        return $this->priceAtMonth($this->monthIndex());
     }
 
     /**
-     * یافتن قیمت فعال برای پایه و رشته مشخص در تاریخ جاری.
+     * قیمت پلکانی ماه بعد (بدون تخفیف روز خاص).
      */
-    public static function activeFor(int $grade, ?string $field = null): ?self
+    public function getNextMonthSteppedPriceAttribute(): int
+    {
+        return $this->priceAtMonth($this->monthIndex() + 1);
+    }
+
+    // ─────────────────────────────────────────────────────────────────
+    // یافتن قیمت فعال برای یک پایه
+    // ─────────────────────────────────────────────────────────────────
+
+    public static function activeFor(int $grade): ?self
     {
         return self::where('grade', $grade)
-            ->where(fn($q) => $q->whereNull('field')->orWhere('field', $field))
             ->where('is_active', true)
             ->where('start_at', '<=', now()->toDateString())
             ->where(fn($q) => $q->whereNull('end_at')->orWhere('end_at', '>=', now()->toDateString()))

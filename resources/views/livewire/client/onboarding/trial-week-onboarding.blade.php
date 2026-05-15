@@ -1,21 +1,21 @@
-<div class="min-h-screen bg-background" x-data="{
-    isMobile: window.innerWidth < 1024,
-    init() {
-        window.addEventListener('resize', () => { this.isMobile = window.innerWidth < 1024; });
-    }
-}">
+<div class="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100"
+     x-data="onboardingFlow({
+        currentStep: @entangle('currentStep').live,
+        registered:  @entangle('registered'),
+        showTrialConfirm: @entangle('showTrialConfirm'),
+        countdown:   @entangle('countdown').live,
+     })"
+     x-init="init()">
 
-    @push('link')
-    <style>
-        .onboarding-hero {
-            background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(59,130,246,0.1)),
-                        linear-gradient(180deg, #0b0f1a, #0e1726);
-        }
-        .step-dot { transition: all 0.3s ease; }
-        .step-dot.active { transform: scale(1.3); }
-        .slide-enter { animation: slideIn .35s ease forwards; }
-        @keyframes slideIn { from { opacity:0; transform: translateX(-20px); } to { opacity:1; transform: translateX(0); } }
-    </style>
+    @push('styles')
+        <style>
+            [x-cloak] { display: none !important; }
+            .step-pane {
+                transition: transform .35s ease, opacity .35s ease;
+            }
+            .step-fade-enter { opacity: 0; transform: translateX(24px); }
+            .step-fade-leave { opacity: 0; transform: translateX(-24px); }
+        </style>
     @endpush
 
     @php
@@ -23,579 +23,396 @@
         $fieldLabels = ['math'=>'ریاضی','experimental'=>'تجربی','human'=>'انسانی'];
     @endphp
 
-    {{-- ─────────────────────────────────────────── --}}
-    {{-- DESKTOP: نمایش همه بخش‌ها به صورت عادی --}}
-    {{-- ─────────────────────────────────────────── --}}
-    <div class="hidden lg:block">
+    <div class="max-w-2xl mx-auto px-4 py-6 md:py-10" x-cloak>
 
-        {{-- Hero Section --}}
-        <div class="onboarding-hero py-24 text-center">
-            <div class="max-w-4xl mx-auto px-6">
-                <div class="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-sm font-medium px-4 py-2 rounded-full mb-6">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    هفته آزمایشی رایگان
-                </div>
-                <h1 class="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
-                    مسیر تحصیلی هوشمند<br>
-                    <span class="text-emerald-400">با SDFR شروع کن</span>
-                </h1>
-                <p class="text-lg text-slate-400 max-w-2xl mx-auto">
-                    با یک هفته آزمایشی رایگان، برنامه مطالعاتی شخصی بساز، طبقه‌بندی مباحث داشته باش و قدم اول رو محکم برو.
-                </p>
+        {{-- ─── progress bar ─── --}}
+        <div class="flex items-center justify-between mb-8">
+            <div class="text-sm font-bold text-emerald-600 dark:text-emerald-400">SDFR</div>
+            <div class="flex-1 mx-4 h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                <div class="h-full bg-emerald-500 transition-all duration-300"
+                     :style="`width: ${Math.round(($wire.currentStep / {{ $totalSteps }}) * 100)}%`"></div>
             </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 font-mono"
+                 x-text="`${$wire.currentStep} / {{ $totalSteps }}`"></div>
         </div>
 
-        {{-- Features --}}
-        <div class="max-w-5xl mx-auto px-6 py-16">
-            <div class="grid grid-cols-3 gap-8 mb-16">
-                @foreach([
-                    ['icon'=>'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2','title'=>'برنامه شخصی','desc'=>'بر اساس نقاط ضعف و قوتت برنامه مطالعاتی دقیق بساز'],
-                    ['icon'=>'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z','title'=>'طبقه‌بندی مباحث','desc'=>'وضعیت هر مبحث رو از D تا A+ بسنج و ضعیف‌ها رو بشناس'],
-                    ['icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z','title'=>'پشتیبان اختصاصی','desc'=>'پشتیبان جذب اختصاصی در کنارته تا بهترین مسیر رو انتخاب کنی'],
-                ] as $f)
-                <div class="bg-card border border-border rounded-2xl p-6 text-center">
-                    <div class="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $f['icon'] }}"/>
-                        </svg>
-                    </div>
-                    <h3 class="font-bold text-foreground mb-2">{{ $f['title'] }}</h3>
-                    <p class="text-sm text-muted">{{ $f['desc'] }}</p>
-                </div>
-                @endforeach
+        @if ($generalError)
+            <div class="mb-4 rounded-lg bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-200 px-4 py-3 border border-rose-200 dark:border-rose-800">
+                {{ $generalError }}
             </div>
-
-            {{-- فرم ثبت‌نام دسکتاپ --}}
-            @if(!$registered)
-            <div class="max-w-2xl mx-auto bg-card border border-border rounded-3xl p-8">
-                <h2 class="text-2xl font-black text-foreground mb-8 text-center">ثبت‌نام در هفته آزمایشی</h2>
-
-                @if($generalError)
-                <div class="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-sm text-center">{{ $generalError }}</div>
-                @endif
-
-                @if($currentStep < 7)
-                {{-- نام و نام خانوادگی --}}
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">نام *</label>
-                        <input wire:model="firstName" type="text" placeholder="مثال: علی"
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('firstName') border-red-500 @enderror">
-                        @error('firstName')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">نام خانوادگی *</label>
-                        <input wire:model="lastName" type="text" placeholder="مثال: محمدی"
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('lastName') border-red-500 @enderror">
-                        @error('lastName')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
-                    </div>
-                </div>
-
-                {{-- کد ملی --}}
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-muted mb-1">کد ملی *</label>
-                    <input wire:model="codeMell" type="text" maxlength="10" placeholder="۱۰ رقم"
-                           class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('codeMell') border-red-500 @enderror">
-                    @error('codeMell')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
-                </div>
-
-                {{-- شماره والدین --}}
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">شماره پدر *</label>
-                        <input wire:model="fatherMobile" type="text" placeholder="09..."
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('fatherMobile') border-red-500 @enderror">
-                        @error('fatherMobile')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">شماره مادر *</label>
-                        <input wire:model="motherMobile" type="text" placeholder="09..."
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('motherMobile') border-red-500 @enderror">
-                        @error('motherMobile')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
-                    </div>
-                </div>
-
-                {{-- پایه و رشته --}}
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">پایه *</label>
-                        <select wire:model.live="grade" class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500">
-                            @foreach(['9'=>'نهم','10'=>'دهم','11'=>'یازدهم','12'=>'دوازدهم'] as $v=>$l)
-                            <option value="{{ $v }}">{{ $l }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    @if($grade !== '9')
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">رشته *</label>
-                        <select wire:model="field" class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500">
-                            <option value="math">ریاضی</option>
-                            <option value="experimental">تجربی</option>
-                            <option value="human">انسانی</option>
-                        </select>
-                    </div>
-                    @endif
-                </div>
-
-                {{-- استان و شهر --}}
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">استان *</label>
-                        <select wire:model.live="stateId" class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('stateId') border-red-500 @enderror">
-                            <option value="0">انتخاب استان</option>
-                            @foreach($states as $s)
-                            <option value="{{ $s->id }}">{{ $s->name }}</option>
-                            @endforeach
-                        </select>
-                        @error('stateId')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">شهر *</label>
-                        <select wire:model="cityId" class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('cityId') border-red-500 @enderror">
-                            <option value="0">انتخاب شهر</option>
-                            @foreach($cities as $c)
-                            <option value="{{ $c->id }}">{{ $c->name }}</option>
-                            @endforeach
-                        </select>
-                        @error('cityId')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
-                    </div>
-                </div>
-
-                {{-- موبایل و رمز --}}
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-muted mb-1">شماره موبایل *</label>
-                    <input wire:model="mobile" type="text" placeholder="09..."
-                           class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('mobile') border-red-500 @enderror">
-                    @error('mobile')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
-                </div>
-                <div class="grid grid-cols-2 gap-4 mb-6">
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">رمز عبور *</label>
-                        <input wire:model.live="password" type="password"
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('password') border-red-500 @enderror">
-                        @error('password')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">تکرار رمز *</label>
-                        <input wire:model="passwordConf" type="password"
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('passwordConf') border-red-500 @enderror">
-                        @error('passwordConf')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
-                    </div>
-                </div>
-
-                <button wire:click="next" wire:loading.attr="disabled"
-                        class="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
-                    <svg wire:loading wire:target="next" class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                    <span wire:loading.remove wire:target="next">ارسال کد تأیید</span>
-                    <span wire:loading wire:target="next">در حال ارسال...</span>
-                </button>
-
-                <p class="text-center text-sm text-muted mt-4">
-                    قبلاً ثبت‌نام کردی؟
-                    <a href="{{ route('client.auth.login') }}" class="text-emerald-400 hover:underline">وارد شو</a>
-                </p>
-                @elseif($currentStep === 7)
-                {{-- OTP --}}
-                <div class="text-center">
-                    <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                        </svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-foreground mb-2">تأیید شماره موبایل</h3>
-                    <p class="text-muted text-sm mb-6">کد ۶ رقمی ارسال‌شده به <span class="text-emerald-400 font-mono">{{ $mobile }}</span> را وارد کن</p>
-
-                    @if($otpError)
-                    <div class="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-sm">{{ $otpError }}</div>
-                    @endif
-
-                    <input wire:model="otpInput" type="text" maxlength="6" placeholder="------"
-                           class="w-48 text-center text-2xl font-mono bg-secondary border-2 border-border focus:border-emerald-500 rounded-xl px-4 py-3 text-foreground focus:outline-none mx-auto block mb-4 tracking-widest">
-
-                    <button wire:click="verifyOtp" wire:loading.attr="disabled"
-                            class="w-full max-w-xs mx-auto py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
-                        <svg wire:loading wire:target="verifyOtp" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                        تأیید و ادامه
-                    </button>
-
-                    <div class="mt-4 text-sm text-muted">
-                        @if($countdown > 0)
-                        <span x-data="{ t: @entangle('countdown'), interval: null }"
-                              x-init="interval = setInterval(() => { if(t>0) t--; else { clearInterval(interval); $wire.countdownFinished(); } }, 1000)">
-                            ارسال مجدد تا <span x-text="t" class="text-emerald-400 font-mono"></span> ثانیه
-                        </span>
-                        @else
-                        <button wire:click="resendOtp" class="text-emerald-400 hover:underline">ارسال مجدد کد</button>
-                        @endif
-                    </div>
-                </div>
-                @endif
-            </div>
-            @else
-            {{-- پس از ثبت‌نام → تأیید هفته آزمایشی --}}
-            <div class="max-w-lg mx-auto bg-card border border-border rounded-3xl p-8 text-center">
-                <div class="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-black text-foreground mb-3">ثبت‌نام کامل شد!</h2>
-                <p class="text-muted text-sm leading-relaxed mb-8">
-                    حالا می‌تونی هفته آزمایشی رایگانت رو شروع کنی یا مستقیم دوره بخری.
-                </p>
-                <div class="flex flex-col gap-3">
-                    <button wire:click="openTrialConfirm"
-                            class="py-4 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors">
-                        بله، می‌خوام در هفته آزمایشی شرکت کنم
-                    </button>
-                    <button wire:click="declineTrial"
-                            class="py-3 bg-secondary hover:bg-border text-muted rounded-xl font-medium transition-colors text-sm">
-                        نه، ترجیح می‌دم مستقیم دوره بخرم
-                    </button>
-                </div>
-            </div>
-            @endif
-        </div>
-    </div>
-
-    {{-- ─────────────────────────────────────────── --}}
-    {{-- MOBILE: مرحله به مرحله --}}
-    {{-- ─────────────────────────────────────────── --}}
-    <div class="block lg:hidden min-h-screen flex flex-col">
-
-        {{-- نوار پیشرفت --}}
-        @if(!$registered)
-        <div class="px-4 pt-6 pb-2">
-            <div class="flex items-center justify-center gap-1.5">
-                @for($i = 1; $i <= $totalSteps; $i++)
-                <div class="step-dot h-1.5 rounded-full transition-all duration-300
-                    {{ $currentStep === $i ? 'w-8 bg-emerald-400 active' : ($currentStep > $i ? 'w-4 bg-emerald-600' : 'w-4 bg-border') }}">
-                </div>
-                @endfor
-            </div>
-            <p class="text-center text-xs text-muted mt-2">مرحله {{ $currentStep }} از {{ $totalSteps }}</p>
-        </div>
         @endif
 
-        {{-- محتوای هر مرحله --}}
-        <div class="flex-1 flex flex-col px-4 py-6 slide-enter" wire:key="step-{{ $currentStep }}">
+        <form @submit.prevent="goNext()"
+              autocomplete="off"
+              class="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm p-5 md:p-8">
 
-            @if($currentStep === 1)
-            {{-- خوش‌آمدگویی ۱ --}}
-            <div class="flex-1 flex flex-col items-center justify-center text-center">
-                <div class="w-24 h-24 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-lg shadow-emerald-500/30">
-                    <svg class="w-12 h-12 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                </div>
-                <h1 class="text-3xl font-black text-foreground mb-4 leading-tight">
-                    به SDFR<br><span class="text-emerald-400">خوش اومدی!</span>
-                </h1>
-                <p class="text-muted leading-relaxed">
-                    با یک هفته آزمایشی رایگان، ببین این سیستم چطور می‌تونه تحصیلت رو متحول کنه.
-                </p>
-            </div>
-
-            @elseif($currentStep === 2)
-            {{-- خوش‌آمدگویی ۲ --}}
-            <div class="flex-1 flex flex-col justify-center">
-                <h2 class="text-2xl font-black text-foreground mb-8 text-center">این هفته چی داری؟</h2>
-                <div class="space-y-4">
-                    @foreach([
-                        ['bg'=>'bg-blue-500/10','icon_color'=>'text-blue-400','icon'=>'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2','title'=>'برنامه مطالعاتی هوشمند','desc'=>'برنامه شخصی بر اساس پایه و رشته‌ات'],
-                        ['bg'=>'bg-purple-500/10','icon_color'=>'text-purple-400','icon'=>'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2','title'=>'طبقه‌بندی مباحث','desc'=>'وضعیت دقیق هر مبحث رو بسنج'],
-                        ['bg'=>'bg-emerald-500/10','icon_color'=>'text-emerald-400','icon'=>'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z','title'=>'پشتیبان اختصاصی','desc'=>'راهنمایی و پیگیری توسط پشتیبان'],
-                    ] as $f)
-                    <div class="flex items-center gap-4 {{ $f['bg'] }} rounded-2xl p-4">
-                        <div class="w-10 h-10 bg-background/50 rounded-xl flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 {{ $f['icon_color'] }}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="{{ $f['icon'] }}"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-foreground text-sm">{{ $f['title'] }}</h3>
-                            <p class="text-xs text-muted">{{ $f['desc'] }}</p>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-
-            @elseif($currentStep === 3)
-            {{-- خوش‌آمدگویی ۳ --}}
-            <div class="flex-1 flex flex-col items-center justify-center text-center">
-                <div class="w-20 h-20 bg-amber-500/10 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-10 h-10 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-black text-foreground mb-3">کاملاً رایگانه!</h2>
-                <p class="text-muted leading-relaxed mb-6">یه هفته آزمایشی کامل بدون هیچ هزینه‌ای. اگه دوست داشتی، بعدش ادامه بده.</p>
-                <div class="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-4 text-right">
-                    <p class="text-sm text-emerald-300 leading-relaxed">
-                        ✓ بدون نیاز به کارت بانکی<br>
-                        ✓ دسترسی کامل به امکانات<br>
-                        ✓ پشتیبان اختصاصی
+            {{-- ───── Step 1: خوش‌آمدگویی ───── --}}
+            <section x-show="$wire.currentStep === 1"
+                     x-transition:enter="step-pane transition-all duration-300"
+                     x-transition:enter-start="opacity-0 translate-x-6"
+                     x-transition:enter-end="opacity-100 translate-x-0"
+                     x-transition:leave="step-pane transition-all duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0 -translate-x-6">
+                <div class="text-center py-6">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-3xl mb-4">👋</div>
+                    <h2 class="text-2xl font-extrabold mb-2">به SDFR خوش آمدید</h2>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+                        با چند مرحلهٔ ساده، حساب کاربری شما ساخته می‌شود و مسیر آموزشی شخصی‌سازی‌شدهٔ خود را آغاز می‌کنید.
                     </p>
                 </div>
-            </div>
+            </section>
 
-            @elseif($currentStep === 4)
-            {{-- اطلاعات شخصی --}}
-            <div>
-                <h2 class="text-xl font-black text-foreground mb-1">اطلاعات شخصی</h2>
-                <p class="text-sm text-muted mb-6">برای ثبت‌نام به این اطلاعات نیاز داریم</p>
+            {{-- ───── Step 2: معرفی متد ───── --}}
+            <section x-show="$wire.currentStep === 2"
+                     x-transition:enter="step-pane transition-all duration-300"
+                     x-transition:enter-start="opacity-0 translate-x-6"
+                     x-transition:enter-end="opacity-100 translate-x-0"
+                     x-transition:leave="step-pane transition-all duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0 -translate-x-6">
+                <div class="text-center py-6">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-indigo-100 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-400 text-3xl mb-4">🎯</div>
+                    <h2 class="text-2xl font-extrabold mb-2">متد اختصاصی SDFR</h2>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+                        برنامهٔ مطالعاتی، مشاورهٔ تخصصی و آزمون‌های هدفمند — همه در یک پلتفرم.
+                    </p>
+                </div>
+            </section>
 
-                @if($generalError)
-                <div class="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-sm">{{ $generalError }}</div>
-                @endif
+            {{-- ───── Step 3: شروع ───── --}}
+            <section x-show="$wire.currentStep === 3"
+                     x-transition:enter="step-pane transition-all duration-300"
+                     x-transition:enter-start="opacity-0 translate-x-6"
+                     x-transition:enter-end="opacity-100 translate-x-0"
+                     x-transition:leave="step-pane transition-all duration-200"
+                     x-transition:leave-start="opacity-100"
+                     x-transition:leave-end="opacity-0 -translate-x-6">
+                <div class="text-center py-6">
+                    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 text-3xl mb-4">🚀</div>
+                    <h2 class="text-2xl font-extrabold mb-2">آماده‌اید شروع کنیم؟</h2>
+                    <p class="text-slate-600 dark:text-slate-400 leading-relaxed">
+                        در ادامه چند اطلاعات از شما می‌پرسیم تا حساب شما را بسازیم.
+                    </p>
+                </div>
+            </section>
 
-                <div class="space-y-4">
+            {{-- ───── Step 4: اطلاعات شخصی ───── --}}
+            <section x-show="$wire.currentStep === 4"
+                     x-transition:enter="step-pane transition-all duration-300"
+                     x-transition:enter-start="opacity-0 translate-x-6"
+                     x-transition:enter-end="opacity-100 translate-x-0">
+                <h2 class="text-xl font-bold mb-4">اطلاعات شخصی</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-muted mb-1">نام *</label>
-                        <input wire:model="firstName" type="text" placeholder="مثال: علی"
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('firstName') border-red-500 @enderror">
-                        @error('firstName')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
+                        <label class="block text-sm font-semibold mb-1">نام <span class="text-rose-500">*</span></label>
+                        <input wire:model.blur="firstName" type="text" placeholder="مثال: علی"
+                               autocomplete="given-name"
+                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 @error('firstName') border-rose-500 @enderror">
+                        @error('firstName')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-muted mb-1">نام خانوادگی *</label>
-                        <input wire:model="lastName" type="text" placeholder="مثال: محمدی"
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('lastName') border-red-500 @enderror">
-                        @error('lastName')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
+                        <label class="block text-sm font-semibold mb-1">نام خانوادگی <span class="text-rose-500">*</span></label>
+                        <input wire:model.blur="lastName" type="text" placeholder="مثال: محمدی"
+                               autocomplete="family-name"
+                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 @error('lastName') border-rose-500 @enderror">
+                        @error('lastName')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">کد ملی *</label>
-                        <input wire:model="codeMell" type="text" maxlength="10" placeholder="۱۰ رقم"
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('codeMell') border-red-500 @enderror">
-                        @error('codeMell')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold mb-1">کد ملی <span class="text-rose-500">*</span></label>
+                        <input wire:model.blur="codeMell" type="text" maxlength="10" placeholder="۱۰ رقم"
+                               autocomplete="off" inputmode="numeric"
+                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 @error('codeMell') border-rose-500 @enderror" dir="ltr">
+                        @error('codeMell')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
                     </div>
                 </div>
-            </div>
+            </section>
 
-            @elseif($currentStep === 5)
-            {{-- والدین + پایه + رشته --}}
-            <div>
-                <h2 class="text-xl font-black text-foreground mb-1">اطلاعات تحصیلی</h2>
-                <p class="text-sm text-muted mb-6">شماره والدین و پایه تحصیلیت رو وارد کن</p>
-                <div class="space-y-4">
+            {{-- ───── Step 5: والدین + پایه ───── --}}
+            <section x-show="$wire.currentStep === 5"
+                     x-transition:enter="step-pane transition-all duration-300"
+                     x-transition:enter-start="opacity-0 translate-x-6"
+                     x-transition:enter-end="opacity-100 translate-x-0"
+                     x-data="{ pf: '', pm: '' }">
+                <h2 class="text-xl font-bold mb-4">شماره والدین و پایهٔ تحصیلی</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-muted mb-1">شماره پدر *</label>
-                        <input wire:model="fatherMobile" type="tel" placeholder="09..."
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('fatherMobile') border-red-500 @enderror">
-                        @error('fatherMobile')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
+                        <label class="block text-sm font-semibold mb-1">شمارهٔ پدر <span class="text-rose-500">*</span></label>
+                        <input wire:model.blur="fatherMobile" x-model="pf" type="tel" placeholder="09..."
+                               autocomplete="off" inputmode="numeric"
+                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 @error('fatherMobile') border-rose-500 @enderror" dir="ltr">
+                        @error('fatherMobile')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-muted mb-1">شماره مادر *</label>
-                        <input wire:model="motherMobile" type="tel" placeholder="09..."
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('motherMobile') border-red-500 @enderror">
-                        @error('motherMobile')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
+                        <label class="block text-sm font-semibold mb-1">شمارهٔ مادر <span class="text-rose-500">*</span></label>
+                        <input wire:model.blur="motherMobile" x-model="pm" type="tel" placeholder="09..."
+                               autocomplete="off" inputmode="numeric"
+                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 @error('motherMobile') border-rose-500 @enderror" dir="ltr">
+                        @error('motherMobile')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
+                        <div x-show="pf && pm && pf === pm" class="text-xs text-rose-600 dark:text-rose-400 mt-1">
+                            شمارهٔ پدر و مادر نباید یکسان باشد.
+                        </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-muted mb-1">پایه *</label>
-                        <select wire:model.live="grade" class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500">
-                            <option value="9">نهم</option>
-                            <option value="10">دهم</option>
-                            <option value="11">یازدهم</option>
-                            <option value="12">دوازدهم</option>
+                        <label class="block text-sm font-semibold mb-1">پایه <span class="text-rose-500">*</span></label>
+                        <select wire:model.live="grade"
+                                class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            @foreach($gradeLabels as $value => $label)
+                                <option value="{{ $value }}">{{ $label }}</option>
+                            @endforeach
                         </select>
+                        @error('grade')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
                     </div>
                     @if($grade !== '9')
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">رشته *</label>
-                        <select wire:model="field" class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500">
-                            <option value="math">ریاضی</option>
-                            <option value="experimental">تجربی</option>
-                            <option value="human">انسانی</option>
-                        </select>
-                    </div>
+                        <div>
+                            <label class="block text-sm font-semibold mb-1">رشته <span class="text-rose-500">*</span></label>
+                            <select wire:model="field"
+                                    class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                @foreach($fieldLabels as $value => $label)
+                                    <option value="{{ $value }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            @error('field')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
+                        </div>
                     @endif
                 </div>
-            </div>
+            </section>
 
-            @elseif($currentStep === 6)
-            {{-- مکان + اطلاعات حساب --}}
-            <div>
-                <h2 class="text-xl font-black text-foreground mb-1">اطلاعات حساب</h2>
-                <p class="text-sm text-muted mb-6">استان، شهر و اطلاعات ورود رو وارد کن</p>
-                <div class="space-y-4">
+            {{-- ───── Step 6: مکان + رمز ───── --}}
+            <section x-show="$wire.currentStep === 6"
+                     x-transition:enter="step-pane transition-all duration-300"
+                     x-transition:enter-start="opacity-0 translate-x-6"
+                     x-transition:enter-end="opacity-100 translate-x-0">
+                <h2 class="text-xl font-bold mb-4">محل سکونت و رمز عبور</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-muted mb-1">استان *</label>
-                        <select wire:model.live="stateId" class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('stateId') border-red-500 @enderror">
-                            <option value="0">انتخاب استان</option>
-                            @foreach($states as $s)
-                            <option value="{{ $s->id }}">{{ $s->name }}</option>
+                        <label class="block text-sm font-semibold mb-1">استان <span class="text-rose-500">*</span></label>
+                        <select wire:model.live="stateId"
+                                class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 @error('stateId') border-rose-500 @enderror">
+                            <option value="0">— انتخاب کنید —</option>
+                            @foreach($states as $state)
+                                <option value="{{ $state->id }}">{{ $state->name }}</option>
                             @endforeach
                         </select>
-                        @error('stateId')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
+                        @error('stateId')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-muted mb-1">شهر *</label>
-                        <select wire:model="cityId" class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('cityId') border-red-500 @enderror">
-                            <option value="0">انتخاب شهر</option>
-                            @foreach($cities as $c)
-                            <option value="{{ $c->id }}">{{ $c->name }}</option>
+                        <label class="block text-sm font-semibold mb-1">شهر <span class="text-rose-500">*</span></label>
+                        <select wire:model="cityId"
+                                class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 @error('cityId') border-rose-500 @enderror">
+                            <option value="0">— انتخاب کنید —</option>
+                            @foreach($cities as $city)
+                                <option value="{{ $city->id }}">{{ $city->name }}</option>
                             @endforeach
                         </select>
-                        @error('cityId')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
+                        @error('cityId')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold mb-1">شمارهٔ موبایل (برای ورود) <span class="text-rose-500">*</span></label>
+                        <input wire:model.blur="mobile" type="tel" placeholder="09..."
+                               autocomplete="off" inputmode="numeric"
+                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 @error('mobile') border-rose-500 @enderror" dir="ltr">
+                        @error('mobile')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-muted mb-1">شماره موبایل *</label>
-                        <input wire:model="mobile" type="tel" placeholder="09..."
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('mobile') border-red-500 @enderror">
-                        @error('mobile')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
+                        <label class="block text-sm font-semibold mb-1">رمز عبور <span class="text-rose-500">*</span></label>
+                        <input wire:model.blur="password" type="password"
+                               autocomplete="new-password" data-lpignore="true" data-1p-ignore="true"
+                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 @error('password') border-rose-500 @enderror" dir="ltr">
+                        @error('password')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-muted mb-1">رمز عبور *</label>
-                        <input wire:model.live="password" type="password"
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('password') border-red-500 @enderror">
-                        <div class="flex gap-2 mt-2">
-                            <span class="text-xs px-2 py-0.5 rounded-full {{ $passwordStrength['length'] ? 'bg-emerald-500/20 text-emerald-400' : 'bg-secondary text-muted' }}">۸ کاراکتر</span>
-                            <span class="text-xs px-2 py-0.5 rounded-full {{ $passwordStrength['letter'] ? 'bg-emerald-500/20 text-emerald-400' : 'bg-secondary text-muted' }}">حرف</span>
-                            <span class="text-xs px-2 py-0.5 rounded-full {{ $passwordStrength['number'] ? 'bg-emerald-500/20 text-emerald-400' : 'bg-secondary text-muted' }}">عدد</span>
-                        </div>
-                        @error('password')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-muted mb-1">تکرار رمز *</label>
-                        <input wire:model="passwordConf" type="password"
-                               class="w-full bg-secondary border border-border rounded-xl px-4 py-3 text-foreground focus:outline-none focus:border-emerald-500 @error('passwordConf') border-red-500 @enderror">
-                        @error('passwordConf')<p class="text-xs text-red-400 mt-1">{{ $message }}</p>@enderror
+                        <label class="block text-sm font-semibold mb-1">تکرار رمز <span class="text-rose-500">*</span></label>
+                        <input wire:model.blur="passwordConf" type="password"
+                               autocomplete="new-password" data-lpignore="true" data-1p-ignore="true"
+                               class="w-full rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 @error('passwordConf') border-rose-500 @enderror" dir="ltr">
+                        @error('passwordConf')<div class="text-xs text-rose-600 dark:text-rose-400 mt-1">{{ $message }}</div>@enderror
                     </div>
                 </div>
-            </div>
+            </section>
 
-            @elseif($currentStep === 7)
-            {{-- OTP --}}
-            <div class="flex-1 flex flex-col items-center justify-center text-center">
-                <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-black text-foreground mb-2">تأیید موبایل</h3>
-                <p class="text-muted text-sm mb-6">کد ارسال‌شده به <span class="text-emerald-400 font-mono">{{ $mobile }}</span> را وارد کن</p>
+            {{-- ───── Step 7: OTP ───── --}}
+            <section x-show="$wire.currentStep === 7"
+                     x-transition:enter="step-pane transition-all duration-300"
+                     x-transition:enter-start="opacity-0 translate-x-6"
+                     x-transition:enter-end="opacity-100 translate-x-0">
+                <h2 class="text-xl font-bold mb-2">تأیید کد پیامک‌شده</h2>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-4">
+                    کد ۶ رقمی به شمارهٔ <strong dir="ltr">{{ $mobile }}</strong> ارسال شد.
+                </p>
+                <input wire:model="otpInput" type="text" maxlength="6" placeholder="------"
+                       inputmode="numeric"
+                       class="w-full text-center tracking-[0.5em] text-2xl font-mono rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500" dir="ltr">
 
                 @if($otpError)
-                <div class="mb-4 p-3 bg-red-500/10 border border-red-500/30 text-red-400 rounded-xl text-sm w-full">{{ $otpError }}</div>
+                    <div class="text-rose-600 dark:text-rose-400 text-xs mt-2 text-center">{{ $otpError }}</div>
                 @endif
 
-                <input wire:model="otpInput" type="text" maxlength="6" placeholder="------"
-                       class="w-48 text-center text-2xl font-mono bg-secondary border-2 border-border focus:border-emerald-500 rounded-xl px-4 py-3 text-foreground focus:outline-none block mb-4 tracking-widest">
-
-                <button wire:click="verifyOtp" wire:loading.attr="disabled"
-                        class="w-full py-3.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 mb-4">
-                    <svg wire:loading wire:target="verifyOtp" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                    تأیید و ادامه
-                </button>
-
-                <div class="text-sm text-muted">
+                <div class="flex items-center justify-between mt-5 text-sm">
                     @if($countdown > 0)
-                    <span x-data="{ t: @entangle('countdown'), interval: null }"
-                          x-init="interval = setInterval(() => { if(t>0) t--; else { clearInterval(interval); $wire.countdownFinished(); } }, 1000)">
-                        ارسال مجدد تا <span x-text="t" class="text-emerald-400 font-mono"></span> ثانیه
-                    </span>
+                        <span class="text-slate-500 dark:text-slate-400">
+                            ارسال مجدد تا
+                            <span class="text-emerald-600 dark:text-emerald-400 font-mono mx-1"
+                                  x-text="$wire.countdown"></span>
+                            ثانیه
+                        </span>
                     @else
-                    <button wire:click="resendOtp" class="text-emerald-400 hover:underline">ارسال مجدد کد</button>
+                        <button type="button" wire:click="resendOtp"
+                                class="text-emerald-600 dark:text-emerald-400 hover:underline">
+                            ارسال مجدد کد
+                        </button>
                     @endif
-                </div>
-            </div>
 
-            @elseif($currentStep === 8 && $registered)
-            {{-- تأیید نهایی --}}
-            <div class="flex-1 flex flex-col items-center justify-center text-center">
-                <div class="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-10 h-10 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
+                    <button type="button" wire:click="verifyOtp"
+                            wire:loading.attr="disabled"
+                            class="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-semibold">
+                        تأیید کد
+                    </button>
                 </div>
-                <h2 class="text-2xl font-black text-foreground mb-3">ثبت‌نام کامل شد!</h2>
-                <p class="text-muted text-sm leading-relaxed mb-8">
-                    حالا می‌تونی هفته آزمایشی رایگانت رو شروع کنی یا مستقیم دوره بخری.
+            </section>
+
+            {{-- ───── Step 8: انتخاب نهایی ───── --}}
+            <section x-show="$wire.currentStep === 8"
+                     x-transition:enter="step-pane transition-all duration-300"
+                     x-transition:enter-start="opacity-0 translate-x-6"
+                     x-transition:enter-end="opacity-100 translate-x-0">
+                <div class="text-center py-4">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-2xl mb-3">✓</div>
+                    <h2 class="text-2xl font-extrabold mb-2">حساب شما ساخته شد</h2>
+                    <p class="text-slate-600 dark:text-slate-400 mb-6">برای ادامه یکی از گزینه‌های زیر را انتخاب کنید.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button type="button" wire:click="openTrialConfirm"
+                            class="rounded-2xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-900/30 p-5 text-start hover:shadow-md transition">
+                        <div class="text-sm text-emerald-700 dark:text-emerald-300 font-semibold mb-1">رایگان</div>
+                        <div class="font-bold text-lg text-slate-900 dark:text-slate-100 mb-1">۱ هفتهٔ آزمایشی</div>
+                        <div class="text-xs text-slate-600 dark:text-slate-400">تجربهٔ کامل سامانه به‌مدت یک هفته</div>
+                    </button>
+
+                    <button type="button" wire:click="goToPurchase"
+                            class="rounded-2xl border border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/30 p-5 text-start hover:shadow-md transition">
+                        <div class="text-sm text-indigo-700 dark:text-indigo-300 font-semibold mb-1">کامل</div>
+                        <div class="font-bold text-lg text-slate-900 dark:text-slate-100 mb-1">خرید دوره</div>
+                        <div class="text-xs text-slate-600 dark:text-slate-400">دسترسی به همهٔ امکانات با قیمت پلکانی</div>
+                    </button>
+                </div>
+
+                <div class="text-center mt-6">
+                    <button type="button" wire:click="declineTrial"
+                            class="text-xs text-slate-500 dark:text-slate-400 hover:underline">
+                        فعلاً نه — بازگشت به صفحه اصلی
+                    </button>
+                </div>
+            </section>
+
+            {{-- ─── ناوبری پایین (steps 1..6) ─── --}}
+            <div class="mt-8 flex items-center justify-between gap-3"
+                 x-show="$wire.currentStep >= 1 && $wire.currentStep <= 6">
+                <button type="button" @click="goPrev()"
+                        x-show="$wire.currentStep > 1"
+                        class="px-5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm font-semibold">
+                    قبلی
+                </button>
+                <div></div>
+                <button type="submit"
+                        :disabled="busy"
+                        class="px-6 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-bold">
+                    <span x-show="!busy">بعدی</span>
+                    <span x-show="busy">لطفاً صبر کنید…</span>
+                </button>
+            </div>
+        </form>
+
+        {{-- ─── مودال تأیید آزمایشی ─── --}}
+        <div x-show="$wire.showTrialConfirm"
+             x-transition.opacity
+             class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/60 dark:bg-black/80 backdrop-blur-sm"
+                 @click="if (!busy) $wire.closeTrialConfirm()"></div>
+
+            <div class="relative w-full max-w-sm rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-2xl p-6 text-center">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 text-2xl mb-3">✨</div>
+                <h3 class="font-extrabold text-lg mb-2">شروع هفتهٔ آزمایشی</h3>
+                <p class="text-sm text-slate-600 dark:text-slate-400 mb-5">
+                    با شروع آزمایشی، یک پشتیبان جذب با شما تماس می‌گیرد و فرایند را آغاز می‌کند.
                 </p>
-                <div class="w-full space-y-3">
-                    <button wire:click="openTrialConfirm"
-                            class="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors">
-                        بله، می‌خوام شرکت کنم
+                <div class="flex items-center gap-2">
+                    <button type="button"
+                            @click="confirmTrialAction()"
+                            :disabled="busy"
+                            class="flex-1 px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-sm font-bold">
+                        <span x-show="!busy">بله، شروع می‌کنم</span>
+                        <span x-show="busy">در حال ارسال…</span>
                     </button>
-                    <button wire:click="declineTrial"
-                            class="w-full py-3 bg-secondary hover:bg-border text-muted rounded-xl font-medium transition-colors text-sm">
-                        نه، مستقیم دوره می‌خرم
+                    <button type="button"
+                            @click="if (!busy) $wire.closeTrialConfirm()"
+                            class="px-4 py-2.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-sm">
+                        انصراف
                     </button>
                 </div>
             </div>
-            @endif
-
-        </div>
-
-        {{-- دکمه‌های ناوبری موبایل --}}
-        @if(!$registered && $currentStep !== 7)
-        <div class="px-4 pb-8 flex gap-3">
-            @if($currentStep > 1)
-            <button wire:click="previous"
-                    class="flex-1 py-3.5 bg-secondary hover:bg-border text-foreground rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                قبلی
-            </button>
-            @endif
-            @if($currentStep < 6)
-            <button wire:click="next" wire:loading.attr="disabled"
-                    class="flex-1 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
-                بعدی
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-            </button>
-            @elseif($currentStep === 6)
-            <button wire:click="next" wire:loading.attr="disabled"
-                    class="flex-1 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
-                <svg wire:loading wire:target="next" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/></svg>
-                <span wire:loading.remove wire:target="next">ارسال کد تأیید</span>
-                <span wire:loading wire:target="next">در حال ارسال...</span>
-            </button>
-            @endif
-        </div>
-        @endif
-
-        {{-- لینک ورود --}}
-        @if($currentStep <= 3)
-        <div class="pb-6 text-center text-sm text-muted">
-            قبلاً ثبت‌نام کردی؟
-            <a href="{{ route('client.auth.login') }}" class="text-emerald-400 hover:underline">وارد شو</a>
-        </div>
-        @endif
-
-    </div>
-
-    {{-- ─── مودال تأیید هفته آزمایشی ──────────────────────────────────────────── --}}
-    @if($showTrialConfirm)
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
-         @keydown.escape.window="$wire.closeTrialConfirm()">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" wire:click="closeTrialConfirm"></div>
-        <div class="relative z-10 w-full max-w-sm bg-card border border-border rounded-3xl shadow-2xl p-8 text-center"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 scale-90"
-             x-transition:enter-end="opacity-100 scale-100">
-
-            <div class="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                </svg>
-            </div>
-            <h3 class="text-lg font-black text-foreground mb-2">شروع هفته آزمایشی</h3>
-            <p class="text-sm text-muted leading-relaxed mb-6">
-                با تأیید، هفته آزمایشی رایگانت شروع می‌شه و پشتیبان اختصاصی بهت اختصاص داده می‌شه.
-                آیا مطمئنی؟
-            </p>
-            <div class="flex gap-3">
-                <button wire:click="confirmTrial" wire:loading.attr="disabled"
-                        class="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 text-white rounded-xl font-bold transition-colors">
-                    بله، شروع کن!
-                </button>
-                <button wire:click="closeTrialConfirm"
-                        class="flex-1 py-3 bg-secondary hover:bg-border text-foreground rounded-xl font-bold transition-colors">
-                    انصراف
-                </button>
-            </div>
         </div>
     </div>
-    @endif
 
+    @push('scripts')
+        <script>
+            function onboardingFlow(initial) {
+                return {
+                    busy: false,
+                    countdownTimer: null,
+
+                    init() {
+                        // تایمر OTP
+                        this.startCountdownIfNeeded();
+
+                        Livewire.on('start-countdown', () => this.startCountdownIfNeeded());
+
+                        // پایان loading در صورت برگشت validation error
+                        Livewire.on('step-validation-failed', () => { this.busy = false; });
+                        Livewire.on('step-changed',         () => { this.busy = false; });
+                    },
+
+                    startCountdownIfNeeded() {
+                        if (this.countdownTimer) clearInterval(this.countdownTimer);
+                        if ($wire.countdown <= 0) return;
+
+                        this.countdownTimer = setInterval(() => {
+                            if ($wire.countdown > 0) {
+                                $wire.set('countdown', $wire.countdown - 1, false);
+                            } else {
+                                clearInterval(this.countdownTimer);
+                                $wire.countdownFinished();
+                            }
+                        }, 1000);
+                    },
+
+                    goNext() {
+                        if (this.busy) return;
+
+                        // در stepهای welcome (1..3) سرور لازم نیست؛ فقط Alpine
+                        if ($wire.currentStep >= 1 && $wire.currentStep <= 3) {
+                            $wire.set('currentStep', $wire.currentStep + 1);
+                            return;
+                        }
+
+                        this.busy = true;
+                        $wire.next();
+                    },
+
+                    goPrev() {
+                        if (this.busy) return;
+                        if ($wire.currentStep <= 1) return;
+                        $wire.previous();
+                    },
+
+                    confirmTrialAction() {
+                        if (this.busy) return;
+                        this.busy = true;
+                        $wire.confirmTrial();
+                    },
+                };
+            }
+        </script>
+    @endpush
 </div>

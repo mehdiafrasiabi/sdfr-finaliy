@@ -36,7 +36,7 @@ class EnsureClientHasActiveAccess
         }
 
         return redirect()
-            ->route('client.onboarding')
+            ->route('client.purchase')
             ->with('error', 'برای دسترسی به این بخش باید دوره را تهیه کنید یا هفته آزمایشی فعال داشته باشید.');
     }
 }

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->timestamps();
 
-            $table->index(['grade_price_id', 'starts_on', 'ends_on']);
+            $table->index(['grade_price_id', 'starts_on', 'ends_on'], 'gp_dd_grade_dates_idx');
         });
     }
 
