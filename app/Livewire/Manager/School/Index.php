@@ -3,9 +3,11 @@
 namespace App\Livewire\Manager\School;
 
 use App\Models\School;
+use App\Models\SchoolManager;
 use App\Models\SchoolStaff;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -75,6 +77,17 @@ class Index extends Component
             SchoolStaff::updateOrCreate(
                 ['school_id' => $school->id, 'role' => 'deputy'],
                 ['name' => $formData['deputy_name'], 'phone' => $formData['deputy_phone']]
+            );
+
+            // اکانت ورود مدیر مدرسه (guard: school-manager)
+            // رمز عبور = SDFR<کدمدرسه>
+            SchoolManager::updateOrCreate(
+                ['school_id' => $school->id],
+                [
+                    'name'     => $formData['manager_name'],
+                    'mobile'   => $formData['manager_phone'],
+                    'password' => Hash::make('SDFR' . $school->code),
+                ]
             );
         });
 

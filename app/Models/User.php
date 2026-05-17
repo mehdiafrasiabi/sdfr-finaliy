@@ -144,6 +144,14 @@ class User extends Authenticatable
     {
         return $this->student !== null;
     }
+
+    /**
+     * آیا این کاربر دانش‌آموز ثبت‌شده توسط یک مدرسه است؟
+     */
+    public function isSchoolStudent(): bool
+    {
+        return $this->student && $this->student->school_id !== null;
+    }
     public function productComments()
     {
         return $this->hasMany(ProductComment::class);

@@ -48,6 +48,10 @@ return [
             'driver' => 'session',
             'provider' => 'managers',
         ],
+        'school-manager' => [
+            'driver'   => 'session',
+            'provider' => 'school_managers',
+        ],
     ],
 
     /*
@@ -80,6 +84,10 @@ return [
         'managers' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
+        ],
+        'school_managers' => [
+            'driver' => 'eloquent',
+            'model'  => App\Models\SchoolManager::class,
         ],
     ],
 

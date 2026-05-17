@@ -26,6 +26,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
                 return route('admin.sign-in');
             } elseif (str_starts_with($currentPath, 'manager')) {
                 return route('manager.sign-in');
+            } elseif (str_starts_with($currentPath, 'school-manager')) {
+                return route('school-manager.sign-in');
             }
             return route('client.auth.login');
         });

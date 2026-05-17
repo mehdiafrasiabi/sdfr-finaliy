@@ -137,6 +137,12 @@ Route::name('client.')->group(function () {
                 Route::get('/session-analysis', TrialWeekSessionAnalysis::class)->name('session-analysis');
             });
 
+            // School Student Reports (گزارش دانش‌آموز مدرسه)
+            Route::prefix('school-report')->name('school.report.')->group(function () {
+                Route::get('/', \App\Livewire\Client\School\ReportIndex::class)->name('index');
+                Route::get('/new', \App\Livewire\Client\School\ReportCreate::class)->name('create');
+            });
+
             // Consultation Routes (جلسات مشاوره)
             Route::prefix('consultation')->name('consultation.')->group(function () {
                 Route::get('/sessions', ConsultationSessionList::class)->name('sessions');

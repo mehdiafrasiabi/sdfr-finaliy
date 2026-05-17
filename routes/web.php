@@ -8,6 +8,9 @@ Route::prefix('admin')->group(function () {
 Route::prefix('manager')->group(function () {
     require  __DIR__ . '/manager.php';
 });
+Route::prefix('school-manager')->group(function () {
+    require  __DIR__ . '/school-manager.php';
+});
 Route::get('/test-error/{code}', function ($code) {
     abort($code);
 });
