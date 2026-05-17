@@ -45,6 +45,7 @@ class DatabaseSeeder extends Seeder
             ExamPeriodSeeder::class,
             AcademicAdvisorPermissionSeeder::class,
             SiteAcquisitionRoleSeeder::class,
+            SchoolSupporterRoleSeeder::class,
             // TrialSupporterRoleSeeder removed — نقش «پشتیبان تحصیلی آزمایشی» در بازطراحی حذف شد.
             GeneralSettingsTableSeeder::class,
             EducationLevelsTableSeeder::class,

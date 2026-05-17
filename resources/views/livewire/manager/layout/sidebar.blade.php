@@ -1,4 +1,45 @@
 <div>
+    {{-- بخش منوی مدیریت مدارس --}}
+    <div class="app-menu navbar-menu">
+        <div class="navbar-brand-box">
+            <a href="{{ route('manager.dashboard.crm') }}" class="logo logo-dark">
+                <span class="logo-lg"><strong>پنل مدیریت</strong></span>
+            </a>
+        </div>
+        <div id="scrollbar">
+            <div class="container-fluid">
+                <ul class="navbar-nav" id="navbar-nav">
+                    <li class="menu-title"><span>مدیریت مدارس</span></li>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link {{ request()->routeIs('manager.schools.*') || request()->routeIs('manager.school-students.*') ? 'active' : '' }}"
+                           href="#schoolsMenu" data-bs-toggle="collapse" role="button"
+                           aria-expanded="{{ request()->routeIs('manager.schools.*') || request()->routeIs('manager.school-students.*') ? 'true' : 'false' }}"
+                           aria-controls="schoolsMenu">
+                            <i class="ri-building-2-line"></i>
+                            <span>مدیریت مدارس</span>
+                        </a>
+                        <div class="collapse menu-dropdown {{ request()->routeIs('manager.schools.*') || request()->routeIs('manager.school-students.*') ? 'show' : '' }}" id="schoolsMenu">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a href="{{ route('manager.schools.index') }}"
+                                       class="nav-link {{ request()->routeIs('manager.schools.*') ? 'active' : '' }}">
+                                        مدارس
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('manager.school-students.index') }}"
+                                       class="nav-link {{ request()->routeIs('manager.school-students.*') ? 'active' : '' }}">
+                                        دانش‌آموزان مدارس
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
 {{--    <div class="app-menu navbar-menu">--}}
 {{--        <!-- LOGO -->--}}
 {{--        <div class="navbar-brand-box">--}}

@@ -154,6 +154,15 @@ Route::name('manager.')->group(function () {
             Route::get('/{id}', TrialWeekDetail::class)->name('detail');
         });
 
+        // School Management Routes (مدیریت مدارس)
+        Route::prefix('schools')->name('schools.')->group(function () {
+            Route::get('/', \App\Livewire\Manager\School\Index::class)->name('index');
+            Route::get('/{school}', \App\Livewire\Manager\School\Show::class)->name('show');
+        });
+        Route::prefix('school-students')->name('school-students.')->group(function () {
+            Route::get('/', \App\Livewire\Manager\SchoolStudent\Index::class)->name('index');
+        });
+
         // Classification Routes
         Route::prefix('classification')->name('classification.')->group(function () {
             Route::get('/education-levels', EducationLevels::class)->name('education-levels');
