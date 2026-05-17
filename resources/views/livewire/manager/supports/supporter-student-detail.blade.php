@@ -30,12 +30,12 @@
                                     <td>{{$student->user->email??'---'}}</td>
                                 </tr>
                                 <tr>
-                                    <th><span class="fw-medium">پشتیبان</span></th>
-                                    <td>{{$student->supporter->name??'---'}}</td>
+                                    <th><span class="fw-medium">مشاور</span></th>
+                                    <td>{{$student->advisor->name??'---'}}</td>
                                 </tr>
                                 <tr>
-                                    <th><span class="fw-medium">تلفن پشتیبان</span></th>
-                                    <td>{{$student->supporter->mobile??'---'}}</td>
+                                    <th><span class="fw-medium">تلفن مشاور</span></th>
+                                    <td>{{$student->advisor->mobile??'---'}}</td>
                                 </tr>
 
                                 </tbody>

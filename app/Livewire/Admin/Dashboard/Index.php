@@ -88,10 +88,7 @@ class Index extends Component
         }
 
         return Student::query()
-            ->where(function ($q) use ($adminId) {
-                $q->where('advisor_id', $adminId)
-                    ->orWhere('supporter_id', $adminId);
-            })
+            ->where('advisor_id', $adminId)
             ->pluck('id')
             ->all();
     }

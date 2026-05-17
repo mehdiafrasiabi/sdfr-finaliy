@@ -68,8 +68,8 @@
                                         @endif
                                     </td>
                                     <td>
-                                        @if($trial->supporter)
-                                            <span class="text-success fw-semibold">{{ $trial->supporter->name }}</span>
+                                        @if($trial->acquisitionSupporter)
+                                            <span class="text-success fw-semibold">{{ $trial->acquisitionSupporter->name }}</span>
                                         @else
                                             <span class="text-warning">
                                                 <i class="ri-time-line me-1"></i>

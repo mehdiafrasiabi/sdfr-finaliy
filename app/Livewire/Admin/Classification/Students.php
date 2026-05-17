@@ -78,10 +78,7 @@ class Students extends Component
                 'payment.order.user',
                 'user.personalInformation'
             ])
-            ->where(function ($q) use ($adminId) {
-                $q->where('supporter_id', $adminId)
-                    ->orWhere('advisor_id', $adminId);
-            });
+            ->where('advisor_id', $adminId);
 
         if ($this->search) {
             $studentsQuery->whereHas('user.personalInformation', function ($q) {
@@ -106,7 +103,7 @@ class Students extends Component
 
         $submittedCount = StudentClassificationSubmission::where('classification_project_id', $this->project->id)
             ->where('is_completed', true)
-            ->whereIn('user_id', Student::where('supporter_id', $adminId)->pluck('user_id'))
+            ->whereIn('user_id', Student::where('advisor_id', $adminId)->pluck('user_id'))
             ->count();
 
 

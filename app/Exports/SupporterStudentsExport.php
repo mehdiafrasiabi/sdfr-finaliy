@@ -2,36 +2,40 @@
 
 namespace App\Exports;
 
-use App\Models\Student;
+use App\Models\TrialWeek;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 
+/**
+ * خروجی دانش‌آموزان آزمایشی یک «پشتیبان جذب».
+ */
 class SupporterStudentsExport implements FromCollection, WithHeadings
 {
-    protected $supporter_id;
+    protected int $acquisitionSupporterId;
 
-    public function __construct($supporter_id)
+    public function __construct(int $acquisitionSupporterId)
     {
-        $this->supporter_id = $supporter_id;
+        $this->acquisitionSupporterId = $acquisitionSupporterId;
     }
 
     public function collection()
     {
-        return Student::with('admin')
-            ->where('admin_id', $this->supporter_id)
+        return TrialWeek::with(['user.personalInformation.state', 'user.personalInformation.city'])
+            ->where('acquisition_supporter_id', $this->acquisitionSupporterId)
             ->get()
-            ->map(function ($student) {
+            ->map(function (TrialWeek $trial) {
+                $pi = $trial->user?->personalInformation;
                 return [
-                    'نام دانش‌آموز' => $student->personalInformation?->name,
-                    'شماره موبایل' => $student->user?->mobile,
-                    'نام پدر' => $student->personalInformation?->father_name,
-                    'کدملی' =>  $student->personalInformation?->code_mell,
-                    'محل تولد' => $student->personalInformation?->place_of_birth,
-                    'استان' => $student->personalInformation?->state->name,
-                    'شهر' => $student->personalInformation?->city->name,
-                    'ادرس' => $student->personalInformation?->address,
-                    'موبایل پدر' => $student->personalInformation?->father_mobile,
-                    'موبایل مادر' => $student->personalInformation?->mother_mobile,
+                    'نام دانش‌آموز' => $pi?->name ?? $trial->user?->name,
+                    'شماره موبایل' => $trial->user?->mobile,
+                    'نام پدر'      => $pi?->father_name,
+                    'کدملی'        => $pi?->code_mell,
+                    'محل تولد'     => $pi?->place_of_birth,
+                    'استان'        => $pi?->state?->name,
+                    'شهر'          => $pi?->city?->name,
+                    'ادرس'         => $pi?->address,
+                    'موبایل پدر'   => $trial->father_mobile ?? $pi?->father_mobile,
+                    'موبایل مادر'  => $trial->mother_mobile ?? $pi?->mother_mobile,
                 ];
             });
     }

@@ -280,10 +280,7 @@ class Index extends Component
     private function getStudents()
     {
         return Student::with(['user.personalInformation'])
-            ->where(function ($q) {
-                $q->where('advisor_id', auth('admin')->id())
-                    ->orWhere('supporter_id', auth('admin')->id());
-            })
+            ->where('advisor_id', auth('admin')->id())
             ->get();
     }
 

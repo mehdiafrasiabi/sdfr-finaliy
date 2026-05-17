@@ -72,6 +72,8 @@ Route::name('manager.')->group(function () {
 
 
         Route::get('/paymentMethod', PaymentIndex::class)->name('paymentMethod');
+        Route::get('/payments/details', \App\Livewire\Manager\Payment\Details::class)
+            ->name('payments.details');
         Route::get('/map/country', MapCountry::class)->name('map.country');
         Route::get('/map/state', MapState::class)->name('map.state');
         Route::get('/map/city', MapCity::class)->name('map.city');
@@ -139,6 +141,12 @@ Route::name('manager.')->group(function () {
         // قیمت‌گذاری بر اساس پایه تحصیلی
         Route::get('/grade-prices', \App\Livewire\Manager\GradePrice\Index::class)
             ->name('grade-price.index');
+        Route::get('/grade-prices/{price}', \App\Livewire\Manager\GradePrice\Show::class)
+            ->name('grade-price.show');
+        // Legacy route for daily discounts kept for backward compatibility
+        Route::get('/grade-prices/{price}/daily-discounts',
+            \App\Livewire\Manager\GradePrice\DailyDiscount::class)
+            ->name('grade-price.daily-discount');
 
         // Trial Week Routes (هفته آزمایشی)
         Route::prefix('trial-week')->name('trial-week.')->group(function () {

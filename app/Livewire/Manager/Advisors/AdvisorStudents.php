@@ -44,7 +44,7 @@ class AdvisorStudents extends Component
 
     public function render()
     {
-        $advisors = Admin::role('academic_advisor')->get();
+        $advisors = Admin::role('مشاور تحصیلی')->get();
 
         $students = User::whereHas('student', function ($query) {
             $query->whereNull('advisor_id');

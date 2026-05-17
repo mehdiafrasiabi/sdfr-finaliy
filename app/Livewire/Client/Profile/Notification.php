@@ -41,19 +41,7 @@ class Notification extends Component
             ->latest()
             ->first();
         if ($latestUnread && $latestUnread->notification) {
-            $category = $latestUnread->notification->category;
-            // اگر کاربر دانش‌آموز است و مشاور و پشتیبان یکی است
-            if ($this->isStudent) {
-                $student = $this->student;
-                if ($student->advisor_id && $student->supporter_id && $student->advisor_id == $student->supporter_id) {
-                    // اگر پیام از دسته مشاور یا پشتیبان است، دسته 'sdfr' را فعال کن
-                    if (in_array($category, [ModelsNotification::CATEGORY_ADVISOR, ModelsNotification::CATEGORY_SUPPORTER])) {
-                        $this->activeCategory = 'sdfr';
-                        return;
-                    }
-                }
-            }
-            $this->activeCategory = $category;
+            $this->activeCategory = $latestUnread->notification->category;
         }
     }
     /**
@@ -83,17 +71,6 @@ class Notification extends Component
     public function getAvailableCategories(): array
     {
         if ($this->isStudent) {
-            // برای دانش‌آموزان
-            $student = $this->student;
-            // بررسی اینکه آیا مشاور و پشتیبان یکی هستند
-            if ($student->advisor_id && $student->supporter_id && $student->advisor_id == $student->supporter_id) {
-                // اگر مشاور و پشتیبان یکی است، فقط "پیام SDFR" نمایش داده شود
-                return [
-                    ModelsNotification::CATEGORY_ANNOUNCEMENT => 'اعلانات',
-                    ModelsNotification::CATEGORY_SPECIAL => 'اعلان ویژه',
-                    'sdfr' => 'پیام SDFR', // ترکیب مشاور و پشتیبان
-                ];
-            }
             return [
                 ModelsNotification::CATEGORY_ANNOUNCEMENT => 'اعلانات',
                 ModelsNotification::CATEGORY_SPECIAL => 'اعلان ویژه',

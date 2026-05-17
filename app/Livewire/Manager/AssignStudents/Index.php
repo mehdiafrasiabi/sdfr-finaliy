@@ -3,7 +3,6 @@
 namespace App\Livewire\Manager\AssignStudents;
 
 use App\Models\Admin;
-use App\Models\Payment;
 use App\Models\Student;
 use App\Models\User;
 use Livewire\Component;
@@ -21,35 +20,39 @@ class Index extends Component
         $this->resetValidation();
     }
 
+    /**
+     * تخصیص «مشاور تحصیلی» به دانش‌آموزی که خرید کرده و هنوز مشاور ندارد.
+     */
     public function assign($userId, $adminId)
     {
-        if (!$adminId) {
-            $this->dispatch('error', 'پشتیبان نامعتبر است.');
+        if (! $adminId) {
+            $this->dispatch('error', 'مشاور نامعتبر است.');
             return;
         }
 
         $student = Student::where('user_id', $userId)
-            ->whereNull('supporter_id')
+            ->whereNull('advisor_id')
             ->first();
 
-        if (!$student) {
-            $this->dispatch('error', 'دانش‌آموز یافت نشد یا قبلاً اختصاص یافته.');
+        if (! $student) {
+            $this->dispatch('error', 'دانش‌آموز یافت نشد یا قبلاً مشاور دارد.');
             return;
         }
 
-        $student->supporter_id = $adminId;
+        $student->advisor_id = $adminId;
         $student->save();
 
-        $this->dispatch('success', 'با موفقیت اختصاص یافت.');
+        $this->dispatch('success', 'مشاور با موفقیت اختصاص یافت.');
     }
 
     public function render()
     {
-        $admins = Admin::role('academic support')->get();
+        // فقط مشاوران تحصیلی برای تخصیص
+        $admins = Admin::role('مشاور تحصیلی')->get();
 
-        // کاربران با پرداخت کامل که student دارند ولی هنوز supporter_id ثبت نشده
+        // کاربران با پرداخت کامل که student دارند ولی هنوز مشاور ندارند
         $students = User::whereHas('student', function ($q) {
-            $q->whereNull('supporter_id');
+            $q->whereNull('advisor_id');
         })
             ->whereHas('payments', function ($q) {
                 $q->where('status', 'completed');
@@ -59,9 +62,7 @@ class Index extends Component
 
         return view('livewire.manager.assign-students.index', [
             'students' => $students,
-            'admins' => $admins,
+            'admins'   => $admins,
         ])->layout('layouts.manager.app');
     }
-
-
 }

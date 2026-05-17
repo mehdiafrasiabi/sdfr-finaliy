@@ -45,9 +45,12 @@ class TrialWeek extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function supporter(): BelongsTo
+    /**
+     * «پشتیبان جذب» اختصاص داده‌شده به این هفتهٔ آزمایشی.
+     */
+    public function acquisitionSupporter(): BelongsTo
     {
-        return $this->belongsTo(Admin::class, 'supporter_id');
+        return $this->belongsTo(Admin::class, 'acquisition_supporter_id');
     }
 
     public function student(): BelongsTo

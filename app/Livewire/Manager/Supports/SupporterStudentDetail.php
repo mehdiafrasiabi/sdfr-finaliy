@@ -38,7 +38,6 @@ class SupporterStudentDetail extends Component
     public function render()
     {
         $details = $this->student->barnamehs()
-            ->with('supporter')
             ->latest()
             ->paginate(10);
 

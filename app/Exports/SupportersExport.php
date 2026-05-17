@@ -11,15 +11,15 @@ class SupportersExport implements FromCollection, WithHeadings
 {
     public function collection(): Collection
     {
-        return Admin::role('academic support')
-            ->withCount('students')
+        return Admin::role('site acquisition')
+            ->withCount('acquisitionTrialWeeks')
             ->get()
             ->map(function ($admin) {
                 return [
                     'نام و نام خانوادگی' => $admin->name,
-                    'ایمیل'              => $admin->email??'وجود ندارد',
+                    'ایمیل'              => $admin->email ?? 'وجود ندارد',
                     'موبایل'             => $admin->mobile,
-                    'تعداد دانش‌آموزان'  => $admin->students_count??'دانش اموزی ندارد',
+                    'تعداد دانش‌آموزان'  => $admin->acquisition_trial_weeks_count ?? 'دانش‌آموزی ندارد',
                 ];
             });
     }

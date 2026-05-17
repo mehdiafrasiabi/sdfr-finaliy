@@ -71,12 +71,13 @@ class Zibal implements PaymentGateWayInterface
 
     public function updatePayment($payment,$request)
     {
-        Student::query()->create(
-            [
-                'user_id' => Auth::id(),
-                'payment_id' => $payment->id,
-            ]
-        );
+        // اگر کاربر قبلاً (مثلاً از طریق هفته آزمایشی) Student داشته، همان رکورد
+        // را به دانش‌آموز پرداختی ارتقا می‌دهیم. در غیر این صورت رکورد جدید
+        // ساخته می‌شود.
+        $student = Student::query()->firstOrNew(['user_id' => Auth::id()]);
+        $student->payment_id = $payment->id;
+        $student->is_trial   = false;
+        $student->save();
 
         $payment->update(
             [

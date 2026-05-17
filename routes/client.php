@@ -76,6 +76,12 @@ Route::name('client.')->group(function () {
         ->middleware('auth')
         ->name('profile.waiting-for-supporter');
 
+    // B-2: صفحهٔ پرداخت اختصاصی (auth)
+    Route::get('/purchase',
+        \App\Livewire\Client\Purchase\Index::class)
+        ->middleware('auth')
+        ->name('purchase');
+
     Route::middleware('auth')->group(function () {
         Route::redirect('/shopping-cart', '/')->name('checkout.cart');
         Route::redirect('/shopping-cart-info', '/')->name('checkout.cart.info');
@@ -83,7 +89,7 @@ Route::name('client.')->group(function () {
         Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
 
 
-        Route::prefix('profile')->name('profile.')->group(function () {
+        Route::prefix('profile')->name('profile.')->middleware(['client.active', 'trial.step'])->group(function () {
             //Profile
             Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
             Route::get('/star',Star::class)->name('star');

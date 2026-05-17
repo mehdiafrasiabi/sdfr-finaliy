@@ -106,8 +106,8 @@
                                 @if($trialWeek->step >= 1)
                                     <p class="text-sm text-emerald-600 dark:text-emerald-400 font-semibold">
                                         ✓ پشتیبان شما تخصیص یافته است
-                                        @if($trialWeek->supporter)
-                                            — {{ $trialWeek->supporter->name }}
+                                        @if($trialWeek->acquisitionSupporter)
+                                            — {{ $trialWeek->acquisitionSupporter->name }}
                                         @endif
                                     </p>
                                 @else

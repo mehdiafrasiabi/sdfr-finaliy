@@ -129,4 +129,19 @@
         </div>
     </div>
 
+    @if (session('error'))
+        <div class="mt-4 rounded-lg bg-red-50 text-red-700 px-4 py-3 border border-red-200">
+            {{ session('error') }}
+        </div>
+    @endif
+
+    {{-- B-2: لغو هفته آزمایشی (تا قبل از تخصیص پشتیبان جذب) --}}
+    <div class="mt-6 text-center">
+        <button wire:click="cancelTrial"
+                wire:confirm="آیا از لغو هفتهٔ آزمایشی و بازگشت به صفحهٔ خرید مطمئن هستید؟"
+                class="text-sm text-red-600 hover:text-red-700 underline">
+            لغو هفته آزمایشی و بازگشت به خرید
+        </button>
+    </div>
+
 </div>

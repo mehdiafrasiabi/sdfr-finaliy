@@ -93,10 +93,7 @@ class ExamAssign extends Component
         $admin = Auth::guard('admin')->user();
 
         $students = Student::with('user.personalInformation')
-            ->where(function ($q) use ($admin) {
-                $q->where('supporter_id', $admin->id)
-                    ->orWhere('advisor_id', $admin->id);
-            })
+            ->where('advisor_id', $admin->id)
             ->when($this->search, function ($q) {
                 $q->whereHas('user', function ($qq) {
                     $qq->where('name', 'like', "%{$this->search}%")

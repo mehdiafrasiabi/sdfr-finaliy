@@ -150,11 +150,9 @@ class WeeklyProgramView extends Component
                 'label' => $sourceTypeLabels[$type] ?? 'عادی',
             ];
         }
-        // نام مشاور و پشتیبان از دانش‌آموز
+        // نام مشاور از دانش‌آموز
         $student = $program->student;
         $advisorName = $student?->advisor?->name ?? '-';
-
-        $supporterName = $student?->supporter?->name ?? '-';
         return view('livewire.client.profile.consultation.weekly-program-view', [
             'program' => $program,
             'weekDays' => $weekDays,
@@ -162,7 +160,6 @@ class WeeklyProgramView extends Component
             'chartStats' => $chartStats,
             'sourceTypeStats' => $sourceTypeStats,
             'advisorName' => $advisorName,
-            'supporterName' => $supporterName,
         ])->layout('layouts.client.app');
 
     }

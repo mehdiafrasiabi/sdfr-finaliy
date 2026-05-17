@@ -64,8 +64,31 @@ Route::name('admin.')->group(function () {
 
         // پشتیبان جذب سایت
         Route::prefix('acquisition-supporter')->name('acquisition-supporter.')->group(function () {
-            Route::get('/dashboard', \App\Livewire\Admin\AcquisitionSupporter\Dashboard::class)
+            // C-5 — داشبورد تجمیعی (آمار)
+            Route::get('/dashboard', \App\Livewire\Admin\AcquisitionSupporter\StatsDashboard\Index::class)
                 ->name('dashboard');
+
+            // قدیمی — لیست تمام trial weeks با فیلتر (بقایای صفحه قدیمی)
+            Route::get('/all-trials', \App\Livewire\Admin\AcquisitionSupporter\Dashboard::class)
+                ->name('all-trials');
+
+            // C-1 — دانش‌آموزان من
+            Route::get('/my-students', \App\Livewire\Admin\AcquisitionSupporter\MyStudents\Index::class)
+                ->name('my-students');
+
+            // C-2 — تماس اولیه
+            Route::get('/primary-call', \App\Livewire\Admin\AcquisitionSupporter\PrimaryCall\Index::class)
+                ->name('primary-call');
+
+            // C-3 — تماس ثانویه
+            Route::get('/secondary-call', \App\Livewire\Admin\AcquisitionSupporter\SecondaryCall\Index::class)
+                ->name('secondary-call');
+
+            // C-4 — تماس اکسترا
+            Route::get('/extra-call', \App\Livewire\Admin\AcquisitionSupporter\ExtraCall\Index::class)
+                ->name('extra-call');
+
+            // جزئیات دانش‌آموز (فرم ثبت تماس قدیمی برای backward compat)
             Route::get('/student/{id}', \App\Livewire\Admin\AcquisitionSupporter\StudentDetail::class)
                 ->name('student');
         });
@@ -77,6 +100,14 @@ Route::name('admin.')->group(function () {
         Route::get('/educational-manager/reschedule',
             \App\Livewire\Admin\EducationalManager\Reschedule\Index::class)
             ->name('educational-manager.reschedule');
+
+        // مدیر آموزشی — دانش‌آموزان جدید (آزمایشی و خرید کرده)
+        Route::get('/educational-manager/new-trial-students',
+            \App\Livewire\Admin\EducationalManager\NewTrialStudents\Index::class)
+            ->name('educational-manager.new-trial-students');
+        Route::get('/educational-manager/new-purchased-students',
+            \App\Livewire\Admin\EducationalManager\NewPurchasedStudents\Index::class)
+            ->name('educational-manager.new-purchased-students');
 
         // پنل مشاور — درخواست‌های جابجایی مربوط به خودش
         Route::get('/consultant/reschedule',

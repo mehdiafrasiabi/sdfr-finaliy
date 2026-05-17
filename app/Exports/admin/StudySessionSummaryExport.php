@@ -64,7 +64,7 @@ class StudySessionSummaryExport implements FromCollection, WithHeadings, ShouldA
     {
         return Student::query()
             ->with(['user.personalInformation'])
-            ->where('supporter_id', $this->adminId)
+            ->where('advisor_id', $this->adminId)
             ->when($this->studentIds, fn(Builder $q) => $q->whereIn('id', $this->studentIds));
     }
 

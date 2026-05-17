@@ -465,7 +465,7 @@ class Report extends Component
 
         $dailyReport = DailyReport::create([
             'student_id' => $student->id,
-            'admin_id' => $student->supporter_id ?? $student->advisor_id,
+            'admin_id' => $student->advisor_id,
             'session_id' => $this->currentSession->id,
             'weekly_program_id' => $this->currentProgram->id,
             'report_date' => $day['date'],
@@ -590,7 +590,7 @@ class Report extends Component
 
         $dailyReport = DailyReport::create([
             'student_id' => $student->id,
-            'admin_id' => $student->supporter_id ?? $student->advisor_id,
+            'admin_id' => $student->advisor_id,
             'session_id' => $this->currentSession->id,
             'weekly_program_id' => $this->currentProgram->id,
             'report_date' => $effectiveDate,

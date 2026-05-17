@@ -3,187 +3,94 @@
 namespace Database\Seeders;
 
 use App\Models\Admin;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
+/**
+ * Seeder نهایی نقش‌های پنل ادمین — فقط ۴ نقش مجاز است:
+ *   1) super admin            (مدیر کل)
+ *   2) educational-manager    (مدیر آموزشی)
+ *   3) مشاور تحصیلی          (مشاور تحصیلی)
+ *   4) site acquisition       (پشتیبان جذب)
+ *
+ * permission‌های گروه «مشاور تحصیلی» در AcademicAdvisorPermissionSeeder
+ * و permission‌های «پشتیبان جذب» در SiteAcquisitionRoleSeeder تعریف می‌شوند.
+ */
 class RolePermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        //دسترسی های ادمین
+        // permission های پایه‌ای که هنوز در کد به آن‌ها reference داریم.
+        // (نقش‌های جزئی قدیمی حذف شده‌اند؛ این permission ها به super admin اختصاص می‌یابند.)
         $permissions = [
-            //مدیریت محصولات
-            'view products',
-            'create products',
-            'edit products',
-            'delete products',
+            // مدیریت محصولات
+            'view products', 'create products', 'edit products', 'delete products',
 
-            //مدیریت سفارشات
-            'view orders',
-            'process orders',
+            // مدیریت سفارشات
+            'view orders', 'process orders',
 
-            //مدیریت دسته بندی
-            'view categories',
-            'create categories',
-            'edit categories',
-            'delete categories',
-            //ویژگی دسته بندی
-            'view category_features',
-            'create category_features',
-            'edit category_features',
-            'delete category_features',
+            // مدیریت دسته بندی
+            'view categories', 'create categories', 'edit categories', 'delete categories',
+            'view category_features', 'create category_features', 'edit category_features', 'delete category_features',
 
-            //مدیریت مپ
-            //کشورها
-            'view countries',
-            'create countries',
-            'edit countries',
-            'delete countries',
-            //استان ها
-            'view states',
-            'create states',
-            'edit states',
-            'delete states',
-            //شهرها
-            'view cities',
-            'create cities',
-            'edit cities',
-            'delete cities',
+            // مدیریت مپ
+            'view countries', 'create countries', 'edit countries', 'delete countries',
+            'view states', 'create states', 'edit states', 'delete states',
+            'view cities', 'create cities', 'edit cities', 'delete cities',
 
-            //مدیریت کد تخفیف
-            'view coupons',
-            'create coupons',
-            'edit coupons',
-            'delete coupons',
+            // مدیریت کد تخفیف
+            'view coupons', 'create coupons', 'edit coupons', 'delete coupons',
 
-            //مدیریت تراکنشات
-            'view payments',
-            'process payments',
+            // مدیریت تراکنشات
+            'view payments', 'process payments',
 
-            //مدیریت کاربران
+            // مدیریت کاربران
             'view users',
 
-            //مدیریت دانش  آموزان
-            'view students',
-            'create students',
-            'edit students',
-            'delete students',
-            'view personal_information',
-            'create personal_information',
-            'edit personal_information',
-            'delete personal_information',
-            'view barnamehs',
-            'create barnamehs',
-            'edit barnamehs',
-            'delete barnamehs',
-            'view reports',
-            'create reports',
-            'edit reports',
-            'delete reports',
-            'view report_monthlies',
-            'create report_monthlies',
-            'edit report_monthlies',
-            'delete report_monthlies',
+            // مدیریت دانش‌آموزان
+            'view students', 'create students', 'edit students', 'delete students',
+            'view personal_information', 'create personal_information', 'edit personal_information', 'delete personal_information',
+            'view barnamehs', 'create barnamehs', 'edit barnamehs', 'delete barnamehs',
+            'view reports', 'create reports', 'edit reports', 'delete reports',
+            'view report_monthlies', 'create report_monthlies', 'edit report_monthlies', 'delete report_monthlies',
 
-            //مدیریت درگاه پزداخت
-            'view payment_methods',
-            'create payment_methods',
-            'edit payment_methods',
-            'delete payment_methods',
+            // مدیریت درگاه پرداخت
+            'view payment_methods', 'create payment_methods', 'edit payment_methods', 'delete payment_methods',
 
-            //مدیریت استوری ها
-            'view stories',
-            'create stories',
-            'edit stories',
-            'delete stories',
+            // مدیریت استوری‌ها
+            'view stories', 'create stories', 'edit stories', 'delete stories',
 
-            //مدیریت تنظیمات
-            'view contact_us',
-            'create contact_us',
-            'edit contact_us',
-            'delete contact_us',
+            // تنظیمات
+            'view contact_us', 'create contact_us', 'edit contact_us', 'delete contact_us',
 
-            'view exams',
-            'create exams',
-            'edit exams',
-            'delete exams',
-            'publish exams', // برای انتشار آزمون
-            'grade exams', // برای نمره دهی
+            // آزمون‌ها
+            'view exams', 'create exams', 'edit exams', 'delete exams',
+            'publish exams', 'grade exams',
 
-            //مدیریت کارنامه ها
-            'view report_cards',
-            'create report_cards',
-            'edit report_cards',
-            'delete report_cards',
-            'publish report_cards',
+            // کارنامه‌ها
+            'view report_cards', 'create report_cards', 'edit report_cards', 'delete report_cards', 'publish report_cards',
 
-
-            // دسترسی‌های جدید و ترکیبی برای پشتیبان تحصیلی
-            'view_students_for_academic_support',
-            'view_reports_for_academic_support',
-            'create_reports_for_academic_support',
-            'edit_reports_for_academic_support',
-            'delete_reports_for_academic_support',
-            'view_report_monthlies_for_academic_support',
-            'create_report_monthlies_for_academic_support',
-            'edit_report_monthlies_for_academic_support',
-            'delete_report_monthlies_for_academic_support',
-            'view_exams_for_academic_support',
-            'create_exams_for_academic_support',
-            'edit_exams_for_academic_support',
-            'delete_exams_for_academic_support',
-            'publish_exams_for_academic_support',
-            'grade_exams_for_academic_support',
-            'view_report_cards_for_academic_support',
-            'create_report_cards_for_academic_support',
-            'edit_report_cards_for_academic_support',
-            'delete_report_cards_for_academic_support',
-            'publish_report_cards_for_academic_support',
-            'academic support',
-
-            // دسترسی‌های جدید برای مشاور تحصیلی
+            // مشاور تحصیلی (legacy keys هنوز در کد reference دارند)
             'view students with support info',
             'view student reports with support info',
             'view_exams_for_academic_advisor',
             'create_exams_for_academic_advisor',
             'publish_exams_for_academic_advisor',
-
             'upload weekly program',
 
-            // دسترسی‌های مدیریت بانک سوالات (Manager)
+            // بانک سوالات
+            'manage_questions', 'view_questions',
 
-            'manage_questions', // ساخت، ویرایش و حذف سوالات
+            // آزمون‌های تایپی
+            'manage_typed_exams', 'view_typed_exams',
+            'assign_typed_exams', 'view_typed_exam_stats', 'view_typed_exam_results',
 
-            'view_questions', // مشاهده سوالات
+            // تیکت و پشتیبانی
+            'admin.tickets.view', 'admin.tickets.reply',
 
-
-
-            // دسترسی‌های مدیریت آزمون‌های تایپی (Manager)
-
-            'manage_typed_exams', // ساخت، ویرایش و حذف آزمون‌های تایپی
-
-            'view_typed_exams', // مشاهده آزمون‌های تایپی
-
-
-
-            // دسترسی‌های اختصاص و آمار آزمون (Admin)
-
-            'assign_typed_exams', // اختصاص آزمون به دانش‌آموز
-
-            'view_typed_exam_stats', // مشاهده آمار آزمون‌ها
-
-            'view_typed_exam_results', // مشاهده نتایج آزمون دانش‌آموزان
-
-            // دسترسی‌های تیکت و پشتیبانی
-            'admin.tickets.view',
-            'admin.tickets.reply',
-
-            // دسترسی‌های مدیر آموزشی
+            // مدیر آموزشی
             'admin.educational-manager.appointments.view',
             'admin.educational-manager.appointments.approve',
             'admin.educational-manager.reschedule.view',
@@ -194,184 +101,31 @@ class RolePermissionSeeder extends Seeder
             'admin.students.view',
         ];
 
-        //ایجاد دسترسی در دیتابیس
         foreach ($permissions as $permission) {
-            Permission::query()->firstOrCreate(
-                [
-                    'name' => $permission,
-                    'guard_name' => 'admin'
-                ]
-            );
+            Permission::query()->firstOrCreate([
+                'name'       => $permission,
+                'guard_name' => 'admin',
+            ]);
         }
 
-        //تغریف نقش ها و دادن دسترسی ها
+        // ────────────────────────────────────────────────────────────
+        // ۱) مدیر کل (super admin) — تمام دسترسی‌ها
+        // ────────────────────────────────────────────────────────────
         $superAdmin = Role::query()->firstOrCreate([
-            'name' => 'super admin',
-            'guard_name' => 'admin'
+            'name'       => 'super admin',
+            'guard_name' => 'admin',
         ]);
-        $superAdmin->givePermissionTo(Permission::all());
+        $superAdmin->syncPermissions(Permission::where('guard_name', 'admin')->get());
 
-        $productAdmin = Role::query()->firstOrCreate([
-            'name' => 'product admin',
-            'guard_name' => 'admin'
-        ]);
-        $productAdmin->givePermissionTo([
-            'view products', 'create products', 'edit products', 'delete products',
-            'view categories', 'create categories', 'edit categories', 'delete categories',
-            'view category_features', 'create category_features', 'edit category_features', 'delete category_features',
-            'view coupons','create coupons','edit coupons','delete coupons',
-
-        ]);
-
-        $orderAdmin = Role::query()->firstOrCreate([
-            'name' => 'order admin',
-            'guard_name' => 'admin'
-        ]);
-        $orderAdmin->givePermissionTo([
-            'view orders', 'process orders',
-        ]);
-
-        $paymentAdmin = Role::query()->firstOrCreate([
-            'name' => 'payment admin',
-            'guard_name' => 'admin'
-        ]);
-        $paymentAdmin->givePermissionTo([
-            'view payments', 'process payments',
-        ]);
-
-
-        $userAdmin = Role::query()->firstOrCreate([
-            'name' => 'user admin',
-            'guard_name' => 'admin'
-        ]);
-        $userAdmin->givePermissionTo([
-            'view users'
-        ]);
-
-        $storyAdmin = Role::query()->firstOrCreate([
-            'name' => 'story admin',
-            'guard_name' => 'admin'
-        ]);
-        $storyAdmin->givePermissionTo([
-            'view stories', 'create stories', 'edit stories', 'delete stories',
-        ]);
-
-        $paymentMethodAdmin = Role::query()->firstOrCreate([
-            'name' => 'payment_method admin',
-            'guard_name' => 'admin'
-        ]);
-        $paymentMethodAdmin->givePermissionTo([
-            'view payment_methods', 'create payment_methods', 'edit payment_methods', 'delete payment_methods',
-        ]);
-
-        $contactUsAdmin = Role::query()->firstOrCreate([
-            'name' => 'contactUs admin',
-            'guard_name' => 'admin'
-        ]);
-        $contactUsAdmin->givePermissionTo([
-            'view contact_us', 'create contact_us', 'edit contact_us', 'delete contact_us',
-        ]);
-
-        $studentAdmin = Role::query()->firstOrCreate([
-            'name' => 'student admin',
-            'guard_name' => 'admin'
-        ]);
-        $studentAdmin->givePermissionTo([
-            'view contact_us', 'create contact_us', 'edit contact_us', 'delete contact_us', 'view students', 'create students', 'edit students', 'delete students', 'view personal_information',
-            'create personal_information', 'edit personal_information', 'delete personal_information', 'view barnamehs', 'create barnamehs', 'edit barnamehs', 'delete barnamehs', 'view reports',
-            'create reports', 'edit reports', 'delete reports', 'view report_monthlies', 'create report_monthlies', 'edit report_monthlies', 'delete report_monthlies',
-        ]);
-
-
-        $mapAdmin = Role::query()->firstOrCreate([
-            'name' => 'map admin',
-            'guard_name' => 'admin'
-        ]);
-        $mapAdmin->givePermissionTo([
-            'view countries', 'create countries', 'edit countries', 'delete countries',
-            'view states', 'create states','edit states','delete states',
-        ]);
-
-        // تعریف نقش پشتیبان تحصیلی و دادن دسترسی های مربوطه
-        $academicSupport = Role::query()->firstOrCreate([
-            'name' => 'academic support',
-            'guard_name' => 'admin'
-        ]);
-        $academicSupport->givePermissionTo([
-            // دسترسی به لیست و مشخصات دانش آموزان
-            'view_students_for_academic_support',
-            'view personal_information',
-
-            // دسترسی به کل سیستم گزارش دهی
-            'view_reports_for_academic_support',
-            'create_reports_for_academic_support',
-            'edit_reports_for_academic_support',
-            'delete_reports_for_academic_support',
-            'view_report_monthlies_for_academic_support',
-            'create_report_monthlies_for_academic_support',
-            'edit_report_monthlies_for_academic_support',
-            'delete_report_monthlies_for_academic_support',
-
-            // دسترسی به کل سیستم برگزاری آزمون
-            'view_exams_for_academic_support',
-            'create_exams_for_academic_support',
-            'edit_exams_for_academic_support',
-            'delete_exams_for_academic_support',
-            'publish_exams_for_academic_support',
-            'grade_exams_for_academic_support',
-
-            // دسترسی به کل سیستم کارنامه
-            'view_report_cards_for_academic_support',
-            'create_report_cards_for_academic_support',
-            'edit_report_cards_for_academic_support',
-            'delete_report_cards_for_academic_support',
-            'publish_report_cards_for_academic_support',
-            // دسترسی به آزمون‌های تایپی (فقط مشاهده و اختصاص)
-
-            'view_typed_exams',
-
-            'view_questions',
-
-            'assign_typed_exams',
-
-            'view_typed_exam_stats',
-
-            'view_typed_exam_results',
-        ]);
-
-        // نقش جدید مشاور تحصیلی
-        $academicAdvisor = Role::query()->firstOrCreate([
-            'name' => 'academic_advisor',
-            'guard_name' => 'admin'
-        ]);
-        $academicAdvisor->givePermissionTo([
-            'view students with support info',
-            'view student reports with support info',
-            'view exams',
-            'upload weekly program',
-            'view_exams_for_academic_advisor',
-            'create_exams_for_academic_advisor',
-            'publish_exams_for_academic_advisor',
-
-            // دسترسی به آزمون‌های تایپی (فقط مشاهده و اختصاص)
-
-            'view_typed_exams',
-
-            'view_questions',
-
-            'assign_typed_exams',
-
-            'view_typed_exam_stats',
-
-            'view_typed_exam_results',
-        ]);
-
-        // نقش جدید: مدیر آموزشی
+        // ────────────────────────────────────────────────────────────
+        // ۲) مدیر آموزشی (educational-manager) — فقط دسترسی‌های دو
+        //    صفحهٔ تخصیص (پشتیبان جذب و مشاور) که در فاز E تعریف می‌شوند.
+        // ────────────────────────────────────────────────────────────
         $educationalManager = Role::query()->firstOrCreate([
-            'name' => 'educational-manager',
-            'guard_name' => 'admin'
+            'name'       => 'educational-manager',
+            'guard_name' => 'admin',
         ]);
-        $educationalManager->givePermissionTo([
+        $educationalManager->syncPermissions([
             'admin.educational-manager.appointments.view',
             'admin.educational-manager.appointments.approve',
             'admin.educational-manager.reschedule.view',
@@ -383,148 +137,69 @@ class RolePermissionSeeder extends Seeder
             'view students with support info',
         ]);
 
+        // ────────────────────────────────────────────────────────────
+        // ۳) مشاور تحصیلی — جزئیات permission در AcademicAdvisorPermissionSeeder
+        //    اینجا فقط رول را تضمین می‌کنیم تا کاربر seed بشود.
+        // ────────────────────────────────────────────────────────────
+        Role::query()->firstOrCreate([
+            'name'       => 'مشاور تحصیلی',
+            'guard_name' => 'admin',
+        ]);
+
+        // ────────────────────────────────────────────────────────────
+        // ۴) پشتیبان جذب — permission‌های اختصاصی در SiteAcquisitionRoleSeeder
+        // ────────────────────────────────────────────────────────────
+        Role::query()->firstOrCreate([
+            'name'       => 'site acquisition',
+            'guard_name' => 'admin',
+        ]);
+
+        // ────────────────────────────────────────────────────────────
+        // کاربران نمونه برای ۴ نقش
+        // ────────────────────────────────────────────────────────────
         $superAdminUser = Admin::query()->firstOrCreate(
+            ['email' => 'superadmin@gmail.com'],
             [
-                'email'=>'superadmin@gmail.com',
-            ],
-            [
-                'name'=>'Super Admin',
-                'password'=> bcrypt('password'),
-                'mobile'=>'09940682693'
-            ]
-        );
-        $superAdminUser->assignRole('super admin');
-
-        $productAdminUser = Admin::query()->firstOrCreate(
-            [
-                'email'=>'productadmin@gmail.com',
-            ],
-            [
-                'name'=>'Product Admin',
-                'password'=> bcrypt('password'),
-                'mobile'=>'09940682692'
-            ]
-        );
-        $productAdminUser->assignRole('product admin');
-
-        $orderAdminUser = Admin::query()->firstOrCreate(
-            [
-                'email'=>'orderadmin@gmail.com',
-            ],
-            [
-                'name'=>'Order Admin',
-                'password'=> bcrypt('password'),
-                'mobile'=>'09940682576'
-            ]
-        );
-        $orderAdminUser->assignRole('order admin');
-
-        $paymentAdminUser = Admin::query()->firstOrCreate(
-            [
-                'email'=>'paymentsadmin@gmail.com',
-            ],
-            [
-                'name'=>'Payment Admin',
-                'password'=> bcrypt('password'),
-                'mobile'=>'099406826939'
-            ]
-        );
-        $paymentAdminUser->assignRole('payment admin');
-
-        $mapAdminUser = Admin::query()->firstOrCreate(
-            [
-                'email'=>'mapadmin@gmail.com',
-            ],
-            [
-                'name'=>'Map Admin',
-                'password'=> bcrypt('password'),
-                'mobile'=>'09920682546'
-            ]
-        );
-        $mapAdminUser->assignRole('map admin');
-
-        $studentAdminUser = Admin::query()->firstOrCreate(
-            [
-                'email'=>'studentadmin@gmail.com',
-            ],
-            [
-                'name'=>'student Admin',
-                'password'=> bcrypt('password'),
-                'mobile'=>'09940342546'
-            ]
-        );
-        $studentAdminUser->assignRole('student admin');
-        $studentAdminUser = Admin::query()->firstOrCreate(
-            [
-                'email'=>'harirbafan@gmail.com',
-            ],
-            [
-                'name'=>'حریربافان',
-                'password'=> bcrypt('password'),
-                'mobile'=>'09952486571'
-            ]
-        );
-        $studentAdminUser->assignRole('student admin');
-
-        $storyAdminUser = Admin::query()->firstOrCreate(
-            [
-                'email'=>'storyadmin@gmail.com',
-            ],
-            [
-                'name'=>'story Admin',
-                'password'=> bcrypt('password'),
-                'mobile'=>'09140046546'
-            ]
-        );
-        $storyAdminUser->assignRole('story admin');
-
-        $contactUsAdminUser = Admin::query()->firstOrCreate(
-            [
-                'email'=>'contactusadmin@gmail.com',
-            ],
-            [
-                'name'=>'ContactUs Admin',
-                'password'=> bcrypt('password'),
-                'mobile'=>'09240082546'
-            ]
-        );
-        $contactUsAdminUser->assignRole('contactUs admin');
-
-        $userAdminUser = Admin::query()->firstOrCreate(
-            [
-                'email'=>'useradmin@gmail.com',
-            ],
-            [
-                'name'=>'user Admin',
-                'password'=> bcrypt('password'),
-                'mobile'=>'09236982676'
-            ]
-        );
-        $userAdminUser->assignRole('user admin');
-
-        $academicSupportUser = Admin::query()->firstOrCreate(
-            [
-                'email' => 'academicsupport@gmail.com',
-            ],
-            [
-                'name' => 'پشتیبان تحصیلی',
+                'name'     => 'Super Admin',
                 'password' => bcrypt('password'),
-                'mobile' => '09123458795'
+                'mobile'   => '09940682693',
             ]
         );
-        $academicSupportUser->assignRole('academic support');
+        $superAdminUser->syncRoles(['super admin']);
 
-        // کاربر جدید مشاور تحصیلی
+        $educationalManagerUser = Admin::query()->firstOrCreate(
+            ['email' => 'educationalmanager@gmail.com'],
+            [
+                'name'     => 'مدیر آموزشی',
+                'password' => bcrypt('password'),
+                'mobile'   => '09120000001',
+            ]
+        );
+        $educationalManagerUser->syncRoles(['educational-manager']);
+
         $academicAdvisorUser = Admin::query()->firstOrCreate(
+            ['email' => 'academicadvisor@gmail.com'],
             [
-                'email' => 'academicadvisor@gmail.com',
-            ],
-            [
-                'name' => 'مشاور تحصیلی',
+                'name'     => 'مشاور تحصیلی',
                 'password' => bcrypt('password'),
-                'mobile' => '09121234567'
+                'mobile'   => '09121234567',
             ]
         );
-        $academicAdvisorUser->assignRole('academic_advisor');
+        $academicAdvisorUser->syncRoles(['مشاور تحصیلی']);
+
+        $siteAcquisitionUser = Admin::query()->firstOrCreate(
+            ['email' => 'siteacquisition@gmail.com'],
+            [
+                'name'     => 'پشتیبان جذب',
+                'password' => bcrypt('password'),
+                'mobile'   => '09120000002',
+            ]
+        );
+        $siteAcquisitionUser->syncRoles(['site acquisition']);
+
+        // پاک‌سازی کش Spatie
+        if (app()->bound(PermissionRegistrar::class)) {
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
+        }
     }
 }

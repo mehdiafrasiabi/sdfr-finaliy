@@ -24,8 +24,28 @@ class AcquisitionContact extends Model
     const TYPE_LABELS = [
         'initial'       => 'تماس اولیه',
         'secondary'     => 'تماس ثانویه',
-        'supplementary' => 'تماس جانبی',
+        'supplementary' => 'تماس اکسترا',
     ];
+
+    const FOLLOW_UP_FATHER  = 'father';
+    const FOLLOW_UP_MOTHER  = 'mother';
+    const FOLLOW_UP_STUDENT = 'student';
+    const FOLLOW_UP_OTHER   = 'other';
+
+    const FOLLOW_UP_LABELS = [
+        'father'  => 'پدر',
+        'mother'  => 'مادر',
+        'student' => 'خود دانش‌آموز',
+        'other'   => 'سایر',
+    ];
+
+    public function getFollowUpLabelAttribute(): string
+    {
+        if (! $this->educational_follow_up) {
+            return '—';
+        }
+        return self::FOLLOW_UP_LABELS[$this->educational_follow_up] ?? $this->educational_follow_up;
+    }
 
     public function trialWeek(): BelongsTo
     {

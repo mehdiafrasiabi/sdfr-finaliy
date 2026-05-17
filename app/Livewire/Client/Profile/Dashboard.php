@@ -216,8 +216,6 @@ class Dashboard extends Component
 
     {
 
-        $supporterStudent = $this->student?->supporterStudent;
-
         $advisorStudent = $this->student?->advisor;
 
         $unreadNotificationsCount = $this->getUnreadNotificationsCount();
@@ -236,7 +234,6 @@ class Dashboard extends Component
                 ->first();
         }
         return view('livewire.client.profile.dashboard', [
-            'supporterStudent' => $supporterStudent,
             'advisorStudent' => $advisorStudent,
             'unreadNotificationsCount' => $unreadNotificationsCount,
             'todayProgram' => $todayProgram,

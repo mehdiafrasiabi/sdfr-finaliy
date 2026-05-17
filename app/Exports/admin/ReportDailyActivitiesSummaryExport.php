@@ -71,10 +71,7 @@ class ReportDailyActivitiesSummaryExport implements FromCollection, WithHeadings
     {
         return Student::query()
             ->with(['user.personalInformation'])
-            ->where(function (Builder $query) {
-                $query->where('supporter_id', $this->adminId)
-                    ->orWhere('advisor_id', $this->adminId);
-            })
+            ->where('advisor_id', $this->adminId)
             ->when($this->studentIds, fn(Builder $q) => $q->whereIn('id', $this->studentIds));
     }
 
