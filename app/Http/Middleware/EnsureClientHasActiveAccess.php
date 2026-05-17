@@ -21,6 +21,11 @@ class EnsureClientHasActiveAccess
             return redirect()->route('client.auth.login');
         }
 
+        // دانش‌آموز مدرسه (ثبت‌شده توسط مدرسه) از قاعده‌ی خرید/آزمایشی معاف است.
+        if ($user->isSchoolStudent()) {
+            return $next($request);
+        }
+
         // پرداخت موفق ← دانش‌آموز رسمی
         $hasPaidAccess = $user->payments()
             ->where('status', 'completed')

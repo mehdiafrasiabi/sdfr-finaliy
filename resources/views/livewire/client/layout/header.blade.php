@@ -782,10 +782,18 @@
                             <!-- Scrollable Menu Container -->
                             <div class="max-h-[40vh] overflow-y-auto space-y-1">
                                 @if(auth()->user()?->isSchoolStudent())
+                                    <a wire:navigate href="{{ route('client.profile.school.dashboard') }}"
+                                       @click="profileModalOpen = false"
+                                       class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
+                                        <span class="font-semibold text-sm">داشبورد</span>
+                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12 12 2.25 21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75"/>
+                                        </svg>
+                                    </a>
                                     <a wire:navigate href="{{ route('client.profile.school.report.index') }}"
                                        @click="profileModalOpen = false"
                                        class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                        <span class="font-semibold text-sm">داشبورد گزارش‌ها</span>
+                                        <span class="font-semibold text-sm">گزارش‌های من</span>
                                         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25M3 5.25v9.75A2.25 2.25 0 0 0 5.25 17.25h13.5A2.25 2.25 0 0 0 21 15V5.25"/>
                                         </svg>

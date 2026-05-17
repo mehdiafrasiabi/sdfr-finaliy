@@ -142,6 +142,8 @@ Route::name('client.')->group(function () {
                 Route::get('/', \App\Livewire\Client\School\ReportIndex::class)->name('index');
                 Route::get('/new', \App\Livewire\Client\School\ReportCreate::class)->name('create');
             });
+            Route::get('/school-dashboard', \App\Livewire\Client\School\Dashboard::class)
+                ->name('school.dashboard');
 
             // Consultation Routes (جلسات مشاوره)
             Route::prefix('consultation')->name('consultation.')->group(function () {
