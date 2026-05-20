@@ -83,15 +83,27 @@ class Classify extends Component
 
     protected function loadAvailableTags()
     {
-        // Trial project: synthetic settings — only student's own grade, both specialized and general.
+        // Trial project: synthetic settings — show student's grade AND all lower grades.
+        // Grade 10 → [10]; Grade 11 → [10, 11]; Grade 12 → [10, 11, 12].
         if ($this->project->is_trial) {
             $gradeNames = [10 => 'دهم', 11 => 'یازدهم', 12 => 'دوازدهم'];
-            $g = $this->studentGrade ?: 10;
-            $this->availableTags = [
-                ['id' => $g . '_specialized', 'grade' => $g, 'type' => 'specialized', 'label' => ($gradeNames[$g] ?? $g) . ' (تخصصی)'],
-                ['id' => $g . '_general',     'grade' => $g, 'type' => 'general',     'label' => ($gradeNames[$g] ?? $g) . ' (عمومی)'],
-            ];
-            $this->activeTag = $this->availableTags[0]['id'];
+            $studentG = $this->studentGrade ?: 10;
+            $grades = [];
+            for ($g = 10; $g <= $studentG; $g++) {
+                $grades[] = $g;
+            }
+            foreach ($grades as $g) {
+                $this->availableTags[] = [
+                    'id' => $g . '_specialized', 'grade' => $g, 'type' => 'specialized',
+                    'label' => ($gradeNames[$g] ?? $g) . ' (تخصصی)',
+                ];
+                $this->availableTags[] = [
+                    'id' => $g . '_general', 'grade' => $g, 'type' => 'general',
+                    'label' => ($gradeNames[$g] ?? $g) . ' (عمومی)',
+                ];
+            }
+            $matching = collect($this->availableTags)->first(fn ($t) => (int) $t['grade'] === $this->selectedGrade);
+            $this->activeTag = $matching['id'] ?? $this->availableTags[0]['id'];
             $this->loadSubjects();
             return;
         }
@@ -181,10 +193,12 @@ class Classify extends Component
     protected function getEffectiveSettings(): array
     {
         if ($this->project->is_trial) {
-            return [[
-                'target_grade' => $this->studentGrade ?: 10,
-                'has_general'  => true,
-            ]];
+            $studentG = $this->studentGrade ?: 10;
+            $out = [];
+            for ($g = 10; $g <= $studentG; $g++) {
+                $out[] = ['target_grade' => $g, 'has_general' => true];
+            }
+            return $out;
         }
         return $this->project->gradeSettings()
             ->where('student_grade', $this->studentGrade)
@@ -309,6 +323,19 @@ class Classify extends Component
                 'submitted_at' => now(),
             ]
         );
+
+        // Trial classification: auto-confirm + advance the trial-week flow so support
+        // (پشتیبان جذب) can see the result immediately.
+        if ($this->project->is_trial) {
+            $trial = TrialWeek::where('user_id', auth()->id())->latest()->first();
+            if ($trial) {
+                $payload = ['classification_locked_at' => now()];
+                if (in_array($trial->status, [TrialWeek::STATUS_PENDING, TrialWeek::STATUS_SUPPORTER_ASSIGNED], true)) {
+                    $payload['status'] = TrialWeek::STATUS_CLASSIFICATION_DONE;
+                }
+                $trial->update($payload);
+            }
+        }
 
         $this->showSubmitModal = false;
         $this->dispatch('success', 'طبقه‌بندی شما با موفقیت ثبت شد!');

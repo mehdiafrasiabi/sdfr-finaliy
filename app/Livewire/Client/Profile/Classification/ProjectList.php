@@ -37,15 +37,9 @@ class ProjectList extends Component
             return;
         }
 
-        $trial = TrialWeek::where('user_id', $userId)
-            ->whereIn('status', [
-                TrialWeek::STATUS_SUPPORTER_ASSIGNED,
-                TrialWeek::STATUS_CLASSIFICATION_DONE,
-                TrialWeek::STATUS_PRE_SESSION_DONE,
-                TrialWeek::STATUS_PROGRAM_BUILT,
-            ])
-            ->latest()
-            ->first();
+        // Any user with a TrialWeek record is considered a trial user — they should always
+        // see the trial classification card regardless of trial-week status.
+        $trial = TrialWeek::where('user_id', $userId)->latest()->first();
         if ($trial) {
             $this->isTrialUser  = true;
             $this->studentGrade = $trial->grade >= 10 ? $trial->grade : 10;
