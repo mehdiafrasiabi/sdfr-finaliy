@@ -49,7 +49,9 @@ class Guide extends Component
 
     public function getActiveProjectProperty(): ?ClassificationProject
     {
-        return ClassificationProject::where('is_active', true)->first();
+        // For trial users, always prefer the trial classification project.
+        return ClassificationProject::where('is_trial', true)->where('is_active', true)->first()
+            ?? ClassificationProject::where('is_active', true)->where('is_trial', false)->first();
     }
 
     // قفل طبقه‌بندی + تایید

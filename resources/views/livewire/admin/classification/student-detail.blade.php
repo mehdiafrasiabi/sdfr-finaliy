@@ -90,50 +90,64 @@
                             </h5>
                         </div>
                         <div class="card-body">
-                            @foreach($subject['chapters'] as $chapter)
-                                <div class="mb-4">
-                                    <h6 class="text-muted mb-3">
-                                        <i class="ri-folder-line me-1"></i>
-                                        {{ $chapter['name'] }}
-                                    </h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered table-sm mb-0">
-                                            <thead class="table-light">
+                            @if($subject['type'] === 'specialized')
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-sm mb-0">
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th style="width: 50px;">ردیف</th>
+                                            <th>فصل</th>
+                                            <th style="width: 100px;">امتیاز</th>
+                                            <th style="width: 180px;">سطح</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach($subject['chapters'] as $index => $chapter)
+                                            @php $rating = $ratings['chapter_' . $chapter['id']] ?? null; @endphp
                                             <tr>
-                                                <th style="width: 50px;">ردیف</th>
-                                                <th>مبحث</th>
-                                                <th style="width: 100px;">امتیاز</th>
-                                                <th style="width: 150px;">سطح تسلط</th>
+                                                <td>{{ $index + 1 }}</td>
+                                                <td>{{ $chapter['name'] }}</td>
+                                                <td>
+                                                    @if($rating)
+                                                        <span class="badge bg-{{ $this->getRatingColor($rating) }}">
+                                                            {{ $this->getRatingLabel($rating) }}
+                                                        </span>
+                                                    @else
+                                                        <span class="text-muted small">ثبت نشده</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    @if($rating)
+                                                        <div class="d-flex gap-1" dir="ltr">
+                                                            @for($i = 1; $i <= 4; $i++)
+                                                                <i class="ri-star-{{ $rating >= $i ? 'fill text-warning' : 'line text-muted' }}"></i>
+                                                            @endfor
+                                                        </div>
+                                                    @endif
+                                                </td>
                                             </tr>
-                                            </thead>
-                                            <tbody>
-                                            @foreach($chapter['topics'] as $index => $topic)
-                                                @php
-                                                    $rating = $ratings[$topic['id']] ?? null;
-                                                @endphp
-                                                <tr>
-                                                    <td>{{ $index + 1 }}</td>
-                                                    <td>{{ $topic['name'] }}</td>
-                                                    <td>
-                                                        @if($rating)
-                                                            <div class="d-flex gap-1">
-                                                                @for($i = 1; $i <= 8; $i++)
-                                                                    <span
-                                                                        class="badge {{ $rating >= $i ? 'bg-' . $this->getRatingColor($rating) : 'bg-light text-muted' }}"
-                                                                        style="width: 12px; height: 12px; padding: 0; border-radius: 50%;"></span>
-                                                                @endfor
-                                                            </div>
-                                                        @else
-                                                            <span class="text-muted">امتیازی ثبت نشده</span>
-                                                        @endif
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
                                 </div>
-                            @endforeach
+                            @else
+                                @php $rating = $ratings['subject_' . $subject['id']] ?? null; @endphp
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="text-muted small">امتیاز کلی این درس عمومی:</span>
+                                    @if($rating)
+                                        <div class="d-flex gap-2 align-items-center">
+                                            <span class="badge bg-{{ $this->getRatingColor($rating) }}">{{ $this->getRatingLabel($rating) }}</span>
+                                            <div class="d-flex gap-1" dir="ltr">
+                                                @for($i = 1; $i <= 4; $i++)
+                                                    <i class="ri-star-{{ $rating >= $i ? 'fill text-warning' : 'line text-muted' }}"></i>
+                                                @endfor
+                                            </div>
+                                        </div>
+                                    @else
+                                        <span class="text-muted small">ثبت نشده</span>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @empty

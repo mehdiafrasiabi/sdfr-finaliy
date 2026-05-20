@@ -24,10 +24,6 @@ class CcTopic extends Model
     }
 
 
-    public function classifications()
-    {
-        return $this->hasMany(StudentClassification::class);
-    }
     public function questions()
     {
         return $this->hasMany(Question::class, 'cc_topic_id');

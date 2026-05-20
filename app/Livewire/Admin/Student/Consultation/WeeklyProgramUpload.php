@@ -111,6 +111,7 @@ class WeeklyProgramUpload extends Component
     public ?string $classificationProjectName    = null;
     public string  $classificationSort           = 'rating';
     public ?int    $classificationSelectedTopicId = null;
+    public ?string $classificationSelectedKind = null; // 'chapter' | 'subject'
     public array   $classificationAddForm = [
         'day_indices'      => [],
         'duration_hours'   => 1,
@@ -1318,38 +1319,68 @@ class WeeklyProgramUpload extends Component
         if ($project && $userId) {
             $classifications = StudentClassification::where('user_id', $userId)
                 ->where('classification_project_id', $project->id)
-                ->with(['topic.chapter.subject'])
+                ->with('ratable')
                 ->get();
 
-            $addedTopicIds = [];
+            $addedKeys = [];
             if ($this->weeklyProgramId) {
-                $addedTopicIds = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+                $rows = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
                     ->where('source_type', ProgramPart::SOURCE_CLASSIFICATION)
-                    ->whereNotNull('cc_topic_id')
-                    ->pluck('cc_topic_id')->toArray();
+                    ->get(['cc_chapter_id', 'cc_subject_id']);
+                foreach ($rows as $row) {
+                    if ($row->cc_chapter_id) {
+                        $addedKeys['chapter_' . $row->cc_chapter_id] = true;
+                    } elseif ($row->cc_subject_id) {
+                        $addedKeys['subject_' . $row->cc_subject_id] = true;
+                    }
+                }
             }
 
-            $this->classificationTopics = $classifications->map(function ($c) use ($addedTopicIds) {
-                $subject = $c->topic?->chapter?->subject;
-                $grade   = $subject?->grade;
+            $this->classificationTopics = $classifications->map(function ($c) use ($addedKeys) {
+                $ratable = $c->ratable;
+                if (!$ratable) return null;
+
+                if ($c->ratable_type === \App\Models\CcChapter::class) {
+                    $subject = $ratable->subject;
+                    $grade   = $subject?->grade;
+                    $key     = 'chapter_' . $ratable->id;
+                    return [
+                        'id'                => $c->id,
+                        'kind'              => 'chapter',
+                        'ratable_id'        => $ratable->id,
+                        'key'               => $key,
+                        'item_name'         => $ratable->name,
+                        'subject_name'      => $subject?->name ?? '',
+                        'rating'            => $c->rating,
+                        'rating_label'      => $c->ratingLabel,
+                        'rating_color'      => $c->ratingColor,
+                        'grade'             => $grade?->grade_number ?? '',
+                        'lesson_type'       => 'specialized',
+                        'lesson_type_label' => 'تخصصی',
+                        'is_added'          => isset($addedKeys[$key]),
+                    ];
+                }
+
+                // Subject (general)
+                $subject = $ratable;
+                $grade   = $subject->grade;
+                $key     = 'subject_' . $subject->id;
                 return [
-                    'id'               => $c->id,
-                    'topic_id'         => $c->cc_topic_id,
-                    'topic_name'       => $c->topic?->name ?? 'نامشخص',
-                    'chapter_name'     => $c->topic?->chapter?->name ?? '',
-                    'subject_name'     => $subject?->name ?? '',
-                    'rating'           => $c->rating,
-                    'rating_label'     => $c->ratingLabel,
-                    'rating_color'     => $c->ratingColor,
-                    'grade'            => $grade?->grade_number ?? '',
-                    'grade_label'      => match ($grade?->grade_number) {
-                        '10' => 'دهم', '11' => 'یازدهم', '12' => 'دوازدهم', default => ''
-                    },
-                    'lesson_type'      => $subject?->type ?? 'specialized',
-                    'lesson_type_label'=> ($subject?->type === 'general') ? 'عمومی' : 'تخصصی',
-                    'is_added'         => in_array($c->cc_topic_id, $addedTopicIds),
+                    'id'                => $c->id,
+                    'kind'              => 'subject',
+                    'ratable_id'        => $subject->id,
+                    'key'               => $key,
+                    'item_name'         => $subject->name,
+                    'subject_name'      => $subject->name,
+                    'rating'            => $c->rating,
+                    'rating_label'      => $c->ratingLabel,
+                    'rating_color'      => $c->ratingColor,
+                    'grade'             => $grade?->grade_number ?? '',
+                    'lesson_type'       => 'general',
+                    'lesson_type_label' => 'عمومی',
+                    'is_added'          => isset($addedKeys[$key]),
                 ];
-            })->toArray();
+            })->filter()->values()->toArray();
 
             $this->applySortToClassificationTopics();
         }
@@ -1384,13 +1415,16 @@ class WeeklyProgramUpload extends Component
         $this->showClassificationModal = false;
     }
 
-    public function showClassificationInlineAdd(int $topicId): void
+    public function showClassificationInlineAdd(int $id, string $kind = 'chapter'): void
     {
-        if ($this->classificationSelectedTopicId === $topicId && $this->showClassificationAddForm) {
+        if ($this->classificationSelectedTopicId === $id
+            && $this->classificationSelectedKind === $kind
+            && $this->showClassificationAddForm) {
             $this->hideClassificationInlineAdd();
             return;
         }
-        $this->classificationSelectedTopicId = $topicId;
+        $this->classificationSelectedTopicId = $id;
+        $this->classificationSelectedKind    = $kind;
         $this->classificationAddForm = [
             'day_indices'      => [],
             'duration_hours'   => 1,
@@ -1406,16 +1440,21 @@ class WeeklyProgramUpload extends Component
     {
         $this->showClassificationAddForm     = false;
         $this->classificationSelectedTopicId = null;
+        $this->classificationSelectedKind    = null;
     }
 
-    public function revertClassificationPart(int $topicId): void
+    public function revertClassificationPart(int $id, string $kind = 'chapter'): void
     {
         if (!$this->weeklyProgramId) return;
 
-        ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
-            ->where('cc_topic_id', $topicId)
-            ->where('source_type', ProgramPart::SOURCE_CLASSIFICATION)
-            ->delete();
+        $q = ProgramPart::where('weekly_program_id', $this->weeklyProgramId)
+            ->where('source_type', ProgramPart::SOURCE_CLASSIFICATION);
+        if ($kind === 'chapter') {
+            $q->where('cc_chapter_id', $id)->whereNull('cc_topic_id');
+        } else {
+            $q->where('cc_subject_id', $id)->whereNull('cc_chapter_id')->whereNull('cc_topic_id');
+        }
+        $q->delete();
 
         $this->loadExistingParts();
         $this->dispatch('success', 'پارت از برنامه حذف شد.');
@@ -1424,7 +1463,7 @@ class WeeklyProgramUpload extends Component
 
     public function addClassificationToProgram(): void
     {
-        if (!$this->classificationSelectedTopicId) return;
+        if (!$this->classificationSelectedTopicId || !$this->classificationSelectedKind) return;
 
         $dayIndices = array_filter(array_map('intval', (array)($this->classificationAddForm['day_indices'] ?? [])));
         if (empty($dayIndices)) {
@@ -1443,16 +1482,22 @@ class WeeklyProgramUpload extends Component
 
         if (!$this->weeklyProgramId) $this->saveProgram();
 
-        $topic = CcTopic::with(['chapter.subject.grade.educationLevel'])->find($this->classificationSelectedTopicId);
-        if (!$topic) return;
+        $chapter = null;
+        $subject = null;
+        if ($this->classificationSelectedKind === 'chapter') {
+            $chapter = \App\Models\CcChapter::with(['subject.grade.educationLevel'])->find($this->classificationSelectedTopicId);
+            if (!$chapter) return;
+            $subject = $chapter->subject;
+        } else {
+            $subject = \App\Models\CcSubject::with(['grade.educationLevel'])->find($this->classificationSelectedTopicId);
+            if (!$subject) return;
+        }
 
-        $chapter        = $topic->chapter;
-        $subject        = $chapter?->subject;
         $grade          = $subject?->grade;
         $educationLevel = $grade?->educationLevel;
 
         $startDate       = Carbon::parse($this->start_date);
-        $path            = collect([$subject?->name, $chapter?->name, $topic->name])->filter()->join(' > ');
+        $path            = collect([$subject?->name, $chapter?->name])->filter()->join(' > ');
         $partType        = $this->classificationAddForm['part_type'] ?? 'descriptive';
         $testCount       = in_array($partType, ['test', 'topic_exam'])
             ? ((int)($this->classificationAddForm['test_count'] ?? 0) ?: null)
@@ -1470,7 +1515,7 @@ class WeeklyProgramUpload extends Component
 
             ProgramPart::create([
                 'weekly_program_id'  => $this->weeklyProgramId,
-                'lesson_name'        => $subject?->name ?? $topic->name,
+                'lesson_name'        => $subject?->name ?? '',
                 'part_date'          => $startDate->copy()->addDays($dayIndex),
                 'day_of_week'        => $dayIndex,
                 'part_order'         => $existingCount + 1,
@@ -1486,16 +1531,16 @@ class WeeklyProgramUpload extends Component
                 'cc_field_id'        => $subject?->cc_field_id,
                 'cc_subject_id'      => $subject?->id,
                 'cc_chapter_id'      => $chapter?->id,
-                'cc_topic_id'        => $topic->id,
+                'cc_topic_id'        => null,
             ]);
         }
 
 
         $this->loadExistingParts();
 
-        // به‌روزرسانی وضعیت is_added بدون نیاز به بازکردن مجدد مودال (رفع مشکل B)
+        $selKey = ($this->classificationSelectedKind === 'chapter' ? 'chapter_' : 'subject_') . $this->classificationSelectedTopicId;
         foreach ($this->classificationTopics as &$ct) {
-            if ($ct['topic_id'] === $this->classificationSelectedTopicId) {
+            if (($ct['key'] ?? null) === $selKey) {
                 $ct['is_added'] = true;
                 break;
             }

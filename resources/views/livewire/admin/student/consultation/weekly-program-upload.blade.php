@@ -1931,8 +1931,7 @@
                                             <tr>
                                                 <th>#</th>
                                                 <th>درس</th>
-                                                <th>فصل</th>
-                                                <th>مبحث</th>
+                                                <th>فصل / عنوان</th>
                                                 <th class="text-center">پایه</th>
                                                 <th class="text-center">نوع</th>
                                                 <th class="text-center">رتبه</th>
@@ -1944,8 +1943,7 @@
                                                 <tr class="{{ $item['is_added'] ? 'table-success bg-success bg-opacity-10' : '' }}">
                                                     <td class="text-muted small">{{ $idx + 1 }}</td>
                                                     <td class="fw-semibold small">{{ $item['subject_name'] }}</td>
-                                                    <td class="small text-muted">{{ $item['chapter_name'] }}</td>
-                                                    <td class="fw-semibold small">{{ $item['topic_name'] }}</td>
+                                                    <td class="small text-muted">{{ $item['kind'] === 'chapter' ? $item['item_name'] : '— کل درس عمومی —' }}</td>
                                                     <td class="text-center">
                                                             <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">
                                                                 @if($item['grade'] == 12)
@@ -1971,15 +1969,15 @@
                                                                     <i class="material-symbols-outlined" style="font-size:11px;">check_circle</i> اضافه شده
                                                                 </span>
                                                                 <button type="button" class="btn btn-sm btn-outline-danger w-100 mb-1"
-                                                                        wire:click="revertClassificationPart({{ $item['topic_id'] }})">
-                                                                    <span wire:loading.remove wire:target="revertClassificationPart({{ $item['topic_id'] }})">
+                                                                        wire:click="revertClassificationPart({{ $item['ratable_id'] }}, '{{ $item['kind'] }}')">
+                                                                    <span wire:loading.remove wire:target="revertClassificationPart">
                                                                         <i class="material-symbols-outlined" style="font-size:12px;">undo</i> برگشت
                                                                     </span>
-                                                                    <span wire:loading wire:target="revertClassificationPart({{ $item['topic_id'] }})">...</span>
+                                                                    <span wire:loading wire:target="revertClassificationPart">...</span>
                                                                 </button>
                                                             @else
                                                                 <button type="button" class="btn btn-sm btn-outline-primary"
-                                                                        wire:click="showClassificationInlineAdd({{ $item['topic_id'] }})">
+                                                                        wire:click="showClassificationInlineAdd({{ $item['ratable_id'] }}, '{{ $item['kind'] }}')">
                                                                     <i class="material-symbols-outlined" style="font-size:12px;">add_circle</i> افزودن
                                                                 </button>
                                                             @endif
@@ -1987,9 +1985,9 @@
                                                     </td>
                                                 </tr>
                                                 {{-- Inline Add --}}
-                                                @if($showClassificationAddForm && $classificationSelectedTopicId === $item['topic_id'])
+                                                @if($showClassificationAddForm && $classificationSelectedTopicId === $item['ratable_id'] && $classificationSelectedKind === $item['kind'])
                                                     <tr class="bg-body-tertiary">
-                                                        <td colspan="8">
+                                                        <td colspan="7">
                                                             <div class="p-3 rounded-3 border">
                                                                 <div class="row g-3 align-items-start">
                                                                     {{-- انتخاب روز (چند انتخابی) A1 --}}
@@ -2003,8 +2001,8 @@
                                                                                         <input class="form-check-input" type="checkbox"
                                                                                                wire:model="classificationAddForm.day_indices"
                                                                                                value="{{ $wd['index'] }}"
-                                                                                               id="clf_day_{{ $wd['index'] }}_{{ $item['topic_id'] }}">
-                                                                                        <label class="form-check-label small" for="clf_day_{{ $wd['index'] }}_{{ $item['topic_id'] }}">
+                                                                                               id="clf_day_{{ $wd['index'] }}_{{ $item['key'] }}">
+                                                                                        <label class="form-check-label small" for="clf_day_{{ $wd['index'] }}_{{ $item['key'] }}">
                                                                                             {{ $wd['name'] }} <span class="text-muted">({{ $wd['jalali_date'] }})</span>
                                                                                         </label>
                                                                                     </div>                                                                                @endif

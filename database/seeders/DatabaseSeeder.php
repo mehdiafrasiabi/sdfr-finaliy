@@ -57,6 +57,7 @@ class DatabaseSeeder extends Seeder
             SubjectsTableSeeder::class,
             ExamCountdownSettingsTableSeeder::class,
             ExamCountdownEventsTableSeeder::class,
+            TrialClassificationProjectSeeder::class,
         ]);
     }
 }

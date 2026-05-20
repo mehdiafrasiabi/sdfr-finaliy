@@ -1,3 +1,17 @@
+{{--
+    ===================================================================
+    SDFR · Trial Week Onboarding — v4 (Responsive Split UX)
+    -------------------------------------------------------------------
+    موبایل  : multi-step app-like با Lottie و swipe
+    دسکتاپ  : single-page split — معرفی سمت راست، فرم سمت چپ
+    -------------------------------------------------------------------
+    - تم اصلی قالب (CSS variables: --primary, --background, ...)
+    - Figma + Blueprint + Graph paper grid backgrounds
+    - دکمه‌های press-able با حس 3D
+    - Onboarding tour (driver.js) فقط اولین بار
+    ===================================================================
+--}}
+
 <div class="relative min-h-screen overflow-hidden bg-background text-foreground"
      dir="rtl"
      x-data="onboardingFlow({
@@ -7,99 +21,16 @@
         countdown:   @entangle('countdown').live,
         totalSteps: {{ $totalSteps }},
      })">
-    @push('script')
-        <script>
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('onboardingFlow', (initial) => ({
-                    busy: false,
-                    countdownTimer: null,
-                    touchStartX: 0,
-                    touchEndX: 0,
 
-                    init() {
-                        this.startCountdownIfNeeded();
-
-                        Livewire.on('start-countdown', () => this.startCountdownIfNeeded());
-                        Livewire.on('step-validation-failed', () => { this.busy = false; });
-                        Livewire.on('step-changed', () => { this.busy = false; });
-                    },
-
-                    pressBtn(el) {
-                        if (!el) return;
-                        el.classList.add('pressed');
-                        setTimeout(() => el.classList.remove('pressed'), 120);
-                        if (navigator.vibrate) navigator.vibrate(10);
-                    },
-
-                    startCountdownIfNeeded() {
-                        if (this.countdownTimer) clearInterval(this.countdownTimer);
-                        if (this.$wire.countdown <= 0) return;
-
-                        this.countdownTimer = setInterval(() => {
-                            if (this.$wire.countdown > 0) {
-                                this.$wire.set('countdown', this.$wire.countdown - 1, false);
-                            } else {
-                                clearInterval(this.countdownTimer);
-                                this.$wire.countdownFinished();
-                            }
-                        }, 1000);
-                    },
-
-                    goNext() {
-                        if (this.busy) return;
-                        if (this.$wire.currentStep === 1) {
-                            this.$wire.set('currentStep', 2);
-                            return;
-                        }
-                        this.busy = true;
-                        this.$wire.next();
-                    },
-
-                    goPrev() {
-                        if (this.busy) return;
-                        if (this.$wire.currentStep <= 1) return;
-                        if (this.$wire.currentStep === 2) {
-                            this.$wire.set('currentStep', 1);
-                            return;
-                        }
-                        this.$wire.previous();
-                    },
-
-                    submitDesktopForm() {
-                        if (this.busy) return;
-                        this.busy = true;
-                        this.$wire.submitAll();
-                    },
-
-                    confirmTrialAction() {
-                        if (this.busy) return;
-                        this.busy = true;
-                        this.$wire.confirmTrial();
-                    },
-
-                    handleTouchStart(e) {
-                        this.touchStartX = e.changedTouches[0].screenX;
-                    },
-                    handleTouchEnd(e) {
-                        this.touchEndX = e.changedTouches[0].screenX;
-                        const diff = this.touchEndX - this.touchStartX;
-                        if (Math.abs(diff) < 60) return;
-                        if (['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName)) return;
-                        if (diff > 0 && this.$wire.currentStep > 1 && this.$wire.currentStep <= 4) {
-                            this.goPrev();
-                        }
-                    },
-                }));
-            });
-        </script>
-    @endpush
     @push('link')
         <style>
             [x-cloak] { display: none !important; }
 
             /* ═══════════════════════════════════════════════════════
-               GRID BACKGROUND (Figma-style)
+               GRID BACKGROUNDS — Figma / Blueprint / Graph Paper
                ═══════════════════════════════════════════════════════ */
+
+            /* Figma-style: nested grid (small + large), subtle */
             .grid-figma {
                 background-image:
                     linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
@@ -110,22 +41,36 @@
                 -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, #000 30%, transparent 90%);
                 mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, #000 30%, transparent 90%);
             }
-            @keyframes shimmer {
-                0% {
-                    background-position: -200% 0;
-                }
-                100% {
-                    background-position: 200% 0;
-                }
+
+            /* Blueprint: cross marks at intersections */
+            .grid-blueprint {
+                background-image:
+                    linear-gradient(to right, hsl(var(--primary) / 0.15) 1px, transparent 1px),
+                    linear-gradient(to bottom, hsl(var(--primary) / 0.15) 1px, transparent 1px);
+                background-size: 32px 32px;
+                -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 50%, #000 30%, transparent 90%);
+                mask-image: radial-gradient(ellipse 90% 70% at 50% 50%, #000 30%, transparent 90%);
             }
-            .shimmer-text {
-                background: linear-gradient(90deg, hsl(var(--foreground)) 0%, hsl(var(--primary)) 50%, hsl(var(--foreground)) 100%);
-                background-size: 200% 100%;
-                -webkit-background-clip: text;
-                background-clip: text;
-                -webkit-text-fill-color: transparent;
-                animation: shimmer 4s linear infinite;
+            .grid-blueprint::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                background-image:
+                    radial-gradient(circle at 32px 32px, hsl(var(--primary) / 0.3) 1.5px, transparent 1.5px);
+                background-size: 32px 32px;
+                pointer-events: none;
+                -webkit-mask-image: inherit;
+                mask-image: inherit;
             }
+
+            /* Graph paper: warm tone, denser */
+            .grid-graph {
+                background-image:
+                    linear-gradient(to right, hsl(var(--border) / 0.5) 1px, transparent 1px),
+                    linear-gradient(to bottom, hsl(var(--border) / 0.5) 1px, transparent 1px);
+                background-size: 24px 24px;
+            }
+
             /* ═══════════════════════════════════════════════════════
                GLASS CARDS
                ═══════════════════════════════════════════════════════ */
@@ -150,71 +95,7 @@
             .glass-input::placeholder { color: hsl(var(--muted) / 0.7); }
 
             /* ═══════════════════════════════════════════════════════
-               ⚡ ANIMATED BORDER (طرح قطار سریع)
-               یک نوار نوری از یک گوشه شروع میشه و دور باکس می‌چرخه
-               ═══════════════════════════════════════════════════════ */
-            .train-border {
-                position: relative;
-                background: hsl(var(--background) / 0.6);
-                backdrop-filter: blur(18px) saturate(140%);
-                -webkit-backdrop-filter: blur(18px) saturate(140%);
-                border-radius: 24px;
-                isolation: isolate;
-            }
-            .train-border::before {
-                content: '';
-                position: absolute;
-                inset: -1px;
-                border-radius: inherit;
-                padding: 1.5px;
-                background: conic-gradient(
-                    from var(--train-angle, 0deg),
-                    transparent 0%,
-                    transparent 80%,
-                    hsl(var(--primary) / 0.3) 86%,
-                    hsl(var(--primary)) 92%,
-                    hsl(var(--primary) / 0.3) 96%,
-                    transparent 100%
-                );
-                -webkit-mask:
-                    linear-gradient(#fff 0 0) content-box,
-                    linear-gradient(#fff 0 0);
-                mask:
-                    linear-gradient(#fff 0 0) content-box,
-                    linear-gradient(#fff 0 0);
-                -webkit-mask-composite: xor;
-                mask-composite: exclude;
-                animation: train-spin 4s linear infinite;
-                pointer-events: none;
-            }
-            @property --train-angle {
-                syntax: '<angle>';
-                initial-value: 0deg;
-                inherits: false;
-            }
-            @keyframes train-spin {
-                to { --train-angle: 360deg; }
-            }
-            /* Fallback for browsers without @property */
-            @supports not (background: paint(something)) {
-                .train-border::before {
-                    background: linear-gradient(
-                        90deg,
-                        transparent,
-                        hsl(var(--primary)),
-                        transparent
-                    );
-                    background-size: 200% 100%;
-                    animation: train-fallback 4s linear infinite;
-                }
-                @keyframes train-fallback {
-                    0%   { background-position: 200% 0; }
-                    100% { background-position: -200% 0; }
-                }
-            }
-
-            /* ═══════════════════════════════════════════════════════
-               PRESSABLE BUTTONS
+               PRESSABLE BUTTONS (3D press feel)
                ═══════════════════════════════════════════════════════ */
             .btn-press {
                 position: relative;
@@ -240,8 +121,12 @@
                     0 1px 0 0 hsl(var(--primary) / 0.4),
                     0 2px 4px hsl(var(--primary) / 0.2);
             }
-            .btn-press:disabled { opacity: 0.6; cursor: not-allowed; }
+            .btn-press:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
 
+            /* Secondary press button */
             .btn-press-secondary {
                 position: relative;
                 transform: translateY(0);
@@ -263,8 +148,10 @@
                     0 1px 2px hsl(var(--foreground) / 0.05);
             }
 
-            /* Accent cards */
+            /* Accent colored cards (rare, for highlighted items only) */
             .accent-emerald { --accent: 16 185 129; }
+            .accent-amber   { --accent: 245 158 11; }
+            .accent-rose    { --accent: 244 63 94; }
             .accent-sky     { --accent: 14 165 233; }
             .accent-card {
                 background: linear-gradient(135deg,
@@ -279,7 +166,7 @@
             }
 
             /* ═══════════════════════════════════════════════════════
-               STEP TRANSITIONS
+               STEP TRANSITIONS (mobile)
                ═══════════════════════════════════════════════════════ */
             .step-enter-active,
             .step-leave-active {
@@ -289,7 +176,9 @@
             .step-enter-from { opacity: 0; transform: translateX(-16px); }
             .step-leave-to   { opacity: 0; transform: translateX(16px); }
 
-            /* Progress dots */
+            /* ═══════════════════════════════════════════════════════
+               PROGRESS DOTS (mobile)
+               ═══════════════════════════════════════════════════════ */
             .progress-dot {
                 width: 8px; height: 8px;
                 border-radius: 999px;
@@ -304,7 +193,38 @@
                 background: hsl(var(--primary) / 0.5);
             }
 
-            /* Shake */
+            /* ═══════════════════════════════════════════════════════
+               TOOLTIP (focus-driven)
+               ═══════════════════════════════════════════════════════ */
+            .field-tip {
+                position: absolute;
+                bottom: calc(100% + 8px);
+                right: 0;
+                background: hsl(var(--foreground));
+                color: hsl(var(--background));
+                padding: 6px 10px;
+                border-radius: 8px;
+                font-size: 11px;
+                white-space: nowrap;
+                box-shadow: 0 8px 24px hsl(var(--foreground) / 0.15);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.2s ease;
+                z-index: 10;
+            }
+            .field-tip::after {
+                content: '';
+                position: absolute;
+                top: 100%;
+                right: 14px;
+                border: 5px solid transparent;
+                border-top-color: hsl(var(--foreground));
+            }
+            .field-wrap:focus-within .field-tip { opacity: 1; }
+
+            /* ═══════════════════════════════════════════════════════
+               SHAKE / SCROLLBAR
+               ═══════════════════════════════════════════════════════ */
             @keyframes shake {
                 0%, 100% { transform: translateX(0); }
                 25% { transform: translateX(-5px); }
@@ -320,55 +240,24 @@
             }
             ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.5); }
 
-            /* Floating orbs */
+            /* ═══════════════════════════════════════════════════════
+               FLOATING ORBS
+               ═══════════════════════════════════════════════════════ */
             @keyframes float-orb {
                 0%, 100% { transform: translate(0, 0); }
                 50%      { transform: translate(20px, -25px); }
             }
             .float-orb { animation: float-orb 9s ease-in-out infinite; }
 
-            /* ═══════════════════════════════════════════════════════
-               CUSTOM SVG ANIMATIONS (جایگزین Lottie)
-               ═══════════════════════════════════════════════════════ */
-            @keyframes rocket-bob {
-                0%, 100% { transform: translateY(0) rotate(-5deg); }
-                50%      { transform: translateY(-8px) rotate(5deg); }
-            }
-            .anim-rocket { animation: rocket-bob 3s ease-in-out infinite; transform-origin: center; }
-
-            @keyframes flame-flicker {
-                0%, 100% { transform: scaleY(1) scaleX(1); opacity: 1; }
-                50%      { transform: scaleY(0.7) scaleX(1.2); opacity: 0.8; }
-            }
-            .anim-flame { animation: flame-flicker 0.2s ease-in-out infinite; transform-origin: top center; }
-
-            @keyframes check-pop {
-                0%   { transform: scale(0); opacity: 0; }
-                60%  { transform: scale(1.3); opacity: 1; }
-                100% { transform: scale(1); opacity: 1; }
-            }
-            .anim-check { animation: check-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-            @keyframes envelope-pulse {
-                0%, 100% { transform: scale(1); }
-                50%      { transform: scale(1.05); }
-            }
-            .anim-envelope { animation: envelope-pulse 2s ease-in-out infinite; transform-origin: center; }
-
-            @keyframes wave {
-                0%, 100% { opacity: 0; transform: scale(0.8); }
-                50%      { opacity: 0.8; transform: scale(1.1); }
-            }
-            .anim-wave { animation: wave 2s ease-in-out infinite; transform-origin: center; }
-            .anim-wave-2 { animation: wave 2s ease-in-out infinite; animation-delay: 0.5s; }
-
-            /* Page bottom padding for mobile (footer space) */
-            .mobile-form-pad { padding-bottom: 6rem; }
-
             @media (prefers-reduced-motion: reduce) {
                 * { animation: none !important; transition: none !important; }
             }
         </style>
+
+        {{-- External libs --}}
+        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css"/>
+        <script src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
     @endpush
 
     @php
@@ -385,22 +274,30 @@
         ];
     @endphp
 
-    {{-- ═══════════════ BACKGROUND ═══════════════ --}}
+    {{-- ═══════════════ BACKGROUND LAYERS ═══════════════ --}}
     <div class="absolute inset-0 grid-figma pointer-events-none"></div>
     <div class="absolute top-20 -right-20 w-72 h-72 bg-primary/15 rounded-full blur-3xl float-orb pointer-events-none"></div>
     <div class="absolute bottom-20 -left-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl float-orb pointer-events-none" style="animation-delay: -3s"></div>
 
     {{-- ═══════════════════════════════════════════════════════════════════════
-         📱 MOBILE LAYOUT
+         DESKTOP LAYOUT (≥ md)   ←→   MOBILE LAYOUT (< md)
          ═══════════════════════════════════════════════════════════════════════ --}}
+
+    {{-- ─────────────────────────────────────────────────────────
+         📱 MOBILE — Multi-step app-like
+         ───────────────────────────────────────────────────────── --}}
     <div class="md:hidden relative z-10 min-h-screen flex flex-col" x-cloak>
 
-        {{-- Mobile header --}}
+        {{-- Mobile header with progress --}}
         <header class="px-4 pt-5 pb-3" x-show="$wire.currentStep < {{ $totalSteps }}">
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-2">
-
-                    <img width="85px" src="/client/assets/images/theme/intro/header.png"/>
+                    <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <span class="font-black text-sm tracking-wider">SDFR</span>
                 </div>
 
                 <div class="flex-1 flex items-center justify-center gap-2">
@@ -425,8 +322,8 @@
             </div>
         @endif
 
-        {{-- Steps - با padding بزرگ زیر برای فضای footer --}}
-        <main class="flex-1 flex items-start justify-center px-4 py-4 mobile-form-pad"
+        {{-- Steps container --}}
+        <main class="flex-1 flex items-start justify-center px-4 py-4"
               @touchstart="handleTouchStart($event)"
               @touchend="handleTouchEnd($event)">
 
@@ -439,48 +336,22 @@
                          x-transition:leave="step-leave-active"
                          x-transition:leave-end="step-leave-to">
 
-                    <div class="train-border p-6 text-center">
-                        {{-- Inline animated rocket SVG --}}
-                        <div class="inline-block w-32 h-32 mb-3">
-                            <svg viewBox="0 0 200 200" class="w-full h-full">
-                                <defs>
-                                    <linearGradient id="rocketGrad" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="hsl(var(--primary))"/>
-                                        <stop offset="100%" stop-color="hsl(var(--primary) / 0.6)"/>
-                                    </linearGradient>
-                                </defs>
-                                {{-- Wave rings behind --}}
-                                <circle cx="100" cy="100" r="70" fill="none" stroke="hsl(var(--primary) / 0.3)" stroke-width="2" class="anim-wave"/>
-                                <circle cx="100" cy="100" r="85" fill="none" stroke="hsl(var(--primary) / 0.2)" stroke-width="2" class="anim-wave-2"/>
-
-                                {{-- Rocket body --}}
-                                <g class="anim-rocket">
-                                    {{-- Flame --}}
-                                    <g class="anim-flame">
-                                        <path d="M88 145 L100 175 L112 145 Z" fill="#f97316"/>
-                                        <path d="M92 145 L100 165 L108 145 Z" fill="#fbbf24"/>
-                                    </g>
-                                    {{-- Body --}}
-                                    <path d="M100 40 Q120 70 120 130 L80 130 Q80 70 100 40 Z" fill="url(#rocketGrad)"/>
-                                    {{-- Window --}}
-                                    <circle cx="100" cy="85" r="10" fill="white" stroke="hsl(var(--primary))" stroke-width="2"/>
-                                    <circle cx="100" cy="85" r="6" fill="hsl(var(--primary) / 0.3)"/>
-                                    {{-- Fins --}}
-                                    <path d="M80 110 L65 140 L80 135 Z" fill="hsl(var(--primary) / 0.8)"/>
-                                    <path d="M120 110 L135 140 L120 135 Z" fill="hsl(var(--primary) / 0.8)"/>
-                                </g>
-                            </svg>
+                    <div class="glass-card rounded-3xl p-6 text-center">
+                        <div class="inline-block w-36 h-36 mb-3">
+                            <lottie-player
+                                src="https://lottie.host/4f0f1f48-7c87-46b0-bcfe-bbf09cce6c64/9KqQ2W7p4o.json"
+                                background="transparent" speed="1" loop autoplay></lottie-player>
                         </div>
 
                         <h1 class="font-black text-2xl leading-tight mb-3">
-                            به <span class="shimmer-text">SDFR</span> خوش آمدید
+                            به <span class="text-primary">SDFR</span> خوش آمدید
                         </h1>
                         <p class="text-muted text-sm leading-7 mb-6">
                             پلتفرم هوشمند پایش مطالعه و مشاوره‌ی تخصصی.
                             در کمتر از ۲ دقیقه حساب‌تون ساخته می‌شه.
                         </p>
 
-                        {{-- Features --}}
+                        {{-- Compact features list --}}
                         <div class="space-y-2 mb-6 text-right">
                             @foreach(array_slice($features, 0, 4) as $f)
                                 <div class="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border">
@@ -497,6 +368,7 @@
                             @endforeach
                         </div>
 
+                        {{-- Trial badge --}}
                         <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-bold mb-5">
                             <span class="relative flex w-1.5 h-1.5">
                                 <span class="absolute inline-flex w-full h-full bg-emerald-500 rounded-full opacity-75 animate-ping"></span>
@@ -522,7 +394,7 @@
                          x-transition:leave="step-leave-active"
                          x-transition:leave-end="step-leave-to">
 
-                    <div class="train-border p-6">
+                    <div class="glass-card rounded-3xl p-6">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -536,24 +408,26 @@
                         </div>
 
                         <div class="space-y-4">
-                            <div>
+                            <div class="field-wrap relative" data-tour="firstName">
                                 <label class="block text-xs font-semibold mb-1.5 text-muted">نام</label>
                                 <input wire:model.blur="firstName" type="text" placeholder="مثلاً علی" autocomplete="given-name"
                                        class="glass-input w-full rounded-xl px-4 py-3 text-sm @error('firstName') border-rose-500/60 shake @enderror">
+                                <div class="field-tip">باید فارسی باشه</div>
                                 @error('firstName')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                             </div>
 
-                            <div>
+                            <div class="field-wrap relative">
                                 <label class="block text-xs font-semibold mb-1.5 text-muted">نام خانوادگی</label>
                                 <input wire:model.blur="lastName" type="text" placeholder="مثلاً محمدی" autocomplete="family-name"
                                        class="glass-input w-full rounded-xl px-4 py-3 text-sm @error('lastName') border-rose-500/60 shake @enderror">
                                 @error('lastName')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                             </div>
 
-                            <div>
+                            <div class="field-wrap relative" data-tour="codeMell">
                                 <label class="block text-xs font-semibold mb-1.5 text-muted">کد ملی</label>
                                 <input wire:model.blur="codeMell" type="text" maxlength="10" placeholder="۱۰ رقم" inputmode="numeric" dir="ltr"
                                        class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono tracking-wider @error('codeMell') border-rose-500/60 shake @enderror">
+                                <div class="field-tip">دقیقاً ۱۰ رقم</div>
                                 @error('codeMell')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                             </div>
                         </div>
@@ -567,7 +441,7 @@
                          x-transition:leave="step-leave-active"
                          x-transition:leave-end="step-leave-to">
 
-                    <div class="train-border p-6">
+                    <div class="glass-card rounded-3xl p-6">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -581,14 +455,14 @@
                         </div>
 
                         <div class="space-y-4">
-                            <div>
+                            <div class="field-wrap relative">
                                 <label class="block text-xs font-semibold mb-1.5 text-muted">شماره پدر</label>
                                 <input wire:model.blur="fatherMobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric"
                                        class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('fatherMobile') border-rose-500/60 shake @enderror">
                                 @error('fatherMobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                             </div>
 
-                            <div>
+                            <div class="field-wrap relative">
                                 <label class="block text-xs font-semibold mb-1.5 text-muted">شماره مادر</label>
                                 <input wire:model.blur="motherMobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric"
                                        class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('motherMobile') border-rose-500/60 shake @enderror">
@@ -596,16 +470,17 @@
                             </div>
 
                             <div class="grid grid-cols-2 gap-3">
-                                <div>
+                                <div class="field-wrap relative">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">پایه</label>
-                                    <select wire:model.live="grade" class="glass-input w-full rounded-xl px-3 py-3 text-sm">
+                                    <select wire:model.live="grade"
+                                            class="glass-input w-full rounded-xl px-3 py-3 text-sm">
                                         @foreach($gradeLabels as $value => $label)
                                             <option value="{{ $value }}">{{ $label }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 @if($grade !== '9')
-                                    <div>
+                                    <div class="field-wrap relative">
                                         <label class="block text-xs font-semibold mb-1.5 text-muted">رشته</label>
                                         <select wire:model="field" class="glass-input w-full rounded-xl px-3 py-3 text-sm">
                                             @foreach($fieldLabels as $value => $label)
@@ -626,7 +501,7 @@
                          x-transition:leave="step-leave-active"
                          x-transition:leave-end="step-leave-to">
 
-                    <div class="train-border p-6">
+                    <div class="glass-card rounded-3xl p-6">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -641,7 +516,7 @@
 
                         <div class="space-y-4">
                             <div class="grid grid-cols-2 gap-3">
-                                <div>
+                                <div class="field-wrap relative">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">استان</label>
                                     <select wire:model.live="stateId" class="glass-input w-full rounded-xl px-3 py-3 text-sm">
                                         <option value="0">انتخاب</option>
@@ -650,7 +525,7 @@
                                         @endforeach
                                     </select>
                                 </div>
-                                <div>
+                                <div class="field-wrap relative">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">شهر</label>
                                     <select wire:model="cityId" class="glass-input w-full rounded-xl px-3 py-3 text-sm"
                                             :disabled="!$wire.stateId || $wire.stateId === 0">
@@ -662,19 +537,20 @@
                                 </div>
                             </div>
 
-                            <div>
+                            <div class="field-wrap relative">
                                 <label class="block text-xs font-semibold mb-1.5 text-muted">شماره موبایل (برای ورود)</label>
                                 <input wire:model.blur="mobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric"
                                        class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('mobile') border-rose-500/60 shake @enderror">
+                                <div class="field-tip">کد تأیید روی این شماره میاد</div>
                                 @error('mobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                             </div>
 
-                            <div>
+                            <div class="field-wrap relative">
                                 <label class="block text-xs font-semibold mb-1.5 text-muted">رمز عبور</label>
                                 <input wire:model.live.debounce.300ms="password" type="password" dir="ltr"
                                        autocomplete="new-password" data-lpignore="true" data-1p-ignore="true"
                                        class="glass-input w-full rounded-xl px-4 py-3 text-sm @error('password') border-rose-500/60 shake @enderror">
-                                <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                                <div class="flex items-center gap-1.5 mt-2">
                                     <span class="text-[10px] text-muted">قدرت:</span>
                                     <span class="text-[10px] px-1.5 py-0.5 rounded transition-colors"
                                           :class="$wire.passwordStrength?.length ? 'bg-emerald-500/15 text-emerald-500' : 'bg-secondary text-muted'">۸+ کاراکتر</span>
@@ -686,7 +562,7 @@
                                 @error('password')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                             </div>
 
-                            <div>
+                            <div class="field-wrap relative">
                                 <label class="block text-xs font-semibold mb-1.5 text-muted">تکرار رمز</label>
                                 <input wire:model.blur="passwordConf" type="password" dir="ltr"
                                        autocomplete="new-password" data-lpignore="true" data-1p-ignore="true"
@@ -704,16 +580,11 @@
                          x-transition:leave="step-leave-active"
                          x-transition:leave-end="step-leave-to">
 
-                    <div class="train-border p-6 text-center">
-                        {{-- Animated envelope SVG --}}
-                        <div class="inline-block w-24 h-24 mb-3">
-                            <svg viewBox="0 0 100 100" class="w-full h-full">
-                                <g class="anim-envelope">
-                                    <rect x="20" y="35" width="60" height="40" rx="4" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary))" stroke-width="2"/>
-                                    <path d="M20 39 L50 60 L80 39" fill="none" stroke="hsl(var(--primary))" stroke-width="2" stroke-linecap="round"/>
-                                </g>
-                                <circle cx="80" cy="30" r="6" fill="hsl(var(--primary))" class="anim-wave"/>
-                            </svg>
+                    <div class="glass-card rounded-3xl p-6 text-center">
+                        <div class="inline-block w-28 h-28 mb-2">
+                            <lottie-player
+                                src="https://lottie.host/d1f1ad8f-eb84-4e62-b85e-fd35eea54f3f/H5GqsXVz4O.json"
+                                background="transparent" speed="1" loop autoplay></lottie-player>
                         </div>
 
                         <h2 class="font-black text-xl mb-2">کد تأیید را وارد کنید</h2>
@@ -731,7 +602,7 @@
                             <div class="text-rose-500 text-xs mb-3">{{ $otpError }}</div>
                         @endif
 
-                        <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center justify-between text-sm mb-2">
                             @if($countdown > 0)
                                 <span class="text-muted text-xs">
                                     ارسال مجدد تا
@@ -758,12 +629,12 @@
                          x-transition:enter="step-enter-active"
                          x-transition:enter-start="step-enter-from">
 
-                    <div class="train-border p-6">
+                    <div class="glass-card rounded-3xl p-6">
                         <div class="text-center mb-6">
-                            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 mb-3">
-                                <svg viewBox="0 0 24 24" class="w-10 h-10 text-emerald-500 anim-check">
-                                    <path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/>
-                                </svg>
+                            <div class="inline-block w-28 h-28 mb-2">
+                                <lottie-player
+                                    src="https://lottie.host/7d4c8a3c-e3e7-4cb0-8e6e-7e8a9b8e9f0a/3K8q7Wp4o.json"
+                                    background="transparent" speed="1" autoplay></lottie-player>
                             </div>
                             <h2 class="font-black text-2xl mb-2">حساب شما ساخته شد</h2>
                             <p class="text-sm text-muted">یکی از مسیرها را برای ادامه انتخاب کنید.</p>
@@ -806,7 +677,7 @@
         </main>
 
         {{-- Mobile bottom nav --}}
-        <footer class="fixed bottom-0 inset-x-0 px-4 pb-4 pt-3 bg-gradient-to-t from-background via-background to-transparent z-20"
+        <footer class="sticky bottom-0 px-4 pb-4 pt-2 bg-gradient-to-t from-background to-transparent"
                 x-show="$wire.currentStep >= 2 && $wire.currentStep <= 4">
             <div class="flex items-center gap-3">
                 <button type="button" @click="goPrev()" @mousedown="pressBtn($el)"
@@ -839,14 +710,20 @@
     </div>
 
 
-    {{-- ═══════════════════════════════════════════════════════════════════════
-         🖥️ DESKTOP LAYOUT
-         ═══════════════════════════════════════════════════════════════════════ --}}
+    {{-- ─────────────────────────────────────────────────────────
+         🖥️ DESKTOP — Single page split layout
+         ───────────────────────────────────────────────────────── --}}
     <div class="hidden md:block relative z-10 min-h-screen" x-cloak>
 
+        {{-- Top bar --}}
         <div class="max-w-7xl mx-auto px-8 pt-6">
             <div class="flex items-center gap-2">
-                <img width="100px" src="/client/assets/images/theme/intro/header.png"/>
+                <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                </div>
+                <span class="font-black text-base tracking-wider">SDFR</span>
             </div>
         </div>
 
@@ -858,19 +735,17 @@
             </div>
         @endif
 
-        {{-- Centered: OTP and final choice --}}
-        <div x-show="$wire.currentStep >= 5" class="max-w-2xl mx-auto px-8 py-12">
+        {{-- ═══ FORM STEPS 5,6 (OTP, Final) → Show centered, not split ═══ --}}
+        <div x-show="$wire.currentStep >= 5"
+             x-cloak
+             class="max-w-2xl mx-auto px-8 py-12">
 
+            {{-- OTP --}}
             <section x-show="$wire.currentStep === 5">
-                <div class="train-border p-10 text-center">
-                    <div class="inline-block w-28 h-28 mb-3">
-                        <svg viewBox="0 0 100 100" class="w-full h-full">
-                            <g class="anim-envelope">
-                                <rect x="20" y="35" width="60" height="40" rx="4" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary))" stroke-width="2"/>
-                                <path d="M20 39 L50 60 L80 39" fill="none" stroke="hsl(var(--primary))" stroke-width="2" stroke-linecap="round"/>
-                            </g>
-                            <circle cx="80" cy="30" r="6" fill="hsl(var(--primary))" class="anim-wave"/>
-                        </svg>
+                <div class="glass-card rounded-3xl p-10 text-center">
+                    <div class="inline-block w-32 h-32 mb-3">
+                        <lottie-player src="https://lottie.host/d1f1ad8f-eb84-4e62-b85e-fd35eea54f3f/H5GqsXVz4O.json"
+                                       background="transparent" speed="1" loop autoplay></lottie-player>
                     </div>
                     <h2 class="font-black text-2xl mb-2">کد تأیید را وارد کنید</h2>
                     <p class="text-sm text-muted mb-6 leading-7">
@@ -906,13 +781,13 @@
                 </div>
             </section>
 
+            {{-- Final choice --}}
             <section x-show="$wire.currentStep === 6">
-                <div class="train-border p-10">
+                <div class="glass-card rounded-3xl p-10">
                     <div class="text-center mb-8">
-                        <div class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 mb-3">
-                            <svg viewBox="0 0 24 24" class="w-12 h-12 text-emerald-500 anim-check">
-                                <path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/>
-                            </svg>
+                        <div class="inline-block w-32 h-32 mb-2">
+                            <lottie-player src="https://lottie.host/7d4c8a3c-e3e7-4cb0-8e6e-7e8a9b8e9f0a/3K8q7Wp4o.json"
+                                           background="transparent" speed="1" autoplay></lottie-player>
                         </div>
                         <h2 class="font-black text-3xl mb-2">حساب شما ساخته شد</h2>
                         <p class="text-muted">یکی از مسیرها را برای ادامه انتخاب کنید.</p>
@@ -951,12 +826,13 @@
             </section>
         </div>
 
-        {{-- Desktop split layout (steps 1-4) --}}
-        <div x-show="$wire.currentStep < 5" class="max-w-7xl mx-auto px-8 pt-8 pb-12">
+        {{-- ═══ MAIN SPLIT LAYOUT (steps 1-4 → یک‌جا نمایش داده میشن) ═══ --}}
+        <div x-show="$wire.currentStep < 5"
+             class="max-w-7xl mx-auto px-8 pt-8 pb-12">
 
             <div class="grid grid-cols-12 gap-8 items-start">
 
-                {{-- سمت راست: معرفی --}}
+                {{-- ─── سمت راست (RTL): معرفی SDFR ─── --}}
                 <div class="col-span-5 sticky top-8 space-y-6">
                     <div class="inline-flex items-center gap-2 glass-card rounded-full px-3 py-1.5">
                         <span class="relative flex w-1.5 h-1.5">
@@ -967,7 +843,7 @@
                     </div>
 
                     <h1 class="font-black text-4xl leading-tight">
-                        به <span class="shimmer-text">SDFR</span> خوش آمدید
+                        به <span class="text-primary">SDFR</span> خوش آمدید
                     </h1>
                     <p class="text-muted leading-8 text-sm">
                         پلتفرم هوشمند پایش مطالعه و مشاوره‌ی تخصصی برای دانش‌آموزان جدی.
@@ -975,36 +851,19 @@
                         آزمایشی رایگان می‌شید.
                     </p>
 
-                    {{-- Animated rocket illustration --}}
+                    {{-- Lottie illustration --}}
                     <div class="relative">
                         <div class="absolute inset-0 bg-gradient-to-tr from-primary/20 via-primary/5 to-transparent rounded-3xl blur-2xl"></div>
-                        <div class="relative train-border p-6 flex items-center justify-center">
-                            <div class="w-48 h-48">
-                                <svg viewBox="0 0 200 200" class="w-full h-full">
-                                    <defs>
-                                        <linearGradient id="rocketGradD" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stop-color="hsl(var(--primary))"/>
-                                            <stop offset="100%" stop-color="hsl(var(--primary) / 0.6)"/>
-                                        </linearGradient>
-                                    </defs>
-                                    <circle cx="100" cy="100" r="70" fill="none" stroke="hsl(var(--primary) / 0.3)" stroke-width="2" class="anim-wave"/>
-                                    <circle cx="100" cy="100" r="85" fill="none" stroke="hsl(var(--primary) / 0.2)" stroke-width="2" class="anim-wave-2"/>
-                                    <g class="anim-rocket">
-                                        <g class="anim-flame">
-                                            <path d="M88 145 L100 175 L112 145 Z" fill="#f97316"/>
-                                            <path d="M92 145 L100 165 L108 145 Z" fill="#fbbf24"/>
-                                        </g>
-                                        <path d="M100 40 Q120 70 120 130 L80 130 Q80 70 100 40 Z" fill="url(#rocketGradD)"/>
-                                        <circle cx="100" cy="85" r="10" fill="white" stroke="hsl(var(--primary))" stroke-width="2"/>
-                                        <circle cx="100" cy="85" r="6" fill="hsl(var(--primary) / 0.3)"/>
-                                        <path d="M80 110 L65 140 L80 135 Z" fill="hsl(var(--primary) / 0.8)"/>
-                                        <path d="M120 110 L135 140 L120 135 Z" fill="hsl(var(--primary) / 0.8)"/>
-                                    </g>
-                                </svg>
+                        <div class="relative glass-card rounded-3xl p-6">
+                            <div class="w-full h-48">
+                                <lottie-player
+                                    src="https://lottie.host/4f0f1f48-7c87-46b0-bcfe-bbf09cce6c64/9KqQ2W7p4o.json"
+                                    background="transparent" speed="1" loop autoplay></lottie-player>
                             </div>
                         </div>
                     </div>
 
+                    {{-- Features grid --}}
                     <div class="grid grid-cols-2 gap-3">
                         @foreach($features as $f)
                             <div class="flex items-start gap-2.5 p-3 rounded-xl bg-secondary/50 border border-border">
@@ -1022,10 +881,11 @@
                     </div>
                 </div>
 
-                {{-- سمت چپ: فرم --}}
+                {{-- ─── سمت چپ (RTL): فرم کامل ─── --}}
                 <div class="col-span-7">
-                    <div class="train-border p-8 space-y-7">
+                    <div class="glass-card rounded-3xl p-8 space-y-7">
 
+                        {{-- Form header --}}
                         <div class="flex items-center gap-3 pb-5 border-b border-border">
                             <div class="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
                                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1038,20 +898,22 @@
                             </div>
                         </div>
 
-                        {{-- Section 1 --}}
+                        {{-- Section 1: اطلاعات شخصی --}}
                         <fieldset class="space-y-4">
                             <legend class="flex items-center gap-2 font-bold text-sm text-foreground mb-1">
+                                <span class="flex items-center justify-center w-5 h-5 rounded-md bg-primary/10 text-primary text-[10px] font-black border border-primary/20">۱</span>
                                 اطلاعات شخصی
                             </legend>
 
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
+                                <div class="field-wrap relative" data-tour="firstName">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">نام</label>
                                     <input wire:model.blur="firstName" type="text" placeholder="مثلاً علی"
                                            class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('firstName') border-rose-500/60 shake @enderror">
+                                    <div class="field-tip">باید فارسی باشه</div>
                                     @error('firstName')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                 </div>
-                                <div>
+                                <div class="field-wrap relative">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">نام خانوادگی</label>
                                     <input wire:model.blur="lastName" type="text" placeholder="مثلاً محمدی"
                                            class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('lastName') border-rose-500/60 shake @enderror">
@@ -1059,35 +921,37 @@
                                 </div>
                             </div>
 
-                            <div>
+                            <div class="field-wrap relative" data-tour="codeMell">
                                 <label class="block text-xs font-semibold mb-1.5 text-muted">کد ملی</label>
                                 <input wire:model.blur="codeMell" type="text" maxlength="10" placeholder="۱۰ رقم" inputmode="numeric" dir="ltr"
                                        class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono tracking-wider @error('codeMell') border-rose-500/60 shake @enderror">
+                                <div class="field-tip">دقیقاً ۱۰ رقم</div>
                                 @error('codeMell')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                             </div>
                         </fieldset>
 
-                        {{-- Section 2 --}}
+                        {{-- Section 2: والدین + پایه --}}
                         <fieldset class="space-y-4 pt-5 border-t border-border">
                             <legend class="flex items-center gap-2 font-bold text-sm text-foreground mb-1">
+                                <span class="flex items-center justify-center w-5 h-5 rounded-md bg-primary/10 text-primary text-[10px] font-black border border-primary/20">۲</span>
                                 والدین و پایه‌ی تحصیلی
                             </legend>
 
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
+                                <div class="field-wrap relative">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">شماره پدر</label>
                                     <input wire:model.blur="fatherMobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric"
                                            class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono @error('fatherMobile') border-rose-500/60 shake @enderror">
                                     @error('fatherMobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                 </div>
-                                <div>
+                                <div class="field-wrap relative">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">شماره مادر</label>
                                     <input wire:model.blur="motherMobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric"
                                            class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono @error('motherMobile') border-rose-500/60 shake @enderror">
                                     @error('motherMobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                 </div>
 
-                                <div>
+                                <div class="field-wrap relative">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">پایه</label>
                                     <select wire:model.live="grade" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm">
                                         @foreach($gradeLabels as $value => $label)
@@ -1096,7 +960,7 @@
                                     </select>
                                 </div>
                                 @if($grade !== '9')
-                                    <div>
+                                    <div class="field-wrap relative">
                                         <label class="block text-xs font-semibold mb-1.5 text-muted">رشته</label>
                                         <select wire:model="field" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm">
                                             @foreach($fieldLabels as $value => $label)
@@ -1108,14 +972,15 @@
                             </div>
                         </fieldset>
 
-                        {{-- Section 3 --}}
+                        {{-- Section 3: مکان + رمز --}}
                         <fieldset class="space-y-4 pt-5 border-t border-border">
                             <legend class="flex items-center gap-2 font-bold text-sm text-foreground mb-1">
+                                <span class="flex items-center justify-center w-5 h-5 rounded-md bg-primary/10 text-primary text-[10px] font-black border border-primary/20">۳</span>
                                 مکان و رمز عبور
                             </legend>
 
                             <div class="grid grid-cols-2 gap-4">
-                                <div>
+                                <div class="field-wrap relative">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">استان</label>
                                     <select wire:model.live="stateId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm">
                                         <option value="0">— انتخاب —</option>
@@ -1125,7 +990,7 @@
                                     </select>
                                     @error('stateId')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                 </div>
-                                <div>
+                                <div class="field-wrap relative">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">شهر</label>
                                     <select wire:model="cityId" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm"
                                             :disabled="!$wire.stateId || $wire.stateId === 0">
@@ -1137,19 +1002,20 @@
                                     @error('cityId')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                 </div>
 
-                                <div class="col-span-2">
+                                <div class="col-span-2 field-wrap relative" data-tour="mobile">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">شماره موبایل (برای ورود)</label>
                                     <input wire:model.blur="mobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric"
                                            class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono @error('mobile') border-rose-500/60 shake @enderror">
+                                    <div class="field-tip">کد تأیید روی این شماره میاد</div>
                                     @error('mobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                 </div>
 
-                                <div>
+                                <div class="field-wrap relative" data-tour="password">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">رمز عبور</label>
                                     <input wire:model.live.debounce.300ms="password" type="password" dir="ltr"
                                            autocomplete="new-password" data-lpignore="true" data-1p-ignore="true"
                                            class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('password') border-rose-500/60 shake @enderror">
-                                    <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                                    <div class="flex items-center gap-1.5 mt-2">
                                         <span class="text-[10px] text-muted">قدرت:</span>
                                         <span class="text-[10px] px-1.5 py-0.5 rounded transition-colors"
                                               :class="$wire.passwordStrength?.length ? 'bg-emerald-500/15 text-emerald-500' : 'bg-secondary text-muted'">۸+</span>
@@ -1160,7 +1026,7 @@
                                     </div>
                                     @error('password')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                 </div>
-                                <div>
+                                <div class="field-wrap relative">
                                     <label class="block text-xs font-semibold mb-1.5 text-muted">تکرار رمز</label>
                                     <input wire:model.blur="passwordConf" type="password" dir="ltr"
                                            autocomplete="new-password" data-lpignore="true" data-1p-ignore="true"
@@ -1170,6 +1036,7 @@
                             </div>
                         </fieldset>
 
+                        {{-- Submit --}}
                         <div class="flex items-center justify-between gap-3 pt-5 border-t border-border">
                             <p class="text-[11px] text-muted leading-5 max-w-[50%]">
                                 با ارسال این فرم، یک کد تأیید روی شماره‌ی موبایلتون ارسال می‌شه.
@@ -1198,7 +1065,7 @@
     </div>
 
 
-    {{-- ═══════════════ Trial Confirm Modal ═══════════════ --}}
+    {{-- ═══════════════ Trial Confirm Modal (shared) ═══════════════ --}}
     <div x-show="$wire.showTrialConfirm"
          x-transition.opacity
          x-cloak
@@ -1206,15 +1073,14 @@
         <div class="absolute inset-0 bg-background/80 backdrop-blur-md"
              @click="if (!busy) $wire.closeTrialConfirm()"></div>
 
-        <div class="relative w-full max-w-sm train-border p-6 text-center"
+        <div class="relative w-full max-w-sm glass-card rounded-2xl p-6 text-center"
              x-transition:enter="transition ease-out duration-300"
              x-transition:enter-start="opacity-0 scale-90"
              x-transition:enter-end="opacity-100 scale-100">
 
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-500/10 border-2 border-emerald-500/30 mb-3">
-                <svg viewBox="0 0 24 24" class="w-10 h-10 text-emerald-500 anim-check">
-                    <path fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" d="M20 6 9 17l-5-5"/>
-                </svg>
+            <div class="inline-block w-24 h-24 mb-3">
+                <lottie-player src="https://lottie.host/4e6e9b2d-3f0c-4c8b-9c5e-3e7f8d9c0a1b/8K7q6Vp3o.json"
+                               background="transparent" speed="1" autoplay></lottie-player>
             </div>
 
             <h3 class="font-black text-lg mb-2">شروع هفته‌ی آزمایشی</h3>
@@ -1236,4 +1102,151 @@
         </div>
     </div>
 
+    @push('script')
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('onboardingFlow', (initial) => ({
+                    busy: false,
+                    countdownTimer: null,
+                    touchStartX: 0,
+                    touchEndX: 0,
+                    tourShown: false,
+
+                    init() {
+                        this.startCountdownIfNeeded();
+
+                        Livewire.on('start-countdown', () => this.startCountdownIfNeeded());
+                        Livewire.on('step-validation-failed', () => { this.busy = false; });
+                        Livewire.on('step-changed', () => {
+                            this.busy = false;
+                            this.$nextTick(() => this.maybeShowTour());
+                        });
+
+                        this.$nextTick(() => this.maybeShowTour());
+                    },
+
+                    // ─── Press feedback (haptic-like) ───
+                    pressBtn(el) {
+                        if (!el) return;
+                        el.classList.add('pressed');
+                        setTimeout(() => el.classList.remove('pressed'), 120);
+                        // Vibration on mobile
+                        if (navigator.vibrate) navigator.vibrate(10);
+                    },
+
+                    // ─── Onboarding tour ───
+                    maybeShowTour() {
+                        if (this.tourShown) return;
+                        if (localStorage.getItem('sdfr_onboarding_tour_done')) return;
+                        if (typeof window.driver === 'undefined') return;
+
+                        const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+                        // Mobile: show on step 2; Desktop: show immediately
+                        if (!isDesktop && this.$wire.currentStep !== 2) return;
+                        if (isDesktop && this.$wire.currentStep > 4) return;
+
+                        // Check tour targets exist
+                        if (!document.querySelector('[data-tour="firstName"]')) return;
+
+                        this.tourShown = true;
+                        const driver = window.driver.js.driver;
+                        const tour = driver({
+                            showProgress: true,
+                            allowClose: true,
+                            nextBtnText: 'بعدی',
+                            prevBtnText: 'قبلی',
+                            doneBtnText: 'فهمیدم',
+                            steps: [
+                                {
+                                    element: '[data-tour="firstName"]',
+                                    popover: {
+                                        title: 'اطلاعات اولیه',
+                                        description: 'این اطلاعات روی کارنامه و گزارش‌های شما درج می‌شود. حتماً فارسی و کامل وارد کنید.',
+                                        side: isDesktop ? 'right' : 'bottom',
+                                    }
+                                },
+                                {
+                                    element: '[data-tour="codeMell"]',
+                                    popover: {
+                                        title: 'کد ملی',
+                                        description: 'کد ملی برای احراز هویت در سامانه استفاده می‌شه و در گزارش‌های رسمی درج می‌شه.',
+                                        side: 'bottom',
+                                    }
+                                },
+                            ],
+                            onDestroyed: () => {
+                                localStorage.setItem('sdfr_onboarding_tour_done', '1');
+                            }
+                        });
+
+                        setTimeout(() => tour.drive(), 500);
+                    },
+
+                    // ─── Countdown ───
+                    startCountdownIfNeeded() {
+                        if (this.countdownTimer) clearInterval(this.countdownTimer);
+                        if (this.$wire.countdown <= 0) return;
+
+                        this.countdownTimer = setInterval(() => {
+                            if (this.$wire.countdown > 0) {
+                                this.$wire.set('countdown', this.$wire.countdown - 1, false);
+                            } else {
+                                clearInterval(this.countdownTimer);
+                                this.$wire.countdownFinished();
+                            }
+                        }, 1000);
+                    },
+
+                    // ─── Mobile navigation ───
+                    goNext() {
+                        if (this.busy) return;
+                        if (this.$wire.currentStep === 1) {
+                            this.$wire.set('currentStep', 2);
+                            return;
+                        }
+                        this.busy = true;
+                        this.$wire.next();
+                    },
+
+                    goPrev() {
+                        if (this.busy) return;
+                        if (this.$wire.currentStep <= 1) return;
+                        if (this.$wire.currentStep === 2) {
+                            this.$wire.set('currentStep', 1);
+                            return;
+                        }
+                        this.$wire.previous();
+                    },
+
+                    // ─── Desktop: one big submit ───
+                    submitDesktopForm() {
+                        if (this.busy) return;
+                        this.busy = true;
+                        // فراخوانی متد جدید سمت سرور که همه‌ی validation ها رو با هم انجام میده
+                        this.$wire.submitAll();
+                    },
+
+                    confirmTrialAction() {
+                        if (this.busy) return;
+                        this.busy = true;
+                        this.$wire.confirmTrial();
+                    },
+
+                    // ─── Mobile swipe ───
+                    handleTouchStart(e) {
+                        this.touchStartX = e.changedTouches[0].screenX;
+                    },
+                    handleTouchEnd(e) {
+                        this.touchEndX = e.changedTouches[0].screenX;
+                        const diff = this.touchEndX - this.touchStartX;
+                        if (Math.abs(diff) < 60) return;
+                        if (['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName)) return;
+                        if (diff > 0 && this.$wire.currentStep > 1 && this.$wire.currentStep <= 4) {
+                            this.goPrev();
+                        }
+                    },
+                }));
+            });
+        </script>
+    @endpush
 </div>

@@ -116,7 +116,7 @@ class TrialWeekService
     public function getClassificationAnalysis(int $userId): array
     {
         $classifications = StudentClassification::where('user_id', $userId)
-            ->with('topic.chapter.subject')
+            ->with('ratable')
             ->get();
 
         $ratingCounts = array_fill_keys(array_values(StudentClassification::RATINGS), 0);
@@ -128,7 +128,15 @@ class TrialWeekService
                 $ratingCounts[$label]++;
             }
 
-            $subjectName = optional(optional(optional($c->topic)->chapter)->subject)->name ?? 'سایر';
+            $ratable = $c->ratable;
+            if ($ratable instanceof \App\Models\CcChapter) {
+                $subjectName = $ratable->subject?->name ?? 'سایر';
+            } elseif ($ratable instanceof \App\Models\CcSubject) {
+                $subjectName = $ratable->name;
+            } else {
+                $subjectName = 'سایر';
+            }
+
             if (!isset($subjectBreakdown[$subjectName])) {
                 $subjectBreakdown[$subjectName] = ['total' => 0, 'sum' => 0];
             }
@@ -154,21 +162,28 @@ class TrialWeekService
             'total'            => $classifications->count(),
             'rating_counts'    => $ratingCounts,
             'subject_averages' => $subjectAverages,
-            'weak_count'       => $classifications->where('rating', '<=', 3)->count(),
-            'medium_count'     => $classifications->whereBetween('rating', [4, 5])->count(),
-            'strong_count'     => $classifications->where('rating', '>=', 6)->count(),
+            'weak_count'       => $classifications->where('rating', '<=', 1)->count(),
+            'medium_count'     => $classifications->whereBetween('rating', [2, 3])->count(),
+            'strong_count'     => $classifications->where('rating', '>=', 4)->count(),
         ];
     }
 
     private function calculateSubjectPriorities(int $userId): array
     {
         $classifications = StudentClassification::where('user_id', $userId)
-            ->with('topic.chapter.subject')
+            ->with('ratable')
             ->get();
 
         $subjects = [];
         foreach ($classifications as $c) {
-            $name = optional(optional(optional($c->topic)->chapter)->subject)->name ?? 'سایر';
+            $ratable = $c->ratable;
+            if ($ratable instanceof \App\Models\CcChapter) {
+                $name = $ratable->subject?->name ?? 'سایر';
+            } elseif ($ratable instanceof \App\Models\CcSubject) {
+                $name = $ratable->name;
+            } else {
+                $name = 'سایر';
+            }
             if (!isset($subjects[$name])) {
                 $subjects[$name] = ['count' => 0, 'sum' => 0];
             }
@@ -182,9 +197,9 @@ class TrialWeekService
 
         $priorities = [];
         foreach ($subjects as $name => $data) {
-            $avg = $data['count'] > 0 ? $data['sum'] / $data['count'] : 4;
-            // درس‌های ضعیف‌تر اولویت بیشتر
-            $priorities[$name] = max(0.5, 9 - $avg);
+            $avg = $data['count'] > 0 ? $data['sum'] / $data['count'] : 2.5;
+            // درس‌های ضعیف‌تر اولویت بیشتر (مقیاس 1..4)
+            $priorities[$name] = max(0.5, 5 - $avg);
         }
 
         $total = array_sum($priorities);
