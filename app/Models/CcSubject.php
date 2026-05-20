@@ -61,6 +61,16 @@ class CcSubject extends Model
 
 
 
+    public function classifications()
+
+    {
+
+        return $this->morphMany(StudentClassification::class, 'ratable');
+
+    }
+
+
+
     public function scopeOrdered($query)
 
     {
