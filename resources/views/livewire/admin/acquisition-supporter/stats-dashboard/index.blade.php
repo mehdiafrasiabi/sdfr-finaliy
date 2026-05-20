@@ -60,21 +60,5 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 col-sm-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-muted small">نرخ پاسخ‌گویی</div>
-                    <h2 class="mb-0">{{ $answeredRate }}٪</h2>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body">
-                    <div class="text-muted small">میانگین احتمال ثبت‌نام (تماس‌های ثانویه)</div>
-                    <h2 class="mb-0">{{ $avgPrediction }}٪</h2>
-                </div>
-            </div>
-        </div>
     </div>
 </div>

@@ -31,6 +31,35 @@
         </div>
     </div>
     <ul class="flex flex-col space-y-3 bg-secondary rounded-2xl p-5">
+        @if(auth()->user()?->isSchoolStudent())
+            <li>
+                <a wire:navigate href="{{ route('client.profile.school.dashboard') }}"
+                   class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.school.dashboard') ? 'bg-primary text-primary-foreground px-4' : 'bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12 12 2.25 21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75"/>
+                    </svg>
+                    <span class="font-semibold text-xs">داشبورد</span>
+                </a>
+            </li>
+            <li>
+                <a wire:navigate href="{{ route('client.profile.school.report.index') }}"
+                   class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.school.report.index') ? 'bg-primary text-primary-foreground px-4' : 'bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"/>
+                    </svg>
+                    <span class="font-semibold text-xs">گزارش‌های من</span>
+                </a>
+            </li>
+            <li>
+                <a wire:navigate href="{{ route('client.profile.school.report.create') }}"
+                   class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.school.report.create') ? 'bg-primary text-primary-foreground px-4' : 'bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                    </svg>
+                    <span class="font-semibold text-xs">ثبت گزارش جدید</span>
+                </a>
+            </li>
+        @else
         <li>
 
             <a wire:navigate href="{{route('client.profile.dashboard')}}"
@@ -377,6 +406,7 @@
                 <span class="font-semibold text-xs">خروج از حساب</span>
             </a>
         </li>
+        @endif
     </ul>
 
 </div>

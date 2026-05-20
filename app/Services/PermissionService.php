@@ -133,6 +133,8 @@ class PermissionService
 
             'site acquisition'    => 'پشتیبان جذب',
 
+            'school-supporter'    => 'پشتیبان مدرسه',
+
         ];
 
 

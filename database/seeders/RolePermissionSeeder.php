@@ -155,6 +155,14 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         // ────────────────────────────────────────────────────────────
+        // ۵) پشتیبان مدرسه — permission‌های اختصاصی در SchoolSupporterRoleSeeder
+        // ────────────────────────────────────────────────────────────
+        Role::query()->firstOrCreate([
+            'name'       => 'school-supporter',
+            'guard_name' => 'admin',
+        ]);
+
+        // ────────────────────────────────────────────────────────────
         // کاربران نمونه برای ۴ نقش
         // ────────────────────────────────────────────────────────────
         $superAdminUser = Admin::query()->firstOrCreate(

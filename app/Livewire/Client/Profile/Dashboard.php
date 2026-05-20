@@ -30,12 +30,15 @@ class Dashboard extends Component
     public function mount()
 
     {
+        $this->user = Auth::user();
+
+        if ($this->user && method_exists($this->user, 'isSchoolStudent') && $this->user->isSchoolStudent()) {
+            return redirect()->route('client.profile.school.dashboard');
+        }
 
         $this->seoConfig();
 
-        $this->user = Auth::user();
-
-        $this->student = $this->user->student ?? null;
+        $this->student = $this->user?->student ?? null;
 
     }
 

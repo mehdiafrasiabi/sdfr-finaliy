@@ -5,7 +5,6 @@ namespace App\Livewire\Client\Onboarding;
 use App\Models\City;
 use App\Models\Otp;
 use App\Models\State;
-use App\Models\Student;
 use App\Models\TrialWeek;
 use App\Models\User;
 use App\Models\UserProfile;
@@ -23,14 +22,13 @@ class TrialWeekOnboarding extends Component
 {
     use NormalizesDigits;
 
-    // ─── مرحله جاری (1-8) ─────────────────────────────────────────────────────
-    // 1=خوش‌آمدگویی 1  2=خوش‌آمدگویی 2  3=خوش‌آمدگویی 3
-    // 4=اطلاعات شخصی  5=والدین+پایه  6=مکان+حساب  7=تأیید OTP
-    // 8=تأیید هفته آزمایشی
+    // ─── مراحل ────────────────────────────────────────────────────────────────
+    // موبایل: 1=welcome  2=اطلاعات شخصی  3=والدین  4=مکان+رمز  5=OTP  6=نهایی
+    // دسکتاپ: همه‌ی فرم در یک صفحه؛ submitAll() → 5=OTP → 6=نهایی
     public int $currentStep = 1;
-    public int $totalSteps  = 8;
+    public int $totalSteps  = 6;
 
-    // ─── فیلدهای ثبت‌نام ──────────────────────────────────────────────────────
+    // ─── فیلدها ───────────────────────────────────────────────────────────────
     public string $firstName    = '';
     public string $lastName     = '';
     public string $codeMell     = '';
@@ -45,22 +43,19 @@ class TrialWeekOnboarding extends Component
     public string $passwordConf = '';
 
     // ─── OTP ──────────────────────────────────────────────────────────────────
-    public string $otpInput    = '';
-    public string $otpError    = '';
-    public bool   $otpSent     = false;
-    public int    $countdown   = 90;
-    public bool   $isLoading   = false;
+    public string $otpInput     = '';
+    public string $otpError     = '';
+    public bool   $otpSent      = false;
+    public int    $countdown    = 90;
+    public bool   $isLoading    = false;
     public string $generalError = '';
 
-    // ─── وضعیت تکمیل ─────────────────────────────────────────────────────────
-    public bool $registered        = false; // حساب ساخته شد
-    public bool $showTrialConfirm  = false; // مودال تأیید هفته آزمایشی
+    public bool $registered       = false;
+    public bool $showTrialConfirm = false;
 
-    // ─── لیست‌ها ──────────────────────────────────────────────────────────────
     public $states = [];
     public $cities = [];
 
-    // ─── strength رمز ─────────────────────────────────────────────────────────
     public array $passwordStrength = ['length' => false, 'letter' => false, 'number' => false];
 
     protected $listeners = ['countdownFinished'];
@@ -70,27 +65,28 @@ class TrialWeekOnboarding extends Component
         $this->states = State::orderBy('name')->get();
     }
 
-    // ─── navigation ───────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════
+    // MOBILE NAVIGATION
+    // ═══════════════════════════════════════════════════════════════════════
 
     public function next(): void
     {
         $this->generalError = '';
         $this->resetValidation();
 
-        if ($this->currentStep === 4) {
-            $this->validateStep4();
+        if ($this->currentStep === 2) {
+            $this->validatePersonalInfo();
+        } elseif ($this->currentStep === 3) {
+            $this->validateParentsGrade();
+        } elseif ($this->currentStep === 4) {
+            $this->validateLocationPassword();
         } elseif ($this->currentStep === 5) {
-            $this->validateStep5();
-        } elseif ($this->currentStep === 6) {
-            $this->validateStep6();
-        } elseif ($this->currentStep === 7) {
-            // OTP verify — handled separately
             return;
         }
 
         if ($this->getErrorBag()->isEmpty()) {
             $this->currentStep = min($this->currentStep + 1, $this->totalSteps);
-            if ($this->currentStep === 7 && !$this->otpSent) {
+            if ($this->currentStep === 5 && !$this->otpSent) {
                 $this->sendOtp();
             }
             $this->dispatch('step-changed', step: $this->currentStep);
@@ -106,9 +102,35 @@ class TrialWeekOnboarding extends Component
         $this->generalError = '';
     }
 
-    // ─── validation helpers ────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════
+    // DESKTOP: validate all at once → OTP
+    // ═══════════════════════════════════════════════════════════════════════
 
-    private function validateStep4(): void
+    public function submitAll(): void
+    {
+        $this->generalError = '';
+        $this->resetValidation();
+
+        $this->validatePersonalInfo();
+        $this->validateParentsGrade();
+        $this->validateLocationPassword();
+
+        if ($this->getErrorBag()->isEmpty()) {
+            $this->currentStep = 5;
+            if (!$this->otpSent) {
+                $this->sendOtp();
+            }
+            $this->dispatch('step-changed', step: $this->currentStep);
+        } else {
+            $this->dispatch('step-validation-failed');
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════════
+    // VALIDATION
+    // ═══════════════════════════════════════════════════════════════════════
+
+    private function validatePersonalInfo(): void
     {
         $v = Validator::make([
             'firstName' => $this->firstName,
@@ -128,11 +150,15 @@ class TrialWeekOnboarding extends Component
         ]);
 
         if ($v->fails()) {
-            $this->setErrorBag($v->errors());
+            foreach ($v->errors()->messages() as $field => $messages) {
+                foreach ($messages as $msg) {
+                    $this->addError($field, $msg);
+                }
+            }
         }
     }
 
-    private function validateStep5(): void
+    private function validateParentsGrade(): void
     {
         $rules = [
             'fatherMobile' => ['required', 'regex:/^09[0-9]{9}$/'],
@@ -149,23 +175,27 @@ class TrialWeekOnboarding extends Component
             'grade'        => $this->grade,
             'field'        => $this->field,
         ], $rules, [
-            'fatherMobile.required' => 'شماره پدر الزامی است.',
-            'fatherMobile.regex'    => 'فرمت شماره پدر صحیح نیست.',
-            'motherMobile.required' => 'شماره مادر الزامی است.',
-            'motherMobile.regex'    => 'فرمت شماره مادر صحیح نیست.',
-            'motherMobile.different' => 'شمارهٔ موبایل پدر و مادر نباید یکسان باشد.',
-            'grade.required'        => 'پایه الزامی است.',
-            'grade.in'              => 'پایه انتخاب‌شده معتبر نیست.',
-            'field.required'        => 'رشته الزامی است.',
-            'field.in'              => 'رشته انتخاب‌شده معتبر نیست.',
+            'fatherMobile.required'  => 'شماره پدر الزامی است.',
+            'fatherMobile.regex'     => 'فرمت شماره پدر صحیح نیست.',
+            'motherMobile.required'  => 'شماره مادر الزامی است.',
+            'motherMobile.regex'     => 'فرمت شماره مادر صحیح نیست.',
+            'motherMobile.different' => 'شماره موبایل پدر و مادر نباید یکسان باشد.',
+            'grade.required'         => 'پایه الزامی است.',
+            'grade.in'               => 'پایه انتخاب‌شده معتبر نیست.',
+            'field.required'         => 'رشته الزامی است.',
+            'field.in'               => 'رشته انتخاب‌شده معتبر نیست.',
         ]);
 
         if ($v->fails()) {
-            $this->setErrorBag($v->errors());
+            foreach ($v->errors()->messages() as $field => $messages) {
+                foreach ($messages as $msg) {
+                    $this->addError($field, $msg);
+                }
+            }
         }
     }
 
-    private function validateStep6(): void
+    private function validateLocationPassword(): void
     {
         $v = Validator::make([
             'stateId'      => $this->stateId,
@@ -182,25 +212,31 @@ class TrialWeekOnboarding extends Component
             'password'     => ['required', 'min:8', 'regex:/^(?=.*[A-Za-z])(?=.*\d).+$/'],
             'passwordConf' => ['required', 'same:password'],
         ], [
-            'stateId.required'   => 'انتخاب استان الزامی است.',
-            'cityId.required'    => 'انتخاب شهر الزامی است.',
-            'mobile.required'    => 'شماره موبایل الزامی است.',
-            'mobile.regex'       => 'فرمت موبایل صحیح نیست.',
-            'mobile.unique'      => 'این شماره قبلاً ثبت شده است.',
-            'mobile.different'   => 'شمارهٔ شما نباید با شمارهٔ پدر یا مادر یکسان باشد.',
-            'password.required'  => 'رمز عبور الزامی است.',
-            'password.min'       => 'رمز باید حداقل ۸ کاراکتر باشد.',
-            'password.regex'     => 'رمز باید شامل حرف انگلیسی و عدد باشد.',
+            'stateId.required'      => 'انتخاب استان الزامی است.',
+            'cityId.required'       => 'انتخاب شهر الزامی است.',
+            'mobile.required'       => 'شماره موبایل الزامی است.',
+            'mobile.regex'          => 'فرمت موبایل صحیح نیست.',
+            'mobile.unique'         => 'این شماره قبلاً ثبت شده است.',
+            'mobile.different'      => 'شماره شما نباید با شماره پدر یا مادر یکسان باشد.',
+            'password.required'     => 'رمز عبور الزامی است.',
+            'password.min'          => 'رمز باید حداقل ۸ کاراکتر باشد.',
+            'password.regex'        => 'رمز باید شامل حرف انگلیسی و عدد باشد.',
             'passwordConf.required' => 'تکرار رمز عبور الزامی است.',
-            'passwordConf.same'  => 'تکرار رمز با رمز عبور مطابقت ندارد.',
+            'passwordConf.same'     => 'تکرار رمز با رمز عبور مطابقت ندارد.',
         ]);
 
         if ($v->fails()) {
-            $this->setErrorBag($v->errors());
+            foreach ($v->errors()->messages() as $field => $messages) {
+                foreach ($messages as $msg) {
+                    $this->addError($field, $msg);
+                }
+            }
         }
     }
 
-    // ─── OTP ──────────────────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════
+    // INPUT NORMALIZATION
+    // ═══════════════════════════════════════════════════════════════════════
 
     public function updatedStateId(int $value): void
     {
@@ -208,20 +244,9 @@ class TrialWeekOnboarding extends Component
         $this->cities = City::where('state_id', $value)->orderBy('name')->get();
     }
 
-    public function updatedMobile(string $value): void
-    {
-        $this->mobile = $this->convertToEnglishDigits($value);
-    }
-
-    public function updatedFatherMobile(string $value): void
-    {
-        $this->fatherMobile = $this->convertToEnglishDigits($value);
-    }
-
-    public function updatedMotherMobile(string $value): void
-    {
-        $this->motherMobile = $this->convertToEnglishDigits($value);
-    }
+    public function updatedMobile(string $value): void       { $this->mobile = $this->convertToEnglishDigits($value); }
+    public function updatedFatherMobile(string $value): void { $this->fatherMobile = $this->convertToEnglishDigits($value); }
+    public function updatedMotherMobile(string $value): void { $this->motherMobile = $this->convertToEnglishDigits($value); }
 
     public function updatedPassword(string $value): void
     {
@@ -232,10 +257,13 @@ class TrialWeekOnboarding extends Component
         ];
     }
 
+    // ═══════════════════════════════════════════════════════════════════════
+    // OTP
+    // ═══════════════════════════════════════════════════════════════════════
+
     private function sendOtp(): void
     {
         $code = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
-        // اعتبار OTP در پایگاه‌داده دقیقاً ۹۰ ثانیه است تا با countdown UI هم‌خوان باشد.
         Otp::create([
             'mobile'     => $this->mobile,
             'code'       => $code,
@@ -244,7 +272,7 @@ class TrialWeekOnboarding extends Component
 
         try {
             (new User(['mobile' => $this->mobile]))->notify(new SendOtpToUser($this->mobile, $code));
-            $this->otpSent  = true;
+            $this->otpSent   = true;
             $this->countdown = 90;
             $this->dispatch('start-countdown');
             $this->dispatch('show-toast', ['type' => 'success', 'message' => 'کد تأیید ارسال شد.']);
@@ -265,8 +293,6 @@ class TrialWeekOnboarding extends Component
     {
         $this->countdown = 0;
     }
-
-    // ─── تأیید OTP + ساخت حساب ────────────────────────────────────────────────
 
     public function verifyOtp(): void
     {
@@ -307,45 +333,38 @@ class TrialWeekOnboarding extends Component
         ]);
 
         PersonalInformation::create([
-            'user_id'       => $user->id,
-            'name'          => $this->firstName,
-            'father_name'   => $this->lastName,
-            'code_mell'     => $this->codeMell,
-            'father_mobile' => $this->fatherMobile,
-            'mother_mobile' => $this->motherMobile,
-            'grade'         => in_array($this->grade, ['10','11','12']) ? $this->grade : '10',
-            'field'         => $this->grade !== '9' ? $this->field : 'math',
-            'birth_date'    => '',
+            'user_id'        => $user->id,
+            'name'           => $this->firstName,
+            'father_name'    => $this->lastName,
+            'code_mell'      => $this->codeMell,
+            'father_mobile'  => $this->fatherMobile,
+            'mother_mobile'  => $this->motherMobile,
+            'grade'          => in_array($this->grade, ['10','11','12']) ? $this->grade : '10',
+            'field'          => $this->grade !== '9' ? $this->field : 'math',
+            'birth_date'     => '',
             'place_of_birth' => '',
-            'address'       => '',
-            'state_id'      => $this->stateId,
-            'city_id'       => $this->cityId,
-            'name_full'     => trim($this->firstName . ' ' . $this->lastName),
+            'address'        => '',
+            'state_id'       => $this->stateId,
+            'city_id'        => $this->cityId,
+            'name_full'      => trim($this->firstName . ' ' . $this->lastName),
         ]);
 
         Auth::login($user, true);
-        $this->registered   = true;
-        $this->currentStep  = 8;
+        $this->registered  = true;
+        $this->currentStep = 6;
     }
 
-    // ─── شروع هفته آزمایشی ────────────────────────────────────────────────────
+    // ═══════════════════════════════════════════════════════════════════════
+    // TRIAL / FINAL
+    // ═══════════════════════════════════════════════════════════════════════
 
-    public function openTrialConfirm(): void
-    {
-        $this->showTrialConfirm = true;
-    }
-
-    public function closeTrialConfirm(): void
-    {
-        $this->showTrialConfirm = false;
-    }
+    public function openTrialConfirm(): void  { $this->showTrialConfirm = true; }
+    public function closeTrialConfirm(): void { $this->showTrialConfirm = false; }
 
     public function confirmTrial(TrialWeekService $service): void
     {
-        // قفل دکمه در سمت سرور تا redirect نهایی
-        if ($this->isLoading) {
-            return;
-        }
+        if ($this->isLoading) return;
+
         $this->isLoading        = true;
         $this->showTrialConfirm = false;
 
@@ -373,20 +392,8 @@ class TrialWeekOnboarding extends Component
         $this->redirect(route('client.profile.waiting-for-supporter'), navigate: true);
     }
 
-    /**
-     * انتخاب «خرید دوره» در پایان ثبت‌نام — کاربر را به صفحهٔ خرید می‌برد.
-     */
-    public function goToPurchase(): void
-    {
-        $this->redirect(route('client.purchase'), navigate: true);
-    }
-
-    public function declineTrial(): void
-    {
-        $this->redirect(route('client.home'), navigate: true);
-    }
-
-    // ─── render ───────────────────────────────────────────────────────────────
+    public function goToPurchase(): void { $this->redirect(route('client.purchase'), navigate: true); }
+    public function declineTrial(): void { $this->redirect(route('client.home'), navigate: true); }
 
     public function render(): \Illuminate\Contracts\View\View
     {

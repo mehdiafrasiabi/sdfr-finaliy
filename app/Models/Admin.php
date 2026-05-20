@@ -62,6 +62,14 @@ class Admin extends Authenticatable
     }
 
     /**
+     * مدارسی که این ادمین به‌عنوان «پشتیبان مدرسه» به آن‌ها تخصیص داده شده است.
+     */
+    public function supportedSchools()
+    {
+        return $this->belongsToMany(School::class, 'school_admin')->withTimestamps();
+    }
+
+    /**
      * آیا ادمین در یک روز و ساعت مشخص در ساعت کاری است؟
      *
      * @param  int    $dayOfWeek 0=شنبه .. 6=جمعه

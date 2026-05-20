@@ -137,4 +137,14 @@ class Student extends Model
     {
         return $this->hasOne(\App\Models\TrialWeek::class);
     }
+
+    public function school()
+    {
+        return $this->belongsTo(School::class);
+    }
+
+    public function schoolSupporter()
+    {
+        return $this->belongsTo(Admin::class, 'school_supporter_id');
+    }
 }

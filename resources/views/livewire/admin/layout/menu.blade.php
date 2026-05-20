@@ -1,4 +1,5 @@
 <div>
+    @php $admin = auth('admin')->user(); @endphp
     <!-- begin::NexLink Sidebar Menu -->
     <aside class="app-menubar-tabs" id="appMenubar">
         <div class="app-navbar-brand">
@@ -8,6 +9,21 @@
         </div>
         <div class="app-navbar-tabs" data-simplebar="">
             <ul aria-orientation="vertical" class="nav" id="appMenubarTabs" role="tablist">
+                @if($admin?->hasRole('school-supporter') || $admin?->hasRole('super admin'))
+                    <li class="nav-item" data-bs-placement="right" data-bs-title="پنل پشتیبان مدرسه" data-bs-toggle="tooltip">
+                        <a aria-controls="schoolSupporterTab" aria-selected="false"
+                           class="menu-link {{ $admin?->hasRole('school-supporter') && !$admin?->hasRole('super admin') ? 'active' : '' }}"
+                           data-bs-toggle="tab" href="#schoolSupporterTab" role="tab">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 class="menu-icon">
+                                <path d="M22 9l-10 -4l-10 4l10 4l10 -4v6"></path>
+                                <path d="M6 10.6v5.4a6 3 0 0 0 12 0v-5.4"></path>
+                            </svg>
+                        </a>
+                    </li>
+                @endif
+                @if($admin?->hasRole('super admin') || $admin?->hasRole('educational-manager') || $admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('site acquisition'))
                 <li class="nav-item" data-bs-placement="right" data-bs-title="داشبورد" data-bs-toggle="tooltip">
                     <a aria-controls="dashboardTab" aria-selected="true" class="menu-link active" data-bs-toggle="tab"
                        href="#dashboardTab" role="tab">
@@ -156,6 +172,7 @@
                 </li>
                 <li class="nav-item-hr">
                 </li>
+                @endif
             </ul>
         </div>
         <div class="app-tab-content">
@@ -166,6 +183,25 @@
             </div>
             <div class="app-content-inner">
                 <div class="tab-content" id="appMenubarTabsContent">
+                    @if($admin?->hasRole('school-supporter') || $admin?->hasRole('super admin'))
+                        <div class="tab-pane fade {{ $admin?->hasRole('school-supporter') && !$admin?->hasRole('super admin') ? 'show active' : '' }}"
+                             id="schoolSupporterTab" role="tabpanel" tabindex="0">
+                            <nav class="app-navbar" data-simplebar="">
+                                <ul class="side-menubar">
+                                    <li class="menu-heading">
+                                        <span class="menu-label">پنل پشتیبان مدرسه</span>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link" href="{{ route('admin.school-supporter.schools') }}" role="button">
+                                            <i class="fi fi-rr-school"></i>
+                                            <span class="menu-label">مدارس تحت پشتیبانی من</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    @endif
+                    @if($admin?->hasRole('super admin') || $admin?->hasRole('educational-manager') || $admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('site acquisition'))
                     <div class="tab-pane fade show active" id="dashboardTab" role="tabpanel" tabindex="0">
                         <nav class="app-navbar" data-simplebar="">
                             <ul class="side-menubar">
@@ -591,6 +627,7 @@
                             </ul>
                         </nav>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>

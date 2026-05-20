@@ -55,14 +55,6 @@
                                     <span class="font-semibold text-white">{{ $advisorName }}</span>
                                 </span>
                             </span>
-                            @if($supporterName && $supporterName !== '-')
-                                <span class="flex items-center gap-1">
-                                    <span>
-                                        پشتیبان:
-                                        <span class="font-semibold text-white">{{ $supporterName }}</span>
-                                    </span>
-                                </span>
-                            @endif
                         </div>
                     </div>
                 </div>

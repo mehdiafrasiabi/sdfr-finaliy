@@ -52,16 +52,6 @@ class Index extends Component
             ->where('answered', false)
             ->count();
 
-        $callsTotal = $callsAnsweredTotal + $callsUnansweredTotal;
-        $answeredRate = $callsTotal > 0
-            ? (int) round(($callsAnsweredTotal / $callsTotal) * 100)
-            : 0;
-
-        $avgPrediction = AcquisitionContact::where('admin_id', $adminId)
-            ->where('type', AcquisitionContact::TYPE_SECONDARY)
-            ->where('answered', true)
-            ->whereNotNull('prediction_percentage')
-            ->avg('prediction_percentage');
 
         return view('livewire.admin.acquisition-supporter.stats-dashboard.index', [
             'totalStudents'         => $totalStudents,
@@ -69,9 +59,7 @@ class Index extends Component
             'awaitingSecondary'     => $awaitingSecondary,
             'callsToday'            => $callsToday,
             'callsAnsweredTotal'    => $callsAnsweredTotal,
-            'callsUnansweredTotal'  => $callsUnansweredTotal,
-            'answeredRate'          => $answeredRate,
-            'avgPrediction'         => $avgPrediction ? (int) round($avgPrediction) : 0,
+            'callsUnansweredTotal'  => $callsUnansweredTotal
         ])->layout('layouts.admin.app');
     }
 }
