@@ -30,20 +30,22 @@ class ProjectList extends Component
     protected function loadStudentInfo()
     {
         $userId = auth()->id();
+
         $personalInfo = PersonalInformation::where('user_id', $userId)->first();
         if ($personalInfo) {
             $this->studentGrade = (int) $personalInfo->grade;
             $this->studentField = $personalInfo->field;
-            return;
         }
 
-        // Any user with a TrialWeek record is considered a trial user — they should always
-        // see the trial classification card regardless of trial-week status.
+        // Anyone with a TrialWeek record is treated as a trial user — the trial card
+        // is always shown for them, even if they also have a PersonalInformation row.
         $trial = TrialWeek::where('user_id', $userId)->latest()->first();
         if ($trial) {
-            $this->isTrialUser  = true;
-            $this->studentGrade = $trial->grade >= 10 ? $trial->grade : 10;
-            $this->studentField = $trial->field;
+            $this->isTrialUser = true;
+            if (!$this->studentGrade) {
+                $this->studentGrade = $trial->grade >= 10 ? $trial->grade : 10;
+                $this->studentField = $trial->field;
+            }
         }
     }
 
