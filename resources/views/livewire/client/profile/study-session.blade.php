@@ -155,33 +155,88 @@
                                     </div>
                                 </div>
                             @elseif($currentPartId)
-                                {{-- عادی --}}
-                                <div class="rounded-2xl p-4 text-white" style="background:#0d1117; border:1px solid #2a2a2a;" wire:poll.1000ms="syncTimers">
-                                    @php $activePart = $programParts->firstWhere('id', $currentPartId); @endphp
-                                    <div class="flex items-center justify-between mb-3">
-                                        <div class="text-xs font-bold text-white">{{ $activePart?->lesson_name ?? '—' }}</div>
-                                        <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
-                                              style="{{ $isRunning ? 'background:#0f2a1a;color:#4ade80;' : 'background:#3a2000;color:#fbbf24;' }}">
-                                    {{ $isRunning ? 'در حال اجرا' : 'متوقف' }}
-                                </span>
-                                    </div>
-                                    <div class="text-center mb-3">
-                                        <div style="font-family:'Digital',monospace; font-size:48px; color:#f59e0b; letter-spacing:2px; line-height:1;">
-                                            {{ $this->formatClock($remainingSeconds) }}
+                                @php $activePart = $programParts->firstWhere('id', $currentPartId); @endphp
+                                @if($isInExtraPhase)
+                                    {{-- فاز ۲: اضافه بر مشاور --}}
+                                    <div class="rounded-2xl p-4 text-white" style="background:#1a0a2e; border:1px solid #5b21b6;" wire:poll.1000ms="syncTimers">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <div class="text-xs font-bold flex items-center gap-2" style="color:#c4b5fd;">
+                                                <span class="px-2 py-0.5 rounded-full" style="background:#2d1b69;">اضافه بر مشاور</span>
+                                                <span class="text-white">{{ $activePart?->lesson_name ?? '—' }}</span>
+                                            </div>
+                                            <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
+                                                  style="{{ $isRunning ? 'background:#0f2a1a;color:#4ade80;' : 'background:#3a2000;color:#fbbf24;' }}">
+                                                {{ $isRunning ? 'در حال اجرا' : 'متوقف' }}
+                                            </span>
+                                        </div>
+                                        <div class="text-center mb-3">
+                                            <div style="font-family:'Digital',monospace; font-size:48px; color:#a78bfa; letter-spacing:2px; line-height:1;">
+                                                {{ $this->formatClock($extraRemainingSeconds) }}
+                                            </div>
+                                        </div>
+                                        <div class="w-full rounded-full mb-3" style="height:3px; background:#2d1b69;">
+                                            <div class="h-full rounded-full" style="width:{{ $extraTargetSeconds > 0 ? ($extraLiveSeconds/$extraTargetSeconds*100) : 0 }}%; background:linear-gradient(to left,#a78bfa,#7c3aed); transition:width .3s;"></div>
+                                        </div>
+                                        <div class="flex gap-2 justify-end">
+                                            @if($isRunning)
+                                                <button wire:click="pausePart" class="px-4 h-9 rounded-full text-xs font-bold" style="background:#7c2d12; color:#fed7aa;">توقف</button>
+                                            @elseif($pausedAtTs)
+                                                <button wire:click="resumePart" class="px-4 h-9 rounded-full text-xs font-bold" style="background:#0f2a1a; color:#4ade80;">ادامه</button>
+                                            @endif
+                                            <button wire:click="cancelPart" class="px-4 h-9 rounded-full text-xs font-bold" style="background:#1c1c1c; color:#888; border:1px solid #333;">لغو تایم اضافه</button>
                                         </div>
                                     </div>
-                                    <div class="w-full rounded-full mb-3" style="height:3px; background:#1c1c1c;">
-                                        <div class="h-full rounded-full" style="width:{{ $targetSeconds > 0 ? (($targetSeconds-$remainingSeconds)/$targetSeconds*100) : 0 }}%; background:linear-gradient(to left,#f59e0b,#ef4444); transition:width .3s;"></div>
-                                    </div>
-                                    <div class="flex gap-2 justify-end">
-                                        @if($isRunning)
-                                            <button wire:click="pausePart" class="px-4 h-9 rounded-full text-xs font-bold" style="background:#7c2d12; color:#fed7aa;">توقف</button>
-                                        @elseif($pausedAtTs)
-                                            <button wire:click="resumePart" class="px-4 h-9 rounded-full text-xs font-bold" style="background:#0f2a1a; color:#4ade80;">ادامه</button>
+                                @else
+                                    {{-- فاز ۱: تایمر عادی --}}
+                                    <div class="rounded-2xl p-4 text-white" style="background:#0d1117; border:1px solid #2a2a2a;" wire:poll.1000ms="syncTimers">
+                                        <div class="flex items-center justify-between mb-3">
+                                            <div class="text-xs font-bold text-white flex items-center gap-2">
+                                                <span>{{ $activePart?->lesson_name ?? '—' }}</span>
+                                                @if($pendingExtraTargetSeconds !== null)
+                                                    <span class="text-[10px] px-2 py-0.5 rounded-full" style="background:#2d1b69;color:#c4b5fd;">
+                                                        + {{ $this->formatClock($pendingExtraTargetSeconds) }} اضافه پس از پایان
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <span class="text-xs px-2 py-0.5 rounded-full font-semibold"
+                                                  style="{{ $isRunning ? 'background:#0f2a1a;color:#4ade80;' : 'background:#3a2000;color:#fbbf24;' }}">
+                                                {{ $isRunning ? 'در حال اجرا' : 'متوقف' }}
+                                            </span>
+                                        </div>
+                                        <div class="text-center mb-3">
+                                            <div style="font-family:'Digital',monospace; font-size:48px; color:#f59e0b; letter-spacing:2px; line-height:1;">
+                                                {{ $this->formatClock($remainingSeconds) }}
+                                            </div>
+                                        </div>
+                                        <div class="w-full rounded-full mb-3" style="height:3px; background:#1c1c1c;">
+                                            <div class="h-full rounded-full" style="width:{{ $targetSeconds > 0 ? (($targetSeconds-$remainingSeconds)/$targetSeconds*100) : 0 }}%; background:linear-gradient(to left,#f59e0b,#ef4444); transition:width .3s;"></div>
+                                        </div>
+                                        <div class="flex gap-2 justify-end">
+                                            @if($isRunning)
+                                                <button wire:click="pausePart" class="px-4 h-9 rounded-full text-xs font-bold" style="background:#7c2d12; color:#fed7aa;">توقف</button>
+                                            @elseif($pausedAtTs)
+                                                <button wire:click="resumePart" class="px-4 h-9 rounded-full text-xs font-bold" style="background:#0f2a1a; color:#4ade80;">ادامه</button>
+                                            @endif
+                                            <button wire:click="cancelPart" class="px-4 h-9 rounded-full text-xs font-bold" style="background:#1c1c1c; color:#888; border:1px solid #333;">لغو</button>
+                                        </div>
+
+                                        {{-- دکمه‌های ۸۰٪ --}}
+                                        @if($this->canShowEarlyOrMore)
+                                            <div class="grid grid-cols-2 gap-2 mt-3">
+                                                <button wire:click="openEarlyFinishConfirm"
+                                                        class="h-10 rounded-full text-xs font-bold"
+                                                        style="background:#0f2a1a; color:#4ade80; border:1px solid #1e5c35;">
+                                                    ⚡ زودتر تمام کردم
+                                                </button>
+                                                <button wire:click="openStudyMoreModal"
+                                                        class="h-10 rounded-full text-xs font-bold"
+                                                        style="background:#2d1b69; color:#c4b5fd; border:1px solid #5b21b6;">
+                                                    ➕ مطالعه بیشتر
+                                                </button>
+                                            </div>
                                         @endif
-                                        <button wire:click="cancelPart" class="px-4 h-9 rounded-full text-xs font-bold" style="background:#1c1c1c; color:#888; border:1px solid #333;">لغو</button>
                                     </div>
-                                </div>
+                                @endif
                             @endif
                         </div>
                     @endif
@@ -295,6 +350,16 @@
                                                                 @if($part->ccSubject)
                                                                     <div class="text-xs" style="color:#555;">{{ $part->ccSubject->name }}</div>
                                                                 @endif
+                                                                @if($isDone)
+                                                                    @php $meta = $completedPartsMeta[$part->id] ?? null; @endphp
+                                                                    @if($meta && (($meta['is_early_finish'] ?? false) || ($meta['extra_seconds'] ?? 0) > 0))
+                                                                        <div class="mt-1">
+                                                                            <x-study-session-badges
+                                                                                :is-early-finish="(bool)($meta['is_early_finish'] ?? false)"
+                                                                                :extra-seconds="(int)($meta['extra_seconds'] ?? 0)" />
+                                                                        </div>
+                                                                    @endif
+                                                                @endif
                                                             </div>
                                                             <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background:#1c1c1c;">
                                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#555" class="w-4 h-4 transition-transform"
@@ -406,19 +471,144 @@
                     <div x-cloak x-show="finishModal" class="fixed inset-0 z-[75] flex flex-col justify-end sm:items-center sm:justify-center">
                         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="finishModal=false"></div>
                         <div class="relative z-10 w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl"
+                             style="background:#111; border:2px solid {{ $isInExtraPhase ? '#7c3aed' : '#16a34a' }};"
+                             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+                            <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-white/20"></div></div>
+                            <div class="px-6 py-8 text-center space-y-4">
+                                <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto animate-bounce"
+                                     style="background:{{ $isInExtraPhase ? '#7c3aed' : '#16a34a' }};">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="white" class="w-9 h-9"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                </div>
+                                <h3 class="text-2xl font-black" style="color:{{ $isInExtraPhase ? '#a78bfa' : '#4ade80' }};">
+                                    @if($isInExtraPhase) اضافه بر مشاور تمام شد
+                                    @elseif($pendingIsEarlyFinish) پایان زودهنگام
+                                    @else آفرین!
+                                    @endif
+                                </h3>
+                                <p class="font-bold text-white">
+                                    @if($isInExtraPhase) تایم مطالعه اضافه بر مشاور به پایان رسید
+                                    @else تایم مطالعه به پایان رسید
+                                    @endif
+                                </p>
+                                <div class="flex gap-3 justify-center pt-2">
+                                    <button wire:click="closeFinishModal" class="px-6 h-11 rounded-full font-semibold text-sm" style="background:#1c1c1c; color:#888; border:1px solid #333;">بستن</button>
+                                    <button wire:click="savePart" class="px-8 h-11 rounded-full font-semibold text-sm"
+                                            style="background:{{ $isInExtraPhase ? '#7c3aed' : '#16a34a' }}; color:#fff;">
+                                        ثبت پارت
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- مودال تایید «زودتر تمام کردم» --}}
+                    <div x-cloak x-show="$wire.showEarlyFinishConfirmModal" class="fixed inset-0 z-[85] flex flex-col justify-end sm:items-center sm:justify-center">
+                        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" wire:click="closeEarlyFinishConfirm"></div>
+                        <div class="relative z-10 w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl"
                              style="background:#111; border:2px solid #16a34a;"
                              x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
                             <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-white/20"></div></div>
                             <div class="px-6 py-8 text-center space-y-4">
-                                <div class="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center mx-auto animate-bounce">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="white" class="w-9 h-9"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+                                <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto" style="background:#0f2a1a;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4ade80" class="w-9 h-9">
+                                        <path d="M11.983 1.907a.75.75 0 00-1.292-.657l-8.5 9.5A.75.75 0 002.75 12H6v6.5a.75.75 0 001.292.657l8.5-9.5A.75.75 0 0015.25 8H12V1.907z"/>
+                                    </svg>
                                 </div>
-                                <h3 class="text-2xl font-black" style="color:#4ade80;">آفرین!</h3>
-                                <p class="font-bold text-white">تایم مطالعه به پایان رسید</p>
+                                <h3 class="text-xl font-black text-white">آیا مطمئنی؟</h3>
+                                <p class="text-sm" style="color:#aaa;">
+                                    با تأیید، این پارت با مدت مطالعه فعلی به‌عنوان «زودتر تمام شد» ثبت می‌شود.
+                                </p>
+                                <p class="text-xs" style="color:#666;">
+                                    مدت ثبت شده: <span class="text-white font-bold">{{ $this->formatClock($liveSeconds) }}</span> از {{ $this->formatClock($targetSeconds) }}
+                                </p>
                                 <div class="flex gap-3 justify-center pt-2">
-                                    <button wire:click="closeFinishModal" class="px-6 h-11 rounded-full font-semibold text-sm" style="background:#1c1c1c; color:#888; border:1px solid #333;">بستن</button>
-                                    <button wire:click="savePart" class="px-8 h-11 rounded-full font-semibold text-sm" style="background:#16a34a; color:#fff;">ثبت پارت</button>
+                                    <button wire:click="closeEarlyFinishConfirm" class="px-6 h-11 rounded-full font-semibold text-sm" style="background:#1c1c1c; color:#888; border:1px solid #333;">انصراف</button>
+                                    <button wire:click="confirmEarlyFinish" class="px-8 h-11 rounded-full font-semibold text-sm" style="background:#16a34a; color:#fff;">بله، ثبت کن</button>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- مودال «مطالعه بیشتر» --}}
+                    <div x-cloak x-show="$wire.showStudyMoreModal" class="fixed inset-0 z-[85] flex flex-col justify-end sm:items-center sm:justify-center">
+                        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" wire:click="closeStudyMoreModal"></div>
+                        <div class="relative z-10 w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl"
+                             style="background:#111; border:2px solid #7c3aed;"
+                             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
+                            <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-white/20"></div></div>
+                            <div class="flex items-center justify-between px-6 py-4" style="border-bottom:1px solid #1e1e1e;">
+                                <h3 class="font-bold text-white">مطالعه بیشتر (اضافه بر مشاور)</h3>
+                                <button wire:click="closeStudyMoreModal">
+                                    <svg class="w-5 h-5" stroke="#666" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="px-6 py-5 space-y-5">
+                                <p class="text-sm" style="color:#aaa;">
+                                    پس از پایان تایمر فعلی، یک تایمر اضافی به مدت زیر آغاز خواهد شد. حداکثر ۳ ساعت.
+                                </p>
+                                <div x-data="{
+                                        h: @entangle('studyMoreHours'),
+                                        m: @entangle('studyMoreMinutes'),
+                                        total() { return (parseInt(this.h)||0)*60 + (parseInt(this.m)||0); },
+                                     }" class="space-y-3" dir="ltr">
+                                    <div class="flex items-center justify-center gap-3">
+                                        <div class="flex flex-col items-center gap-1">
+                                            <button type="button" @click="if((parseInt(h)||0)<3){ h=(parseInt(h)||0)+1 }"
+                                                    class="w-9 h-9 rounded-xl flex items-center justify-center"
+                                                    style="background:#1c1c1c; border:1px solid #2a2a2a;">
+                                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                                </svg>
+                                            </button>
+                                            <input type="number" x-model.number="h" min="0" max="3"
+                                                   class="w-16 h-12 rounded-xl text-center font-bold text-lg"
+                                                   style="background:#1c1c1c; border:1px solid #2a2a2a; color:#fff;">
+                                            <button type="button" @click="if((parseInt(h)||0)>0){ h=(parseInt(h)||0)-1 }"
+                                                    class="w-9 h-9 rounded-xl flex items-center justify-center"
+                                                    style="background:#1c1c1c; border:1px solid #2a2a2a;">
+                                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                </svg>
+                                            </button>
+                                            <span class="text-xs" style="color:#555;">ساعت</span>
+                                        </div>
+                                        <div class="text-2xl font-black pb-6" style="color:#444;">:</div>
+                                        <div class="flex flex-col items-center gap-1">
+                                            <button type="button" @click="m=Math.min((parseInt(m)||0)+5,59)"
+                                                    class="w-9 h-9 rounded-xl flex items-center justify-center"
+                                                    style="background:#1c1c1c; border:1px solid #2a2a2a;">
+                                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                                                </svg>
+                                            </button>
+                                            <input type="number" x-model.number="m" min="0" max="59"
+                                                   class="w-16 h-12 rounded-xl text-center font-bold text-lg"
+                                                   style="background:#1c1c1c; border:1px solid #2a2a2a; color:#fff;">
+                                            <button type="button" @click="m=Math.max((parseInt(m)||0)-5,0)"
+                                                    class="w-9 h-9 rounded-xl flex items-center justify-center"
+                                                    style="background:#1c1c1c; border:1px solid #2a2a2a;">
+                                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                                </svg>
+                                            </button>
+                                            <span class="text-xs" style="color:#555;">دقیقه</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-center text-xs" style="color:#666;">
+                                        <template x-if="total() > 180">
+                                            <span style="color:#f87171;">حداکثر ۳ ساعت — مقدار به ۳ ساعت محدود می‌شود.</span>
+                                        </template>
+                                        <template x-if="total() < 1">
+                                            <span style="color:#f87171;">حداقل ۱ دقیقه را انتخاب کنید.</span>
+                                        </template>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-end gap-3 px-6 py-4" style="border-top:1px solid #1e1e1e;">
+                                <button wire:click="closeStudyMoreModal" class="px-5 h-10 rounded-full font-semibold text-sm" style="background:#1c1c1c; color:#888; border:1px solid #333;">انصراف</button>
+                                <button wire:click="confirmStudyMore" class="px-6 h-10 rounded-full font-semibold text-sm" style="background:#7c3aed; color:#fff;">شروع پس از پایان</button>
                             </div>
                         </div>
                     </div>

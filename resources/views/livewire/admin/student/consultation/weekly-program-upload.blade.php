@@ -505,6 +505,17 @@
                             </div>
                         </div>
                         <div class="col-6 col-md-3 col-lg-2">
+                            <div class="rounded-3 p-2 border text-center" style="background:rgba(124,58,237,.10);">
+                                @php
+                                    $emTotal = (int)($pw['total_extra_minutes'] ?? 0);
+                                    $emH = intdiv($emTotal, 60);
+                                    $emM = $emTotal % 60;
+                                @endphp
+                                <div class="fs-5 fw-bold" style="color:#7c3aed;">{{ $emH > 0 ? $emH . ':' . str_pad($emM, 2, '0', STR_PAD_LEFT) : $emTotal . 'د' }}</div>
+                                <div class="small text-muted">اضافه بر مشاور</div>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3 col-lg-2">
                             <div class="rounded-3 p-2 border bg-success bg-opacity-10 text-center">
                                 <div class="fs-5 fw-bold text-success">{{ $pw['rest_days_count'] }}</div>
                                 <div class="small text-muted">روز استراحت</div>
@@ -839,6 +850,21 @@
                                                                 <span class="small fw-bold text-{{ $p['avg_color'] }}">
                                                                     {{ $p['avg_rating'] }}/10
                                                                 </span>
+                                                            </div>
+                                                        @endif
+
+                                                        {{-- بدج‌های زودتر/اضافه بر مشاور --}}
+                                                        @if(($p['is_early_finish'] ?? false) || ($p['has_extra_time'] ?? false))
+                                                            <div class="mt-1 d-flex flex-wrap gap-1">
+                                                                <x-study-session-badges
+                                                                    :is-early-finish="(bool)($p['is_early_finish'] ?? false)"
+                                                                    :extra-seconds="(int)($p['extra_seconds'] ?? 0)"
+                                                                    style="bootstrap" />
+                                                                @if(($p['has_extra_time'] ?? false) && ($p['extra_target_min'] ?? 0) > 0 && ($p['extra_target_min'] ?? 0) !== ($p['extra_minutes'] ?? 0))
+                                                                    <span class="small text-muted" style="font-size:10px;">
+                                                                        (هدف: {{ $p['extra_target_min'] }}د)
+                                                                    </span>
+                                                                @endif
                                                             </div>
                                                         @endif
                                                     </div>
@@ -1835,10 +1861,23 @@
                                                                 @if(!empty($item['grade_label']))
                                                                     <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">{{ $item['grade_label'] }}</span>
                                                                 @endif
+                                                                @if(($item['is_early_finish'] ?? false) || ($item['extra_seconds'] ?? 0) > 0)
+                                                                    <div class="mt-1">
+                                                                        <x-study-session-badges
+                                                                            :is-early-finish="(bool)($item['is_early_finish'] ?? false)"
+                                                                            :extra-seconds="(int)($item['extra_seconds'] ?? 0)"
+                                                                            style="bootstrap" />
+                                                                    </div>
+                                                                @endif
                                                             </td>
                                                             <td class="text-center">{{ $item['planned_minutes'] ?? 0 }} دقیقه</td>
                                                             <td class="text-center {{ ($item['is_suspicious'] ?? false) ? 'text-danger fw-bold' : '' }}">
                                                                 {{ $item['duration_label'] ?? '—' }}
+                                                                @if(($item['extra_seconds'] ?? 0) > 0)
+                                                                    <div class="small" style="color:#7c3aed; font-size:10px;">
+                                                                        +{{ $item['extra_minutes'] }}د اضافه بر مشاور
+                                                                    </div>
+                                                                @endif
                                                             </td>
                                                             <td class="text-center">
                                                                 @if(!empty($item['started_at']))

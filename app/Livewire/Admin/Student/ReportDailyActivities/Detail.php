@@ -631,7 +631,8 @@ class Detail extends Component
                 'session_rating' => $sessionRating,
                 'is_compensatory' => $reportPart?->is_compensatory ?? false,
                 'has_report' => $reportPart !== null,
-
+                'is_early_finish' => (bool) ($studySession?->is_early_finish ?? false),
+                'extra_seconds' => (int) ($studySession?->extra_seconds ?? 0),
             ];
         }
         $avgRating = $totalParts > 0 ? round($ratingSum / $totalParts, 1) : 0;

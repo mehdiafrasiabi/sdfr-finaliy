@@ -295,6 +295,7 @@ class WeeklyProgramUpload extends Component
         $totalParts         = 0;
         $totalMinutes       = 0;
         $totalStudyMinutes  = 0;
+        $totalExtraMinutes  = 0;
         $sentReportsCount   = 0;
         $missingReportsCount = 0;
         $rejectedReportsCount = 0;
@@ -313,6 +314,7 @@ class WeeklyProgramUpload extends Component
             $partsData       = [];
             $dayMinutes      = 0;
             $dayStudyMinutes = 0;
+            $dayExtraMinutes = 0;
             $dayRatings      = [];
 
             foreach ($dayParts as $part) {
@@ -330,6 +332,10 @@ class WeeklyProgramUpload extends Component
                 $studyMinutes = (int) round($sessions->sum('duration_seconds') / 60);
                 $studySessionsCount = $sessions->count();
                 $isExtra = $part->source_type && $part->source_type !== ProgramPart::SOURCE_NORMAL;
+
+                $earlyFinishCount = $sessions->where('is_early_finish', true)->count();
+                $extraSeconds     = (int) $sessions->sum('extra_seconds');
+                $extraTargetSecs  = (int) $sessions->sum('extra_target_seconds');
 
                 // Cheating detection: if session ended more than 10 min after expected end
                 $cheatMinutes = null;
@@ -370,10 +376,16 @@ class WeeklyProgramUpload extends Component
                     'is_extra'           => $isExtra,
                     'is_cheat'           => $isCheat,
                     'cheat_minutes'      => $cheatMinutes,
+                    'is_early_finish'    => $earlyFinishCount > 0,
+                    'has_extra_time'     => $extraSeconds > 0,
+                    'extra_seconds'      => $extraSeconds,
+                    'extra_minutes'      => (int) round($extraSeconds / 60),
+                    'extra_target_min'   => (int) round($extraTargetSecs / 60),
                 ];
 
                 $dayMinutes      += (int) ($part->duration_minutes ?? 0);
                 $dayStudyMinutes += $studyMinutes;
+                $dayExtraMinutes += (int) round($extraSeconds / 60);
                 $totalParts++;
                 if ($isExtra) $extraPartsCount++;
             }
@@ -469,6 +481,7 @@ class WeeklyProgramUpload extends Component
 
             $totalMinutes      += $dayMinutes;
             $totalStudyMinutes += $dayStudyMinutes;
+            $totalExtraMinutes += $dayExtraMinutes;
 
             $days[] = [
                 'index'                => $i,
@@ -482,6 +495,7 @@ class WeeklyProgramUpload extends Component
                 'total_hours'          => round($dayMinutes / 60, 1),
                 'total_study_minutes'  => $dayStudyMinutes,
                 'total_study_hours'    => round($dayStudyMinutes / 60, 1),
+                'total_extra_minutes'  => $dayExtraMinutes,
                 'report_status'        => $reportStatus,
                 'report_status_label'  => $reportStatusLabel,
                 'report_status_color'  => $reportStatusColor,
@@ -508,6 +522,7 @@ class WeeklyProgramUpload extends Component
             'total_hours'             => round($totalMinutes / 60, 1),
             'total_study_minutes'     => $totalStudyMinutes,
             'total_study_hours'       => round($totalStudyMinutes / 60, 1),
+            'total_extra_minutes'     => $totalExtraMinutes,
             'sent_reports_count'      => $sentReportsCount,
             'missing_reports_count'   => $missingReportsCount,
             'rejected_reports_count'  => $rejectedReportsCount,
@@ -3103,6 +3118,12 @@ class WeeklyProgramUpload extends Component
                     'lesson_type'           => $session->programPart?->lesson_type ?? 'specialized',
                     'lesson_type_label'     => $session->programPart?->lesson_type === 'general' ? 'عمومی' : 'تخصصی',
                     'is_registered'         => true,
+                    'is_early_finish'       => (bool) $session->is_early_finish,
+                    'extra_seconds'         => (int) ($session->extra_seconds ?? 0),
+                    'extra_minutes'         => (int) round(((int)($session->extra_seconds ?? 0)) / 60),
+                    'extra_target_minutes'  => (int) round(((int)($session->extra_target_seconds ?? 0)) / 60),
+                    'extra_started_at'      => $session->extra_started_at?->format('H:i'),
+                    'extra_ended_at'        => $session->extra_ended_at?->format('H:i'),
                 ];
             })->toArray();
 

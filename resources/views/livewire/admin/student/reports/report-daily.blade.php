@@ -660,6 +660,14 @@
                                                                     {{ $part['study_started_at'] }} - {{ $part['study_ended_at'] }}
                                                                 </small>
                                                             @endif
+                                                            @if(($part['is_early_finish'] ?? false) || ($part['extra_seconds'] ?? 0) > 0)
+                                                                <div class="mt-1">
+                                                                    <x-study-session-badges
+                                                                        :is-early-finish="(bool)($part['is_early_finish'] ?? false)"
+                                                                        :extra-seconds="(int)($part['extra_seconds'] ?? 0)"
+                                                                        style="bootstrap" />
+                                                                </div>
+                                                            @endif
                                                         </div>
                                                     @else
                                                         <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16" class="text-danger">

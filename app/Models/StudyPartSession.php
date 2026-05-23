@@ -17,7 +17,31 @@ class StudyPartSession extends Model
         'ended_at' => 'datetime',
         'completed_at' => 'datetime',
         'is_completed' => 'boolean',
+        'is_early_finish' => 'boolean',
+        'extra_seconds' => 'integer',
+        'extra_target_seconds' => 'integer',
+        'extra_started_at' => 'datetime',
+        'extra_ended_at' => 'datetime',
     ];
+
+    public function getHasExtraTimeAttribute(): bool
+    {
+        return (int)($this->extra_seconds ?? 0) > 0;
+    }
+
+    public function getExtraMinutesAttribute(): int
+    {
+        return (int) round(((int)($this->extra_seconds ?? 0)) / 60);
+    }
+
+    public function getExtraTimeLabelAttribute(): string
+    {
+        $s = (int)($this->extra_seconds ?? 0);
+        if ($s <= 0) return '';
+        $h = intdiv($s, 3600);
+        $m = intdiv($s % 3600, 60);
+        return $h > 0 ? sprintf('+%d:%02d', $h, $m) : sprintf('+0:%02d', $m);
+    }
 
     public function student(): BelongsTo
     {

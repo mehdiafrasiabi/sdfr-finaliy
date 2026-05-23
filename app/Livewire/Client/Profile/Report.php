@@ -50,6 +50,7 @@ class Report extends Component
 
     // Completed study parts (parts with logged study hours)
     public array $completedStudyParts = [];
+    public array $completedStudyPartsMeta = [];
     public array $alreadyCompensatedPartIds = [];
     // Makeup (extra-organization) sessions for current report day
     public array $currentDayMakeupSessions = [];
@@ -137,11 +138,16 @@ class Report extends Component
         $student = Auth::user()->student;
         if (!$student || !$this->currentProgram) return;
 
-        $this->completedStudyParts = StudyPartSession::where('student_id', $student->id)
+        $rows = StudyPartSession::where('student_id', $student->id)
             ->where('weekly_program_id', $this->currentProgram->id)
             ->where('is_completed', true)
-            ->pluck('program_part_id')
-            ->toArray();
+            ->get(['program_part_id', 'is_early_finish', 'extra_seconds']);
+
+        $this->completedStudyParts = $rows->pluck('program_part_id')->unique()->values()->toArray();
+        $this->completedStudyPartsMeta = $rows->groupBy('program_part_id')->map(fn($g) => [
+            'is_early_finish' => $g->contains(fn($r) => (bool)$r->is_early_finish),
+            'extra_seconds'   => (int) $g->max('extra_seconds'),
+        ])->toArray();
     }
 
     protected function loadWeekDays()
