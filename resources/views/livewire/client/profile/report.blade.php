@@ -490,15 +490,23 @@
                             @foreach($selectedDay['parts'] as $part)
                                 @php
                                     $partHasStudyHours = in_array($part->id, $completedStudyParts);
+                                    $partIsRejected = in_array($part->id, $rejectedCheatPartIds);
                                     $partIsSelected = in_array($part->id, $selectedParts);
-                                    $partIsLocked = $partHasStudyHours && $partIsSelected; // completed parts are locked-selected
+                                    $partIsLocked = ($partHasStudyHours && $partIsSelected) || $partIsRejected;
                                 @endphp
                                 <div wire:key="part-select-{{ $part->id }}"
                                      class="relative bg-secondary rounded-xl border-2 transition-all duration-200
-                                     {{ $partIsSelected ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : '' }}
-                                     {{ !$partHasStudyHours ? 'border-red-300 dark:border-red-800 opacity-70' : (!$partIsSelected ? 'border-transparent hover:-translate-y-px' : '') }}">
+                                     {{ $partIsRejected ? 'border-red-500 bg-red-50/30 dark:bg-red-900/10' : ($partIsSelected ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : '') }}
+                                     {{ !$partHasStudyHours && !$partIsRejected ? 'border-red-300 dark:border-red-800 opacity-70' : (!$partIsSelected && !$partIsRejected ? 'border-transparent hover:-translate-y-px' : '') }}">
 
-                                    @if(!$partHasStudyHours)
+                                    @if($partIsRejected)
+                                        <div class="flex items-center gap-2 px-3 sm:px-3.5 pt-2.5 pb-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-red-500 shrink-0">
+                                                <path fill-rule="evenodd" d="M12 1.5a.75.75 0 01.564.255l8.25 9.5a.75.75 0 01-.564 1.245H3.75a.75.75 0 01-.564-1.245L11.436 1.755A.75.75 0 0112 1.5zM10.5 8.25a.75.75 0 011.5 0v3a.75.75 0 01-1.5 0v-3zM12 15a.75.75 0 100 1.5.75.75 0 000-1.5z" clip-rule="evenodd"/>
+                                            </svg>
+                                            <span class="text-[10px] sm:text-xs text-red-600 dark:text-red-400 font-semibold">گزارش تقلب این پارت توسط مشاور رد شده — انتخاب اجباری</span>
+                                        </div>
+                                    @elseif(!$partHasStudyHours)
                                         <div class="flex items-center gap-2 px-3 sm:px-3.5 pt-2.5 pb-1">
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-red-500 shrink-0">
                                                 <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
@@ -543,10 +551,18 @@
                                                     <span class="text-[10px] sm:text-xs rounded-full px-2 py-0.5 font-medium {{ $part->source_type_tw_class }}">{{ $part->source_type_label }}</span>
                                                 @endif
                                                 @php $partMeta = $completedStudyPartsMeta[$part->id] ?? null; @endphp
-                                                @if($partMeta && (($partMeta['is_early_finish'] ?? false) || ($partMeta['extra_seconds'] ?? 0) > 0))
+                                                @if($partMeta && (
+                                                    ($partMeta['is_early_finish'] ?? false) ||
+                                                    ($partMeta['extra_seconds'] ?? 0) > 0 ||
+                                                    ($partMeta['is_cheating'] ?? false)
+                                                ))
                                                     <x-study-session-badges
                                                         :is-early-finish="(bool)($partMeta['is_early_finish'] ?? false)"
-                                                        :extra-seconds="(int)($partMeta['extra_seconds'] ?? 0)" />
+                                                        :extra-seconds="(int)($partMeta['extra_seconds'] ?? 0)"
+                                                        :extra-target-seconds="(int)($partMeta['extra_target_seconds'] ?? 0)"
+                                                        :is-cheating="(bool)($partMeta['is_cheating'] ?? false)"
+                                                        :cheat-status="$partMeta['cheat_status'] ?? null"
+                                                        :cheat-minutes="(int)($partMeta['cheat_minutes'] ?? 0)" />
                                                 @endif
                                             </div>
                                             <div class="flex items-center gap-2 mt-1.5 text-xs text-muted">
@@ -805,10 +821,18 @@
                                                 <span class="text-[10px] sm:text-xs rounded-full px-2 py-0.5 font-medium {{ $missed['part']->source_type_tw_class }}">{{ $missed['part']->source_type_label }}</span>
                                             @endif
                                             @php $compMeta = $completedStudyPartsMeta[$missed['part']->id] ?? null; @endphp
-                                            @if($compMeta && (($compMeta['is_early_finish'] ?? false) || ($compMeta['extra_seconds'] ?? 0) > 0))
+                                            @if($compMeta && (
+                                                ($compMeta['is_early_finish'] ?? false) ||
+                                                ($compMeta['extra_seconds'] ?? 0) > 0 ||
+                                                ($compMeta['is_cheating'] ?? false)
+                                            ))
                                                 <x-study-session-badges
                                                     :is-early-finish="(bool)($compMeta['is_early_finish'] ?? false)"
-                                                    :extra-seconds="(int)($compMeta['extra_seconds'] ?? 0)" />
+                                                    :extra-seconds="(int)($compMeta['extra_seconds'] ?? 0)"
+                                                    :extra-target-seconds="(int)($compMeta['extra_target_seconds'] ?? 0)"
+                                                    :is-cheating="(bool)($compMeta['is_cheating'] ?? false)"
+                                                    :cheat-status="$compMeta['cheat_status'] ?? null"
+                                                    :cheat-minutes="(int)($compMeta['cheat_minutes'] ?? 0)" />
                                             @endif
                                         </div>
                                     </div>

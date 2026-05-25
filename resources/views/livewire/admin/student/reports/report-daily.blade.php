@@ -660,12 +660,27 @@
                                                                     {{ $part['study_started_at'] }} - {{ $part['study_ended_at'] }}
                                                                 </small>
                                                             @endif
-                                                            @if(($part['is_early_finish'] ?? false) || ($part['extra_seconds'] ?? 0) > 0)
+                                                            @if(($part['is_early_finish'] ?? false) || ($part['extra_seconds'] ?? 0) > 0 || ($part['is_cheating'] ?? false))
                                                                 <div class="mt-1">
                                                                     <x-study-session-badges
                                                                         :is-early-finish="(bool)($part['is_early_finish'] ?? false)"
                                                                         :extra-seconds="(int)($part['extra_seconds'] ?? 0)"
+                                                                        :extra-target-seconds="(int)($part['extra_target_seconds'] ?? 0)"
+                                                                        :is-cheating="(bool)($part['is_cheating'] ?? false)"
+                                                                        :cheat-status="$part['cheat_status'] ?? null"
+                                                                        :cheat-minutes="(int)($part['cheat_minutes'] ?? 0)"
                                                                         style="bootstrap" />
+                                                                    @if(!empty($part['cheat_reason']))
+                                                                        <div class="small text-muted mt-1" style="font-size:10px;" title="{{ $part['cheat_reason'] }}">
+                                                                            علت تقلب: {{ Str::limit($part['cheat_reason'], 40) }}
+                                                                        </div>
+                                                                    @endif
+                                                                    @if(($part['extra_started_at'] ?? null) && ($part['extra_ended_at'] ?? null))
+                                                                        <div class="small text-muted mt-1" style="font-size:10px;">
+                                                                            اضافه بر مشاور: {{ $part['extra_started_at'] }} — {{ $part['extra_ended_at'] }}
+                                                                            (هدف: {{ (int) round(($part['extra_target_seconds'] ?? 0) / 60) }}د)
+                                                                        </div>
+                                                                    @endif
                                                                 </div>
                                                             @endif
                                                         </div>

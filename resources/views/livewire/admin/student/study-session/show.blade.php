@@ -618,11 +618,15 @@
                                                 @elseif($session->programPart?->description)
                                                     <span class="small text-muted">{{ Str::limit($session->programPart->description, 90) }}</span>
                                                 @endif
-                                                @if($session->is_early_finish || (int)($session->extra_seconds ?? 0) > 0)
+                                                @if($session->is_early_finish || (int)($session->extra_seconds ?? 0) > 0 || $session->is_cheating)
                                                     <div class="mt-1">
                                                         <x-study-session-badges
                                                             :is-early-finish="(bool)$session->is_early_finish"
                                                             :extra-seconds="(int)($session->extra_seconds ?? 0)"
+                                                            :extra-target-seconds="(int)($session->extra_target_seconds ?? 0)"
+                                                            :is-cheating="(bool)$session->is_cheating"
+                                                            :cheat-status="$session->cheat_status"
+                                                            :cheat-minutes="(int)($session->cheat_minutes ?? 0)"
                                                             style="bootstrap" />
                                                     </div>
                                                 @endif
@@ -959,6 +963,11 @@
                                             <span class="badge rounded-pill px-3 py-2" style="background:#ede9fe;color:#7c3aed;">
                                                 {{ $this->formatDuration($selectedSession->extra_seconds) }}
                                             </span>
+                                            @if($selectedSession->is_extra_early_finish)
+                                                <span class="badge rounded-pill ms-1 px-2 py-1" style="background:#ddd6fe;color:#5b21b6;font-size:10px;">
+                                                    زودتر تمام شد
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
                                     <div class="col-md-6">
@@ -972,6 +981,65 @@
                                     <div class="col-md-6">
                                         <label class="small text-muted mb-1">پایان تایم اضافه</label>
                                         <div class="fw-semibold">{{ $selectedSession->extra_ended_at ? jdate($selectedSession->extra_ended_at)->format('Y/m/d H:i') : '-' }}</div>
+                                    </div>
+                                @endif
+
+                                @if($selectedSession->is_cheating)
+                                    <div class="col-12 mt-3 pt-3 border-top">
+                                        <h6 class="fw-bold mb-3" style="color:#856404;">⚠️ گزارش تقلب</h6>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="small text-muted mb-1">وضعیت</label>
+                                                <div>
+                                                    <span class="badge rounded-pill text-bg-{{ $selectedSession->cheat_status_color }} px-3 py-2">
+                                                        {{ $selectedSession->cheat_status_label }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="small text-muted mb-1">مدت تأخیر (پس از grace ۳۰ دقیقه)</label>
+                                                <div class="fw-semibold">{{ (int) $selectedSession->cheat_minutes }} دقیقه</div>
+                                            </div>
+                                            <div class="col-12">
+                                                <label class="small text-muted mb-1">علت نوشته‌شده توسط دانش‌آموز</label>
+                                                <div class="p-3 bg-light rounded">{{ $selectedSession->cheat_reason ?? '—' }}</div>
+                                            </div>
+                                            @if($selectedSession->cheat_decided_by)
+                                                <div class="col-md-6">
+                                                    <label class="small text-muted mb-1">تصمیم گرفته شده توسط</label>
+                                                    <div class="fw-semibold">{{ $selectedSession->cheatDecider?->name ?? '—' }}</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="small text-muted mb-1">زمان تصمیم</label>
+                                                    <div class="fw-semibold">{{ $selectedSession->cheat_decided_at ? jdate($selectedSession->cheat_decided_at)->format('Y/m/d H:i') : '—' }}</div>
+                                                </div>
+                                                @if($selectedSession->cheat_decision_note)
+                                                    <div class="col-12">
+                                                        <label class="small text-muted mb-1">یادداشت مشاور</label>
+                                                        <div class="p-3 bg-light rounded">{{ $selectedSession->cheat_decision_note }}</div>
+                                                    </div>
+                                                @endif
+                                            @endif
+
+                                            @if($selectedSession->cheat_status === 'pending')
+                                                <div class="col-12 pt-2">
+                                                    <label class="small text-muted mb-1">یادداشت (اختیاری)</label>
+                                                    <textarea wire:model="cheatDecisionNote" rows="2" class="form-control" placeholder="یادداشت برای ثبت تصمیم"></textarea>
+                                                    <div class="d-flex gap-2 mt-3">
+                                                        <button wire:click="approveCheat({{ $selectedSession->id }})"
+                                                                wire:confirm="آیا از تایید این تقلب مطمئن هستید؟"
+                                                                class="btn btn-info">
+                                                            تایید (پارت معتبر می‌ماند)
+                                                        </button>
+                                                        <button wire:click="rejectCheat({{ $selectedSession->id }})"
+                                                                wire:confirm="با رد، دانش‌آموز نمی‌تواند این پارت را مجدداً ثبت کند. مطمئن هستید؟"
+                                                                class="btn btn-danger">
+                                                            رد (قفل پارت برای دانش‌آموز)
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
                                     </div>
                                 @endif
 

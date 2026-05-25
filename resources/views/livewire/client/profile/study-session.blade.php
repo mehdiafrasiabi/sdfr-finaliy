@@ -185,6 +185,16 @@
                                             @endif
                                             <button wire:click="cancelPart" class="px-4 h-9 rounded-full text-xs font-bold" style="background:#1c1c1c; color:#888; border:1px solid #333;">لغو تایم اضافه</button>
                                         </div>
+
+                                        @if($this->canShowEarlyFinish)
+                                            <div class="mt-3">
+                                                <button wire:click="openEarlyFinishConfirm"
+                                                        class="w-full h-10 rounded-full text-xs font-bold"
+                                                        style="background:#0f2a1a; color:#4ade80; border:1px solid #1e5c35;">
+                                                    ⚡ زودتر تمام کردم
+                                                </button>
+                                            </div>
+                                        @endif
                                     </div>
                                 @else
                                     {{-- فاز ۱: تایمر عادی --}}
@@ -221,18 +231,22 @@
                                         </div>
 
                                         {{-- دکمه‌های ۸۰٪ --}}
-                                        @if($this->canShowEarlyOrMore)
-                                            <div class="grid grid-cols-2 gap-2 mt-3">
-                                                <button wire:click="openEarlyFinishConfirm"
-                                                        class="h-10 rounded-full text-xs font-bold"
-                                                        style="background:#0f2a1a; color:#4ade80; border:1px solid #1e5c35;">
-                                                    ⚡ زودتر تمام کردم
-                                                </button>
-                                                <button wire:click="openStudyMoreModal"
-                                                        class="h-10 rounded-full text-xs font-bold"
-                                                        style="background:#2d1b69; color:#c4b5fd; border:1px solid #5b21b6;">
-                                                    ➕ مطالعه بیشتر
-                                                </button>
+                                        @if($this->canShowEarlyFinish || $this->canShowStudyMore)
+                                            <div class="grid {{ $this->canShowEarlyFinish && $this->canShowStudyMore ? 'grid-cols-2' : 'grid-cols-1' }} gap-2 mt-3">
+                                                @if($this->canShowEarlyFinish)
+                                                    <button wire:click="openEarlyFinishConfirm"
+                                                            class="h-10 rounded-full text-xs font-bold"
+                                                            style="background:#0f2a1a; color:#4ade80; border:1px solid #1e5c35;">
+                                                        ⚡ زودتر تمام کردم
+                                                    </button>
+                                                @endif
+                                                @if($this->canShowStudyMore)
+                                                    <button wire:click="openStudyMoreModal"
+                                                            class="h-10 rounded-full text-xs font-bold"
+                                                            style="background:#2d1b69; color:#c4b5fd; border:1px solid #5b21b6;">
+                                                        ➕ مطالعه بیشتر
+                                                    </button>
+                                                @endif
                                             </div>
                                         @endif
                                     </div>
@@ -352,11 +366,19 @@
                                                                 @endif
                                                                 @if($isDone)
                                                                     @php $meta = $completedPartsMeta[$part->id] ?? null; @endphp
-                                                                    @if($meta && (($meta['is_early_finish'] ?? false) || ($meta['extra_seconds'] ?? 0) > 0))
+                                                                    @if($meta && (
+                                                                        ($meta['is_early_finish'] ?? false) ||
+                                                                        ($meta['extra_seconds'] ?? 0) > 0 ||
+                                                                        ($meta['is_cheating'] ?? false)
+                                                                    ))
                                                                         <div class="mt-1">
                                                                             <x-study-session-badges
                                                                                 :is-early-finish="(bool)($meta['is_early_finish'] ?? false)"
-                                                                                :extra-seconds="(int)($meta['extra_seconds'] ?? 0)" />
+                                                                                :extra-seconds="(int)($meta['extra_seconds'] ?? 0)"
+                                                                                :extra-target-seconds="(int)($meta['extra_target_seconds'] ?? 0)"
+                                                                                :is-cheating="(bool)($meta['is_cheating'] ?? false)"
+                                                                                :cheat-status="$meta['cheat_status'] ?? null"
+                                                                                :cheat-minutes="(int)($meta['cheat_minutes'] ?? 0)" />
                                                                         </div>
                                                                     @endif
                                                                 @endif
@@ -490,9 +512,29 @@
                                     @else تایم مطالعه به پایان رسید
                                     @endif
                                 </p>
+
+                                @if($this->isCheatingNow)
+                                    <div class="mt-4 text-right space-y-2 px-2">
+                                        <div class="flex items-center gap-2 text-sm font-bold" style="color:#f59e0b;">
+                                            <span>⚠️</span>
+                                            <span>{{ $this->lateMinutes }} دقیقه دیرتر از موعد مجاز ثبت می‌کنید — این به‌عنوان تقلب علامت‌گذاری می‌شود.</span>
+                                        </div>
+                                        <label class="block text-sm font-bold text-white">علت طول کشیدن</label>
+                                        <textarea wire:model.live="finishReason" rows="3"
+                                                  placeholder="مثلاً: درگیر تمرین بودم، چند سوال سخت داشتم و..."
+                                                  class="w-full rounded-xl p-3 text-sm"
+                                                  style="background:#0d0d0d; border:1px solid #333; color:#fff;"></textarea>
+                                        <div class="text-xs" style="color:#666;">
+                                            بعد از ثبت، مشاور تایید/رد می‌کند. اگر رد شود، این پارت قابل ثبت مجدد نخواهد بود.
+                                        </div>
+                                    </div>
+                                @endif
+
                                 <div class="flex gap-3 justify-center pt-2">
                                     <button wire:click="closeFinishModal" class="px-6 h-11 rounded-full font-semibold text-sm" style="background:#1c1c1c; color:#888; border:1px solid #333;">بستن</button>
-                                    <button wire:click="savePart" class="px-8 h-11 rounded-full font-semibold text-sm"
+                                    <button wire:click="savePart"
+                                            @if($this->isCheatingNow && mb_strlen(trim($finishReason)) < 5) disabled @endif
+                                            class="px-8 h-11 rounded-full font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                                             style="background:{{ $isInExtraPhase ? '#7c3aed' : '#16a34a' }}; color:#fff;">
                                         ثبت پارت
                                     </button>
@@ -519,7 +561,11 @@
                                     با تأیید، این پارت با مدت مطالعه فعلی به‌عنوان «زودتر تمام شد» ثبت می‌شود.
                                 </p>
                                 <p class="text-xs" style="color:#666;">
-                                    مدت ثبت شده: <span class="text-white font-bold">{{ $this->formatClock($liveSeconds) }}</span> از {{ $this->formatClock($targetSeconds) }}
+                                    @if($isInExtraPhase)
+                                        مدت ثبت شده در فاز اضافه بر مشاور: <span class="text-white font-bold">{{ $this->formatClock($extraLiveSeconds) }}</span> از {{ $this->formatClock($extraTargetSeconds) }}
+                                    @else
+                                        مدت ثبت شده: <span class="text-white font-bold">{{ $this->formatClock($liveSeconds) }}</span> از {{ $this->formatClock($targetSeconds) }}
+                                    @endif
                                 </p>
                                 <div class="flex gap-3 justify-center pt-2">
                                     <button wire:click="closeEarlyFinishConfirm" class="px-6 h-11 rounded-full font-semibold text-sm" style="background:#1c1c1c; color:#888; border:1px solid #333;">انصراف</button>
