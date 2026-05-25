@@ -618,6 +618,14 @@
                                                 @elseif($session->programPart?->description)
                                                     <span class="small text-muted">{{ Str::limit($session->programPart->description, 90) }}</span>
                                                 @endif
+                                                @if($session->is_early_finish || (int)($session->extra_seconds ?? 0) > 0)
+                                                    <div class="mt-1">
+                                                        <x-study-session-badges
+                                                            :is-early-finish="(bool)$session->is_early_finish"
+                                                            :extra-seconds="(int)($session->extra_seconds ?? 0)"
+                                                            style="bootstrap" />
+                                                    </div>
+                                                @endif
                                             </div>
                                         </td>
 
@@ -932,6 +940,40 @@
                                         </span>
                                     </div>
                                 </div>
+
+                                @if($selectedSession->is_early_finish)
+                                    <div class="col-md-6">
+                                        <label class="small text-muted mb-1">پایان زودهنگام</label>
+                                        <div>
+                                            <span class="badge rounded-pill text-bg-success px-3 py-2">
+                                                دانش‌آموز این پارت را زودتر تمام کرد
+                                            </span>
+                                        </div>
+                                    </div>
+                                @endif
+
+                                @if((int)($selectedSession->extra_seconds ?? 0) > 0)
+                                    <div class="col-md-6">
+                                        <label class="small text-muted mb-1">مدت اضافه بر مشاور</label>
+                                        <div>
+                                            <span class="badge rounded-pill px-3 py-2" style="background:#ede9fe;color:#7c3aed;">
+                                                {{ $this->formatDuration($selectedSession->extra_seconds) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="small text-muted mb-1">برنامه‌ریزی اضافه (انتخاب دانش‌آموز)</label>
+                                        <div class="fw-semibold">{{ $this->formatDuration($selectedSession->extra_target_seconds) }}</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="small text-muted mb-1">شروع تایم اضافه</label>
+                                        <div class="fw-semibold">{{ $selectedSession->extra_started_at ? jdate($selectedSession->extra_started_at)->format('Y/m/d H:i') : '-' }}</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="small text-muted mb-1">پایان تایم اضافه</label>
+                                        <div class="fw-semibold">{{ $selectedSession->extra_ended_at ? jdate($selectedSession->extra_ended_at)->format('Y/m/d H:i') : '-' }}</div>
+                                    </div>
+                                @endif
 
                                 @if($selectedSession->programPart?->description)
                                     <div class="col-12">

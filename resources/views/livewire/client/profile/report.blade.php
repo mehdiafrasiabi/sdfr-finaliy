@@ -542,6 +542,12 @@
                                                 @if($part->source_type && $part->source_type !== 'normal')
                                                     <span class="text-[10px] sm:text-xs rounded-full px-2 py-0.5 font-medium {{ $part->source_type_tw_class }}">{{ $part->source_type_label }}</span>
                                                 @endif
+                                                @php $partMeta = $completedStudyPartsMeta[$part->id] ?? null; @endphp
+                                                @if($partMeta && (($partMeta['is_early_finish'] ?? false) || ($partMeta['extra_seconds'] ?? 0) > 0))
+                                                    <x-study-session-badges
+                                                        :is-early-finish="(bool)($partMeta['is_early_finish'] ?? false)"
+                                                        :extra-seconds="(int)($partMeta['extra_seconds'] ?? 0)" />
+                                                @endif
                                             </div>
                                             <div class="flex items-center gap-2 mt-1.5 text-xs text-muted">
                                                 <span class="flex items-center gap-1">
@@ -797,6 +803,12 @@
                                             @endif
                                             @if($missed['part']->source_type && $missed['part']->source_type !== 'normal')
                                                 <span class="text-[10px] sm:text-xs rounded-full px-2 py-0.5 font-medium {{ $missed['part']->source_type_tw_class }}">{{ $missed['part']->source_type_label }}</span>
+                                            @endif
+                                            @php $compMeta = $completedStudyPartsMeta[$missed['part']->id] ?? null; @endphp
+                                            @if($compMeta && (($compMeta['is_early_finish'] ?? false) || ($compMeta['extra_seconds'] ?? 0) > 0))
+                                                <x-study-session-badges
+                                                    :is-early-finish="(bool)($compMeta['is_early_finish'] ?? false)"
+                                                    :extra-seconds="(int)($compMeta['extra_seconds'] ?? 0)" />
                                             @endif
                                         </div>
                                     </div>

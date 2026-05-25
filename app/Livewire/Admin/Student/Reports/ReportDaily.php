@@ -608,6 +608,8 @@ class ReportDaily extends Component
                 'study_duration_seconds' => $studyDuration,
                 'study_started_at' => $studySession?->started_at?->format('H:i') ?? null,
                 'study_ended_at' => $studySession?->ended_at?->format('H:i') ?? null,
+                'is_early_finish' => (bool) ($studySession?->is_early_finish ?? false),
+                'extra_seconds' => (int) ($studySession?->extra_seconds ?? 0),
             ];
         }
         $avgRating = $totalParts > 0 ? round($ratingSum / $totalParts, 1) : 0;

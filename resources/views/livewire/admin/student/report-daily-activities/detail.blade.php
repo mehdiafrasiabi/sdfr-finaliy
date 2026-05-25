@@ -746,6 +746,12 @@
                                                         @if($part['is_compensatory'])
                                                             <span class="badge bg-info">جبرانی</span>
                                                         @endif
+                                                        @if(($part['is_early_finish'] ?? false) || ($part['extra_seconds'] ?? 0) > 0)
+                                                            <x-study-session-badges
+                                                                :is-early-finish="(bool)($part['is_early_finish'] ?? false)"
+                                                                :extra-seconds="(int)($part['extra_seconds'] ?? 0)"
+                                                                style="bootstrap" />
+                                                        @endif
                                                     </div>
                                                 </div>
                                                 <div>
