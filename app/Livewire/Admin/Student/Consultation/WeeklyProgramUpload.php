@@ -2300,7 +2300,7 @@ class WeeklyProgramUpload extends Component
         }
     }
 
-    // ==================== Weekly Readings ====================
+// ==================== Weekly Readings ====================
     public function previewWeeklyReadings(): void
     {
         if (!$this->weeklyProgramId) $this->saveProgram();
@@ -2322,6 +2322,19 @@ class WeeklyProgramUpload extends Component
         $lastReadingDurations = $this->getLastReadingDurations($student->id);
         $uniqueSubjects = [];
 
+        // ===== اضافه شده: تاریخ‌های امتحان کلاسی از پیش‌جلسه =====
+        $examDates = collect();
+        $preSessions = AdvisingPreSession::where('student_id', $this->studentId)
+            ->when($this->sessionId, fn($q) => $q->where('advising_session_id', $this->sessionId))
+            ->with('exams')->latest()->first();
+
+        if ($preSessions && $preSessions->exams->isNotEmpty()) {
+            $examDates = $preSessions->exams->map(
+                fn($e) => Carbon::parse($e->exam_date)->toDateString()
+            );
+        }
+        // ===========================================================
+
         for ($i = 0; $i < 8; $i++) {
             if ($weeklyProgram && ($weeklyProgram->isRestDay($i) || $weeklyProgram->isExamDay($i))) continue;
 
@@ -2329,6 +2342,10 @@ class WeeklyProgramUpload extends Component
             $jalaliDate  = jdate($date);
             $dayOfWeek   = $jalaliDate->getDayOfWeek();
             $tomorrowDow = ($dayOfWeek + 1) % 7;
+
+            // تاریخ فردا برای چک امتحان
+            $tomorrowDate = $startDate->copy()->addDays($i + 1)->toDateString();
+            $tomorrowHasExam = $examDates->contains($tomorrowDate);
 
             foreach ($schedule->parts->where('day_of_week', $dayOfWeek)->sortBy('part_order') as $classPart) {
                 $subjectId = $classPart->cc_subject_id;
@@ -2349,24 +2366,28 @@ class WeeklyProgramUpload extends Component
                 }
             }
 
-            foreach ($schedule->parts->where('day_of_week', $tomorrowDow)->sortBy('part_order') as $classPart) {
-                $subjectId = $classPart->cc_subject_id;
-                $key       = 'pre:' . $subjectId;
-                if (!isset($uniqueSubjects[$key])) {
-                    $uniqueSubjects[$key] = [
-                        'type'             => 'pre',
-                        'subject'          => $classPart->lesson_name,
-                        'cc_subject_id'    => $subjectId,
-                        'duration_minutes' => $lastReadingDurations['pre'][$subjectId] ?? 0,
-                        'day_indices'      => [],
-                        'day_names'        => [],
-                    ];
-                }
-                if (!in_array($i, $uniqueSubjects[$key]['day_indices'])) {
-                    $uniqueSubjects[$key]['day_indices'][] = $i;
-                    $uniqueSubjects[$key]['day_names'][]   = $jalaliDayNames[$dayOfWeek];
+            // ===== اگر فردا امتحان داره، پیش‌خوانی اضافه نکن =====
+            if (!$tomorrowHasExam) {
+                foreach ($schedule->parts->where('day_of_week', $tomorrowDow)->sortBy('part_order') as $classPart) {
+                    $subjectId = $classPart->cc_subject_id;
+                    $key       = 'pre:' . $subjectId;
+                    if (!isset($uniqueSubjects[$key])) {
+                        $uniqueSubjects[$key] = [
+                            'type'             => 'pre',
+                            'subject'          => $classPart->lesson_name,
+                            'cc_subject_id'    => $subjectId,
+                            'duration_minutes' => $lastReadingDurations['pre'][$subjectId] ?? 0,
+                            'day_indices'      => [],
+                            'day_names'        => [],
+                        ];
+                    }
+                    if (!in_array($i, $uniqueSubjects[$key]['day_indices'])) {
+                        $uniqueSubjects[$key]['day_indices'][] = $i;
+                        $uniqueSubjects[$key]['day_names'][]   = $jalaliDayNames[$dayOfWeek];
+                    }
                 }
             }
+            // =======================================================
         }
 
         $this->weeklyReadingsPreview = array_values($uniqueSubjects);
