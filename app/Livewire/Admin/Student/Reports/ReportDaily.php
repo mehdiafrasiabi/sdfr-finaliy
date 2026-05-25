@@ -610,6 +610,13 @@ class ReportDaily extends Component
                 'study_ended_at' => $studySession?->ended_at?->format('H:i') ?? null,
                 'is_early_finish' => (bool) ($studySession?->is_early_finish ?? false),
                 'extra_seconds' => (int) ($studySession?->extra_seconds ?? 0),
+                'extra_target_seconds' => (int) ($studySession?->extra_target_seconds ?? 0),
+                'extra_started_at' => $studySession?->extra_started_at?->format('H:i'),
+                'extra_ended_at' => $studySession?->extra_ended_at?->format('H:i'),
+                'is_cheating' => (bool) ($studySession?->is_cheating ?? false),
+                'cheat_minutes' => (int) ($studySession?->cheat_minutes ?? 0),
+                'cheat_status' => $studySession?->cheat_status,
+                'cheat_reason' => $studySession?->cheat_reason,
             ];
         }
         $avgRating = $totalParts > 0 ? round($ratingSum / $totalParts, 1) : 0;

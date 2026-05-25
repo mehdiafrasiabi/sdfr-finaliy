@@ -379,6 +379,50 @@ class Show extends Component
         }
     }
 
+    public string $cheatDecisionNote = '';
+
+    public function approveCheat(int $sessionId): void
+    {
+        $sps = StudyPartSession::where('id', $sessionId)
+            ->where('student_id', $this->studentId)
+            ->first();
+        if (!$sps || $sps->cheat_status !== StudyPartSession::CHEAT_STATUS_PENDING) {
+            session()->flash('error', 'این سشن قابل تایید نیست.');
+            return;
+        }
+        $sps->update([
+            'cheat_status'        => StudyPartSession::CHEAT_STATUS_APPROVED,
+            'cheat_decided_by'    => auth()->id(),
+            'cheat_decided_at'    => now(),
+            'cheat_decision_note' => $this->cheatDecisionNote ?: null,
+        ]);
+        $this->cheatDecisionNote = '';
+        $this->loadStudySessions();
+        $this->closeDetailModal();
+        session()->flash('success', 'گزارش تقلب تایید شد. این پارت برای دانش‌آموز معتبر است.');
+    }
+
+    public function rejectCheat(int $sessionId): void
+    {
+        $sps = StudyPartSession::where('id', $sessionId)
+            ->where('student_id', $this->studentId)
+            ->first();
+        if (!$sps || $sps->cheat_status !== StudyPartSession::CHEAT_STATUS_PENDING) {
+            session()->flash('error', 'این سشن قابل رد نیست.');
+            return;
+        }
+        $sps->update([
+            'cheat_status'        => StudyPartSession::CHEAT_STATUS_REJECTED,
+            'cheat_decided_by'    => auth()->id(),
+            'cheat_decided_at'    => now(),
+            'cheat_decision_note' => $this->cheatDecisionNote ?: null,
+        ]);
+        $this->cheatDecisionNote = '';
+        $this->loadStudySessions();
+        $this->closeDetailModal();
+        session()->flash('success', 'گزارش تقلب رد شد. این پارت قابل ثبت مجدد توسط دانش‌آموز نخواهد بود.');
+    }
+
     public function resetFilters()
     {
         $this->search = '';

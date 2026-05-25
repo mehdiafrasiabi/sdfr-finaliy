@@ -18,6 +18,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'admin.permission' => \App\Http\Middleware\CheckAdminPermission::class,
             'client.active' => \App\Http\Middleware\EnsureClientHasActiveAccess::class,
             'trial.step'    => \App\Http\Middleware\EnsureTrialStepUnlocked::class,
+            'block.during.study' => \App\Http\Middleware\BlockProfileDuringActiveStudy::class,
         ]);
 
         $middleware->redirectGuestsTo(function () {

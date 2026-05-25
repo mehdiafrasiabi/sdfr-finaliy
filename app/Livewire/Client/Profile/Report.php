@@ -51,6 +51,7 @@ class Report extends Component
     // Completed study parts (parts with logged study hours)
     public array $completedStudyParts = [];
     public array $completedStudyPartsMeta = [];
+    public array $rejectedCheatPartIds = [];
     public array $alreadyCompensatedPartIds = [];
     // Makeup (extra-organization) sessions for current report day
     public array $currentDayMakeupSessions = [];
@@ -141,13 +142,32 @@ class Report extends Component
         $rows = StudyPartSession::where('student_id', $student->id)
             ->where('weekly_program_id', $this->currentProgram->id)
             ->where('is_completed', true)
-            ->get(['program_part_id', 'is_early_finish', 'extra_seconds']);
+            ->get(['program_part_id', 'is_early_finish', 'extra_seconds', 'extra_target_seconds', 'is_cheating', 'cheat_status', 'cheat_minutes']);
 
         $this->completedStudyParts = $rows->pluck('program_part_id')->unique()->values()->toArray();
-        $this->completedStudyPartsMeta = $rows->groupBy('program_part_id')->map(fn($g) => [
-            'is_early_finish' => $g->contains(fn($r) => (bool)$r->is_early_finish),
-            'extra_seconds'   => (int) $g->max('extra_seconds'),
-        ])->toArray();
+        $this->completedStudyPartsMeta = $rows->groupBy('program_part_id')->map(function ($g) {
+            $latestCheating = $g->where('is_cheating', true)->sortByDesc('id')->first();
+            return [
+                'is_early_finish'      => $g->contains(fn($r) => (bool)$r->is_early_finish),
+                'extra_seconds'        => (int) $g->max('extra_seconds'),
+                'extra_target_seconds' => (int) $g->max('extra_target_seconds'),
+                'is_cheating'          => $latestCheating !== null,
+                'cheat_status'         => $latestCheating?->cheat_status,
+                'cheat_minutes'        => (int) ($latestCheating?->cheat_minutes ?? 0),
+            ];
+        })->toArray();
+
+        // پارت‌هایی که مشاور تقلب آن‌ها را رد کرده — انتخاب اجباری و قفل
+        $this->rejectedCheatPartIds = StudyPartSession::where('student_id', $student->id)
+            ->where('weekly_program_id', $this->currentProgram->id)
+            ->where('cheat_status', StudyPartSession::CHEAT_STATUS_REJECTED)
+            ->pluck('program_part_id')->unique()->values()->toArray();
+
+        foreach ($this->rejectedCheatPartIds as $pid) {
+            if (!in_array($pid, $this->selectedParts)) {
+                $this->selectedParts[] = $pid;
+            }
+        }
     }
 
     protected function loadWeekDays()
@@ -368,6 +388,11 @@ class Report extends Component
     }
     public function togglePart(int $partId)
     {
+        if (in_array($partId, $this->rejectedCheatPartIds)) {
+            $this->dispatch('warning', 'این پارت به دلیل رد شدن گزارش تقلب توسط مشاور قابل تغییر نیست.');
+            return;
+        }
+
         if (in_array($partId, $this->selectedParts)) {
             // Parts with logged study hours cannot be deselected
             if (in_array($partId, $this->completedStudyParts)) {

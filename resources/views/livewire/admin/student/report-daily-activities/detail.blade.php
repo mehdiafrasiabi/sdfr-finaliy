@@ -746,13 +746,28 @@
                                                         @if($part['is_compensatory'])
                                                             <span class="badge bg-info">جبرانی</span>
                                                         @endif
-                                                        @if(($part['is_early_finish'] ?? false) || ($part['extra_seconds'] ?? 0) > 0)
+                                                        @if(($part['is_early_finish'] ?? false) || ($part['extra_seconds'] ?? 0) > 0 || ($part['is_cheating'] ?? false))
                                                             <x-study-session-badges
                                                                 :is-early-finish="(bool)($part['is_early_finish'] ?? false)"
                                                                 :extra-seconds="(int)($part['extra_seconds'] ?? 0)"
+                                                                :extra-target-seconds="(int)($part['extra_target_seconds'] ?? 0)"
+                                                                :is-cheating="(bool)($part['is_cheating'] ?? false)"
+                                                                :cheat-status="$part['cheat_status'] ?? null"
+                                                                :cheat-minutes="(int)($part['cheat_minutes'] ?? 0)"
                                                                 style="bootstrap" />
                                                         @endif
                                                     </div>
+                                                    @if(!empty($part['cheat_reason']))
+                                                        <div class="small text-muted mt-1" style="font-size:11px;">
+                                                            <strong>علت تقلب:</strong> {{ $part['cheat_reason'] }}
+                                                        </div>
+                                                    @endif
+                                                    @if(($part['extra_started_at'] ?? null) && ($part['extra_ended_at'] ?? null))
+                                                        <div class="small text-muted mt-1" style="font-size:11px;">
+                                                            <strong>اضافه بر مشاور:</strong> {{ $part['extra_started_at'] }} — {{ $part['extra_ended_at'] }}
+                                                            (هدف: {{ (int) round(($part['extra_target_seconds'] ?? 0) / 60) }}د)
+                                                        </div>
+                                                    @endif
                                                 </div>
                                                 <div>
                                                     @if($part['is_read'])

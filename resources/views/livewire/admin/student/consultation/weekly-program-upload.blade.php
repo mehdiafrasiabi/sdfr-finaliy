@@ -849,12 +849,16 @@
                                                             </div>
                                                         @endif
 
-                                                        {{-- بدج‌های زودتر/اضافه بر مشاور --}}
-                                                        @if(($p['is_early_finish'] ?? false) || ($p['has_extra_time'] ?? false))
-                                                            <div class="mt-1 d-flex flex-wrap gap-1">
+                                                        {{-- بدج‌های زودتر/اضافه بر مشاور/تقلب --}}
+                                                        @if(($p['is_early_finish'] ?? false) || ($p['has_extra_time'] ?? false) || ($p['is_cheat'] ?? false))
+                                                            <div class="mt-1 d-flex flex-wrap gap-1" @if(!empty($p['cheat_reason'])) title="علت تقلب: {{ $p['cheat_reason'] }}" @endif>
                                                                 <x-study-session-badges
                                                                     :is-early-finish="(bool)($p['is_early_finish'] ?? false)"
                                                                     :extra-seconds="(int)($p['extra_seconds'] ?? 0)"
+                                                                    :extra-target-seconds="(int)($p['extra_target_seconds'] ?? 0)"
+                                                                    :is-cheating="(bool)($p['is_cheat'] ?? false)"
+                                                                    :cheat-status="$p['cheat_status'] ?? null"
+                                                                    :cheat-minutes="(int)($p['cheat_minutes'] ?? 0)"
                                                                     style="bootstrap" />
                                                                 @if(($p['has_extra_time'] ?? false) && ($p['extra_target_min'] ?? 0) > 0 && ($p['extra_target_min'] ?? 0) !== ($p['extra_minutes'] ?? 0))
                                                                     <span class="small text-muted" style="font-size:10px;">
@@ -1857,12 +1861,26 @@
                                                                 @if(!empty($item['grade_label']))
                                                                     <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">{{ $item['grade_label'] }}</span>
                                                                 @endif
-                                                                @if(($item['is_early_finish'] ?? false) || ($item['extra_seconds'] ?? 0) > 0)
+                                                                @if(($item['is_early_finish'] ?? false) || ($item['extra_seconds'] ?? 0) > 0 || ($item['is_cheating'] ?? false))
                                                                     <div class="mt-1">
                                                                         <x-study-session-badges
                                                                             :is-early-finish="(bool)($item['is_early_finish'] ?? false)"
                                                                             :extra-seconds="(int)($item['extra_seconds'] ?? 0)"
+                                                                            :extra-target-seconds="(int)($item['extra_target_seconds'] ?? 0)"
+                                                                            :is-cheating="(bool)($item['is_cheating'] ?? false)"
+                                                                            :cheat-status="$item['cheat_status'] ?? null"
+                                                                            :cheat-minutes="(int)($item['cheat_minutes'] ?? 0)"
                                                                             style="bootstrap" />
+                                                                    </div>
+                                                                @endif
+                                                                @if(!empty($item['cheat_reason']))
+                                                                    <div class="small text-muted mt-1" style="font-size:10px;" title="{{ $item['cheat_reason'] }}">
+                                                                        علت: {{ Str::limit($item['cheat_reason'], 40) }}
+                                                                    </div>
+                                                                @endif
+                                                                @if(($item['extra_started_at'] ?? null) && ($item['extra_ended_at'] ?? null))
+                                                                    <div class="small text-muted mt-1" style="font-size:10px;">
+                                                                        اضافه: {{ $item['extra_started_at'] }} — {{ $item['extra_ended_at'] }}
                                                                     </div>
                                                                 @endif
                                                             </td>
@@ -1978,7 +1996,7 @@
                                                 <tr class="{{ $item['is_added'] ? 'table-success bg-success bg-opacity-10' : '' }}">
                                                     <td class="text-muted small">{{ $idx + 1 }}</td>
                                                     <td class="fw-semibold small">{{ $item['subject_name'] }}</td>
-                                                    <td class="small text-muted">{{ $item['kind'] === 'chapter' ? $item['item_name'] : '— کل درس عمومی —' }}</td>
+                                                    <td class="small text-muted">{{ $item['kind'] === 'chapter' ? $item['item_name'] : 'کل درس عمومی' }}</td>
                                                     <td class="text-center">
                                                             <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">
                                                                 @if($item['grade'] == 12)

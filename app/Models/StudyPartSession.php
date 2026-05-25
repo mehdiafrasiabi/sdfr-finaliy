@@ -11,6 +11,11 @@ class StudyPartSession extends Model
 {
     use HasFactory;
 
+    const CHEAT_STATUS_PENDING  = 'pending';
+    const CHEAT_STATUS_APPROVED = 'approved';
+    const CHEAT_STATUS_REJECTED = 'rejected';
+    const CHEAT_GRACE_SECONDS   = 1800;
+
     protected $guarded = [];
     protected $casts = [
         'started_at' => 'datetime',
@@ -22,7 +27,37 @@ class StudyPartSession extends Model
         'extra_target_seconds' => 'integer',
         'extra_started_at' => 'datetime',
         'extra_ended_at' => 'datetime',
+        'is_cheating' => 'boolean',
+        'cheat_minutes' => 'integer',
+        'cheat_decided_at' => 'datetime',
     ];
+
+    public function getIsExtraEarlyFinishAttribute(): bool
+    {
+        return (int)($this->extra_seconds ?? 0) > 0
+            && (int)($this->extra_target_seconds ?? 0) > 0
+            && (int)$this->extra_seconds < (int)$this->extra_target_seconds;
+    }
+
+    public function getCheatStatusLabelAttribute(): string
+    {
+        return match ($this->cheat_status) {
+            self::CHEAT_STATUS_PENDING  => 'در انتظار تایید',
+            self::CHEAT_STATUS_APPROVED => 'تایید شده',
+            self::CHEAT_STATUS_REJECTED => 'رد شده',
+            default => '—',
+        };
+    }
+
+    public function getCheatStatusColorAttribute(): string
+    {
+        return match ($this->cheat_status) {
+            self::CHEAT_STATUS_PENDING  => 'warning',
+            self::CHEAT_STATUS_APPROVED => 'info',
+            self::CHEAT_STATUS_REJECTED => 'danger',
+            default => 'secondary',
+        };
+    }
 
     public function getHasExtraTimeAttribute(): bool
     {
@@ -64,6 +99,11 @@ class StudyPartSession extends Model
     public function feedback(): HasOne
     {
         return $this->hasOne(SessionFeedback::class, 'sps_id');
+    }
+
+    public function cheatDecider(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'cheat_decided_by');
     }
 
 }

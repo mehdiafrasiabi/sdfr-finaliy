@@ -337,21 +337,15 @@ class WeeklyProgramUpload extends Component
                 $extraSeconds     = (int) $sessions->sum('extra_seconds');
                 $extraTargetSecs  = (int) $sessions->sum('extra_target_seconds');
 
-                // Cheating detection: if session ended more than 10 min after expected end
-                $cheatMinutes = null;
-                $isCheat = false;
+                // اطلاعات تقلب (از DB، نه on-the-fly)
+                $latestCheating  = $sessions->where('is_cheating', true)->sortByDesc('id')->first();
+                $cheatStatus     = $latestCheating?->cheat_status;
+                $cheatReason     = $latestCheating?->cheat_reason;
+
+                // تشخیص تقلب — اکنون از DB column خوانده می‌شود (نه on-the-fly)
+                $isCheat      = $latestCheating !== null;
+                $cheatMinutes = $isCheat ? (int) $latestCheating->cheat_minutes : null;
                 $partDuration = (int) ($part->duration_minutes ?? 0);
-                foreach ($sessions as $session) {
-                    if ($session->started_at && ($session->ended_at || $session->completed_at)) {
-                        $endTime = $session->ended_at ?? $session->completed_at;
-                        $expectedEnd = $session->started_at->copy()->addMinutes($partDuration);
-                        $delay = (int) $expectedEnd->diffInMinutes($endTime, false);
-                        if ($delay > 10) {
-                            $isCheat = true;
-                            $cheatMinutes = max($cheatMinutes ?? 0, $delay);
-                        }
-                    }
-                }
 
                 $partsData[] = [
                     'id'                 => $part->id,
@@ -379,8 +373,11 @@ class WeeklyProgramUpload extends Component
                     'is_early_finish'    => $earlyFinishCount > 0,
                     'has_extra_time'     => $extraSeconds > 0,
                     'extra_seconds'      => $extraSeconds,
+                    'extra_target_seconds' => $extraTargetSecs,
                     'extra_minutes'      => (int) round($extraSeconds / 60),
                     'extra_target_min'   => (int) round($extraTargetSecs / 60),
+                    'cheat_status'       => $cheatStatus,
+                    'cheat_reason'       => $cheatReason,
                 ];
 
                 $dayMinutes      += (int) ($part->duration_minutes ?? 0);
@@ -2300,7 +2297,7 @@ class WeeklyProgramUpload extends Component
         }
     }
 
-// ==================== Weekly Readings ====================
+    // ==================== Weekly Readings ====================
     public function previewWeeklyReadings(): void
     {
         if (!$this->weeklyProgramId) $this->saveProgram();
@@ -3141,10 +3138,15 @@ class WeeklyProgramUpload extends Component
                     'is_registered'         => true,
                     'is_early_finish'       => (bool) $session->is_early_finish,
                     'extra_seconds'         => (int) ($session->extra_seconds ?? 0),
+                    'extra_target_seconds'  => (int) ($session->extra_target_seconds ?? 0),
                     'extra_minutes'         => (int) round(((int)($session->extra_seconds ?? 0)) / 60),
                     'extra_target_minutes'  => (int) round(((int)($session->extra_target_seconds ?? 0)) / 60),
                     'extra_started_at'      => $session->extra_started_at?->format('H:i'),
                     'extra_ended_at'        => $session->extra_ended_at?->format('H:i'),
+                    'is_cheating'           => (bool) $session->is_cheating,
+                    'cheat_minutes'         => (int) ($session->cheat_minutes ?? 0),
+                    'cheat_status'          => $session->cheat_status,
+                    'cheat_reason'          => $session->cheat_reason,
                 ];
             })->toArray();
 

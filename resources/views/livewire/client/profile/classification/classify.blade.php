@@ -110,7 +110,6 @@
                                                 {{ $ci < count($subject['chapters']) - 1 ? 'border-b border-border' : '' }}"
                                          :class="ratings['{{ $key }}'] ? 'bg-green-500/5' : 'hover:bg-secondary/60'">
                                         <span class="text-sm text-foreground flex-1 leading-snug">
-                                            <span class="text-xs text-muted ml-1">فصل {{ $ci + 1 }}</span>
                                             {{ $chapter['name'] }}
                                         </span>
 
