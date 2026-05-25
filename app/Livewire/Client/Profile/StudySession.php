@@ -31,7 +31,7 @@ class StudySession extends Component
     public $showProgram = false;
     public $weeklyProgram = null;
     public $programParts = [];
-
+    public string $selectedAlarm = 'Alarmclock'; // نام فایل بدون پسوند
     // تایمر فعال برای پارت‌های عادی
     public $currentPartId = null;
     public $isRunning = false;
@@ -63,6 +63,7 @@ class StudySession extends Component
     public bool $showStudyMoreModal = false;
     public int  $studyMoreHours = 0;
     public int  $studyMoreMinutes = 30;
+    public bool $showAlarmModal = false;
 
     // وضعیت فاز اضافی (اضافه بر مشاور)
     public ?int $pendingExtraTargetSeconds = null;
@@ -122,6 +123,7 @@ class StudySession extends Component
         $this->loadStudentGradeField();
         $this->loadLatestProgram();
         $this->restoreTimerState();
+        $this->selectedAlarm = session('selected_alarm', 'Alarmclock');
         $this->syncTimers();
         $this->checkPendingFeedback();
         $this->seoConfig();
@@ -298,6 +300,7 @@ class StudySession extends Component
                 'extraEndsAtTs' => $this->extraEndsAtTs,
                 'extraTargetSeconds' => $this->extraTargetSeconds,
                 'extraSpsId' => $this->extraSpsId,
+                'selectedAlarm' => $this->selectedAlarm,
             ]]);
         }
 
@@ -311,8 +314,10 @@ class StudySession extends Component
                 'endsAtTs' => $this->makeupEndsAtTs,
                 'isRunning' => $this->makeupTimerRunning,
                 'pausedAtTs' => $this->makeupPausedAtTs,
+                'selectedAlarm' => $this->selectedAlarm,
             ]]);
         }
+
     }
 
     public function toggleProgram()
@@ -454,7 +459,12 @@ class StudySession extends Component
             && $this->remainingSeconds > 0
             && $this->liveSeconds >= (int) floor($this->targetSeconds * self::EARLY_FINISH_THRESHOLD);
     }
-
+    public function setAlarm(string $alarmName): void
+    {
+        $this->selectedAlarm = $alarmName;
+        session(['selected_alarm' => $alarmName]);
+        $this->dispatch('alarm-selected', alarm: $alarmName);
+    }
     public function openEarlyFinishConfirm(): void
     {
         if (!$this->canShowEarlyOrMore) return;
@@ -602,7 +612,6 @@ class StudySession extends Component
                 $this->feedbackComment         = '';
                 $this->showFeedbackModal       = true;
             }
-
             $this->resetTimer();
             $this->showFinishModal = false;
             $this->dispatch('success', '✅ پارت و مطالعه اضافه بر مشاور ثبت شد!');
@@ -709,6 +718,8 @@ class StudySession extends Component
 
     public function hasPendingFeedback(): bool
     {
+        if ($this->showFeedbackModal) return false;  // ← این خط اضافه کن
+
         if (!auth()->user()->student) return false;
 
         $studentId = auth()->user()->student->id;
@@ -765,6 +776,7 @@ class StudySession extends Component
             $this->feedbackRating = 0;
             $this->feedbackComment = '';
             $this->showFeedbackModal = true;
+$this->dispatch('open-feedback-modal');
             return;
         }
 
@@ -781,6 +793,7 @@ class StudySession extends Component
             $this->feedbackRating = 0;
             $this->feedbackComment = '';
             $this->showFeedbackModal = true;
+$this->dispatch('open-feedback-modal');
         }
     }
 
@@ -966,6 +979,8 @@ class StudySession extends Component
         $this->feedbackRating = 0;
         $this->feedbackComment = '';
         $this->showFeedbackModal = true;
+$this->dispatch('open-feedback-modal');
+
 
         $this->dispatch('success', 'جلسه جبرانی ثبت شد! لطفاً بازخورد خود را ثبت کنید.');
     }
