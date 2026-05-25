@@ -41,8 +41,8 @@ class ClassScheduleUpload extends Component
             return redirect()->route('client.profile.consultation.sessions');
         }
 
-        // بررسی وجود مشاور
-        if (! $student->advisor_id) {
+        // بررسی وجود مشاور (دانش‌آموزان هفته آزمایشی هنوز مشاور ندارند و مجاز هستند)
+        if (! $student->advisor_id && ! $student->is_trial) {
             session()->flash('error', 'برای دسترسی به این بخش باید مشاور داشته باشید.');
             return redirect()->route('client.profile.consultation.sessions');
         }
