@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Admin\TrialWeek;
 
+use App\Models\ClassSchedule;
 use App\Models\TrialWeek;
 use App\Services\TrialWeekService;
 use Illuminate\Support\Facades\Auth;
@@ -36,6 +37,14 @@ class Index extends Component
 
         if ($trial->status !== TrialWeek::STATUS_CLASSIFICATION_DONE) {
             session()->flash('error', 'وضعیت نادرست است.');
+            return;
+        }
+
+        $hasFinalizedSchedule = ClassSchedule::where('student_id', $trial->student_id)
+            ->where('is_finalized', true)
+            ->exists();
+        if (!$hasFinalizedSchedule) {
+            session()->flash('error', 'دانش‌آموز هنوز برنامه کلاسی خود را نهایی نکرده است.');
             return;
         }
 

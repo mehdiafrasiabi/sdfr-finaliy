@@ -439,23 +439,69 @@
                                         <span class="text-[10px] font-bold text-primary bg-primary/10 rounded-full px-2 py-0.5">اکنون</span>
                                     @endif
                                 </div>
-                                <h3 class="font-black text-foreground">پر کردن پیش‌جلسه</h3>
+                                <h3 class="font-black text-foreground">پر کردن پیش‌جلسه و برنامه درسی</h3>
                             </div>
-
-                            @if($s3active && $trialWeek->advisingSession)
-                                <a wire:navigate
-                                   href="{{ route('client.profile.consultation.pre-session', $trialWeek->advising_session_id) }}"
-                                   class="press btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold">
-                                    رفتن به پیش‌جلسه
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                                    </svg>
-                                </a>
-                            @endif
                         </div>
                         <p class="text-sm text-muted leading-7 mt-2">
-                            پیش‌جلسه شامل اطلاعاتی درباره‌ی وضعیت مطالعاتی توست که به پشتیبان کمک می‌کند برنامه‌ی بهتری بسازد.
+                            هم پیش‌جلسه و هم برنامه‌ی درسی مدرسه‌ات باید نهایی شوند تا مرحله‌ی ساخت برنامه فعال شود.
                         </p>
+
+                        @if($s3active || $s3done)
+                            <div class="mt-4 grid sm:grid-cols-2 gap-3">
+                                {{-- پیش‌جلسه --}}
+                                <div class="rounded-xl border border-border bg-background p-3 flex flex-col gap-2">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-xs font-bold text-foreground">پیش‌جلسه</span>
+                                        @if($this->preSessionCompleted)
+                                            <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 rounded-full px-2 py-0.5 inline-flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                                                نهایی شد
+                                            </span>
+                                        @else
+                                            <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded-full px-2 py-0.5">در انتظار</span>
+                                        @endif
+                                    </div>
+                                    @if($s3active && $trialWeek->advisingSession && !$this->preSessionCompleted)
+                                        <a wire:navigate
+                                           href="{{ route('client.profile.consultation.pre-session', $trialWeek->advising_session_id) }}"
+                                           class="press btn-primary inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold w-full">
+                                            رفتن به پیش‌جلسه
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                            </svg>
+                                        </a>
+                                    @endif
+                                </div>
+
+                                {{-- برنامه درسی --}}
+                                <div class="rounded-xl border border-border bg-background p-3 flex flex-col gap-2">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-xs font-bold text-foreground">برنامه درسی مدرسه</span>
+                                        @if($this->classScheduleFinalized)
+                                            <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 rounded-full px-2 py-0.5 inline-flex items-center gap-1">
+                                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                                                نهایی شد
+                                            </span>
+                                        @else
+                                            <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded-full px-2 py-0.5">در انتظار</span>
+                                        @endif
+                                    </div>
+                                    @if($s3active && !$this->classScheduleFinalized)
+                                        <a wire:navigate
+                                           href="{{ route('client.profile.consultation.class-schedule') }}"
+                                           class="press btn-primary inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold w-full">
+                                            پر کردن برنامه درسی
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                                                <line x1="16" y1="2" x2="16" y2="6"/>
+                                                <line x1="8" y1="2" x2="8" y2="6"/>
+                                                <line x1="3" y1="10" x2="21" y2="10"/>
+                                            </svg>
+                                        </a>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
