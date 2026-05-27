@@ -36,6 +36,7 @@ class EnsureTrialStepUnlocked
             'client.profile.trial.guide',
             'client.profile.consultation.sessions',
             'client.profile.consultation.pre-session',
+            'client.profile.consultation.class-schedule',
         ],
         TrialWeek::STATUS_PRE_SESSION_DONE => [
             'client.profile.trial.guide',

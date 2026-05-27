@@ -3,6 +3,7 @@
 namespace App\Livewire\Client\Profile\TrialWeek;
 
 use App\Models\ClassificationProject;
+use App\Models\ClassSchedule;
 use App\Models\StudentClassification;
 use App\Models\StudentClassificationSubmission;
 use App\Models\TrialWeek;
@@ -45,6 +46,21 @@ class Guide extends Component
         return StudentClassificationSubmission::where('user_id', Auth::id())
             ->where('classification_project_id', $project->id)
             ->exists();
+    }
+
+    public function getClassScheduleFinalizedProperty(): bool
+    {
+        if (!$this->trialWeek) {
+            return false;
+        }
+        return ClassSchedule::where('student_id', $this->trialWeek->student_id)
+            ->where('is_finalized', true)
+            ->exists();
+    }
+
+    public function getPreSessionCompletedProperty(): bool
+    {
+        return $this->trialWeek?->advisingSession?->preSession?->status === 'completed';
     }
 
     public function getActiveProjectProperty(): ?ClassificationProject
