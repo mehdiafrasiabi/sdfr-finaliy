@@ -45,7 +45,15 @@ class StudentsAssessmentsDashboard extends Component
             ->get()
             ->groupBy('user_id');
 
-        $rows = collect($users->items())->map(function ($u) use ($counts, $totalRequired) {
+        // شمارش پاسخ والدین به ازای هر دانش‌آموز
+        $parentCounts = \App\Models\ParentAssessmentInvitation::query()
+            ->selectRaw('user_id, COUNT(CASE WHEN completed_at IS NOT NULL THEN 1 END) as completed, COUNT(*) as total')
+            ->whereIn('user_id', $userIds)
+            ->groupBy('user_id')
+            ->get()
+            ->keyBy('user_id');
+
+        $rows = collect($users->items())->map(function ($u) use ($counts, $totalRequired, $parentCounts) {
             $userCounts = $counts->get($u->id, collect());
             $completed = (int) ($userCounts->firstWhere('status', StudentAssessmentAttempt::STATUS_COMPLETED)?->cnt ?? 0);
             $inProgress = (int) ($userCounts->firstWhere('status', StudentAssessmentAttempt::STATUS_IN_PROGRESS)?->cnt ?? 0);
@@ -56,12 +64,16 @@ class StudentsAssessmentsDashboard extends Component
                 default                                            => 'not_started',
             };
 
+            $parentRow = $parentCounts->get($u->id);
+
             return (object) [
-                'user'       => $u,
-                'completed'  => $completed,
-                'inProgress' => $inProgress,
-                'total'      => $totalRequired,
-                'status'     => $status,
+                'user'             => $u,
+                'completed'        => $completed,
+                'inProgress'       => $inProgress,
+                'total'            => $totalRequired,
+                'status'           => $status,
+                'parentCompleted'  => (int) ($parentRow->completed ?? 0),
+                'parentTotal'      => (int) ($parentRow->total ?? 0),
             ];
         });
 

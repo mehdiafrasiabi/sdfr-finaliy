@@ -32,6 +32,9 @@ use App\Livewire\Client\Profile\StudySession;
 use App\Livewire\Client\Profile\Ticket\Create as ProfileTicketCreate;
 use App\Livewire\Client\Profile\Ticket\Index as ProfileTicketIndex;
 use App\Livewire\Client\Profile\Ticket\Show as ProfileTicketShow;
+use App\Livewire\Client\ParentAssessment\ParentAssessmentEntry;
+use App\Livewire\Client\ParentAssessment\ParentAssessmentList as ParentAssessmentListPage;
+use App\Livewire\Client\ParentAssessment\ParentAssessmentTake as ParentAssessmentTakePage;
 use App\Livewire\Client\Profile\Assessment\AssessmentList;
 use App\Livewire\Client\Profile\Assessment\AssessmentTake;
 use App\Livewire\Client\Profile\TypedExam\TypedExamList;
@@ -82,6 +85,13 @@ Route::name('client.')->group(function () {
     Route::middleware('auth')->prefix('profile/assessments')->name('profile.assessment.')->group(function () {
         Route::get('/', AssessmentList::class)->name('list');
         Route::get('/{slug}/take', AssessmentTake::class)->name('take');
+    });
+
+    // مسیر عمومی تست‌های والدینی — بدون auth، با token validation داخل خود components
+    Route::prefix('parent/assessment')->name('parent.assessment.')->group(function () {
+        Route::get('/{token}', ParentAssessmentEntry::class)->name('entry');
+        Route::get('/{token}/list', ParentAssessmentListPage::class)->name('list');
+        Route::get('/{token}/{slug}/take', ParentAssessmentTakePage::class)->name('take');
     });
 
     // B-2: صفحهٔ پرداخت اختصاصی (auth)

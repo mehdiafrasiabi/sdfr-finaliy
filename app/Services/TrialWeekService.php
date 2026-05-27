@@ -39,8 +39,13 @@ class TrialWeekService
     }
 
     // تخصیص «پشتیبان جذب» توسط مدیر آموزشی + ایجاد جلسهٔ آزمایشی
+    // گِیت فاز ۲: حداقل یک والد باید تست‌های والدینی را تکمیل کرده باشد.
     public function assignSupporter(TrialWeek $trialWeek, Admin $supporter): void
     {
+        if (! $trialWeek->hasAnyParentCompleted()) {
+            throw new \LogicException('برای تخصیص پشتیبان، حداقل یک والد باید تست‌های والدینی را تکمیل کرده باشد.');
+        }
+
         DB::transaction(function () use ($trialWeek, $supporter) {
             $session = AdvisingSession::create([
                 'student_id'      => $trialWeek->student_id,

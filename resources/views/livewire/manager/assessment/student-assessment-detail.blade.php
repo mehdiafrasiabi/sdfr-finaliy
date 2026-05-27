@@ -16,14 +16,40 @@
                     <span>رشته: {{ $user->trialWeek->field_label }}</span>
                 @endif
             @endif
+            <span>تست‌های والدین:
+                @php $parentDone = $invitations->filter(fn ($i) => $i->isCompleted())->count(); @endphp
+                {{ $parentDone }} / {{ $invitations->count() }}
+            </span>
         </div>
     </div>
 
-    <div class="space-y-4">
-        @foreach ($assessments as $assessment)
-            @php $attempt = $attempts->get($assessment->id); @endphp
+    {{-- بنرهای flag سراسری --}}
+    @foreach ($globalFlagBanners as $flag => $banner)
+        @php
+            $bg = $banner['severity'] === 'critical' ? 'bg-error/10 border-error text-error'
+                : ($banner['severity'] === 'warning' ? 'bg-warning/10 border-warning text-warning-content' : 'bg-info/10 border-info text-info');
+        @endphp
+        <div class="border-r-4 {{ $bg }} rounded-lg p-4 mb-3">
+            <div class="font-bold">{{ $banner['title'] }}</div>
+            <div class="text-sm mt-1 text-base-content/80">{{ $banner['text'] }}</div>
+        </div>
+    @endforeach
 
-            <details class="bg-base-100 border border-base-300 rounded-xl group" open>
+    {{-- بخش تست‌های دانش‌آموز --}}
+    <h2 class="text-lg font-bold mt-6 mb-3">آزمون‌های دانش‌آموز</h2>
+    <div class="space-y-4">
+        @foreach ($studentAssessments as $assessment)
+            @php
+                $attempt = $studentAttempts->get($assessment->id);
+                $interpretation = $interpretations[$assessment->id] ?? [];
+                $parentParallelSlug = collect($parallelMap)->search($assessment->slug);
+                $parentParallelAssessment = $parentParallelSlug ? $parentAssessments->firstWhere('slug', $parentParallelSlug) : null;
+                $parentParallelAttempts = $parentParallelAssessment
+                    ? ($parentAttemptsByAssessment[$parentParallelAssessment->id] ?? [])
+                    : [];
+            @endphp
+
+            <details class="bg-base-100 border border-base-300 rounded-xl" open>
                 <summary class="cursor-pointer p-4 flex items-center justify-between">
                     <div>
                         <h3 class="font-bold">{{ $assessment->name_fa }}</h3>
@@ -31,7 +57,7 @@
                     </div>
                     <div class="flex items-center gap-3">
                         @if ($attempt && $attempt->status === \App\Models\StudentAssessmentAttempt::STATUS_COMPLETED)
-                            <span class="badge badge-success">تکمیل شده</span>
+                            <span class="badge badge-success">تکمیل‌شده</span>
                         @elseif ($attempt)
                             <span class="badge badge-warning">{{ $attempt->answered_count }} / {{ $assessment->questions->count() }}</span>
                         @else
@@ -40,39 +66,210 @@
                     </div>
                 </summary>
 
-                <div class="p-4 border-t border-base-300">
-                    @if (! $attempt)
-                        <p class="text-sm text-base-content/60">هنوز شروع نشده است.</p>
-                    @else
-                        @php $answersByQ = $attempt->answers->keyBy('question_id'); @endphp
-                        <div class="space-y-3">
-                            @foreach ($assessment->questions as $q)
-                                @php $answer = $answersByQ->get($q->id); @endphp
-                                <div class="bg-base-200 rounded-lg p-3">
-                                    <p class="text-sm font-medium mb-2">{{ $loop->iteration }}. {{ $q->question_text_fa }}</p>
-                                    @if (! $answer)
-                                        <p class="text-xs text-error">— بدون پاسخ —</p>
-                                    @elseif ($q->isMultiSelect())
-                                        @php
-                                            $selectedIds = $answer->selected_options ?? [];
-                                            $selectedLabels = $q->options->whereIn('id', $selectedIds)->pluck('label_fa')->all();
-                                        @endphp
-                                        <ul class="text-sm text-base-content/80 list-disc pr-5">
-                                            @foreach ($selectedLabels as $l)
-                                                <li>{{ $l }}</li>
-                                            @endforeach
-                                        </ul>
-                                    @else
-                                        <p class="text-sm text-primary font-medium">
-                                            {{ $answer->option?->label_fa ?? ($answer->free_value ?? '—') }}
-                                        </p>
-                                    @endif
-                                </div>
-                            @endforeach
+                <div class="p-4 border-t border-base-300 space-y-4">
+                    {{-- کارت پروفایل تفسیر‌شده --}}
+                    @if (! empty($interpretation['mbti']) && ! empty($interpretation['mbti']['type']))
+                        @php $m = $interpretation['mbti']; @endphp
+                        <div class="bg-primary/5 border border-primary/30 rounded-xl p-4">
+                            <div class="flex items-baseline gap-3 mb-2">
+                                <span class="text-2xl font-bold text-primary">{{ $m['type'] }}</span>
+                                <span class="font-medium">{{ $m['title'] }}</span>
+                            </div>
+                            <p class="text-sm text-base-content/80 mb-2">{{ $m['description'] }}</p>
+                            <p class="text-sm bg-base-100 rounded-lg p-2 leading-7"><strong>توصیه‌ی مطالعه:</strong> {{ $m['study_tip'] }}</p>
+                            <div class="grid grid-cols-4 gap-2 mt-3 text-xs">
+                                @foreach (['EI', 'SN', 'TF', 'JP'] as $pair)
+                                    @php [$a, $b] = str_split($pair); @endphp
+                                    <div class="bg-base-100 rounded p-2">
+                                        <div class="flex justify-between">
+                                            <span>{{ $a }}: {{ $m['axes'][$a] ?? 0 }}</span>
+                                            <span>{{ $b }}: {{ $m['axes'][$b] ?? 0 }}</span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
+                    @endif
+
+                    @if (! empty($interpretation['vark']) && ! empty($interpretation['vark']['profile']))
+                        @php $v = $interpretation['vark']; @endphp
+                        <div class="bg-primary/5 border border-primary/30 rounded-xl p-4">
+                            <div class="flex items-baseline gap-3 mb-3">
+                                <span class="text-2xl font-bold text-primary">{{ $v['profile'] }}</span>
+                                <span class="text-sm text-base-content/70">{{ $v['is_multimodal'] ? '(چندوجهی)' : '' }}</span>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                @foreach ($v['modalities'] as $mod)
+                                    <div class="bg-base-100 rounded-lg p-3 {{ $mod['dominant'] ? 'border-2 border-primary' : 'border border-base-300' }}">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-bold">{{ $mod['title'] }}</span>
+                                            <span class="text-sm text-primary">{{ $mod['percent'] }}%</span>
+                                        </div>
+                                        <div class="w-full bg-base-300 rounded-full h-1.5 mb-2 overflow-hidden">
+                                            <div class="bg-primary h-1.5" style="width: {{ $mod['percent'] }}%"></div>
+                                        </div>
+                                        <p class="text-xs leading-6 text-base-content/80">{{ $mod['tip'] }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
+
+                    @if (! empty($interpretation['custom']) && ! empty($interpretation['custom']['facets']))
+                        @php $c = $interpretation['custom']; @endphp
+                        <div class="bg-primary/5 border border-primary/30 rounded-xl p-4">
+                            <div class="flex items-baseline justify-between mb-3">
+                                <span class="font-bold">پروفایل تفسیر‌شده</span>
+                                <span class="text-sm text-base-content/70">امتیاز کلی: {{ $c['overall_percent'] }}% ({{ $c['overall_level'] }})</span>
+                            </div>
+                            <div class="space-y-2">
+                                @foreach ($c['facets'] as $facet => $f)
+                                    @php
+                                        $color = match($f['level']) {
+                                            'high' => 'bg-error',
+                                            'medium' => 'bg-warning',
+                                            default => 'bg-success',
+                                        };
+                                    @endphp
+                                    <div class="bg-base-100 rounded-lg p-3">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-medium text-sm">{{ $f['label'] }}</span>
+                                            <span class="text-xs">{{ $f['percent'] }}%</span>
+                                        </div>
+                                        <div class="w-full bg-base-300 rounded-full h-2 mb-2 overflow-hidden">
+                                            <div class="{{ $color }} h-2" style="width: {{ $f['percent'] }}%"></div>
+                                        </div>
+                                        <p class="text-xs leading-6 text-base-content/80">{{ $f['text'] }}</p>
+                                    </div>
+                                @endforeach
+                            </div>
+                            @if (! empty($c['flags']))
+                                <div class="mt-3 space-y-2">
+                                    @foreach ($c['flags'] as $flag => $info)
+                                        @php $bg = $info['severity'] === 'critical' ? 'bg-error/10 border-error' : 'bg-warning/10 border-warning'; @endphp
+                                        <div class="border-r-4 {{ $bg }} rounded p-2">
+                                            <div class="font-bold text-sm">{{ $info['title'] }}</div>
+                                            <p class="text-xs">{{ $info['text'] }}</p>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
+                    {{-- پاسخ‌های خام --}}
+                    @if ($attempt)
+                        @php $answersByQ = $attempt->answers->keyBy('question_id'); @endphp
+                        <div>
+                            <h4 class="font-bold mb-2 text-sm">پاسخ‌های دانش‌آموز:</h4>
+                            @if ($parentParallelAssessment)
+                                {{-- ستون موازی والد --}}
+                                <table class="table table-sm w-full">
+                                    <thead>
+                                        <tr>
+                                            <th>سوال (دانش‌آموز)</th>
+                                            <th class="w-32">دانش‌آموز</th>
+                                            <th class="w-32">پاسخ والد</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($assessment->questions as $i => $q)
+                                            @php
+                                                $studentAns = $answersByQ->get($q->id);
+                                                $parentQ = $parentParallelAssessment->questions[$i] ?? null;
+                                            @endphp
+                                            <tr>
+                                                <td class="align-top">
+                                                    <div class="text-sm">{{ $loop->iteration }}. {{ $q->question_text_fa }}</div>
+                                                    @if ($parentQ)
+                                                        <div class="text-xs text-base-content/60 mt-1">والد: {{ $parentQ->question_text_fa }}</div>
+                                                    @endif
+                                                </td>
+                                                <td class="align-top text-sm">
+                                                    @if ($studentAns)
+                                                        <span class="text-primary font-medium">{{ $studentAns->option?->label_fa ?? $studentAns->free_value ?? '—' }}</span>
+                                                    @else
+                                                        <span class="text-base-content/40">—</span>
+                                                    @endif
+                                                </td>
+                                                <td class="align-top text-xs">
+                                                    @foreach (['father', 'mother'] as $role)
+                                                        @php
+                                                            $pAtt = $parentParallelAttempts[$role] ?? null;
+                                                            $pAns = $pAtt && $parentQ ? $pAtt->answers->firstWhere('question_id', $parentQ->id) : null;
+                                                        @endphp
+                                                        @if ($pAns)
+                                                            <div>{{ $role === 'father' ? 'پدر' : 'مادر' }}: <span class="text-secondary">{{ $pAns->option?->label_fa ?? $pAns->free_value ?? '—' }}</span></div>
+                                                        @endif
+                                                    @endforeach
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @else
+                                {{-- ستون تک‌گانه --}}
+                                <div class="space-y-2">
+                                    @foreach ($assessment->questions as $q)
+                                        @php $ans = $answersByQ->get($q->id); @endphp
+                                        <div class="bg-base-200 rounded-lg p-2">
+                                            <p class="text-sm">{{ $loop->iteration }}. {{ $q->question_text_fa }}</p>
+                                            @if (! $ans)
+                                                <p class="text-xs text-error mt-1">— بدون پاسخ —</p>
+                                            @elseif ($q->isMultiSelect())
+                                                @php
+                                                    $selectedIds = $ans->selected_options ?? [];
+                                                    $selectedLabels = $q->options->whereIn('id', $selectedIds)->pluck('label_fa')->all();
+                                                @endphp
+                                                <ul class="text-xs text-base-content/80 list-disc pr-5 mt-1">
+                                                    @foreach ($selectedLabels as $l)
+                                                        <li>{{ $l }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                <p class="text-xs text-primary font-medium mt-1">{{ $ans->option?->label_fa ?? $ans->free_value ?? '—' }}</p>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    @else
+                        <p class="text-sm text-base-content/60">هنوز شروع نشده.</p>
                     @endif
                 </div>
             </details>
         @endforeach
     </div>
+
+    {{-- بخش تست‌های والدینی به‌صورت مستقل --}}
+    @if ($parentAssessments->isNotEmpty())
+        <h2 class="text-lg font-bold mt-8 mb-3">تست‌های والدینی</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            @foreach (['father' => 'پدر', 'mother' => 'مادر'] as $role => $roleLabel)
+                @php $inv = $invitations->get($role); @endphp
+                <div class="bg-base-100 border border-base-300 rounded-xl p-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold">{{ $roleLabel }}</h3>
+                        @if (! $inv)
+                            <span class="badge badge-ghost">دعوت‌نامه ندارد</span>
+                        @elseif ($inv->isCompleted())
+                            <span class="badge badge-success">تکمیل‌شده</span>
+                        @elseif ($inv->isExpired())
+                            <span class="badge badge-error">منقضی</span>
+                        @else
+                            <span class="badge badge-warning">در انتظار پاسخ</span>
+                        @endif
+                    </div>
+                    @if ($inv)
+                        <p class="text-xs text-base-content/60">شماره: <code>{{ $inv->mobile }}</code></p>
+                        <p class="text-xs text-base-content/60">ارسال SMS: {{ $inv->sms_attempts ?? 0 }} بار</p>
+                        @if ($inv->first_accessed_at)
+                            <p class="text-xs text-base-content/60">باز شده در: {{ $inv->first_accessed_at?->format('Y/m/d H:i') }}</p>
+                        @endif
+                    @endif
+                </div>
+            @endforeach
+        </div>
+    @endif
 </div>

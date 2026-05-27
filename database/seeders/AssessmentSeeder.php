@@ -34,6 +34,7 @@ class AssessmentSeeder extends Seeder
             $this->seedMbti();
             $this->seedVark();
             $this->seedCustomTests();
+            $this->seedParentTests();
         });
     }
 
@@ -507,6 +508,98 @@ class AssessmentSeeder extends Seeder
                             'label_fa'    => $l,
                             'value'       => (string) ($i + 1),
                             'weights'     => null,
+                        ]);
+                    }
+                } else { // yes_no
+                    AssessmentQuestionOption::create([
+                        'question_id' => $q->id, 'order' => 1,
+                        'label_fa' => 'بله', 'value' => 'yes', 'weights' => null,
+                    ]);
+                    AssessmentQuestionOption::create([
+                        'question_id' => $q->id, 'order' => 2,
+                        'label_fa' => 'خیر', 'value' => 'no', 'weights' => null,
+                    ]);
+                }
+            }
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // تست‌های والدینی — فاز ۲
+    // دیدگاه والد درباره‌ی ترس فرزند از والدین + درباره‌ی دوستان فرزند
+    // ────────────────────────────────────────────────────────────────────
+    private function seedParentTests(): void
+    {
+        $tests = [
+            [
+                'slug' => 'fear-of-parents-parent', 'order' => 12,
+                'name' => 'دیدگاه شما درباره‌ی ترس فرزندتان از درس و نمره',
+                'description' => 'پاسخ‌های شما به ما کمک می‌کند بفهمیم رابطه‌ی شما با فرزندتان درباره‌ی درس و نمره چگونه است. هیچ پاسخی درست یا غلط نیست؛ صادقانه پاسخ دهید.',
+                'questions' => [
+                    ['t' => 'فکر می‌کنم فرزندم برای اعلام نمره‌اش به من کمی مردد است.', 'type' => 'likert5', 'facet' => 'parent_observed_fear'],
+                    ['t' => 'وقتی فرزندم نمره‌ی پایینی می‌گیرد، اول دلیل را جویا می‌شوم، نه واکنش تنبیهی.', 'type' => 'likert5', 'facet' => 'parent_self_pressure', 'reverse' => true],
+                    ['t' => 'می‌دانم گاهی روی فرزندم درباره‌ی درس فشار زیاد می‌گذارم.', 'type' => 'likert5', 'facet' => 'parent_self_pressure'],
+                    ['t' => 'به نظرم فرزندم احساس می‌کند محبت من به نمره‌اش وابسته است.', 'type' => 'likert5', 'facet' => 'parent_observed_fear'],
+                    ['t' => 'فرزندم گاهی نمراتش را از من پنهان می‌کند.', 'type' => 'yes_no', 'facet' => 'parent_observed_fear'],
+                    ['t' => 'من بیشتر درباره‌ی احوال فرزندم می‌پرسم تا نمره‌اش.', 'type' => 'likert5', 'facet' => 'parent_self_pressure', 'reverse' => true],
+                    ['t' => 'فکر می‌کنم لحن من هنگام صحبت درباره‌ی درس برای فرزندم استرس‌زاست.', 'type' => 'likert5', 'facet' => 'parent_self_pressure'],
+                    ['t' => 'فرزندم راحت با من درباره‌ی مشکلات درسی‌اش صحبت می‌کند.', 'type' => 'likert5', 'facet' => 'parent_observed_fear', 'reverse' => true],
+                ],
+            ],
+            [
+                'slug' => 'friends-influence-parent', 'order' => 13,
+                'name' => 'دیدگاه شما درباره‌ی دوستان فرزندتان',
+                'description' => 'دیدگاه شما درباره‌ی محیط دوستی فرزندتان به ما در شناخت بهتر او کمک می‌کند.',
+                'questions' => [
+                    ['t' => 'دوستان فرزندم تأثیر مثبتی روی روحیه و انگیزه‌اش دارند.', 'type' => 'likert5', 'facet' => 'parent_view_friends', 'reverse' => true],
+                    ['t' => 'نگرانم که برخی دوستان فرزندم باعث افت تحصیلی او می‌شوند.', 'type' => 'likert5', 'facet' => 'parent_view_friends'],
+                    ['t' => 'فرزندم درباره‌ی دوستانش با من راحت حرف می‌زند.', 'type' => 'likert5', 'facet' => 'parent_communication', 'reverse' => true],
+                    ['t' => 'دوستان فرزندم را به‌خوبی می‌شناسم.', 'type' => 'likert5', 'facet' => 'parent_communication', 'reverse' => true],
+                    ['t' => 'به نظرم فرزندم وقت زیادی را در فضای مجازی با دوستانش می‌گذراند.', 'type' => 'likert5', 'facet' => 'parent_view_friends'],
+                    ['t' => 'با محیط دوستی فرزندم رابطه‌ی فعال دارم (تماس با والدین آن‌ها، حضور آن‌ها در خانه‌ی ما).', 'type' => 'yes_no', 'facet' => 'parent_communication'],
+                    ['t' => 'فرزندم بیشتر تحت‌تأثیر دوستانش است تا خانواده.', 'type' => 'likert5', 'facet' => 'parent_view_friends'],
+                ],
+            ],
+        ];
+
+        foreach ($tests as $t) {
+            $a = Assessment::updateOrCreate(
+                ['slug' => $t['slug']],
+                [
+                    'name_fa'                 => $t['name'],
+                    'description_fa'          => $t['description'],
+                    'kind'                    => Assessment::KIND_CUSTOM,
+                    'question_type'           => 'mixed',
+                    'is_active'               => true,
+                    'is_required'             => true,
+                    'display_order'           => $t['order'],
+                    'audience'                => Assessment::AUDIENCE_PARENT,
+                    'expected_question_count' => count($t['questions']),
+                ]
+            );
+
+            foreach ($t['questions'] as $idx => $qd) {
+                $order = $idx + 1;
+                $meta = ['facet' => $qd['facet']];
+                if (!empty($qd['reverse'])) {
+                    $meta['reverse'] = true;
+                }
+                $q = AssessmentQuestion::updateOrCreate(
+                    ['assessment_id' => $a->id, 'order' => $order],
+                    [
+                        'question_text_fa' => $qd['t'],
+                        'type'             => $qd['type'],
+                        'scoring_meta'     => $meta,
+                        'is_active'        => true,
+                    ]
+                );
+                $q->options()->delete();
+                if ($qd['type'] === AssessmentQuestion::TYPE_LIKERT5) {
+                    $labels = ['کاملاً مخالفم', 'مخالفم', 'بی‌نظرم', 'موافقم', 'کاملاً موافقم'];
+                    foreach ($labels as $i => $l) {
+                        AssessmentQuestionOption::create([
+                            'question_id' => $q->id, 'order' => $i + 1,
+                            'label_fa' => $l, 'value' => (string) ($i + 1), 'weights' => null,
                         ]);
                     }
                 } else { // yes_no

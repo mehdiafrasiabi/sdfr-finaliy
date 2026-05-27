@@ -223,6 +223,11 @@ class User extends Authenticatable
         return $completed >= $required;
     }
 
+    public function parentAssessmentInvitations()
+    {
+        return $this->hasMany(ParentAssessmentInvitation::class);
+    }
+
 
 
     public function getWalletBalanceAttribute()

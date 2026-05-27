@@ -4,6 +4,9 @@ namespace App\Services;
 
 use App\Models\Assessment;
 use App\Models\AssessmentQuestion;
+use App\Models\ParentAssessmentAnswer;
+use App\Models\ParentAssessmentAttempt;
+use App\Models\ParentAssessmentInvitation;
 use App\Models\Student;
 use App\Models\StudentAssessmentAnswer;
 use App\Models\StudentAssessmentAttempt;
@@ -13,7 +16,10 @@ use Illuminate\Support\Facades\DB;
 
 class AssessmentService
 {
-    public function __construct(private AssessmentScoringService $scoring) {}
+    public function __construct(
+        private AssessmentScoringService $scoring,
+        private ParentInvitationService $parentInvitations,
+    ) {}
 
     /**
      * یا یک attempt در حال انجام را برمی‌گرداند، یا attempt جدید می‌سازد.
@@ -143,9 +149,118 @@ class AssessmentService
         $trial = $user->trialWeek;
         if ($trial && !$trial->assessments_completed_at) {
             $trial->update(['assessments_completed_at' => Carbon::now()]);
+            $trial->refresh();
+            // ارسال خودکار لینک تست‌های والدینی به پدر و مادر
+            $this->parentInvitations->sendForTrialWeek($trial);
         }
 
         return true;
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // Parent variants: مشابه ولی روی parent_assessment_* جداول
+    // ────────────────────────────────────────────────────────────────────
+
+    public function startOrResumeParent(ParentAssessmentInvitation $inv, Assessment $assessment): ParentAssessmentAttempt
+    {
+        if ($assessment->audience !== Assessment::AUDIENCE_PARENT) {
+            throw new \InvalidArgumentException('این آزمون مخصوص والدین نیست.');
+        }
+
+        return DB::transaction(function () use ($inv, $assessment) {
+            return ParentAssessmentAttempt::firstOrCreate(
+                ['invitation_id' => $inv->id, 'assessment_id' => $assessment->id],
+                [
+                    'status'                 => ParentAssessmentAttempt::STATUS_IN_PROGRESS,
+                    'started_at'             => now(),
+                    'current_question_order' => 1,
+                    'answered_count'         => 0,
+                ]
+            );
+        });
+    }
+
+    public function saveParentAnswer(
+        ParentAssessmentAttempt $attempt,
+        AssessmentQuestion $question,
+        array $payload
+    ): ParentAssessmentAnswer {
+        if ($attempt->isCompleted()) {
+            throw new \LogicException('این آزمون قبلاً تکمیل شده است.');
+        }
+        if ($question->assessment_id !== $attempt->assessment_id) {
+            throw new \InvalidArgumentException('سوال متعلق به آزمون این تلاش نیست.');
+        }
+
+        return DB::transaction(function () use ($attempt, $question, $payload) {
+            $answer = ParentAssessmentAnswer::updateOrCreate(
+                ['attempt_id' => $attempt->id, 'question_id' => $question->id],
+                [
+                    'selected_option_id' => $payload['selected_option_id'] ?? null,
+                    'selected_options'   => $payload['selected_options']   ?? null,
+                    'free_value'         => $payload['free_value']         ?? null,
+                    'answered_at'        => now(),
+                ]
+            );
+            $this->refreshParentProgress($attempt);
+            return $answer;
+        });
+    }
+
+    public function completeParent(ParentAssessmentAttempt $attempt): void
+    {
+        if ($attempt->isCompleted()) {
+            return;
+        }
+        DB::transaction(function () use ($attempt) {
+            $attempt->refresh()->loadMissing('assessment');
+            $totalActive = $attempt->assessment->questions()->where('is_active', true)->count();
+            $answeredActive = $attempt->answers()
+                ->whereIn('question_id', $attempt->assessment->questions()
+                    ->where('is_active', true)->pluck('id'))
+                ->count();
+            if ($answeredActive < $totalActive) {
+                throw new \LogicException('تمام سوالات پاسخ داده نشده‌اند.');
+            }
+            $result = $this->scoring->scoreCustom($attempt);
+            $attempt->update([
+                'status'          => ParentAssessmentAttempt::STATUS_COMPLETED,
+                'completed_at'    => now(),
+                'computed_result' => $result,
+            ]);
+        });
+
+        // بعد از هر تکمیل، چک کنیم آیا کل invitation تمام شده
+        $inv = $attempt->invitation;
+        if ($inv) {
+            $this->parentInvitations->markInvitationCompletedIfDone($inv);
+        }
+    }
+
+    public function nextParentQuestion(ParentAssessmentAttempt $attempt): ?AssessmentQuestion
+    {
+        $answeredIds = $attempt->answers()->pluck('question_id')->all();
+        return AssessmentQuestion::where('assessment_id', $attempt->assessment_id)
+            ->where('is_active', true)
+            ->when(!empty($answeredIds), fn ($q) => $q->whereNotIn('id', $answeredIds))
+            ->orderBy('order')
+            ->first();
+    }
+
+    private function refreshParentProgress(ParentAssessmentAttempt $attempt): void
+    {
+        $attempt->refresh();
+        $answeredIds = $attempt->answers()->pluck('question_id')->all();
+        $answeredCount = count($answeredIds);
+        $nextOrder = AssessmentQuestion::where('assessment_id', $attempt->assessment_id)
+            ->where('is_active', true)
+            ->when(!empty($answeredIds), fn ($q) => $q->whereNotIn('id', $answeredIds))
+            ->orderBy('order')
+            ->value('order');
+        $attempt->update([
+            'answered_count'         => $answeredCount,
+            'current_question_order' => $nextOrder ?? $attempt->current_question_order,
+        ]);
     }
 
     private function refreshProgress(StudentAssessmentAttempt $attempt): void
