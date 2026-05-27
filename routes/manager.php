@@ -149,6 +149,16 @@ Route::name('manager.')->group(function () {
             ->name('grade-price.daily-discount');
 
         // Trial Week Routes (هفته آزمایشی)
+        // مدیریت آزمون‌های روان‌شناختی
+        Route::prefix('assessments')->name('assessments.')->group(function () {
+            Route::get('/', \App\Livewire\Manager\Assessment\AssessmentIndex::class)->name('index');
+            Route::get('/{assessment}/questions', \App\Livewire\Manager\Assessment\AssessmentQuestionEditor::class)->name('questions');
+        });
+        Route::prefix('students-assessments')->name('students-assessments.')->group(function () {
+            Route::get('/', \App\Livewire\Manager\Assessment\StudentsAssessmentsDashboard::class)->name('index');
+            Route::get('/{user}', \App\Livewire\Manager\Assessment\StudentAssessmentDetail::class)->name('show');
+        });
+
         Route::prefix('trial-week')->name('trial-week.')->group(function () {
             Route::get('/', TrialWeekIndex::class)->name('index');
             Route::get('/{id}', TrialWeekDetail::class)->name('detail');

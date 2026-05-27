@@ -32,6 +32,8 @@ use App\Livewire\Client\Profile\StudySession;
 use App\Livewire\Client\Profile\Ticket\Create as ProfileTicketCreate;
 use App\Livewire\Client\Profile\Ticket\Index as ProfileTicketIndex;
 use App\Livewire\Client\Profile\Ticket\Show as ProfileTicketShow;
+use App\Livewire\Client\Profile\Assessment\AssessmentList;
+use App\Livewire\Client\Profile\Assessment\AssessmentTake;
 use App\Livewire\Client\Profile\TypedExam\TypedExamList;
 use App\Livewire\Client\Profile\TypedExam\TypedExamResult;
 use App\Livewire\Client\Profile\TypedExam\TypedExamTest;
@@ -70,11 +72,17 @@ Route::name('client.')->group(function () {
         Route::get('/forgot-password',ForgotPassword::class)->name('auth.forgotPassword');
     });
 
-    // صفحه انتظار برای تخصیص پشتیبان (auth)
+    // صفحه انتظار برای تخصیص پشتیبان (auth + گِیت آزمون‌ها)
     Route::get('/profile/waiting-for-supporter',
         \App\Livewire\Client\Profile\TrialWeek\WaitingForSupporter::class)
-        ->middleware('auth')
+        ->middleware(['auth', 'assessments.required'])
         ->name('profile.waiting-for-supporter');
+
+    // صفحات آزمون‌های روان‌شناختی (auth بدون trial.step — کاربر در همان status pending)
+    Route::middleware('auth')->prefix('profile/assessments')->name('profile.assessment.')->group(function () {
+        Route::get('/', AssessmentList::class)->name('list');
+        Route::get('/{slug}/take', AssessmentTake::class)->name('take');
+    });
 
     // B-2: صفحهٔ پرداخت اختصاصی (auth)
     Route::get('/purchase',
@@ -89,7 +97,7 @@ Route::name('client.')->group(function () {
         Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
 
 
-        Route::prefix('profile')->name('profile.')->middleware(['client.active', 'trial.step', 'block.during.study'])->group(function () {
+        Route::prefix('profile')->name('profile.')->middleware(['client.active', 'assessments.required', 'trial.step', 'block.during.study'])->group(function () {
             //Profile
             Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
             Route::get('/star',Star::class)->name('star');

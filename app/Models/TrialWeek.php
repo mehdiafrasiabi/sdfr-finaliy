@@ -14,11 +14,12 @@ class TrialWeek extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'expires_at'              => 'datetime',
-        'supporter_assigned_at'   => 'datetime',
-        'classification_locked_at'=> 'datetime',
-        'pre_session_completed_at'=> 'datetime',
-        'program_built_at'        => 'datetime',
+        'expires_at'               => 'datetime',
+        'assessments_completed_at' => 'datetime',
+        'supporter_assigned_at'    => 'datetime',
+        'classification_locked_at' => 'datetime',
+        'pre_session_completed_at' => 'datetime',
+        'program_built_at'         => 'datetime',
     ];
 
     const STATUS_PENDING               = 'pending';
@@ -103,6 +104,11 @@ class TrialWeek extends Model
             self::STATUS_PROGRAM_BUILT       => 'success',
             default                          => 'secondary',
         };
+    }
+
+    public function hasCompletedAssessments(): bool
+    {
+        return $this->assessments_completed_at !== null;
     }
 
     public function isExpired(): bool

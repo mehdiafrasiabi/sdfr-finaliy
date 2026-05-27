@@ -203,6 +203,26 @@ class User extends Authenticatable
         return $this->hasOne(TrialWeek::class);
     }
 
+    public function assessmentAttempts()
+    {
+        return $this->hasMany(StudentAssessmentAttempt::class);
+    }
+
+    public function hasCompletedAllAssessments(): bool
+    {
+        $required = Assessment::active()->forStudent()->count();
+        if ($required === 0) {
+            return true;
+        }
+        $completed = $this->assessmentAttempts()
+            ->whereHas('assessment', function ($q) {
+                $q->where('is_active', true)->where('audience', Assessment::AUDIENCE_STUDENT);
+            })
+            ->where('status', StudentAssessmentAttempt::STATUS_COMPLETED)
+            ->count();
+        return $completed >= $required;
+    }
+
 
 
     public function getWalletBalanceAttribute()
