@@ -66,12 +66,6 @@
                         </div>
                         <ul class="flex items-center gap-5">
                             <li>
-                                <a href="{{route('client.shop')}}" wire:navigate
-                                   class="inline-flex text-muted transition-colors hover:text-foreground">
-                                    <span class="font-semibold">دوره ها</span>
-                                </a>
-                            </li>
-                            <li>
                                 <a href="{{route('client.blog')}}" wire:navigate
                                    class="inline-flex text-muted transition-colors hover:text-foreground">
                                     <span class="font-semibold">مقالات</span>

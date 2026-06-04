@@ -670,6 +670,10 @@
         document.addEventListener('livewire:navigating', startTransition);
     })();
 </script>
+<style>
+    * { scrollbar-width: none !important; -ms-overflow-style: none !important; }
+    *::-webkit-scrollbar { display: none !important; }
+</style>
 </body>
 
 </html>
