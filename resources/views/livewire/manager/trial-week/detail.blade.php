@@ -116,6 +116,45 @@
                         @endforeach
                     </div>
 
+                    {{-- وضعیت تست‌های والدینی --}}
+                    @php
+                        $parentInvs = $trialWeek->parentAssessmentInvitations;
+                        $parentDone = $parentInvs->filter(fn($i) => $i->completed_at !== null)->count();
+                        $canAssign = $trialWeek->hasAnyParentCompleted();
+                    @endphp
+                    @if($parentInvs->isNotEmpty())
+                    <div class="mb-3 p-3 border rounded-3 {{ $canAssign ? 'bg-success bg-opacity-10 border-success' : 'bg-warning bg-opacity-10 border-warning' }}">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <strong>وضعیت تست‌های والدینی: {{ $parentDone }} / {{ $parentInvs->count() }}</strong>
+                            @if(! $canAssign)
+                                <span class="badge bg-warning">منتظر پاسخ والد</span>
+                            @endif
+                        </div>
+                        <div class="row g-2">
+                            @foreach($parentInvs as $inv)
+                            <div class="col-md-6">
+                                <div class="d-flex align-items-center justify-content-between p-2 border rounded">
+                                    <div>
+                                        <strong>{{ $inv->parent_role_label }}</strong>
+                                        <small class="d-block text-muted">{{ $inv->mobile }} · ارسال {{ $inv->sms_attempts }} بار</small>
+                                    </div>
+                                    <div class="d-flex gap-1">
+                                        @if($inv->completed_at)
+                                            <span class="badge bg-success">پاسخ داده شده</span>
+                                        @elseif(\Carbon\Carbon::parse($inv->expires_at)->isPast())
+                                            <span class="badge bg-danger">منقضی</span>
+                                        @else
+                                            <span class="badge bg-warning">در انتظار</span>
+                                        @endif
+                                        <button wire:click="resendParentInvite({{ $inv->id }})" class="btn btn-sm btn-outline-primary">ارسال مجدد</button>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
                     {{-- تخصیص پشتیبان --}}
                     @if($trialWeek->status === 'pending')
                     <div class="alert alert-warning d-flex align-items-center gap-3 mb-4">
@@ -123,10 +162,13 @@
                         <div>
                             <strong>در انتظار تخصیص پشتیبان</strong>
                             <p class="mb-0 mt-1 fs-12">برای شروع فرایند آزمایشی باید یک پشتیبان آزمایشی تخصیص دهید.</p>
+                            @if(! $canAssign)
+                                <p class="mb-0 mt-1 fs-12 text-danger">⚠ حداقل یک والد باید تست‌های والدینی را تکمیل کرده باشد.</p>
+                            @endif
                         </div>
                     </div>
 
-                    <button wire:click="openAssignModal" class="btn btn-primary">
+                    <button wire:click="openAssignModal" class="btn btn-primary" @disabled(! $canAssign)>
                         <i class="ri-user-add-line me-1"></i>
                         تخصیص پشتیبان آزمایشی
                     </button>

@@ -1,33 +1,26 @@
 <?php
 
-
 namespace App\Livewire\Client\Profile\Consultation;
 
 use App\Models\AdvisingSession;
-use App\Models\AdvisingPreSession;
 use App\Models\WeeklyProgram;
 use App\Models\Student;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
-
 use Livewire\WithPagination;
 
-
 class SessionList extends Component
-
 {
+    use WithPagination, SEOTools;
 
-    use WithPagination,SEOTools;
     public $showPreSessionModal = false;
     public $selectedSession = null;
 
-    // Filter: 'all' | 'completed' | 'pending' | 'cancelled'
-    public $statusFilter = 'all';
-
-    public function updatingStatusFilter()
+    public function mount()
     {
-        $this->resetPage();
+        $this->seo()->setTitle('اتاق مشاوره');
     }
+
     public function openPreSessionModal($sessionId)
     {
         $session = AdvisingSession::with('preSession')->find($sessionId);
@@ -39,16 +32,11 @@ class SessionList extends Component
         }
     }
 
-    public function mount()
-    {
-        $this->seo()->setTitle('اتاق مشاوره');
-    }
     public function closePreSessionModal()
     {
         $this->showPreSessionModal = false;
         $this->selectedSession = null;
     }
-
 
     public function confirmStartPreSession()
     {
@@ -58,61 +46,42 @@ class SessionList extends Component
             ]);
         }
     }
-    public $expandedSessions = [];
-
-    public function toggleDetails($sessionId)
-    {
-        if (in_array($sessionId, $this->expandedSessions)) {
-            $this->expandedSessions = array_diff($this->expandedSessions, [$sessionId]);
-        } else {
-            $this->expandedSessions[] = $sessionId;
-        }
-    }
 
     public function render()
     {
-        $user = auth()->user();
+        $user    = auth()->user();
         $student = Student::where('user_id', $user->id)->first();
-        $sessions = collect();
-        $weeklyPrograms = collect();
+
+        $sessions        = collect();
+        $weeklyPrograms  = collect();
         $lockedSessionIds = [];
+
         if ($student) {
-            // Get ALL sessions in chronological order (asc) to determine locking
+            // ترتیب صعودی برای تشخیص قفل بودن جلسات
             $allSessionsOrdered = AdvisingSession::where('student_id', $student->id)
                 ->orderBy('activation_date', 'asc')
                 ->orderBy('id', 'asc')
                 ->get();
 
-            // Determine which sessions are locked:
-            // - Session 0 (earliest): always unlocked
-            // - Session N: locked if session N-1 has no result_status
             foreach ($allSessionsOrdered as $index => $session) {
-                if ($index === 0) {
-                    continue; // first session always unlocked
-                }
-                $prevSession = $allSessionsOrdered[$index - 1];
-                if ($prevSession->result_status === null) {
+                if ($index === 0) continue;
+                $prev = $allSessionsOrdered[$index - 1];
+                if ($prev->result_status === null) {
                     $lockedSessionIds[] = $session->id;
                 }
             }
 
-            // Paginate for display (desc order, filtered by statusFilter)
-            $sessionsQuery = AdvisingSession::where('student_id', $student->id)
-                ->with(['preSession', 'advisor', 'weeklyProgram']);
+            // ۱۰ جلسه آخر — جدیدترین اول
+            $sessions = AdvisingSession::where('student_id', $student->id)
+                ->with(['preSession', 'advisor', 'weeklyProgram'])
+                ->orderBy('activation_date', 'desc')
+                ->orderBy('id', 'desc')
+                ->paginate(10);
 
-            match ($this->statusFilter) {
-                'completed' => $sessionsQuery->where('result_status', AdvisingSession::RESULT_HELD),
-                'pending'   => $sessionsQuery->whereIn('status', [AdvisingSession::STATUS_INACTIVE, AdvisingSession::STATUS_ACTIVE]),
-                'cancelled' => $sessionsQuery->whereIn('result_status', [AdvisingSession::RESULT_ADVISOR_ABSENT, AdvisingSession::RESULT_STUDENT_ABSENT]),
-                default     => null,
-            };
-
-            $sessions = $sessionsQuery->orderBy('activation_date', 'desc')->orderBy('id', 'desc')->paginate(10);
-            // Auto-activate sessions
             foreach ($sessions as $session) {
                 $session->activateIfNeeded();
             }
-            // برنامه‌های هفتگی
+
             $weeklyPrograms = WeeklyProgram::where('student_id', $student->id)
                 ->with('parts')
                 ->where('is_active', true)
@@ -121,9 +90,9 @@ class SessionList extends Component
         }
 
         return view('livewire.client.profile.consultation.session-list', [
-            'sessions' => $sessions,
-            'weeklyPrograms' => $weeklyPrograms,
-            'student' => $student,
+            'sessions'         => $sessions,
+            'weeklyPrograms'   => $weeklyPrograms,
+            'student'          => $student,
             'lockedSessionIds' => $lockedSessionIds,
         ])->layout('layouts.client.app');
     }
