@@ -1,156 +1,156 @@
 <?php
 namespace App\Livewire\Client\Profile;
+
 use App\Models\Notification as ModelsNotification;
 use App\Models\NotificationRecipient;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithPagination;
+
 class Notification extends Component
 {
-    use SEOTools;
+    use SEOTools, WithPagination;
+
     public $student;
     public $user;
-    public $isStudent = false;
-    // دسته‌بندی فعال
+    public $isStudent    = false;
     public $activeCategory = 'all';
-    // تعداد پیام‌های خوانده نشده در هر دسته‌بندی
     public $unreadCounts = [];
+
     public function mount()
     {
         $this->seoConfig();
-        $this->user = Auth::user();
-        $this->student = $this->user->student ?? null;
+        $this->user      = Auth::user();
+        $this->student   = $this->user->student ?? null;
         $this->isStudent = $this->student !== null;
+
         $this->loadUnreadCounts();
+
+        // ─── تب پیش‌فرض: دسته‌بندی با بیشترین پیام خوانده‌نشده ───
+        // اگر هیچ پیام خوانده‌نشده‌ای نداشت، 'all' بماند
+        $this->setDefaultActiveCategory();
     }
-    public function seoConfig()
+
+    public function seoConfig(): void
     {
         $this->seo()->setTitle('پیام‌ها (اطلاع‌رسانی)');
     }
-    /**
-     * تنظیم دسته‌بندی پیش‌فرض بر اساس آخرین پیام خوانده نشده
-     */
-    public function setDefaultActiveCategory()
+
+    public function updatingActiveCategory(): void
     {
-        $userId = $this->user->id;
-        // پیدا کردن آخرین پیام خوانده نشده
-        $latestUnread = NotificationRecipient::where('user_id', $userId)
-            ->where('is_read', false)
-            ->whereHas('notification')
-            ->with('notification')
-            ->latest()
-            ->first();
-        if ($latestUnread && $latestUnread->notification) {
-            $this->activeCategory = $latestUnread->notification->category;
-        }
+        $this->resetPage();
     }
+
     /**
-     * بارگذاری تعداد پیام‌های خوانده نشده در هر دسته‌بندی
+     * تنظیم تب پیش‌فرض:
+     * اگر فقط یک دسته‌بندی پیام خوانده‌نشده دارد → آن دسته
+     * اگر چند دسته دارند → دسته‌ای که بیشترین تعداد دارد
+     * اگر هیچ پیام خوانده‌نشده‌ای نیست → 'all'
      */
-    public function loadUnreadCounts()
+    protected function setDefaultActiveCategory(): void
+    {
+        $userId     = $this->user->id;
+        $categories = array_keys($this->getAvailableCategories());
+
+        $counts = [];
+        foreach ($categories as $cat) {
+            $count = NotificationRecipient::where('user_id', $userId)
+                ->where('is_read', false)
+                ->whereHas('notification', fn($q) => $q->where('category', $cat))
+                ->count();
+            if ($count > 0) {
+                $counts[$cat] = $count;
+            }
+        }
+
+        if (empty($counts)) {
+            // همه خوانده شده — نمایش همه
+            $this->activeCategory = 'all';
+            return;
+        }
+
+        // دسته‌ای که بیشترین پیام خوانده‌نشده دارد
+        arsort($counts);
+        $this->activeCategory = array_key_first($counts);
+    }
+
+    public function loadUnreadCounts(): void
     {
         $userId = $this->user->id;
-        // تعداد کل پیام‌های خوانده نشده
+
         $this->unreadCounts['all'] = NotificationRecipient::where('user_id', $userId)
             ->where('is_read', false)
+            ->whereHas('notification', fn($q) =>
+            $q->whereIn('category', array_keys($this->getAvailableCategories()))
+            )
             ->count();
-        // دسته‌بندی‌های قابل نمایش
-        $categories = $this->getAvailableCategories();
-        foreach (array_keys($categories) as $category) {
+
+        foreach (array_keys($this->getAvailableCategories()) as $category) {
             $this->unreadCounts[$category] = NotificationRecipient::where('user_id', $userId)
                 ->where('is_read', false)
-                ->whereHas('notification', function ($query) use ($category) {
-                    $query->where('category', $category);
-                })
+                ->whereHas('notification', fn($q) => $q->where('category', $category))
                 ->count();
         }
     }
-    /**
-     * دسته‌بندی‌های قابل نمایش برای این کاربر
-     */
+
     public function getAvailableCategories(): array
     {
         if ($this->isStudent) {
             return [
                 ModelsNotification::CATEGORY_ANNOUNCEMENT => 'اعلانات',
-                ModelsNotification::CATEGORY_SPECIAL => 'اعلان ویژه',
-                ModelsNotification::CATEGORY_ADVISOR => 'مشاور',
-                ModelsNotification::CATEGORY_SUPPORTER => 'پشتیبان',
+                ModelsNotification::CATEGORY_SPECIAL       => 'اعلان ویژه',
+                ModelsNotification::CATEGORY_ADVISOR       => 'پیام مشاور',
             ];
         }
-        // برای کاربران عادی
+
         return [
             ModelsNotification::CATEGORY_ANNOUNCEMENT => 'اعلانات',
-            ModelsNotification::CATEGORY_SPECIAL => 'اعلان ویژه',
+            ModelsNotification::CATEGORY_SPECIAL       => 'اعلان ویژه',
         ];
     }
-    /**
-     * تغییر دسته‌بندی فعال
-     */
-    public function setCategory($category)
+
+    public function setCategory($category): void
     {
         $this->activeCategory = $category;
     }
-    /**
-     * علامت‌گذاری به عنوان خوانده شده
-     */
-    public function markAsRead($recipientId)
+
+    public function markAsRead($recipientId): void
     {
         $recipient = NotificationRecipient::where('id', $recipientId)
             ->where('user_id', $this->user->id)
             ->first();
+
         if ($recipient) {
-            $recipient->update([
-                'is_read' => true,
-                'read_at' => now(),
-            ]);
+            $recipient->update(['is_read' => true, 'read_at' => now()]);
             $this->loadUnreadCounts();
-            // تنظیم دسته‌بندی فعال بر اساس آخرین پیام خوانده نشده
-            $this->setDefaultActiveCategory();
-            // Dispatch browser event برای به‌روزرسانی badge بدون re-render
             $this->dispatch('notification-read');
             $this->dispatch('success', 'پیام با موفقیت خوانده شد.');
         }
     }
+
     public function render()
     {
         $userId = $this->user->id;
+
         $query = NotificationRecipient::where('user_id', $userId)
             ->with(['notification.admin'])
-            ->whereHas('notification')->where('created_at', '>=', now()->subDays(5)); // فقط پیام‌های 5 روز اخیر
-        // فیلتر بر اساس دسته‌بندی
+            ->whereHas('notification', fn($q) =>
+            $q->whereIn('category', array_keys($this->getAvailableCategories()))
+            );
+
         if ($this->activeCategory !== 'all') {
-            if ($this->activeCategory === 'sdfr') {
-                // پیام‌های SDFR (ترکیب مشاور و پشتیبان)
-                $query->whereHas('notification', function ($q) {
-                    $q->whereIn('category', [
-                        ModelsNotification::CATEGORY_ADVISOR,
-                        ModelsNotification::CATEGORY_SUPPORTER
-                    ]);
-                });
-            } else {
-                $query->whereHas('notification', function ($q) {
-                    $q->where('category', $this->activeCategory);
-                });
-            }
-        } else {
-            // اگر کاربر عادی است، فقط اعلانات و اعلان ویژه را نمایش بده
-            if (!$this->isStudent) {
-                $query->whereHas('notification', function ($q) {
-                    $q->whereIn('category', [
-                        ModelsNotification::CATEGORY_ANNOUNCEMENT,
-                        ModelsNotification::CATEGORY_SPECIAL
-                    ]);
-                });
-            }
+            $query->whereHas('notification', fn($q) =>
+            $q->where('category', $this->activeCategory)
+            );
         }
-        $notifications = $query->latest()->limit(10)->get();
+
+        $notifications = $query->latest()->paginate(10);
+
         return view('livewire.client.profile.notification', [
             'notifications' => $notifications,
-            'categories' => $this->getAvailableCategories(),
-            'unreadCounts' => $this->unreadCounts,
+            'categories'    => $this->getAvailableCategories(),
+            'unreadCounts'  => $this->unreadCounts,
         ])->layout('layouts.client.app');
-
     }
-
 }
