@@ -19,9 +19,10 @@ use App\Livewire\Admin\Ticket\Show as TicketShow;
 use App\Livewire\Admin\AdminUser\Index as AdminUserIndex;
 use App\Livewire\Admin\AdminUser\WorkSchedule as AdminUserWorkSchedule;
 use App\Livewire\Admin\ContactDocumentation\Index as ContactDocumentationIndex;
+use App\Livewire\Admin\Student\SmartReportCard\Index as SmartReportCardIndex;
+use App\Livewire\Admin\Student\SmartReportCard\Show as SmartReportCardShow;
 use Illuminate\Support\Facades\Route;
 
-use App\Livewire\Admin\Student\SmartReportCard\Index as SmartReportCardIndex;
 
 Route::name('admin.')->group(function () {
 
@@ -135,7 +136,11 @@ Route::name('admin.')->group(function () {
         Route::get('/studentStudySession/{student}/study', StudentStudySessionShow::class)->name('student.studySession.detail')
             ->middleware('admin.permission:admin.study-session.view');
 
+        Route::get('/smart-report-card', SmartReportCardIndex::class)
+            ->name('student.smartReportCard.index');
 
+        Route::get('/smart-report-card/{student}', SmartReportCardShow::class)
+            ->name('student.smartReportCard.detail');
         // اتاق مشاوره
 
         Route::get('/advising-sessions', StudentConsultation::class)->name('advising-sessions')
@@ -151,8 +156,6 @@ Route::name('admin.')->group(function () {
             ->middleware('admin.permission:admin.contact-documentation.view');
         // گزارش‌های ارسال نشده
         // کارنامه هوشمند
-        Route::get('/smart-report-card/{student}', SmartReportCardIndex::class)
-            ->name('student.smart-report-card');
 
         Route::get('/report-not-send', ReportMissingIndex::class)->name('reportMissing')
             ->middleware('admin.permission:admin.report-missing.view');

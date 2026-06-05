@@ -19,82 +19,62 @@
                                 <div class="w-1 h-1 bg-foreground rounded-full"></div>
                                 <div class="w-2 h-2 bg-foreground rounded-full"></div>
                             </div>
-                            <div class="font-black text-foreground"> کارنامه وضعیت</div>
+                            <div class="font-black text-foreground"> کارنامه هوشمند</div>
                         </div>
                         <!-- end section:title -->
 
 
-                        <!-- tabs:contents -->
-                        <div>
-                            <!-- tabs:contents:tabTwo -->
-                            <div class="space-y-5" wire:poll.visible>
-                                <div class="relative  @if($reportMonthly->isNotEmpty()) overflow-x-auto @endif">
+                        <!-- tabs container -->
+                        <div class="space-y-5">
 
-                                    <table class="w-full text-sm text-right">
-                                        @if($reportMonthly->isNotEmpty())
-                                            <thead
-                                                class="text-xs text-muted uppercase bg-background border-b border-border">
-                                            <tr>
-                                                <th class="whitespace-nowrap p-5">ردیف</th>
-                                                <th class="whitespace-nowrap p-5">عنوان</th>
-                                                <th class="whitespace-nowrap p-5">تاریخ بارگذاری </th>
-                                                <th class="whitespace-nowrap p-5"></th>
-                                            </tr>
-                                            </thead>
+                            <!-- tabs:contents -->
+                            <div>
 
-
-                                            <tbody >
-                                            @foreach($reportMonthly as $report)
-                                                <tr class="odd:bg-secondary even:bg-background">
-                                                    <td class="p-5">
-                                                        <div class="font-black text-sm text-foreground">{{$loop->iteration + $reportMonthly->firstItem() - 1}}</div>
-                                                    </td>
-                                                    <td class="p-5">
-                                                        <div class="flex items-center gap-2">
-                                                            <span class="font-bold text-white">{{@$report->title}}</span>
+                                <div>
+                                    @if($smartCards->isNotEmpty())
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            @foreach($smartCards as $card)
+                                                <a wire:navigate href="{{ route('client.profile.smartReportCard.show', $card->id) }}"
+                                                   class="group block bg-secondary border border-border rounded-2xl p-5 hover:border-primary transition-colors">
+                                                    <div class="flex items-start justify-between mb-3">
+                                                        <div>
+                                                            <div class="font-black text-lg text-foreground">{{ $card->month_name }}</div>
+                                                            <div class="text-xs text-muted mt-1">سال {{ $card->jalali_year }}</div>
                                                         </div>
-                                                    </td>
-                                                    <td class="p-5">
-                                                        <div class="text-xs text-muted whitespace-nowrap">
-                                                            {{jalali(@$report->created_at)->format('%d %B %Y | H:i')}}
-                                                        </div>
-                                                    </td>
-                                                    <td class="p-5">
-                                                        <a href="{{ \App\Helpers\FileHelper::publicUrl($report->report) }}"
-                                                           target="_blank"
-                                                           download
-                                                           class="inline-flex items-center gap-x-1 text-cyan-400">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4">
-                                                                <path fill-rule="evenodd" d="M11.013 2.513a1.75 1.75 0 0 1 2.475 2.474L6.226 12.25a2.751 2.751 0 0 1-.892.596l-2.047.848a.75.75 0 0 1-.98-.98l.848-2.047a2.75 2.75 0 0 1 .596-.892l7.262-7.261Z" clip-rule="evenodd"></path>
+                                                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold bg-green-500/15 text-green-600 dark:text-green-400 rounded-full px-2 py-1">
+                                                            <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                                            فعال
+                                                        </span>
+                                                    </div>
+                                                    <div class="space-y-1 text-xs text-muted">
+                                                        <div class="flex items-center gap-1">
+                                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
                                                             </svg>
-                                                            <span class="whitespace-nowrap font-semibold text-xs">مشاهده</span>
-                                                        </a>
-                                                    </td>
-                                                </tr>
+                                                            <span>از {{ $card->jalali_start }} تا {{ $card->jalali_end }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-primary group-hover:gap-2 transition-all">
+                                                        مشاهده کارنامه
+                                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/>
+                                                        </svg>
+                                                    </div>
+                                                </a>
                                             @endforeach
-                                            </tbody>
-
-                                        @else
-                                            <div class="flex flex-col items-center justify-center space-y-12">
-                                                <img src="/client/empty/reportStudentStudy.png" class="w-full max-w-xs" alt="..." />
-                                                <div class="text-center space-y-3">
-                                                    <h2 class="font-bold text-xl text-foreground">
-                                                        گزارش وضعیت  برای شما وجود ندارد!
-                                                        <p class="text-muted text-sm">هنوز گزارش وضعیت  برای شما ثبت نشده است.</p>
-                                                    </h2>
-                                                </div>
+                                        </div>
+                                    @else
+                                        <div class="flex flex-col items-center justify-center space-y-8 py-12">
+                                            <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="..." />
+                                            <div class="text-center space-y-2">
+                                                <h2 class="font-bold text-xl text-foreground">کارنامه هوشمندی برای شما فعال نشده است.</h2>
+                                                <p class="text-sm text-muted">پس از فعال‌سازی توسط مشاور، ماه‌های فعال در این بخش نمایش داده می‌شود.</p>
                                             </div>
-                                        @endif
-
-                                    </table>
+                                        </div>
+                                    @endif
                                 </div>
-                                <div class="p-5 text-xs text-muted whitespace-nowrap text-white">
-                                    {{$reportMonthly->links('layouts.client.pagination')}}
-                                </div>
-                            </div>
-                            <!-- end tabs:contents:tabTwo -->
-                        </div>
-                        <!-- end tabs:contents -->
+                            </div><!-- end tabs:contents -->
+                        </div><!-- end tabs container -->
                     </div>
                 </div>
             </div>

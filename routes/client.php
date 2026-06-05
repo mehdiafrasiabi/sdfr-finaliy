@@ -1,5 +1,4 @@
 <?php
-
 use App\Http\Controllers\FileDownloadController;
 use App\Livewire\Client\AboutUs\Index as AboutUs;
 use App\Livewire\Client\Auth\ForgotPassword as ForgotPassword;
@@ -45,6 +44,8 @@ use App\Livewire\Client\Terms\Index as RuleIndex;
 use Illuminate\Support\Facades\Route;
 use App\Livewire\Client\Profile\Wallet as ProfileWallet;
 use App\Livewire\Client\PercentCalculator\Index as PercentCalculatorIndex;
+use App\Livewire\Client\Profile\SmartReportCardShow as ProfileSmartReportCardShow;
+
 use App\Livewire\Client\Schools\Index as SchoolsIndex;
 
 
@@ -114,6 +115,7 @@ Route::name('client.')->group(function () {
             Route::get('/reportStudentStudy',ProfileReportStudentStudy::class)->name('reportStudentStudy');
             Route::get('/edit',ProfileEdit::class)->name('edit');
             Route::get('/financial',ProfileFinancial::class)->name('financial');
+            Route::get('/smartReportCard/{smartReportCard}',ProfileSmartReportCardShow::class)->name('smartReportCard.show');
             Route::get('/installment',ProfileInstallment::class)->name('installment');
             Route::get('/installmentDetail',ProfileInstallmentDetail::class)->name('installmentDetail');
             Route::get('/plan',ProfilePlan::class)->name('plan');
