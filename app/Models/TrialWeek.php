@@ -16,6 +16,7 @@ class TrialWeek extends Model
     protected $casts = [
         'expires_at'               => 'datetime',
         'assessments_completed_at' => 'datetime',
+        'profile_acknowledged_at'  => 'datetime',
         'supporter_assigned_at'    => 'datetime',
         'classification_locked_at' => 'datetime',
         'pre_session_completed_at' => 'datetime',
@@ -109,6 +110,11 @@ class TrialWeek extends Model
     public function hasCompletedAssessments(): bool
     {
         return $this->assessments_completed_at !== null;
+    }
+
+    public function hasAcknowledgedProfile(): bool
+    {
+        return $this->profile_acknowledged_at !== null;
     }
 
     public function parentAssessmentInvitations(): \Illuminate\Database\Eloquent\Relations\HasMany

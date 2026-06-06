@@ -378,7 +378,7 @@ class TrialWeekOnboarding extends Component
 
         if (TrialWeek::where('user_id', $user->id)->exists()) {
             // middleware assessments.required مسیر درست را تشخیص می‌دهد
-            $this->redirect(route('client.profile.assessment.list'), navigate: true);
+            $this->redirect(route('client.profile.assessment.journey'), navigate: true);
             return;
         }
 
@@ -390,7 +390,7 @@ class TrialWeekOnboarding extends Component
             $this->motherMobile,
         );
 
-        $this->redirect(route('client.profile.assessment.list'), navigate: true);
+        $this->redirect(route('client.profile.assessment.journey'), navigate: true);
     }
 
     public function goToPurchase(): void { $this->redirect(route('client.purchase'), navigate: true); }

@@ -3,6 +3,7 @@
 namespace App\Livewire\Client\Profile;
 
 use App\Models\NotificationRecipient;
+use App\Models\TrialWeek;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\On;
@@ -12,11 +13,21 @@ class Sidebar extends Component
     public ?string $profilePictureUrl = null;
     public ?string $gender = null;
     public $unreadCount = 0;
+    public bool $showMyReport = false;
 
     public function mount()
     {
         $this->loadUnreadCount();
         $this->loadUserProfileData();
+        $this->loadMyReportFlag();
+    }
+
+    public function loadMyReportFlag(): void
+    {
+        $user = Auth::user();
+        $this->showMyReport = $user
+            && $user->trialWeek
+            && $user->trialWeek->status === TrialWeek::STATUS_PROGRAM_BUILT;
     }
     public function loadUnreadCount()
     {

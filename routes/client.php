@@ -33,10 +33,14 @@ use App\Livewire\Client\Profile\Ticket\Create as ProfileTicketCreate;
 use App\Livewire\Client\Profile\Ticket\Index as ProfileTicketIndex;
 use App\Livewire\Client\Profile\Ticket\Show as ProfileTicketShow;
 use App\Livewire\Client\ParentAssessment\ParentAssessmentEntry;
-use App\Livewire\Client\ParentAssessment\ParentAssessmentList as ParentAssessmentListPage;
-use App\Livewire\Client\ParentAssessment\ParentAssessmentTake as ParentAssessmentTakePage;
-use App\Livewire\Client\Profile\Assessment\AssessmentList;
-use App\Livewire\Client\Profile\Assessment\AssessmentTake;
+use App\Livewire\Client\ParentAssessment\ParentStageWelcome;
+use App\Livewire\Client\ParentAssessment\ParentStageWizard;
+use App\Livewire\Client\ParentAssessment\ParentThankYou;
+use App\Livewire\Client\Profile\Assessment\AssessmentJourney;
+use App\Livewire\Client\Profile\Assessment\StageWelcome as AssessmentStageWelcome;
+use App\Livewire\Client\Profile\Assessment\StageWizard as AssessmentStageWizard;
+use App\Livewire\Client\Profile\Assessment\ProfileReview as AssessmentProfileReview;
+use App\Livewire\Client\Profile\Report\StudentReport as ProfileStudentReport;
 use App\Livewire\Client\Profile\TypedExam\TypedExamList;
 use App\Livewire\Client\Profile\TypedExam\TypedExamResult;
 use App\Livewire\Client\Profile\TypedExam\TypedExamTest;
@@ -81,17 +85,20 @@ Route::name('client.')->group(function () {
         ->middleware(['auth', 'assessments.required'])
         ->name('profile.waiting-for-supporter');
 
-    // صفحات آزمون‌های روان‌شناختی (auth بدون trial.step — کاربر در همان status pending)
+    // Journey سه‌مرحله‌ای آزمون‌های روان‌شناختی (auth بدون trial.step — کاربر در همان status pending)
     Route::middleware('auth')->prefix('profile/assessments')->name('profile.assessment.')->group(function () {
-        Route::get('/', AssessmentList::class)->name('list');
-        Route::get('/{slug}/take', AssessmentTake::class)->name('take');
+        Route::get('/',                  AssessmentJourney::class)->name('journey');
+        Route::get('/welcome/{stage}',   AssessmentStageWelcome::class)->name('welcome');
+        Route::get('/take/{stage}',      AssessmentStageWizard::class)->name('take');
+        Route::get('/profile-review',    AssessmentProfileReview::class)->name('review');
     });
 
     // مسیر عمومی تست‌های والدینی — بدون auth، با token validation داخل خود components
     Route::prefix('parent/assessment')->name('parent.assessment.')->group(function () {
-        Route::get('/{token}', ParentAssessmentEntry::class)->name('entry');
-        Route::get('/{token}/list', ParentAssessmentListPage::class)->name('list');
-        Route::get('/{token}/{slug}/take', ParentAssessmentTakePage::class)->name('take');
+        Route::get('/{token}',           ParentAssessmentEntry::class)->name('entry');
+        Route::get('/{token}/welcome',   ParentStageWelcome::class)->name('welcome');
+        Route::get('/{token}/take',      ParentStageWizard::class)->name('take');
+        Route::get('/{token}/thank-you', ParentThankYou::class)->name('thank-you');
     });
 
     // B-2: صفحهٔ پرداخت اختصاصی (auth)
@@ -119,6 +126,9 @@ Route::name('client.')->group(function () {
             Route::get('/plan',ProfilePlan::class)->name('plan');
             Route::get('/report',ProfileReport::class)->name('report');
             Route::get('/studySession',StudySession::class)->name('studySession');
+
+            // کارنامه‌ی نهایی — فعال بعد از program_built
+            Route::get('/my-report', ProfileStudentReport::class)->name('myReport');
 
 //          Ticketing Route
             Route::get('/ticket',ProfileTicketIndex::class)->name('ticket');

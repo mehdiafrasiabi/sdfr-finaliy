@@ -25,6 +25,11 @@ class Assessment extends Model
     const AUDIENCE_STUDENT = 'student';
     const AUDIENCE_PARENT  = 'parent';
 
+    const STAGE_MBTI    = 'mbti';
+    const STAGE_VARK    = 'vark';
+    const STAGE_MINDSET = 'mindset';
+    const STAGE_PARENT  = 'parent';
+
     public function questions(): HasMany
     {
         return $this->hasMany(AssessmentQuestion::class)->orderBy('order');
@@ -48,6 +53,11 @@ class Assessment extends Model
     public function scopeForStudent(Builder $q): Builder
     {
         return $q->where('audience', self::AUDIENCE_STUDENT);
+    }
+
+    public function scopeStage(Builder $q, string $stage): Builder
+    {
+        return $q->where('stage', $stage);
     }
 
     public function getKindLabelAttribute(): string

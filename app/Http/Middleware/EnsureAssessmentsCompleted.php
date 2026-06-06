@@ -8,19 +8,23 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * گِیت آزمون‌های روان‌شناختی: اگر دانش‌آموز هفته‌ی آزمایشی دارد و هنوز
- * trial_weeks.assessments_completed_at پر نشده است، فقط مسیرهای مربوط به
- * تکمیل آزمون‌ها (و logout) قابل دسترسی هستند. سایر مسیرها به لیست آزمون‌ها
- * هدایت می‌شوند.
+ * گِیت دومرحله‌ای فاز ۳:
  *
- * دانش‌آموزان پرداختی (بدون TrialWeek) و کسانی که آزمون‌ها را تکمیل کرده‌اند
- * از این middleware عبور می‌کنند.
+ *  1. اگر دانش‌آموز هفته‌ی آزمایشی دارد و assessments_completed_at پر نشده،
+ *     او را به journey آزمون‌ها هدایت می‌کند.
+ *  2. اگر assessments تمام شده ولی profile_acknowledged_at پر نشده،
+ *     او را به صفحه‌ی ProfileReview هدایت می‌کند.
+ *  3. در غیر این صورت اجازه‌ی عبور.
+ *
+ * روت‌های مربوط به خود journey/welcome/take/review و logout از این چک معاف‌اند.
  */
 class EnsureAssessmentsCompleted
 {
     protected const ALLOWED_ROUTES = [
-        'client.profile.assessment.list',
+        'client.profile.assessment.journey',
+        'client.profile.assessment.welcome',
         'client.profile.assessment.take',
+        'client.profile.assessment.review',
         'client.logout',
     ];
 
@@ -37,17 +41,27 @@ class EnsureAssessmentsCompleted
             return $next($request);
         }
 
-        if ($trial->assessments_completed_at) {
-            return $next($request);
-        }
-
         $name = $request->route()?->getName();
-        if ($name && in_array($name, self::ALLOWED_ROUTES, true)) {
-            return $next($request);
+        $isAllowed = $name && in_array($name, self::ALLOWED_ROUTES, true);
+
+        if (! $trial->assessments_completed_at) {
+            if ($isAllowed) {
+                return $next($request);
+            }
+            return redirect()
+                ->route('client.profile.assessment.journey')
+                ->with('info', 'برای ادامه ابتدا آزمون‌های روان‌شناختی را تکمیل کنید.');
         }
 
-        return redirect()
-            ->route('client.profile.assessment.list')
-            ->with('info', 'برای ادامه ابتدا آزمون‌های روان‌شناختی را تکمیل کنید.');
+        if (! $trial->profile_acknowledged_at) {
+            if ($isAllowed) {
+                return $next($request);
+            }
+            return redirect()
+                ->route('client.profile.assessment.review')
+                ->with('info', 'لطفاً پروفایل خود را مرور و تأیید کنید.');
+        }
+
+        return $next($request);
     }
 }

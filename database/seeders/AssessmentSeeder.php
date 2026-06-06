@@ -54,6 +54,7 @@ class AssessmentSeeder extends Seeder
                 'is_required'             => true,
                 'display_order'           => 1,
                 'audience'                => Assessment::AUDIENCE_STUDENT,
+                'stage'                   => Assessment::STAGE_MBTI,
                 'expected_question_count' => 64,
             ]
         );
@@ -192,6 +193,7 @@ class AssessmentSeeder extends Seeder
                 'is_required'             => true,
                 'display_order'           => 2,
                 'audience'                => Assessment::AUDIENCE_STUDENT,
+                'stage'                   => Assessment::STAGE_VARK,
                 'expected_question_count' => 16,
             ]
         );
@@ -478,6 +480,7 @@ class AssessmentSeeder extends Seeder
                     'is_required'             => true,
                     'display_order'           => $t['order'],
                     'audience'                => Assessment::AUDIENCE_STUDENT,
+                    'stage'                   => Assessment::STAGE_MINDSET,
                     'expected_question_count' => count($t['questions']),
                 ]
             );
@@ -574,6 +577,7 @@ class AssessmentSeeder extends Seeder
                     'is_required'             => true,
                     'display_order'           => $t['order'],
                     'audience'                => Assessment::AUDIENCE_PARENT,
+                    'stage'                   => Assessment::STAGE_PARENT,
                     'expected_question_count' => count($t['questions']),
                 ]
             );

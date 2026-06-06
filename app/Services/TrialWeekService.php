@@ -73,6 +73,20 @@ class TrialWeekService
         });
     }
 
+    // تأیید پروفایل توسط دانش‌آموز پس از مشاهده‌ی صفحه‌ی ProfileReview.
+    // gate لازم برای buildProgram است.
+    public function acknowledgeProfile(User $user): void
+    {
+        $trial = $user->trialWeek;
+        if (! $trial) {
+            throw new \LogicException('کاربر هفته‌ی آزمایشی فعالی ندارد.');
+        }
+        if ($trial->profile_acknowledged_at) {
+            return;
+        }
+        $trial->update(['profile_acknowledged_at' => Carbon::now()]);
+    }
+
     // قفل طبقه‌بندی پس از تایید دانش‌آموز
     public function lockClassification(TrialWeek $trialWeek): void
     {
@@ -92,8 +106,13 @@ class TrialWeekService
     }
 
     // ساخت برنامه هفتگی آزمایشی
+    // گِیت فاز ۳: دانش‌آموز باید پروفایل خود را تأیید کرده باشد.
     public function buildProgram(TrialWeek $trialWeek, int $dailyHours): WeeklyProgram
     {
+        if (! $trialWeek->profile_acknowledged_at) {
+            throw new \LogicException('دانش‌آموز هنوز پروفایل خود را تأیید نکرده. ساخت برنامه ممکن نیست.');
+        }
+
         return DB::transaction(function () use ($trialWeek, $dailyHours) {
             $subjectPriorities = $this->calculateSubjectPriorities($trialWeek->user_id);
 
