@@ -26,29 +26,20 @@ class Classify extends Component
     public $availableTags = [];
     public $activeTag = null;
 
-    /**
-     * Each entry: ['type'=>'specialized'|'general', 'subject'=>['id','name'], 'chapters'=>[...]]
-     * For 'specialized': chapters list is filled.
-     * For 'general': chapters list is empty — rating is on subject itself.
-     */
     public $subjects = [];
-
-    /**
-     * Keyed map: "chapter_{id}" => 1..4 or "subject_{id}" => 1..4
-     */
-    public $ratings = [];
+    public $ratings  = [];
 
     public $showSubmitModal = false;
-    public $showMyTopics = false;
+    public $showMyTopics    = false;
 
-    public $totalTopics = 0;
+    public $totalTopics     = 0;
     public $completedTopics = 0;
 
     public bool $isTrial = false;
 
     public function mount(ClassificationProject $project, $grade)
     {
-        $this->project = $project;
+        $this->project       = $project;
         $this->selectedGrade = (int) $grade;
         $this->loadStudentInfo();
         $this->loadAvailableTags();
@@ -63,7 +54,7 @@ class Classify extends Component
 
     protected function loadStudentInfo()
     {
-        $userId = auth()->id();
+        $userId       = auth()->id();
         $personalInfo = PersonalInformation::where('user_id', $userId)->first();
         if ($personalInfo) {
             $this->studentGrade = (int) $personalInfo->grade;
@@ -71,74 +62,49 @@ class Classify extends Component
         } else {
             $trial = TrialWeek::where('user_id', $userId)->latest()->first();
             if ($trial) {
-                $this->isTrial = true;
+                $this->isTrial      = true;
                 $this->studentGrade = $trial->grade >= 10 ? $trial->grade : 10;
                 $this->studentField = $trial->field;
             }
         }
-
-        $fieldMapping = ['math' => 'math', 'experimental' => 'experimental', 'human' => 'human'];
+        $fieldMapping          = ['math' => 'math', 'experimental' => 'experimental', 'human' => 'human'];
         $this->studentFieldSlug = $fieldMapping[$this->studentField] ?? null;
     }
 
     protected function loadAvailableTags()
     {
-        // Trial project: synthetic settings — show student's grade AND all lower grades.
-        // Grade 10 → [10]; Grade 11 → [10, 11]; Grade 12 → [10, 11, 12].
         if ($this->project->is_trial) {
             $gradeNames = [10 => 'دهم', 11 => 'یازدهم', 12 => 'دوازدهم'];
-            $studentG = $this->studentGrade ?: 10;
-            $grades = [];
+            $studentG   = $this->studentGrade ?: 10;
             for ($g = 10; $g <= $studentG; $g++) {
-                $grades[] = $g;
+                $this->availableTags[] = ['id' => $g . '_specialized', 'grade' => $g, 'type' => 'specialized', 'label' => ($gradeNames[$g] ?? $g) . ' (تخصصی)'];
+                $this->availableTags[] = ['id' => $g . '_general',     'grade' => $g, 'type' => 'general',     'label' => ($gradeNames[$g] ?? $g) . ' (عمومی)'];
             }
-            foreach ($grades as $g) {
-                $this->availableTags[] = [
-                    'id' => $g . '_specialized', 'grade' => $g, 'type' => 'specialized',
-                    'label' => ($gradeNames[$g] ?? $g) . ' (تخصصی)',
-                ];
-                $this->availableTags[] = [
-                    'id' => $g . '_general', 'grade' => $g, 'type' => 'general',
-                    'label' => ($gradeNames[$g] ?? $g) . ' (عمومی)',
-                ];
-            }
-            $matching = collect($this->availableTags)->first(fn ($t) => (int) $t['grade'] === $this->selectedGrade);
+            $matching        = collect($this->availableTags)->first(fn($t) => (int)$t['grade'] === $this->selectedGrade);
             $this->activeTag = $matching['id'] ?? $this->availableTags[0]['id'];
             $this->loadSubjects();
             return;
         }
 
-        $settings = $this->project->gradeSettings()
-            ->where('student_grade', $this->studentGrade)
-            ->get();
+        $settings   = $this->project->gradeSettings()->where('student_grade', $this->studentGrade)->get();
         $gradeNames = [10 => 'دهم', 11 => 'یازدهم', 12 => 'دوازدهم'];
-
         foreach ($settings as $setting) {
-            $this->availableTags[] = [
-                'id'    => $setting->target_grade . '_specialized',
-                'grade' => $setting->target_grade,
-                'type'  => 'specialized',
-                'label' => ($gradeNames[$setting->target_grade] ?? $setting->target_grade) . ' (تخصصی)',
-            ];
+            $this->availableTags[] = ['id' => $setting->target_grade . '_specialized', 'grade' => $setting->target_grade, 'type' => 'specialized', 'label' => ($gradeNames[$setting->target_grade] ?? $setting->target_grade) . ' (تخصصی)'];
             if ($setting->has_general) {
-                $this->availableTags[] = [
-                    'id'    => $setting->target_grade . '_general',
-                    'grade' => $setting->target_grade,
-                    'type'  => 'general',
-                    'label' => ($gradeNames[$setting->target_grade] ?? $setting->target_grade) . ' (عمومی)',
-                ];
+                $this->availableTags[] = ['id' => $setting->target_grade . '_general', 'grade' => $setting->target_grade, 'type' => 'general', 'label' => ($gradeNames[$setting->target_grade] ?? $setting->target_grade) . ' (عمومی)'];
             }
         }
-
         if (!empty($this->availableTags)) {
-            $matchingTag = collect($this->availableTags)->first(function ($tag) {
-                return (int) $tag['grade'] === $this->selectedGrade;
-            });
+            $matchingTag     = collect($this->availableTags)->first(fn($t) => (int)$t['grade'] === $this->selectedGrade);
             $this->activeTag = $matchingTag['id'] ?? $this->availableTags[0]['id'];
             $this->loadSubjects();
         }
     }
 
+    /**
+     * Fix: بارگذاری رتبه‌بندی‌های موجود فقط برای آیتم‌های واقعی
+     * completedTopics = تعداد آیتم‌هایی که هم رتبه دارند هم در لیست فعال هستند
+     */
     protected function loadExistingRatings()
     {
         $rows = StudentClassification::where('user_id', auth()->id())
@@ -147,17 +113,23 @@ class Classify extends Component
 
         $map = [];
         foreach ($rows as $r) {
-            $key = ($r->ratable_type === CcChapter::class ? 'chapter_' : 'subject_') . $r->ratable_id;
+            $key       = ($r->ratable_type === CcChapter::class ? 'chapter_' : 'subject_') . $r->ratable_id;
             $map[$key] = (int) $r->rating;
         }
         $this->ratings = $map;
-        $this->completedTopics = count($map);
+
+        // محاسبه totalTopics اول، بعد completedTopics را از تقاطع حساب کن
         $this->calculateTotalTopics();
+        $this->recalculateCompletedTopics();
     }
 
+    /**
+     * Fix اصلی: فقط آیتم‌هایی را می‌شماریم که واقعاً در سیستم وجود دارند
+     * همان فیلتر field را اعمال می‌کنیم که در loadSubjects هم هست
+     */
     protected function calculateTotalTopics()
     {
-        $total = 0;
+        $total          = 0;
         $studentFieldId = $this->studentFieldSlug
             ? CcField::where('slug', $this->studentFieldSlug)->value('id')
             : null;
@@ -165,29 +137,107 @@ class Classify extends Component
         $settings = $this->getEffectiveSettings();
 
         foreach ($settings as $setting) {
-            $ccGrade = CcGrade::where('grade_number', $setting['target_grade'])->first();
+            // Fix: همان فیلتر is_active + field که در loadSubjects هست
+            $ccGrade = CcGrade::where('grade_number', $setting['target_grade'])
+                ->where('is_active', true)
+                ->when($studentFieldId, fn($q) => $q->where('cc_field_id', $studentFieldId))
+                ->first();
+
+            // اگر با field پیدا نشد، بدون field امتحان کن
+            if (!$ccGrade) {
+                $ccGrade = CcGrade::where('grade_number', $setting['target_grade'])
+                    ->where('is_active', true)
+                    ->first();
+            }
+
             if (!$ccGrade) continue;
 
-            // Specialized: count chapters
+            // تخصصی: تعداد فصل‌های فعال
             $specSubjects = CcSubject::where('cc_grade_id', $ccGrade->id)
                 ->where('type', 'specialized')
                 ->where(function ($q) use ($studentFieldId) {
                     $q->where('cc_field_id', $studentFieldId)->orWhereNull('cc_field_id');
                 })
-                ->with(['chapters' => fn ($q) => $q->where('is_active', true)])
+                ->with(['chapters' => fn($q) => $q->where('is_active', true)])
                 ->get();
+
             foreach ($specSubjects as $subj) {
                 $total += $subj->chapters->count();
             }
 
-            // General: count subjects (only if has_general)
+            // عمومی: تعداد دروس عمومی
             if (!empty($setting['has_general'])) {
                 $total += CcSubject::where('cc_grade_id', $ccGrade->id)
                     ->where('type', 'general')
                     ->count();
             }
         }
+
         $this->totalTopics = $total;
+    }
+
+    /**
+     * Fix: completedTopics = تعداد ratings که کلیدشان با آیتم‌های واقعی match می‌کند
+     * این جلوی "الکی پر شدن" progress bar را می‌گیرد
+     */
+    protected function recalculateCompletedTopics()
+    {
+        if (empty($this->ratings)) {
+            $this->completedTopics = 0;
+            return;
+        }
+
+        $studentFieldId = $this->studentFieldSlug
+            ? CcField::where('slug', $this->studentFieldSlug)->value('id')
+            : null;
+
+        $validChapterIds = collect();
+        $validSubjectIds = collect();
+
+        foreach ($this->getEffectiveSettings() as $setting) {
+            $ccGrade = CcGrade::where('grade_number', $setting['target_grade'])
+                ->where('is_active', true)
+                ->when($studentFieldId, fn($q) => $q->where('cc_field_id', $studentFieldId))
+                ->first()
+                ?? CcGrade::where('grade_number', $setting['target_grade'])->where('is_active', true)->first();
+
+            if (!$ccGrade) continue;
+
+            // فصل‌های تخصصی معتبر
+            $specSubjectIds = CcSubject::where('cc_grade_id', $ccGrade->id)
+                ->where('type', 'specialized')
+                ->where(function ($q) use ($studentFieldId) {
+                    $q->where('cc_field_id', $studentFieldId)->orWhereNull('cc_field_id');
+                })
+                ->pluck('id');
+
+            $chapterIds = CcChapter::whereIn('cc_subject_id', $specSubjectIds)
+                ->where('is_active', true)
+                ->pluck('id');
+
+            $validChapterIds = $validChapterIds->merge($chapterIds);
+
+            // دروس عمومی معتبر
+            if (!empty($setting['has_general'])) {
+                $genSubjectIds = CcSubject::where('cc_grade_id', $ccGrade->id)
+                    ->where('type', 'general')
+                    ->pluck('id');
+                $validSubjectIds = $validSubjectIds->merge($genSubjectIds);
+            }
+        }
+
+        $count = 0;
+        foreach ($this->ratings as $key => $rating) {
+            if (str_starts_with($key, 'chapter_')) {
+                $id = (int) str_replace('chapter_', '', $key);
+                if ($validChapterIds->contains($id)) $count++;
+            } elseif (str_starts_with($key, 'subject_')) {
+                $id = (int) str_replace('subject_', '', $key);
+                if ($validSubjectIds->contains($id)) $count++;
+            }
+        }
+
+        $this->completedTopics = $count;
     }
 
     protected function getEffectiveSettings(): array
@@ -203,13 +253,13 @@ class Classify extends Component
         return $this->project->gradeSettings()
             ->where('student_grade', $this->studentGrade)
             ->get()
-            ->map(fn ($s) => ['target_grade' => $s->target_grade, 'has_general' => (bool) $s->has_general])
+            ->map(fn($s) => ['target_grade' => $s->target_grade, 'has_general' => (bool)$s->has_general])
             ->toArray();
     }
 
     public function selectTag($tagId)
     {
-        $this->activeTag = $tagId;
+        $this->activeTag    = $tagId;
         $this->showMyTopics = false;
         $this->loadSubjects();
     }
@@ -217,29 +267,28 @@ class Classify extends Component
     public function showMyRatings()
     {
         $this->showMyTopics = true;
-        $this->activeTag = null;
+        $this->activeTag    = null;
     }
 
     protected function loadSubjects()
     {
-        if (!$this->activeTag) {
-            $this->subjects = [];
-            return;
-        }
+        if (!$this->activeTag) { $this->subjects = []; return; }
 
-        $parts = explode('_', $this->activeTag);
+        $parts       = explode('_', $this->activeTag);
         $gradeNumber = (int) $parts[0];
-        $type = $parts[1];
-
-        $ccGrade = CcGrade::where('grade_number', $gradeNumber)->first();
-        if (!$ccGrade) {
-            $this->subjects = [];
-            return;
-        }
+        $type        = $parts[1];
 
         $studentFieldId = $this->studentFieldSlug
             ? CcField::where('slug', $this->studentFieldSlug)->value('id')
             : null;
+
+        $ccGrade = CcGrade::where('grade_number', $gradeNumber)
+            ->where('is_active', true)
+            ->when($studentFieldId, fn($q) => $q->where('cc_field_id', $studentFieldId))
+            ->first()
+            ?? CcGrade::where('grade_number', $gradeNumber)->where('is_active', true)->first();
+
+        if (!$ccGrade) { $this->subjects = []; return; }
 
         $query = CcSubject::where('cc_grade_id', $ccGrade->id)->where('type', $type);
 
@@ -247,85 +296,59 @@ class Classify extends Component
             $query->where(function ($q) use ($studentFieldId) {
                 $q->where('cc_field_id', $studentFieldId)->orWhereNull('cc_field_id');
             });
-            $subjects = $query->with(['chapters' => fn ($q) => $q->active()->ordered()])
-                ->ordered()->get();
-            $this->subjects = $subjects->map(function ($s) {
-                return [
-                    'id'   => $s->id,
-                    'name' => $s->name,
-                    'type' => 'specialized',
-                    'chapters' => $s->chapters->map(fn ($c) => ['id' => $c->id, 'name' => $c->name])->values()->toArray(),
-                ];
-            })->toArray();
+            $this->subjects = $query
+                ->with(['chapters' => fn($q) => $q->active()->ordered()])
+                ->ordered()->get()
+                ->map(fn($s) => [
+                    'id'       => $s->id,
+                    'name'     => $s->name,
+                    'type'     => 'specialized',
+                    'chapters' => $s->chapters->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values()->toArray(),
+                ])->toArray();
         } else {
-            // general: subject-level rating, no chapters shown
-            $subjects = $query->ordered()->get();
-            $this->subjects = $subjects->map(function ($s) {
-                return [
-                    'id'   => $s->id,
-                    'name' => $s->name,
-                    'type' => 'general',
-                    'chapters' => [],
-                ];
-            })->toArray();
+            $this->subjects = $query->ordered()->get()
+                ->map(fn($s) => ['id' => $s->id, 'name' => $s->name, 'type' => 'general', 'chapters' => []])
+                ->toArray();
         }
     }
 
     public function setRating($id, $rating, $kind)
     {
         $rating = max(1, min(4, (int) $rating));
-        $id = (int) $id;
-        $type = $kind === 'chapter' ? CcChapter::class : CcSubject::class;
+        $id     = (int) $id;
+        $type   = $kind === 'chapter' ? CcChapter::class : CcSubject::class;
 
         StudentClassification::updateOrCreate(
-            [
-                'user_id' => auth()->id(),
-                'classification_project_id' => $this->project->id,
-                'ratable_type' => $type,
-                'ratable_id'   => $id,
-            ],
+            ['user_id' => auth()->id(), 'classification_project_id' => $this->project->id, 'ratable_type' => $type, 'ratable_id' => $id],
             ['rating' => $rating]
         );
 
         $this->ratings[($kind === 'chapter' ? 'chapter_' : 'subject_') . $id] = $rating;
-        $this->completedTopics = count($this->ratings);
+        $this->recalculateCompletedTopics();
     }
 
     public function clearRating($id, $kind)
     {
-        $id = (int) $id;
+        $id   = (int) $id;
         $type = $kind === 'chapter' ? CcChapter::class : CcSubject::class;
 
         StudentClassification::where('user_id', auth()->id())
             ->where('classification_project_id', $this->project->id)
-            ->where('ratable_type', $type)
-            ->where('ratable_id', $id)
-            ->delete();
+            ->where('ratable_type', $type)->where('ratable_id', $id)->delete();
 
         unset($this->ratings[($kind === 'chapter' ? 'chapter_' : 'subject_') . $id]);
-        $this->completedTopics = count($this->ratings);
+        $this->recalculateCompletedTopics();
     }
 
-    public function openSubmitModal()
-    {
-        $this->showSubmitModal = true;
-    }
+    public function openSubmitModal()  { $this->showSubmitModal = true; }
 
     public function submitClassification()
     {
         StudentClassificationSubmission::updateOrCreate(
-            [
-                'user_id' => auth()->id(),
-                'classification_project_id' => $this->project->id,
-            ],
-            [
-                'is_completed' => true,
-                'submitted_at' => now(),
-            ]
+            ['user_id' => auth()->id(), 'classification_project_id' => $this->project->id],
+            ['is_completed' => true, 'submitted_at' => now()]
         );
 
-        // Trial classification: auto-confirm + advance the trial-week flow so support
-        // (پشتیبان جذب) can see the result immediately.
         if ($this->project->is_trial) {
             $trial = TrialWeek::where('user_id', auth()->id())->latest()->first();
             if ($trial) {
@@ -353,34 +376,26 @@ class Classify extends Component
         if ($this->showMyTopics) {
             $rows = StudentClassification::where('user_id', auth()->id())
                 ->where('classification_project_id', $this->project->id)
-                ->with('ratable')
-                ->get();
+                ->with('ratable')->get();
 
             foreach ($rows as $r) {
                 $ratable = $r->ratable;
                 if (!$ratable) continue;
                 if ($r->ratable_type === CcChapter::class) {
-                    $subject = $ratable->subject;
-                    $subjectName = $subject?->name ?? 'سایر';
-                    $itemName = $ratable->name;
-                    $context = 'فصل';
+                    $subjectName = $ratable->subject?->name ?? 'سایر';
+                    $itemName    = $ratable->name;
+                    $context     = 'فصل';
                 } else {
                     $subjectName = 'دروس عمومی';
-                    $itemName = $ratable->name;
-                    $context = 'درس عمومی';
+                    $itemName    = $ratable->name;
+                    $context     = 'درس عمومی';
                 }
-                $myRated->push((object) [
-                    'subjectName' => $subjectName,
-                    'itemName'    => $itemName,
-                    'context'     => $context,
-                    'rating'      => $r->rating,
-                ]);
+                $myRated->push((object)['subjectName' => $subjectName, 'itemName' => $itemName, 'context' => $context, 'rating' => $r->rating]);
             }
             $myRated = $myRated->groupBy('subjectName');
         }
 
-        return view('livewire.client.profile.classification.classify', [
-            'myRated' => $myRated,
-        ])->layout('layouts.client.app');
+        return view('livewire.client.profile.classification.classify', ['myRated' => $myRated])
+            ->layout('layouts.client.app');
     }
 }

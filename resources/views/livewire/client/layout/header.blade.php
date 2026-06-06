@@ -65,12 +65,7 @@
                             </a>
                         </div>
                         <ul class="flex items-center gap-5">
-                            <li>
-                                <a href="{{route('client.blog')}}" wire:navigate
-                                   class="inline-flex text-muted transition-colors hover:text-foreground">
-                                    <span class="font-semibold">مقالات</span>
-                                </a>
-                            </li>
+
                             <div class="relative group/categories">
                                 <a href="#"
                                    class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground">
@@ -160,18 +155,6 @@
                                     </span>
                                 </button>
 
-                                <!-- Backdrop Overlay -->
-                                <div x-show="desktopProfileOpen"
-                                     x-cloak
-                                     x-transition:enter="transition ease-out duration-300"
-                                     x-transition:enter-start="opacity-0"
-                                     x-transition:enter-end="opacity-100"
-                                     x-transition:leave="transition ease-in duration-200"
-                                     x-transition:leave-start="opacity-100"
-                                     x-transition:leave-end="opacity-0"
-                                     @click="desktopProfileOpen = false"
-                                     class="fixed inset-0 bg-slate-700/60 backdrop-blur-sm z-40">
-                                </div>
 
                                 <!-- Profile Dropdown Menu - Desktop - طراحی ساده مطابق تصویر -->
                                 <div class="absolute left-0 pt-3 z-50"
@@ -185,9 +168,7 @@
                                      x-transition:leave-start="opacity-100 translate-y-0"
                                      x-transition:leave-end="opacity-0 translate-y-4">
 
-                                    <div
-                                        class="w-[280px] rounded-2xl bg-white dark:bg-slate-500 shadow-2xl shadow-black/20 border border-slate-200 dark:border-slate-700 overflow-hidden">
-
+                                    <div class="w-[280px] rounded-2xl bg-white dark:bg-slate-900 shadow-2xl shadow-black/30 ring-1 ring-black/5 dark:ring-white/10 border border-slate-200 dark:border-slate-800 overflow-hidden">
                                         <!-- Header - Avatar & Name -->
                                         <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
                                             <div class="flex items-center gap-3 mb-0">
@@ -466,43 +447,6 @@
                                     </svg>
                                 </a>
 
-                                <a href="{{route('client.blog')}}" wire:navigate @click="closeMenu()"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
-                                    <div class="flex items-center gap-3">
-                                        <div
-                                            class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                                 class="w-5 h-5 text-blue-600 dark:text-blue-400"
-                                                 xmlns="http://www.w3.org/2000/svg">
-                                                <path
-                                                    d="M21.9299 6.76001L18.5599 20.29C18.3199 21.3 17.4199 22 16.3799 22H3.23989C1.72989 22 0.649901 20.5199 1.0999 19.0699L5.30989 5.55005C5.59989 4.61005 6.46991 3.95996 7.44991 3.95996H19.7499C20.6999 3.95996 21.4899 4.53997 21.8199 5.33997C22.0099 5.76997 22.0499 6.26001 21.9299 6.76001Z"
-                                                    stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"/>
-                                                <path d="M16 22H20.78C22.07 22 23.08 20.91 22.99 19.62L22 6"
-                                                      stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                                                      stroke-linecap="round" stroke-linejoin="round"/>
-                                                <path d="M9.67993 6.38049L10.7199 2.06055" stroke="currentColor"
-                                                      stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                                                      stroke-linejoin="round"/>
-                                                <path d="M16.3799 6.38977L17.3199 2.0498" stroke="currentColor"
-                                                      stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                                                      stroke-linejoin="round"/>
-                                                <path d="M7.69995 12H15.7" stroke="currentColor" stroke-width="1.5"
-                                                      stroke-miterlimit="10" stroke-linecap="round"
-                                                      stroke-linejoin="round"/>
-                                                <path d="M6.69995 16H14.7" stroke="currentColor" stroke-width="1.5"
-                                                      stroke-miterlimit="10" stroke-linecap="round"
-                                                      stroke-linejoin="round"/>
-                                            </svg>
-                                        </div>
-                                        <span class="text-sm font-semibold text-foreground">مقالات</span>
-                                    </div>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         stroke-width="2" stroke="currentColor"
-                                         class="w-5 h-5 text-muted group-hover:text-foreground transition-colors">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="M15.75 19.5L8.25 12l7.5-7.5"/>
-                                    </svg>
-                                </a>
 
                                 <a href="{{route('client.about-us')}}" wire:navigate @click="closeMenu()"
                                    class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
@@ -651,454 +595,215 @@
                 </div>
             </div>
         </div>
-
         <!-- Mobile Profile Modal -->
         @if(\Illuminate\Support\Facades\Auth::check())
             <div x-cloak class="lg:hidden">
                 <!-- Overlay -->
-                <div class="fixed inset-0 bg-slate-700/80 backdrop-blur-sm z-[60] transition-opacity duration-300"
+                <div class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] transition-opacity duration-300"
                      :class="profileModalOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'"
                      @click="profileModalOpen = false">
                 </div>
 
                 <!-- Modal Panel -->
                 <div
-                    class="fixed inset-x-0 bottom-0 z-[60] max-h-[90vh] overflow-hidden transition-transform duration-300 ease-out"
+                    class="fixed inset-x-0 bottom-0 z-[60] transition-transform duration-300 ease-out"
                     :class="profileModalOpen ? 'translate-y-0' : 'translate-y-full'"
-                    x-init="$el.style.display = profileModalOpen ? 'block' : 'none'"
-                    x-show="profileModalOpen">
+                    x-show="profileModalOpen"
+                    dir="rtl">
 
-                    <!-- Background with rounded corners -->
-                    <div class="relative bg-slate-600 dark:bg-slate-700 rounded-t-[40px] shadow-2xl overflow-hidden">
+                    <div class="bg-[#1a1a2e] dark:bg-[#0f0f1a] rounded-t-[28px] shadow-2xl overflow-hidden max-h-[92dvh] flex flex-col">
 
-                        <!-- SVG Pattern Background -->
-                        <div class="absolute inset-0 opacity-10 pointer-events-none">
-                            <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <pattern id="mobile-profile-pattern" x="0" y="0" width="40" height="40"
-                                             patternUnits="userSpaceOnUse">
-                                        <circle cx="20" cy="20" r="2" fill="white"/>
-                                    </pattern>
-                                </defs>
-                                <rect width="100%" height="100%" fill="url(#mobile-profile-pattern)"/>
-                            </svg>
+                        <!-- Drag handle -->
+                        <div class="flex justify-center pt-3 pb-1 shrink-0" @click="profileModalOpen = false">
+                            <div class="w-10 h-1 rounded-full bg-white/20 cursor-pointer"></div>
                         </div>
 
-                        <!-- Drag Handle -->
-                        <div class="relative flex justify-center pt-4 pb-3" @click="profileModalOpen = false">
-                            <div class="w-12 h-1.5 rounded-full bg-white/30 cursor-pointer"></div>
+                        <!-- ─── بخش بالا: آواتار + نام + شماره + احراز هویت ─── -->
+                        <div class="px-5 pt-3 pb-5 shrink-0">
+                            <div class="flex items-center gap-4">
+                                <!-- آواتار -->
+                                <div class="w-16 h-16 rounded-full bg-[#2a2a3e] ring-2 ring-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                    @if($profilePictureUrl)
+                                        <img src="{{ $profilePictureUrl }}" class="w-full h-full object-cover rounded-full" alt="avatar">
+                                    @elseif($this->defaultAvatarType === 'female')
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white/70">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75a4.5 4.5 0 0 0-4.5 4.5v.334a4.5 4.5 0 1 0 9 0V8.25a4.5 4.5 0 0 0-4.5-4.5ZM4.5 20.25a7.5 7.5 0 0 1 15 0"/>
+                                        </svg>
+                                    @else
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white/70">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+                                        </svg>
+                                    @endif
+                                </div>
+
+                                <!-- نام و شماره -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center gap-2 flex-wrap mb-1">
+                                        <h3 class="text-white font-bold text-base leading-tight">{{ auth()->user()->name ?? '' }}</h3>
+                                    </div>
+                                    <p class="text-white/50 text-sm font-mono" style="direction:ltr; text-align:right;">{{ auth()->user()->mobile ?? '' }}</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Content Container -->
-                        <div class="relative px-6 pb-6">
-                            <!-- Avatar & Info -->
-                            <div class="flex flex-col items-center text-center mb-6">
-                                <div
-                                    class="w-20 h-20 rounded-full bg-white/10 backdrop-blur-sm p-1 shadow-xl mb-4 ring-4 ring-white/20">
-                                    <div
-                                        class="w-full h-full rounded-full bg-slate-400 dark:bg-slate-500 flex items-center justify-center overflow-hidden">
-                                        @if($profilePictureUrl)
-                                            <img src="{{ $profilePictureUrl }}"
-                                                 class="w-full h-full object-cover rounded-full" alt="avatar">
-                                        @elseif($this->defaultAvatarType === 'female')
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                 stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-white">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="M12 3.75a4.5 4.5 0 0 0-4.5 4.5v.334a4.5 4.5 0 1 0 9 0V8.25a4.5 4.5 0 0 0-4.5-4.5ZM4.5 20.25a7.5 7.5 0 0 1 15 0"/>
-                                            </svg>
-                                        @else
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                 stroke-width="1.5" stroke="currentColor" class="w-10 h-10 text-white">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                      d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                                            </svg>
-                                        @endif
+                        <!-- ─── محتوای اسکرول‌پذیر ─── -->
+                        <div class="flex-1 overflow-y-auto px-4 pb-8 space-y-3">
+
+                            <!-- کارت کیف‌پول -->
+                            <a wire:navigate href="{{ route('client.profile.wallet') }}" @click="profileModalOpen = false"
+                               class="flex items-center justify-between bg-[#252538] rounded-2xl px-4 py-3.5 active:scale-[0.98] transition-transform">
+                                <div class="flex items-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <path d="M15.75 19.5L8.25 12l7.5-7.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span class="text-white font-bold text-sm">۰ ریال</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div class="text-right">
+                                        <p class="text-white/50 text-xs">موجودی کیف‌پول</p>
+                                    </div>
+                                    <div class="w-9 h-9 rounded-xl bg-[#1a1a2e] flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                            <path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 12C12 10.3431 13.3431 9 15 9H20C20.5523 9 21 9.44772 21 10V14C21 14.5523 20.5523 15 20 15H15C13.3431 15 12 13.6569 12 12Z" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M15 12L15.1 12" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
                                     </div>
                                 </div>
-                                <h3 class="text-white font-bold text-lg mb-1">{{ auth()->user()->name ??''}}</h3>
-                                <span class="text-white/70 text-sm">{{ auth()->user()->mobile ?? '-' }}</span>
-                            </div>
+                            </a>
 
-                            <!-- White Card -->
-                            <div class="bg-white dark:bg-slate-100 rounded-3xl shadow-2xl p-5 mb-4">
-                                <!-- View Profile Link -->
-                                <p
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-center gap-2 text-blue-600 hover:text-blue-700 transition-colors py-2 mb-2">
-                                    <span class="text-sm font-bold">اعتبار من </span>
-                                </p>
-
-                                <!-- Stats Row -->
-                                <div class="flex items-center justify-around border-t border-slate-200 pt-4">
-                                    <!-- Coins -->
-                                    <div class="flex items-center gap-2.5">
-                                        <div
-                                            class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center">
-                                            <span class="text-xl">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-yellow-500">
-
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0
-           1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12
-           c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182
-           s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0
-           9 9 0 0 1 18 0Z"></path>
-                                    </svg>
-                                            </span>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-bold text-orange-500">0 سکه</p>
-                                        </div>
+                            <!-- گرید دو ستونه: سکه + ستاره‌ها -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-[#252538] rounded-2xl px-4 py-3.5 flex items-center justify-between">
+                                    <div class="text-right">
+                                        <p class="text-white/50 text-xs mb-1">سکه‌های من</p>
+                                        <p class="text-orange-400 font-bold text-sm">۰ سکه</p>
                                     </div>
-
-                                    <!-- Separator -->
-                                    <div class="w-px h-12 bg-slate-200"></div>
-
-                                    <!-- Vision -->
-                                    <div class="flex items-center gap-2.5">
-                                        <div
-                                            class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-
-                                                <path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z" stroke-linecap="round" stroke-linejoin="round"></path>
-
-                                                <path d="M12 12C12 10.3431 13.3431 9 15 9H20C20.5523 9 21 9.44772 21 10V14C21 14.5523 20.5523 15 20 15H15C13.3431 15 12 13.6569 12 12Z" stroke-linecap="round" stroke-linejoin="round"></path>
-
-                                                <path d="M15 12L15.1 12" stroke-linecap="round" stroke-linejoin="round"></path>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-bold text-blue-600">۰ تومان </p>
-                                        </div>
+                                    <div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-yellow-400">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+                                        </svg>
                                     </div>
                                 </div>
+                                <a wire:navigate href="{{ route('client.profile.star') }}" @click="profileModalOpen = false"
+                                   class="bg-[#252538] rounded-2xl px-4 py-3.5 flex items-center justify-between active:scale-[0.98] transition-transform">
+                                    <div class="text-right">
+                                        <p class="text-white/50 text-xs mb-1">ستاره‌ها</p>
+                                        <p class="text-amber-400 font-bold text-sm">بزودی</p>
+                                    </div>
+                                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-amber-400">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 0 0 .95.69h4.154c.969 0 1.371 1.24.588 1.81l-3.36 2.441a1 1 0 0 0-.364 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.36-2.441a1 1 0 0 0-1.175 0l-3.36 2.441c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 0 0-.364-1.118L2.49 9.377c-.783-.57-.38-1.81.588-1.81h4.154a1 1 0 0 0 .95-.69l1.287-3.95Z"/>
+                                        </svg>
+                                    </div>
+                                </a>
                             </div>
 
-                            <!-- Scrollable Menu Container -->
-                            <div class="max-h-[40vh] overflow-y-auto space-y-1">
-                                @if(auth()->user()?->isSchoolStudent())
-                                    <a wire:navigate href="{{ route('client.profile.school.dashboard') }}"
-                                       @click="profileModalOpen = false"
-                                       class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                        <span class="font-semibold text-sm">داشبورد</span>
-                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12 12 2.25 21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75"/>
-                                        </svg>
-                                    </a>
-                                    <a wire:navigate href="{{ route('client.profile.school.report.index') }}"
-                                       @click="profileModalOpen = false"
-                                       class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                        <span class="font-semibold text-sm">گزارش‌های من</span>
-                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25M3 5.25v9.75A2.25 2.25 0 0 0 5.25 17.25h13.5A2.25 2.25 0 0 0 21 15V5.25"/>
-                                        </svg>
-                                    </a>
-                                    <a wire:navigate href="{{ route('client.profile.school.report.create') }}"
-                                       @click="profileModalOpen = false"
-                                       class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                        <span class="font-semibold text-sm">ثبت گزارش جدید</span>
-                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-                                        </svg>
-                                    </a>
+                            {{-- ─── بخش پیشخوان ─── --}}
+                            <p class="text-white/30 text-xs font-semibold text-right pt-1 px-1">پرتال</p>
 
-                                    <!-- Logout (school student) -->
-                                    <a href="{{route('client.logout')}}"
-                                       class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm transition-all active:scale-[0.98] text-white mt-2">
-                                        <span class="font-semibold text-sm">خروج از حساب کاربری</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                             stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                            <path stroke-linecap="round" stroke-linejoin="round"
-                                                  d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
-                                        </svg>
-                                    </a>
-                                @else
-                                <!-- Panel Maz -->
-                                <a wire:navigate href="{{route('client.profile.dashboard')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">پیشخوان</span>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                                         class="w-5 h-5"
-                                         strokeWidth="2">
-                                        <path
-                                            d="M9.02 2.84016L3.63 7.04016C2.73 7.74016 2 9.23016 2 10.3602V17.7702C2 20.0902 3.89 21.9902 6.21 21.9902H17.79C20.11 21.9902 22 20.0902 22 17.7802V10.5002C22 9.29016 21.19 7.74016 20.2 7.05016L14.02 2.72016C12.62 1.74016 10.37 1.79016 9.02 2.84016Z"
-                                            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path d="M12 17.9902V14.9902" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                              stroke-linejoin="round"></path>
-                                    </svg>
-                                </a>
+                            @php
+                                $menuGroups = [];
+                                if(auth()->user()?->isSchoolStudent()) {
+                                    $menuGroups = [
+                                        [['label'=>'داشبورد', 'route'=> route('client.profile.school.dashboard'), 'icon'=>'home'],
+                                         ['label'=>'گزارش‌های من', 'route'=> route('client.profile.school.report.index'), 'icon'=>'report'],
+                                         ['label'=>'ثبت گزارش جدید', 'route'=> route('client.profile.school.report.create'), 'icon'=>'plus']],
+                                    ];
+                                } else {
+                                    $menuGroups = [
+                                        // گروه اصلی
+                                        [
+                                            ['label'=>'پیشخوان',      'route'=> route('client.profile.dashboard'),             'icon'=>'home'],
+                                            ['label'=>'اطلاع‌رسانی',  'route'=> route('client.profile.notification'),          'icon'=>'bell'],
+                                            ['label'=>'اتاق مشاوره',  'route'=> route('client.profile.consultation.sessions'), 'icon'=>'screen'],
+                                            ['label'=>'برنامه درسی',  'route'=> route('client.profile.plan'),                  'icon'=>'book'],
+                                            ['label'=>'ثبت ساعت مطالعه','route'=> route('client.profile.studySession'),        'icon'=>'clock'],
+                                            ['label'=>'گزارش درسی',   'route'=> route('client.profile.report'),                'icon'=>'clipboard'],
+                                            ['label'=>'آزمون',        'route'=> route('client.profile.typed-exam.list'),       'icon'=>'edit'],
+                                            ['label'=>'کارنامه وضعیت','route'=> route('client.profile.reportStudentStudy'),    'icon'=>'file'],
+                                            ['label'=>'طبقه‌بندی دروس','route'=> route('client.profile.classification.projects'),'icon'=>'layers'],
+                                        ],
+                                        // مالی
+                                        [
+                                            ['label'=>'کیف پول',          'route'=> route('client.profile.wallet'),      'icon'=>'wallet'],
+                                            ['label'=>'تراکنش‌های مالی',  'route'=> route('client.profile.financial'),   'icon'=>'money'],
+                                            ['label'=>'اقساط و شهریه',    'route'=> route('client.profile.installment'), 'icon'=>'invoice'],
+                                        ],
+                                        // پشتیبانی
+                                        [
+                                            ['label'=>'تیکت و پشتیبانی', 'route'=> route('client.profile.ticket'), 'icon'=>'chat'],
+                                            ['label'=>'ویرایش پروفایل',  'route'=> route('client.profile.edit'),   'icon'=>'settings'],
+                                        ],
+                                    ];
+                                }
 
-                                <!-- Calendar -->
-                                <a wire:navigate href="{{route('client.profile.notification')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">اطلاع رسانی</span>
-                                    <svg class="w-5 h-5"
-                                         viewBox="0 0 24 24"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         stroke-width="1.5">
+                                $groupLabels = auth()->user()?->isSchoolStudent()
+                                    ? ['مدرسه']
+                                    : ['پیشخوان', 'مالی', 'پشتیبانی'];
 
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              d="M5.25 9a6.75 6.75 0 0 1 13.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 0 1-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 1 1-7.48 0 24.585 24.585 0 0 1-4.831-1.244.75.75 0 0 1-.298-1.205A8.217 8.217 0 0 0 5.25 9.75V9Z"/>
-                                    </svg>
-                                </a>
-                                <!-- Calendar -->
-                                <a wire:navigate href="{{route('client.profile.consultation.sessions')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">اتاق مشاوره</span>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                                         class="w-5 h-5">
-                                        <path d="M8 21H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                              stroke-linejoin="round"></path>
-                                        <path d="M12 17V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                              stroke-linejoin="round"></path>
-                                        <path
-                                            d="M20 3H4C2.89543 3 2 3.89543 2 5V15C2 16.1046 2.89543 17 4 17H20C21.1046 17 22 16.1046 22 15V5C22 3.89543 21.1046 3 20 3Z"
-                                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </svg>
-                                </a>
+                                $icons = [
+                                    'home'     => '<path stroke-linecap="round" stroke-linejoin="round" d="M9.02 2.84016L3.63 7.04016C2.73 7.74016 2 9.23016 2 10.3602V17.7702C2 20.0902 3.89 21.9902 6.21 21.9902H17.79C20.11 21.9902 22 20.0902 22 17.7802V10.5002C22 9.29016 21.19 7.74016 20.2 7.05016L14.02 2.72016C12.62 1.74016 10.37 1.79016 9.02 2.84016Z"/><path d="M12 17.9902V14.9902" stroke-linecap="round" stroke-linejoin="round"/>',
+                                    'bell'     => '<path stroke-linecap="round" stroke-linejoin="round" d="M5.25 9a6.75 6.75 0 0 1 13.5 0v.75c0 2.123.8 4.057 2.118 5.52a.75.75 0 0 1-.297 1.206c-1.544.57-3.16.99-4.831 1.243a3.75 3.75 0 1 1-7.48 0 24.585 24.585 0 0 1-4.831-1.244.75.75 0 0 1-.298-1.205A8.217 8.217 0 0 0 5.25 9.75V9Z"/>',
+                                    'screen'   => '<path d="M8 21H16" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 17V21" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 3H4C2.89543 3 2 3.89543 2 5V15C2 16.1046 2.89543 17 4 17H20C21.1046 17 22 16.1046 22 15V5C22 3.89543 21.1046 3 20 3Z" stroke-linecap="round" stroke-linejoin="round"/>',
+                                    'book'     => '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+                                    'clock'    => '<circle cx="12" cy="12" r="9"/><path d="M12 7v5h4" stroke-linecap="round" stroke-linejoin="round"/>',
+                                    'clipboard'=> '<path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>',
+                                    'edit'     => '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+                                    'file'     => '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+                                    'layers'   => '<path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 9m18 0V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v3"/>',
+                                    'wallet'   => '<path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 12C12 10.3431 13.3431 9 15 9H20C20.5523 9 21 9.44772 21 10V14C21 14.5523 20.5523 15 20 15H15C13.3431 15 12 13.6569 12 12Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 12L15.1 12" stroke-linecap="round" stroke-linejoin="round"/>',
+                                    'money'    => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>',
+                                    'invoice'  => '<path d="M22 6V8.42C22 10 21 11 19.42 11H16V4.01C16 2.9 16.91 2 18.02 2C19.11 2.01 20.11 2.45 20.83 3.17C21.55 3.9 22 4.9 22 6Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 7V21C2 21.83 2.94 22.3 3.6 21.8L5.31 20.52C5.71 20.22 6.27 20.26 6.63 20.62L8.29 22.29C8.68 22.68 9.32 22.68 9.71 22.29L11.39 20.61C11.74 20.26 12.3 20.22 12.69 20.52L14.4 21.8C15.06 22.29 16 21.82 16 21V4C16 2.9 16.9 2 18 2H7H6C3 2 2 3.79 2 6V7Z" stroke-linecap="round" stroke-linejoin="round"/>',
+                                    'chat'     => '<path d="M17.98 10.79V14.79C17.98 15.05 17.97 15.3 17.94 15.54C17.71 18.24 16.12 19.58 13.19 19.58H12.79C12.54 19.58 12.3 19.7 12.15 19.9L10.95 21.5C10.42 22.21 9.56 22.21 9.03 21.5L7.82999 19.9C7.69999 19.73 7.41 19.58 7.19 19.58H6.79001C3.60001 19.58 2 18.79 2 14.79V10.79C2 7.86001 3.35001 6.27001 6.04001 6.04001C6.28001 6.01001 6.53001 6 6.79001 6H13.19C16.38 6 17.98 7.60001 17.98 10.79Z" stroke-linecap="round" stroke-linejoin="round"/>',
+                                    'settings' => '<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Z"/>',
+                                    'report'   => '<path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25"/>',
+                                    'plus'     => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>',
+                                ];
+                            @endphp
 
-                                <!-- Messages -->
-                                <a wire:navigate href="{{route('client.profile.studySession')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">ثبت ساعت مطالعه</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         viewBox="0 0 20 20"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         stroke-width="1.5"
-                                         class="w-5 h-5">
-
-                                        <circle cx="10" cy="10" r="8"
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"/>
-
-                                        <path d="M10 5v5h4"
-                                              stroke-linecap="round"
-                                              stroke-linejoin="round"/>
-                                    </svg>
-                                </a>
-                                <!-- Messages -->
-                                <a wire:navigate href="{{route('client.profile.plan')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">برنامه درسی</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                         class="feather feather-book-open w-5 h-5">
-                                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
-                                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
-                                    </svg>
-                                </a>
-                                <!-- Messages -->
-                                <a wire:navigate href="{{route('client.profile.report')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">گزارش درسی</span>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                                         class="w-5 h-5"
-                                         strokeWidth="2">
-                                        <path
-                                            d="M21.9299 6.76001L18.5599 20.29C18.3199 21.3 17.4199 22 16.3799 22H3.23989C1.72989 22 0.649901 20.5199 1.0999 19.0699L5.30989 5.55005C5.59989 4.61005 6.46991 3.95996 7.44991 3.95996H19.7499C20.6999 3.95996 21.4899 4.53997 21.8199 5.33997C22.0099 5.76997 22.0499 6.26001 21.9299 6.76001Z"
-                                            stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"></path>
-                                        <path d="M16 22H20.78C22.07 22 23.08 20.91 22.99 19.62L22 6" stroke="currentColor"
-                                              stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                                              stroke-linejoin="round"></path>
-                                        <path d="M9.67993 6.38049L10.7199 2.06055" stroke="currentColor" stroke-width="1.5"
-                                              stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path d="M16.3799 6.38977L17.3199 2.0498" stroke="currentColor" stroke-width="1.5"
-                                              stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path d="M7.69995 12H15.7" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                                              stroke-linecap="round" stroke-linejoin="round"></path>
-                                        <path d="M6.69995 16H14.7" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                                              stroke-linecap="round" stroke-linejoin="round"></path>
-                                    </svg>
-                                </a>
-                                <!-- Messages -->
-                                <a wire:navigate href="{{route('client.profile.typed-exam.list')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">آزمون</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                         class="feather feather-edit w-5 h-5">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                                    </svg>
-                                </a>
-
-                                <!-- Messages -->
-                                <a wire:navigate href="{{route('client.profile.reportStudentStudy')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">کارنامه وضعیت</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text w-5 h-5">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                                        <polyline points="10 9 9 9 8 9"></polyline>
-                                    </svg>
-                                </a>
-
-                                <!-- Messages -->
-                                <a wire:navigate href="{{route('client.profile.classification.projects')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">طبقه بندی دروس</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="M21 12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 9m18 0V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v3">
-                                        </path>
-                                    </svg>
-                                </a>
-                                <!-- Messages -->
-                                <a wire:navigate href="{{route('client.profile.wallet')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">کیف پول</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         class="w-5 h-5"
-                                         viewBox="0 0 24 24"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         stroke-width="1.5">
-
-                                        <path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z"
-                                              stroke-linecap="round"
-                                              stroke-linejoin="round"/>
-
-                                        <path d="M12 12C12 10.3431 13.3431 9 15 9H20C20.5523 9 21 9.44772 21 10V14C21 14.5523 20.5523 15 20 15H15C13.3431 15 12 13.6569 12 12Z"
-                                              stroke-linecap="round"
-                                              stroke-linejoin="round"/>
-
-                                        <path d="M15 12L15.1 12"
-                                              stroke-linecap="round"
-                                              stroke-linejoin="round"/>
-                                    </svg>
-                                </a>
-                                <a wire:navigate href="{{route('client.profile.financial')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">تراکنش های مالی</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         viewBox="0 0 24 24"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         stroke-width="1.5"
-                                         class="w-5 h-5">
-
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0
-           1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12
-           c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182
-           s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0
-           9 9 0 0 1 18 0Z"/>
-                                    </svg>
-
-                                </a>
-                                <a wire:navigate href="{{route('client.profile.installment')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">اقساط و شهریه</span>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                                         class="w-5 h-5"
-                                         strokeWidth="2">
-                                        <path
-                                            d="M22 6V8.42C22 10 21 11 19.42 11H16V4.01C16 2.9 16.91 2 18.02 2C19.11 2.01 20.11 2.45 20.83 3.17C21.55 3.9 22 4.9 22 6Z"
-                                            stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                                            stroke-linejoin="round"></path>
-                                        <path
-                                            d="M2 7V21C2 21.83 2.94 22.3 3.6 21.8L5.31 20.52C5.71 20.22 6.27 20.26 6.63 20.62L8.29 22.29C8.68 22.68 9.32 22.68 9.71 22.29L11.39 20.61C11.74 20.26 12.3 20.22 12.69 20.52L14.4 21.8C15.06 22.29 16 21.82 16 21V4C16 2.9 16.9 2 18 2H7H6C3 2 2 3.79 2 6V7Z"
-                                            stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                                            stroke-linejoin="round"></path>
-                                        <path d="M9 13.0098H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                              stroke-linejoin="round"></path>
-                                        <path d="M9 9.00977H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                                              stroke-linejoin="round"></path>
-                                        <path d="M5.99561 13H6.00459" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                              stroke-linejoin="round"></path>
-                                        <path d="M5.99561 9H6.00459" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                              stroke-linejoin="round"></path>
-                                    </svg>
-
-                                </a>
-                                <a wire:navigate href="{{route('client.profile.ticket')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">تیکت و پشتیبانی</span>
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                                         class="w-5 h-5"
-                                         strokeWidth="2">
-                                        <path
-                                            d="M17.98 10.79V14.79C17.98 15.05 17.97 15.3 17.94 15.54C17.71 18.24 16.12 19.58 13.19 19.58H12.79C12.54 19.58 12.3 19.7 12.15 19.9L10.95 21.5C10.42 22.21 9.56 22.21 9.03 21.5L7.82999 19.9C7.69999 19.73 7.41 19.58 7.19 19.58H6.79001C3.60001 19.58 2 18.79 2 14.79V10.79C2 7.86001 3.35001 6.27001 6.04001 6.04001C6.28001 6.01001 6.53001 6 6.79001 6H13.19C16.38 6 17.98 7.60001 17.98 10.79Z"
-                                            stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                                            stroke-linejoin="round"></path>
-                                        <path
-                                            d="M21.98 6.79001V10.79C21.98 13.73 20.63 15.31 17.94 15.54C17.97 15.3 17.98 15.05 17.98 14.79V10.79C17.98 7.60001 16.38 6 13.19 6H6.79004C6.53004 6 6.28004 6.01001 6.04004 6.04001C6.27004 3.35001 7.86004 2 10.79 2H17.19C20.38 2 21.98 3.60001 21.98 6.79001Z"
-                                            stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                                            stroke-linejoin="round"></path>
-                                        <path d="M13.4955 13.25H13.5045" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                              stroke-linejoin="round"></path>
-                                        <path d="M9.9955 13.25H10.0045" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                              stroke-linejoin="round"></path>
-                                        <path d="M6.4955 13.25H6.5045" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                              stroke-linejoin="round"></path>
-                                    </svg>
-                                </a>
-
-                                <a wire:navigate href="{{route('client.profile.star')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">ستاره ها(بزودی)</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                         viewBox="0 0 20 20"
-                                         fill="none"
-                                         stroke="currentColor"
-                                         stroke-width="1.5"
-                                         class="w-5 h-5">
-
-                                        <path stroke-linecap="round"
-                                              stroke-linejoin="round"
-                                              d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 0 0 .95.69h4.154c.969 0 1.371 1.24.588 1.81l-3.36 2.441a1 1 0 0 0-.364 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.36-2.441a1 1 0 0 0-1.175 0l-3.36 2.441c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 0 0-.364-1.118L2.49 9.377c-.783-.57-.38-1.81.588-1.81h4.154a1 1 0 0 0 .95-.69l1.287-3.95Z"/>
-                                    </svg>
-                                </a>
-                                <a wire:navigate href="{{route('client.profile.edit')}}"
-                                   @click="profileModalOpen = false"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 backdrop-blur-sm transition-all active:scale-[0.98] text-white">
-                                    <span class="font-semibold text-sm">ویرایش پروفایل</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125">
-                                        </path>
-                                    </svg>
-                                </a>
-
-                                <!-- Logout -->
-                                <a href="{{route('client.logout')}}"
-                                   class="flex items-center justify-between px-4 py-3.5 rounded-2xl bg-red-500/20 hover:bg-red-500/30 backdrop-blur-sm transition-all active:scale-[0.98] text-white mt-2">
-                                    <span class="font-semibold text-sm">خروج از حساب کاربری</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
-                                    </svg>
-                                </a>
+                            @foreach($menuGroups as $gi => $group)
+                                {{-- عنوان بخش --}}
+                                @if(isset($groupLabels[$gi]) && $gi > 0)
+                                    <p class="text-white/30 text-xs font-semibold text-right pt-1 px-1">{{ $groupLabels[$gi] }}</p>
                                 @endif
-                            </div>
+
+                                <div class="bg-[#252538] rounded-2xl overflow-hidden">
+                                    @foreach($group as $mi => $item)
+                                        <a wire:navigate href="{{ $item['route'] }}"
+                                           @click="profileModalOpen = false"
+                                           class="flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors
+                                          {{ $mi < count($group) - 1 ? 'border-b border-white/5' : '' }}">
+                                            <span class="text-sm font-semibold text-white">{{ $item['label'] }}</span>
+                                            <div class="w-8 h-8 rounded-xl bg-[#1a1a2e] flex items-center justify-center flex-shrink-0">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                     stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-white/50">
+                                                    {!! $icons[$item['icon']] ?? '' !!}
+                                                </svg>
+                                            </div>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @endforeach
+
+                            <!-- خروج -->
+                            <a href="{{ route('client.logout') }}"
+                               class="flex items-center justify-between bg-red-500/10 border border-red-500/20 rounded-2xl px-4 py-3.5 active:scale-[0.98] transition-transform">
+                                <span class="text-sm font-bold text-red-400">خروج از حساب کاربری</span>
+                                <div class="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-red-400">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
+                                    </svg>
+                                </div>
+                            </a>
+
+                            <!-- فاصله پایین برای safe area -->
+                            <div class="h-4"></div>
                         </div>
                     </div>
                 </div>
             </div>
         @endif
-
         <!-- Scroll to Top Button -->
 
     </div>

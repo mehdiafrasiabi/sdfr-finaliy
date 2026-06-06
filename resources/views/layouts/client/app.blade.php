@@ -125,7 +125,7 @@
     @include('layouts.client.pwa')
     {!! SEO::generate() !!}
     <link rel="preload" href="/client/assets/images/theme/intro/header.png" as="image">
-    <link rel="preload" href="/client/assets/images/favicon.svg" as="image">
+    <link rel="preload" href="/client/assets/images/favicon.svg" as="image" type="image/svg+xml">
 </head>
 
 <body class="dark">

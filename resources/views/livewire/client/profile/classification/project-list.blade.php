@@ -1,325 +1,279 @@
 <div>
-    <div class="container mx-auto px-4 max-w-7xl pb-10" dir="rtl">
+    <div class="max-w-7xl mx-auto px-4 pb-16" dir="rtl">
 
-        {{-- Page Header --}}
-        <div class="flex items-center gap-3">
+        @push('link')
+            <style>
+                @keyframes slideUp {
+                    from { opacity: 0; transform: translateY(16px); }
+                    to   { opacity: 1; transform: translateY(0); }
+                }
+                @keyframes blink {
+                    0%, 100% { opacity: 1; }
+                    50%       { opacity: 0.3; }
+                }
+                @keyframes pulseGlow {
+                    0%, 100% { box-shadow: 0 0 0 0 currentColor; }
+                    50%       { box-shadow: 0 0 0 4px transparent; }
+                }
+                .card-enter { animation: slideUp 0.4s cubic-bezier(0.16,1,0.3,1) backwards; }
+
+                /* تایمر کامپکت */
+                .timer-unit {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 2px;
+                    min-width: 40px;
+                }
+                .timer-num {
+                    font-size: 22px;
+                    font-weight: 800;
+                    line-height: 1;
+                    font-variant-numeric: tabular-nums;
+                    letter-spacing: 1px;
+                }
+                .timer-label {
+                    font-size: 10px;
+                    font-weight: 600;
+                    opacity: 0.6;
+                    letter-spacing: 0.5px;
+                }
+                .timer-sep {
+                    font-size: 18px;
+                    font-weight: 700;
+                    opacity: 0.4;
+                    margin: 0 -2px;
+                    padding-bottom: 8px;
+                }
+            </style>
+        @endpush
+
+        {{-- سربرگ صفحه --}}
+        <div class="flex items-center gap-3 mb-8 pt-2">
             <div class="flex items-center gap-1">
                 <div class="w-1 h-1 bg-foreground rounded-full"></div>
                 <div class="w-2 h-2 bg-foreground rounded-full"></div>
             </div>
-            <div class="font-black text-foreground">  طبقه‌بندی دروس</div>
+            <h1 class="font-black text-foreground text-xl">طبقه‌بندی دروس</h1>
         </div>
 
-        {{-- Trial Classification Card --}}
+        {{-- ══════ طبقه‌بندی آزمایشی ══════ --}}
         @if($isTrialUser && $trialProject)
-            <div class="mb-10 mt-6">
-                <h2 class="text-xl font-black text-foreground mb-5 flex items-center gap-2.5 relative pr-5
-                           before:content-[''] before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2
-                           before:w-1 before:h-6 before:bg-gradient-to-b before:from-purple-500 before:to-transparent before:rounded-sm">
-                    <span class="h-2.5 w-2.5 rounded-full bg-purple-500 animate-pulse"></span>
-                    طبقه‌بندی آزمایشی
-                </h2>
-                <div class="rounded-2xl border-2 border-purple-500/40 bg-card/95 p-5 sm:p-6 shadow-lg">
-                    <div class="flex items-start justify-between gap-3 mb-3">
-                        <h3 class="text-lg font-bold text-foreground">{{ $trialProject->name }}</h3>
-                        @if($trialSubmitted)
-                            <span class="inline-flex items-center gap-1.5 rounded-xl border-2 border-green-500/30 bg-green-500/15 px-3 py-1.5 text-xs font-bold text-green-500">
-                                ارسال شده
-                            </span>
-                        @else
-                            <span class="inline-flex items-center gap-1.5 rounded-xl border-2 border-purple-500/30 bg-purple-500/15 px-3 py-1.5 text-xs font-bold text-purple-500">
-                                فعال (آزمایشی)
-                            </span>
-                        @endif
-                    </div>
-                    <p class="text-sm text-muted-foreground leading-relaxed mb-4">
-                        طبقه‌بندی ویژه‌ی دوره‌ی ۱ هفته آزمایشی — بدون محدودیت زمانی. پس از ثبت، به‌صورت خودکار تایید می‌شود.
-                    </p>
-                    <button type="button" wire:click="goTrial"
-                            class="w-full rounded-xl px-5 py-3 text-sm font-bold transition-all duration-300 active:scale-[0.97]
-                                   bg-gradient-to-br from-purple-500 to-fuchsia-600 text-white border-2 border-transparent
-                                   hover:from-purple-600 hover:to-fuchsia-700
-                                   shadow-[0_8px_20px_rgba(168,85,247,0.3)] hover:shadow-[0_12px_28px_rgba(168,85,247,0.4)]">
-                        {{ $trialSubmitted ? 'مشاهده و ویرایش' : 'شروع طبقه‌بندی آزمایشی' }}
-                    </button>
+            <section class="mb-10">
+                {{-- عنوان بخش --}}
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-1 h-6 rounded-full bg-purple-500 flex-shrink-0"></span>
+                    <h2 class="font-black text-foreground text-base flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-purple-500 animate-pulse inline-block"></span>
+                        طبقه‌بندی آزمایشی
+                    </h2>
                 </div>
-            </div>
+
+                <div class="card-enter rounded-2xl border border-purple-500/30 bg-card overflow-hidden"
+                     style="animation-delay: .05s; box-shadow: 0 0 0 1px rgba(168,85,247,0.1), 0 8px 32px rgba(168,85,247,0.08);">
+                    {{-- نوار رنگی بالا --}}
+                    <div class="h-1 w-full bg-gradient-to-l from-fuchsia-500 to-purple-500"></div>
+
+                    <div class="p-5 sm:p-6">
+                        <div class="flex items-start justify-between gap-3 mb-3">
+                            <h3 class="font-bold text-foreground text-lg leading-snug">{{ $trialProject->name }}</h3>
+                            @if($trialSubmitted)
+                                <span class="flex-shrink-0 inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-500">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                    ارسال شده
+                                </span>
+                            @else
+                                <span class="flex-shrink-0 inline-flex items-center gap-1.5 rounded-full border border-purple-500/30 bg-purple-500/10 px-3 py-1 text-xs font-bold text-purple-400">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-purple-400 animate-pulse"></span>
+                                    آزمایشی
+                                </span>
+                            @endif
+                        </div>
+
+                        <p class="text-sm text-muted-foreground leading-relaxed mb-5">
+                            طبقه‌بندی ویژه دوره آزمایشی — بدون محدودیت زمانی. پس از ثبت به‌صورت خودکار تأیید می‌شود.
+                        </p>
+
+                        <button type="button" wire:click="goTrial"
+                                class="w-full rounded-xl px-5 py-3 text-sm font-bold transition-all duration-200 active:scale-[0.98]
+                                       bg-purple-500 hover:bg-purple-600 text-white">
+                            {{ $trialSubmitted ? 'مشاهده و ویرایش' : 'شروع طبقه‌بندی آزمایشی' }}
+                        </button>
+                    </div>
+                </div>
+            </section>
         @endif
 
-        {{-- Active Projects --}}
+        {{-- ══════ پروژه‌های فعال ══════ --}}
         @if($activeProjects->count() > 0)
-            <div class="mb-10">
-                <h2 class="text-xl font-black text-foreground mb-5 flex items-center gap-2.5 relative pr-5
-                           before:content-[''] before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2
-                           before:w-1 before:h-6 before:bg-gradient-to-b before:from-green-500 before:to-transparent before:rounded-sm">
-                    <span class="h-2.5 w-2.5 rounded-full bg-green-500 animate-pulse"></span>
-                    پروژه‌های فعال
-                </h2>
-                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 bg-background bg-secondary">
+            <section class="mb-10">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-1 h-6 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                    <h2 class="font-black text-foreground text-base flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse inline-block"></span>
+                        پروژه‌های فعال
+                        <span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">{{ $activeProjects->count() }}</span>
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @foreach($activeProjects as $project)
                         <article
                             x-data="projectTimer('{{ $project->end_at->toIso8601String() }}', 'active')"
-                            class="group relative flex flex-col h-full rounded-2xl border-2 border-border/70
-                                   bg-card/95 shadow-lg backdrop-blur-sm overflow-hidden
-                                   transition-all duration-300
-                                   hover:-translate-y-2 hover:scale-[1.02]
-                                   hover:shadow-[0_24px_48px_rgba(34,197,94,0.2),0_12px_24px_rgba(34,197,94,0.1)]
-                                   hover:border-green-500/50
-                                   [animation:slideInUp_0.6s_cubic-bezier(0.4,0,0.2,1)_backwards]"
-                            style="animation-delay: {{ $loop->index * 0.05 + 0.05 }}s">
+                            class="card-enter group relative flex flex-col rounded-2xl border border-border bg-card overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/40"
+                            style="animation-delay: {{ $loop->index * 0.06 + 0.05 }}s; box-shadow: 0 2px 12px rgba(0,0,0,0.06);"
+                        >
+                            {{-- نوار رنگی بالا --}}
+                            <div class="h-1 w-full bg-gradient-to-l from-green-400 to-emerald-500"></div>
 
-                            {{-- Hover Overlay --}}
-                            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none
-                                        bg-gradient-to-br from-green-500/8 to-emerald-500/8 z-0"></div>
-
-                            {{-- Status Badge --}}
-                            <div class="absolute top-4 left-4 z-10">
-                                @if(isset($submissions[$project->id]) && $submissions[$project->id])
-                                    <span class="inline-flex items-center gap-1.5 rounded-xl border-2 border-green-500/30
-                                                 bg-green-500/15 px-3 py-1.5 text-xs font-bold text-green-500
-                                                 backdrop-blur-sm transition-transform duration-300 group-hover:scale-105">
-                                        <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                                        </svg>
-                                        ارسال شده
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1.5 rounded-xl border-2 border-green-500/30
-                                                 bg-green-500/15 px-3 py-1.5 text-xs font-bold text-green-500
-                                                 backdrop-blur-sm transition-transform duration-300 group-hover:scale-105">
-                                        <span class="h-2 w-2 rounded-full bg-green-400 animate-pulse"></span>
-                                        فعال
-                                    </span>
-                                @endif
-                            </div>
-
-                            {{-- Content --}}
-                            <div class="relative flex h-full flex-col p-5 sm:p-6 z-10">
-                                {{-- Title --}}
-                                <div class="mb-3">
-                                    <h3 class="text-lg md:text-xl font-bold text-foreground line-clamp-2 leading-tight mb-2">
-                                        {{ $project->name }}
-                                    </h3>
-                                    @if($project->description)
-                                        <div class="group/desc relative">
-                                            <p class="text-sm leading-relaxed text-muted-foreground line-clamp-3 group-hover/desc:line-clamp-none transition-all duration-300">
-                                                {{ $project->description }}
-                                            </p>
-                                            @if(strlen($project->description) > 100)
-                                                <button type="button"
-                                                        class="text-xs text-primary hover:text-primary/80 font-semibold mt-1 flex items-center gap-1 group-hover/desc:hidden"
-                                                        onclick="this.parentElement.querySelector('p').classList.toggle('line-clamp-3')">
-                                                    <span>نمایش بیشتر</span>
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                                    </svg>
-                                                </button>
-                                            @endif
-                                        </div>
+                            <div class="flex flex-col flex-1 p-5">
+                                {{-- بج وضعیت + عنوان --}}
+                                <div class="flex items-start justify-between gap-2 mb-3">
+                                    <h3 class="font-bold text-foreground text-base leading-snug flex-1">{{ $project->name }}</h3>
+                                    @if(isset($submissions[$project->id]) && $submissions[$project->id])
+                                        <span class="flex-shrink-0 inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-500">
+                                            <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                            ارسال شده
+                                        </span>
+                                    @else
+                                        <span class="flex-shrink-0 inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-bold text-emerald-500">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                            فعال
+                                        </span>
                                     @endif
                                 </div>
 
-                                {{-- Date Info --}}
-                                <div class="mb-4 flex flex-wrap gap-2 text-xs">
-                                    <div class="flex items-center gap-1.5 rounded-xl bg-emerald-500/10 px-3 py-1.5 border border-emerald-500/20
-                                                transition-all duration-300 group-hover:-translate-x-0.5">
-                                        <svg class="h-4 w-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                        <span class="font-semibold text-foreground">{{ \Morilog\Jalali\Jalalian::fromCarbon($project->start_at)->format('Y/m/d') }}</span>
+                                {{-- توضیحات --}}
+                                @if($project->description)
+                                    <p class="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-2">{{ $project->description }}</p>
+                                @endif
+
+                                {{-- تاریخ‌ها --}}
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <div class="inline-flex items-center gap-1.5 rounded-lg bg-secondary border border-border px-2.5 py-1.5 text-[11px] font-semibold text-foreground">
+                                        <svg class="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        {{ \Morilog\Jalali\Jalalian::fromCarbon($project->start_at)->format('Y/m/d') }}
                                     </div>
-                                    <div class="flex items-center gap-1.5 rounded-xl bg-red-500/10 px-3 py-1.5 border border-red-500/20
-                                                transition-all duration-300 group-hover:-translate-x-0.5">
-                                        <svg class="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                        <span class="font-semibold text-foreground">{{ \Morilog\Jalali\Jalalian::fromCarbon($project->end_at)->format('Y/m/d') }}</span>
+                                    <div class="inline-flex items-center gap-1.5 rounded-lg bg-secondary border border-border px-2.5 py-1.5 text-[11px] font-semibold text-foreground">
+                                        <svg class="w-3.5 h-3.5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        {{ \Morilog\Jalali\Jalalian::fromCarbon($project->end_at)->format('Y/m/d') }}
                                     </div>
                                 </div>
 
-                                {{-- Timer (Active = Green) --}}
-                                <div class="mb-4 rounded-2xl border-2 border-green-500/30 overflow-hidden">
-                                    <div class="bg-green-500/10 px-3 py-2 text-center border-b border-green-500/20">
-                                        <span class="text-[11px] font-bold uppercase tracking-wide text-green-500">⏰ زمان باقی‌مانده تا پایان</span>
-                                    </div>
-                                    <div class="bg-secondary px-5 py-4 flex items-center justify-center gap-2 direction-rtl" dir="rtl">
-                                        <div class="flex flex-col items-center min-w-[50px] sm:min-w-[60px] gap-1.5">
-                                            <span class="font-mono text-[28px] sm:text-[36px] font-bold tracking-[4px] leading-none text-green-500
-                                                         [text-shadow:0_0_15px_rgba(34,197,94,0.6),0_0_30px_rgba(34,197,94,0.3)]"
-                                                  x-text="seconds.toString().padStart(2, '0')">00</span>
-                                            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wide text-muted-foreground">ثانیه</span>
+                                {{-- تایمر کامپکت --}}
+                                <div class="rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-4 py-3 mb-4">
+                                    <p class="text-[10px] font-bold text-emerald-500 mb-2 text-center tracking-wide">⏳ زمان باقی‌مانده تا پایان</p>
+                                    <div class="flex items-center justify-center gap-0" dir="rtl">
+                                        <div class="timer-unit">
+                                            <span class="timer-num text-emerald-400" x-text="days.toString().padStart(2,'0')">00</span>
+                                            <span class="timer-label">روز</span>
                                         </div>
-                                        <span class="font-mono text-[28px] sm:text-[36px] text-green-500 opacity-70 [animation:blink_1.5s_ease-in-out_infinite] -mx-1">:</span>
-                                        <div class="flex flex-col items-center min-w-[50px] sm:min-w-[60px] gap-1.5">
-                                            <span class="font-mono text-[28px] sm:text-[36px] font-bold tracking-[4px] leading-none text-green-500
-                                                         [text-shadow:0_0_15px_rgba(34,197,94,0.6),0_0_30px_rgba(34,197,94,0.3)]"
-                                                  x-text="minutes.toString().padStart(2, '0')">00</span>
-                                            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wide text-muted-foreground">دقیقه</span>
+                                        <span class="timer-sep text-emerald-500">:</span>
+                                        <div class="timer-unit">
+                                            <span class="timer-num text-emerald-400" x-text="hours.toString().padStart(2,'0')">00</span>
+                                            <span class="timer-label">ساعت</span>
                                         </div>
-                                        <span class="font-mono text-[28px] sm:text-[36px] text-green-500 opacity-70 [animation:blink_1.5s_ease-in-out_infinite] -mx-1">:</span>
-                                        <div class="flex flex-col items-center min-w-[50px] sm:min-w-[60px] gap-1.5">
-                                            <span class="font-mono text-[28px] sm:text-[36px] font-bold tracking-[4px] leading-none text-green-500
-                                                         [text-shadow:0_0_15px_rgba(34,197,94,0.6),0_0_30px_rgba(34,197,94,0.3)]"
-                                                  x-text="hours.toString().padStart(2, '0')">00</span>
-                                            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wide text-muted-foreground">ساعت</span>
+                                        <span class="timer-sep text-emerald-500">:</span>
+                                        <div class="timer-unit">
+                                            <span class="timer-num text-emerald-400" x-text="minutes.toString().padStart(2,'0')">00</span>
+                                            <span class="timer-label">دقیقه</span>
                                         </div>
-                                        <span class="font-mono text-[28px] sm:text-[36px] text-green-500 opacity-70 [animation:blink_1.5s_ease-in-out_infinite] -mx-1">:</span>
-                                        <span class="font-mono text-[28px] sm:text-[36px] text-green-500 opacity-70 [animation:blink_1.5s_ease-in-out_infinite] -mx-1">:</span>
-                                        <div class="flex flex-col items-center min-w-[50px] sm:min-w-[60px] gap-1.5">
-                                            <span class="font-mono text-[28px] sm:text-[36px] font-bold tracking-[4px] leading-none text-green-500
-                                                         [text-shadow:0_0_15px_rgba(34,197,94,0.6),0_0_30px_rgba(34,197,94,0.3)]"
-                                                  x-text="days.toString().padStart(2, '0')">00</span>
-                                            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wide text-muted-foreground">روز</span>
+                                        <span class="timer-sep text-emerald-500">:</span>
+                                        <div class="timer-unit">
+                                            <span class="timer-num text-emerald-400" x-text="seconds.toString().padStart(2,'0')" style="animation: blink 1s ease-in-out infinite;">00</span>
+                                            <span class="timer-label">ثانیه</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="flex-1"></div>
 
-                                {{-- Action Button --}}
-                                <button
-                                    type="button"
-                                    wire:click="selectProject({{ $project->id }})"
-                                    class="relative overflow-hidden mt-4 w-full rounded-xl px-5 py-3 text-sm font-bold
-                                           transition-all duration-300 active:scale-[0.97]
-                                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background
-                                           before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:w-0 before:h-0
-                                           before:bg-white/20 before:rounded-full before:transition-all before:duration-500
-                                           before:-translate-x-1/2 before:-translate-y-1/2 hover:before:w-[400px] hover:before:h-[400px]
-                                           @if(isset($submissions[$project->id]) && $submissions[$project->id])
-                                               bg-emerald-500/15 text-emerald-500 border-2 border-emerald-500/30 hover:bg-emerald-500/20 hover:border-emerald-500/50
-                                           @else
-                                               bg-gradient-to-br from-green-500 to-emerald-600 text-white border-2 border-transparent
-                                               shadow-[0_8px_20px_rgba(34,197,94,0.3)] hover:shadow-[0_12px_28px_rgba(34,197,94,0.4)]
-                                               hover:from-green-600 hover:to-emerald-700
-                                           @endif">
-                                    <span class="relative z-10 flex items-center justify-center gap-2">
+                                {{-- دکمه اقدام --}}
+                                <button type="button" wire:click="selectProject({{ $project->id }})"
+                                        class="w-full rounded-xl px-5 py-3 text-sm font-bold transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2
                                         @if(isset($submissions[$project->id]) && $submissions[$project->id])
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-                                            </svg>
-                                            <span>مشاهده و ویرایش</span>
+                                            border-2 border-emerald-500/40 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/15
                                         @else
-                                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0-5 5m5-5H6"/>
-                                            </svg>
-                                            <span>شروع طبقه‌بندی</span>
-                                        @endif
-                                    </span>
+                                            bg-emerald-500 hover:bg-emerald-600 text-white
+                                        @endif">
+                                    @if(isset($submissions[$project->id]) && $submissions[$project->id])
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        مشاهده و ویرایش
+                                    @else
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0-5 5m5-5H6"/></svg>
+                                        شروع طبقه‌بندی
+                                    @endif
                                 </button>
                             </div>
                         </article>
                     @endforeach
                 </div>
-            </div>
+            </section>
         @endif
 
-        {{-- Upcoming Projects --}}
+        {{-- ══════ در انتظار شروع ══════ --}}
         @if($upcomingProjects->count() > 0)
-            <div class="mb-10">
-                <h2 class="text-xl font-black text-foreground mb-5 flex items-center gap-2.5 relative pr-5
-                           before:content-[''] before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2
-                           before:w-1 before:h-6 before:bg-gradient-to-b before:from-amber-500 before:to-transparent before:rounded-sm">
-                    <span class="h-2.5 w-2.5 rounded-full bg-amber-500"></span>
-                    در انتظار شروع
-                </h2>
-                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 bg-background bg-secondary">
+            <section class="mb-10">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-1 h-6 rounded-full bg-amber-500 flex-shrink-0"></span>
+                    <h2 class="font-black text-foreground text-base flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>
+                        در انتظار شروع
+                        <span class="text-xs font-bold text-amber-500 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-full">{{ $upcomingProjects->count() }}</span>
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @foreach($upcomingProjects as $project)
                         <article
                             x-data="projectTimer('{{ $project->start_at->toIso8601String() }}', 'upcoming')"
-                            class="group relative flex flex-col h-full rounded-2xl border-2 border-border/70
-                                   bg-card/95 shadow-lg backdrop-blur-sm overflow-hidden
-                                   transition-all duration-300
-                                   hover:-translate-y-1.5
-                                   hover:shadow-[0_20px_40px_rgba(251,191,36,0.15),0_8px_16px_rgba(251,191,36,0.1)]
-                                   hover:border-amber-500/50
-                                   [animation:slideInUp_0.6s_cubic-bezier(0.4,0,0.2,1)_backwards]"
-                            style="animation-delay: {{ $loop->index * 0.05 + 0.05 }}s">
+                            class="card-enter group relative flex flex-col rounded-2xl border border-border bg-card overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/40"
+                            style="animation-delay: {{ $loop->index * 0.06 + 0.05 }}s; box-shadow: 0 2px 12px rgba(0,0,0,0.06);"
+                        >
+                            <div class="h-1 w-full bg-gradient-to-l from-yellow-400 to-amber-500"></div>
 
-                            {{-- Hover Overlay --}}
-                            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none
-                                        bg-gradient-to-br from-amber-500/8 to-yellow-500/8 z-0"></div>
-
-                            {{-- Status Badge --}}
-                            <div class="absolute top-4 left-4 z-10">
-                                <span class="inline-flex items-center gap-1.5 rounded-xl border-2 border-amber-500/30
-                                             bg-amber-500/15 px-3 py-1.5 text-xs font-bold text-amber-500
-                                             backdrop-blur-sm transition-transform duration-300 group-hover:scale-105">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                    در انتظار
-                                </span>
-                            </div>
-
-                            {{-- Content --}}
-                            <div class="relative flex h-full flex-col p-5 sm:p-6 z-10">
-                                <div class="mb-3">
-                                    <h3 class="text-lg md:text-xl font-bold text-foreground line-clamp-2 leading-tight mb-2">
-                                        {{ $project->name }}
-                                    </h3>
-                                    @if($project->description)
-                                        <div class="group/desc relative">
-                                            <p class="text-sm leading-relaxed text-muted-foreground line-clamp-3 group-hover/desc:line-clamp-none transition-all duration-300">
-                                                {{ $project->description }}
-                                            </p>
-                                            @if(strlen($project->description) > 100)
-                                                <button type="button"
-                                                        class="text-xs text-primary hover:text-primary/80 font-semibold mt-1 flex items-center gap-1 group-hover/desc:hidden"
-                                                        onclick="this.parentElement.querySelector('p').classList.toggle('line-clamp-3')">
-                                                    <span>نمایش بیشتر</span>
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                                    </svg>
-                                                </button>
-                                            @endif
-                                        </div>
-                                    @endif
+                            <div class="flex flex-col flex-1 p-5">
+                                <div class="flex items-start justify-between gap-2 mb-3">
+                                    <h3 class="font-bold text-foreground text-base leading-snug flex-1">{{ $project->name }}</h3>
+                                    <span class="flex-shrink-0 inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-[11px] font-bold text-amber-500">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        در انتظار
+                                    </span>
                                 </div>
 
-                                <div class="mb-4 flex flex-wrap gap-2 text-xs">
-                                    <div class="flex items-center gap-1.5 rounded-xl bg-amber-500/10 px-3 py-1.5 border border-amber-500/20
-                                                transition-all duration-300 group-hover:-translate-x-0.5">
-                                        <svg class="h-4 w-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
-                                        <span class="font-semibold text-foreground">{{ \Morilog\Jalali\Jalalian::fromCarbon($project->start_at)->format('Y/m/d H:i') }}</span>
+                                @if($project->description)
+                                    <p class="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-2">{{ $project->description }}</p>
+                                @endif
+
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <div class="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 px-2.5 py-1.5 text-[11px] font-semibold text-amber-600 dark:text-amber-400">
+                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                        شروع: {{ \Morilog\Jalali\Jalalian::fromCarbon($project->start_at)->format('Y/m/d - H:i') }}
                                     </div>
                                 </div>
 
-                                {{-- Timer (Upcoming = Amber) --}}
-                                <div class="mb-4 rounded-2xl border-2 border-amber-500/30 overflow-hidden">
-                                    <div class="bg-amber-500/10 px-3 py-2 text-center border-b border-amber-500/20">
-                                        <span class="text-[11px] font-bold uppercase tracking-wide text-amber-500">⏰ زمان باقی‌مانده تا شروع</span>
-                                    </div>
-                                    <div class="bg-secondary px-5 py-4 flex items-center justify-center gap-2" dir="rtl">
-                                        <div class="flex flex-col items-center min-w-[50px] sm:min-w-[60px] gap-1.5">
-                                            <span class="font-mono text-[28px] sm:text-[36px] font-bold tracking-[4px] leading-none text-amber-400
-                                                         [text-shadow:0_0_15px_rgba(251,191,36,0.6),0_0_30px_rgba(251,191,36,0.3)]"
-                                                  x-text="days.toString().padStart(2, '0')">00</span>
-                                            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wide text-muted-foreground">روز</span>
+                                {{-- تایمر شمارش معکوس تا شروع --}}
+                                <div class="rounded-xl border border-amber-500/25 bg-amber-500/5 px-4 py-3 mb-4">
+                                    <p class="text-[10px] font-bold text-amber-500 mb-2 text-center tracking-wide">⏳ زمان باقی‌مانده تا شروع</p>
+                                    <div class="flex items-center justify-center gap-0" dir="rtl">
+                                        <div class="timer-unit">
+                                            <span class="timer-num text-amber-400" x-text="days.toString().padStart(2,'0')">00</span>
+                                            <span class="timer-label">روز</span>
                                         </div>
-                                        <span class="font-mono text-[28px] sm:text-[36px] text-amber-400 opacity-70 [animation:blink_1.5s_ease-in-out_infinite] -mx-1">:</span>
-                                        <div class="flex flex-col items-center min-w-[50px] sm:min-w-[60px] gap-1.5">
-                                            <span class="font-mono text-[28px] sm:text-[36px] font-bold tracking-[4px] leading-none text-amber-400
-                                                         [text-shadow:0_0_15px_rgba(251,191,36,0.6),0_0_30px_rgba(251,191,36,0.3)]"
-                                                  x-text="hours.toString().padStart(2, '0')">00</span>
-                                            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wide text-muted-foreground">ساعت</span>
+                                        <span class="timer-sep text-amber-500">:</span>
+                                        <div class="timer-unit">
+                                            <span class="timer-num text-amber-400" x-text="hours.toString().padStart(2,'0')">00</span>
+                                            <span class="timer-label">ساعت</span>
                                         </div>
-                                        <span class="font-mono text-[28px] sm:text-[36px] text-amber-400 opacity-70 [animation:blink_1.5s_ease-in-out_infinite] -mx-1">:</span>
-                                        <div class="flex flex-col items-center min-w-[50px] sm:min-w-[60px] gap-1.5">
-                                            <span class="font-mono text-[28px] sm:text-[36px] font-bold tracking-[4px] leading-none text-amber-400
-                                                         [text-shadow:0_0_15px_rgba(251,191,36,0.6),0_0_30px_rgba(251,191,36,0.3)]"
-                                                  x-text="minutes.toString().padStart(2, '0')">00</span>
-                                            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wide text-muted-foreground">دقیقه</span>
+                                        <span class="timer-sep text-amber-500">:</span>
+                                        <div class="timer-unit">
+                                            <span class="timer-num text-amber-400" x-text="minutes.toString().padStart(2,'0')">00</span>
+                                            <span class="timer-label">دقیقه</span>
                                         </div>
-                                        <span class="font-mono text-[28px] sm:text-[36px] text-amber-400 opacity-70 [animation:blink_1.5s_ease-in-out_infinite] -mx-1">:</span>
-                                        <div class="flex flex-col items-center min-w-[50px] sm:min-w-[60px] gap-1.5">
-                                            <span class="font-mono text-[28px] sm:text-[36px] font-bold tracking-[4px] leading-none text-amber-400
-                                                         [text-shadow:0_0_15px_rgba(251,191,36,0.6),0_0_30px_rgba(251,191,36,0.3)]"
-                                                  x-text="seconds.toString().padStart(2, '0')">00</span>
-                                            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wide text-muted-foreground">ثانیه</span>
+                                        <span class="timer-sep text-amber-500">:</span>
+                                        <div class="timer-unit">
+                                            <span class="timer-num text-amber-400" x-text="seconds.toString().padStart(2,'0')" style="animation: blink 1s ease-in-out infinite;">00</span>
+                                            <span class="timer-label">ثانیه</span>
                                         </div>
                                     </div>
                                 </div>
@@ -327,122 +281,93 @@
                                 <div class="flex-1"></div>
 
                                 <button type="button" disabled
-                                        class="mt-4 w-full rounded-xl px-5 py-3 text-sm font-bold
-                                               bg-gray-500/10 text-gray-400 border-2 border-gray-500/20 cursor-not-allowed">
-                                    <span class="flex items-center justify-center gap-2">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                                        </svg>
-                                        <span>هنوز شروع نشده</span>
-                                    </span>
+                                        class="w-full rounded-xl px-5 py-3 text-sm font-bold flex items-center justify-center gap-2
+                                               bg-secondary border border-border text-muted-foreground cursor-not-allowed opacity-60">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                    هنوز شروع نشده
                                 </button>
                             </div>
                         </article>
                     @endforeach
                 </div>
-            </div>
+            </section>
         @endif
 
-        {{-- Ended Projects --}}
+        {{-- ══════ تمام شده / غیرفعال ══════ --}}
         @if($endedProjects->count() > 0)
-            <div class="mb-10">
-                <h2 class="text-xl font-black text-foreground mb-5 flex items-center gap-2.5 relative pr-5
-                           before:content-[''] before:absolute before:right-0 before:top-1/2 before:-translate-y-1/2
-                           before:w-1 before:h-6 before:bg-gradient-to-b before:from-red-500 before:to-transparent before:rounded-sm">
-                    <span class="h-2.5 w-2.5 rounded-full bg-red-500"></span>
-                    تمام شده / غیرفعال
-                </h2>
-                <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 bg-background bg-secondary">
+            <section class="mb-10">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-1 h-6 rounded-full bg-muted flex-shrink-0"></span>
+                    <h2 class="font-black text-foreground text-base flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-muted-foreground inline-block"></span>
+                        تمام شده / غیرفعال
+                        <span class="text-xs font-bold text-muted-foreground bg-secondary border border-border px-2 py-0.5 rounded-full">{{ $endedProjects->count() }}</span>
+                    </h2>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     @foreach($endedProjects as $project)
-                        <article
-                            class="group relative flex flex-col h-full rounded-2xl border-2 border-border/70
-                                   bg-card/95 shadow-lg overflow-hidden opacity-65
-                                   transition-all duration-300 hover:-translate-y-0.5 hover:opacity-80
-                                   [animation:slideInUp_0.6s_cubic-bezier(0.4,0,0.2,1)_backwards]"
-                            style="animation-delay: {{ $loop->index * 0.05 + 0.05 }}s">
+                        <article class="card-enter group relative flex flex-col rounded-2xl border border-border bg-card overflow-hidden opacity-60 hover:opacity-75 transition-opacity"
+                                 style="animation-delay: {{ $loop->index * 0.06 + 0.05 }}s;">
+                            <div class="h-1 w-full bg-border"></div>
 
-                            {{-- Status Badge --}}
-                            <div class="absolute top-4 left-4 z-10">
-                                <span class="inline-flex items-center gap-1.5 rounded-xl border-2 border-red-500/30
-                                             bg-red-500/15 px-3 py-1.5 text-xs font-bold text-red-500
-                                             backdrop-blur-sm transition-transform duration-300 group-hover:scale-105">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                    </svg>
-                                    تمام شده
-                                </span>
-                            </div>
-
-                            <div class="relative flex h-full flex-col p-5 sm:p-6 z-10">
-                                <div class="mb-3">
-                                    <h3 class="text-lg md:text-xl font-bold text-foreground line-clamp-2 leading-tight mb-2">
-                                        {{ $project->name }}
-                                    </h3>
-                                    @if($project->description)
-                                        <div class="group/desc relative">
-                                            <p class="text-sm leading-relaxed text-muted-foreground line-clamp-3 group-hover/desc:line-clamp-none transition-all duration-300">
-                                                {{ $project->description }}
-                                            </p>
-                                            @if(strlen($project->description) > 100)
-                                                <button type="button"
-                                                        class="text-xs text-primary hover:text-primary/80 font-semibold mt-1 flex items-center gap-1 group-hover/desc:hidden"
-                                                        onclick="this.parentElement.querySelector('p').classList.toggle('line-clamp-3')">
-                                                    <span>نمایش بیشتر</span>
-                                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                                                    </svg>
-                                                </button>
-                                            @endif
-                                        </div>
-                                    @endif
+                            <div class="flex flex-col flex-1 p-5">
+                                <div class="flex items-start justify-between gap-2 mb-3">
+                                    <h3 class="font-bold text-foreground text-base leading-snug flex-1">{{ $project->name }}</h3>
+                                    <span class="flex-shrink-0 inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-2.5 py-1 text-[11px] font-bold text-muted-foreground">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        تمام شده
+                                    </span>
                                 </div>
 
-                                <div class="mb-4 flex flex-wrap gap-2 text-xs">
-                                    <div class="flex items-center gap-1.5 rounded-xl bg-red-500/10 px-3 py-1.5 border border-red-500/20">
-                                        <svg class="h-4 w-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                        </svg>
-                                        <span class="font-semibold text-foreground">{{ \Morilog\Jalali\Jalalian::fromCarbon($project->end_at)->format('Y/m/d') }}</span>
+                                @if($project->description)
+                                    <p class="text-sm text-muted-foreground leading-relaxed mb-3 line-clamp-2">{{ $project->description }}</p>
+                                @endif
+
+                                <div class="flex flex-wrap gap-2 mb-4">
+                                    <div class="inline-flex items-center gap-1.5 rounded-lg bg-secondary border border-border px-2.5 py-1.5 text-[11px] font-semibold text-muted-foreground">
+                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        پایان: {{ \Morilog\Jalali\Jalalian::fromCarbon($project->end_at)->format('Y/m/d') }}
                                     </div>
+                                    @if(isset($submissions[$project->id]) && $submissions[$project->id])
+                                        <div class="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-500">
+                                            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                            ارسال شده
+                                        </div>
+                                    @endif
                                 </div>
 
                                 <div class="flex-1"></div>
 
                                 <button type="button" disabled
-                                        class="mt-4 w-full rounded-xl px-5 py-3 text-sm font-bold
-                                               bg-red-500/10 text-red-400 border-2 border-red-500/20 cursor-not-allowed">
-                                    <span class="flex items-center justify-center gap-2">
-                                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
-                                        <span>این پروژه تمام شده</span>
-                                    </span>
+                                        class="w-full rounded-xl px-5 py-3 text-sm font-bold flex items-center justify-center gap-2
+                                               bg-secondary border border-border text-muted-foreground cursor-not-allowed">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                    این پروژه تمام شده
                                 </button>
                             </div>
                         </article>
                     @endforeach
                 </div>
-            </div>
+            </section>
         @endif
 
-        {{-- Empty State --}}
+        {{-- ══════ حالت خالی ══════ --}}
         @if($activeProjects->count() === 0 && $upcomingProjects->count() === 0 && $endedProjects->count() === 0 && !($isTrialUser && $trialProject))
-
-            <div class="flex flex-col items-center justify-center py-12 space-y-4">
-                <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="empty"/>
-                <div class="text-center space-y-2">
-                    <h2 class="font-bold text-xl text-foreground">پروژه‌ای در دسترس نیست</h2>
-                    <p class="text-muted text-sm">در حال حاضر پروژه طبقه‌بندی فعالی وجود ندارد.</p>
+            <div class="flex flex-col items-center justify-center py-20 space-y-5">
+                <img src="/client/assets/images/theme/empty.svg" class="w-48 opacity-30" alt="خالی"/>
+                <div class="text-center space-y-1.5">
+                    <h2 class="font-bold text-lg text-foreground">پروژه‌ای در دسترس نیست</h2>
+                    <p class="text-sm text-muted-foreground">در حال حاضر پروژه طبقه‌بندی فعالی وجود ندارد.</p>
                 </div>
             </div>
         @endif
 
-
-        {{-- Loading Overlay --}}
-        <div wire:loading.flex class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/70 backdrop-blur-md">
-            <div class="flex items-center gap-3 rounded-2xl border-2 border-border/70 bg-card px-6 py-5 shadow-2xl backdrop-blur-xl">
-                <div class="h-8 w-8 animate-spin rounded-full border-4 border-blue-500/80 border-t-transparent"></div>
-                <span class="text-base font-semibold text-foreground">در حال بارگذاری...</span>
+        {{-- لودینگ --}}
+        <div wire:loading.flex class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/60 backdrop-blur-sm">
+            <div class="flex items-center gap-3 rounded-2xl border border-border bg-card px-6 py-4 shadow-2xl">
+                <div class="h-6 w-6 animate-spin rounded-full border-3 border-primary/30 border-t-primary"></div>
+                <span class="text-sm font-semibold text-foreground">در حال بارگذاری...</span>
             </div>
         </div>
 
@@ -451,46 +376,27 @@
     @script
     <script>
         Alpine.data('projectTimer', (targetDate, type) => ({
-            days: 0,
-            hours: 0,
-            minutes: 0,
-            seconds: 0,
+            days: 0, hours: 0, minutes: 0, seconds: 0,
             interval: null,
-
             init() {
                 this.updateTimer();
                 this.interval = setInterval(() => this.updateTimer(), 1000);
             },
-
             updateTimer() {
-                const target = new Date(targetDate).getTime();
-                const now = new Date().getTime();
-                const diff = target - now;
-
+                const diff = new Date(targetDate).getTime() - Date.now();
                 if (diff <= 0) {
-                    this.days = 0;
-                    this.hours = 0;
-                    this.minutes = 0;
-                    this.seconds = 0;
-                    if (this.interval) clearInterval(this.interval);
-                    if (type === 'upcoming' || type === 'active') {
-                        setTimeout(() => window.location.reload(), 1000);
-                    }
+                    this.days = this.hours = this.minutes = this.seconds = 0;
+                    clearInterval(this.interval);
+                    if (type === 'upcoming' || type === 'active') setTimeout(() => window.location.reload(), 1200);
                     return;
                 }
-
-                this.days = Math.floor(diff / (1000 * 60 * 60 * 24));
-                this.hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                this.minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                this.seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                this.days    = Math.floor(diff / 86400000);
+                this.hours   = Math.floor((diff % 86400000) / 3600000);
+                this.minutes = Math.floor((diff % 3600000) / 60000);
+                this.seconds = Math.floor((diff % 60000) / 1000);
             },
-
-            destroy() {
-                if (this.interval) clearInterval(this.interval);
-            }
+            destroy() { clearInterval(this.interval); }
         }));
     </script>
     @endscript
-
-
 </div>

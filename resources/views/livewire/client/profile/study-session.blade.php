@@ -126,7 +126,7 @@
 
                     {{-- ===== ACTIVE TIMER (sticky) ===== --}}
                     @if($weeklyProgram && ($currentPartId || $makeupTimerRunning || $makeupPausedAtTs))
-                        <div class="sticky top-3 z-40 mb-4" wire:poll.1000ms="syncTimers">
+                        <div class="sticky top-3 z-40 mb-4">
                             @if($makeupTimerRunning || $makeupPausedAtTs)
                                 {{-- جبرانی --}}
                                 <div class="rounded-2xl p-4 text-white" style="background:#1a0a2e; border:1px solid #5b21b6;">
@@ -138,12 +138,12 @@
                                 </span>
                                     </div>
                                     <div class="text-center mb-3">
-                                        <div style="font-family:'Digital',monospace; font-size:48px; color:#c4b5fd; letter-spacing:2px; line-height:1;">
+                                        <div id="makeup-clock" style="font-family:'Digital',monospace; font-size:48px; color:#c4b5fd; letter-spacing:2px; line-height:1;">
                                             {{ $this->formatClock($makeupRemainingSeconds) }}
                                         </div>
                                     </div>
                                     <div class="w-full rounded-full mb-3" style="height:3px; background:#2d1b69;">
-                                        <div class="h-full rounded-full" style="width:{{ $makeupTargetSeconds > 0 ? ($makeupLiveSeconds/$makeupTargetSeconds*100) : 0 }}%; background:#a78bfa; transition:width .3s;"></div>
+                                        <div id="makeup-progress" class="h-full rounded-full" style="width:...%; background:#a78bfa; transition:width .3s;"></div>
                                     </div>
                                     <div class="flex gap-2 justify-end">
                                         @if($makeupTimerRunning)
@@ -158,7 +158,7 @@
                                 @php $activePart = $programParts->firstWhere('id', $currentPartId); @endphp
                                 @if($isInExtraPhase)
                                     {{-- فاز ۲: اضافه بر مشاور --}}
-                                    <div class="rounded-2xl p-4 text-white" style="background:#1a0a2e; border:1px solid #5b21b6;" wire:poll.1000ms="syncTimers">
+                                    <div class="rounded-2xl p-4 text-white" style="background:#1a0a2e; border:1px solid #5b21b6;" >
                                         <div class="flex items-center justify-between mb-3">
                                             <div class="text-xs font-bold flex items-center gap-2" style="color:#c4b5fd;">
                                                 <span class="px-2 py-0.5 rounded-full" style="background:#2d1b69;">اضافه بر مشاور</span>
@@ -170,11 +170,11 @@
                                             </span>
                                         </div>
                                         <div class="text-center mb-3">
-                                            <div style="font-family:'Digital',monospace; font-size:48px; color:#a78bfa; letter-spacing:2px; line-height:1;">
+                                            <div id="extra-clock" style="font-family:'Digital',monospace; font-size:48px; color:#a78bfa; letter-spacing:2px; line-height:1;">
                                                 {{ $this->formatClock($extraRemainingSeconds) }}
                                             </div>
                                         </div>
-                                        <div class="w-full rounded-full mb-3" style="height:3px; background:#2d1b69;">
+                                        <div id="extra-progress" class="w-full rounded-full mb-3" style="height:3px; background:#2d1b69;">
                                             <div class="h-full rounded-full" style="width:{{ $extraTargetSeconds > 0 ? ($extraLiveSeconds/$extraTargetSeconds*100) : 0 }}%; background:linear-gradient(to left,#a78bfa,#7c3aed); transition:width .3s;"></div>
                                         </div>
                                         <div class="flex gap-2 justify-end">
@@ -185,20 +185,10 @@
                                             @endif
                                             <button wire:click="cancelPart" class="px-4 h-9 rounded-full text-xs font-bold" style="background:#1c1c1c; color:#888; border:1px solid #333;">لغو تایم اضافه</button>
                                         </div>
-
-                                        @if($this->canShowEarlyFinish)
-                                            <div class="mt-3">
-                                                <button wire:click="openEarlyFinishConfirm"
-                                                        class="w-full h-10 rounded-full text-xs font-bold"
-                                                        style="background:#0f2a1a; color:#4ade80; border:1px solid #1e5c35;">
-                                                    ⚡ زودتر تمام کردم
-                                                </button>
-                                            </div>
-                                        @endif
                                     </div>
                                 @else
                                     {{-- فاز ۱: تایمر عادی --}}
-                                    <div class="rounded-2xl p-4 text-white" style="background:#0d1117; border:1px solid #2a2a2a;" wire:poll.1000ms="syncTimers">
+                                    <div class="rounded-2xl p-4 text-white" style="background:#0d1117; border:1px solid #2a2a2a;" >
                                         <div class="flex items-center justify-between mb-3">
                                             <div class="text-xs font-bold text-white flex items-center gap-2">
                                                 <span>{{ $activePart?->lesson_name ?? '—' }}</span>
@@ -214,12 +204,16 @@
                                             </span>
                                         </div>
                                         <div class="text-center mb-3">
-                                            <div style="font-family:'Digital',monospace; font-size:48px; color:#f59e0b; letter-spacing:2px; line-height:1;">
+                                            <div id="main-clock" style="font-family:'Digital',monospace; font-size:48px; color:#f59e0b; letter-spacing:2px; line-height:1;">
                                                 {{ $this->formatClock($remainingSeconds) }}
                                             </div>
+
                                         </div>
                                         <div class="w-full rounded-full mb-3" style="height:3px; background:#1c1c1c;">
-                                            <div class="h-full rounded-full" style="width:{{ $targetSeconds > 0 ? (($targetSeconds-$remainingSeconds)/$targetSeconds*100) : 0 }}%; background:linear-gradient(to left,#f59e0b,#ef4444); transition:width .3s;"></div>
+                                            <div id="main-progress" class="h-full rounded-full"
+                                                 style="width:{{ $targetSeconds > 0 ? (($targetSeconds-$remainingSeconds)/$targetSeconds*100) : 0 }}%;
+                                                             background:linear-gradient(to left,#f59e0b,#ef4444); transition:width .3s;">
+                                            </div>
                                         </div>
                                         <div class="flex gap-2 justify-end">
                                             @if($isRunning)
@@ -231,22 +225,18 @@
                                         </div>
 
                                         {{-- دکمه‌های ۸۰٪ --}}
-                                        @if($this->canShowEarlyFinish || $this->canShowStudyMore)
-                                            <div class="grid {{ $this->canShowEarlyFinish && $this->canShowStudyMore ? 'grid-cols-2' : 'grid-cols-1' }} gap-2 mt-3">
-                                                @if($this->canShowEarlyFinish)
-                                                    <button wire:click="openEarlyFinishConfirm"
-                                                            class="h-10 rounded-full text-xs font-bold"
-                                                            style="background:#0f2a1a; color:#4ade80; border:1px solid #1e5c35;">
-                                                        ⚡ زودتر تمام کردم
-                                                    </button>
-                                                @endif
-                                                @if($this->canShowStudyMore)
-                                                    <button wire:click="openStudyMoreModal"
-                                                            class="h-10 rounded-full text-xs font-bold"
-                                                            style="background:#2d1b69; color:#c4b5fd; border:1px solid #5b21b6;">
-                                                        ➕ مطالعه بیشتر
-                                                    </button>
-                                                @endif
+                                        @if($this->canShowEarlyOrMore)
+                                            <div class="grid grid-cols-2 gap-2 mt-3">
+                                                <button wire:click="openEarlyFinishConfirm"
+                                                        class="h-10 rounded-full text-xs font-bold"
+                                                        style="background:#0f2a1a; color:#4ade80; border:1px solid #1e5c35;">
+                                                    ⚡ زودتر تمام کردم
+                                                </button>
+                                                <button wire:click="openStudyMoreModal"
+                                                        class="h-10 rounded-full text-xs font-bold"
+                                                        style="background:#2d1b69; color:#c4b5fd; border:1px solid #5b21b6;">
+                                                    ➕ مطالعه بیشتر
+                                                </button>
                                             </div>
                                         @endif
                                     </div>
@@ -254,7 +244,15 @@
                             @endif
                         </div>
                     @endif
-
+                    <button wire:click="$set('showAlarmModal', true)"
+                            class="w-9 h-9 rounded-full flex items-center justify-center"
+                            style="background:#1c1c1c;">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                             stroke-width="1.5" stroke="#aaa" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                  d="M9 9l10.5-3m0 6.553v3.75a2.25 2.25 0 01-1.632 2.163l-1.32.377..."/>
+                        </svg>
+                    </button>
                     {{-- ===== PROGRAM PARTS LIST ===== --}}
                     @if($weeklyProgram)
 
@@ -366,19 +364,11 @@
                                                                 @endif
                                                                 @if($isDone)
                                                                     @php $meta = $completedPartsMeta[$part->id] ?? null; @endphp
-                                                                    @if($meta && (
-                                                                        ($meta['is_early_finish'] ?? false) ||
-                                                                        ($meta['extra_seconds'] ?? 0) > 0 ||
-                                                                        ($meta['is_cheating'] ?? false)
-                                                                    ))
+                                                                    @if($meta && (($meta['is_early_finish'] ?? false) || ($meta['extra_seconds'] ?? 0) > 0))
                                                                         <div class="mt-1">
                                                                             <x-study-session-badges
                                                                                 :is-early-finish="(bool)($meta['is_early_finish'] ?? false)"
-                                                                                :extra-seconds="(int)($meta['extra_seconds'] ?? 0)"
-                                                                                :extra-target-seconds="(int)($meta['extra_target_seconds'] ?? 0)"
-                                                                                :is-cheating="(bool)($meta['is_cheating'] ?? false)"
-                                                                                :cheat-status="$meta['cheat_status'] ?? null"
-                                                                                :cheat-minutes="(int)($meta['cheat_minutes'] ?? 0)" />
+                                                                                :extra-seconds="(int)($meta['extra_seconds'] ?? 0)" />
                                                                         </div>
                                                                     @endif
                                                                 @endif
@@ -431,10 +421,26 @@
                                                             @elseif($isActive)
                                                                 <div class="text-xs font-bold py-2 text-center rounded-xl" style="background:#0d2a4a; color:#4a9eff;">در حال مطالعه...</div>
                                                             @elseif(!$currentPartId && !$makeupTimerRunning)
+                                                                {{-- دکمه شروع --}}
                                                                 <button wire:click="startPart({{ $part->id }})"
-                                                                        class="w-full h-11 rounded-xl font-bold text-sm"
+                                                                        wire:loading.attr="disabled"
+                                                                        wire:target="startPart({{ $part->id }})"
+                                                                        class="w-full h-11 rounded-xl font-bold text-sm relative"
                                                                         style="background:#2563eb; color:#fff;">
-                                                                    شروع
+                                                                    <span wire:loading.remove wire:target="startPart({{ $part->id }})">شروع</span>
+                                                                    <span wire:loading wire:target="startPart({{ $part->id }})" class="flex items-center justify-center gap-2">
+                                                                            <svg class="animate-spin w-4 h-4"
+                                                                                 fill="none" viewBox="0 0 24 24">
+                                                                                <circle class="opacity-25" cx="12"
+                                                                                        cy="12" r="10"
+                                                                                        stroke="currentColor"
+                                                                                        stroke-width="4"></circle>
+                                                                                <path class="opacity-75"
+                                                                                      fill="currentColor"
+                                                                                      d="M4 12a8 8 0 018-8V0C5.373 0 12 0 12 0v4a8 8 0 00-8 8H4z"></path>
+                                                                            </svg>
+                                                                            لطفاً صبر کنید...
+                                                                        </span>
                                                                 </button>
                                                             @endif
                                                         </div>
@@ -512,29 +518,9 @@
                                     @else تایم مطالعه به پایان رسید
                                     @endif
                                 </p>
-
-                                @if($this->isCheatingNow)
-                                    <div class="mt-4 text-right space-y-2 px-2">
-                                        <div class="flex items-center gap-2 text-sm font-bold" style="color:#f59e0b;">
-                                            <span>⚠️</span>
-                                            <span>{{ $this->lateMinutes }} دقیقه دیرتر از موعد مجاز ثبت می‌کنید — این به‌عنوان تقلب علامت‌گذاری می‌شود.</span>
-                                        </div>
-                                        <label class="block text-sm font-bold text-white">علت طول کشیدن</label>
-                                        <textarea wire:model.live="finishReason" rows="3"
-                                                  placeholder="مثلاً: درگیر تمرین بودم، چند سوال سخت داشتم و..."
-                                                  class="w-full rounded-xl p-3 text-sm"
-                                                  style="background:#0d0d0d; border:1px solid #333; color:#fff;"></textarea>
-                                        <div class="text-xs" style="color:#666;">
-                                            بعد از ثبت، مشاور تایید/رد می‌کند. اگر رد شود، این پارت قابل ثبت مجدد نخواهد بود.
-                                        </div>
-                                    </div>
-                                @endif
-
                                 <div class="flex gap-3 justify-center pt-2">
                                     <button wire:click="closeFinishModal" class="px-6 h-11 rounded-full font-semibold text-sm" style="background:#1c1c1c; color:#888; border:1px solid #333;">بستن</button>
-                                    <button wire:click="savePart"
-                                            @if($this->isCheatingNow && mb_strlen(trim($finishReason)) < 5) disabled @endif
-                                            class="px-8 h-11 rounded-full font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                                    <button wire:click="savePart" class="px-8 h-11 rounded-full font-semibold text-sm"
                                             style="background:{{ $isInExtraPhase ? '#7c3aed' : '#16a34a' }}; color:#fff;">
                                         ثبت پارت
                                     </button>
@@ -561,11 +547,7 @@
                                     با تأیید، این پارت با مدت مطالعه فعلی به‌عنوان «زودتر تمام شد» ثبت می‌شود.
                                 </p>
                                 <p class="text-xs" style="color:#666;">
-                                    @if($isInExtraPhase)
-                                        مدت ثبت شده در فاز اضافه بر مشاور: <span class="text-white font-bold">{{ $this->formatClock($extraLiveSeconds) }}</span> از {{ $this->formatClock($extraTargetSeconds) }}
-                                    @else
-                                        مدت ثبت شده: <span class="text-white font-bold">{{ $this->formatClock($liveSeconds) }}</span> از {{ $this->formatClock($targetSeconds) }}
-                                    @endif
+                                    مدت ثبت شده: <span class="text-white font-bold">{{ $this->formatClock($liveSeconds) }}</span> از {{ $this->formatClock($targetSeconds) }}
                                 </p>
                                 <div class="flex gap-3 justify-center pt-2">
                                     <button wire:click="closeEarlyFinishConfirm" class="px-6 h-11 rounded-full font-semibold text-sm" style="background:#1c1c1c; color:#888; border:1px solid #333;">انصراف</button>
@@ -875,114 +857,292 @@
             </div>
         </div>
         {{-- ستاره‌های پس‌زمینه --}}
-{{--        <canvas id="ss-stars"></canvas>--}}
-    </div>
+        {{--        <canvas id="ss-stars"></canvas>--}}
+        {{-- دکمه تنظیمات صدا در header --}}
 
+    </div>
+    {{-- مودال انتخاب آلارم --}}
+    <div x-cloak x-show="$wire.showAlarmModal"
+         class="fixed inset-0 z-[200] flex flex-col justify-end sm:items-center sm:justify-center">
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"
+             @click="$wire.showAlarmModal = false"></div>
+        <div class="relative z-10 w-full sm:max-w-md rounded-t-3xl sm:rounded-2xl shadow-2xl"
+             style="background:#111; border:1px solid #222;"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-8"
+             x-transition:enter-end="opacity-100 translate-y-0">
+
+            <div class="sm:hidden flex justify-center pt-3 pb-1">
+                <div class="w-10 h-1 rounded-full bg-white/20"></div>
+            </div>
+
+            <div class="flex items-center justify-between px-6 py-4"
+                 style="border-bottom:1px solid #1e1e1e;">
+                <h3 class="font-bold text-white">انتخاب صدای آلارم</h3>
+                <button wire:click="$set('showAlarmModal', false)">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                         stroke-width="1.5" stroke="#666" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="px-6 py-4 space-y-2">
+                @php
+                    $alarms = [
+                        ['id' => 'Alarmclock', 'label' => 'زنگ کلاسیک', 'desc' => 'صدای زنگ سنتی'],
+                        ['id' => 'Bells',      'label' => 'زنگ ملایم',  'desc' => 'صدای ملایم زنگوله'],
+                        ['id' => 'Digital',    'label' => 'دیجیتال',     'desc' => 'صدای الکترونیکی'],
+                        ['id' => 'Beep',       'label' => 'بیپ',         'desc' => 'صدای کوتاه بیپ'],
+                    ];
+                @endphp
+
+                @foreach($alarms as $alarm)
+                    <div class="flex items-center justify-between px-4 py-3 rounded-2xl cursor-pointer transition"
+                         style="{{ $selectedAlarm === $alarm['id'] ? 'background:#0d1a2e; border:1px solid #2563eb;' : 'background:#1c1c1c; border:1px solid #222;' }}"
+                         wire:click="setAlarm('{{ $alarm['id'] }}')">
+
+                        <div class="flex items-center gap-3">
+                            {{-- radio indicator --}}
+                            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center"
+                                 style="{{ $selectedAlarm === $alarm['id'] ? 'border-color:#2563eb; background:#2563eb;' : 'border-color:#444;' }}">
+                                @if($selectedAlarm === $alarm['id'])
+                                    <div class="w-2 h-2 rounded-full bg-white"></div>
+                                @endif
+                            </div>
+                            <div>
+                                <div class="font-semibold text-white text-sm">{{ $alarm['label'] }}</div>
+                                <div class="text-xs" style="color:#555;">{{ $alarm['desc'] }}</div>
+                            </div>
+                        </div>
+
+                        {{-- دکمه پیش‌نمایش --}}
+                        <button type="button"
+                                onclick="event.stopPropagation(); window.previewAlarm('{{ $alarm['id'] }}')"
+                                class="w-9 h-9 rounded-full flex items-center justify-center"
+                                style="background:#2563eb20; border:1px solid #2563eb40;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                 stroke-width="2" stroke="#4a9eff" class="w-4 h-4">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                      d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
+                            </svg>
+                        </button>
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="px-6 py-4" style="border-top:1px solid #1e1e1e;">
+                <p class="text-xs text-center" style="color:#444;">
+                    صداها در مرورگر کش می‌شوند — حتی بدون اینترنت پخش می‌شوند
+                </p>
+            </div>
+        </div>
+    </div>
     @script
     <script>
-        /* ===== ستاره‌های دنباله‌دار ===== */
-        (function() {
-            const canvas = document.getElementById('ss-stars');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            const dpr = window.devicePixelRatio || 1;
-            function resize() {
-                canvas.width  = canvas.offsetWidth  * dpr;
-                canvas.height = canvas.offsetHeight * dpr;
-                ctx.scale(dpr, dpr);
-            }
-            resize();
-            window.addEventListener('resize', resize);
-            const W = () => canvas.offsetWidth, H = () => canvas.offsetHeight;
-            const BG = Array.from({length:130}, () => ({
-                x: Math.random(), y: Math.random(),
-                r: Math.random()*1.1+0.2, a: Math.random()*0.5+0.1,
-                t: Math.random()*Math.PI*2, s: Math.random()*0.018+0.005
-            }));
-            function Comet() { this.reset(true); }
-            Comet.prototype.reset = function(init) {
-                const w=W(),h=H();
-                this.x=init?Math.random()*w:-100;
-                this.y=init?Math.random()*h*0.7:Math.random()*h*0.5;
-                this.vx=3.2+Math.random()*2.8; this.vy=1+Math.random()*1.8;
-                this.len=80+Math.random()*70; this.a=0; this.life=0;
-                this.maxLife=150+Math.random()*100; this.r=1.6+Math.random()*1.2;
-                this.col=Math.random()>.45?'150,200,255':'210,225,255';
-            };
-            Comet.prototype.update=function(){
-                this.x+=this.vx; this.y+=this.vy; this.life++;
-                var f=30;
-                if(this.life<f) this.a=this.life/f;
-                else if(this.life>this.maxLife-f) this.a=Math.max(0,(this.maxLife-this.life)/f);
-                else this.a=1;
-                if(this.x>W()+120||this.y>H()+60) this.reset(false);
-            };
-            Comet.prototype.draw=function(){
-                var ang=Math.atan2(this.vy,this.vx);
-                var tx=this.x-this.len*Math.cos(ang), ty=this.y-this.len*Math.sin(ang);
-                var g=ctx.createLinearGradient(tx,ty,this.x,this.y);
-                g.addColorStop(0,'rgba('+this.col+',0)');
-                g.addColorStop(.5,'rgba('+this.col+','+(this.a*.25)+')');
-                g.addColorStop(1,'rgba('+this.col+','+this.a+')');
-                ctx.save(); ctx.strokeStyle=g; ctx.lineWidth=this.r; ctx.lineCap='round';
-                ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(this.x,this.y); ctx.stroke();
-                ctx.beginPath(); ctx.arc(this.x,this.y,this.r*2,0,Math.PI*2);
-                ctx.fillStyle='rgba(210,230,255,'+(this.a*.7)+')'; ctx.fill();
-                ctx.beginPath(); ctx.arc(this.x,this.y,this.r*.7,0,Math.PI*2);
-                ctx.fillStyle='rgba(255,255,255,'+this.a+')'; ctx.fill();
-                ctx.restore();
-            };
-            function Spark(x,y){
-                this.x=x;this.y=y;
-                this.vx=(Math.random()-.5)*1.4; this.vy=(Math.random()-.5)*1.4-.4;
-                this.life=0; this.maxLife=20+Math.random()*18; this.r=.6+Math.random();
-            }
-            Spark.prototype.update=function(){this.x+=this.vx;this.y+=this.vy;this.vy+=.05;this.life++;};
-            Spark.prototype.draw=function(){
-                var a=(1-this.life/this.maxLife)*.7;
-                ctx.beginPath();ctx.arc(this.x,this.y,this.r,0,Math.PI*2);
-                ctx.fillStyle='rgba(180,215,255,'+a+')';ctx.fill();
-            };
-            var comets=[new Comet(),new Comet()], sparks=[], frame=0, next=100;
-            function loop(){
-                var w=W(),h=H(); ctx.clearRect(0,0,w,h); frame++;
-                BG.forEach(function(s){
-                    s.t+=s.s; var a=s.a*(0.55+0.45*Math.sin(s.t));
-                    ctx.beginPath();ctx.arc(s.x*w,s.y*h,s.r,0,Math.PI*2);
-                    ctx.fillStyle='rgba(200,220,255,'+a+')';ctx.fill();
-                });
-                if(frame>=next){comets.push(new Comet());next=frame+80+Math.random()*140;}
-                comets.forEach(function(c){
-                    c.update();c.draw();
-                    if(Math.random()<.35)sparks.push(new Spark(c.x,c.y));
-                });
-                sparks.forEach(function(s){s.update();s.draw();});
-                sparks=sparks.filter(function(s){return s.life<s.maxLife;});
-                requestAnimationFrame(loop);
-            }
-            loop();
-        })();
+        const ALARMS = [
+            { id: 'Alarmclock',  label: 'زنگ کلاسیک',   src: '/client/sounds/Alarmclock.ogg' },
+            { id: 'Bells',       label: 'زنگ ملایم',     src: '/client/sounds/Bells.ogg' },
+            { id: 'Digital',     label: 'دیجیتال',        src: '/client/sounds/Digital.ogg' },
+            { id: 'Beep',        label: 'بیپ',            src: '/client/sounds/Beep.ogg' },
+        ];
 
-        /* ===== Livewire events ===== */
-        window.addEventListener('livewire:initialized',()=>{
-            if('Notification' in window && Notification.permission==='granted') @this.call('onPermissionsGranted');
-        });
-        window.addEventListener('request-permissions', async ()=>{
+        // ── پیش‌لود صداها توی cache مرورگر ──────────────────────────────────
+        const audioCache = {};
+        function preloadAlarms() {
+            ALARMS.forEach(a => {
+                const audio = new Audio(a.src);
+                audio.preload = 'auto';
+                audio.load();
+                audioCache[a.id] = audio;
+            });
+        }
+
+        function getSelectedAlarm() {
+            return localStorage.getItem('selected_alarm') || 'Alarmclock';
+        }
+
+        function playAlarm() {
+            const id = getSelectedAlarm();
             try {
-                if('Notification' in window && Notification.permission!=='granted') await Notification.requestPermission();
-                const a=new Audio('/client/sounds/Alarmclock.ogg'); a.volume=0.01; await a.play(); a.pause();
-            } catch(e){ console.warn(e); } finally { @this.call('onPermissionsGranted'); }
+                // clone کن تا بتونی چند بار همزمان پلی کنی
+                const src = (audioCache[id] || audioCache['Alarmclock']).src;
+                const a = new Audio(src);
+                a.volume = 1;
+                a.play().catch(e => console.warn('alarm play failed:', e));
+
+                if ('Notification' in window && Notification.permission === 'granted') {
+                    new Notification('⏰ زمان مطالعه به پایان رسید!', {
+                        body: 'پارت مطالعاتی شما با موفقیت تکمیل شد.',
+                        icon: '/favicon.ico'
+                    });
+                }
+            } catch(e) { console.warn(e); }
+        }
+
+        // ── تایمر کاملاً client-side ─────────────────────────────────────────
+        let clientTimerInterval = null;
+        let lastSyncedEndsAt    = null;
+        let lastMakeupEndsAt    = null;
+        let lastExtraEndsAt     = null;
+        let alarmFired          = false;
+        let makeupAlarmFired    = false;
+        let extraAlarmFired     = false;
+
+        function startClientTimer() {
+            if (clientTimerInterval) clearInterval(clientTimerInterval);
+            alarmFired = false; makeupAlarmFired = false; extraAlarmFired = false;
+
+            clientTimerInterval = setInterval(() => {
+                const now = Math.floor(Date.now() / 1000);
+
+                // ─ تایمر اصلی (فاز ۱) ─
+                const endsAt = @this.endsAtTs;
+                const isRunning = @this.isRunning;
+                const isInExtra = @this.isInExtraPhase;
+
+                if (!isInExtra && endsAt && isRunning) {
+                    const rem = Math.max(endsAt - now, 0);
+                    const tgt = @this.targetSeconds;
+
+                    // آپدیت مستقیم DOM بدون wire round-trip
+                    updateClockDOM('main-clock', rem);
+                    updateProgressDOM('main-progress', tgt > 0 ? ((tgt - rem) / tgt * 100) : 0);
+
+                    if (rem === 0 && !alarmFired) {
+                        alarmFired = true;
+                        playAlarm();
+                        // حالا سرور رو هم sync کن
+                    @this.call('syncTimers');
+                    }
+                }
+
+                // ─ فاز ۲ (اضافه بر مشاور) ─
+                const extraEndsAt = @this.extraEndsAtTs;
+                if (isInExtra && extraEndsAt && isRunning) {
+                    const rem = Math.max(extraEndsAt - now, 0);
+                    const tgt = @this.extraTargetSeconds;
+
+                    updateClockDOM('extra-clock', rem);
+                    updateProgressDOM('extra-progress', tgt > 0 ? ((@this.extraLiveSeconds) / tgt * 100) : 0);
+
+                    if (rem === 0 && !extraAlarmFired) {
+                        extraAlarmFired = true;
+                        playAlarm();
+                    @this.call('syncTimers');
+                    }
+                }
+
+                // ─ تایمر جبرانی ─
+                const makeupEndsAt = @this.makeupEndsAtTs;
+                const makeupRunning = @this.makeupTimerRunning;
+                if (makeupEndsAt && makeupRunning) {
+                    const rem = Math.max(makeupEndsAt - now, 0);
+                    const tgt = @this.makeupTargetSeconds;
+
+                    updateClockDOM('makeup-clock', rem);
+                    updateProgressDOM('makeup-progress', tgt > 0 ? ((@this.makeupLiveSeconds) / tgt * 100) : 0);
+
+                    if (rem === 0 && !makeupAlarmFired) {
+                        makeupAlarmFired = true;
+                        playAlarm();
+                    @this.call('syncTimers');
+                    }
+                }
+
+            }, 1000);
+        }
+
+        // هر ۵ ثانیه یه بار سرور sync کن (نه هر ثانیه!)
+        setInterval(() => {
+            if (@this.isRunning || @this.makeupTimerRunning) {
+            @this.call('syncTimers');
+            }
+        }, 5000);
+
+        function formatClock(s) {
+            s = Math.max(0, s);
+            const h = Math.floor(s / 3600);
+            const m = Math.floor((s % 3600) / 60);
+            const sec = s % 60;
+            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+        }
+
+        function updateClockDOM(id, seconds) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = formatClock(seconds);
+        }
+
+        function updateProgressDOM(id, percent) {
+            const el = document.getElementById(id);
+            if (el) el.style.width = Math.min(100, percent) + '%';
+        }
+
+        // ── انتخاب آلارم و پیش‌نمایش ──────────────────────────────────────
+        window.addEventListener('alarm-selected', e => {
+            localStorage.setItem('selected_alarm', e.detail.alarm);
         });
-        window.addEventListener('play-alarm',()=>{
+
+        window.previewAlarm = function(id) {
+            const a = new Audio((audioCache[id] || audioCache['Alarmclock']).src);
+            a.volume = 0.7;
+            a.play().catch(e => console.warn(e));
+        };
+
+        // ── Livewire events ───────────────────────────────────────────────────
+        window.addEventListener('livewire:initialized', () => {
+            preloadAlarms();
+            startClientTimer();
+
+            if ('Notification' in window && Notification.permission === 'granted') {
+            @this.call('onPermissionsGranted');
+            }
+        });
+
+        // وقتی Livewire re-render کرد، alarm fired reset کن اگه تایمر جدیده
+        Livewire.hook('morph.updated', () => {
+            const endsAt = @this.endsAtTs;
+            const makeupEndsAt = @this.makeupEndsAtTs;
+            const extraEndsAt = @this.extraEndsAtTs;
+
+            if (endsAt !== lastSyncedEndsAt) { alarmFired = false; lastSyncedEndsAt = endsAt; }
+            if (makeupEndsAt !== lastMakeupEndsAt) { makeupAlarmFired = false; lastMakeupEndsAt = makeupEndsAt; }
+            if (extraEndsAt !== lastExtraEndsAt) { extraAlarmFired = false; lastExtraEndsAt = extraEndsAt; }
+        });
+
+        window.addEventListener('request-permissions', async () => {
             try {
-                const a=new Audio('/client/sounds/Alarmclock.ogg'); a.volume=1; a.play().catch(e=>console.warn(e));
-                if('Notification' in window && Notification.permission==='granted')
-                    new Notification('⏰ زمان مطالعه به پایان رسید!',{body:'پارت مطالعاتی شما با موفقیت تکمیل شد.',icon:'/favicon.ico'});
-            } catch(e){ console.warn(e); }
+                if ('Notification' in window && Notification.permission !== 'granted') {
+                    await Notification.requestPermission();
+                }
+                // unlock audio context
+                const a = new Audio(ALARMS[0].src);
+                a.volume = 0.01;
+                await a.play();
+                a.pause();
+            } catch(e) { console.warn(e); } finally {
+            @this.call('onPermissionsGranted');
+            }
         });
-        document.addEventListener('visibilitychange',()=>{ if(!document.hidden) @this.call('syncTimers'); });
-        window.addEventListener('focus',()=>{ @this.call('syncTimers'); });
+
+        window.addEventListener('play-alarm', () => playAlarm());
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) { @this.call('syncTimers'); alarmFired = false; makeupAlarmFired = false; extraAlarmFired = false; }
+        });
+        window.addEventListener('focus', () => @this.call('syncTimers'));
+
+
+
+        // در JS:
+        window.addEventListener('open-feedback-modal', () => {
+            // force Alpine sync
+            setTimeout(() => {
+                document.dispatchEvent(new CustomEvent('livewire:update'));
+            }, 50);
+        });
     </script>
     @endscript
+
 
 </div>

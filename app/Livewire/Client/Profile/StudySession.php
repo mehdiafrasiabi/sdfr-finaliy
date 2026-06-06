@@ -31,7 +31,7 @@ class StudySession extends Component
     public $showProgram = false;
     public $weeklyProgram = null;
     public $programParts = [];
-
+    public string $selectedAlarm = 'Alarmclock'; // نام فایل بدون پسوند
     // تایمر فعال برای پارت‌های عادی
     public $currentPartId = null;
     public $isRunning = false;
@@ -63,6 +63,7 @@ class StudySession extends Component
     public bool $showStudyMoreModal = false;
     public int  $studyMoreHours = 0;
     public int  $studyMoreMinutes = 30;
+    public bool $showAlarmModal = false;
 
     // وضعیت فاز اضافی (اضافه بر مشاور)
     public ?int $pendingExtraTargetSeconds = null;
@@ -73,9 +74,6 @@ class StudySession extends Component
     public int  $extraLiveSeconds = 0;
     public int  $extraRemainingSeconds = 0;
     public ?int $extraSpsId = null;
-
-    // علت تقلب در مودال finish
-    public string $finishReason = '';
 
     // پارت/تایمر pending (برای شروع خودکار بعد از دسترسی)
     public $pendingStartPartId = null;
@@ -125,6 +123,7 @@ class StudySession extends Component
         $this->loadStudentGradeField();
         $this->loadLatestProgram();
         $this->restoreTimerState();
+        $this->selectedAlarm = session('selected_alarm', 'Alarmclock');
         $this->syncTimers();
         $this->checkPendingFeedback();
         $this->seoConfig();
@@ -204,20 +203,13 @@ class StudySession extends Component
 
         $rows = StudyPartSession::where('student_id', $studentId)
             ->where('is_completed', true)
-            ->get(['program_part_id', 'is_early_finish', 'extra_seconds', 'extra_target_seconds', 'is_cheating', 'cheat_status', 'cheat_minutes']);
+            ->get(['program_part_id', 'is_early_finish', 'extra_seconds']);
 
         $this->completedParts = $rows->pluck('program_part_id')->unique()->values()->toArray();
-        $this->completedPartsMeta = $rows->groupBy('program_part_id')->map(function ($g) {
-            $latestCheating = $g->where('is_cheating', true)->sortByDesc('id')->first();
-            return [
-                'is_early_finish'      => $g->contains(fn($r) => (bool)$r->is_early_finish),
-                'extra_seconds'        => (int) $g->max('extra_seconds'),
-                'extra_target_seconds' => (int) $g->max('extra_target_seconds'),
-                'is_cheating'          => $latestCheating !== null,
-                'cheat_status'         => $latestCheating?->cheat_status,
-                'cheat_minutes'        => (int) ($latestCheating?->cheat_minutes ?? 0),
-            ];
-        })->toArray();
+        $this->completedPartsMeta = $rows->groupBy('program_part_id')->map(fn($g) => [
+            'is_early_finish' => $g->contains(fn($r) => (bool)$r->is_early_finish),
+            'extra_seconds'   => (int) $g->max('extra_seconds'),
+        ])->toArray();
     }
 
     public function restoreTimerState()
@@ -308,6 +300,7 @@ class StudySession extends Component
                 'extraEndsAtTs' => $this->extraEndsAtTs,
                 'extraTargetSeconds' => $this->extraTargetSeconds,
                 'extraSpsId' => $this->extraSpsId,
+                'selectedAlarm' => $this->selectedAlarm,
             ]]);
         }
 
@@ -321,8 +314,10 @@ class StudySession extends Component
                 'endsAtTs' => $this->makeupEndsAtTs,
                 'isRunning' => $this->makeupTimerRunning,
                 'pausedAtTs' => $this->makeupPausedAtTs,
+                'selectedAlarm' => $this->selectedAlarm,
             ]]);
         }
+
     }
 
     public function toggleProgram()
@@ -366,19 +361,6 @@ class StudySession extends Component
         if ($this->hasPendingFeedback()) {
             $this->dispatch('error', 'ابتدا بازخورد جلسه قبلی را ثبت کنید.');
             return;
-        }
-
-        if (auth()->user()->student) {
-            $studentId = auth()->user()->student->id;
-            $rejected = StudyPartSession::where('student_id', $studentId)
-                ->where('program_part_id', $partId)
-                ->where('cheat_status', StudyPartSession::CHEAT_STATUS_REJECTED)
-                ->exists();
-
-            if ($rejected) {
-                $this->dispatch('error', 'این پارت به دلیل رد شدن گزارش تقلب، قابل ثبت مجدد نیست.');
-                return;
-            }
         }
 
         if (!$this->permissionGranted) {
@@ -467,51 +449,25 @@ class StudySession extends Component
 
     // ============ زودتر تمام کردم ============
 
-    public function getCanShowEarlyFinishProperty(): bool
+    public function getCanShowEarlyOrMoreProperty(): bool
     {
-        if ($this->showFinishModal || !$this->currentPartId) return false;
-
-        if ($this->isInExtraPhase) {
-            return $this->extraTargetSeconds > 0
-                && $this->extraRemainingSeconds > 0
-                && $this->extraLiveSeconds >= (int) floor($this->extraTargetSeconds * self::EARLY_FINISH_THRESHOLD);
-        }
-
-        return $this->targetSeconds > 0
-            && $this->remainingSeconds > 0
-            && $this->pendingExtraTargetSeconds === null
-            && $this->liveSeconds >= (int) floor($this->targetSeconds * self::EARLY_FINISH_THRESHOLD);
-    }
-
-    public function getCanShowStudyMoreProperty(): bool
-    {
-        return !$this->isInExtraPhase
-            && !$this->showFinishModal
-            && $this->currentPartId !== null
+        return $this->currentPartId !== null
             && $this->targetSeconds > 0
-            && $this->remainingSeconds > 0
+            && !$this->isInExtraPhase
             && $this->pendingExtraTargetSeconds === null
+            && !$this->showFinishModal
+            && $this->remainingSeconds > 0
             && $this->liveSeconds >= (int) floor($this->targetSeconds * self::EARLY_FINISH_THRESHOLD);
     }
-
-    public function getIsCheatingNowProperty(): bool
+    public function setAlarm(string $alarmName): void
     {
-        $reference = $this->isInExtraPhase ? $this->extraEndsAtTs : $this->endsAtTs;
-        if (!$reference) return false;
-        return (now()->timestamp - $reference) > StudyPartSession::CHEAT_GRACE_SECONDS;
+        $this->selectedAlarm = $alarmName;
+        session(['selected_alarm' => $alarmName]);
+        $this->dispatch('alarm-selected', alarm: $alarmName);
     }
-
-    public function getLateMinutesProperty(): int
-    {
-        $reference = $this->isInExtraPhase ? $this->extraEndsAtTs : $this->endsAtTs;
-        if (!$reference) return 0;
-        $secondsLate = now()->timestamp - $reference - StudyPartSession::CHEAT_GRACE_SECONDS;
-        return max(0, (int) floor($secondsLate / 60));
-    }
-
     public function openEarlyFinishConfirm(): void
     {
-        if (!$this->canShowEarlyFinish) return;
+        if (!$this->canShowEarlyOrMore) return;
         $this->showEarlyFinishConfirmModal = true;
     }
 
@@ -524,9 +480,7 @@ class StudySession extends Component
     {
         if (!$this->currentPartId) return;
         $this->isRunning = false;
-        if (!$this->isInExtraPhase) {
-            $this->pendingIsEarlyFinish = true;
-        }
+        $this->pendingIsEarlyFinish = true;
         $this->showEarlyFinishConfirmModal = false;
         $this->showFinishModal = true;
         $this->saveTimerState();
@@ -537,7 +491,7 @@ class StudySession extends Component
 
     public function openStudyMoreModal(): void
     {
-        if (!$this->canShowStudyMore) return;
+        if (!$this->canShowEarlyOrMore) return;
         $this->studyMoreHours = 0;
         $this->studyMoreMinutes = 30;
         $this->showStudyMoreModal = true;
@@ -550,7 +504,7 @@ class StudySession extends Component
 
     public function confirmStudyMore(): void
     {
-        if (!$this->canShowStudyMore) return;
+        if (!$this->canShowEarlyOrMore) return;
 
         $secs = ((int)$this->studyMoreHours) * 3600 + ((int)$this->studyMoreMinutes) * 60;
         if ($secs < 60) {
@@ -635,38 +589,19 @@ class StudySession extends Component
             return;
         }
 
-        // آماده‌سازی payload تقلب (مشترک بین فاز ۱ و فاز ۲)
-        $cheatPayload = [];
-        if ($this->isCheatingNow) {
-            if (mb_strlen(trim($this->finishReason)) < 5) {
-                $this->dispatch('error', 'لطفاً علت طول کشیدن (حداقل ۵ کاراکتر) را بنویسید.');
-                return;
-            }
-            $cheatPayload = [
-                'is_cheating'   => true,
-                'cheat_minutes' => $this->lateMinutes,
-                'cheat_reason'  => trim($this->finishReason),
-                'cheat_status'  => StudyPartSession::CHEAT_STATUS_PENDING,
-            ];
-        }
-
         // مسیر A: پایان فاز ۲ (اضافه بر مشاور) — آپدیت همان رکورد فاز اول
         if ($this->isInExtraPhase && $this->extraSpsId) {
             $sps = StudyPartSession::find($this->extraSpsId);
             if ($sps) {
                 $extraDuration = max($this->extraTargetSeconds - $this->extraRemainingSeconds, 0);
-                $sps->update(array_merge([
+                $sps->update([
                     'extra_seconds'  => $extraDuration,
                     'extra_ended_at' => now(),
-                ], $cheatPayload));
+                ]);
 
                 $this->completedPartsMeta[$this->currentPartId] = [
-                    'is_early_finish' => (bool) $sps->is_early_finish,
+                    'is_early_finish' => false,
                     'extra_seconds'   => $extraDuration,
-                    'extra_target_seconds' => (int) $sps->extra_target_seconds,
-                    'is_cheating'     => (bool) ($cheatPayload['is_cheating'] ?? $sps->is_cheating),
-                    'cheat_status'    => $cheatPayload['cheat_status'] ?? $sps->cheat_status,
-                    'cheat_minutes'   => (int) ($cheatPayload['cheat_minutes'] ?? $sps->cheat_minutes),
                 ];
 
                 $fullPath = $this->buildPartPath($part);
@@ -677,7 +612,6 @@ class StudySession extends Component
                 $this->feedbackComment         = '';
                 $this->showFeedbackModal       = true;
             }
-
             $this->resetTimer();
             $this->showFinishModal = false;
             $this->dispatch('success', '✅ پارت و مطالعه اضافه بر مشاور ثبت شد!');
@@ -688,7 +622,7 @@ class StudySession extends Component
         $isEarly = (bool)$this->pendingIsEarlyFinish;
         $duration = max($this->targetSeconds - $this->remainingSeconds, 0);
 
-        $session = StudyPartSession::create(array_merge([
+        $session = StudyPartSession::create([
             'student_id'       => $studentId,
             'program_part_id'  => $this->currentPartId,
             'weekly_program_id'=> $this->weeklyProgram->id,
@@ -699,7 +633,7 @@ class StudySession extends Component
             'is_completed'     => true,
             'completed_at'     => now(),
             'is_early_finish'  => $isEarly,
-        ], $cheatPayload));
+        ]);
 
         if (!in_array($this->currentPartId, $this->completedParts)) {
             $this->completedParts[] = $this->currentPartId;
@@ -707,12 +641,9 @@ class StudySession extends Component
         $this->completedPartsMeta[$this->currentPartId] = [
             'is_early_finish' => $isEarly,
             'extra_seconds'   => 0,
-            'extra_target_seconds' => 0,
-            'is_cheating'     => (bool) ($cheatPayload['is_cheating'] ?? false),
-            'cheat_status'    => $cheatPayload['cheat_status'] ?? null,
-            'cheat_minutes'   => (int) ($cheatPayload['cheat_minutes'] ?? 0),
         ];
 
+        $partIdForFeedback = $this->currentPartId;
         $this->resetTimer();
         $this->showFinishModal = false;
 
@@ -725,13 +656,9 @@ class StudySession extends Component
         $this->feedbackComment         = '';
         $this->showFeedbackModal       = true;
 
-        if (!empty($cheatPayload)) {
-            $msg = '⚠️ پارت ثبت شد، اما به‌عنوان تقلب علامت‌گذاری شد و در انتظار تایید مشاور است.';
-        } else {
-            $msg = $isEarly
-                ? '✅ پارت زودتر تمام شد و ثبت گردید. لطفاً بازخورد را ثبت کنید.'
-                : '✅ پارت ثبت شد! لطفاً بازخورد خود را ثبت کنید.';
-        }
+        $msg = $isEarly
+            ? '✅ پارت زودتر تمام شد و ثبت گردید. لطفاً بازخورد را ثبت کنید.'
+            : '✅ پارت ثبت شد! لطفاً بازخورد خود را ثبت کنید.';
         $this->dispatch('success', $msg);
     }
 
@@ -783,7 +710,6 @@ class StudySession extends Component
         $this->extraSpsId                = null;
         $this->showEarlyFinishConfirmModal = false;
         $this->showStudyMoreModal        = false;
-        $this->finishReason              = '';
 
         session()->forget('active_timer_state');
     }
@@ -848,6 +774,7 @@ class StudySession extends Component
             $this->feedbackRating = 0;
             $this->feedbackComment = '';
             $this->showFeedbackModal = true;
+            $this->dispatch('open-feedback-modal');
             return;
         }
 
@@ -864,6 +791,7 @@ class StudySession extends Component
             $this->feedbackRating = 0;
             $this->feedbackComment = '';
             $this->showFeedbackModal = true;
+            $this->dispatch('open-feedback-modal');
         }
     }
 
@@ -1049,6 +977,8 @@ class StudySession extends Component
         $this->feedbackRating = 0;
         $this->feedbackComment = '';
         $this->showFeedbackModal = true;
+        $this->dispatch('open-feedback-modal');
+
 
         $this->dispatch('success', 'جلسه جبرانی ثبت شد! لطفاً بازخورد خود را ثبت کنید.');
     }
