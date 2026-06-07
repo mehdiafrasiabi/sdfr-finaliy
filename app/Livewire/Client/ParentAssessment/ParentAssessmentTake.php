@@ -31,13 +31,15 @@ class ParentAssessmentTake extends Component
         }
     }
 
-    /** همه آزمون‌های parent به ترتیب */
+    /** همه آزمون‌های parent به ترتیب — هر slug فقط یک‌بار (محافظت در برابر رکوردهای تکراری) */
     private function allAssessments(): \Illuminate\Support\Collection
     {
         return Assessment::active()
             ->where('audience', Assessment::AUDIENCE_PARENT)
             ->ordered()
-            ->get();
+            ->get()
+            ->unique('slug')
+            ->values();
     }
 
     /**
@@ -149,9 +151,13 @@ class ParentAssessmentTake extends Component
                 ->get();
 
             foreach ($questions as $q) {
-                // محافظت در برابر گزینه‌های تکراری (در صورت ناسازگاری داده)
+                // محافظت در برابر گزینه‌های تکراری (در صورت ناسازگاری داده):
+                // بر اساس متنِ گزینه یکتا می‌کنیم تا حتی اگر رکوردهای تکراری
+                // با value متفاوت در دیتابیس باشند، فقط یک‌بار نمایش داده شود.
+                // چون options بر اساس order مرتب است، نسخه‌ی اصلی (کم‌ترین order) نگه داشته می‌شود.
                 $uniqueOpts = $q->options
-                    ->unique(fn($o) => $o->value . '|' . $o->label_fa)
+                    ->sortBy('order')
+                    ->unique(fn($o) => trim((string) $o->label_fa))
                     ->values();
                 $q->setRelation('options', $uniqueOpts);
 
