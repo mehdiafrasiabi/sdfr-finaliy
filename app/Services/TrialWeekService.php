@@ -6,6 +6,7 @@ use App\Models\Admin;
 use App\Models\AdvisingSession;
 use App\Models\AdvisingPreSession;
 use App\Models\ProgramPart;
+use App\Models\SmartReportCard;
 use App\Models\Student;
 use App\Models\StudentClassification;
 use App\Models\TrialWeek;
@@ -131,14 +132,17 @@ class TrialWeekService
         return DB::transaction(function () use ($trialWeek, $dailyHours) {
             $subjectPriorities = $this->calculateSubjectPriorities($trialWeek->user_id);
 
-            // برنامه به جلسهٔ آزمایشی پیوند می‌خورد و جلسه «برگزارشده» علامت می‌خورد تا
-            // در /profile/plan و /profile/studySession (که روی result_status='held' فیلتر دارند) نمایش داده شود.
+            // برنامه به جلسهٔ آزمایشی پیوند می‌خورد و جلسه «برگزارشده»/زندهٔ امروز علامت می‌خورد تا
+            // در /profile/plan و /profile/studySession و /profile/report (که روی result_status='held'
+            // و جلسهٔ جاری فیلتر دارند) نمایش داده شود و دانش‌آموز بتواند گزارش بدهد و ساعت مطالعه ثبت کند.
             $session = $trialWeek->advisingSession;
             if ($session) {
                 $session->update([
-                    'result_status' => AdvisingSession::RESULT_HELD,
-                    'status'        => AdvisingSession::STATUS_COMPLETED,
-                    'is_active'     => true,
+                    'result_status'   => AdvisingSession::RESULT_HELD,
+                    'status'          => AdvisingSession::STATUS_COMPLETED,
+                    'is_active'       => true,
+                    'activation_date' => Carbon::now()->toDateString(),
+                    'session_time'    => $session->session_time ?? Carbon::now()->format('H:i:s'),
                 ]);
             }
 
@@ -159,8 +163,48 @@ class TrialWeekService
                 'program_built_at'  => Carbon::now(),
             ]);
 
+            // کارنامهٔ هوشمند برای نمایش در /profile/reportStudentStudy (تحلیل زنده در طول هفتهٔ آزمایشی).
+            $this->generateSmartReportCard($trialWeek, $program);
+
             return $program;
         });
+    }
+
+    /**
+     * ساخت/به‌روزرسانی کارنامهٔ هوشمند برای دانش‌آموز آزمایشی.
+     * بازهٔ تحلیل = از شروع برنامه تا پایان هفتهٔ آزمایشی. SmartReportCardShow به‌صورت زنده
+     * از همین بازه آمار مطالعه/گزارش/کیفیت را محاسبه می‌کند.
+     */
+    public function generateSmartReportCard(TrialWeek $trialWeek, ?WeeklyProgram $program = null): ?SmartReportCard
+    {
+        $program = $program ?? WeeklyProgram::where('student_id', $trialWeek->student_id)
+            ->where('is_active', true)
+            ->latest('start_date')
+            ->first();
+
+        if (!$program) {
+            return null;
+        }
+
+        $start = Carbon::parse($program->start_date)->startOfDay();
+        $end   = ($trialWeek->expires_at ? Carbon::parse($trialWeek->expires_at) : $start->copy()->addDays(7))->endOfDay();
+
+        $jStart = jdate($start);
+
+        return SmartReportCard::updateOrCreate(
+            [
+                'student_id'   => $trialWeek->student_id,
+                'jalali_year'  => (int) $jStart->format('Y'),
+                'jalali_month' => (int) $jStart->format('n'),
+            ],
+            [
+                'admin_id'     => $trialWeek->acquisition_supporter_id,
+                'start_date'   => $start->toDateString(),
+                'end_date'     => $end->toDateString(),
+                'is_active'    => true,
+                'activated_at' => Carbon::now(),
+            ]
+        );
     }
 
     // تحلیل وضعیت طبقه‌بندی برای نمودار
