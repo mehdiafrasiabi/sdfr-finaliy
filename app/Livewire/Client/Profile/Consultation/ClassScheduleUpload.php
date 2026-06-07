@@ -248,7 +248,7 @@ class ClassScheduleUpload extends Component
         $this->showFinalizeModal = false;
     }
 
-    public function finalizeSchedule(): void
+    public function finalizeSchedule(\App\Services\TrialWeekService $trialService): void
     {
         if (!$this->classScheduleId) {
             $this->dispatch('warning', 'ابتدا باید حداقل یک پارت ثبت کنید.');
@@ -271,6 +271,16 @@ class ClassScheduleUpload extends Component
         $this->dispatch('success', $wasFinalized
             ? 'تغییرات برنامه کلاسی با موفقیت به‌روزرسانی و نهایی شد.'
             : 'برنامه کلاسی با موفقیت نهایی شد.');
+
+        // دانش‌آموز آزمایشی: پیشروی خودکار + بازگشت به راهنما.
+        $trial = \Illuminate\Support\Facades\Auth::user()?->trialWeek;
+        if ($trial) {
+            if ($trial->status === \App\Models\TrialWeek::STATUS_CLASSIFICATION_DONE
+                && $trial->advisingSession?->preSession?->status === 'completed') {
+                $trialService->completePreSession($trial);
+            }
+            $this->redirect(route('client.profile.trial.guide'), navigate: true);
+        }
     }
 
     public function closeModal(): void

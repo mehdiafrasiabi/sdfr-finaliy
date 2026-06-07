@@ -2,69 +2,79 @@
 
 namespace App\Livewire\Client\Profile\Assessment;
 
-use App\Models\Assessment;
 use App\Models\StudentAssessmentAttempt;
 use App\Services\AssessmentService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
+/**
+ * صفحهٔ ورود مرحله‌ای آزمون‌ها (به‌جای صفحهٔ باکسی قبلی):
+ *   - اگر آزمونی ناتمام مانده: صفحهٔ «خوش آمدی، ادامه دهیم» و رفتن مستقیم به سوال بعدی.
+ *   - اگر همه تکمیل شده: صفحهٔ تشکر و ادامه به راهنمای هفتهٔ آزمایشی.
+ */
 class AssessmentList extends Component
 {
-    public function start(string $slug, AssessmentService $service): void
+    /**
+     * شروع/ادامهٔ آزمون جاری — کاربر را مستقیم به اولین سوال بی‌پاسخ می‌برد.
+     */
+    public function start(AssessmentService $service): void
     {
-        $user = Auth::user();
-        $assessment = Assessment::active()->where('slug', $slug)->firstOrFail();
+        $next = $service->nextStudentAssessment(Auth::user());
 
-        $attempt = $service->startOrResume($user, $assessment);
-
-        if ($attempt->isCompleted()) {
-            session()->flash('info', 'این آزمون قبلاً تکمیل شده است.');
+        if (!$next) {
+            // همه تکمیل شده — به راهنما هدایت می‌کنیم.
+            $this->redirect(route('client.profile.trial.guide'), navigate: true);
             return;
         }
 
-        $this->redirect(route('client.profile.assessment.take', ['slug' => $slug]), navigate: true);
+        // مطمئن می‌شویم attempt وجود دارد، سپس به صفحهٔ پاسخ‌دهی می‌رویم.
+        $service->startOrResume(Auth::user(), $next);
+        $this->redirect(route('client.profile.assessment.take', ['slug' => $next->slug]), navigate: true);
     }
 
-    public function render(): \Illuminate\Contracts\View\View
+    /**
+     * ادامه پس از تشکر — ورود به راهنمای هفتهٔ آزمایشی.
+     */
+    public function continueToGuide(): void
     {
-        $userId = Auth::id();
+        $this->redirect(route('client.profile.trial.guide'), navigate: true);
+    }
 
-        $assessments = Assessment::active()
-            ->forStudent()
-            ->ordered()
-            ->withCount(['questions' => fn ($q) => $q->where('is_active', true)])
-            ->get();
+    public function render(AssessmentService $service): \Illuminate\Contracts\View\View
+    {
+        $user = Auth::user();
 
-        $attempts = StudentAssessmentAttempt::where('user_id', $userId)
-            ->whereIn('assessment_id', $assessments->pluck('id'))
+        $stageAssessments = $service->studentAssessmentsInStageOrder();
+
+        // پیشرفت کلی: مجموع پاسخ‌ها و کل سوالات فعال در همهٔ آزمون‌ها.
+        $totalQuestions = 0;
+        $answeredTotal  = 0;
+
+        $attempts = StudentAssessmentAttempt::where('user_id', $user->id)
+            ->whereIn('assessment_id', $stageAssessments->pluck('id'))
             ->get()
             ->keyBy('assessment_id');
 
-        $items = $assessments->map(function ($a) use ($attempts) {
-            $attempt = $attempts->get($a->id);
-            $total = $a->questions_count;
-            $answered = $attempt?->answered_count ?? 0;
-            $status = match (true) {
-                $attempt && $attempt->status === StudentAssessmentAttempt::STATUS_COMPLETED => 'completed',
-                $attempt && $attempt->status === StudentAssessmentAttempt::STATUS_IN_PROGRESS => 'in_progress',
-                default => 'not_started',
-            };
-            return (object) [
-                'assessment' => $a,
-                'attempt'    => $attempt,
-                'total'      => $total,
-                'answered'   => $answered,
-                'status'     => $status,
-            ];
-        });
+        foreach ($stageAssessments as $a) {
+            $totalQuestions += $a->questions()->where('is_active', true)->count();
+            $answeredTotal  += $attempts->get($a->id)?->answered_count ?? 0;
+        }
 
-        $totalCount = $items->count();
-        $completedCount = $items->where('status', 'completed')->count();
+        $next = $service->nextStudentAssessment($user);
+        $isAllDone = $next === null;
+
+        // آیا قبلاً آزمونی شروع شده تا متن «خوش آمدی، ادامه دهیم» نمایش داده شود؟
+        $hasStarted = $attempts->isNotEmpty();
+
+        $currentStage = $next ? $service->stageNumberFor($next) : 2;
 
         return view('livewire.client.profile.assessment.assessment-list', [
-            'items'          => $items,
-            'totalCount'     => $totalCount,
-            'completedCount' => $completedCount,
+            'next'           => $next,
+            'isAllDone'      => $isAllDone,
+            'hasStarted'     => $hasStarted,
+            'currentStage'   => $currentStage,
+            'totalQuestions' => $totalQuestions,
+            'answeredTotal'  => $answeredTotal,
         ])->layout('layouts.client.app');
     }
 }
