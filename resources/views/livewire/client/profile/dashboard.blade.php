@@ -105,9 +105,9 @@
                     <div class="md:col-span-2 rounded-2xl bg-neutral-900/80 border border-neutral-800 p-4 flex items-center justify-between gap-4">
                         {{-- راست: عکس + نام --}}
                         <div class="flex items-center gap-3">
-                            @if($advisorStudent && $advisorStudent->picture)
-                                <img src="{{ asset('adminsFile/' . $advisorStudent->id . '/' . $advisorStudent->picture) }}"
-                                     alt="{{ $advisorStudent->name }}"
+                            @if($advisorStudent && !empty($advisorStudent['picture']))
+                                <img src="{{ asset('adminsFile/' . $advisorStudent['id'] . '/' . $advisorStudent['picture']) }}"
+                                     alt="{{ $advisorStudent['name'] }}"
                                      class="w-12 h-12 rounded-full object-cover ring-2 ring-neutral-700 flex-shrink-0">
                             @else
                                 <div class="w-12 h-12 rounded-full bg-neutral-800 ring-2 ring-neutral-700 flex items-center justify-center flex-shrink-0">
@@ -118,9 +118,9 @@
                             @endif
                             <div class="text-right">
                                 <div class="font-bold text-white text-base leading-tight">
-                                    {{ $advisorStudent ? $advisorStudent->name : 'تعیین نشده' }}
+                                    {{ $advisorStudent['name'] ?? 'تعیین نشده' }}
                                 </div>
-                                <div class="text-xs mt-1 text-blue-400">مشاور شما</div>
+                                <div class="text-xs mt-1 text-blue-400">{{ $advisorStudent['label'] ?? 'مشاور شما' }}</div>
                             </div>
                         </div>
                         {{-- چپ: دکمه فلش --}}
@@ -184,7 +184,7 @@
                             @for($i = 0; $i < 7; $i++)
                                 @php
                                     $currentDate  = $startDate->copy()->addDays($i);
-                                    $dayNum       = $currentDate->format('j');
+                                    $dayNum       = jdate($currentDate)->format('j');
                                     $isToday      = $currentDate->isSameDay($today);
                                     $isSubmitted  = in_array($currentDate->toDateString(), $submittedDates);
                                     $isRestDay    = in_array($i, $restDayIndices);
@@ -247,6 +247,7 @@
                     </div>
 
                     {{-- ══════ 4) برنامه امروز (full-width) ══════ --}}
+                    {{-- ══════ 4) برنامه امروز (full-width) ══════ --}}
                     <div class="md:col-span-2 rounded-2xl bg-neutral-900/80 border border-neutral-800 p-4">
                         <div class="flex items-center justify-start gap-2 mb-4">
                             <div class="w-7 h-7 rounded-lg bg-neutral-800 flex items-center justify-center">
@@ -258,80 +259,112 @@
                         </div>
 
                         @if(count($todayProgram) > 0)
-                            {{-- موبایل: carousel با peek --}}
-                            <div class="md:hidden">
-                                <div class="program-carousel -mx-4 px-4">
+                            {{-- موبایل: carousel با peek و pagination فعال --}}
+                            <div class="md:hidden"
+                                 x-data="{
+                active: 0,
+                total: {{ count($todayProgram) }},
+                onScroll(e) {
+                    const el = e.target;
+                    const cards = el.querySelectorAll('.program-card');
+                    if (!cards.length) return;
+                    const center = el.scrollLeft + el.clientWidth / 2;
+                    let closest = 0;
+                    let minDist = Infinity;
+                    cards.forEach((c, i) => {
+                        const cardCenter = c.offsetLeft + c.offsetWidth / 2;
+                        const dist = Math.abs(cardCenter - center);
+                        if (dist < minDist) { minDist = dist; closest = i; }
+                    });
+                    this.active = closest;
+                },
+                goTo(i) {
+                    const el = this.$refs.carousel;
+                    const card = el.querySelectorAll('.program-card')[i];
+                    if (card) {
+                        // در RTL، scrollLeft منفی یا برعکس میشه — از scrollIntoView استفاده می‌کنیم
+                        card.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+                    }
+                }
+             }">
+                                <div class="program-carousel -mx-4 px-4"
+                                     x-ref="carousel"
+                                     @scroll.passive="onScroll($event)">
                                     @foreach($todayProgram as $part)
                                         @php
                                             $minutes = $part->duration_minutes ?? round(($part->duration_hours ?? 0) * 60);
-                                            $hours   = intdiv($minutes, 60);
-                                            $mins    = $minutes % 60;
+                                            $testsCount = $part->tests_count ?? $part->test_count ?? 0;
                                         @endphp
-                                        <div class="program-card rounded-2xl bg-neutral-800/80 border border-neutral-700 p-4 flex flex-col items-end justify-center text-right min-h-[100px]">
-                                            <div class="font-bold text-white text-[15px] leading-tight mb-2">
-                                                {{ $part->lesson->name ?? 'درس' }}
+                                        <div class="program-card rounded-2xl bg-neutral-800/80 border border-neutral-700 px-4 py-3 flex items-center justify-between gap-3 min-h-[72px]">
+                                            {{-- راست: اسم درس (اول در DOM = راست در RTL) --}}
+                                            <div class="font-bold text-white text-[15px] leading-tight text-right">
+                                                {{ $part->lesson_name ?? ($part->lesson->name ?? 'درس') }}
                                             </div>
-                                            <div class="flex items-baseline gap-2" style="direction:ltr;">
-                                                @if($hours > 0)
-                                                    <div class="flex items-baseline gap-1">
-                                                        <span class="font-black text-white text-lg leading-none">{{ $hours }}</span>
-                                                        <span class="text-[11px] text-neutral-500">ساعت</span>
+                                            {{-- چپ: آمار --}}
+                                            <div class="flex items-center gap-4" style="direction:ltr;">
+                                                @if($minutes > 0)
+                                                    <div class="flex flex-col items-center leading-tight">
+                                                        <span class="font-black text-white text-base">{{ $minutes }}</span>
+                                                        <span class="text-[10px] text-neutral-500 mt-0.5">دقیقه</span>
                                                     </div>
                                                 @endif
-                                                @if($mins > 0)
-                                                    <div class="flex items-baseline gap-1">
-                                                        <span class="font-black text-white text-lg leading-none">{{ $mins }}</span>
-                                                        <span class="text-[11px] text-neutral-500">دقیقه</span>
+                                                @if($testsCount > 0)
+                                                    <div class="flex flex-col items-center leading-tight">
+                                                        <span class="font-black text-white text-base">{{ $testsCount }}</span>
+                                                        <span class="text-[10px] text-neutral-500 mt-0.5">تست</span>
                                                     </div>
                                                 @endif
-                                                @if($hours == 0 && $mins == 0)
-                                                    <span class="text-xs text-neutral-500">بدون زمان</span>
+                                                @if($minutes == 0 && $testsCount == 0)
+                                                    <span class="text-xs text-neutral-500">—</span>
                                                 @endif
                                             </div>
                                         </div>
                                     @endforeach
-                                    {{-- spacer برای نمایش peek آخرین کارت --}}
                                     <div class="flex-shrink-0 w-4"></div>
                                 </div>
-                                {{-- نقطه‌های ناوبری (شمارنده) --}}
+
+                                {{-- نقطه‌های ناوبری فعال --}}
                                 <div class="flex items-center justify-center gap-1.5 mt-3">
                                     @foreach($todayProgram as $idx => $p)
-                                        <div class="w-1.5 h-1.5 rounded-full {{ $idx === 0 ? 'bg-blue-400' : 'bg-neutral-700' }}"></div>
+                                        <button type="button"
+                                                @click="goTo({{ $idx }})"
+                                                :class="active === {{ $idx }} ? 'bg-blue-400 w-4' : 'bg-neutral-700 w-1.5'"
+                                                class="h-1.5 rounded-full transition-all duration-300"></button>
                                     @endforeach
                                 </div>
                             </div>
 
-                            {{-- دسکتاپ: scroll افقی بدون scrollbar با سایه فید --}}
+                            {{-- دسکتاپ: scroll افقی --}}
                             <div class="hidden md:block relative">
-                                {{-- سایه چپ (نشانه اسکرول) --}}
                                 <div class="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-l from-transparent to-neutral-900/80 z-10 pointer-events-none rounded-l-xl"></div>
                                 <div class="program-scroll-desktop">
                                     @foreach($todayProgram as $part)
                                         @php
                                             $minutes = $part->duration_minutes ?? round(($part->duration_hours ?? 0) * 60);
-                                            $hours   = intdiv($minutes, 60);
-                                            $mins    = $minutes % 60;
+                                            $testsCount = $part->tests_count ?? $part->test_count ?? 0;
                                         @endphp
-                                        <div class="flex-shrink-0 rounded-2xl bg-neutral-800/80 border border-neutral-700 p-4 flex flex-col items-end justify-center text-right"
-                                             style="min-width:160px; min-height:100px;">
-                                            <div class="font-bold text-white text-[15px] leading-tight mb-2">
-                                                {{ $part->lesson->name ?? 'درس' }}
+                                        <div class="flex-shrink-0 rounded-2xl bg-neutral-800/80 border border-neutral-700 px-4 py-3 flex items-center justify-between gap-4"
+                                             style="min-width:220px; min-height:72px;">
+                                            {{-- راست: اسم درس --}}
+                                            <div class="font-bold text-white text-[15px] leading-tight text-right">
+                                                {{ $part->lesson_name ?? ($part->lesson->name ?? 'درس') }}
                                             </div>
-                                            <div class="flex items-baseline gap-2" style="direction:ltr;">
-                                                @if($hours > 0)
-                                                    <div class="flex items-baseline gap-1">
-                                                        <span class="font-black text-white text-lg leading-none">{{ $hours }}</span>
-                                                        <span class="text-[11px] text-neutral-500">ساعت</span>
+                                            {{-- چپ: آمار --}}
+                                            <div class="flex items-center gap-4" style="direction:ltr;">
+                                                @if($minutes > 0)
+                                                    <div class="flex flex-col items-center leading-tight">
+                                                        <span class="font-black text-white text-base">{{ $minutes }}</span>
+                                                        <span class="text-[10px] text-neutral-500 mt-0.5">دقیقه</span>
                                                     </div>
                                                 @endif
-                                                @if($mins > 0)
-                                                    <div class="flex items-baseline gap-1">
-                                                        <span class="font-black text-white text-lg leading-none">{{ $mins }}</span>
-                                                        <span class="text-[11px] text-neutral-500">دقیقه</span>
+                                                @if($testsCount > 0)
+                                                    <div class="flex flex-col items-center leading-tight">
+                                                        <span class="font-black text-white text-base">{{ $testsCount }}</span>
+                                                        <span class="text-[10px] text-neutral-500 mt-0.5">تست</span>
                                                     </div>
                                                 @endif
-                                                @if($hours == 0 && $mins == 0)
-                                                    <span class="text-xs text-neutral-500">بدون زمان</span>
+                                                @if($minutes == 0 && $testsCount == 0)
+                                                    <span class="text-xs text-neutral-500">—</span>
                                                 @endif
                                             </div>
                                         </div>
@@ -374,7 +407,7 @@
                                 <div class="flex justify-between mt-1">
                                     @php $sd2 = \Carbon\Carbon::parse($activeProgram->start_date); @endphp
                                     @for($i = 0; $i < 6; $i++)
-                                        <span class="text-[11px] text-neutral-600">{{ $sd2->copy()->addDays($i)->day }}</span>
+                                        <span class="text-[11px] text-neutral-600">{{ jdate($sd2->copy()->addDays($i))->format('j') }}</span>
                                     @endfor
                                 </div>
                             @endif

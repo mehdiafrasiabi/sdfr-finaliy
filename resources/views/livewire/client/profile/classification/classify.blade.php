@@ -83,7 +83,7 @@
                     </div>
                     <h1 class="text-lg font-black text-foreground">{{ $project->name }}</h1>
                 </div>
-                <p class="text-sm text-muted-foreground leading-relaxed pr-10">دروس را بر اساس آمادگی‌تان امتیازدهی کنید.</p>
+                <p class="text-sm text-muted-foreground leading-relaxed pr-10">دروس را بر اساس آمادگی‌تان طبقه بندی کنید.</p>
             </div>
             <a wire:navigate href="{{ route('client.profile.classification.projects') }}"
                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-border bg-secondary text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-card transition-all shrink-0">

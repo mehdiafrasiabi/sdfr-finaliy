@@ -84,12 +84,12 @@
 
     @php
         $cards = [
-            'exams' => ['title'=>'امتحانات','desc'=>'امتحانات هفته پیش رو را ثبت کنید','count'=>count($exams),'color'=>'blue','hex'=>'59 130 246','icon'=>'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'],
-            'qas' => ['title'=>'پرسش و پاسخ کلاسی','desc'=>'پرسش‌و‌پاسخ‌های کلاسی هفته','count'=>count($qas),'color'=>'emerald','hex'=>'16 185 129','icon'=>'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/>'],
-            'assignments' => ['title'=>'تکالیف','desc'=>'تکالیف هفته پیش رو','count'=>count($assignments),'color'=>'violet','hex'=>'139 92 246','icon'=>'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'],
-            'requested' => ['title'=>'پارت درخواستی','desc'=>'درس‌های مدنظر شما','count'=>count($requestedParts),'color'=>'orange','hex'=>'249 115 22','icon'=>'<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>'],
-            'misc' => ['title'=>'متفرقه','desc'=>'توضیحات تکمیلی به مشاور','count'=>$miscDescription ? 1 : 0,'color'=>'amber','hex'=>'245 158 11','icon'=>'<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'],
-            'summary' => ['title'=>'خلاصه و ثبت نهایی','desc'=>'مرور و ثبت نهایی پیش‌جلسه','count'=>count($exams)+count($qas)+count($assignments)+count($requestedParts),'color'=>'pink','hex'=>'236 72 153','icon'=>'<polyline points="20 6 9 17 4 12"/>'],
+            'exams' => ['title'=>'امتحانات','desc'=>'','count'=>count($exams),'color'=>'blue','hex'=>'59 130 246','icon'=>'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'],
+            'qas' => ['title'=>'پرسش و پاسخ کلاسی','desc'=>'','count'=>count($qas),'color'=>'emerald','hex'=>'16 185 129','icon'=>'<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/>'],
+            'assignments' => ['title'=>'تکالیف','desc'=>'','count'=>count($assignments),'color'=>'violet','hex'=>'139 92 246','icon'=>'<path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>'],
+            'requested' => ['title'=>'پارت درخواستی','desc'=>'','count'=>count($requestedParts),'color'=>'orange','hex'=>'249 115 22','icon'=>'<path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>'],
+            'misc' => ['title'=>'متفرقه','desc'=>'','count'=>$miscDescription ? 1 : 0,'color'=>'amber','hex'=>'245 158 11','icon'=>'<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>'],
+            'summary' => ['title'=>'خلاصه و ثبت نهایی','desc'=>'','count'=>count($exams)+count($qas)+count($assignments)+count($requestedParts),'color'=>'pink','hex'=>'236 72 153','icon'=>'<polyline points="20 6 9 17 4 12"/>'],
         ];
     @endphp
 
@@ -144,7 +144,7 @@
         @endif
 
         {{-- CARDS GRID --}}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($cards as $key => $card)
                 <div class="pre-card group rounded-2xl border-2 border-border bg-card p-5 {{ $card['count'] > 0 ? 'is-completed' : '' }}"
                      style="--accent: rgb({{ $card['hex'] }});">

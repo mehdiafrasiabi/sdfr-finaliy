@@ -317,19 +317,23 @@
                             if (!bg) return;
                             var w = bg.offsetWidth;
                             var h = bg.offsetHeight;
-                            var r = 24; // border-radius
+                            var r = 24;
                             var cx = w / 2;
-                            var notchR = 48; // radius of the circular notch
-                            var notchDepth = 32; // how deep the notch goes
-                            var x1 = cx - notchR - 6;
-                            var x2 = cx + notchR + 6;
-                            // SVG path: full rect with rounded corners except notch cut at top center
+
+                            var notchRx = 48;      // ← پهنا (دست نزن)
+                            var notchRy = 72;      // ← عمق آرک — هرچی بزرگ‌تر، عمیق‌تر. 60~85 رنج خوبیه
+                            var notchOffsetY = 8;  // ← کل notch چقدر بره پایین‌تر (نقطه شروع/پایان آرک)
+
+                            var x1 = cx - notchRx - 6;
+                            var x2 = cx + notchRx + 6;
+                            var entryY = notchOffsetY; // y که آرک ازش شروع/تموم میشه
+
                             var path =
                                 'M' + r + ',0 ' +
                                 'L' + x1 + ',0 ' +
-                                'Q' + (cx - notchR + 4) + ',0 ' + (cx - notchR + 8) + ',' + (notchDepth / 2) + ' ' +
-                                'A' + notchR + ',' + notchR + ' 0 0 0 ' + (cx + notchR - 8) + ',' + (notchDepth / 2) + ' ' +
-                                'Q' + (cx + notchR - 4) + ',0 ' + x2 + ',0 ' +
+                                'Q' + (cx - notchRx + 4) + ',0 ' + (cx - notchRx + 8) + ',' + entryY + ' ' +
+                                'A' + notchRx + ',' + notchRy + ' 0 0 0 ' + (cx + notchRx - 8) + ',' + entryY + ' ' +
+                                'Q' + (cx + notchRx - 4) + ',0 ' + x2 + ',0 ' +
                                 'L' + (w - r) + ',0 ' +
                                 'Q' + w + ',0 ' + w + ',' + r + ' ' +
                                 'L' + w + ',' + (h - r) + ' ' +
