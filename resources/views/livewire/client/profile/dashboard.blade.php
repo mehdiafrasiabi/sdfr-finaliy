@@ -105,9 +105,9 @@
                     <div class="md:col-span-2 rounded-2xl bg-neutral-900/80 border border-neutral-800 p-4 flex items-center justify-between gap-4">
                         {{-- راست: عکس + نام --}}
                         <div class="flex items-center gap-3">
-                            @if($advisorStudent && $advisorStudent->picture)
-                                <img src="{{ asset('adminsFile/' . $advisorStudent->id . '/' . $advisorStudent->picture) }}"
-                                     alt="{{ $advisorStudent->name }}"
+                            @if($advisorStudent && !empty($advisorStudent['picture']))
+                                <img src="{{ asset('adminsFile/' . $advisorStudent['id'] . '/' . $advisorStudent['picture']) }}"
+                                     alt="{{ $advisorStudent['name'] }}"
                                      class="w-12 h-12 rounded-full object-cover ring-2 ring-neutral-700 flex-shrink-0">
                             @else
                                 <div class="w-12 h-12 rounded-full bg-neutral-800 ring-2 ring-neutral-700 flex items-center justify-center flex-shrink-0">
@@ -118,9 +118,9 @@
                             @endif
                             <div class="text-right">
                                 <div class="font-bold text-white text-base leading-tight">
-                                    {{ $advisorStudent ? $advisorStudent->name : 'تعیین نشده' }}
+                                    {{ $advisorStudent['name'] ?? 'تعیین نشده' }}
                                 </div>
-                                <div class="text-xs mt-1 text-blue-400">مشاور شما</div>
+                                <div class="text-xs mt-1 text-blue-400">{{ $advisorStudent['label'] ?? 'مشاور شما' }}</div>
                             </div>
                         </div>
                         {{-- چپ: دکمه فلش --}}
@@ -184,7 +184,7 @@
                             @for($i = 0; $i < 7; $i++)
                                 @php
                                     $currentDate  = $startDate->copy()->addDays($i);
-                                    $dayNum       = $currentDate->format('j');
+                                    $dayNum       = jdate($currentDate)->format('j');
                                     $isToday      = $currentDate->isSameDay($today);
                                     $isSubmitted  = in_array($currentDate->toDateString(), $submittedDates);
                                     $isRestDay    = in_array($i, $restDayIndices);
@@ -269,7 +269,7 @@
                                         @endphp
                                         <div class="program-card rounded-2xl bg-neutral-800/80 border border-neutral-700 p-4 flex flex-col items-end justify-center text-right min-h-[100px]">
                                             <div class="font-bold text-white text-[15px] leading-tight mb-2">
-                                                {{ $part->lesson->name ?? 'درس' }}
+                                                {{ $part->lesson_name ?? ($part->lesson->name ?? 'درس') }}
                                             </div>
                                             <div class="flex items-baseline gap-2" style="direction:ltr;">
                                                 @if($hours > 0)
@@ -315,7 +315,7 @@
                                         <div class="flex-shrink-0 rounded-2xl bg-neutral-800/80 border border-neutral-700 p-4 flex flex-col items-end justify-center text-right"
                                              style="min-width:160px; min-height:100px;">
                                             <div class="font-bold text-white text-[15px] leading-tight mb-2">
-                                                {{ $part->lesson->name ?? 'درس' }}
+                                                {{ $part->lesson_name ?? ($part->lesson->name ?? 'درس') }}
                                             </div>
                                             <div class="flex items-baseline gap-2" style="direction:ltr;">
                                                 @if($hours > 0)
@@ -374,7 +374,7 @@
                                 <div class="flex justify-between mt-1">
                                     @php $sd2 = \Carbon\Carbon::parse($activeProgram->start_date); @endphp
                                     @for($i = 0; $i < 6; $i++)
-                                        <span class="text-[11px] text-neutral-600">{{ $sd2->copy()->addDays($i)->day }}</span>
+                                        <span class="text-[11px] text-neutral-600">{{ jdate($sd2->copy()->addDays($i))->format('j') }}</span>
                                     @endfor
                                 </div>
                             @endif

@@ -12,6 +12,8 @@ use App\Models\WeeklyProgram;
 use App\Models\DailyReport;
 use App\Models\StudyPartSession;
 use App\Models\ClassSchedule;
+use App\Models\TrialWeek;
+use App\Models\ProgramPart;
 
 use Carbon\Carbon;
 
@@ -84,12 +86,58 @@ class Dashboard extends Component
      */
     public function getActiveWeeklyProgram()
     {
-        $activeSession = $this->getActiveAdvisingSession();
-        if (!$activeSession) {
+        if (!$this->student) {
             return null;
         }
 
+        // برای دانش‌آموز آزمایشی: برنامه‌ای که در trial ساخته شده
+        if ($this->student->is_trial) {
+            $trial = TrialWeek::where('user_id', $this->user->id)->latest()->first();
+            if ($trial && $trial->advising_session_id) {
+                $prog = WeeklyProgram::where('advising_session_id', $trial->advising_session_id)
+                    ->latest()->first();
+                if ($prog) return $prog;
+            }
+            return WeeklyProgram::where('student_id', $this->student->id)->latest()->first();
+        }
+
+        $activeSession = $this->getActiveAdvisingSession();
+        if (!$activeSession) {
+            return WeeklyProgram::where('student_id', $this->student->id)->latest()->first();
+        }
+
         return WeeklyProgram::where('advising_session_id', $activeSession->id)->first();
+    }
+
+    /**
+     * مشاور یا پشتیبان نمایش‌داده‌شده.
+     * در حالت آزمایشی، نام/تصویر «پشتیبان جذب» جایگزین مشاور می‌شود.
+     */
+    public function getDisplayAdvisor()
+    {
+        if ($this->student && !$this->student->is_trial && $this->student->advisor) {
+            return [
+                'name'    => $this->student->advisor->name,
+                'picture' => $this->student->advisor->picture,
+                'id'      => $this->student->advisor->id,
+                'label'   => 'مشاور شما',
+            ];
+        }
+
+        $trial = TrialWeek::where('user_id', $this->user->id)
+            ->whereNotNull('acquisition_supporter_id')
+            ->latest()->first();
+        if ($trial && $trial->acquisitionSupporter) {
+            $sup = $trial->acquisitionSupporter;
+            return [
+                'name'    => $sup->name,
+                'picture' => $sup->picture,
+                'id'      => $sup->id,
+                'label'   => 'پشتیبان شما',
+            ];
+        }
+
+        return null;
     }
 
     /**
@@ -219,7 +267,7 @@ class Dashboard extends Component
 
     {
 
-        $advisorStudent = $this->student?->advisor;
+        $advisorStudent = $this->getDisplayAdvisor();
 
         $unreadNotificationsCount = $this->getUnreadNotificationsCount();
         $todayProgram = $this->getTodayProgram();

@@ -144,11 +144,17 @@ class ParentAssessmentTake extends Component
 
             $questions = AssessmentQuestion::where('assessment_id', $assessment->id)
                 ->where('is_active', true)
-                ->with('options')
+                ->with(['options' => fn($qq) => $qq->orderBy('order')])
                 ->orderBy('order')
                 ->get();
 
             foreach ($questions as $q) {
+                // محافظت در برابر گزینه‌های تکراری (در صورت ناسازگاری داده)
+                $uniqueOpts = $q->options
+                    ->unique(fn($o) => $o->value . '|' . $o->label_fa)
+                    ->values();
+                $q->setRelation('options', $uniqueOpts);
+
                 // به هر سوال assessment_id و attempt_id اضافه کن
                 $q->setAttribute('_assessment_id',   $assessment->id);
                 $q->setAttribute('_assessment_name', $assessment->name_fa);
