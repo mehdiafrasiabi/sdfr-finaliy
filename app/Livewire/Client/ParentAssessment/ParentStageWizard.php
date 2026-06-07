@@ -11,139 +11,104 @@ use App\Services\AssessmentService;
 use App\Services\ParentInvitationService;
 use Livewire\Component;
 
-/**
- * ویزارد ترکیبی برای والد — دو تست والدینی پشت‌سر‌هم در یک sequence.
- */
 class ParentStageWizard extends Component
 {
     public string $token = '';
     public ?ParentAssessmentInvitation $invitation = null;
     public bool $expired = false;
 
-    public ?int $selectedOptionId = null;
-    public array $selectedOptionIds = [];
-    public ?string $likertValue = null;
+    // تمام پاسخ‌ها یکجا نگه داشته می‌شن — key: "q_{question_id}"
+    public array $answers = [];
 
     public function mount(string $token, ParentInvitationService $svc, AssessmentService $assessmentService): void
     {
         $this->token = $token;
 
         $inv = $svc->verifyToken($token);
-        if (! $inv) {
-            $this->expired = true;
-            return;
-        }
+        if (! $inv) { $this->expired = true; return; }
         $this->invitation = $inv;
 
-        // اطمینان از وجود attempt برای همه‌ی آزمون‌های parent
         foreach ($this->parentAssessments() as $a) {
             $assessmentService->startOrResumeParent($inv, $a);
         }
 
-        $this->preloadExistingAnswer();
+        // بارگذاری پاسخ‌های قبلی
+        $this->loadExistingAnswers();
     }
 
-    /** @return \Illuminate\Support\Collection<int, Assessment> */
     private function parentAssessments(): \Illuminate\Support\Collection
     {
         return Assessment::active()
             ->where('audience', Assessment::AUDIENCE_PARENT)
             ->ordered()
+            ->with(['questions' => fn($q) => $q->where('is_active', true)->orderBy('order')->with('options')])
             ->get();
     }
 
-    private function getCurrent(): ?array
+    private function loadExistingAnswers(): void
     {
-        if (! $this->invitation) {
-            return null;
-        }
+        if (! $this->invitation) return;
 
-        foreach ($this->parentAssessments() as $assessment) {
+        $attemptIds = ParentAssessmentAttempt::where('invitation_id', $this->invitation->id)->pluck('id');
+
+        $existing = ParentAssessmentAnswer::whereIn('attempt_id', $attemptIds)->get();
+
+        foreach ($existing as $ans) {
+            $key = 'q_' . $ans->question_id;
+            if (! empty($ans->selected_options)) {
+                // multi-select: ذخیره به صورت آرایه
+                $this->answers[$key] = $ans->selected_options;
+            } elseif ($ans->free_value !== null) {
+                // likert
+                $this->answers[$key] = $ans->free_value;
+            } else {
+                $this->answers[$key] = $ans->selected_option_id ? (string) $ans->selected_option_id : null;
+            }
+        }
+    }
+
+    /**
+     * ثبت همه پاسخ‌ها یکجا
+     */
+    public function submitAll(AssessmentService $assessmentService): void
+    {
+        if ($this->expired || ! $this->invitation) return;
+
+        $assessments = $this->parentAssessments();
+        $hasError = false;
+
+        foreach ($assessments as $assessment) {
             $attempt = ParentAssessmentAttempt::where('invitation_id', $this->invitation->id)
                 ->where('assessment_id', $assessment->id)
                 ->first();
 
-            $answeredIds = $attempt
-                ? $attempt->answers()->pluck('question_id')->all()
-                : [];
+            if (! $attempt) continue;
 
-            $question = AssessmentQuestion::where('assessment_id', $assessment->id)
-                ->where('is_active', true)
-                ->when(!empty($answeredIds), fn ($q) => $q->whereNotIn('id', $answeredIds))
-                ->orderBy('order')
-                ->with('options')
-                ->first();
+            foreach ($assessment->questions as $question) {
+                $key = 'q_' . $question->id;
+                $value = $this->answers[$key] ?? null;
 
-            if ($question) {
-                return ['assessment' => $assessment, 'question' => $question, 'attempt' => $attempt];
+                if ($value === null || $value === '' || $value === []) {
+                    $hasError = true;
+                    continue;
+                }
+
+                $payload = $this->buildPayload($question, $value);
+                if ($payload === null) { $hasError = true; continue; }
+
+                $assessmentService->saveParentAnswer($attempt, $question, $payload);
+            }
+
+            $attempt->refresh();
+            $totalActive = $assessment->questions->count();
+            if ($attempt->answered_count >= $totalActive) {
+                $assessmentService->completeParent($attempt);
             }
         }
-        return null;
-    }
 
-    private function preloadExistingAnswer(): void
-    {
-        $this->selectedOptionId = null;
-        $this->selectedOptionIds = [];
-        $this->likertValue = null;
-
-        $current = $this->getCurrent();
-        if (! $current) {
+        if ($hasError) {
+            $this->addError('submit', 'لطفاً به تمام سوالات پاسخ دهید.');
             return;
-        }
-        $question = $current['question'];
-        $attempt = $current['attempt'];
-        if (! $attempt) {
-            return;
-        }
-        $existing = ParentAssessmentAnswer::where('attempt_id', $attempt->id)
-            ->where('question_id', $question->id)
-            ->first();
-        if (! $existing) {
-            return;
-        }
-        if ($question->isMultiSelect()) {
-            $this->selectedOptionIds = $existing->selected_options ?? [];
-        } elseif ($question->type === AssessmentQuestion::TYPE_LIKERT5) {
-            $this->likertValue = $existing->free_value;
-            $this->selectedOptionId = $existing->selected_option_id;
-        } else {
-            $this->selectedOptionId = $existing->selected_option_id;
-        }
-    }
-
-    public function submitAnswer(AssessmentService $assessmentService): void
-    {
-        if ($this->expired || ! $this->invitation) {
-            return;
-        }
-
-        $current = $this->getCurrent();
-        if (! $current) {
-            $this->redirect(
-                route('client.parent.assessment.thank-you', ['token' => $this->token]),
-                navigate: true,
-            );
-            return;
-        }
-
-        $question = $current['question'];
-        $assessment = $current['assessment'];
-        $attempt = $current['attempt'] ?? ParentAssessmentAttempt::where('invitation_id', $this->invitation->id)
-            ->where('assessment_id', $assessment->id)->firstOrFail();
-
-        $payload = $this->buildPayload($question);
-        if ($payload === null) {
-            $this->addError('answer', 'لطفاً پاسخ خود را انتخاب کنید.');
-            return;
-        }
-
-        $assessmentService->saveParentAnswer($attempt, $question, $payload);
-
-        $attempt->refresh();
-        $totalActive = $assessment->questions()->where('is_active', true)->count();
-        if ($attempt->answered_count >= $totalActive) {
-            $assessmentService->completeParent($attempt);
         }
 
         $this->invitation->refresh();
@@ -152,53 +117,33 @@ class ParentStageWizard extends Component
                 route('client.parent.assessment.thank-you', ['token' => $this->token]),
                 navigate: true,
             );
-            return;
         }
-
-        $this->preloadExistingAnswer();
     }
 
-    private function buildPayload(AssessmentQuestion $question): ?array
+    private function buildPayload(AssessmentQuestion $question, mixed $value): ?array
     {
         if ($question->isMultiSelect()) {
-            $ids = array_values(array_filter(array_map('intval', $this->selectedOptionIds)));
-            if (empty($ids)) {
-                return null;
-            }
+            $ids = is_array($value)
+                ? array_values(array_filter(array_map('intval', $value)))
+                : [];
+            if (empty($ids)) return null;
             $validIds = $question->options->pluck('id')->all();
             $ids = array_values(array_intersect($ids, $validIds));
-            if (empty($ids)) {
-                return null;
-            }
-            return [
-                'selected_options'   => $ids,
-                'selected_option_id' => null,
-                'free_value'         => null,
-            ];
+            if (empty($ids)) return null;
+            return ['selected_options' => $ids, 'selected_option_id' => null, 'free_value' => null];
         }
+
         if ($question->type === AssessmentQuestion::TYPE_LIKERT5) {
-            if (! in_array($this->likertValue, ['1','2','3','4','5'], true)) {
-                return null;
-            }
-            $option = $question->options->firstWhere('value', $this->likertValue);
-            return [
-                'selected_option_id' => $option?->id,
-                'selected_options'   => null,
-                'free_value'         => $this->likertValue,
-            ];
+            $v = (string) $value;
+            if (! in_array($v, ['1','2','3','4','5'], true)) return null;
+            $option = $question->options->firstWhere('value', $v);
+            return ['selected_option_id' => $option?->id, 'selected_options' => null, 'free_value' => $v];
         }
-        $optionId = (int) $this->selectedOptionId;
-        if ($optionId <= 0) {
-            return null;
-        }
-        if (! $question->options->pluck('id')->contains($optionId)) {
-            return null;
-        }
-        return [
-            'selected_option_id' => $optionId,
-            'selected_options'   => null,
-            'free_value'         => null,
-        ];
+
+        $optionId = (int) $value;
+        if ($optionId <= 0) return null;
+        if (! $question->options->pluck('id')->contains($optionId)) return null;
+        return ['selected_option_id' => $optionId, 'selected_options' => null, 'free_value' => null];
     }
 
     public function render(): \Illuminate\Contracts\View\View
@@ -208,23 +153,20 @@ class ParentStageWizard extends Component
                 ->layout('layouts.client.app-auth');
         }
 
-        $current = $this->getCurrent();
+        $assessments = $this->parentAssessments();
 
-        $assessmentIds = $this->parentAssessments()->pluck('id');
+        $assessmentIds = $assessments->pluck('id');
         $totalQuestions = (int) AssessmentQuestion::whereIn('assessment_id', $assessmentIds)
             ->where('is_active', true)->count();
-        $attemptIds = ParentAssessmentAttempt::where('invitation_id', $this->invitation->id)
-            ->pluck('id');
-        $answered = (int) ParentAssessmentAnswer::whereIn('attempt_id', $attemptIds)->count();
-        $percent = $totalQuestions > 0 ? (int) round(($answered / $totalQuestions) * 100) : 0;
+        $attemptIds = ParentAssessmentAttempt::where('invitation_id', $this->invitation->id)->pluck('id');
+        $answered   = (int) ParentAssessmentAnswer::whereIn('attempt_id', $attemptIds)->count();
+        $percent    = $totalQuestions > 0 ? (int) round(($answered / $totalQuestions) * 100) : 0;
 
         return view('livewire.client.parent-assessment.stage-wizard', [
-            'assessment'   => $current['assessment'] ?? null,
-            'question'     => $current['question']   ?? null,
-            'totalActive'  => $totalQuestions,
-            'answered'     => $answered,
-            'percent'      => $percent,
-            'currentIndex' => min($answered + 1, $totalQuestions),
+            'assessments'    => $assessments,
+            'totalQuestions' => $totalQuestions,
+            'answered'       => $answered,
+            'percent'        => $percent,
         ])->layout('layouts.client.app-auth');
     }
 }
