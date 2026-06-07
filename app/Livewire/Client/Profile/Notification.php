@@ -99,14 +99,12 @@ class Notification extends Component
         if ($this->isStudent) {
             return [
                 ModelsNotification::CATEGORY_ANNOUNCEMENT => 'اعلانات',
-                ModelsNotification::CATEGORY_SPECIAL       => 'اعلان ویژه',
                 ModelsNotification::CATEGORY_ADVISOR       => 'پیام مشاور',
             ];
         }
 
         return [
             ModelsNotification::CATEGORY_ANNOUNCEMENT => 'اعلانات',
-            ModelsNotification::CATEGORY_SPECIAL       => 'اعلان ویژه',
         ];
     }
 
