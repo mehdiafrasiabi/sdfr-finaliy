@@ -54,6 +54,7 @@ Route::name('client.')->group(function () {
         ->name('secure.download');
 
     Route::get('/', HomeIndex::class)->name('home');
+    Route::get('/home-preview', \App\Livewire\Client\Home\Preview::class)->name('home.preview');
     Route::get('/application', DownloadIndex::class)->name('download');
     Route::redirect('/shop', '/')->name('shop');
     Route::redirect('/product/{p_code}/{slug?}', '/')->name('product');
