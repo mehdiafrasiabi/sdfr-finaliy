@@ -19,7 +19,48 @@ class AssessmentService
     public function __construct(
         private AssessmentScoringService $scoring,
         private ParentInvitationService $parentInvitations,
+        private TrialWeekService $trialWeek,
     ) {}
+
+    /**
+     * ترتیب مرحله‌ای آزمون‌های دانش‌آموز: مرحله ۱ فقط MBTI، مرحله ۲ «مایندست»
+     * (همهٔ آزمون‌های دیگر شامل VARK و اختصاصی) به ترتیب display_order.
+     *
+     * @return \Illuminate\Support\Collection<int,Assessment>
+     */
+    public function studentAssessmentsInStageOrder(): \Illuminate\Support\Collection
+    {
+        $assessments = Assessment::active()->forStudent()->ordered()->get();
+
+        // MBTI همیشه ابتدا (مرحله ۱)، بقیه با همان ترتیب display_order (مرحله ۲).
+        return $assessments
+            ->sortBy(fn (Assessment $a) => $a->kind === Assessment::KIND_MBTI ? 0 : 1)
+            ->values();
+    }
+
+    /**
+     * شماره مرحله یک آزمون: ۱ برای MBTI، ۲ برای مایندست.
+     */
+    public function stageNumberFor(Assessment $assessment): int
+    {
+        return $assessment->kind === Assessment::KIND_MBTI ? 1 : 2;
+    }
+
+    /**
+     * اولین آزمون دانش‌آموزی که هنوز توسط این کاربر تکمیل نشده — با رعایت ترتیب مرحله‌ای.
+     * اگر همه تکمیل شده‌اند null برمی‌گرداند.
+     */
+    public function nextStudentAssessment(User $user): ?Assessment
+    {
+        $completedIds = StudentAssessmentAttempt::where('user_id', $user->id)
+            ->where('status', StudentAssessmentAttempt::STATUS_COMPLETED)
+            ->pluck('assessment_id')
+            ->all();
+
+        return $this->studentAssessmentsInStageOrder()
+            ->reject(fn (Assessment $a) => in_array($a->id, $completedIds, true))
+            ->first();
+    }
 
     /**
      * یا یک attempt در حال انجام را برمی‌گرداند، یا attempt جدید می‌سازد.
@@ -150,8 +191,10 @@ class AssessmentService
         if ($trial && !$trial->assessments_completed_at) {
             $trial->update(['assessments_completed_at' => Carbon::now()]);
             $trial->refresh();
-            // ارسال خودکار لینک تست‌های والدینی به پدر و مادر
+            // ارسال خودکار لینک تست‌های والدینی به پدر و مادر (اطلاع‌رسانی، غیرمسدودکننده)
             $this->parentInvitations->sendForTrialWeek($trial);
+            // مسیر کاملاً خودکار: بلافاصله جلسهٔ آزمایشی ساخته می‌شود (بدون نیاز به تخصیص دستی پشتیبان).
+            $this->trialWeek->autoStartTrialSession($trial);
         }
 
         return true;

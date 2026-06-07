@@ -6,7 +6,10 @@ use App\Models\ClassificationProject;
 use App\Models\ClassSchedule;
 use App\Models\StudentClassification;
 use App\Models\StudentClassificationSubmission;
+use App\Models\Assessment;
+use App\Models\StudentAssessmentAttempt;
 use App\Models\TrialWeek;
+use App\Services\AssessmentInterpretationService;
 use App\Services\TrialWeekService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
@@ -61,6 +64,47 @@ class Guide extends Component
     public function getPreSessionCompletedProperty(): bool
     {
         return $this->trialWeek?->advisingSession?->preSession?->status === 'completed';
+    }
+
+    /**
+     * خلاصهٔ وضعیت شخصیتی دانش‌آموز بر اساس آزمون‌های تکمیل‌شده.
+     * خروجی شامل تیپ MBTI، پروفایل VARK و نقاط قوت/ضعف تست‌های اختصاصی + پرچم‌ها.
+     */
+    public function getPersonalitySummaryProperty(): ?array
+    {
+        $interpreter = app(AssessmentInterpretationService::class);
+
+        $attempts = StudentAssessmentAttempt::where('user_id', Auth::id())
+            ->where('status', StudentAssessmentAttempt::STATUS_COMPLETED)
+            ->with('assessment')
+            ->get();
+
+        if ($attempts->isEmpty()) {
+            return null;
+        }
+
+        $summary = ['mbti' => null, 'vark' => null, 'custom' => [], 'flags' => []];
+
+        foreach ($attempts as $attempt) {
+            $kind = $attempt->assessment?->kind;
+            $cr   = $attempt->computed_result;
+
+            if ($kind === Assessment::KIND_MBTI) {
+                $summary['mbti'] = $interpreter->interpretMbti($cr);
+            } elseif ($kind === Assessment::KIND_VARK) {
+                $summary['vark'] = $interpreter->interpretVark($cr);
+            } else {
+                $custom = $interpreter->interpretCustom($cr, $attempt->assessment);
+                if (!empty($custom['facets'])) {
+                    $summary['custom'][$attempt->assessment->name_fa] = $custom['facets'];
+                }
+                foreach ($custom['flags'] ?? [] as $flag) {
+                    $summary['flags'][] = $flag;
+                }
+            }
+        }
+
+        return $summary;
     }
 
     public function getActiveProjectProperty(): ?ClassificationProject

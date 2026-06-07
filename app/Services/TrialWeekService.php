@@ -73,6 +73,40 @@ class TrialWeekService
         });
     }
 
+    // مسیر کاملاً خودکار: ایجاد جلسهٔ آزمایشی بدون نیاز به تخصیص دستی «پشتیبان جذب».
+    // پس از تکمیل آزمون‌های دانش‌آموز فراخوانی می‌شود. اگر قبلاً جلسه‌ای ساخته شده باشد، کاری نمی‌کند.
+    public function autoStartTrialSession(TrialWeek $trialWeek): void
+    {
+        if ($trialWeek->advising_session_id || $trialWeek->status !== TrialWeek::STATUS_PENDING) {
+            return;
+        }
+
+        DB::transaction(function () use ($trialWeek) {
+            $session = AdvisingSession::create([
+                'student_id'      => $trialWeek->student_id,
+                'advisor_id'      => null,
+                'title'           => 'جلسه آزمایشی',
+                'activation_date' => Carbon::now()->addDay(),
+                'status'          => AdvisingSession::STATUS_ACTIVE,
+                'location_type'   => 'online',
+                'is_active'       => true,
+            ]);
+
+            AdvisingPreSession::create([
+                'advising_session_id' => $session->id,
+                'student_id'          => $trialWeek->student_id,
+                'title'               => 'پیش‌جلسه آزمایشی',
+                'status'              => AdvisingPreSession::STATUS_PENDING,
+            ]);
+
+            $trialWeek->update([
+                'advising_session_id'   => $session->id,
+                'status'                => TrialWeek::STATUS_SUPPORTER_ASSIGNED,
+                'supporter_assigned_at' => Carbon::now(),
+            ]);
+        });
+    }
+
     // قفل طبقه‌بندی پس از تایید دانش‌آموز
     public function lockClassification(TrialWeek $trialWeek): void
     {
@@ -97,12 +131,24 @@ class TrialWeekService
         return DB::transaction(function () use ($trialWeek, $dailyHours) {
             $subjectPriorities = $this->calculateSubjectPriorities($trialWeek->user_id);
 
+            // برنامه به جلسهٔ آزمایشی پیوند می‌خورد و جلسه «برگزارشده» علامت می‌خورد تا
+            // در /profile/plan و /profile/studySession (که روی result_status='held' فیلتر دارند) نمایش داده شود.
+            $session = $trialWeek->advisingSession;
+            if ($session) {
+                $session->update([
+                    'result_status' => AdvisingSession::RESULT_HELD,
+                    'status'        => AdvisingSession::STATUS_COMPLETED,
+                    'is_active'     => true,
+                ]);
+            }
+
             $program = WeeklyProgram::create([
-                'student_id'  => $trialWeek->student_id,
-                'advisor_id'  => null,
-                'start_date'  => Carbon::now()->toDateString(),
-                'end_date'    => Carbon::now()->addDays(6)->toDateString(),
-                'is_active'   => true,
+                'student_id'          => $trialWeek->student_id,
+                'advisor_id'          => null,
+                'advising_session_id' => $session?->id,
+                'start_date'          => Carbon::now()->toDateString(),
+                'end_date'            => Carbon::now()->addDays(6)->toDateString(),
+                'is_active'           => true,
             ]);
 
             $this->generateProgramParts($program, $subjectPriorities, $dailyHours, $trialWeek->grade);

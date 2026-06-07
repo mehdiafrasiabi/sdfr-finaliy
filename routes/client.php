@@ -155,6 +155,7 @@ Route::name('client.')->group(function () {
             Route::prefix('trial')->name('trial.')->group(function () {
                 Route::get('/guide', TrialWeekGuide::class)->name('guide');
                 Route::get('/session-analysis', TrialWeekSessionAnalysis::class)->name('session-analysis');
+                Route::get('/report', \App\Livewire\Client\Profile\TrialWeek\TrialReport::class)->name('report');
             });
 
             // Consultation Routes (جلسات مشاوره)

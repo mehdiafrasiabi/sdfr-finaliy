@@ -561,6 +561,93 @@
         </div>
 
 
+        {{-- ═══════════ وضعیت شخصیتی (پیش از ساخت برنامه) ═══════════ --}}
+        @php $personality = $this->personalitySummary; @endphp
+        @if($trialWeek->step >= 3 && $personality)
+            <div class="rise r6 rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/5 to-secondary p-6 mt-5">
+                <div class="flex items-center gap-2 mb-4">
+                    <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="8" r="4"/><path d="M6 21v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"/>
+                    </svg>
+                    <h3 class="font-black text-foreground">وضعیت شخصیتی تو</h3>
+                </div>
+                <p class="text-sm text-muted leading-7 mb-5">
+                    این تحلیل بر اساس پاسخ‌های تو در آزمون‌های MBTI و مایندست ساخته شده و در طراحی برنامه‌ات لحاظ می‌شود.
+                </p>
+
+                {{-- MBTI --}}
+                @if(!empty($personality['mbti']['type']))
+                    <div class="rounded-2xl border border-border bg-background p-5 mb-4">
+                        <div class="flex items-center gap-3 mb-2 flex-wrap">
+                            <span class="text-lg font-black text-primary tracking-widest">{{ $personality['mbti']['type'] }}</span>
+                            <span class="font-bold text-foreground">{{ $personality['mbti']['title'] }}</span>
+                        </div>
+                        <p class="text-sm text-muted leading-7">{{ $personality['mbti']['description'] }}</p>
+                        @if(!empty($personality['mbti']['study_tip']) && $personality['mbti']['study_tip'] !== '—')
+                            <div class="mt-3 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 rounded-xl px-3 py-2 leading-6">
+                                💡 {{ $personality['mbti']['study_tip'] }}
+                            </div>
+                        @endif
+                    </div>
+                @endif
+
+                {{-- VARK --}}
+                @if(!empty($personality['vark']['profile']))
+                    <div class="rounded-2xl border border-border bg-background p-5 mb-4">
+                        <div class="font-bold text-foreground mb-3">سبک یادگیری (VARK): <span class="text-primary">{{ $personality['vark']['profile'] }}</span></div>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            @foreach($personality['vark']['modalities'] as $m)
+                                <div class="rounded-xl border {{ $m['dominant'] ? 'border-primary/50 bg-primary/5' : 'border-border' }} p-2 text-center">
+                                    <div class="text-xs text-muted">{{ $m['title'] }}</div>
+                                    <div class="font-black text-foreground">{{ $m['percent'] }}%</div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
+                {{-- نقاط قوت و ضعف (تست‌های اختصاصی) --}}
+                @foreach($personality['custom'] as $testName => $facets)
+                    @php
+                        $strengths = collect($facets)->filter(fn($f) => $f['level'] === 'high');
+                        $weaknesses = collect($facets)->filter(fn($f) => $f['level'] === 'low');
+                    @endphp
+                    <div class="rounded-2xl border border-border bg-background p-5 mb-4">
+                        <div class="font-bold text-foreground mb-3">{{ $testName }}</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">نقاط قوت</div>
+                                @forelse($strengths as $f)
+                                    <div class="text-sm text-foreground mb-1.5">✅ {{ $f['label'] }} <span class="text-muted text-xs">({{ $f['percent'] }}%)</span></div>
+                                @empty
+                                    <div class="text-xs text-muted">—</div>
+                                @endforelse
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-amber-600 dark:text-amber-400 mb-2">نیازمند تقویت</div>
+                                @forelse($weaknesses as $f)
+                                    <div class="text-sm text-foreground mb-1.5">⚠️ {{ $f['label'] }} <span class="text-muted text-xs">({{ $f['percent'] }}%)</span></div>
+                                @empty
+                                    <div class="text-xs text-muted">—</div>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+
+                {{-- پرچم‌های بالینی --}}
+                @foreach($personality['flags'] as $flag)
+                    <div class="rounded-2xl border p-4 mb-3 {{ ($flag['severity'] ?? '') === 'critical' ? 'border-red-500/40 bg-red-500/10' : 'border-amber-500/40 bg-amber-500/10' }}">
+                        <div class="font-bold text-foreground text-sm">{{ $flag['title'] ?? '' }}</div>
+                        @if(!empty($flag['text']))
+                            <p class="text-xs text-muted leading-6 mt-1">{{ $flag['text'] }}</p>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        @endif
+
+
         {{-- ═══════════ کارت پایانی: تبریک ═══════════ --}}
         @if($trialWeek->step >= 4)
             <div class="rise r6 relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-primary/5 p-7 mt-5 text-center">
@@ -585,8 +672,15 @@
                     باقی‌مانده از تمام امکانات استفاده کن.
                 </p>
                 <div class="relative flex justify-center gap-3 flex-wrap">
-                    <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
+                    <a wire:navigate href="{{ route('client.profile.trial.report') }}"
                        class="press btn-primary inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+                        </svg>
+                        مشاهده کارنامه
+                    </a>
+                    <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
+                       class="press btn-soft inline-flex items-center gap-2 px-5 py-3 rounded-xl text-sm font-bold">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>
                         </svg>

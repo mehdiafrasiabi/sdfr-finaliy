@@ -570,13 +570,41 @@ class PreSessionWizard extends Component
 
     // ════════ ثبت نهایی ════════
 
-    public function finalSubmit(): void
+    public function finalSubmit(\App\Services\TrialWeekService $trialService): void
     {
         if (!$this->canEdit) { $this->dispatch('warning', 'امکان ثبت وجود ندارد.'); return; }
         if ($this->miscDescription) $this->saveMiscellaneous();
         $this->preSession->update(['status' => 'completed']);
         $this->dispatch('success', 'پیش‌جلسه با موفقیت ثبت شد.');
+
+        // دانش‌آموز آزمایشی: پیشروی خودکار + بازگشت به راهنما (بدون نیاز به تایید پشتیبان).
+        $trial = \Illuminate\Support\Facades\Auth::user()?->trialWeek;
+        if ($trial) {
+            $this->maybeAdvanceTrial($trial, $trialService);
+            redirect()->route('client.profile.trial.guide');
+            return;
+        }
+
         redirect()->route('client.profile.consultation.sessions');
+    }
+
+    /**
+     * اگر هم پیش‌جلسه تکمیل شده و هم برنامهٔ کلاسی نهایی شده باشد،
+     * هفتهٔ آزمایشی را خودکار به مرحلهٔ «ساخت برنامه» می‌برد.
+     */
+    private function maybeAdvanceTrial(\App\Models\TrialWeek $trial, \App\Services\TrialWeekService $trialService): void
+    {
+        if ($trial->status !== \App\Models\TrialWeek::STATUS_CLASSIFICATION_DONE) {
+            return;
+        }
+
+        $hasFinalizedSchedule = \App\Models\ClassSchedule::where('student_id', $trial->student_id)
+            ->where('is_finalized', true)
+            ->exists();
+
+        if ($hasFinalizedSchedule) {
+            $trialService->completePreSession($trial);
+        }
     }
 
     public function getAvailableDates(): array

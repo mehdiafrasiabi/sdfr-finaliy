@@ -118,15 +118,20 @@ class AssessmentTake extends Component
         $totalActive = $question->assessment->questions()->where('is_active', true)->count();
         if ($attempt->answered_count >= $totalActive) {
             $service->complete($attempt);
-            $allDone = $service->checkAllCompleted(Auth::user());
 
-            if ($allDone) {
-                session()->flash('success', 'تمام آزمون‌ها با موفقیت تکمیل شد.');
-                $this->redirect(route('client.profile.waiting-for-supporter'), navigate: true);
+            // مرحله بعد: اگر آزمون دیگری باقی مانده، بدون توقف مستقیم به آن می‌رویم
+            // (زنجیرهٔ MBTI ← مایندست). در غیر این صورت پایان و صفحهٔ تشکر.
+            $next = $service->nextStudentAssessment(Auth::user());
+            if ($next) {
+                $this->redirect(
+                    route('client.profile.assessment.take', ['slug' => $next->slug]),
+                    navigate: true
+                );
                 return;
             }
 
-            session()->flash('success', 'آزمون با موفقیت تکمیل شد. لطفاً آزمون بعدی را شروع کنید.');
+            $service->checkAllCompleted(Auth::user());
+            session()->flash('success', 'تمام آزمون‌ها با موفقیت تکمیل شد.');
             $this->redirect(route('client.profile.assessment.list'), navigate: true);
             return;
         }
