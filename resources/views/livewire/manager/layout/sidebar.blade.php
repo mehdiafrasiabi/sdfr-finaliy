@@ -32,6 +32,12 @@
                                         دانش‌آموزان مدارس
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('manager.schools.cooperation-requests') }}"
+                                       class="nav-link {{ request()->routeIs('manager.schools.cooperation-requests') ? 'active' : '' }}">
+                                        درخواست‌های همکاری
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </li>
