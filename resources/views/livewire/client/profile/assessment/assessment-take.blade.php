@@ -1,97 +1,156 @@
-<div class="max-w-3xl mx-auto px-4 py-6 sm:py-10" dir="rtl">
+<div
+    x-data="{
+        picked: null,
+        justPicked: false,
+        init() {
+            this.picked = {{ $selectedOptionId ?? ($likertValue ? "'$likertValue'" : 'null') }};
+        },
+        selectOption(val) {
+            this.picked = val;
+            this.justPicked = true;
+            setTimeout(() => { this.justPicked = false; }, 350);
+        }
+    }"
+    class="min-h-screen bg-[#0a0a0f] text-white relative overflow-x-hidden"
+    dir="rtl">
 
-    <div class="mb-6">
-        <a href="{{ route('client.profile.assessment.list') }}" wire:navigate
-           class="text-sm text-base-content/70 hover:text-primary inline-flex items-center gap-1 mb-3">
-            ← بازگشت به لیست آزمون‌ها
-        </a>
-        <h1 class="text-xl sm:text-2xl font-bold">{{ $assessment->name_fa }}</h1>
-        <p class="text-xs text-base-content/60 mt-1">{{ $assessment->kind_label }}</p>
+    <div class="fixed inset-0 pointer-events-none z-0" style="background-image:linear-gradient(to right,rgba(59,130,246,0.05) 1px,transparent 1px),linear-gradient(to bottom,rgba(59,130,246,0.05) 1px,transparent 1px);background-size:48px 48px;"></div>
+    <div class="fixed inset-0 pointer-events-none z-0" style="background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(59,130,246,0.10) 0%,transparent 70%);"></div>
+
+    <div class="relative z-10 max-w-2xl mx-auto px-4 py-8 pb-32">
+
+        {{-- هدر --}}
+        <div class="flex items-center justify-between mb-6">
+            <a href="{{ route('client.profile.assessment.list') }}" wire:navigate
+               class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-white/50 hover:text-white transition-colors"
+               style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+                بازگشت
+            </a>
+            <div class="flex items-center gap-2 px-3 py-1.5 rounded-full" style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);">
+                <div class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div>
+                <span class="text-xs font-bold text-blue-300">{{ $assessment->name_fa }}</span>
+            </div>
+        </div>
+
+        {{-- progress --}}
+        <div class="rounded-2xl p-4 mb-5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-white/40">سوال <span class="text-white font-bold">{{ $currentIndex }}</span> از <span class="text-white font-bold">{{ $totalActive }}</span></span>
+                <span class="text-xs font-black text-blue-400">{{ $totalActive > 0 ? round(($attempt->answered_count / $totalActive) * 100) : 0 }}%</span>
+            </div>
+            <div class="h-2 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.06);">
+                <div class="h-full rounded-full transition-all duration-500" style="background:linear-gradient(to left,#3b82f6,#8b5cf6);width:{{ $totalActive > 0 ? round(($attempt->answered_count / $totalActive) * 100) : 0 }}%;"></div>
+            </div>
+        </div>
+
+        @if(!$question)
+            <div class="flex flex-col items-center py-16 text-center gap-3">
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center" style="background:rgba(255,255,255,0.05);">
+                    <svg class="w-7 h-7 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/></svg>
+                </div>
+                <p class="text-sm text-white/40">سوالی برای نمایش وجود ندارد.</p>
+            </div>
+        @else
+            <div class="rounded-2xl overflow-hidden transition-all duration-250"
+                 style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);"
+                 :style="justPicked ? 'border-color:rgba(59,130,246,0.5);background:rgba(59,130,246,0.06);' : ''"
+                 wire:key="q-{{ $question->id }}">
+
+                <div class="px-5 py-4" style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                    <div class="flex items-start gap-3">
+                        <span class="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black mt-0.5"
+                              style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.35);color:#60a5fa;">{{ $currentIndex }}</span>
+                        <p class="text-sm leading-7 text-white/85 font-medium flex-1">{{ $question->question_text_fa }}</p>
+                    </div>
+                </div>
+
+                <div class="p-4 space-y-2">
+                    @error('answer')
+                    <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl mb-3" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);">
+                        <svg class="w-4 h-4 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <span class="text-xs text-red-300">{{ $message }}</span>
+                    </div>
+                    @enderror
+
+                    @if($question->type === \App\Models\AssessmentQuestion::TYPE_LIKERT5)
+                        @foreach($question->options as $opt)
+                            <button type="button"
+                                    wire:click="$set('likertValue', '{{ $opt->value }}')"
+                                    @click="selectOption('{{ $opt->value }}')"
+                                    class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 hover:scale-[1.005] active:scale-[0.98]"
+                                    style="{{ $likertValue === (string)$opt->value ? 'background:rgba(59,130,246,0.18);border:1.5px solid rgba(59,130,246,0.5);' : 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);' }}">
+                                <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center" style="{{ $likertValue === (string)$opt->value ? 'background:#3b82f6;' : 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);' }}">
+                                    @if($likertValue === (string)$opt->value)
+                                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                </div>
+                                <span class="text-sm font-medium text-right flex-1 {{ $likertValue === (string)$opt->value ? 'text-white' : 'text-white/60' }}">{{ $opt->label_fa }}</span>
+                            </button>
+                        @endforeach
+
+                    @elseif($question->type === \App\Models\AssessmentQuestion::TYPE_VARK_MULTI)
+                        <p class="text-[11px] text-white/30 mb-2 px-1">می‌توانید چند گزینه انتخاب کنید</p>
+                        @foreach($question->options as $opt)
+                            <label class="flex items-center gap-3 px-4 py-3.5 rounded-xl cursor-pointer transition-all duration-200 hover:scale-[1.005]"
+                                   style="{{ in_array($opt->id, $selectedOptionIds) ? 'background:rgba(59,130,246,0.18);border:1.5px solid rgba(59,130,246,0.5);' : 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);' }}">
+                                <input type="checkbox" wire:model.live="selectedOptionIds" value="{{ $opt->id }}" class="sr-only">
+                                <div class="w-5 h-5 rounded-md flex-shrink-0 flex items-center justify-center" style="{{ in_array($opt->id, $selectedOptionIds) ? 'background:#3b82f6;' : 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);' }}">
+                                    @if(in_array($opt->id, $selectedOptionIds))
+                                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                    @endif
+                                </div>
+                                <span class="text-sm font-medium text-right flex-1 {{ in_array($opt->id, $selectedOptionIds) ? 'text-white' : 'text-white/60' }}">{{ $opt->label_fa }}</span>
+                            </label>
+                        @endforeach
+
+                    @else
+                        @foreach($question->options as $opt)
+                            <button type="button"
+                                    wire:click="$set('selectedOptionId', {{ $opt->id }})"
+                                    @click="selectOption({{ $opt->id }})"
+                                    class="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 hover:scale-[1.005] active:scale-[0.98]"
+                                    style="{{ (int)$selectedOptionId === $opt->id ? 'background:rgba(59,130,246,0.18);border:1.5px solid rgba(59,130,246,0.5);' : 'background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);' }}">
+                                <div class="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center" style="{{ (int)$selectedOptionId === $opt->id ? 'background:#3b82f6;' : 'background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.18);' }}">
+                                    @if((int)$selectedOptionId === $opt->id)
+                                        <div class="w-2 h-2 rounded-full bg-white"></div>
+                                    @endif
+                                </div>
+                                <span class="text-sm font-medium text-right flex-1 {{ (int)$selectedOptionId === $opt->id ? 'text-white' : 'text-white/60' }}">{{ $opt->label_fa }}</span>
+                            </button>
+                        @endforeach
+                    @endif
+                </div>
+            </div>
+        @endif
     </div>
 
-    <div class="bg-base-200 rounded-xl p-3 mb-6">
-        <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-medium">سوال {{ $currentIndex }} از {{ $totalActive }}</span>
-            <span class="text-xs text-primary font-bold">{{ $totalActive > 0 ? round(($attempt->answered_count / $totalActive) * 100) : 0 }}%</span>
-        </div>
-        <div class="w-full bg-base-300 rounded-full h-2 overflow-hidden">
-            <div class="bg-primary h-2 transition-all"
-                 style="width: {{ $totalActive > 0 ? round(($attempt->answered_count / $totalActive) * 100) : 0 }}%"></div>
-        </div>
-    </div>
-
-    @if (! $question)
-        <div class="bg-base-200 rounded-2xl p-8 text-center">
-            <p class="text-base-content/70">سوالی برای نمایش وجود ندارد.</p>
-        </div>
-    @else
-        <div class="bg-base-100 border border-base-300 rounded-2xl p-5 sm:p-7" wire:key="q-{{ $question->id }}">
-            <p class="text-base sm:text-lg leading-8 mb-6 font-medium">{{ $question->question_text_fa }}</p>
-
-            @error('answer')
-                <div class="alert alert-error mb-4 text-sm">{{ $message }}</div>
-            @enderror
-
-            @if ($question->type === \App\Models\AssessmentQuestion::TYPE_LIKERT5)
-                <div class="space-y-2">
-                    @foreach ($question->options as $opt)
-                        <label class="flex items-center gap-3 p-3 rounded-xl border border-base-300 cursor-pointer hover:bg-base-200 transition
-                                      {{ $likertValue === (string)$opt->value ? 'border-primary bg-primary/5' : '' }}">
-                            <input type="radio"
-                                   wire:model.live="likertValue"
-                                   value="{{ $opt->value }}"
-                                   class="radio radio-primary" />
-                            <span class="text-sm sm:text-base">{{ $opt->label_fa }}</span>
-                        </label>
-                    @endforeach
-                </div>
-
-            @elseif ($question->type === \App\Models\AssessmentQuestion::TYPE_VARK_MULTI)
-                <p class="text-xs text-base-content/60 mb-3">می‌توانید چند گزینه را انتخاب کنید.</p>
-                <div class="space-y-2">
-                    @foreach ($question->options as $opt)
-                        <label class="flex items-center gap-3 p-3 rounded-xl border border-base-300 cursor-pointer hover:bg-base-200 transition
-                                      {{ in_array($opt->id, $selectedOptionIds) ? 'border-primary bg-primary/5' : '' }}">
-                            <input type="checkbox"
-                                   wire:model.live="selectedOptionIds"
-                                   value="{{ $opt->id }}"
-                                   class="checkbox checkbox-primary" />
-                            <span class="text-sm sm:text-base">{{ $opt->label_fa }}</span>
-                        </label>
-                    @endforeach
-                </div>
-
-            @else
-                {{-- mbti_binary, yes_no, و سایر تک‌گزینه‌ای‌ها --}}
-                <div class="space-y-2">
-                    @foreach ($question->options as $opt)
-                        <label class="flex items-center gap-3 p-3 rounded-xl border border-base-300 cursor-pointer hover:bg-base-200 transition
-                                      {{ (int)$selectedOptionId === $opt->id ? 'border-primary bg-primary/5' : '' }}">
-                            <input type="radio"
-                                   wire:model.live="selectedOptionId"
-                                   value="{{ $opt->id }}"
-                                   class="radio radio-primary" />
-                            <span class="text-sm sm:text-base">{{ $opt->label_fa }}</span>
-                        </label>
-                    @endforeach
-                </div>
-            @endif
-
-            <div class="mt-7 flex flex-col-reverse sm:flex-row sm:justify-between gap-3">
+    {{-- نوار پایین --}}
+    @if($question)
+        <div class="fixed bottom-0 inset-x-0 z-50" style="background:rgba(10,10,15,0.95);backdrop-filter:blur(24px);border-top:1px solid rgba(255,255,255,0.07);">
+            <div class="max-w-2xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
                 <a href="{{ route('client.profile.assessment.list') }}" wire:navigate
-                   class="btn btn-ghost btn-sm">بازگشت به لیست</a>
-                <button type="button"
-                        wire:click="submitAnswer"
-                        wire:loading.attr="disabled"
-                        class="btn btn-primary">
-                    <span wire:loading.remove wire:target="submitAnswer">
-                        @if ($attempt->answered_count + 1 >= $totalActive)
-                            ثبت پاسخ و تکمیل آزمون
-                        @else
-                            ثبت و سوال بعدی
-                        @endif
-                    </span>
-                    <span wire:loading wire:target="submitAnswer">در حال ذخیره...</span>
+                   class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-white/40 hover:text-white/70 transition-colors"
+                   style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/></svg>
+                    بازگشت
+                </a>
+                <button type="button" wire:click="submitAnswer" wire:loading.attr="disabled" wire:target="submitAnswer"
+                        class="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.97]"
+                        style="background:linear-gradient(135deg,#3b82f6,#8b5cf6);box-shadow:0 4px 20px rgba(59,130,246,0.3);">
+                <span wire:loading.remove wire:target="submitAnswer" class="flex items-center gap-2">
+                    @if($attempt->answered_count + 1 >= $totalActive)
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        ثبت و تکمیل
+                    @else
+                        ثبت و بعدی
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/></svg>
+                    @endif
+                </span>
+                    <span wire:loading wire:target="submitAnswer" class="inline-flex items-center gap-2">
+                    <span class="inline-block w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
+                    ذخیره...
+                </span>
                 </button>
             </div>
         </div>

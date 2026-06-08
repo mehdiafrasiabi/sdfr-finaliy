@@ -86,8 +86,8 @@
 
                     @if($student && !$isTrialStudent && $unreadNotificationsCount > 0)
                         <a wire:navigate href="{{ route('client.profile.notification') }}"
-                           class="flex items-center justify-between p-4 rounded-2xl bg-green-950/40 border border-green-900/50">
-                            <span class="font-bold text-sm text-green-400">{{ $unreadNotificationsCount }} پیام خوانده نشده</span>
+                           class="flex items-center justify-between p-4 rounded-2xl bg-yellow-950/40 border border-yellow-900/50">
+                            <span class="font-bold text-sm text-yellow-400">{{ $unreadNotificationsCount }} پیام خوانده نشده</span>
                             <span class="text-sm text-white">مشاهده پیام‌ها ←</span>
                         </a>
                     @endif
