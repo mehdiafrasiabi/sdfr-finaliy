@@ -8,6 +8,7 @@ use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use App\Models\SchoolCooperationRequest;
+
 class Index extends Component
 {
     use SEOTools;
@@ -20,6 +21,9 @@ class Index extends Component
     public $student_count = '';
     public $states = [];
     public $cities = [];
+
+    // نمایش پیام موفقیت بدون redirect
+    public bool $submitted = false;
 
     public function mount()
     {
@@ -47,10 +51,10 @@ class Index extends Component
     {
         return preg_replace_callback('/[۰-۹٠-٩]/u', function ($match) {
             $map = [
-                '۰' => '0', '۱' => '1', '۲' => '2', '۳' => '3', '۴' => '4',
-                '۵' => '5', '۶' => '6', '۷' => '7', '۸' => '8', '۹' => '9',
-                '٠' => '0', '١' => '1', '٢' => '2', '٣' => '3', '٤' => '4',
-                '٥' => '5', '٦' => '6', '٧' => '7', '٨' => '8', '٩' => '9',
+                '۰' => '0','۱' => '1','۲' => '2','۳' => '3','۴' => '4',
+                '۵' => '5','۶' => '6','۷' => '7','۸' => '8','۹' => '9',
+                '٠' => '0','١' => '1','٢' => '2','٣' => '3','٤' => '4',
+                '٥' => '5','٦' => '6','٧' => '7','٨' => '8','٩' => '9',
             ];
             return $map[$match[0]] ?? $match[0];
         }, $value);
@@ -60,6 +64,7 @@ class Index extends Component
     {
         $this->mobile = $this->convertToEnglishDigits($value);
     }
+
     public function updatedStudentCount($value)
     {
         $this->student_count = $this->convertToEnglishDigits((string) $value);
@@ -74,7 +79,7 @@ class Index extends Component
             'student_count' => $this->convertToEnglishDigits((string) $this->student_count),
             'state_id'      => $this->state_id,
             'city_id'       => $this->city_id,
-            ];
+        ];
 
         $validated = Validator::make(
             $data,
@@ -88,18 +93,18 @@ class Index extends Component
             ],
             [
                 'full_name.required'     => 'وارد کردن نام و نام خانوادگی الزامی است.',
-                'full_name.min'          => 'نام و نام خانوادگی باید حداقل ۳ کاراکتر باشد.',
+                'full_name.min'          => 'نام باید حداقل ۳ کاراکتر باشد.',
                 'school_name.required'   => 'وارد کردن نام مدرسه الزامی است.',
-                'mobile.required'        => 'وارد کردن شماره تلفن همراه الزامی است.',
+                'mobile.required'        => 'وارد کردن شماره تلفن الزامی است.',
                 'mobile.regex'           => 'شماره تلفن همراه را به‌درستی وارد کنید.',
                 'student_count.required' => 'وارد کردن تعداد دانش‌آموز الزامی است.',
-                'student_count.integer'  => 'تعداد دانش‌آموز باید یک عدد صحیح باشد.',
+                'student_count.integer'  => 'تعداد دانش‌آموز باید عدد باشد.',
                 'student_count.min'      => 'تعداد دانش‌آموز باید حداقل ۱ نفر باشد.',
                 'state_id.required'      => 'انتخاب استان الزامی است.',
                 'state_id.exists'        => 'استان انتخاب‌شده معتبر نیست.',
                 'city_id.required'       => 'انتخاب شهر الزامی است.',
                 'city_id.exists'         => 'شهر انتخاب‌شده معتبر نیست.',
-                ]
+            ]
         )->validate();
 
         $pricing = SchoolCooperationRequest::calculate((int) $validated['student_count']);
@@ -118,10 +123,8 @@ class Index extends Component
 
         $this->reset(['full_name', 'school_name', 'mobile', 'student_count', 'state_id', 'city_id', 'cities']);
 
-        $this->dispatch(
-            'success',
-            'درخواست همکاری شما با موفقیت ثبت شد. کارشناسان ما در اولین فرصت با شما تماس خواهند گرفت.'
-        );
+        // فقط submitted رو true میکنیم — بدون redirect، بدون scroll jump
+        $this->submitted = true;
     }
 
     public function render()

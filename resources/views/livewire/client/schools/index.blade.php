@@ -938,8 +938,8 @@
                             {{-- ورودی تعداد دانش‌آموز --}}
                             <div class="md:col-span-5">
                                 <div class="glass-strong rounded-2xl p-6 h-full flex flex-col justify-center space-y-5">
-                                    <label for="calc_count"
-                                           class="font-semibold text-sm text-foreground flex items-center gap-2">
+
+                                    <label class="font-semibold text-sm text-foreground flex items-center gap-2">
                                         <svg class="w-4 h-4 text-primary" xmlns="http://www.w3.org/2000/svg"
                                              viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                              stroke-linecap="round" stroke-linejoin="round">
@@ -950,13 +950,54 @@
                                         </svg>
                                         تعداد دانش‌آموزان
                                     </label>
-                                    <input type="number" min="1" id="calc_count" x-model="count" inputmode="numeric"
-                                           placeholder="مثلاً ۵۰"
-                                           class="form-input w-full h-14 !ring-0 !ring-offset-0 bg-secondary/60 backdrop-blur border-border focus:border-primary focus:bg-secondary transition-all rounded-xl text-lg font-bold text-foreground px-5 text-center">
+
+                                    {{-- input با دکمه‌های +/- --}}
+                                    <div class="flex items-center gap-2"
+                                         x-data="{
+                 inc() {
+                     let v = parseInt($refs.calcInput.value) || 0;
+                     count = String(v + 1);
+                 },
+                 dec() {
+                     let v = parseInt($refs.calcInput.value) || 0;
+                     if (v > 1) count = String(v - 1);
+                 }
+             }">
+                                        {{-- کم --}}
+                                        <button type="button"
+                                                @click="dec()"
+                                                class="flex-shrink-0 w-12 h-14 rounded-xl flex items-center justify-center font-bold text-xl transition-all duration-150 hover:scale-105 active:scale-95 select-none"
+                                                style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.5);"
+                                                onmouseenter="this.style.borderColor='rgba(255,255,255,0.2)';this.style.color='rgba(255,255,255,0.8)'"
+                                                onmouseleave="this.style.borderColor='rgba(255,255,255,0.1)';this.style.color='rgba(255,255,255,0.5)'">
+                                            −
+                                        </button>
+
+                                        {{-- input --}}
+                                        <input type="number" min="1" id="calc_count"
+                                               x-ref="calcInput"
+                                               x-model="count"
+                                               inputmode="numeric"
+                                               placeholder="مثلاً ۵۰"
+                                               class="flex-1 h-14 rounded-xl text-lg font-bold text-center transition-all focus:outline-none"
+                                               style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.9);caret-color:white;"
+                                               onfocus="this.style.borderColor='rgba(59,130,246,0.6)';this.style.background='rgba(59,130,246,0.07)'"
+                                               onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
+
+                                        {{-- زیاد --}}
+                                        <button type="button"
+                                                @click="inc()"
+                                                class="flex-shrink-0 w-12 h-14 rounded-xl flex items-center justify-center font-bold text-xl transition-all duration-150 hover:scale-105 active:scale-95 select-none"
+                                                style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.35);color:#60a5fa;"
+                                                onmouseenter="this.style.background='rgba(59,130,246,0.25)'"
+                                                onmouseleave="this.style.background='rgba(59,130,246,0.15)'">
+                                            +
+                                        </button>
+                                    </div>
 
                                     {{-- جدول پک‌ها --}}
-                                    <div class="space-y-2 pt-2">
-                                        <div class="font-semibold text-[11px] text-muted">قیمت هر دانش‌آموز در هر پک:</div>
+                                    <div class="space-y-2 pt-1">
+                                        <div class="text-[11px] font-semibold text-white/30 mb-1">قیمت هر دانش‌آموز در هر پک:</div>
                                         @foreach($pricingTiers as $i => $tier)
                                             @php
                                                 $prevMax = $i === 0 ? 0 : $pricingTiers[$i - 1]['max'];
@@ -964,13 +1005,17 @@
                                                     ? ($prevMax + 1) . '+'
                                                     : ($prevMax + 1) . ' تا ' . $tier['max'];
                                             @endphp
-                                            <div class="flex items-center justify-between glass rounded-lg px-3 py-2 text-xs">
-                                                <span class="font-bold text-foreground">{{ $tier['label'] }}
-                                                    <span class="font-medium text-muted">({{ $range }} نفر)</span>
-                                                </span>
-                                                <span class="font-semibold text-primary">
-                                                    {{ number_format($tier['price']) }} تومان
-                                                </span>
+                                            <div class="flex items-center justify-between rounded-lg px-3 py-2 text-xs transition-all duration-200"
+                                                 style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
+                                                <div class="flex items-center gap-2">
+                                                    <div class="w-1.5 h-1.5 rounded-full flex-shrink-0"
+                                                         style="background:{{ ['#3b82f6','#8b5cf6','#ec4899','#f59e0b'][$i % 4] }};"></div>
+                                                    <span class="font-bold text-white/75">{{ $tier['label'] }}</span>
+                                                    <span class="text-white/30">({{ $range }} نفر)</span>
+                                                </div>
+                                                <span class="font-bold tabular-nums" style="color:{{ ['#60a5fa','#a78bfa','#f472b6','#fbbf24'][$i % 4] }};">
+                        {{ number_format($tier['price']) }} تومان
+                    </span>
                                             </div>
                                         @endforeach
                                     </div>
@@ -1091,25 +1136,22 @@
                 </div>
             </div>
         </section>
-
         {{-- ========================== FORM ========================== --}}
         <section id="contract-form" class="scroll-mt-24 reveal">
             <div class="relative rounded-3xl glass orbit-wrap">
                 <div class="overflow-hidden rounded-3xl relative p-6 md:p-10">
                     <div class="absolute inset-0 grid-bg pointer-events-none"></div>
                     <div class="absolute -top-20 right-1/4 w-80 h-80 bg-primary/20 rounded-full blur-3xl blob-1"></div>
-                    <div
-                        class="absolute -bottom-20 left-1/4 w-80 h-80 bg-primary/10 rounded-full blur-3xl blob-2"></div>
+                    <div class="absolute -bottom-20 left-1/4 w-80 h-80 bg-primary/10 rounded-full blur-3xl blob-2"></div>
 
                     <div class="relative grid md:grid-cols-12 gap-6 md:gap-10 items-stretch">
 
                         <div class="md:col-span-5 space-y-6 reveal-right">
                             <div class="inline-flex items-center gap-2 glass rounded-full px-3 py-1.5">
-                            <span class="relative flex w-1.5 h-1.5">
-                                <span
-                                    class="absolute inline-flex w-full h-full bg-primary rounded-full opacity-75 animate-ping"></span>
-                                <span class="relative inline-flex w-1.5 h-1.5 bg-primary rounded-full"></span>
-                            </span>
+                        <span class="relative flex w-1.5 h-1.5">
+                            <span class="absolute inline-flex w-full h-full bg-primary rounded-full opacity-75 animate-ping"></span>
+                            <span class="relative inline-flex w-1.5 h-1.5 bg-primary rounded-full"></span>
+                        </span>
                                 <span class="font-semibold text-xs text-foreground">فرم درخواست همکاری</span>
                             </div>
                             <h2 class="font-black text-2xl md:text-3xl text-foreground leading-tight">
@@ -1120,7 +1162,6 @@
                                 کارشناسان ما در اسرع وقت با شما تماس گرفته و جزئیات قرارداد را
                                 در یک جلسه‌ی تخصصی رایگان بررسی خواهند کرد.
                             </p>
-
                             <ul class="space-y-3 pt-2">
                                 @foreach([
                                     ['t' => 'بدون پیش‌پرداخت',                'svg' => '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>'],
@@ -1128,14 +1169,9 @@
                                     ['t' => 'پشتیبانی اختصاصی در طول قرارداد', 'svg' => '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>'],
                                 ] as $item)
                                     <li class="flex items-center gap-3 glass rounded-xl p-3">
-                                    <span
-                                        class="flex items-center justify-center w-9 h-9 bg-primary/15 text-primary border border-primary/20 rounded-lg shrink-0">
-                                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                             stroke-linejoin="round">
-                                            {!! $item['svg'] !!}
-                                        </svg>
-                                    </span>
+                                <span class="flex items-center justify-center w-9 h-9 bg-primary/15 text-primary border border-primary/20 rounded-lg shrink-0">
+                                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $item['svg'] !!}</svg>
+                                </span>
                                         <span class="font-semibold text-sm text-foreground">{{ $item['t'] }}</span>
                                     </li>
                                 @endforeach
@@ -1144,196 +1180,205 @@
 
                         <div class="md:col-span-7 reveal-left">
                             <div class="glass-strong rounded-2xl p-6 shadow-xl shadow-primary/5">
-                                <div class="flex items-center gap-3 pb-5 mb-5 border-b border-border">
-                                <span
-                                    class="flex items-center justify-center w-10 h-10 bg-primary/10 text-primary border border-primary/20 rounded-xl">
-                                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round">
-                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline
-                                            points="14 2 14 8 20 8"/>
-                                    </svg>
-                                </span>
-                                    <div>
-                                        <div class="font-black text-foreground">اطلاعات قرارداد مدرسه</div>
-                                        <p class="font-medium text-[11px] text-muted leading-5 mt-0.5">
-                                            تمامی فیلدها الزامی است. اطلاعات شما کاملاً محرمانه خواهد بود.
-                                        </p>
-                                    </div>
-                                </div>
 
-                                <form wire:submit.prevent="submit" class="space-y-5">
-                                    <div class="space-y-1.5">
-                                        <label for="full_name"
-                                               class="font-semibold text-xs text-muted flex items-center gap-1.5">
-                                            <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg"
-                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                 stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                                                <circle cx="12" cy="7" r="4"/>
-                                            </svg>
-                                            نام و نام خانوادگی
-                                        </label>
-                                        <input type="text" id="full_name" wire:model="full_name"
-                                               placeholder="نام کامل مدیر یا نماینده مدرسه"
-                                               class="form-input w-full h-12 !ring-0 !ring-offset-0 bg-secondary/60 backdrop-blur border-border focus:border-primary focus:bg-secondary transition-all rounded-xl text-sm text-foreground px-5">
-                                        @error('full_name')
-                                        <div class="font-medium text-xs text-red-500 mr-2 mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <label for="school_name"
-                                               class="font-semibold text-xs text-muted flex items-center gap-1.5">
-                                            <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg"
-                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                 stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M3 21h18"/>
-                                                <path d="M5 21V7l8-4v18"/>
-                                                <path d="M19 21V11l-6-4"/>
-                                            </svg>
-                                            نام مدرسه
-                                        </label>
-                                        <input type="text" id="school_name" wire:model="school_name"
-                                               placeholder="نام رسمی مدرسه"
-                                               class="form-input w-full h-12 !ring-0 !ring-offset-0 bg-secondary/60 backdrop-blur border-border focus:border-primary focus:bg-secondary transition-all rounded-xl text-sm text-foreground px-5">
-                                        @error('school_name')
-                                        <div class="font-medium text-xs text-red-500 mr-2 mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="space-y-1.5">
-                                        <label for="mobile"
-                                               class="font-semibold text-xs text-muted flex items-center gap-1.5">
-                                            <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg"
-                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                 stroke-linecap="round" stroke-linejoin="round">
-                                                <path
-                                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-                                            </svg>
-                                            شماره تلفن همراه
-                                        </label>
-                                        <input type="tel" dir="ltr" id="mobile" wire:model="mobile"
-                                               placeholder="09xxxxxxxxx"
-                                               class="form-input w-full h-12 !ring-0 !ring-offset-0 bg-secondary/60 backdrop-blur border-border focus:border-primary focus:bg-secondary transition-all rounded-xl text-sm text-foreground px-5 text-left">
-                                        @error('mobile')
-                                        <div class="font-medium text-xs text-red-500 mr-2 mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="space-y-1.5">
-                                        <label for="student_count"
-                                               class="font-semibold text-xs text-muted flex items-center gap-1.5">
-                                            <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg"
-                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                 stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                                <circle cx="9" cy="7" r="4"/>
-                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                                            </svg>
-                                            تعداد دانش‌آموز
-                                        </label>
-                                        <input type="number" min="1" id="student_count" wire:model="student_count"
-                                               placeholder="تعداد دانش‌آموزان مدرسه"
-                                               class="form-input w-full h-12 !ring-0 !ring-offset-0 bg-secondary/60 backdrop-blur border-border focus:border-primary focus:bg-secondary transition-all rounded-xl text-sm text-foreground px-5">
-                                        @error('student_count')
-                                        <div class="font-medium text-xs text-red-500 mr-2 mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="grid sm:grid-cols-2 gap-4">
-                                        <div class="space-y-1.5">
-                                            <label for="state_id"
-                                                   class="font-semibold text-xs text-muted flex items-center gap-1.5">
-                                                <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg"
-                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                                    <circle cx="12" cy="10" r="3"/>
+                                {{-- ✅ پیام موفقیت --}}
+                                @if($submitted)
+                                    <div class="flex flex-col items-center text-center py-8 space-y-4">
+                                        <div class="relative w-16 h-16 mx-auto">
+                                            <div class="absolute inset-0 rounded-full animate-ping" style="background:rgba(34,197,94,0.15);"></div>
+                                            <div class="relative w-16 h-16 rounded-full flex items-center justify-center" style="background:rgba(34,197,94,0.15);border:1px solid rgba(34,197,94,0.3);">
+                                                <svg class="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                                                 </svg>
-                                                استان
-                                            </label>
-                                            <select id="state_id" wire:model.live="state_id"
-                                                    class="form-select w-full h-12 !ring-0 !ring-offset-0 bg-secondary/60 backdrop-blur border-border focus:border-primary focus:bg-secondary transition-all rounded-xl text-sm text-foreground px-5">
-                                                <option value="">انتخاب استان</option>
-                                                @foreach($states as $state)
-                                                    <option value="{{ $state->id }}">{{ $state->name }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('state_id')
-                                            <div class="font-medium text-xs text-red-500 mr-2 mt-1">{{ $message }}</div>
-                                            @enderror
+                                            </div>
                                         </div>
-
-                                        <div class="space-y-1.5">
-                                            <label for="city_id"
-                                                   class="font-semibold text-xs text-muted flex items-center gap-1.5">
-                                                <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg"
-                                                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
-                                                    <line x1="9" y1="9" x2="9.01" y2="9"/>
-                                                    <line x1="15" y1="9" x2="15.01" y2="9"/>
-                                                </svg>
-                                                شهر
-                                            </label>
-                                            <select id="city_id" wire:model="city_id" @disabled(empty($state_id))
-                                            class="form-select w-full h-12 !ring-0 !ring-offset-0 bg-secondary/60 backdrop-blur border-border focus:border-primary focus:bg-secondary transition-all rounded-xl text-sm text-foreground px-5 disabled:opacity-50">
-                                                <option
-                                                    value="">{{ empty($state_id) ? 'ابتدا استان را انتخاب کنید' : 'انتخاب شهر' }}</option>
-                                                @foreach($cities as $city)
-                                                    <option value="{{ $city->id }}">{{ $city->name }}</option>
-                                                @endforeach
-                                            </select>
-                                            @error('city_id')
-                                            <div class="font-medium text-xs text-red-500 mr-2 mt-1">{{ $message }}</div>
-                                            @enderror
+                                        <div>
+                                            <h3 class="text-lg font-black text-foreground mb-2">درخواست شما ثبت شد! 🎉</h3>
+                                            <p class="text-sm text-muted leading-7">کارشناسان ما در اولین فرصت با شما تماس خواهند گرفت.</p>
                                         </div>
-                                    </div>
-
-                                    <div class="flex items-center justify-between gap-3 pt-3 border-t border-border">
-                                        <p class="font-medium text-[11px] text-muted leading-5 max-w-[60%]">
-                                            با ارسال این فرم، با
-                                            <a href="{{ route('client.terms') }}"
-                                               class="text-primary hover:underline font-bold">قوانین و مقررات</a>
-                                            موافقت می‌نمایید.
-                                        </p>
-                                        <button type="submit"
-                                                class="group h-12 inline-flex items-center justify-center bg-primary hover:bg-primary/90 transition-all rounded-full text-white px-8 shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
-                                                wire:loading.attr="disabled" wire:target="submit">
-                                        <span class="font-semibold text-sm flex items-center" wire:loading.remove
-                                              wire:target="submit">
-                                            ثبت درخواست
-                                            <svg class="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1"
-                                                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                                 stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                                                 stroke-linejoin="round">
-                                                <path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>
-                                            </svg>
-                                        </span>
-                                            <span wire:loading wire:target="submit">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"
-                                                 preserveAspectRatio="xMidYMid" width="28px" height="28px"
-                                                 style="shape-rendering: auto; display: block; background: transparent;">
-                                                <g>
-                                                    <path stroke="none" fill="#ffffff"
-                                                          d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50">
-                                                        <animateTransform values="0 50 51.5;360 50 51.5" keyTimes="0;1"
-                                                                          repeatCount="indefinite" dur="0.81s"
-                                                                          type="rotate" attributeName="transform"/>
-                                                    </path>
-                                                </g>
-                                            </svg>
-                                        </span>
+                                        <button type="button"
+                                                wire:click="$set('submitted', false)"
+                                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-foreground transition-all hover:scale-[1.02]"
+                                                style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);">
+                                            ثبت درخواست جدید
                                         </button>
                                     </div>
-                                </form>
+
+                                @else
+                                    {{-- هدر فرم --}}
+                                    <div class="flex items-center gap-3 pb-5 mb-5 border-b border-border">
+                                <span class="flex items-center justify-center w-10 h-10 bg-primary/10 text-primary border border-primary/20 rounded-xl">
+                                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                                    </svg>
+                                </span>
+                                        <div>
+                                            <div class="font-black text-foreground">اطلاعات قرارداد مدرسه</div>
+                                            <p class="font-medium text-[11px] text-muted leading-5 mt-0.5">تمامی فیلدها الزامی است. اطلاعات شما کاملاً محرمانه خواهد بود.</p>
+                                        </div>
+                                    </div>
+
+                                    {{-- فرم --}}
+                                    <form wire:submit.prevent="submit" class="space-y-4">
+
+                                        {{-- نام --}}
+                                        <div class="space-y-1.5">
+                                            <label for="full_name" class="font-semibold text-xs text-muted flex items-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                                نام و نام خانوادگی
+                                            </label>
+                                            <input type="text" id="full_name" wire:model="full_name"
+                                                   placeholder="مهدی آبان"
+                                                   class="w-full h-12 rounded-xl text-sm px-4 transition-all focus:outline-none"
+                                                   style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);caret-color:white;"
+                                                   onfocus="this.style.borderColor='rgba(59,130,246,0.6)';this.style.background='rgba(59,130,246,0.06)'"
+                                                   onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
+                                            @error('full_name') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                                        </div>
+
+                                        {{-- نام مدرسه --}}
+                                        <div class="space-y-1.5">
+                                            <label for="school_name" class="font-semibold text-xs text-muted flex items-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
+                                                نام مدرسه
+                                            </label>
+                                            <input type="text" id="school_name" wire:model="school_name"
+                                                   placeholder="نام رسمی مدرسه"
+                                                   class="w-full h-12 rounded-xl text-sm px-4 transition-all focus:outline-none"
+                                                   style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);caret-color:white;"
+                                                   onfocus="this.style.borderColor='rgba(59,130,246,0.6)';this.style.background='rgba(59,130,246,0.06)'"
+                                                   onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
+                                            @error('school_name') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                                        </div>
+
+                                        {{-- موبایل --}}
+                                        <div class="space-y-1.5">
+                                            <label for="mobile" class="font-semibold text-xs text-muted flex items-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                                                شماره تلفن همراه
+                                            </label>
+                                            <input type="tel" dir="ltr" id="mobile" wire:model="mobile"
+                                                   placeholder="09xxxxxxxxx"
+                                                   class="w-full h-12 rounded-xl text-sm px-4 transition-all focus:outline-none text-left"
+                                                   style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);caret-color:white;"
+                                                   onfocus="this.style.borderColor='rgba(59,130,246,0.6)';this.style.background='rgba(59,130,246,0.06)'"
+                                                   onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
+                                            @error('mobile') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                                        </div>
+
+                                        {{-- تعداد دانش‌آموز با +/- --}}
+                                        <div class="space-y-1.5"
+                                             x-data="{
+                                        inc() {
+                                            let v = parseInt($refs.countInput.value) || 0;
+                                            $refs.countInput.value = v + 1;
+                                            $refs.countInput.dispatchEvent(new Event('input'));
+                                        },
+                                        dec() {
+                                            let v = parseInt($refs.countInput.value) || 0;
+                                            if (v > 1) {
+                                                $refs.countInput.value = v - 1;
+                                                $refs.countInput.dispatchEvent(new Event('input'));
+                                            }
+                                        }
+                                     }">
+                                            <label class="font-semibold text-xs text-muted flex items-center gap-1.5">
+                                                <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                                تعداد دانش‌آموز
+                                            </label>
+                                            <div class="flex items-center gap-2">
+                                                {{-- دکمه کم --}}
+                                                <button type="button" @click="dec()"
+                                                        class="flex-shrink-0 w-11 h-12 rounded-xl flex items-center justify-center font-bold text-lg transition-all hover:scale-105 active:scale-95 select-none"
+                                                        style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);">
+                                                    −
+                                                </button>
+                                                {{-- input --}}
+                                                <input type="number" min="1" x-ref="countInput"
+                                                       id="student_count" wire:model="student_count"
+                                                       placeholder="تعداد دانش‌آموزان"
+                                                       class="flex-1 h-12 rounded-xl text-sm text-center transition-all focus:outline-none font-bold"
+                                                       style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);caret-color:white;"
+                                                       onfocus="this.style.borderColor='rgba(59,130,246,0.6)';this.style.background='rgba(59,130,246,0.06)'"
+                                                       onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
+                                                {{-- دکمه زیاد --}}
+                                                <button type="button" @click="inc()"
+                                                        class="flex-shrink-0 w-11 h-12 rounded-xl flex items-center justify-center font-bold text-lg transition-all hover:scale-105 active:scale-95 select-none"
+                                                        style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;">
+                                                    +
+                                                </button>
+                                            </div>
+                                            @error('student_count') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                                        </div>
+
+                                        {{-- استان + شهر --}}
+                                        <div class="grid sm:grid-cols-2 gap-3">
+                                            <div class="space-y-1.5">
+                                                <label for="state_id" class="font-semibold text-xs text-muted flex items-center gap-1.5">
+                                                    <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                                    استان
+                                                </label>
+                                                <select id="state_id" wire:model.live="state_id"
+                                                        class="w-full h-12 rounded-xl text-sm px-3 transition-all focus:outline-none appearance-none"
+                                                        style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.75);"
+                                                        onfocus="this.style.borderColor='rgba(59,130,246,0.6)'"
+                                                        onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                                                    <option value="" style="background:#1a1a2e;color:rgba(255,255,255,0.6);">انتخاب استان</option>
+                                                    @foreach($states as $state)
+                                                        <option value="{{ $state->id }}" style="background:#1a1a2e;color:white;">{{ $state->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('state_id') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                                            </div>
+                                            <div class="space-y-1.5">
+                                                <label for="city_id" class="font-semibold text-xs text-muted flex items-center gap-1.5">
+                                                    <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                                                    شهر
+                                                </label>
+                                                <select id="city_id" wire:model="city_id" @disabled(empty($state_id))
+                                                class="w-full h-12 rounded-xl text-sm px-3 transition-all focus:outline-none appearance-none disabled:opacity-40"
+                                                        style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.75);"
+                                                        onfocus="this.style.borderColor='rgba(59,130,246,0.6)'"
+                                                        onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                                                    <option value="" style="background:#1a1a2e;color:rgba(255,255,255,0.6);">{{ empty($state_id) ? 'ابتدا استان را انتخاب کنید' : 'انتخاب شهر' }}</option>
+                                                    @foreach($cities as $city)
+                                                        <option value="{{ $city->id }}" style="background:#1a1a2e;color:white;">{{ $city->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                                @error('city_id') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
+                                            </div>
+                                        </div>
+
+                                        {{-- ارسال --}}
+                                        <div class="flex items-center justify-between gap-3 pt-3 border-t border-border">
+                                            <p class="font-medium text-[11px] text-muted leading-5 max-w-[55%]">
+                                                با ارسال، با
+                                                <a href="{{ route('client.terms') }}" class="text-primary hover:underline font-bold">قوانین و مقررات</a>
+                                                موافقت می‌نمایید.
+                                            </p>
+                                            <button type="submit"
+                                                    class="group h-12 inline-flex items-center justify-center bg-primary hover:bg-primary/90 transition-all rounded-full text-white px-8 shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
+                                                    wire:loading.attr="disabled" wire:target="submit">
+                                        <span class="font-semibold text-sm flex items-center" wire:loading.remove wire:target="submit">
+                                            ثبت درخواست
+                                            <svg class="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                                        </span>
+                                                <span wire:loading wire:target="submit">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid" width="28px" height="28px" style="shape-rendering:auto;display:block;background:transparent;">
+                                                <g><path stroke="none" fill="#ffffff" d="M19 50A31 31 0 0 0 81 50A31 34 0 0 1 19 50"><animateTransform values="0 50 51.5;360 50 51.5" keyTimes="0;1" repeatCount="indefinite" dur="0.81s" type="rotate" attributeName="transform"/></path></g>
+                                            </svg>
+                                        </span>
+                                            </button>
+                                        </div>
+                                    </form>
+                                @endif
+
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {{-- ★ گوی چرخان --}}
+                {{-- گوی چرخان --}}
                 <div class="orb-track">
                     <span class="orb"></span>
                     <span class="orb-trail"></span>
