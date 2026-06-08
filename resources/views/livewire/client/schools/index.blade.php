@@ -864,6 +864,233 @@
             </div>
         </section>
 
+        {{-- ======================= CALCULATOR ======================= --}}
+        @php
+            $tiersJs = collect($pricingTiers)->map(fn($t) => [
+                'max'   => $t['max'] > 1000000 ? null : $t['max'],
+                'price' => $t['price'],
+                'label' => $t['label'],
+            ])->values();
+        @endphp
+        <section id="calculator" class="scroll-mt-24 reveal">
+            <div class="relative rounded-3xl glass orbit-wrap">
+                <div class="overflow-hidden rounded-3xl relative p-6 md:p-10"
+                     x-data="{
+                        count: '',
+                        tiers: @js($tiersJs),
+                        fee: @js($managerFee),
+                        threshold: @js($discountAfter),
+                        get n() {
+                            let v = parseInt(String(this.count).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[^0-9]/g, ''));
+                            return isNaN(v) || v < 0 ? 0 : v;
+                        },
+                        get payable() {
+                            let n = this.n, total = 0, remaining = n, prev = 0;
+                            for (const t of this.tiers) {
+                                const max = t.max === null ? Infinity : t.max;
+                                const take = Math.min(remaining, max - prev);
+                                total += take * t.price;
+                                remaining -= take;
+                                prev = max;
+                                if (remaining <= 0) break;
+                            }
+                            return total;
+                        },
+                        get discount() { return this.n > this.threshold ? this.n * this.fee : 0; },
+                        get pkg() {
+                            for (const t of this.tiers) { if (t.max === null || this.n <= t.max) return t.label; }
+                            return this.tiers[this.tiers.length - 1].label;
+                        },
+                        fmt(v) { return new Intl.NumberFormat('fa-IR').format(v); }
+                     }">
+                    <div class="absolute inset-0 grid-bg pointer-events-none"></div>
+                    <div class="absolute -top-20 left-1/4 w-80 h-80 bg-primary/20 rounded-full blur-3xl blob-1"></div>
+                    <div class="absolute -bottom-20 right-1/4 w-80 h-80 bg-primary/10 rounded-full blur-3xl blob-2"></div>
+
+                    <div class="relative space-y-8">
+                        <div class="text-center space-y-3 max-w-2xl mx-auto">
+                            <div class="inline-flex items-center gap-2 glass rounded-full px-3 py-1.5">
+                                <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="4" y="2" width="16" height="20" rx="2"/>
+                                    <line x1="8" y1="6" x2="16" y2="6"/>
+                                    <line x1="8" y1="10" x2="8" y2="10"/>
+                                    <line x1="12" y1="10" x2="12" y2="10"/>
+                                    <line x1="16" y1="10" x2="16" y2="10"/>
+                                    <line x1="8" y1="14" x2="8" y2="14"/>
+                                    <line x1="12" y1="14" x2="12" y2="14"/>
+                                    <line x1="16" y1="14" x2="16" y2="18"/>
+                                    <line x1="8" y1="18" x2="12" y2="18"/>
+                                </svg>
+                                <span class="font-semibold text-xs text-foreground">محاسبه‌گر هزینه</span>
+                            </div>
+                            <h2 class="font-black text-2xl md:text-3xl text-foreground leading-tight">
+                                <span class="shimmer-text">هزینه و سود</span> همکاری را همین حالا برآورد کنید
+                            </h2>
+                            <p class="font-medium text-sm text-muted leading-7">
+                                تعداد دانش‌آموزان مدرسه‌ی خود را وارد کنید تا پک متناسب، هزینه‌ی قابل پرداخت
+                                و میزان سود و تخفیف شما به‌صورت لحظه‌ای محاسبه شود.
+                            </p>
+                        </div>
+
+                        <div class="grid md:grid-cols-12 gap-6 md:gap-8 items-stretch">
+                            {{-- ورودی تعداد دانش‌آموز --}}
+                            <div class="md:col-span-5">
+                                <div class="glass-strong rounded-2xl p-6 h-full flex flex-col justify-center space-y-5">
+                                    <label for="calc_count"
+                                           class="font-semibold text-sm text-foreground flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-primary" xmlns="http://www.w3.org/2000/svg"
+                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                             stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                            <circle cx="9" cy="7" r="4"/>
+                                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                        </svg>
+                                        تعداد دانش‌آموزان
+                                    </label>
+                                    <input type="number" min="1" id="calc_count" x-model="count" inputmode="numeric"
+                                           placeholder="مثلاً ۵۰"
+                                           class="form-input w-full h-14 !ring-0 !ring-offset-0 bg-secondary/60 backdrop-blur border-border focus:border-primary focus:bg-secondary transition-all rounded-xl text-lg font-bold text-foreground px-5 text-center">
+
+                                    {{-- جدول پک‌ها --}}
+                                    <div class="space-y-2 pt-2">
+                                        <div class="font-semibold text-[11px] text-muted">قیمت هر دانش‌آموز در هر پک:</div>
+                                        @foreach($pricingTiers as $i => $tier)
+                                            @php
+                                                $prevMax = $i === 0 ? 0 : $pricingTiers[$i - 1]['max'];
+                                                $range = $tier['max'] > 1000000
+                                                    ? ($prevMax + 1) . '+'
+                                                    : ($prevMax + 1) . ' تا ' . $tier['max'];
+                                            @endphp
+                                            <div class="flex items-center justify-between glass rounded-lg px-3 py-2 text-xs">
+                                                <span class="font-bold text-foreground">{{ $tier['label'] }}
+                                                    <span class="font-medium text-muted">({{ $range }} نفر)</span>
+                                                </span>
+                                                <span class="font-semibold text-primary">
+                                                    {{ number_format($tier['price']) }} تومان
+                                                </span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- نتیجه‌ی محاسبه --}}
+                            <div class="md:col-span-7">
+                                <div class="glass-strong rounded-2xl p-6 h-full shadow-xl shadow-primary/5 space-y-4">
+                                    {{-- حالت خالی --}}
+                                    <template x-if="n === 0">
+                                        <div class="flex flex-col items-center justify-center text-center h-full py-10 space-y-3">
+                                            <svg class="w-12 h-12 text-primary/40" xmlns="http://www.w3.org/2000/svg"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M9 11H3v10h6V11zM21 3h-6v18h6V3zM15 7H9v14h6V7z"/>
+                                            </svg>
+                                            <p class="font-medium text-sm text-muted">
+                                                برای مشاهده‌ی نتیجه، تعداد دانش‌آموزان را وارد کنید.
+                                            </p>
+                                        </div>
+                                    </template>
+
+                                    {{-- نتیجه --}}
+                                    <template x-if="n > 0">
+                                        <div class="space-y-4">
+                                            {{-- پک پیشنهادی --}}
+                                            <div class="flex items-center justify-between glass rounded-xl p-4">
+                                                <div class="flex items-center gap-3">
+                                                    <span class="flex items-center justify-center w-10 h-10 bg-primary/10 text-primary border border-primary/20 rounded-xl">
+                                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg"
+                                                             viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                            <path d="M12 2 2 7l10 5 10-5-10-5z"/>
+                                                            <path d="m2 17 10 5 10-5"/>
+                                                            <path d="m2 12 10 5 10-5"/>
+                                                        </svg>
+                                                    </span>
+                                                    <div>
+                                                        <div class="font-medium text-[11px] text-muted">پک پیشنهادی برای شما</div>
+                                                        <div class="font-black text-foreground text-lg">
+                                                            پک <span class="text-primary" x-text="pkg"></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="text-left">
+                                                    <div class="font-medium text-[11px] text-muted">تعداد دانش‌آموز</div>
+                                                    <div class="font-black text-foreground text-lg" x-text="fmt(n) + ' نفر'"></div>
+                                                </div>
+                                            </div>
+
+                                            {{-- هزینه‌ی قابل پرداخت --}}
+                                            <div class="rounded-xl p-4 bg-primary/10 border border-primary/20">
+                                                <div class="flex items-center gap-2 mb-1">
+                                                    <svg class="w-4 h-4 text-primary" xmlns="http://www.w3.org/2000/svg"
+                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="2" y="6" width="20" height="12" rx="2"/>
+                                                        <circle cx="12" cy="12" r="2"/>
+                                                        <path d="M6 12h.01M18 12h.01"/>
+                                                    </svg>
+                                                    <span class="font-semibold text-xs text-muted">هزینه‌ای که باید پرداخت کنید</span>
+                                                </div>
+                                                <div class="font-black text-primary text-2xl md:text-3xl">
+                                                    <span x-text="fmt(payable)"></span>
+                                                    <span class="text-base font-bold text-muted">تومان</span>
+                                                </div>
+                                            </div>
+
+                                            {{-- سود و تخفیف --}}
+                                            <div class="rounded-xl p-4 bg-emerald-500/10 border border-emerald-500/20">
+                                                <div class="flex items-center gap-2 mb-1">
+                                                    <svg class="w-4 h-4 text-emerald-500" xmlns="http://www.w3.org/2000/svg"
+                                                         viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <line x1="12" y1="1" x2="12" y2="23"/>
+                                                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                                    </svg>
+                                                    <span class="font-semibold text-xs text-muted">سود و تخفیف شما</span>
+                                                </div>
+                                                <div class="font-black text-emerald-500 text-2xl md:text-3xl">
+                                                    <span x-text="fmt(discount)"></span>
+                                                    <span class="text-base font-bold text-muted">تومان</span>
+                                                </div>
+                                                <p class="font-medium text-[11px] text-muted leading-5 mt-1"
+                                                   x-show="discount === 0">
+                                                    تخفیف از <span x-text="fmt(threshold)"></span> دانش‌آموز به بعد فعال می‌شود
+                                                    (به ازای هر دانش‌آموز <span x-text="fmt(fee)"></span> تومان).
+                                                </p>
+                                                <p class="font-medium text-[11px] text-muted leading-5 mt-1"
+                                                   x-show="discount > 0">
+                                                    به ازای هر دانش‌آموز <span x-text="fmt(fee)"></span> تومان سود برای مدیر مدرسه.
+                                                </p>
+                                            </div>
+
+                                            <a href="#contract-form"
+                                               class="group w-full inline-flex items-center justify-center h-12 bg-primary hover:bg-primary/90 transition-all rounded-full text-white font-bold text-sm px-8 shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.01]">
+                                                <span>ثبت درخواست با این تعداد</span>
+                                                <svg class="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1"
+                                                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                                                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                                     stroke-linejoin="round">
+                                                    <path d="M19 12H5"/><path d="m12 19-7-7 7-7"/>
+                                                </svg>
+                                            </a>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ★ گوی چرخان --}}
+                <div class="orb-track">
+                    <span class="orb"></span>
+                    <span class="orb-trail"></span>
+                </div>
+            </div>
+        </section>
 
         {{-- ========================== FORM ========================== --}}
         <section id="contract-form" class="scroll-mt-24 reveal">
@@ -990,6 +1217,26 @@
                                                placeholder="09xxxxxxxxx"
                                                class="form-input w-full h-12 !ring-0 !ring-offset-0 bg-secondary/60 backdrop-blur border-border focus:border-primary focus:bg-secondary transition-all rounded-xl text-sm text-foreground px-5 text-left">
                                         @error('mobile')
+                                        <div class="font-medium text-xs text-red-500 mr-2 mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label for="student_count"
+                                               class="font-semibold text-xs text-muted flex items-center gap-1.5">
+                                            <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg"
+                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                                <circle cx="9" cy="7" r="4"/>
+                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                            </svg>
+                                            تعداد دانش‌آموز
+                                        </label>
+                                        <input type="number" min="1" id="student_count" wire:model="student_count"
+                                               placeholder="تعداد دانش‌آموزان مدرسه"
+                                               class="form-input w-full h-12 !ring-0 !ring-offset-0 bg-secondary/60 backdrop-blur border-border focus:border-primary focus:bg-secondary transition-all rounded-xl text-sm text-foreground px-5">
+                                        @error('student_count')
                                         <div class="font-medium text-xs text-red-500 mr-2 mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>

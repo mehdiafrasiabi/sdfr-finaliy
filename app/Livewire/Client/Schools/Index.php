@@ -7,7 +7,7 @@ use App\Models\State;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
-
+use App\Models\SchoolCooperationRequest;
 class Index extends Component
 {
     use SEOTools;
@@ -17,7 +17,7 @@ class Index extends Component
     public string $mobile = '';
     public $state_id = '';
     public $city_id = '';
-
+    public $student_count = '';
     public $states = [];
     public $cities = [];
 
@@ -60,40 +60,63 @@ class Index extends Component
     {
         $this->mobile = $this->convertToEnglishDigits($value);
     }
+    public function updatedStudentCount($value)
+    {
+        $this->student_count = $this->convertToEnglishDigits((string) $value);
+    }
 
     public function submit()
     {
         $data = [
-            'full_name'   => trim($this->full_name),
-            'school_name' => trim($this->school_name),
-            'mobile'      => $this->convertToEnglishDigits($this->mobile),
-            'state_id'    => $this->state_id,
-            'city_id'     => $this->city_id,
-        ];
+            'full_name'     => trim($this->full_name),
+            'school_name'   => trim($this->school_name),
+            'mobile'        => $this->convertToEnglishDigits($this->mobile),
+            'student_count' => $this->convertToEnglishDigits((string) $this->student_count),
+            'state_id'      => $this->state_id,
+            'city_id'       => $this->city_id,
+            ];
 
-        Validator::make(
+        $validated = Validator::make(
             $data,
             [
-                'full_name'   => 'required|string|min:3|max:150',
-                'school_name' => 'required|string|min:2|max:200',
-                'mobile'      => ['required', 'regex:/^09\d{9}$/'],
-                'state_id'    => 'required|integer|exists:states,id',
-                'city_id'     => 'required|integer|exists:cities,id',
+                'full_name'     => 'required|string|min:3|max:150',
+                'school_name'   => 'required|string|min:2|max:200',
+                'mobile'        => ['required', 'regex:/^09\d{9}$/'],
+                'student_count' => 'required|integer|min:1|max:100000',
+                'state_id'      => 'required|integer|exists:states,id',
+                'city_id'       => 'required|integer|exists:cities,id',
             ],
             [
-                'full_name.required'   => 'وارد کردن نام و نام خانوادگی الزامی است.',
-                'full_name.min'        => 'نام و نام خانوادگی باید حداقل ۳ کاراکتر باشد.',
-                'school_name.required' => 'وارد کردن نام مدرسه الزامی است.',
-                'mobile.required'      => 'وارد کردن شماره تلفن همراه الزامی است.',
-                'mobile.regex'         => 'شماره تلفن همراه را به‌درستی وارد کنید.',
-                'state_id.required'    => 'انتخاب استان الزامی است.',
-                'state_id.exists'      => 'استان انتخاب‌شده معتبر نیست.',
-                'city_id.required'     => 'انتخاب شهر الزامی است.',
-                'city_id.exists'       => 'شهر انتخاب‌شده معتبر نیست.',
-            ]
+                'full_name.required'     => 'وارد کردن نام و نام خانوادگی الزامی است.',
+                'full_name.min'          => 'نام و نام خانوادگی باید حداقل ۳ کاراکتر باشد.',
+                'school_name.required'   => 'وارد کردن نام مدرسه الزامی است.',
+                'mobile.required'        => 'وارد کردن شماره تلفن همراه الزامی است.',
+                'mobile.regex'           => 'شماره تلفن همراه را به‌درستی وارد کنید.',
+                'student_count.required' => 'وارد کردن تعداد دانش‌آموز الزامی است.',
+                'student_count.integer'  => 'تعداد دانش‌آموز باید یک عدد صحیح باشد.',
+                'student_count.min'      => 'تعداد دانش‌آموز باید حداقل ۱ نفر باشد.',
+                'state_id.required'      => 'انتخاب استان الزامی است.',
+                'state_id.exists'        => 'استان انتخاب‌شده معتبر نیست.',
+                'city_id.required'       => 'انتخاب شهر الزامی است.',
+                'city_id.exists'         => 'شهر انتخاب‌شده معتبر نیست.',
+                ]
         )->validate();
 
-        $this->reset(['full_name', 'school_name', 'mobile', 'state_id', 'city_id', 'cities']);
+        $pricing = SchoolCooperationRequest::calculate((int) $validated['student_count']);
+
+        SchoolCooperationRequest::create([
+            'full_name'       => $validated['full_name'],
+            'school_name'     => $validated['school_name'],
+            'mobile'          => $validated['mobile'],
+            'student_count'   => (int) $validated['student_count'],
+            'state_id'        => $validated['state_id'],
+            'city_id'         => $validated['city_id'],
+            'package'         => $pricing['package'],
+            'payable_amount'  => $pricing['payable'],
+            'discount_amount' => $pricing['discount'],
+        ]);
+
+        $this->reset(['full_name', 'school_name', 'mobile', 'student_count', 'state_id', 'city_id', 'cities']);
 
         $this->dispatch(
             'success',
@@ -103,6 +126,10 @@ class Index extends Component
 
     public function render()
     {
-        return view('livewire.client.schools.index')->layout('layouts.client.app');
+        return view('livewire.client.schools.index', [
+            'pricingTiers'  => SchoolCooperationRequest::TIERS,
+            'managerFee'    => SchoolCooperationRequest::MANAGER_FEE_PER_STUDENT,
+            'discountAfter' => SchoolCooperationRequest::DISCOUNT_THRESHOLD,
+        ])->layout('layouts.client.app');
     }
 }

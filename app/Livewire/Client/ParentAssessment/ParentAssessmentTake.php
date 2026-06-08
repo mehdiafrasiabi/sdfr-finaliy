@@ -148,8 +148,11 @@ class ParentAssessmentTake extends Component
                 ->where('is_active', true)
                 ->with(['options' => fn($qq) => $qq->orderBy('order')])
                 ->orderBy('order')
-                ->get();
-
+                ->orderBy('id')
+                ->get()
+                // محافظت در برابر سوالات تکراری (متن یکسان) تا یک سوال دو بار نیاید
+                ->unique('question_text_fa')
+                ->values();
             foreach ($questions as $q) {
                 // محافظت در برابر گزینه‌های تکراری (در صورت ناسازگاری داده):
                 // بر اساس متنِ گزینه یکتا می‌کنیم تا حتی اگر رکوردهای تکراری

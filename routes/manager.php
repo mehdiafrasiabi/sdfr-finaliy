@@ -172,7 +172,8 @@ Route::name('manager.')->group(function () {
         Route::prefix('school-students')->name('school-students.')->group(function () {
             Route::get('/', \App\Livewire\Manager\SchoolStudent\Index::class)->name('index');
         });
-
+        Route::get('/cooperation-requests', \App\Livewire\Manager\School\CooperationRequests::class)
+            ->name('schools.cooperation-requests');
         // Classification Routes
         Route::prefix('classification')->name('classification.')->group(function () {
             Route::get('/education-levels', EducationLevels::class)->name('education-levels');
