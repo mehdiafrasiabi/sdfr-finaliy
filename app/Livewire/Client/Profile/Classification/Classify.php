@@ -30,7 +30,6 @@ class Classify extends Component
     public $ratings  = [];
 
     public $showSubmitModal = false;
-    public $showMyTopics    = false;
 
     public $totalTopics     = 0;
     public $completedTopics = 0;
@@ -101,10 +100,6 @@ class Classify extends Component
         }
     }
 
-    /**
-     * Fix: بارگذاری رتبه‌بندی‌های موجود فقط برای آیتم‌های واقعی
-     * completedTopics = تعداد آیتم‌هایی که هم رتبه دارند هم در لیست فعال هستند
-     */
     protected function loadExistingRatings()
     {
         $rows = StudentClassification::where('user_id', auth()->id())
@@ -118,15 +113,10 @@ class Classify extends Component
         }
         $this->ratings = $map;
 
-        // محاسبه totalTopics اول، بعد completedTopics را از تقاطع حساب کن
         $this->calculateTotalTopics();
         $this->recalculateCompletedTopics();
     }
 
-    /**
-     * Fix اصلی: فقط آیتم‌هایی را می‌شماریم که واقعاً در سیستم وجود دارند
-     * همان فیلتر field را اعمال می‌کنیم که در loadSubjects هم هست
-     */
     protected function calculateTotalTopics()
     {
         $total          = 0;
@@ -137,13 +127,11 @@ class Classify extends Component
         $settings = $this->getEffectiveSettings();
 
         foreach ($settings as $setting) {
-            // Fix: همان فیلتر is_active + field که در loadSubjects هست
             $ccGrade = CcGrade::where('grade_number', $setting['target_grade'])
                 ->where('is_active', true)
                 ->when($studentFieldId, fn($q) => $q->where('cc_field_id', $studentFieldId))
                 ->first();
 
-            // اگر با field پیدا نشد، بدون field امتحان کن
             if (!$ccGrade) {
                 $ccGrade = CcGrade::where('grade_number', $setting['target_grade'])
                     ->where('is_active', true)
@@ -152,7 +140,6 @@ class Classify extends Component
 
             if (!$ccGrade) continue;
 
-            // تخصصی: تعداد فصل‌های فعال
             $specSubjects = CcSubject::where('cc_grade_id', $ccGrade->id)
                 ->where('type', 'specialized')
                 ->where(function ($q) use ($studentFieldId) {
@@ -165,7 +152,6 @@ class Classify extends Component
                 $total += $subj->chapters->count();
             }
 
-            // عمومی: تعداد دروس عمومی
             if (!empty($setting['has_general'])) {
                 $total += CcSubject::where('cc_grade_id', $ccGrade->id)
                     ->where('type', 'general')
@@ -176,10 +162,6 @@ class Classify extends Component
         $this->totalTopics = $total;
     }
 
-    /**
-     * Fix: completedTopics = تعداد ratings که کلیدشان با آیتم‌های واقعی match می‌کند
-     * این جلوی "الکی پر شدن" progress bar را می‌گیرد
-     */
     protected function recalculateCompletedTopics()
     {
         if (empty($this->ratings)) {
@@ -203,7 +185,6 @@ class Classify extends Component
 
             if (!$ccGrade) continue;
 
-            // فصل‌های تخصصی معتبر
             $specSubjectIds = CcSubject::where('cc_grade_id', $ccGrade->id)
                 ->where('type', 'specialized')
                 ->where(function ($q) use ($studentFieldId) {
@@ -217,7 +198,6 @@ class Classify extends Component
 
             $validChapterIds = $validChapterIds->merge($chapterIds);
 
-            // دروس عمومی معتبر
             if (!empty($setting['has_general'])) {
                 $genSubjectIds = CcSubject::where('cc_grade_id', $ccGrade->id)
                     ->where('type', 'general')
@@ -259,15 +239,8 @@ class Classify extends Component
 
     public function selectTag($tagId)
     {
-        $this->activeTag    = $tagId;
-        $this->showMyTopics = false;
+        $this->activeTag = $tagId;
         $this->loadSubjects();
-    }
-
-    public function showMyRatings()
-    {
-        $this->showMyTopics = true;
-        $this->activeTag    = null;
     }
 
     protected function loadSubjects()
@@ -372,30 +345,7 @@ class Classify extends Component
 
     public function render()
     {
-        $myRated = collect();
-        if ($this->showMyTopics) {
-            $rows = StudentClassification::where('user_id', auth()->id())
-                ->where('classification_project_id', $this->project->id)
-                ->with('ratable')->get();
-
-            foreach ($rows as $r) {
-                $ratable = $r->ratable;
-                if (!$ratable) continue;
-                if ($r->ratable_type === CcChapter::class) {
-                    $subjectName = $ratable->subject?->name ?? 'سایر';
-                    $itemName    = $ratable->name;
-                    $context     = 'فصل';
-                } else {
-                    $subjectName = 'دروس عمومی';
-                    $itemName    = $ratable->name;
-                    $context     = 'درس عمومی';
-                }
-                $myRated->push((object)['subjectName' => $subjectName, 'itemName' => $itemName, 'context' => $context, 'rating' => $r->rating]);
-            }
-            $myRated = $myRated->groupBy('subjectName');
-        }
-
-        return view('livewire.client.profile.classification.classify', ['myRated' => $myRated])
+        return view('livewire.client.profile.classification.classify')
             ->layout('layouts.client.app');
     }
 }

@@ -595,7 +595,13 @@
                 </div>
             </div>
         </div>
-        <!-- Mobile Profile Modal -->
+        {{-- ════════════════════════════════════════
+     Mobile Profile Modal  —  جایگزین کامل بخش
+     <!-- Mobile Profile Modal -->  در header
+     • پس‌زمینه اصلی: bg-secondary
+     • همه باکس‌ها: bg-[#2b2b31]
+     • هر آیتم منو یک باکس جداگانه
+═════════════════════════════════════════ --}}
         @if(\Illuminate\Support\Facades\Auth::check())
             <div x-cloak class="lg:hidden">
                 <!-- Overlay -->
@@ -605,132 +611,129 @@
                 </div>
 
                 <!-- Modal Panel -->
-                <div
-                    class="fixed inset-x-0 bottom-0 z-[60] transition-transform duration-300 ease-out"
-                    :class="profileModalOpen ? 'translate-y-0' : 'translate-y-full'"
-                    x-show="profileModalOpen"
-                    dir="rtl">
+                <div class="fixed inset-x-0 bottom-0 z-[60] transition-transform duration-300 ease-out"
+                     :class="profileModalOpen ? 'translate-y-0' : 'translate-y-full'"
+                     x-show="profileModalOpen"
+                     dir="rtl">
 
-                    <div class="bg-[#1a1a2e] dark:bg-[#0f0f1a] rounded-t-[28px] shadow-2xl overflow-hidden max-h-[92dvh] flex flex-col">
+                    <div class="bg-secondary rounded-t-[28px] shadow-2xl overflow-hidden max-h-[92dvh] flex flex-col">
 
                         <!-- Drag handle -->
                         <div class="flex justify-center pt-3 pb-1 shrink-0" @click="profileModalOpen = false">
-                            <div class="w-10 h-1 rounded-full bg-white/20 cursor-pointer"></div>
+                            <div class="w-10 h-1 rounded-full bg-foreground/20 cursor-pointer"></div>
                         </div>
 
-                        <!-- ─── بخش بالا: آواتار + نام + شماره + احراز هویت ─── -->
-                        <div class="px-5 pt-3 pb-5 shrink-0">
+                        <!-- ─── بخش بالا: آواتار + نام + شماره ─── -->
+                        <div class="px-5 pt-3 pb-4 shrink-0">
                             <div class="flex items-center gap-4">
-                                <!-- آواتار -->
-                                <div class="w-16 h-16 rounded-full bg-[#2a2a3e] ring-2 ring-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                {{-- آواتار --}}
+                                <div class="w-16 h-16 rounded-full bg-[#2b2b31] ring-2 ring-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
                                     @if($profilePictureUrl)
                                         <img src="{{ $profilePictureUrl }}" class="w-full h-full object-cover rounded-full" alt="avatar">
                                     @elseif($this->defaultAvatarType === 'female')
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white/70">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-foreground/70">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75a4.5 4.5 0 0 0-4.5 4.5v.334a4.5 4.5 0 1 0 9 0V8.25a4.5 4.5 0 0 0-4.5-4.5ZM4.5 20.25a7.5 7.5 0 0 1 15 0"/>
                                         </svg>
                                     @else
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-white/70">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8 text-foreground/70">
                                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
                                         </svg>
                                     @endif
                                 </div>
 
-                                <!-- نام و شماره -->
+                                {{-- نام و شماره --}}
                                 <div class="flex-1 min-w-0">
-                                    <div class="flex items-center gap-2 flex-wrap mb-1">
-                                        <h3 class="text-white font-bold text-base leading-tight">{{ auth()->user()->name ?? '' }}</h3>
-                                    </div>
-                                    <p class="text-white/50 text-sm font-mono" style="direction:ltr; text-align:right;">{{ auth()->user()->mobile ?? '' }}</p>
+                                    <h3 class="text-foreground font-bold text-base leading-tight mb-1">{{ auth()->user()->name ?? '' }}</h3>
+                                    <p class="text-foreground/50 text-sm font-mono" style="direction:ltr; text-align:right;">{{ auth()->user()->mobile ?? '' }}</p>
                                 </div>
                             </div>
                         </div>
 
                         <!-- ─── محتوای اسکرول‌پذیر ─── -->
-                        <div class="flex-1 overflow-y-auto px-4 pb-8 space-y-3">
+                        <div class="flex-1 overflow-y-auto px-4 pb-8 space-y-2.5">
 
-                            <!-- کارت کیف‌پول -->
-                            <a wire:navigate href="{{ route('client.profile.wallet') }}" @click="profileModalOpen = false"
-                               class="flex items-center justify-between bg-[#252538] rounded-2xl px-4 py-3.5 active:scale-[0.98] transition-transform">
-                                <div class="flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white/40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                        <path d="M15.75 19.5L8.25 12l7.5-7.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </svg>
-                                    <span class="text-white font-bold text-sm">۰ ریال</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div class="text-right">
-                                        <p class="text-white/50 text-xs">موجودی کیف‌پول</p>
+                            {{-- ─── کارت اطلاعات مشاور / پشتیبان ─── --}}
+                            @if($advisorInfo)
+                                <div class="bg-[#2b2b31] rounded-2xl px-4 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-14 h-14 rounded-2xl bg-secondary ring-2 ring-blue-500/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                            @if($advisorInfo['picture'])
+                                                <img src="{{ $advisorInfo['picture'] }}" alt="{{ $advisorInfo['name'] }}" class="w-full h-full object-cover">
+                                            @else
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-foreground/40">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+                                                </svg>
+                                            @endif
+                                        </div>
+
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-center gap-1.5 mb-0.5">
+                                                <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                                                <p class="text-blue-400 text-[11px] font-bold">{{ $advisorInfo['label'] }}</p>
+                                            </div>
+                                            <h4 class="text-foreground font-bold text-sm leading-tight truncate mb-1">{{ $advisorInfo['name'] }}</h4>
+                                            @if(!empty($advisorInfo['mobile']))
+                                                <a href="tel:{{ $advisorInfo['mobile'] }}"
+                                                   class="inline-flex items-center gap-1.5 text-foreground/60 text-xs font-mono hover:text-foreground transition-colors"
+                                                   style="direction:ltr;">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"/>
+                                                    </svg>
+                                                    {{ $advisorInfo['mobile'] }}
+                                                </a>
+                                            @endif
+                                        </div>
+
+                                        @if(!empty($advisorInfo['mobile']))
+                                            <a href="tel:{{ $advisorInfo['mobile'] }}"
+                                               class="w-10 h-10 rounded-xl bg-blue-500/15 hover:bg-blue-500/25 flex items-center justify-center flex-shrink-0 transition-colors">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 text-blue-400">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"/>
+                                                </svg>
+                                            </a>
+                                        @endif
                                     </div>
-                                    <div class="w-9 h-9 rounded-xl bg-[#1a1a2e] flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white/70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                            <path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M12 12C12 10.3431 13.3431 9 15 9H20C20.5523 9 21 9.44772 21 10V14C21 14.5523 20.5523 15 20 15H15C13.3431 15 12 13.6569 12 12Z" stroke-linecap="round" stroke-linejoin="round"/>
-                                            <path d="M15 12L15.1 12" stroke-linecap="round" stroke-linejoin="round"/>
+                                </div>
+                            @else
+                                <div class="bg-[#2b2b31] rounded-2xl px-4 py-4 flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-2xl bg-secondary flex items-center justify-center flex-shrink-0">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-foreground/30">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
                                         </svg>
                                     </div>
-                                </div>
-                            </a>
-
-                            <!-- گرید دو ستونه: سکه + ستاره‌ها -->
-                            <div class="grid grid-cols-2 gap-3">
-                                <div class="bg-[#252538] rounded-2xl px-4 py-3.5 flex items-center justify-between">
-                                    <div class="text-right">
-                                        <p class="text-white/50 text-xs mb-1">سکه‌های من</p>
-                                        <p class="text-orange-400 font-bold text-sm">۰ سکه</p>
-                                    </div>
-                                    <div class="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-yellow-400">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                                        </svg>
+                                    <div class="flex-1">
+                                        <p class="text-foreground/40 text-xs">مشاور</p>
+                                        <p class="text-foreground/70 text-sm font-bold">هنوز تعیین نشده</p>
                                     </div>
                                 </div>
-                                <a wire:navigate href="{{ route('client.profile.star') }}" @click="profileModalOpen = false"
-                                   class="bg-[#252538] rounded-2xl px-4 py-3.5 flex items-center justify-between active:scale-[0.98] transition-transform">
-                                    <div class="text-right">
-                                        <p class="text-white/50 text-xs mb-1">ستاره‌ها</p>
-                                        <p class="text-amber-400 font-bold text-sm">بزودی</p>
-                                    </div>
-                                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" class="w-5 h-5 text-amber-400">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 0 0 .95.69h4.154c.969 0 1.371 1.24.588 1.81l-3.36 2.441a1 1 0 0 0-.364 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.36-2.441a1 1 0 0 0-1.175 0l-3.36 2.441c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 0 0-.364-1.118L2.49 9.377c-.783-.57-.38-1.81.588-1.81h4.154a1 1 0 0 0 .95-.69l1.287-3.95Z"/>
-                                        </svg>
-                                    </div>
-                                </a>
-                            </div>
+                            @endif
 
-                            {{-- ─── بخش پیشخوان ─── --}}
-                            <p class="text-white/30 text-xs font-semibold text-right pt-1 px-1">پرتال</p>
-
+                            {{-- ─── منو ─── --}}
                             @php
                                 $menuGroups = [];
                                 if(auth()->user()?->isSchoolStudent()) {
                                     $menuGroups = [
-                                        [['label'=>'داشبورد', 'route'=> route('client.profile.school.dashboard'), 'icon'=>'home'],
-                                         ['label'=>'گزارش‌های من', 'route'=> route('client.profile.school.report.index'), 'icon'=>'report'],
-                                         ['label'=>'ثبت گزارش جدید', 'route'=> route('client.profile.school.report.create'), 'icon'=>'plus']],
+                                        [['label'=>'داشبورد',          'route'=> route('client.profile.school.dashboard'),     'icon'=>'home'],
+                                         ['label'=>'گزارش‌های من',     'route'=> route('client.profile.school.report.index'),  'icon'=>'report'],
+                                         ['label'=>'ثبت گزارش جدید',   'route'=> route('client.profile.school.report.create'), 'icon'=>'plus']],
                                     ];
                                 } else {
                                     $menuGroups = [
-                                        // گروه اصلی
                                         [
-                                            ['label'=>'پیشخوان',      'route'=> route('client.profile.dashboard'),             'icon'=>'home'],
-                                            ['label'=>'اطلاع‌رسانی',  'route'=> route('client.profile.notification'),          'icon'=>'bell'],
-                                            ['label'=>'اتاق مشاوره',  'route'=> route('client.profile.consultation.sessions'), 'icon'=>'screen'],
-                                            ['label'=>'برنامه درسی',  'route'=> route('client.profile.plan'),                  'icon'=>'book'],
-                                            ['label'=>'ثبت ساعت مطالعه','route'=> route('client.profile.studySession'),        'icon'=>'clock'],
-                                            ['label'=>'گزارش درسی',   'route'=> route('client.profile.report'),                'icon'=>'clipboard'],
-                                            ['label'=>'آزمون',        'route'=> route('client.profile.typed-exam.list'),       'icon'=>'edit'],
-                                            ['label'=>'کارنامه وضعیت','route'=> route('client.profile.reportStudentStudy'),    'icon'=>'file'],
-                                            ['label'=>'طبقه‌بندی دروس','route'=> route('client.profile.classification.projects'),'icon'=>'layers'],
+                                            ['label'=>'پیشخوان',         'route'=> route('client.profile.dashboard'),              'icon'=>'home'],
+                                            ['label'=>'اطلاع‌رسانی',     'route'=> route('client.profile.notification'),           'icon'=>'bell'],
+                                            ['label'=>'اتاق مشاوره',     'route'=> route('client.profile.consultation.sessions'),  'icon'=>'screen'],
+                                            ['label'=>'برنامه درسی',     'route'=> route('client.profile.plan'),                   'icon'=>'book'],
+                                            ['label'=>'ثبت ساعت مطالعه', 'route'=> route('client.profile.studySession'),           'icon'=>'clock'],
+                                            ['label'=>'گزارش درسی',      'route'=> route('client.profile.report'),                 'icon'=>'clipboard'],
+                                            ['label'=>'آزمون',           'route'=> route('client.profile.typed-exam.list'),        'icon'=>'edit'],
+                                            ['label'=>'کارنامه وضعیت',   'route'=> route('client.profile.reportStudentStudy'),     'icon'=>'file'],
+                                            ['label'=>'طبقه‌بندی دروس',  'route'=> route('client.profile.classification.projects'),'icon'=>'layers'],
                                         ],
-                                        // مالی
                                         [
-                                            ['label'=>'کیف پول',          'route'=> route('client.profile.wallet'),      'icon'=>'wallet'],
-                                            ['label'=>'تراکنش‌های مالی',  'route'=> route('client.profile.financial'),   'icon'=>'money'],
-                                            ['label'=>'اقساط و شهریه',    'route'=> route('client.profile.installment'), 'icon'=>'invoice'],
+                                            ['label'=>'تراکنش‌های مالی', 'route'=> route('client.profile.financial'),   'icon'=>'money'],
+                                            ['label'=>'اقساط و شهریه',   'route'=> route('client.profile.installment'), 'icon'=>'invoice'],
                                         ],
-                                        // پشتیبانی
                                         [
                                             ['label'=>'تیکت و پشتیبانی', 'route'=> route('client.profile.ticket'), 'icon'=>'chat'],
                                             ['label'=>'ویرایش پروفایل',  'route'=> route('client.profile.edit'),   'icon'=>'settings'],
@@ -740,7 +743,7 @@
 
                                 $groupLabels = auth()->user()?->isSchoolStudent()
                                     ? ['مدرسه']
-                                    : ['پیشخوان', 'مالی', 'پشتیبانی'];
+                                    : ['پرتال', 'مالی', 'پشتیبانی'];
 
                                 $icons = [
                                     'home'     => '<path stroke-linecap="round" stroke-linejoin="round" d="M9.02 2.84016L3.63 7.04016C2.73 7.74016 2 9.23016 2 10.3602V17.7702C2 20.0902 3.89 21.9902 6.21 21.9902H17.79C20.11 21.9902 22 20.0902 22 17.7802V10.5002C22 9.29016 21.19 7.74016 20.2 7.05016L14.02 2.72016C12.62 1.74016 10.37 1.79016 9.02 2.84016Z"/><path d="M12 17.9902V14.9902" stroke-linecap="round" stroke-linejoin="round"/>',
@@ -752,7 +755,6 @@
                                     'edit'     => '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
                                     'file'     => '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
                                     'layers'   => '<path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 9m18 0V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v3"/>',
-                                    'wallet'   => '<path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 12C12 10.3431 13.3431 9 15 9H20C20.5523 9 21 9.44772 21 10V14C21 14.5523 20.5523 15 20 15H15C13.3431 15 12 13.6569 12 12Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M15 12L15.1 12" stroke-linecap="round" stroke-linejoin="round"/>',
                                     'money'    => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>',
                                     'invoice'  => '<path d="M22 6V8.42C22 10 21 11 19.42 11H16V4.01C16 2.9 16.91 2 18.02 2C19.11 2.01 20.11 2.45 20.83 3.17C21.55 3.9 22 4.9 22 6Z" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 7V21C2 21.83 2.94 22.3 3.6 21.8L5.31 20.52C5.71 20.22 6.27 20.26 6.63 20.62L8.29 22.29C8.68 22.68 9.32 22.68 9.71 22.29L11.39 20.61C11.74 20.26 12.3 20.22 12.69 20.52L14.4 21.8C15.06 22.29 16 21.82 16 21V4C16 2.9 16.9 2 18 2H7H6C3 2 2 3.79 2 6V7Z" stroke-linecap="round" stroke-linejoin="round"/>',
                                     'chat'     => '<path d="M17.98 10.79V14.79C17.98 15.05 17.97 15.3 17.94 15.54C17.71 18.24 16.12 19.58 13.19 19.58H12.79C12.54 19.58 12.3 19.7 12.15 19.9L10.95 21.5C10.42 22.21 9.56 22.21 9.03 21.5L7.82999 19.9C7.69999 19.73 7.41 19.58 7.19 19.58H6.79001C3.60001 19.58 2 18.79 2 14.79V10.79C2 7.86001 3.35001 6.27001 6.04001 6.04001C6.28001 6.01001 6.53001 6 6.79001 6H13.19C16.38 6 17.98 7.60001 17.98 10.79Z" stroke-linecap="round" stroke-linejoin="round"/>',
@@ -763,41 +765,40 @@
                             @endphp
 
                             @foreach($menuGroups as $gi => $group)
-                                {{-- عنوان بخش --}}
-                                @if(isset($groupLabels[$gi]) && $gi > 0)
-                                    <p class="text-white/30 text-xs font-semibold text-right pt-1 px-1">{{ $groupLabels[$gi] }}</p>
+                                {{-- عنوان گروه --}}
+                                @if(isset($groupLabels[$gi]))
+                                    <p class="text-foreground/40 text-xs font-bold text-right pt-2 pb-1 px-1">{{ $groupLabels[$gi] }}</p>
                                 @endif
 
-                                <div class="bg-[#252538] rounded-2xl overflow-hidden">
-                                    @foreach($group as $mi => $item)
-                                        <a wire:navigate href="{{ $item['route'] }}"
-                                           @click="profileModalOpen = false"
-                                           class="flex items-center justify-between px-4 py-3.5 active:bg-white/5 transition-colors
-                                          {{ $mi < count($group) - 1 ? 'border-b border-white/5' : '' }}">
-                                            <span class="text-sm font-semibold text-white">{{ $item['label'] }}</span>
-                                            <div class="w-8 h-8 rounded-xl bg-[#1a1a2e] flex items-center justify-center flex-shrink-0">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                                     stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-white/50">
-                                                    {!! $icons[$item['icon']] ?? '' !!}
-                                                </svg>
-                                            </div>
-                                        </a>
-                                    @endforeach
-                                </div>
+                                {{-- آیتم‌های منو — هرکدوم یک باکس جداگانه --}}
+                                @foreach($group as $item)
+                                    <a wire:navigate href="{{ $item['route'] }}"
+                                       @click="profileModalOpen = false"
+                                       class="flex items-center justify-between bg-[#2b2b31] rounded-2xl px-4 py-3.5 active:scale-[0.98] hover:bg-[#34343c] transition-all">
+                                        <span class="text-sm font-semibold text-foreground">{{ $item['label'] }}</span>
+                                        <div class="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-foreground/60">
+                                                {!! $icons[$item['icon']] ?? '' !!}
+                                            </svg>
+                                        </div>
+                                    </a>
+                                @endforeach
                             @endforeach
 
-                            <!-- خروج -->
-                            <a href="{{ route('client.logout') }}"
-                               class="flex items-center justify-between bg-red-500/10 border border-red-500/20 rounded-2xl px-4 py-3.5 active:scale-[0.98] transition-transform">
-                                <span class="text-sm font-bold text-red-400">خروج از حساب کاربری</span>
-                                <div class="w-8 h-8 rounded-xl bg-red-500/10 flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-red-400">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
-                                    </svg>
-                                </div>
-                            </a>
+                            {{-- خروج --}}
+                            <div class="pt-2">
+                                <a href="{{ route('client.logout') }}"
+                                   class="flex items-center justify-between bg-red-500/10 border border-red-500/20 rounded-2xl px-4 py-3.5 active:scale-[0.98] transition-transform">
+                                    <span class="text-sm font-bold text-red-400">خروج از حساب کاربری</span>
+                                    <div class="w-9 h-9 rounded-xl bg-red-500/15 flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-red-400">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"/>
+                                        </svg>
+                                    </div>
+                                </a>
+                            </div>
 
-                            <!-- فاصله پایین برای safe area -->
                             <div class="h-4"></div>
                         </div>
                     </div>

@@ -30,7 +30,7 @@ class Sidebar extends Component
         $this->unreadCount = NotificationRecipient::where('user_id', $user->id)
             ->where('is_read', false)
             ->where('created_at', '>=', now()->subDays(5)) // فقط پیام‌های 5 روز اخیر
-            ->where('is_read', false)
+            ->whereHas('notification', fn($q) => $q->where('category', '!=', \App\Models\Notification::CATEGORY_SPECIAL))
             ->count();
     }
 

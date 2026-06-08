@@ -44,8 +44,14 @@
             <li>
                 <a wire:navigate href="{{ route('client.profile.school.report.index') }}"
                    class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.school.report.index') ? 'bg-primary text-primary-foreground px-4' : 'bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17.25v1.007a3 3 0 0 1-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0 1 15 18.257V17.25m6-12V15a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 15V5.25m18 0A2.25 2.25 0 0 0 18.75 3H5.25A2.25 2.25 0 0 0 3 5.25m18 0V12a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 12V5.25"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                         class="w-5 h-5">
+                        <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V5C15 5.55228 14.5523 6 14 6H10C9.44772 6 9 5.55228 9 5V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8.5 12L10 13.5L12 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 12.5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8.5 17L10 18.5L12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 17.5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     <span class="font-semibold text-xs">گزارش‌های من</span>
                 </a>
@@ -53,8 +59,14 @@
             <li>
                 <a wire:navigate href="{{ route('client.profile.school.report.create') }}"
                    class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.school.report.create') ? 'bg-primary text-primary-foreground px-4' : 'bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                         class="w-5 h-5">
+                        <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V5C15 5.55228 14.5523 6 14 6H10C9.44772 6 9 5.55228 9 5V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8.5 12L10 13.5L12 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 12.5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8.5 17L10 18.5L12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M14 17.5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                     <span class="font-semibold text-xs">ثبت گزارش جدید</span>
                 </a>
@@ -189,24 +201,14 @@
         <li>
             <a wire:navigate href="{{route('client.profile.report')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.report') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                     class="w-5 h-5"
-                     strokeWidth="2">
-                    <path
-                        d="M21.9299 6.76001L18.5599 20.29C18.3199 21.3 17.4199 22 16.3799 22H3.23989C1.72989 22 0.649901 20.5199 1.0999 19.0699L5.30989 5.55005C5.59989 4.61005 6.46991 3.95996 7.44991 3.95996H19.7499C20.6999 3.95996 21.4899 4.53997 21.8199 5.33997C22.0099 5.76997 22.0499 6.26001 21.9299 6.76001Z"
-                        stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"></path>
-                    <path d="M16 22H20.78C22.07 22 23.08 20.91 22.99 19.62L22 6" stroke="currentColor"
-                          stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                          stroke-linejoin="round"></path>
-                    <path d="M9.67993 6.38049L10.7199 2.06055" stroke="currentColor" stroke-width="1.5"
-                          stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
-                    <path d="M16.3799 6.38977L17.3199 2.0498" stroke="currentColor" stroke-width="1.5"
-                          stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"></path>
-                    <path d="M7.69995 12H15.7" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                          stroke-linecap="round" stroke-linejoin="round"></path>
-                    <path d="M6.69995 16H14.7" stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10"
-                          stroke-linecap="round" stroke-linejoin="round"></path>
+                     class="w-5 h-5">
+                    <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V5C15 5.55228 14.5523 6 14 6H10C9.44772 6 9 5.55228 9 5V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8.5 12L10 13.5L12 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 12.5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M8.5 17L10 18.5L12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M14 17.5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <span class="font-semibold text-xs">گزارش های درسی </span>
             </a>
@@ -214,11 +216,11 @@
         <li>
             <a wire:navigate href="{{route('client.profile.typed-exam.list')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.typed-exam.list') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                     class="feather feather-edit w-5 h-5">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                     class="w-5 h-5">
+                    <path d="M19 13V19C19 20.1046 18.1046 21 17 21H5C3.89543 21 3 20.1046 3 19V7C3 5.89543 3.89543 5 5 5H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M17.5 3.5C18.3284 2.67157 19.6716 2.67157 20.5 3.5C21.3284 4.32843 21.3284 5.67157 20.5 6.5L11 16L7 17L8 13L17.5 3.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M16 5L19 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <span class="font-semibold text-xs">آزمون ها</span>
             </a>
@@ -250,38 +252,38 @@
                 <span class="font-semibold text-xs">طبقه‌بندی دروس</span>
             </a>
         </li>
-        <li>
+{{--        <li>--}}
 
-            <a wire:navigate href="{{route('client.profile.wallet')}}"
+{{--            <a wire:navigate href="{{route('client.profile.wallet')}}"--}}
 
-               class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.wallet') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+{{--               class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.wallet') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">--}}
 
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     class="w-5 h-5"
-                     viewBox="0 0 24 24"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="1.5">
+{{--                <svg xmlns="http://www.w3.org/2000/svg"--}}
+{{--                     class="w-5 h-5"--}}
+{{--                     viewBox="0 0 24 24"--}}
+{{--                     fill="none"--}}
+{{--                     stroke="currentColor"--}}
+{{--                     stroke-width="1.5">--}}
 
-                    <path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"/>
+{{--                    <path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z"--}}
+{{--                          stroke-linecap="round"--}}
+{{--                          stroke-linejoin="round"/>--}}
 
-                    <path d="M12 12C12 10.3431 13.3431 9 15 9H20C20.5523 9 21 9.44772 21 10V14C21 14.5523 20.5523 15 20 15H15C13.3431 15 12 13.6569 12 12Z"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"/>
+{{--                    <path d="M12 12C12 10.3431 13.3431 9 15 9H20C20.5523 9 21 9.44772 21 10V14C21 14.5523 20.5523 15 20 15H15C13.3431 15 12 13.6569 12 12Z"--}}
+{{--                          stroke-linecap="round"--}}
+{{--                          stroke-linejoin="round"/>--}}
 
-                    <path d="M15 12L15.1 12"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"/>
-                </svg>
+{{--                    <path d="M15 12L15.1 12"--}}
+{{--                          stroke-linecap="round"--}}
+{{--                          stroke-linejoin="round"/>--}}
+{{--                </svg>--}}
 
 
-                <span class="font-semibold text-xs">کیف پول</span>
+{{--                <span class="font-semibold text-xs">کیف پول</span>--}}
 
-            </a>
+{{--            </a>--}}
 
-        </li>
+{{--        </li>--}}
         <li>
             <a wire:navigate href="{{route('client.profile.financial')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.financial') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">

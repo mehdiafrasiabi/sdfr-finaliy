@@ -376,71 +376,314 @@
                         @endif
                     </div>
 
-                    {{-- ══════ 5) نمودار میانگین ساعت مطالعه ══════ --}}
-                    <div class="rounded-2xl bg-neutral-900/80 border border-neutral-800 p-4">
-                        <div class="flex items-center justify-start gap-2 mb-4">
-                            <div class="w-7 h-7 rounded-lg bg-neutral-800 flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#888" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75z"/>
-                                </svg>
-                            </div>
-                            <span class="font-bold text-white text-[15px]">میانگین ساعت مطالعه</span>
-
-                        </div>
-                        <div class="h-[100px] relative">
-                            <svg viewBox="0 0 300 80" class="w-full h-[80px]" preserveAspectRatio="none">
-                                <defs>
-                                    <linearGradient id="blueGrad2" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
-                                        <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
-                                    </linearGradient>
-                                </defs>
-                                <path d="M0,78 C25,72 45,58 75,52 C105,46 125,62 155,42 C185,22 215,32 248,18 C265,11 285,5 300,2 L300,80 L0,80 Z" fill="url(#blueGrad2)"/>
-                                <path d="M0,78 C25,72 45,58 75,52 C105,46 125,62 155,42 C185,22 215,32 248,18 C265,11 285,5 300,2" fill="none" stroke="#3b82f6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                                <circle cx="0"   cy="78" r="2.5" fill="#3b82f6"/>
-                                <circle cx="75"  cy="52" r="2.5" fill="#3b82f6"/>
-                                <circle cx="155" cy="42" r="2.5" fill="#3b82f6"/>
-                                <circle cx="248" cy="18" r="2.5" fill="#3b82f6"/>
-                                <circle cx="300" cy="2"  r="2.5" fill="#3b82f6"/>
-                            </svg>
-                            @if($activeProgram)
-                                <div class="flex justify-between mt-1">
-                                    @php $sd2 = \Carbon\Carbon::parse($activeProgram->start_date); @endphp
-                                    @for($i = 0; $i < 6; $i++)
-                                        <span class="text-[11px] text-neutral-600">{{ jdate($sd2->copy()->addDays($i))->format('j') }}</span>
-                                    @endfor
+                    {{-- ══════ 5) آمار کلی هفته (stat cards) ══════ --}}
+                    @php
+                        $fmtHm = function ($seconds) {
+                            $seconds = max(0, (int) $seconds);
+                            $h = intdiv($seconds, 3600);
+                            $m = intdiv($seconds % 3600, 60);
+                            if ($h > 0 && $m > 0) return $h . ' ساعت ' . $m . ' دقیقه';
+                            if ($h > 0) return $h . ' ساعت';
+                            return $m . ' دقیقه';
+                        };
+                        $wi = $weeklyInsights;
+                    @endphp
+                    <div class="md:col-span-2 rounded-2xl bg-neutral-900/80 border border-neutral-800 p-4">
+                        <div class="flex items-center justify-between gap-2 mb-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-neutral-800 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#888" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 107.5 7.5h-7.5V6z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0013.5 3v7.5z"/>
+                                    </svg>
                                 </div>
+                                <span class="font-bold text-white text-[15px]">خلاصه عملکرد این هفته</span>
+                            </div>
+                            @if($wi['has_data'])
+                                <span class="text-xs font-bold px-2.5 py-1 rounded-full
+                                    {{ $wi['completion_percent'] >= 70 ? 'bg-green-950/60 text-green-400' : ($wi['completion_percent'] >= 40 ? 'bg-amber-950/60 text-amber-400' : 'bg-red-950/60 text-red-400') }}">
+                                    {{ $wi['completion_percent'] }}% انجام برنامه
+                                </span>
                             @endif
                         </div>
+
+                        @if(!$wi['has_data'])
+                            <div class="text-center py-8 text-neutral-600 text-[13px]">برنامه‌ای برای این هفته ثبت نشده است.</div>
+                        @else
+                            @php
+                                $statTiles = [
+                                    ['label' => 'پارت‌های برنامه', 'value' => $wi['parts_total'], 'sub' => $wi['parts_studied'] . ' انجام شده', 'color' => 'text-blue-400'],
+                                    ['label' => 'ساعت مطالعه', 'value' => $fmtHm($wi['study_seconds']), 'sub' => 'از ' . round($wi['planned_minutes'] / 60, 1) . ' ساعت برنامه', 'color' => 'text-indigo-400'],
+                                    ['label' => 'تست انجام شده', 'value' => $wi['tests_done'], 'sub' => 'برنامه: ' . $wi['tests_planned'], 'color' => 'text-violet-400'],
+                                    ['label' => 'مطالعه باکیفیت', 'value' => $wi['quality']['عالی'] + $wi['quality']['با کیفیت'], 'sub' => $wi['quality']['بی‌کیفیت'] . ' بی‌کیفیت', 'color' => 'text-emerald-400'],
+                                ];
+                            @endphp
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                                @foreach($statTiles as $tile)
+                                    <div class="rounded-xl bg-neutral-800/60 border border-neutral-700/60 p-3">
+                                        <div class="text-[11px] text-neutral-500 mb-1">{{ $tile['label'] }}</div>
+                                        <div class="text-lg font-black {{ $tile['color'] }} leading-tight">{{ $tile['value'] }}</div>
+                                        <div class="text-[10px] text-neutral-500 mt-1">{{ $tile['sub'] }}</div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
                     </div>
 
-                    {{-- ══════ 6) نمودار پیشرفت درصد آزمون ══════ --}}
-                    <div class="rounded-2xl bg-neutral-900/80 border border-neutral-800 p-4 mb-20 md:mb-0">
-                        <div class="flex items-center justify-start gap-2 mb-4">
+                    {{-- ══════ 6) نمودار مطالعه روزانه این هفته ══════ --}}
+                    <div class="rounded-2xl bg-neutral-900/80 border border-neutral-800 p-4">
+                        <div class="flex items-center justify-between gap-2 mb-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-neutral-800 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#888" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75z"/>
+                                    </svg>
+                                </div>
+                                <span class="font-bold text-white text-[15px]">مطالعه روزانه</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-[10px] text-neutral-400">
+                                <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#3b82f6"></span> برنامه</span>
+                                <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#10b981"></span> مطالعه</span>
+                            </div>
+                        </div>
+                        @if($wi['has_data'])
+                            <div class="relative" style="height:170px">
+                                <canvas id="dash-chart-daily"></canvas>
+                            </div>
+                        @else
+                            <div class="text-center py-10 text-neutral-600 text-[13px]">داده‌ای برای نمایش نیست.</div>
+                        @endif
+                    </div>
+
+                    {{-- ══════ 7) نمودار توزیع نوع پارت ══════ --}}
+                    <div class="rounded-2xl bg-neutral-900/80 border border-neutral-800 p-4">
+                        <div class="flex items-center gap-2 mb-4">
                             <div class="w-7 h-7 rounded-lg bg-neutral-800 flex items-center justify-center">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#888" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/>
                                 </svg>
                             </div>
+                            <span class="font-bold text-white text-[15px]">توزیع نوع پارت</span>
+                        </div>
+                        @if($wi['has_data'] && !empty($wi['part_type_distribution']))
+                            <div class="relative" style="height:170px">
+                                <canvas id="dash-chart-parttype"></canvas>
+                            </div>
+                        @else
+                            <div class="text-center py-10 text-neutral-600 text-[13px]">داده‌ای برای نمایش نیست.</div>
+                        @endif
+                    </div>
 
-                            <span class="font-bold text-white text-[15px]">پیشرفت درصد آزمون</span>
+                    {{-- ══════ 8) پیشرفت دروس این هفته (progress bars) ══════ --}}
+                    <div class="md:col-span-2 rounded-2xl bg-neutral-900/80 border border-neutral-800 p-4">
+                        <div class="flex items-center gap-2 mb-4">
+                            <div class="w-7 h-7 rounded-lg bg-neutral-800 flex items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#888" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h12M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5"/>
+                                </svg>
+                            </div>
+                            <span class="font-bold text-white text-[15px]">پیشرفت دروس این هفته</span>
                         </div>
-                        <div class="h-[90px]">
-                            <svg viewBox="0 0 300 80" class="w-full h-[80px]" preserveAspectRatio="none">
-                                <defs>
-                                    <linearGradient id="yellowGrad2" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.3"/>
-                                        <stop offset="100%" stop-color="#f59e0b" stop-opacity="0"/>
-                                    </linearGradient>
-                                </defs>
-                                <path d="M0,65 C35,60 55,72 95,55 C135,38 155,68 195,45 C225,27 258,42 300,18 L300,80 L0,80 Z" fill="url(#yellowGrad2)"/>
-                                <path d="M0,65 C35,60 55,72 95,55 C135,38 155,68 195,45 C225,27 258,42 300,18" fill="none" stroke="#f59e0b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
+                        @if($wi['has_data'] && !empty($wi['subjects']))
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3">
+                                @foreach($wi['subjects'] as $subj)
+                                    @php
+                                        $pct = $subj['percent'];
+                                        $barColor = $pct >= 100 ? 'bg-green-500' : ($pct >= 70 ? 'bg-emerald-500' : ($pct >= 40 ? 'bg-amber-500' : ($pct > 0 ? 'bg-orange-500' : 'bg-red-500')));
+                                        $txtColor = $pct >= 70 ? 'text-emerald-400' : ($pct >= 40 ? 'text-amber-400' : ($pct > 0 ? 'text-orange-400' : 'text-red-400'));
+                                    @endphp
+                                    <div>
+                                        <div class="flex items-center justify-between mb-1.5">
+                                            <span class="text-[13px] font-semibold text-white truncate">{{ $subj['name'] }}</span>
+                                            <span class="text-[11px] text-neutral-500 whitespace-nowrap">{{ $subj['parts_studied'] }}/{{ $subj['parts_total'] }} پارت · <span class="{{ $txtColor }} font-bold">{{ $pct }}%</span></span>
+                                        </div>
+                                        <div class="w-full h-2 rounded-full bg-neutral-800 overflow-hidden">
+                                            <div class="h-full {{ $barColor }} rounded-full transition-all duration-700" style="width: {{ min(100, $pct) }}%"></div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-8 text-neutral-600 text-[13px]">درسی برای نمایش پیشرفت وجود ندارد.</div>
+                        @endif
+                    </div>
+
+                    {{-- ══════ 9) نمودار پیشرفت این ماه ══════ --}}
+                    @php $mi = $monthlyInsights; @endphp
+                    <div class="md:col-span-2 rounded-2xl bg-neutral-900/80 border border-neutral-800 p-4 mb-20 md:mb-0">
+                        <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-lg bg-neutral-800 flex items-center justify-center">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#888" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/>
+                                    </svg>
+                                </div>
+                                <span class="font-bold text-white text-[15px]">پیشرفت این ماه</span>
+                                @if($mi['month_label'])
+                                    <span class="text-xs text-neutral-500">{{ $mi['month_label'] }}</span>
+                                @endif
+                            </div>
+                            <div class="flex items-center gap-2 text-[10px] text-neutral-400">
+                                <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#6366f1"></span> برنامه</span>
+                                <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-sm" style="background:#f59e0b"></span> مطالعه</span>
+                            </div>
                         </div>
+
+                        @if($mi['has_data'])
+                            {{-- خلاصه ماه --}}
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
+                                <div class="rounded-xl bg-neutral-800/60 border border-neutral-700/60 p-3">
+                                    <div class="text-[11px] text-neutral-500 mb-1">مجموع ساعت مطالعه</div>
+                                    <div class="text-lg font-black text-amber-400" style="direction:ltr">{{ $mi['total_study_hours'] }}</div>
+                                </div>
+                                <div class="rounded-xl bg-neutral-800/60 border border-neutral-700/60 p-3">
+                                    <div class="text-[11px] text-neutral-500 mb-1">انجام برنامه</div>
+                                    <div class="text-lg font-black text-emerald-400">{{ $mi['completion_percent'] }}%</div>
+                                </div>
+                                <div class="rounded-xl bg-neutral-800/60 border border-neutral-700/60 p-3">
+                                    <div class="text-[11px] text-neutral-500 mb-1">پارت‌های انجام‌شده</div>
+                                    <div class="text-lg font-black text-blue-400">{{ $mi['total_parts_studied'] }}</div>
+                                </div>
+                                <div class="rounded-xl bg-neutral-800/60 border border-neutral-700/60 p-3">
+                                    <div class="text-[11px] text-neutral-500 mb-1">گزارش‌های ارسالی</div>
+                                    <div class="text-lg font-black text-green-400">{{ $mi['reports_sent'] }}</div>
+                                </div>
+                            </div>
+                            <div class="relative" style="height:200px">
+                                <canvas id="dash-chart-monthly"></canvas>
+                            </div>
+                        @else
+                            <div class="text-center py-10 text-neutral-600 text-[13px]">هنوز برنامه‌ای در این ماه ثبت نشده است.</div>
+                        @endif
                     </div>
 
                 </div>{{-- end grid --}}
             </div>{{-- end main --}}
         </div>{{-- end flex --}}
     </div>{{-- end container --}}
+
+    {{-- ════════════════ CHART INITIALIZATION ════════════════ --}}
+    @push('script')
+        <script>
+            (function () {
+                const palette = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#a855f7', '#84cc16'];
+
+                window.__dashChartData = {
+                    daily: @json($weeklyInsights['daily'] ?? []),
+                    partType: @json($weeklyInsights['part_type_distribution'] ?? (object)[]),
+                    monthly: @json($monthlyInsights['weeks'] ?? []),
+                };
+                window.__dashCharts = window.__dashCharts || {};
+
+                function destroy(id) {
+                    if (window.__dashCharts[id]) {
+                        try { window.__dashCharts[id].destroy(); } catch (e) {}
+                        delete window.__dashCharts[id];
+                    }
+                }
+
+                function gridOpts() {
+                    return {
+                        x: { ticks: { color: '#a3a3a3', font: { size: 10, family: 'inherit' } }, grid: { display: false } },
+                        y: { beginAtZero: true, ticks: { color: '#a3a3a3', font: { size: 10 } }, grid: { color: 'rgba(148,163,184,.12)' } }
+                    };
+                }
+
+                function initDaily() {
+                    const el = document.getElementById('dash-chart-daily');
+                    if (!el || typeof Chart === 'undefined') return;
+                    destroy('daily');
+                    const d = window.__dashChartData.daily || [];
+                    if (!d.length) return;
+                    window.__dashCharts['daily'] = new Chart(el, {
+                        type: 'bar',
+                        data: {
+                            labels: d.map(x => x.label),
+                            datasets: [
+                                { label: 'برنامه', data: d.map(x => x.planned_hours), backgroundColor: '#3b82f6', borderRadius: 5, maxBarThickness: 18 },
+                                { label: 'مطالعه', data: d.map(x => x.studied_hours), backgroundColor: '#10b981', borderRadius: 5, maxBarThickness: 18 },
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.parsed.y + ' ساعت' } } },
+                            scales: gridOpts()
+                        }
+                    });
+                }
+
+                function initPartType() {
+                    const el = document.getElementById('dash-chart-parttype');
+                    if (!el || typeof Chart === 'undefined') return;
+                    destroy('parttype');
+                    const obj = window.__dashChartData.partType || {};
+                    const labels = Object.keys(obj);
+                    const values = Object.values(obj);
+                    if (!labels.length) return;
+                    window.__dashCharts['parttype'] = new Chart(el, {
+                        type: 'doughnut',
+                        data: { labels: labels, datasets: [{ data: values, backgroundColor: labels.map((_, i) => palette[i % palette.length]), borderWidth: 2, borderColor: '#171717' }] },
+                        options: {
+                            responsive: true, maintainAspectRatio: false, cutout: '60%',
+                            plugins: { legend: { position: 'bottom', labels: { color: '#d4d4d4', font: { size: 10 }, boxWidth: 10, padding: 8 } } }
+                        }
+                    });
+                }
+
+                function initMonthly() {
+                    const el = document.getElementById('dash-chart-monthly');
+                    if (!el || typeof Chart === 'undefined') return;
+                    destroy('monthly');
+                    const d = window.__dashChartData.monthly || [];
+                    if (!d.length) return;
+                    window.__dashCharts['monthly'] = new Chart(el, {
+                        type: 'bar',
+                        data: {
+                            labels: d.map(x => x.label + ' (' + x.date + ')'),
+                            datasets: [
+                                { label: 'برنامه', data: d.map(x => x.planned_hours), backgroundColor: '#6366f1', borderRadius: 6, maxBarThickness: 34 },
+                                { label: 'مطالعه', data: d.map(x => x.done_hours), backgroundColor: '#f59e0b', borderRadius: 6, maxBarThickness: 34 },
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false,
+                            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.parsed.y + ' ساعت' } } },
+                            scales: gridOpts()
+                        }
+                    });
+                }
+
+                function initAll() {
+                    if (!document.getElementById('dash-chart-daily') &&
+                        !document.getElementById('dash-chart-parttype') &&
+                        !document.getElementById('dash-chart-monthly')) return;
+                    initDaily();
+                    initPartType();
+                    initMonthly();
+                }
+
+                window.__dashInitCharts = initAll;
+
+                function boot() {
+                    if (typeof Chart === 'undefined') { setTimeout(boot, 60); return; }
+                    initAll();
+                }
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', boot);
+                } else {
+                    boot();
+                }
+
+                document.addEventListener('livewire:navigated', () => {
+                    requestAnimationFrame(() => requestAnimationFrame(() => window.__dashInitCharts && window.__dashInitCharts()));
+                });
+
+                // پس از به‌روزرسانی Livewire (مثلاً تغییر داده‌ها) چارت‌ها را بازسازی کن
+                document.addEventListener('livewire:update', () => {
+                    requestAnimationFrame(() => window.__dashInitCharts && window.__dashInitCharts());
+                });
+            })();
+        </script>
+    @endpush
 </div>

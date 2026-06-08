@@ -54,6 +54,7 @@ Route::name('client.')->group(function () {
         ->name('secure.download');
 
     Route::get('/', HomeIndex::class)->name('home');
+    Route::get('/home-preview', \App\Livewire\Client\Home\Perview::class)->name('home.preview');
     Route::get('/application', DownloadIndex::class)->name('download');
     Route::redirect('/shop', '/')->name('shop');
     Route::redirect('/product/{p_code}/{slug?}', '/')->name('product');
@@ -128,7 +129,7 @@ Route::name('client.')->group(function () {
             Route::get('/ticket-create',ProfileTicketCreate::class)->name('ticket.create');
 
             //کیف پوال
-            Route::get('/wallet',ProfileWallet::class)->name('wallet');
+            Route::get('/wadslle23569414t',ProfileWallet::class)->name('wallet');
             // نوتیفیکیشن
             Route::get('/notification',ProfileNotification::class)->name('notification');
 

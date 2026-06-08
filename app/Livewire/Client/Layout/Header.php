@@ -4,27 +4,32 @@ namespace App\Livewire\Client\Layout;
 
 use App\Models\Cart;
 use App\Models\Notification;
+use App\Models\TrialWeek;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Attributes\On;
 
 class Header extends Component
 {
-    public $cart=0;
+    public $cart = 0;
 
     public ?string $profilePictureUrl = null;
 
     public ?string $gender = null;
     public $unreadCount = 0;
 
+    /** اطلاعات مشاور/پشتیبان برای نمایش در مودال موبایل */
+    public ?array $advisorInfo = null;
+
     public function mount()
     {
         $this->loadUnreadCount();
         $this->loadUserProfileData();
+        $this->loadAdvisorInfo();
         $this->cart = Cart::query()
             ->where('user_id', Auth()->id())->count();
-
     }
+
     public function loadUnreadCount()
     {
         $user = Auth::user();
@@ -53,6 +58,56 @@ class Header extends Component
         $this->profilePictureUrl = $this->resolveUserPictureUrl($user);
     }
 
+    /**
+     * بارگذاری اطلاعات مشاور یا پشتیبان جذب (در حالت آزمایشی)
+     * منطق مشابه Dashboard::getDisplayAdvisor()
+     */
+    public function loadAdvisorInfo(): void
+    {
+        $user = Auth::user();
+        if (! $user) {
+            $this->advisorInfo = null;
+            return;
+        }
+
+        $student = $user->student ?? null;
+
+        // دانش‌آموز اصلی با مشاور
+        if ($student && ! $student->is_trial && $student->advisor) {
+            $advisor = $student->advisor;
+            $this->advisorInfo = [
+                'id'      => $advisor->id,
+                'name'    => $advisor->name,
+                'mobile'  => $advisor->mobile ?? null,
+                'picture' => $advisor->picture
+                    ? asset('adminsFile/' . $advisor->id . '/' . $advisor->picture)
+                    : null,
+                'label'   => 'مشاور شما',
+            ];
+            return;
+        }
+
+        // حالت آزمایشی → پشتیبان جذب
+        $trial = TrialWeek::where('user_id', $user->id)
+            ->whereNotNull('acquisition_supporter_id')
+            ->latest()->first();
+        if ($trial && $trial->acquisitionSupporter) {
+            $sup = $trial->acquisitionSupporter;
+            $this->advisorInfo = [
+                'id'      => $sup->id,
+                'name'    => $sup->name,
+                'mobile'  => $sup->mobile ?? null,
+                'picture' => $sup->picture
+                    ? asset('adminsFile/' . $sup->id . '/' . $sup->picture)
+                    : null,
+                'label'   => 'پشتیبان شما',
+            ];
+            return;
+        }
+
+        $this->advisorInfo = null;
+    }
+
     protected function resolveUserPictureUrl($user): ?string
     {
         if (! $user?->picture) {
@@ -76,6 +131,7 @@ class Header extends Component
     {
         return $this->gender === 'female' ? 'female' : 'male';
     }
+
     #[On('add-to-cart')]
     public function getUserCart()
     {
@@ -94,6 +150,7 @@ class Header extends Component
     {
         $this->loadUnreadCount();
     }
+
     public function render()
     {
         return view('livewire.client.layout.header')->layout('layouts.client.app');
