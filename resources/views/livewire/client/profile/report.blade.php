@@ -78,7 +78,7 @@
                                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                     @foreach($weekDays as $dayIndex => $day)
                                         <div wire:key="day-{{ $dayIndex }}"
-                                             class="bg-secondary border rounded-2xl p-4 transition-colors
+                                             class="glass border rounded-2xl p-4 transition-colors
                                              {{ $day['is_submitted'] ? 'border-green-500/50' : '' }}
                                              {{ $day['can_submit'] ? 'border-blue-500' : '' }}
                                              {{ $day['is_rest_day'] ? 'border-emerald-500/50' : '' }}
@@ -170,7 +170,7 @@
                                 <div class="space-y-4 sm:space-y-5">
                                     @foreach($reports as $report)
                                         <div wire:key="report-{{ $report->id }}"
-                                             class="bg-secondary rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-border">
+                                             class="glass rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300 border border-border">
 
                                             {{-- Header --}}
                                             <div class="bg-gradient-to-r from-primary/10 via-blue-500/10 to-sky-500/10 px-4 sm:px-6 py-3 sm:py-4 border-b border-border">
@@ -389,7 +389,7 @@
                  wire:click="closeReportModal"></div>
 
             <div class="relative z-10 w-full sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] overflow-hidden
-                        bg-secondary border-t sm:border border-border
+                         border-t glass sm:border border-border
                         rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col
                         pb-[env(safe-area-inset-bottom,80px)] sm:pb-0
                         transition-all duration-300 ease-out
@@ -401,7 +401,7 @@
                 </div>
 
                 {{-- Header --}}
-                <div class="shrink-0 bg-secondary border-b border-border px-4 sm:px-6 py-3 sm:py-4">
+                <div class="shrink-0  border-b border-border px-4 sm:px-6 py-3 sm:py-4">
                     <div class="flex items-center justify-between">
                         <div>
                             <h3 class="text-base sm:text-lg font-bold text-foreground">ثبت گزارش روزانه</h3>
@@ -416,7 +416,7 @@
                 </div>
 
                 {{-- Scrollable Content --}}
-                <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5 bg-secondary">
+                <div class="flex-1 overflow-y-auto px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5 glass">
 
                     <div class="space-y-3">
                         <div class="flex items-center justify-between">
@@ -442,7 +442,7 @@
                                     $partIsLocked = ($partHasStudyHours && $partIsSelected) || $partIsRejected;
                                 @endphp
                                 <div wire:key="part-select-{{ $part->id }}"
-                                     class="relative bg-secondary rounded-xl border-2 transition-all duration-200
+                                     class="relative bg-background rounded-xl border-2 transition-all duration-200
                                      {{ $partIsRejected ? 'border-red-500 bg-red-50/30 dark:bg-red-900/10' : ($partIsSelected ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : '') }}
                                      {{ !$partHasStudyHours && !$partIsRejected ? 'border-red-300 dark:border-red-800 opacity-70' : (!$partIsSelected && !$partIsRejected ? 'border-transparent hover:-translate-y-px' : '') }}">
 
@@ -570,7 +570,7 @@
                             </label>
                             <p class="text-xs text-muted">{{ $unreadCount }} پارت از برنامه امروز انجام نشده — لطفاً دلیل را توضیح دهید.</p>
                             <textarea wire:model="missedPartsReason" rows="3"
-                                      class="w-full rounded-xl border {{ $errors->has('missedPartsReason') ? 'border-red-400' : 'border-red-300 dark:border-red-700' }} bg-secondary text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
+                                      class="w-full rounded-xl border {{ $errors->has('missedPartsReason') ? 'border-red-400' : 'border-red-300 dark:border-red-700' }} bg-background text-foreground px-4 py-3 text-sm sm:text-base resize-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all"
                                       placeholder="لطفاً توضیح دهید چرا پارت‌های مطالعاتی انجام نشدند..."></textarea>
                             @error('missedPartsReason')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                         </div>
@@ -877,7 +877,7 @@
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
                  wire:click="closeReplyModal"></div>
 
-            <div class="relative z-10 w-full sm:max-w-lg bg-secondary border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0">
+            <div class="relative z-10 w-full sm:max-w-lg glass border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0">
 
                 {{-- Mobile handle bar --}}
                 <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
@@ -885,7 +885,7 @@
                 </div>
 
                 {{-- Header --}}
-                <div class="flex items-center justify-between px-6 py-4 border-b border-border">
+                <div class="flex items-center justify-between px-6 py-4 border-b border-border ">
                     <h3 class="text-lg font-bold text-foreground">نظر مشاور</h3>
                     <button type="button" wire:click="closeReplyModal" class="text-muted hover:text-foreground transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
@@ -896,7 +896,7 @@
 
                 <div class="px-6 py-5 space-y-4">
                     {{-- Advisor Comment --}}
-                    <div class="bg-primary/10 border border-primary/20 rounded-xl p-4">
+                    <div class="bg-secondary border border-primary/20 rounded-xl p-4">
                         <div class="flex items-center gap-2 mb-3">
                             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20">
                                 <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -925,7 +925,7 @@
                         <div class="space-y-2">
                             <label class="font-semibold text-foreground text-sm">پاسخ شما (اختیاری):</label>
                             <textarea wire:model="studentReplyInput" rows="3"
-                                      class="w-full rounded-xl border border-border bg-secondary text-foreground px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                                      class="w-full rounded-xl border border-border bg-background text-foreground px-4 py-3 text-sm resize-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                       placeholder="پاسخ خود را بنویسید..."></textarea>
                             @error('studentReplyInput')<p class="text-red-500 text-xs mt-1">{{ $message }}</p>@enderror
                         </div>

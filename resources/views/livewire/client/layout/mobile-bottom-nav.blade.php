@@ -3,7 +3,7 @@
         /* notch دایره‌ای زیر لوگو وسط — با mask برش می‌خوره */
         .bottom-nav-notch {
             -webkit-mask-image: radial-gradient(circle 38px at 50% 0, transparent 0, transparent 37px, #000 38px);
-            mask-image: radial-gradient(circle 38px at 50% 0, transparent 0, transparent 44px, #000 38px);
+            mask-image: radial-gradient(circle 37px at 50% 0, transparent 0, transparent 31px, #000 47px);
             -webkit-mask-repeat: no-repeat;
             mask-repeat: no-repeat;
             -webkit-mask-size: 100% 100%;

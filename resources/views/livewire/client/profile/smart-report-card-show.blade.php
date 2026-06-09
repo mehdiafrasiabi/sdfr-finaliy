@@ -425,7 +425,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
                 </div>
 
                 @if(!$hasAnyData)
-                    <div class="section-up bg-secondary border border-border rounded-2xl p-12 text-center space-y-4">
+                    <div class="section-up glass border border-border rounded-2xl p-12 text-center space-y-4">
                         {{-- Empty state SVG --}}
                         <div class="float-up inline-block">
                             <svg width="150" height="120" viewBox="0 0 200 160" fill="none"
@@ -582,7 +582,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
                         @endphp
 
                         @foreach($statCards as $sc)
-                            <div class="stat-card bg-secondary border border-border rounded-2xl p-4"
+                            <div class="stat-card glass border border-border rounded-2xl p-4"
                                  style="--accent: {{ $sc['accent'] }}; --accent-border: {{ $sc['accent'] }}66;">
                                 <div class="flex items-start justify-between mb-2">
                                     <div class="text-[11px] text-muted">{{ $sc['label'] }}</div>
@@ -611,7 +611,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
 
                     {{-- ════════════════ Donut charts ════════════════ --}}
                     <div class="section-up grid grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                        <div class="bg-secondary border border-border rounded-2xl p-5">
+                        <div class="glass border border-border rounded-2xl p-5">
                             <div class="font-bold text-foreground text-sm mb-3 flex items-center gap-1.5">
                                 <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> توزیع نوع پارت
                             </div>
@@ -622,7 +622,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
                                 <div class="text-xs text-muted text-center mt-2">داده‌ای موجود نیست</div>
                             @endif
                         </div>
-                        <div class="bg-secondary border border-border rounded-2xl p-5">
+                        <div class="glass border border-border rounded-2xl p-5">
                             <div class="font-bold text-foreground text-sm mb-3 flex items-center gap-1.5">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> توزیع نوع درس
                             </div>
@@ -633,7 +633,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
                                 <div class="text-xs text-muted text-center mt-2">داده‌ای موجود نیست</div>
                             @endif
                         </div>
-                        <div class="bg-secondary border border-border rounded-2xl p-5">
+                        <div class="glass border border-border rounded-2xl p-5">
                             <div class="font-bold text-foreground text-sm mb-3 flex items-center gap-1.5">
                                 <span class="w-1.5 h-1.5 rounded-full bg-violet-500"></span> توزیع پایه تحصیلی
                             </div>
@@ -644,7 +644,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
                                 <div class="text-xs text-muted text-center mt-2">داده‌ای موجود نیست</div>
                             @endif
                         </div>
-                        <div class="bg-secondary border border-border rounded-2xl p-5">
+                        <div class="glass border border-border rounded-2xl p-5">
                             <div class="font-bold text-foreground text-sm mb-3 flex items-center gap-1.5">
                                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> کیفیت مطالعه
                             </div>
@@ -657,7 +657,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
 
 
                     {{-- ════════════════ Sessions chart ════════════════ --}}
-                    <div class="section-up bg-secondary border border-border rounded-2xl p-5">
+                    <div class="section-up glass border border-border rounded-2xl p-5">
                         <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
                             <div>
                                 <div class="font-bold text-foreground">ساعت مطالعه به تفکیک جلسات</div>
@@ -698,7 +698,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
 
 
                     {{-- ════════════════ Subject progress ════════════════ --}}
-                    <div class="section-up bg-secondary border border-border rounded-2xl overflow-hidden"
+                    <div class="section-up glass border border-border rounded-2xl overflow-hidden"
                          x-data="{ activeGrade: '{{ $defaultGradeTab }}' }">
                         <div class="p-4 border-b border-border">
                             <div class="flex items-center justify-between flex-wrap gap-3">
@@ -750,7 +750,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
                                                 </div>
                                                 <div class="flex items-center gap-2">
                                                     <div
-                                                        class="flex-1 h-2 bg-secondary border border-border rounded-full overflow-hidden">
+                                                        class="flex-1 h-2 glass border border-border rounded-full overflow-hidden">
                                                         <div class="h-full {{ $barColor }} rounded-full progress-fill"
                                                              style="width: {{ min(100, $pct) }}%"></div>
                                                     </div>
@@ -792,7 +792,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
 
 
                     {{-- ════════════════ Escaped subjects ════════════════ --}}
-                    <div class="section-up bg-secondary border border-border rounded-2xl p-5">
+                    <div class="section-up glass border border-border rounded-2xl p-5">
                         <div class="flex items-center gap-2 mb-2">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                  stroke="currentColor" class="w-5 h-5 text-red-500">
@@ -820,7 +820,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
 
 
                     {{-- ════════════════ Cheat parts ════════════════ --}}
-                    <div class="section-up bg-secondary border border-border rounded-2xl p-5">
+                    <div class="section-up glass border border-border rounded-2xl p-5">
                         <div class="flex items-center gap-2 mb-2">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                  stroke="currentColor" class="w-5 h-5 text-rose-500">
@@ -849,7 +849,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
                                     </thead>
                                     <tbody>
                                     @foreach($current['cheat_parts'] as $cp)
-                                        <tr class="odd:bg-background even:bg-secondary border-b border-border/40">
+                                        <tr class="odd:bg-background even:glass border-b border-border/40">
                                             <td class="p-2.5 text-muted whitespace-nowrap">{{ $cp['report_date'] }}</td>
                                             <td class="p-2.5 font-semibold text-foreground whitespace-nowrap">{{ $cp['subject_name'] }}</td>
                                             <td class="p-2.5 text-muted whitespace-nowrap">{{ $cp['chapter_name'] ?? '-' }}</td>
@@ -866,7 +866,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
 
                     {{-- ════════════════ COMPARE WITH PREVIOUS MONTH ════════════════ --}}
                     <div id="compare-section"
-                         class="section-up bg-secondary border border-border rounded-2xl overflow-hidden"
+                         class="section-up glass border border-border rounded-2xl overflow-hidden"
                          x-data="{ open: false }">
 
                         {{-- CTA state --}}

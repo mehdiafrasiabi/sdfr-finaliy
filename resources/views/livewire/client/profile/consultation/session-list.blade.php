@@ -69,7 +69,7 @@
                                     --}}
                                     <div
                                         x-data="{ expanded: false }"
-                                        class="bg-secondary border border-border rounded-2xl overflow-hidden flex flex-col {{ $isLocked ? 'opacity-75' : '' }}"
+                                        class="glass border border-border rounded-2xl overflow-hidden flex flex-col {{ $isLocked ? 'opacity-75' : '' }}"
                                     >
                                         <!-- Main Box -->
                                         <div class="p-4 flex-1 flex flex-col gap-4">

@@ -263,7 +263,7 @@
 
                     @if($student && !$isTrialStudent && $unreadNotificationsCount > 0)
                         <a wire:navigate href="{{ route('client.profile.notification') }}"
-                           class="glass rise flex items-center justify-between p-4 rounded-2xl" style="animation-delay:.05s">
+                           class="glass card-live rise flex items-center justify-between p-4 rounded-2xl" style="animation-delay:.05s">
                             <span class="font-bold text-sm text-yellow-400">{{ $unreadNotificationsCount }} پیام خوانده نشده</span>
                             <span class="text-sm text-white">مشاهده پیام‌ها ←</span>
                         </a>
@@ -280,7 +280,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     {{-- ══════ 1) مشاور (زنده) ══════ --}}
-                    <div class="glass card-live rise md:col-span-2 p-4 flex items-center justify-between gap-4" style="animation-delay:.1s">
+                    <div class="glass  rise md:col-span-2 p-4 flex items-center justify-between gap-4" style="animation-delay:.1s">
                         {{-- راست: عکس + نام --}}
                         <div class="flex items-center gap-3">
                             @if($advisorStudent && !empty($advisorStudent['picture']))
@@ -314,7 +314,7 @@
                     </div>
 
                     {{-- ══════ 2) ارسال گزارش (زنده) ══════ --}}
-                    <div class="glass card-live rise p-4" style="animation-delay:.15s">
+                    <div class="glass rise p-4" style="animation-delay:.15s">
                         {{-- هدر --}}
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-2">
@@ -393,7 +393,7 @@
                     </div>
 
                     {{-- ══════ 3) ساعت مطالعه (زنده) ══════ --}}
-                    <div class="glass card-live rise p-4" style="animation-delay:.2s">
+                    <div class="glass rise p-4" style="animation-delay:.2s">
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-2">
                                 <div class="icon-chip">
@@ -426,7 +426,7 @@
                     </div>
 
                     {{-- ══════ 4) برنامه امروز (زنده، full-width) ══════ --}}
-                    <div class="glass card-live rise md:col-span-2 p-4" style="animation-delay:.25s">
+                    <div class="glass rise md:col-span-2 p-4" style="animation-delay:.25s">
                         <div class="flex items-center justify-between gap-2 mb-1">
                             <div class="flex items-center gap-2">
                                 <div class="icon-chip">

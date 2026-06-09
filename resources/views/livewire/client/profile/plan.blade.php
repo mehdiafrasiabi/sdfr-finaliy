@@ -25,7 +25,7 @@
                             <!-- tabs:list-container -->
                             <div class="relative overflow-x-auto">
                                 <!-- tabs:list -->
-                                <ul class="inline-flex gap-2 bg-secondary border border-border rounded-full p-1">
+                                <ul class="inline-flex gap-2 border border-border rounded-full p-1">
                                     <li>
                                         <button type="button"
                                                 class="flex items-center gap-x-2 relative rounded-full py-2 px-4"
@@ -71,7 +71,7 @@
                                                         $isExpanded = in_array($program->id, $expandedPrograms ?? []);
                                                     @endphp
 
-                                                    <div class="bg-secondary border border-border rounded-2xl overflow-hidden flex flex-col">
+                                                    <div class="glass border border-border rounded-2xl overflow-hidden flex flex-col">
 
                                                         <!-- Main Box -->
                                                         <div class="p-4 flex-1 flex flex-col gap-4">
@@ -92,20 +92,20 @@
                                                                         </h3>
 
                                                                         <p class="text-sm text-muted mt-1">
-                            <span class="inline-flex items-center gap-1">
-                                تا {{ jdate($program->end_date)->format('d %B Y') }}
-                            </span>
+                                                                            <span class="inline-flex items-center gap-1">
+                                                                                تا {{ jdate($program->end_date)->format('d %B Y') }}
+                                                                            </span>
                                                                         </p>
 
                                                                         {{-- وضعیت + آمار در یک ردیف --}}
                                                                         <div class="mt-3 flex flex-wrap items-center gap-2">
                                                                             <!-- ساعت -->
                                                                             <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded-full">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                </svg>
-                                {{ $program->total_hours }} ساعت
-                            </span>
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                                                                </svg>
+                                                                                {{ $program->total_hours }} ساعت
+                                                                            </span>
 
                                                                             <!-- پارت -->
                                                                             <span class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs rounded-full">

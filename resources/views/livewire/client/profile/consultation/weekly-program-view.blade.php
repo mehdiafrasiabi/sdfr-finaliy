@@ -29,7 +29,7 @@
     }"
 >
     {{-- هدر برنامه --}}
-    <section class="mb-6 overflow-hidden rounded-2xl border border-border bg-secondary shadow-[0_4px_20px_rgba(15,23,42,0.06),0_2px_8px_rgba(15,23,42,0.04)]">
+    <section class="mb-6 overflow-hidden rounded-2xl border border-border glass shadow-[0_4px_20px_rgba(15,23,42,0.06),0_2px_8px_rgba(15,23,42,0.04)]">
         <div class="bg-gradient-to-r from-blue-900 via-blue-600 to-blue-400 px-4 py-5 sm:px-6 sm:py-6">
             <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 {{-- لوگو + عنوان --}}
@@ -152,7 +152,7 @@
     <section
         x-show="tab === 'grid'"
         x-cloak
-        class="rounded-2xl border border-border bg-secondary shadow-sm"
+        class="rounded-2xl border border-border glass shadow-sm"
     >
         {{-- ناوبری موبایل (فقط روی موبایل نمایش داده می‌شه) --}}
         <div class="flex md:hidden items-center gap-2 px-3 py-3 border-b border-border bg-muted/30 rounded-t-2xl">
@@ -162,7 +162,7 @@
                 @click="goPrev()"
                 :disabled="currentDayIndex === 0"
                 :class="currentDayIndex === 0 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-primary/10 active:scale-95'"
-                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-secondary text-foreground transition-all shrink-0"
+                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0"
                 title="روز قبل"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
@@ -174,7 +174,7 @@
             <div class="flex-1 relative">
                 <select
                     x-model.number="currentDayIndex"
-                    class="w-full appearance-none rounded-xl border border-border bg-secondary text-foreground text-[12px] font-medium px-3 py-2 pr-3 pl-7 focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer"
+                    class="w-full appearance-none rounded-xl border border-border glass text-foreground text-[12px] font-medium px-3 py-2 pr-3 pl-7 focus:outline-none focus:ring-2 focus:ring-primary/30 cursor-pointer"
                 >
                     @foreach($weekDays as $i => $day)
                         <option value="{{ $i }}">
@@ -196,7 +196,7 @@
                 @click="goNext()"
                 :disabled="currentDayIndex === totalDays - 1"
                 :class="currentDayIndex === totalDays - 1 ? 'opacity-40 cursor-not-allowed' : 'hover:bg-primary/10 active:scale-95'"
-                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border bg-secondary text-foreground transition-all shrink-0"
+                class="flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0"
                 title="روز بعد"
             >
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
@@ -293,7 +293,7 @@
     <section
         x-show="tab === 'list'"
         x-cloak
-        class="mt-6 rounded-2xl border border-border bg-secondary p-4 shadow-sm sm:p-5"
+        class="mt-6 rounded-2xl border border-border glass p-4 shadow-sm sm:p-5"
     >
         {{-- هدر + فیلتر --}}
         <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -599,7 +599,7 @@
     {{-- نمودارها --}}
     <section class="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
         {{-- نوع پارت --}}
-        <div class="rounded-2xl border border-border bg-secondary p-4 shadow-sm dark:bg-secondary">
+        <div class="rounded-2xl border border-border glass p-4 shadow-sm dark:glass">
             <h3 class="mb-3 text-center text-sm font-semibold text-foreground">توزیع نوع پارت</h3>
             <div class="flex items-center justify-center">
                 <div class="relative h-32 w-32 sm:h-36 sm:w-36">
@@ -633,7 +633,7 @@
         </div>
 
         {{-- نوع درس --}}
-        <div class="rounded-2xl border border-border bg-secondary p-4 shadow-sm">
+        <div class="rounded-2xl border border-border glass p-4 shadow-sm">
             <h3 class="mb-3 text-center text-sm font-semibold text-foreground">توزیع نوع درس</h3>
             <div class="flex items-center justify-center">
                 <div class="relative h-32 w-32 sm:h-36 sm:w-36">
@@ -662,7 +662,7 @@
         </div>
 
         {{-- پایه تحصیلی --}}
-        <div class="rounded-2xl border border-border bg-secondary p-4 shadow-sm">
+        <div class="rounded-2xl border border-border glass p-4 shadow-sm">
             <h3 class="mb-3 text-center text-sm font-semibold text-foreground">توزیع پایه تحصیلی</h3>
             <div class="flex items-center justify-center">
                 <div class="relative h-32 w-32 sm:h-36 sm:w-36">
@@ -696,7 +696,7 @@
         </div>
 
         {{-- منبع پارت --}}
-        <div class="rounded-2xl border border-border bg-secondary p-4 shadow-sm">
+        <div class="rounded-2xl border border-border glass p-4 shadow-sm">
             <h3 class="mb-3 text-center text-sm font-semibold text-foreground">توزیع منبع پارت</h3>
             <div class="flex items-center justify-center">
                 <div class="relative h-32 w-32 sm:h-36 sm:w-36">

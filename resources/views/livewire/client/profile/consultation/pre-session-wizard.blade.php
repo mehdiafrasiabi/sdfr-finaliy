@@ -146,7 +146,7 @@
         {{-- CARDS GRID --}}
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($cards as $key => $card)
-                <div class="pre-card group rounded-2xl border-2 border-border bg-card p-5 {{ $card['count'] > 0 ? 'is-completed' : '' }}"
+                <div class="pre-card group rounded-2xl glass border-2 border-border bg-card p-5 {{ $card['count'] > 0 ? 'is-completed' : '' }}"
                      style="--accent: rgb({{ $card['hex'] }});">
                     <div class="flex items-start justify-between mb-4">
                         <div class="icon-box flex items-center justify-center w-12 h-12 rounded-xl border"
@@ -167,7 +167,7 @@
                         <button wire:click="openModal('summary')"
                                 class="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
                                 style="background:linear-gradient(135deg,rgb({{ $card['hex'] }}),rgb({{ $card['hex'] }}/.85));box-shadow:0 4px 14px rgb({{ $card['hex'] }}/.4);">
-                            مرور و ثبت نهایی
+                            ثبت نهایی
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </button>
                     @elseif($canEdit)
@@ -210,7 +210,7 @@
                 <div class="sheet-overlay" wire:click="closeModal"></div>
                 <div class="sheet" @click.stop>
                     <div class="sheet-handle"></div>
-                    <div class="sheet-header-pattern shrink-0 px-5 py-4 border-b border-border flex items-center justify-between" style="--accent-color:rgb(59 130 246/.25);">
+                    <div class="sheet-header-pattern  shrink-0 px-5 py-4 border-b border-border flex items-center justify-between" style="--accent-color:rgb(59 130 246/.25);">
                         <div class="flex items-center gap-3">
                             <div class="w-11 h-11 rounded-xl bg-blue-500/10 text-blue-600 border border-blue-500/30 flex items-center justify-center">
                                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -226,7 +226,7 @@
                     </div>
 
                     {{-- محتوای اسکرول‌پذیر --}}
-                    <div class="flex-1 overflow-y-auto p-5 space-y-5" x-ref="examScroll" id="exam-scroll">
+                    <div class="flex-1 overflow-y-auto p-5 space-y-5 glass" x-ref="examScroll" id="exam-scroll">
 
                         @if(count($exams) > 0)
                             <div>
@@ -366,7 +366,7 @@
                         </div>
                         <button wire:click="closeModal" class="w-9 h-9 rounded-xl hover:bg-muted transition flex items-center justify-center"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-5 space-y-5" id="qa-scroll">
+                    <div class="flex-1 overflow-y-auto glass p-5 space-y-5" id="qa-scroll">
                         @if(count($qas) > 0)
                             <div>
                                 <h4 class="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>ثبت شده ({{ count($qas) }} مورد)</h4>
@@ -476,7 +476,7 @@
                         </div>
                         <button wire:click="closeModal" class="w-9 h-9 rounded-xl hover:bg-muted transition flex items-center justify-center"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-5 space-y-5" id="assignment-scroll">
+                    <div class="flex-1 overflow-y-auto p-5 space-y-5 glass" id="assignment-scroll">
                         @if(count($assignments) > 0)
                             <div>
                                 <h4 class="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>ثبت شده ({{ count($assignments) }} مورد)</h4>
@@ -581,7 +581,7 @@
                         </div>
                         <button wire:click="closeModal" class="w-9 h-9 rounded-xl hover:bg-muted transition flex items-center justify-center"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-5 space-y-5" id="requested-scroll">
+                    <div class="flex-1 overflow-y-auto p-5 space-y-5 glass" id="requested-scroll">
                         @if(count($requestedParts) > 0)
                             <div>
                                 <h4 class="text-xs font-bold text-muted-foreground mb-2 flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>ثبت شده ({{ count($requestedParts) }} مورد)</h4>
@@ -683,7 +683,7 @@
                         </div>
                         <button wire:click="closeModal" class="w-9 h-9 rounded-xl hover:bg-muted transition flex items-center justify-center"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-5">
+                    <div class="flex-1 overflow-y-auto p-5 glass">
                         <label class="block text-xs font-semibold mb-1.5">توضیحات تکمیلی</label>
                         <p class="text-[11px] text-muted-foreground mb-3 leading-5">هر چیزی که فکر می‌کنی مشاورت باید بدونه — مشکلات، اهداف، نگرانی‌ها، نکات خاص و …</p>
                         <textarea wire:model="miscDescription" rows="8"
@@ -717,7 +717,7 @@
                         </div>
                         <button wire:click="closeModal" class="w-9 h-9 rounded-xl hover:bg-muted transition flex items-center justify-center"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
                     </div>
-                    <div class="flex-1 overflow-y-auto p-5 space-y-4">
+                    <div class="flex-1 overflow-y-auto p-5 space-y-4 glass">
                         <div class="rounded-xl border border-border bg-muted/30 p-3 sm:p-4">
                             <h4 class="mb-3 text-xs font-bold text-blue-600 flex items-center gap-2"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg>امتحانات ({{ count($exams) }} مورد)</h4>
                             @forelse($exams as $exam)<div class="border-b border-dashed border-border py-1.5 text-xs sm:text-sm last:border-b-0">{{ $exam['subject'] }} – {{ $exam['part_count'] }}×{{ $exam['time_per_part'] }}د – {{ \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($exam['exam_date'],'UTC')->setTimezone('Asia/Tehran'))->format('Y/m/d') }}</div>@empty<p class="text-xs text-muted-foreground">ثبت نشده</p>@endforelse

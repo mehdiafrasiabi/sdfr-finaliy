@@ -3,7 +3,7 @@
      x-on:notification-read.window="if (unreadCount > 0) { unreadCount--; }">
     <div class="flex items-center gap-5 mb-5">
         <div class="flex items-center gap-3">
-            <div class="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden bg-secondary from-blue-100  flex items-center justify-center">
+            <div class="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden glass from-blue-100  flex items-center justify-center">
                 @if($profilePictureUrl)
                     <img src="{{ $profilePictureUrl }}" class="w-full h-full object-cover rounded-full" alt="avatar">
                 @elseif($this->defaultAvatarType === 'female')
@@ -30,7 +30,7 @@
             </div>
         </div>
     </div>
-    <ul class="flex flex-col space-y-3 bg-secondary rounded-2xl p-5">
+    <ul class="flex flex-col space-y-3 glass rounded-2xl p-5">
         @if(auth()->user()?->isSchoolStudent())
             <li>
                 <a wire:navigate href="{{ route('client.profile.school.dashboard') }}"

@@ -42,7 +42,7 @@
                                     $isExpanded = in_array($payment->id, $expandedPayments ?? []);
                                 @endphp
 
-                                <div class="bg-secondary border border-border rounded-2xl overflow-hidden flex flex-col">
+                                <div class="glass border border-border rounded-2xl overflow-hidden flex flex-col">
 
                                     <!-- Main Box -->
                                     <div class="p-4 flex-1 flex flex-col gap-4">

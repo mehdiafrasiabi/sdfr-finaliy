@@ -35,7 +35,7 @@
                                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                                             @foreach($smartCards as $card)
                                                 <a wire:navigate href="{{ route('client.profile.smartReportCard.show', $card->id) }}"
-                                                   class="group block bg-secondary border border-border rounded-2xl p-5 hover:border-primary transition-colors">
+                                                   class="group block glass border border-border rounded-2xl p-5 hover:border-primary transition-colors">
                                                     <div class="flex items-start justify-between mb-3">
                                                         <div>
                                                             <div class="font-black text-lg text-foreground">{{ $card->month_name }}</div>

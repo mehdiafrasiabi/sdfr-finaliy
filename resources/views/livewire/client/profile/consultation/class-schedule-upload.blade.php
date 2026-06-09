@@ -83,10 +83,10 @@
                         {{-- جدول برنامه کلاسی --}}
                         <div dir="rtl" class="space-y-4">
                             @foreach($days as $day)
-                                <div class="rounded-2xl border border-border bg-secondary overflow-hidden">
+                                <div class="rounded-2xl border border-border  overflow-hidden">
 
                                     {{-- هدر روز --}}
-                                    <div class="flex items-center justify-between px-4 py-3 bg-secondary border-b border-border">
+                                    <div class="flex items-center justify-between px-4 py-3 glass border-b border-border">
                                         <div class="flex items-center gap-3">
                                             <span class="inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm
                                                 {{ $day['is_complete']
@@ -132,7 +132,7 @@
                                     </div>
 
                                     {{-- پارت‌ها --}}
-                                    <div class="p-4 bg-secondary">
+                                    <div class="p-4 glass">
                                         @php
                                             $filledParts = collect($day['parts'])->where('is_filled', true);
                                             $nextUnlocked = collect($day['parts'])->where('is_filled', false)->where('is_unlocked', true)->first();

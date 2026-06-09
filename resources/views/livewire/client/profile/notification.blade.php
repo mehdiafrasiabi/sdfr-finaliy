@@ -72,7 +72,7 @@
                             $iconPath    = $icons[$cat]        ?? $icons['announcement'];
                         @endphp
 
-                        <div class="bg-secondary border border-border rounded-xl overflow-hidden border-l-4 {{ $borderColor }} transition-all hover:shadow-lg">
+                        <div class="glass border border-border rounded-xl overflow-hidden border-l-4 {{ $borderColor }} transition-all hover:shadow-lg">
                             <div class="p-4 md:p-5">
 
                                 {{--
