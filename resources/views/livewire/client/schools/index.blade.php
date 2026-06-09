@@ -878,25 +878,18 @@
                      x-data="{
                         count: '',
                         tiers: @js($tiersJs),
-                        fee: @js($managerFee),
-                        threshold: @js($discountAfter),
+                        basePrice: @js($basePrice),
                         get n() {
                             let v = parseInt(String(this.count).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[^0-9]/g, ''));
                             return isNaN(v) || v < 0 ? 0 : v;
                         },
-                        get payable() {
-                            let n = this.n, total = 0, remaining = n, prev = 0;
-                            for (const t of this.tiers) {
-                                const max = t.max === null ? Infinity : t.max;
-                                const take = Math.min(remaining, max - prev);
-                                total += take * t.price;
-                                remaining -= take;
-                                prev = max;
-                                if (remaining <= 0) break;
-                            }
-                            return total;
+                        get unitPrice() {
+                            for (const t of this.tiers) { if (t.max === null || this.n <= t.max) return t.price; }
+                            return this.tiers[this.tiers.length - 1].price;
                         },
-                        get discount() { return this.n > this.threshold ? this.n * this.fee : 0; },
+                        get payable() { return this.n * this.unitPrice; },
+                        get discountPerStudent() { return this.basePrice - this.unitPrice; },
+                        get discount() { return this.n * this.discountPerStudent; },
                         get pkg() {
                             for (const t of this.tiers) { if (t.max === null || this.n <= t.max) return t.label; }
                             return this.tiers[this.tiers.length - 1].label;
@@ -995,30 +988,10 @@
                                         </button>
                                     </div>
 
-                                    {{-- جدول پک‌ها --}}
-                                    <div class="space-y-2 pt-1">
-                                        <div class="text-[11px] font-semibold text-white/30 mb-1">قیمت هر دانش‌آموز در هر پک:</div>
-                                        @foreach($pricingTiers as $i => $tier)
-                                            @php
-                                                $prevMax = $i === 0 ? 0 : $pricingTiers[$i - 1]['max'];
-                                                $range = $tier['max'] > 1000000
-                                                    ? ($prevMax + 1) . '+'
-                                                    : ($prevMax + 1) . ' تا ' . $tier['max'];
-                                            @endphp
-                                            <div class="flex items-center justify-between rounded-lg px-3 py-2 text-xs transition-all duration-200"
-                                                 style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);">
-                                                <div class="flex items-center gap-2">
-                                                    <div class="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                                                         style="background:{{ ['#3b82f6','#8b5cf6','#ec4899','#f59e0b'][$i % 4] }};"></div>
-                                                    <span class="font-bold text-white/75">{{ $tier['label'] }}</span>
-                                                    <span class="text-white/30">({{ $range }} نفر)</span>
-                                                </div>
-                                                <span class="font-bold tabular-nums" style="color:{{ ['#60a5fa','#a78bfa','#f472b6','#fbbf24'][$i % 4] }};">
-                        {{ number_format($tier['price']) }} تومان
-                    </span>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                                    <p class="font-medium text-[11px] text-muted leading-5 pt-1">
+                                        کافی است تعداد دانش‌آموزان را وارد کنید؛ هزینه‌ی قابل پرداخت و میزان
+                                        تخفیف شما به‌صورت لحظه‌ای محاسبه و نمایش داده می‌شود.
+                                    </p>
                                 </div>
                             </div>
 
@@ -1102,12 +1075,15 @@
                                                 </div>
                                                 <p class="font-medium text-[11px] text-muted leading-5 mt-1"
                                                    x-show="discount === 0">
-                                                    تخفیف از <span x-text="fmt(threshold)"></span> دانش‌آموز به بعد فعال می‌شود
-                                                    (به ازای هر دانش‌آموز <span x-text="fmt(fee)"></span> تومان).
+                                                    قیمت هر دانش‌آموز در این تعداد <span x-text="fmt(unitPrice)"></span> تومان است.
+                                                    با افزایش تعداد دانش‌آموزان، قیمت هر نفر کاهش یافته و تخفیف شما فعال می‌شود.
                                                 </p>
                                                 <p class="font-medium text-[11px] text-muted leading-5 mt-1"
                                                    x-show="discount > 0">
-                                                    به ازای هر دانش‌آموز <span x-text="fmt(fee)"></span> تومان سود برای مدیر مدرسه.
+                                                    قیمت هر دانش‌آموز <span x-text="fmt(discountPerStudent)"></span> تومان
+                                                    کاهش یافته است (از <span x-text="fmt(basePrice)"></span> به
+                                                    <span x-text="fmt(unitPrice)"></span> تومان)؛ یعنی روی هر نفر
+                                                    <span x-text="fmt(discountPerStudent)"></span> تومان تخفیف می‌گیرید.
                                                 </p>
                                             </div>
 
@@ -1136,6 +1112,98 @@
                 </div>
             </div>
         </section>
+
+        {{-- ======================= INSTALLMENTS ======================= --}}
+        <section id="installments" class="scroll-mt-24 reveal">
+            <div class="relative rounded-3xl glass orbit-wrap">
+                <div class="overflow-hidden rounded-3xl relative p-6 md:p-10">
+                    <div class="absolute inset-0 grid-bg pointer-events-none"></div>
+                    <div class="absolute -top-20 left-1/4 w-80 h-80 bg-emerald-500/15 rounded-full blur-3xl blob-1"></div>
+                    <div class="absolute -bottom-20 right-1/4 w-80 h-80 bg-primary/10 rounded-full blur-3xl blob-2"></div>
+
+                    <div class="relative grid md:grid-cols-12 gap-8 items-center">
+                        <div class="md:col-span-7 space-y-5 reveal-right">
+                            <div class="inline-flex items-center gap-2 glass rounded-full px-3 py-1.5">
+                                <svg class="w-3.5 h-3.5 text-emerald-500" xmlns="http://www.w3.org/2000/svg"
+                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="2" y="6" width="20" height="12" rx="2"/>
+                                    <circle cx="12" cy="12" r="2"/>
+                                    <path d="M6 12h.01M18 12h.01"/>
+                                </svg>
+                                <span class="font-semibold text-xs text-foreground">پرداخت اقساطی</span>
+                            </div>
+                            <h2 class="font-black text-2xl md:text-3xl text-foreground leading-tight">
+                                امکان همکاری به‌صورت <span class="shimmer-text">اقساطی</span>
+                            </h2>
+                            <p class="font-medium text-sm text-muted leading-8">
+                                لازم نیست همه‌ی هزینه را یکجا پرداخت کنید. برای راحتی مدارس،
+                                طرح پرداخت اقساطی هم در نظر گرفته‌ایم: تنها بخشی از مبلغ را
+                                به‌صورت نقد پرداخت می‌کنید و باقی‌مانده در چند قسط ماهانه تسویه می‌شود.
+                            </p>
+                            <ul class="space-y-3 pt-1">
+                                @foreach([
+                                    'پرداخت ۳۰٪ مبلغ قرارداد به‌صورت نقد در ابتدای همکاری',
+                                    'تقسیط مابقی مبلغ در چند قسط ماهانه و بدون سود',
+                                    'تنظیم برنامه‌ی اقساط متناسب با شرایط مدرسه',
+                                ] as $item)
+                                    <li class="flex items-start gap-2.5">
+                                        <span class="flex items-center justify-center w-6 h-6 bg-emerald-500/15 text-emerald-500 border border-emerald-500/20 rounded-md mt-0.5 shrink-0">
+                                            <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                 fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                                                 stroke-linejoin="round">
+                                                <path d="M20 6 9 17l-5-5"/>
+                                            </svg>
+                                        </span>
+                                        <span class="font-semibold text-sm text-foreground leading-6">{{ $item }}</span>
+                                    </li>
+                                @endforeach
+                            </ul>
+                            <p class="font-medium text-[11px] text-muted leading-5">
+                                جزئیات دقیق طرح اقساط در جلسه‌ی مشاوره و هنگام عقد قرارداد بر اساس
+                                تعداد دانش‌آموزان و نیاز مدرسه نهایی می‌شود.
+                            </p>
+                        </div>
+
+                        <div class="md:col-span-5 reveal-left">
+                            <div class="glass-strong rounded-2xl p-6 space-y-4 shadow-xl shadow-emerald-500/10">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-xs text-muted">نمونه‌ی طرح پرداخت</span>
+                                    <span class="font-semibold text-[10px] text-emerald-500 glass rounded-full px-2 py-0.5">اقساطی</span>
+                                </div>
+
+                                <div class="rounded-xl p-4 bg-emerald-500/10 border border-emerald-500/20">
+                                    <div class="font-medium text-[11px] text-muted">پیش‌پرداخت نقدی</div>
+                                    <div class="font-black text-emerald-500 text-2xl">۳۰٪</div>
+                                </div>
+
+                                <div class="rounded-xl p-4 bg-primary/10 border border-primary/20">
+                                    <div class="font-medium text-[11px] text-muted">مابقی مبلغ</div>
+                                    <div class="font-black text-primary text-2xl">۷۰٪</div>
+                                    <div class="font-medium text-[11px] text-muted mt-0.5">تقسیط در چند قسط ماهانه</div>
+                                </div>
+
+                                <div class="h-2.5 rounded-full overflow-hidden flex" style="background:rgba(255,255,255,0.06);">
+                                    <div class="h-full bg-emerald-500" style="width:30%"></div>
+                                    <div class="h-full bg-gradient-to-l from-primary to-primary/70" style="width:70%"></div>
+                                </div>
+                                <div class="flex items-center justify-between text-[10px] font-semibold">
+                                    <span class="text-emerald-500">نقد ۳۰٪</span>
+                                    <span class="text-primary">اقساط ۷۰٪</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ★ گوی چرخان --}}
+                <div class="orb-track">
+                    <span class="orb"></span>
+                    <span class="orb-trail"></span>
+                </div>
+            </div>
+        </section>
+
         {{-- ========================== FORM ========================== --}}
         <section id="contract-form" class="scroll-mt-24 reveal">
             <div class="relative rounded-3xl glass orbit-wrap">
@@ -1236,21 +1304,6 @@
                                             @error('full_name') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
                                         </div>
 
-                                        {{-- نام مدرسه --}}
-                                        <div class="space-y-1.5">
-                                            <label for="school_name" class="font-semibold text-xs text-muted flex items-center gap-1.5">
-                                                <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg>
-                                                نام مدرسه
-                                            </label>
-                                            <input type="text" id="school_name" wire:model="school_name"
-                                                   placeholder="نام رسمی مدرسه"
-                                                   class="w-full h-12 rounded-xl text-sm px-4 transition-all focus:outline-none"
-                                                   style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);caret-color:white;"
-                                                   onfocus="this.style.borderColor='rgba(59,130,246,0.6)';this.style.background='rgba(59,130,246,0.06)'"
-                                                   onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
-                                            @error('school_name') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
-                                        </div>
-
                                         {{-- موبایل --}}
                                         <div class="space-y-1.5">
                                             <label for="mobile" class="font-semibold text-xs text-muted flex items-center gap-1.5">
@@ -1264,51 +1317,6 @@
                                                    onfocus="this.style.borderColor='rgba(59,130,246,0.6)';this.style.background='rgba(59,130,246,0.06)'"
                                                    onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
                                             @error('mobile') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
-                                        </div>
-
-                                        {{-- تعداد دانش‌آموز با +/- --}}
-                                        <div class="space-y-1.5"
-                                             x-data="{
-                                        inc() {
-                                            let v = parseInt($refs.countInput.value) || 0;
-                                            $refs.countInput.value = v + 1;
-                                            $refs.countInput.dispatchEvent(new Event('input'));
-                                        },
-                                        dec() {
-                                            let v = parseInt($refs.countInput.value) || 0;
-                                            if (v > 1) {
-                                                $refs.countInput.value = v - 1;
-                                                $refs.countInput.dispatchEvent(new Event('input'));
-                                            }
-                                        }
-                                     }">
-                                            <label class="font-semibold text-xs text-muted flex items-center gap-1.5">
-                                                <svg class="w-3.5 h-3.5 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                                                تعداد دانش‌آموز
-                                            </label>
-                                            <div class="flex items-center gap-2">
-                                                {{-- دکمه کم --}}
-                                                <button type="button" @click="dec()"
-                                                        class="flex-shrink-0 w-11 h-12 rounded-xl flex items-center justify-center font-bold text-lg transition-all hover:scale-105 active:scale-95 select-none"
-                                                        style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);">
-                                                    −
-                                                </button>
-                                                {{-- input --}}
-                                                <input type="number" min="1" x-ref="countInput"
-                                                       id="student_count" wire:model="student_count"
-                                                       placeholder="تعداد دانش‌آموزان"
-                                                       class="flex-1 h-12 rounded-xl text-sm text-center transition-all focus:outline-none font-bold"
-                                                       style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.85);caret-color:white;"
-                                                       onfocus="this.style.borderColor='rgba(59,130,246,0.6)';this.style.background='rgba(59,130,246,0.06)'"
-                                                       onblur="this.style.borderColor='rgba(255,255,255,0.1)';this.style.background='rgba(255,255,255,0.05)'">
-                                                {{-- دکمه زیاد --}}
-                                                <button type="button" @click="inc()"
-                                                        class="flex-shrink-0 w-11 h-12 rounded-xl flex items-center justify-center font-bold text-lg transition-all hover:scale-105 active:scale-95 select-none"
-                                                        style="background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.3);color:#60a5fa;">
-                                                    +
-                                                </button>
-                                            </div>
-                                            @error('student_count') <p class="text-xs text-red-400 mt-1">{{ $message }}</p> @enderror
                                         </div>
 
                                         {{-- استان + شهر --}}

@@ -27,46 +27,48 @@ class SchoolCooperationRequest extends Model
         ['max' => PHP_INT_MAX,   'price' => 6_750_000, 'label' => 'پلاتینی'],
     ];
 
-    /** حق مدیر (سود/تخفیف) به ازای هر دانش‌آموز، در صورتی که تعداد بالای ۱۰ نفر باشد. */
-    public const MANAGER_FEE_PER_STUDENT = 1_000_000;
+    /** قیمت پایه‌ی هر دانش‌آموز (پک برنزی)؛ مبنای محاسبه‌ی تخفیف پلکانی. */
+    public const BASE_PRICE_PER_STUDENT = 9_900_000;
 
-    /** حداقل تعداد دانش‌آموز برای تعلق گرفتن تخفیف. */
-    public const DISCOUNT_THRESHOLD = 10;
+    /**
+     * قیمت هر دانش‌آموز بر اساس تعداد کل دانش‌آموزان (قیمت‌گذاری مسطح بر اساس پک).
+     * هرچه تعداد بیشتر شود، تمام دانش‌آموزان مشمول قیمت ارزان‌تر آن پک می‌شوند.
+     */
+    public static function pricePerStudent(int $count): int
+    {
+        foreach (self::TIERS as $tier) {
+            if ($count <= $tier['max']) {
+                return $tier['price'];
+            }
+        }
+        return self::TIERS[array_key_last(self::TIERS)]['price'];
+    }
 
     /**
      * محاسبه‌ی هزینه، تخفیف و پک بر اساس تعداد دانش‌آموز.
      *
-     * @return array{student_count:int, package:string, payable:int, discount:int, base_price:int}
+     * @return array{student_count:int, package:string, unit_price:int, payable:int, discount_per_student:int, discount:int, base_price:int}
      */
     public static function calculate(int $count): array
     {
         $count = max(0, $count);
 
-        // هزینه‌ی پلکانی تجمعی (درآمد) دقیقاً مطابق اکسل
-        $payable   = 0;
-        $remaining = $count;
-        foreach (self::TIERS as $i => $tier) {
-            $prevMax  = $i === 0 ? 0 : self::TIERS[$i - 1]['max'];
-            $capacity = $tier['max'] - $prevMax;
-            $take     = min($remaining, $capacity);
-            $payable += $take * $tier['price'];
-            $remaining -= $take;
-            if ($remaining <= 0) {
-                break;
-            }
-        }
+        // قیمت هر نفر بر اساس پک، و هزینه‌ی قابل پرداخت
+        $unitPrice = self::pricePerStudent($count);
+        $payable   = $count * $unitPrice;
 
-        // تخفیف / سود مدیر: بالای ۱۰ نفر، به ازای هر نفر ۱ میلیون تومان
-        $discount = $count > self::DISCOUNT_THRESHOLD
-            ? $count * self::MANAGER_FEE_PER_STUDENT
-            : 0;
+        // تخفیف: کاهش قیمت هر نفر نسبت به قیمت پایه (پک برنزی) × تعداد
+        $discountPerStudent = self::BASE_PRICE_PER_STUDENT - $unitPrice;
+        $discount           = $count * $discountPerStudent;
 
         return [
-            'student_count' => $count,
-            'package'       => self::packageFor($count),
-            'payable'       => $payable,
-            'discount'      => $discount,
-            'base_price'    => $payable + $discount,
+            'student_count'        => $count,
+            'package'              => self::packageFor($count),
+            'unit_price'           => $unitPrice,
+            'payable'              => $payable,
+            'discount_per_student' => $discountPerStudent,
+            'discount'             => $discount,
+            'base_price'           => $count * self::BASE_PRICE_PER_STUDENT,
         ];
     }
 
