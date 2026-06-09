@@ -104,34 +104,6 @@
             </div>
             @endif
 
-            {{-- اطلاعات پیش‌جلسه --}}
-            @if($preSession)
-            <div class="bg-secondary border border-border rounded-2xl p-6">
-                <h3 class="font-black text-foreground mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                    </svg>
-                    خلاصه پیش‌جلسه
-                </h3>
-                <div class="flex items-center gap-3 p-4 bg-background border border-border rounded-xl">
-                    <div class="w-10 h-10 rounded-full {{ $preSession->status === 'completed' ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-amber-100 dark:bg-amber-900/30' }} flex items-center justify-center">
-                        @if($preSession->status === 'completed')
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                            </svg>
-                        @else
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        @endif
-                    </div>
-                    <div>
-                        <div class="font-bold text-sm text-foreground">{{ $preSession->title }}</div>
-                        <div class="text-xs text-muted">{{ $preSession->statusLabel }}</div>
-                    </div>
-                </div>
-            </div>
-            @endif
 
             @endif {{-- end if analysis --}}
 
@@ -141,7 +113,7 @@
                 <div class="text-5xl mb-4">📅</div>
                 <h3 class="font-black text-foreground text-xl mb-3">آماده ساخت برنامه</h3>
                 <p class="text-muted text-sm mb-6 leading-relaxed">
-                    بر اساس طبقه‌بندی و پیش‌جلسه شما، یک برنامه مطالعاتی ۷ روزه شخصی‌سازی شده ساخته می‌شود.
+                    براساس تمام اطلاعات ثبت شده در سیستم مشاور شما برنامه اختصاصی برای شما آماده میکند!
                 </p>
                 <button wire:click="openHoursModal"
                         class="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-black text-base shadow-lg shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200">

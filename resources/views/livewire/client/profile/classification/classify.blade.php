@@ -73,9 +73,9 @@
             @endphp
             <div class="flex items-center gap-3 flex-wrap">
                 @foreach($grades as $g)
-                    <div class="flex items-center gap-1.5">
+                    <div class="flex items-center gap-1.5 border border-border rounded-2xl pr[3px] px-2">
                         <span class="text-sm font-black {{ $g['color'] }}">{{ $g['label'] }}</span>
-                        <span class="text-[10px] text-muted-foreground">{{ $g['desc'] }}</span>
+                        <span class="text-[10px] text-muted-foreground">{{ $g['desc'] }} </span>
                     </div>
                 @endforeach
             </div>
@@ -87,7 +87,7 @@
 
                 @foreach($tagsByGrade as $grade => $tags)
                     <div class="flex items-center gap-3 flex-wrap">
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-primary text-xs font-black shrink-0">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 border border-primary/20 text-white text-xs font-black shrink-0">
                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"/>
                             </svg>
@@ -100,17 +100,8 @@
                                                {{ $activeTag === $tag['id']
                                                    ? ($tag['type'] === 'specialized'
                                                        ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                                                       : 'bg-emerald-500 text-white border-emerald-500 shadow-sm')
+                                                       : 'bg-primary text-primary-foreground border-primary shadow-sm')
                                                    : 'bg-secondary border-border text-muted-foreground hover:text-foreground hover:border-foreground/20' }}">
-                                    @if($tag['type'] === 'specialized')
-                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253"/>
-                                        </svg>
-                                    @else
-                                        <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/>
-                                        </svg>
-                                    @endif
                                     {{ $tag['type'] === 'specialized' ? 'تخصصی' : 'عمومی' }}
                                 </button>
                             @endforeach
@@ -161,7 +152,6 @@
                                 >
                                     {{-- نام فصل --}}
                                     <div class="flex items-center gap-2.5 flex-1 min-w-0">
-                                        <span class="text-[11px] text-muted-foreground w-5 text-center font-mono flex-shrink-0">{{ $ci + 1 }}</span>
                                         <span class="text-sm text-foreground leading-snug truncate">{{ $chapter['name'] }}</span>
                                     </div>
 
@@ -220,7 +210,6 @@
                             style="animation-delay: {{ $si * 0.03 }}s;"
                         >
                             <div class="flex items-center gap-2.5 flex-1">
-                                <span class="text-[11px] text-muted-foreground w-5 text-center font-mono flex-shrink-0">{{ $si + 1 }}</span>
                                 <span class="text-sm font-medium text-foreground">{{ $subject['name'] }}</span>
                             </div>
 

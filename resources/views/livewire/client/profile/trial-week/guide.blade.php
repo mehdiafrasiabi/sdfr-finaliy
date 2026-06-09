@@ -1,167 +1,169 @@
 <div class="max-w-5xl mx-auto px-4 py-6 sm:py-10" dir="rtl"
      x-data="guidePage()" x-init="init()">
 
-    <style>
-        [x-cloak] { display: none !important; }
+@push('link')
+        <style>
+            [x-cloak] { display: none !important; }
 
-        /* ════ ورود مرحله‌ای ════ */
-        @keyframes rise {
-            from { opacity: 0; transform: translateY(20px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-        .rise { animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
-        .rise.r1 { animation-delay: 0.04s; }
-        .rise.r2 { animation-delay: 0.10s; }
-        .rise.r3 { animation-delay: 0.18s; }
-        .rise.r4 { animation-delay: 0.26s; }
-        .rise.r5 { animation-delay: 0.34s; }
-        .rise.r6 { animation-delay: 0.42s; }
-
-        /* ════ نوار پیشرفت ـ پر شدن ════ */
-        @keyframes fill-bar { from { width: 0; } }
-        .progress-fill { animation: fill-bar 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-        /* ════ شیمر روی نوار پیشرفت ════ */
-        @keyframes shimmer {
-            0%   { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
-        }
-        .progress-shimmer {
-            background-image: linear-gradient(
-                90deg,
-                transparent 0%,
-                rgba(255,255,255,0.35) 50%,
-                transparent 100%
-            );
-            background-size: 200% 100%;
-            animation: shimmer 2s linear infinite;
-        }
-
-        /* ════ pulse برای مرحله‌ی فعال ════ */
-        @keyframes node-pulse {
-            0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.45); }
-            50%      { box-shadow: 0 0 0 10px hsl(var(--primary) / 0); }
-        }
-        .node-active { animation: node-pulse 2.4s ease infinite; }
-
-        /* نقطه‌ی زنده --}}*/
-        @keyframes live-ping {
-            0%   { transform: scale(1); opacity: 0.7; }
-            100% { transform: scale(2.6); opacity: 0; }
-        }
-        .live-dot { position: relative; }
-        .live-dot::after {
-            content: '';
-            position: absolute; inset: 0;
-            border-radius: 9999px; background: currentColor;
-            animation: live-ping 1.8s ease-out infinite;
-        }
-
-        /* ════ دکمه‌های press ════ */
-        .press {
-            transition: transform 0.09s ease, box-shadow 0.09s ease, background-color 0.15s ease;
-        }
-        .press:active:not(:disabled) { transform: translateY(3px); }
-
-        .btn-primary {
-            box-shadow: 0 4px 0 0 hsl(var(--primary) / 0.4);
-            background: hsl(var(--primary));
-            color: hsl(var(--primary-foreground));
-        }
-        .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 0 hsl(var(--primary) / 0.45); }
-        .btn-primary:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
-        .btn-primary:disabled { opacity: 0.6; }
-
-        .btn-success {
-            box-shadow: 0 4px 0 0 rgb(16 185 129 / 0.4);
-            background: rgb(16 185 129);
-            color: #fff;
-        }
-        .btn-success:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 0 rgb(16 185 129 / 0.45); }
-        .btn-success:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 0 rgb(16 185 129 / 0.4); }
-
-        .btn-soft {
-            box-shadow: 0 3px 0 0 hsl(var(--border));
-            background: hsl(var(--secondary));
-            color: hsl(var(--foreground));
-            border: 1px solid hsl(var(--border));
-        }
-        .btn-soft:hover:not(:disabled) { transform: translateY(-1px); }
-        .btn-soft:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 0 hsl(var(--border)); }
-
-        /* ════ آیکون رفرش چرخان ════ */
-        @keyframes spin-once { to { transform: rotate(360deg); } }
-        .spin-active { animation: spin-once 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
-
-        /* ════ Confetti مرحله‌ی پایانی ════ */
-        @keyframes pop-in {
-            0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
-            60%  { transform: scale(1.2) rotate(8deg); }
-            100% { transform: scale(1) rotate(0); opacity: 1; }
-        }
-        .pop-in { animation: pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-
-        @keyframes confetti-fall {
-            0%   { transform: translateY(-20px) rotate(0); opacity: 1; }
-            100% { transform: translateY(60px) rotate(220deg); opacity: 0; }
-        }
-        .confetti {
-            position: absolute;
-            width: 8px; height: 8px;
-            animation: confetti-fall 1.6s ease-in infinite;
-        }
-
-        /* ════ مودال ـ bottom sheet موبایل ════ */
-        .m-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.65);
-            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-            z-index: 90;
-        }
-        .m-sheet {
-            position: fixed; left: 0; right: 0; bottom: 0;
-            background: hsl(var(--background));
-            border-top: 1px solid hsl(var(--border));
-            border-radius: 28px 28px 0 0;
-            z-index: 100;
-            max-height: 92dvh;
-            display: flex; flex-direction: column;
-            padding-bottom: env(safe-area-inset-bottom, 0);
-            box-shadow: 0 -20px 60px rgba(0,0,0,0.3);
-        }
-        @media (min-width: 640px) {
-            .m-sheet {
-                left: 50%; top: 50%; bottom: auto; right: auto;
-                transform: translate(-50%, -50%);
-                width: 90%; max-width: 460px;
-                border-radius: 24px;
-                border: 1px solid hsl(var(--border));
-                max-height: 88dvh;
+            /* ════ ورود مرحله‌ای ════ */
+            @keyframes rise {
+                from { opacity: 0; transform: translateY(20px); }
+                to   { opacity: 1; transform: translateY(0); }
             }
-        }
-        .m-handle {
-            width: 44px; height: 5px;
-            background: hsl(var(--muted-foreground) / 0.35);
-            border-radius: 999px; margin: 10px auto 4px;
-        }
-        @media (min-width: 640px) { .m-handle { display: none; } }
+            .rise { animation: rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+            .rise.r1 { animation-delay: 0.04s; }
+            .rise.r2 { animation-delay: 0.10s; }
+            .rise.r3 { animation-delay: 0.18s; }
+            .rise.r4 { animation-delay: 0.26s; }
+            .rise.r5 { animation-delay: 0.34s; }
+            .rise.r6 { animation-delay: 0.42s; }
 
-        @keyframes ov-in { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        @keyframes sheet-pop {
-            from { opacity: 0; transform: translate(-50%, -45%) scale(0.95); }
-            to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        }
-        .m-overlay { animation: ov-in 0.25s ease forwards; }
-        .m-sheet   { animation: sheet-up 0.34s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        @media (min-width: 640px) {
-            .m-sheet { animation: sheet-pop 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        }
+            /* ════ نوار پیشرفت ـ پر شدن ════ */
+            @keyframes fill-bar { from { width: 0; } }
+            .progress-fill { animation: fill-bar 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation: none !important; transition: none !important; }
-        }
-    </style>
+            /* ════ شیمر روی نوار پیشرفت ════ */
+            @keyframes shimmer {
+                0%   { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+            }
+            .progress-shimmer {
+                background-image: linear-gradient(
+                    90deg,
+                    transparent 0%,
+                    rgba(255,255,255,0.35) 50%,
+                    transparent 100%
+                );
+                background-size: 200% 100%;
+                animation: shimmer 2s linear infinite;
+            }
+
+            /* ════ pulse برای مرحله‌ی فعال ════ */
+            @keyframes node-pulse {
+                0%, 100% { box-shadow: 0 0 0 0 hsl(var(--primary) / 0.45); }
+                50%      { box-shadow: 0 0 0 10px hsl(var(--primary) / 0); }
+            }
+            .node-active { animation: node-pulse 2.4s ease infinite; }
+
+            /* نقطه‌ی زنده --}}*/
+            @keyframes live-ping {
+                0%   { transform: scale(1); opacity: 0.7; }
+                100% { transform: scale(2.6); opacity: 0; }
+            }
+            .live-dot { position: relative; }
+            .live-dot::after {
+                content: '';
+                position: absolute; inset: 0;
+                border-radius: 9999px; background: currentColor;
+                animation: live-ping 1.8s ease-out infinite;
+            }
+
+            /* ════ دکمه‌های press ════ */
+            .press {
+                transition: transform 0.09s ease, box-shadow 0.09s ease, background-color 0.15s ease;
+            }
+            .press:active:not(:disabled) { transform: translateY(3px); }
+
+            .btn-primary {
+                box-shadow: 0 4px 0 0 hsl(var(--primary) / 0.4);
+                background: hsl(var(--primary));
+                color: hsl(var(--primary-foreground));
+            }
+            .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 0 hsl(var(--primary) / 0.45); }
+            .btn-primary:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+            .btn-primary:disabled { opacity: 0.6; }
+
+            .btn-success {
+                box-shadow: 0 4px 0 0 rgb(16 185 129 / 0.4);
+                background: rgb(16 185 129);
+                color: #fff;
+            }
+            .btn-success:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 0 rgb(16 185 129 / 0.45); }
+            .btn-success:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 0 rgb(16 185 129 / 0.4); }
+
+            .btn-soft {
+                box-shadow: 0 3px 0 0 hsl(var(--border));
+                background: hsl(var(--secondary));
+                color: hsl(var(--foreground));
+                border: 1px solid hsl(var(--border));
+            }
+            .btn-soft:hover:not(:disabled) { transform: translateY(-1px); }
+            .btn-soft:active:not(:disabled) { transform: translateY(3px); box-shadow: 0 0 0 0 hsl(var(--border)); }
+
+            /* ════ آیکون رفرش چرخان ════ */
+            @keyframes spin-once { to { transform: rotate(360deg); } }
+            .spin-active { animation: spin-once 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
+
+            /* ════ Confetti مرحله‌ی پایانی ════ */
+            @keyframes pop-in {
+                0%   { transform: scale(0) rotate(-20deg); opacity: 0; }
+                60%  { transform: scale(1.2) rotate(8deg); }
+                100% { transform: scale(1) rotate(0); opacity: 1; }
+            }
+            .pop-in { animation: pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+            @keyframes confetti-fall {
+                0%   { transform: translateY(-20px) rotate(0); opacity: 1; }
+                100% { transform: translateY(60px) rotate(220deg); opacity: 0; }
+            }
+            .confetti {
+                position: absolute;
+                width: 8px; height: 8px;
+                animation: confetti-fall 1.6s ease-in infinite;
+            }
+
+            /* ════ مودال ـ bottom sheet موبایل ════ */
+            .m-overlay {
+                position: fixed; inset: 0;
+                background: rgba(0,0,0,0.65);
+                backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+                z-index: 90;
+            }
+            .m-sheet {
+                position: fixed; left: 0; right: 0; bottom: 0;
+                background: hsl(var(--background));
+                border-top: 1px solid hsl(var(--border));
+                border-radius: 28px 28px 0 0;
+                z-index: 100;
+                max-height: 92dvh;
+                display: flex; flex-direction: column;
+                padding-bottom: env(safe-area-inset-bottom, 0);
+                box-shadow: 0 -20px 60px rgba(0,0,0,0.3);
+            }
+            @media (min-width: 640px) {
+                .m-sheet {
+                    left: 50%; top: 50%; bottom: auto; right: auto;
+                    transform: translate(-50%, -50%);
+                    width: 90%; max-width: 460px;
+                    border-radius: 24px;
+                    border: 1px solid hsl(var(--border));
+                    max-height: 88dvh;
+                }
+            }
+            .m-handle {
+                width: 44px; height: 5px;
+                background: hsl(var(--muted-foreground) / 0.35);
+                border-radius: 999px; margin: 10px auto 4px;
+            }
+            @media (min-width: 640px) { .m-handle { display: none; } }
+
+            @keyframes ov-in { from { opacity: 0; } to { opacity: 1; } }
+            @keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+            @keyframes sheet-pop {
+                from { opacity: 0; transform: translate(-50%, -45%) scale(0.95); }
+                to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            }
+            .m-overlay { animation: ov-in 0.25s ease forwards; }
+            .m-sheet   { animation: sheet-up 0.34s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+            @media (min-width: 640px) {
+                .m-sheet { animation: sheet-pop 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                *, *::before, *::after { animation: none !important; transition: none !important; }
+            }
+        </style>
+@endpush
 
     {{-- ═══════════ سرتیتر + تایمر انقضا ═══════════ --}}
     <div class="rise r1 flex items-center justify-between gap-3 mb-5 flex-wrap">
@@ -198,7 +200,7 @@
             $progressPct = ($trialWeek->step / 4) * 100;
             $stepTitles = [
                 0 => 'ثبت‌نام انجام شد',
-                1 => 'در حال تخصیص پشتیبان',
+                1 => 'در حال تخصیص مشاور ',
                 2 => 'نوبت طبقه‌بندی دروس',
                 3 => 'نوبت تکمیل پیش‌جلسه',
                 4 => 'هفته آزمایشی کامل شد',
@@ -232,7 +234,7 @@
                 @php
                     $miniSteps = [
                         ['t' => 'ثبت‌نام',   'done' => $trialWeek->step >= 0],
-                        ['t' => 'پشتیبان',   'done' => $trialWeek->step >= 1],
+                        ['t' => 'مشاور ',   'done' => $trialWeek->step >= 1],
                         ['t' => 'طبقه‌بندی', 'done' => $trialWeek->step >= 2],
                         ['t' => 'پیش‌جلسه',  'done' => $trialWeek->step >= 3],
                         ['t' => 'برنامه',    'done' => $trialWeek->step >= 4],
@@ -259,7 +261,7 @@
 
             <div class="space-y-4">
 
-                {{-- ─────────── مرحله ۱: پشتیبان ─────────── --}}
+                {{-- ─────────── مرحله ۱: مشاور  ─────────── --}}
                 @php $s1done = $trialWeek->step >= 1; $s1active = !$s1done; @endphp
                 <div class="rise r3 relative flex gap-4">
                     {{-- نود تایم‌لاین --}}
@@ -293,26 +295,26 @@
                                         <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded-full px-2 py-0.5">در حال انجام</span>
                                     @endif
                                 </div>
-                                <h3 class="font-black text-foreground">تخصیص پشتیبان آزمایشی</h3>
+                                <h3 class="font-black text-foreground">تخصیص مشاور  آزمایشی</h3>
                             </div>
                         </div>
 
                         @if($s1done)
                             <p class="text-sm text-emerald-600 dark:text-emerald-400 font-semibold mt-2 flex items-center gap-1.5">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                پشتیبان شما تخصیص یافت
+                                مشاور  شما تخصیص یافت
                                 @if($trialWeek->acquisitionSupporter)
                                     <span class="text-foreground">— {{ $trialWeek->acquisitionSupporter->name }}</span>
                                 @endif
                             </p>
                         @else
                             <p class="text-sm text-muted leading-7 mt-2">
-                                درخواستت ثبت شد. تیم ما در حال بررسی و تخصیص پشتیبان مناسب برای توست —
+                                درخواستت ثبت شد. تیم ما در حال بررسی و تخصیص مشاور  مناسب برای توست —
                                 این فرایند معمولاً کمتر از ۲۴ ساعت طول می‌کشد.
                             </p>
                             <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10">
                                 <span class="live-dot w-1.5 h-1.5 rounded-full bg-amber-500 text-amber-500"></span>
-                                <span class="text-xs font-bold text-amber-600 dark:text-amber-400">در انتظار تخصیص پشتیبان</span>
+                                <span class="text-xs font-bold text-amber-600 dark:text-amber-400">در انتظار تخصیص مشاور </span>
                             </div>
                         @endif
                     </div>
@@ -351,19 +353,18 @@
                                         <span class="text-[10px] font-bold text-primary bg-primary/10 rounded-full px-2 py-0.5">اکنون</span>
                                     @endif
                                 </div>
-                                <h3 class="font-black text-foreground">پر کردن طبقه‌بندی دروس</h3>
+                                <h3 class="font-black text-foreground">طبقه‌بندی مباحث</h3>
                             </div>
                         </div>
 
-                        @if($s2done)
-                            <p class="text-sm text-emerald-600 dark:text-emerald-400 font-semibold mt-2 flex items-center gap-1.5">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                طبقه‌بندی تکمیل و قفل شد
-                            </p>
-                        @else
+                        @if(!$s2done)
+
                             <p class="text-sm text-muted leading-7 mt-2">
-                                وضعیت خودت رو در هر درس مشخص کن. بعد از تکمیل برای قفل کردن باید تأیید کنی —
-                                <strong class="text-foreground">پس از قفل، قابل ویرایش نیست.</strong>
+                                وضعیت خودتان را در هر درس مشخص کنید!
+                                <br>
+                                مشاور شما برای ارائه برنامه تخصصی و حرفه ای نیازمند آگاهی کلی از وضعیت تسلط شما در هر درس می باشد.
+
+
                             </p>
 
                             @if($s2active)
@@ -439,11 +440,11 @@
                                         <span class="text-[10px] font-bold text-primary bg-primary/10 rounded-full px-2 py-0.5">اکنون</span>
                                     @endif
                                 </div>
-                                <h3 class="font-black text-foreground">پر کردن پیش‌جلسه و برنامه درسی</h3>
+                                <h3 class="font-black text-foreground">نیازمندی های برنامه </h3>
                             </div>
                         </div>
                         <p class="text-sm text-muted leading-7 mt-2">
-                            هم پیش‌جلسه و هم برنامه‌ی درسی مدرسه‌ات باید نهایی شوند تا مرحله‌ی ساخت برنامه فعال شود.
+
                         </p>
 
                         @if($s3active || $s3done)
@@ -744,7 +745,8 @@
     @endif
 
 
-    {{-- ─── Alpine ─── --}}
+ @push('script')
+     {{-- ─── Alpine ─── --}}
     <script>
         function guidePage() {
             return {
@@ -771,4 +773,5 @@
             }
         });
     </script>
+ @endpush
 </div>
