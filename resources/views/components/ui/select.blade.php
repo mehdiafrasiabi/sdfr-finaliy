@@ -103,7 +103,7 @@
             'opacity-50 cursor-not-allowed': disabled,
             'cursor-pointer hover:border-blue-400 dark:hover:border-blue-500': !disabled,
         }"
-        class="w-full flex items-center justify-between gap-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-right shadow-sm outline-none transition-all duration-150"
+        class="w-full flex items-center justify-between gap-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-secondary px-3 py-2.5 text-sm text-right shadow-sm outline-none transition-all duration-150"
         aria-haspopup="listbox"
         :aria-expanded="open"
     >
@@ -139,7 +139,7 @@
         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
         x-transition:leave-end="opacity-0 -translate-y-1 scale-[0.98]"
         @click.outside="open = false"
-        class="absolute z-50 mt-1 w-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-xl shadow-black/10 dark:shadow-black/50"
+        class="absolute z-50 mt-1 w-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 bg-secondary shadow-xl shadow-black/10 dark:shadow-black/50"
         style="min-width: 100%"
         role="listbox"
     >
@@ -154,7 +154,7 @@
                     <input type="text" x-model="search" x-ref="searchInput"
                            x-init="$watch('open', v => v && $nextTick(() => $refs.searchInput?.focus()))"
                            placeholder="{{ $searchPlaceholder }}"
-                           class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 pr-8 pl-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition"
+                           class="w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-background dark:bg-background text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 pr-8 pl-3 py-2 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20 transition"
                            @keydown.escape.stop="open = false"
                     >
                 </div>
@@ -177,7 +177,7 @@
                         'bg-blue-600 text-white': String(selected) === String(opt.value),
                         'text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700': String(selected) !== String(opt.value),
                     }"
-                    class="w-full text-right px-3 py-2.5 text-sm flex items-center justify-between gap-2 transition-colors"
+                    class="w-full text-right px-3 py-2.5  text-sm flex items-center justify-between gap-2 transition-colors"
                     role="option"
                     :aria-selected="String(selected) === String(opt.value)"
                 >

@@ -10,6 +10,20 @@
             delete this.ratings[key];
             $wire.clearRating(id, kind);
         },
+
+        /* ── رنگ‌بندی سطح‌ها (A=primary , B=green , C=amber , D=red) ── */
+        levelColorClass(v, prop) {
+            const map = {
+                4: { bg: 'bg-primary',      border: 'border-primary',      text: 'text-primary'      },
+                3: { bg: 'bg-emerald-500',  border: 'border-emerald-500',  text: 'text-emerald-500'  },
+                2: { bg: 'bg-amber-500',    border: 'border-amber-500',    text: 'text-amber-500'    },
+                1: { bg: 'bg-red-500',      border: 'border-red-500',      text: 'text-red-500'      },
+            };
+            return (map[v] && map[v][prop]) || '';
+        },
+        dotClass(sel)    { return this.levelColorClass(sel, 'bg') + ' ' + this.levelColorClass(sel, 'border'); },
+        barClass(sel)    { return this.levelColorClass(sel, 'bg'); },
+        letterClass(sel) { return this.levelColorClass(sel, 'text'); },
     }"
     dir="rtl"
     class="min-h-screen bg-background text-foreground"
@@ -21,12 +35,12 @@
                 from { opacity: 0; transform: translateY(10px); }
                 to   { opacity: 1; transform: translateY(0); }
             }
-            @keyframes letterPop {
+            @keyframes dotPop {
                 0%   { transform: scale(1); }
-                40%  { transform: scale(1.18); }
+                40%  { transform: scale(1.35); }
                 100% { transform: scale(1); }
             }
-            .letter-pop  { animation: letterPop 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+            .dot-pop     { animation: dotPop 0.3s cubic-bezier(0.34,1.56,0.64,1); }
             .row-enter   { animation: fadeSlideUp 0.3s ease backwards; }
             .progress-fill { transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
 
@@ -36,7 +50,7 @@
         </style>
     @endpush
 
-    <div class="max-w-4xl mx-auto px-4 pt-5 pb-28">
+    <div class="max-w-4xl mx-auto px-4 pt-5 pb-28 lg:pb-8">
 
         {{-- ═══ Header ═══ --}}
         <div class="flex items-start justify-between gap-3 mb-6">
@@ -61,25 +75,26 @@
         </div>
 
         {{-- ═══ راهنمای امتیاز ═══ --}}
-        <div class="flex items-center gap-3 bg-secondary/60 border border-border rounded-2xl px-4 py-3 mb-5 flex-wrap">
+        <div class=" glass flex items-center gap-3 bg-secondary/60 border border-border rounded-2xl px-4 py-3 mb-5 flex-wrap">
             <span class="text-xs text-muted-foreground font-semibold">راهنمای امتیاز:</span>
             @php
                 $grades = [
-                    ['label'=>'A','color'=>'text-emerald-500','desc'=>'عالی'],
-                    ['label'=>'B','color'=>'text-blue-500',   'desc'=>'خوب'],
+                    ['label'=>'A','color'=>'text-primary',    'desc'=>'عالی'],
+                    ['label'=>'B','color'=>'text-emerald-500','desc'=>'خوب'],
                     ['label'=>'C','color'=>'text-amber-500',  'desc'=>'متوسط'],
                     ['label'=>'D','color'=>'text-red-500',    'desc'=>'ضعیف'],
                 ];
             @endphp
             <div class="flex items-center gap-3 flex-wrap">
                 @foreach($grades as $g)
-                    <div class="flex items-center gap-1.5 border border-border rounded-2xl pr[3px] px-2">
+                    <div class="flex items-center gap-1.5 border border-border rounded-2xl px-2 py-[3px]">
                         <span class="text-sm font-black {{ $g['color'] }}">{{ $g['label'] }}</span>
                         <span class="text-[10px] text-muted-foreground">{{ $g['desc'] }} </span>
                     </div>
                 @endforeach
             </div>
         </div>
+
         {{-- ═══ فیلتر تب‌ها ═══ --}}
         <div class="mb-5">
             <div class="flex flex-col gap-2">
@@ -93,14 +108,12 @@
                             </svg>
                             {{ ['10'=>'پایه دهم','11'=>'پایه یازدهم','12'=>'پایه دوازدهم'][$grade] ?? 'پایه '.$grade }}
                         </span>
-                        <div class="flex gap-2 flex-wrap flex-1">
+                        <div class=" flex gap-2 flex-wrap flex-1">
                             @foreach($tags as $tag)
                                 <button wire:click="selectTag('{{ $tag['id'] }}')" type="button"
                                         class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border text-sm font-semibold transition-all duration-200 active:scale-95
                                                {{ $activeTag === $tag['id']
-                                                   ? ($tag['type'] === 'specialized'
-                                                       ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                                                       : 'bg-primary text-primary-foreground border-primary shadow-sm')
+                                                   ? 'bg-primary text-primary-foreground border-primary shadow-sm'
                                                    : 'bg-secondary border-border text-muted-foreground hover:text-foreground hover:border-foreground/20' }}">
                                     {{ $tag['type'] === 'specialized' ? 'تخصصی' : 'عمومی' }}
                                 </button>
@@ -116,8 +129,8 @@
         @if(!empty($subjects))
 
             @if($activeType === 'specialized')
-                {{-- تب دروس -- اسکرول افقی بدون نمایش اسکرول‌بار --}}
-                <div class="flex gap-2 mb-4 overflow-x-auto no-scrollbar pb-1 -mx-4 px-4">
+                {{-- تب دروس -- استایل تب با خط زیرین --}}
+                <div class="flex gap-1 border-b border-border mb-4 overflow-x-auto no-scrollbar -mx-4 px-4">
                     @foreach($subjects as $si => $subject)
                         @php
                             $ratedCount = collect($subject['chapters'])->filter(fn($c) => isset($this->ratings['chapter_'.$c['id']]))->count();
@@ -125,15 +138,17 @@
                             $isComplete = $totalCount > 0 && $ratedCount === $totalCount;
                         @endphp
                         <button type="button" @click="activeSubject = {{ $si }}"
-                                class="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border text-sm font-semibold transition-all duration-200 whitespace-nowrap active:scale-95"
+                                class="flex-shrink-0 inline-flex items-center gap-1.5 px-4 py-2 -mb-px text-sm font-semibold rounded-t-lg border-b-2 whitespace-nowrap transition-all duration-200 active:scale-95"
                                 :class="activeSubject === {{ $si }}
-                                    ? 'bg-primary text-primary-foreground border-primary shadow-sm'
-                                    : 'bg-secondary border-border text-muted-foreground hover:text-foreground hover:border-foreground/20'">
+                    ? 'bg-primary text-primary-foreground border-primary'
+                    : 'bg-secondary border-transparent text-muted-foreground hover:text-foreground'">
                             {{ $subject['name'] }}
                             @if($isComplete)
-                                <svg class="w-3.5 h-3.5 text-emerald-300 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                <svg class="w-3.5 h-3.5 flex-shrink-0"
+                                     :class="activeSubject === {{ $si }} ? 'text-white' : 'text-emerald-500'"
+                                     fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
                             @elseif($ratedCount > 0)
-                                <span class="inline-flex items-center justify-center w-4 h-4 rounded-full bg-white/20 text-[9px] font-black flex-shrink-0">{{ $ratedCount }}</span>
+                                <span class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-black rounded-full bg-white/30">{{ $ratedCount }}</span>
                             @endif
                         </button>
                     @endforeach
@@ -142,7 +157,7 @@
                 {{-- لیست فصل‌ها --}}
                 @foreach($subjects as $si => $subject)
                     <div x-show="activeSubject === {{ $si }}" x-cloak>
-                        <div class="rounded-2xl border border-border overflow-hidden bg-card">
+                        <div class="glass rounded-2xl border border-border overflow-hidden bg-card">
                             @forelse($subject['chapters'] as $ci => $chapter)
                                 @php $key = 'chapter_' . $chapter['id']; @endphp
                                 <div
@@ -155,42 +170,12 @@
                                         <span class="text-sm text-foreground leading-snug truncate">{{ $chapter['name'] }}</span>
                                     </div>
 
-                                    {{-- دکمه‌های A B C D + حذف --}}
-                                    <div class="flex items-center gap-1.5 shrink-0">
-                                        @php
-                                            $letters = [
-                                                4 => ['label' => 'A', 'active' => 'bg-emerald-500 text-white border-emerald-500', 'idle' => 'text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'],
-                                                3 => ['label' => 'B', 'active' => 'bg-blue-500 text-white border-blue-500',       'idle' => 'text-blue-500 border-blue-500/30 hover:bg-blue-500/10'],
-                                                2 => ['label' => 'C', 'active' => 'bg-amber-500 text-white border-amber-500',     'idle' => 'text-amber-500 border-amber-500/30 hover:bg-amber-500/10'],
-                                                1 => ['label' => 'D', 'active' => 'bg-red-500 text-white border-red-500',         'idle' => 'text-red-500 border-red-500/30 hover:bg-red-500/10'],
-                                            ];
-                                        @endphp
-                                        @foreach($letters as $val => $l)
-                                            <button type="button"
-                                                    @click="
-                                                        setRating('{{ $key }}', 'chapter', {{ $chapter['id'] }}, {{ $val }});
-                                                        $event.currentTarget.classList.add('letter-pop');
-                                                        setTimeout(() => $event.currentTarget.classList.remove('letter-pop'), 350);
-                                                    "
-                                                    class="w-8 h-8 inline-flex items-center justify-center rounded-lg border text-xs font-black transition-all active:scale-90"
-                                                    :class="ratings['{{ $key }}'] === {{ $val }} ? '{{ $l['active'] }} shadow-sm' : 'bg-transparent {{ $l['idle'] }}'"
-                                                    title="{{ $l['label'] }}">
-                                                {{ $l['label'] }}
-                                            </button>
-                                        @endforeach
-
-                                        {{-- دکمه حذف --}}
-                                        <template x-if="ratings['{{ $key }}']">
-                                            <button type="button"
-                                                    @click="clearRating('{{ $key }}', 'chapter', {{ $chapter['id'] }})"
-                                                    class="w-7 h-7 mr-1 flex items-center justify-center rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-500 transition-colors"
-                                                    title="حذف امتیاز">
-                                                <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                                </svg>
-                                            </button>
-                                        </template>
-                                    </div>
+                                    {{-- نقطه‌های متصل A B C D + حذف --}}
+                                    @include('livewire.client.profile.classification.partials.rating-dots', [
+                                        'key'  => $key,
+                                        'kind' => 'chapter',
+                                        'id'   => $chapter['id'],
+                                    ])
                                 </div>
                             @empty
                                 <p class="text-center text-sm text-muted-foreground py-10">فصلی برای این درس یافت نشد.</p>
@@ -200,7 +185,20 @@
                 @endforeach
 
             @else
-                {{-- دروس عمومی --}}
+                {{-- ═══ دروس عمومی ═══ --}}
+
+                {{-- باکس راهنمای دروس عمومی --}}
+                <div class="flex items-start gap-3 bg-primary/5 border border-primary/15 rounded-2xl px-4 py-3 mb-4">
+                    <div class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <p class="text-sm text-foreground leading-relaxed font-medium">
+                        دروس عمومی به‌صورت کلی طبقه‌بندی می‌شوند.
+                    </p>
+                </div>
+
                 <div class="rounded-2xl border border-border overflow-hidden bg-card">
                     @foreach($subjects as $si => $subject)
                         @php $key = 'subject_' . $subject['id']; @endphp
@@ -213,40 +211,11 @@
                                 <span class="text-sm font-medium text-foreground">{{ $subject['name'] }}</span>
                             </div>
 
-                            <div class="flex items-center gap-1.5 shrink-0">
-                                @php
-                                    $letters = [
-                                        4 => ['label' => 'A', 'active' => 'bg-emerald-500 text-white border-emerald-500', 'idle' => 'text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/10'],
-                                        3 => ['label' => 'B', 'active' => 'bg-blue-500 text-white border-blue-500',       'idle' => 'text-blue-500 border-blue-500/30 hover:bg-blue-500/10'],
-                                        2 => ['label' => 'C', 'active' => 'bg-amber-500 text-white border-amber-500',     'idle' => 'text-amber-500 border-amber-500/30 hover:bg-amber-500/10'],
-                                        1 => ['label' => 'D', 'active' => 'bg-red-500 text-white border-red-500',         'idle' => 'text-red-500 border-red-500/30 hover:bg-red-500/10'],
-                                    ];
-                                @endphp
-                                @foreach($letters as $val => $l)
-                                    <button type="button"
-                                            @click="
-                                                setRating('{{ $key }}', 'subject', {{ $subject['id'] }}, {{ $val }});
-                                                $event.currentTarget.classList.add('letter-pop');
-                                                setTimeout(() => $event.currentTarget.classList.remove('letter-pop'), 350);
-                                            "
-                                            class="w-8 h-8 inline-flex items-center justify-center rounded-lg border text-xs font-black transition-all active:scale-90"
-                                            :class="ratings['{{ $key }}'] === {{ $val }} ? '{{ $l['active'] }} shadow-sm' : 'bg-transparent {{ $l['idle'] }}'"
-                                            title="{{ $l['label'] }}">
-                                        {{ $l['label'] }}
-                                    </button>
-                                @endforeach
-
-                                <template x-if="ratings['{{ $key }}']">
-                                    <button type="button"
-                                            @click="clearRating('{{ $key }}', 'subject', {{ $subject['id'] }})"
-                                            class="w-7 h-7 mr-1 flex items-center justify-center rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
-                                            title="حذف امتیاز">
-                                        <svg class="w-3.5 h-3.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                        </svg>
-                                    </button>
-                                </template>
-                            </div>
+                            @include('livewire.client.profile.classification.partials.rating-dots', [
+                                'key'  => $key,
+                                'kind' => 'subject',
+                                'id'   => $subject['id'],
+                            ])
                         </div>
                     @endforeach
                 </div>
@@ -263,37 +232,52 @@
             </div>
         @endif
 
+        {{-- ═══ باکس ثبت نهایی (فقط دسکتاپ — پایین سمت چپ، زیر محتوا) ═══ --}}
+        @php $pctDesk = $totalTopics > 0 ? min(100, round(($completedTopics / max($totalTopics,1)) * 100)) : 0; @endphp
+        <div class="hidden lg:flex justify-end mt-8">
+            <div class="glass w-full max-w-xs bg-card border border-border rounded-2xl p-4 shadow-sm">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-xs text-muted-foreground font-semibold">وضعیت طبقه‌بندی</span>
+                    <span class="text-sm font-bold text-foreground tabular-nums">{{ $completedTopics }}/{{ $totalTopics }}</span>
+                </div>
+                <div class="h-2 w-full rounded-full bg-secondary overflow-hidden mb-4">
+                    <div class="h-full rounded-full progress-fill {{ $pctDesk >= 100 ? 'bg-emerald-500' : 'bg-primary' }}"
+                         style="width: {{ $pctDesk }}%"></div>
+                </div>
+                <button wire:click="openSubmitModal" type="button"
+                        @if($completedTopics == 0) disabled @endif
+                        class="w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95
+                               {{ $completedTopics > 0
+                                   ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm'
+                                   : 'bg-secondary text-muted-foreground border border-border opacity-50 cursor-not-allowed' }}">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    ثبت نهایی
+                </button>
+            </div>
+        </div>
+
     </div>
 
-    {{-- ═══ نوار ثبت نهایی ═══ --}}
-    <div class="fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-sm border-t border-border">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                @php $pctBottom = $totalTopics > 0 ? min(100, round(($completedTopics / max($totalTopics,1)) * 100)) : 0; @endphp
-                <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center
-                    {{ $pctBottom >= 100 ? 'bg-emerald-500/15' : ($pctBottom > 0 ? 'bg-primary/10' : 'bg-secondary') }}">
-                    @if($pctBottom >= 100)
-                        <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                    @elseif($pctBottom > 0)
-                        <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.562.562 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"/></svg>
-                    @else
-                        <svg class="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2"/></svg>
-                    @endif
+    {{-- ═══ نوار ثبت نهایی (فقط موبایل/تبلت) ═══ --}}
+    @php $pctBottom = $totalTopics > 0 ? min(100, round(($completedTopics / max($totalTopics,1)) * 100)) : 0; @endphp
+    <div class="fixed bottom-0 inset-x-0 z-40 lg:hidden bg-card/95 backdrop-blur-sm border-t border-border">
+        <div class="glass max-w-4xl mx-auto px-4 py-3 flex items-center gap-4">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs text-muted-foreground font-semibold">وضعیت طبقه‌بندی</span>
+                    <span class="text-xs font-bold text-foreground tabular-nums">{{ $completedTopics }}/{{ $totalTopics }}</span>
                 </div>
-                <div>
-                    <div class="text-xs text-muted-foreground">وضعیت ثبت</div>
-                    <div class="text-sm font-bold text-foreground">
-                        @if($pctBottom >= 100) کامل — آماده ثبت نهایی
-                        @elseif($pctBottom > 0) {{ $completedTopics }} مورد از {{ $totalTopics }} ثبت شده ({{ $pctBottom }}%)
-                        @else هنوز شروع نشده
-                        @endif
-                    </div>
+                <div class="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                    <div class="h-full rounded-full progress-fill {{ $pctBottom >= 100 ? 'bg-emerald-500' : 'bg-primary' }}"
+                         style="width: {{ $pctBottom }}%"></div>
                 </div>
             </div>
 
             <button wire:click="openSubmitModal" type="button"
                     @if($completedTopics == 0) disabled @endif
-                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95
+                    class="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 active:scale-95
                            {{ $completedTopics > 0
                                ? 'bg-emerald-500 text-white hover:bg-emerald-600 shadow-sm'
                                : 'bg-secondary text-muted-foreground border border-border opacity-50 cursor-not-allowed' }}">
