@@ -4,6 +4,51 @@
     <meta name="color-scheme" content="dark">
     <style>
         :root { color-scheme: dark; }
+        /* ═══════ SDFR — Cosmic Light Lines (reusable) ═══════ */
+        @property --sdfr-ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+
+        /* ظرف خط‌های نوری — هرجا بذاری، روی همون والد پخش می‌شه */
+        .sdfr-lines {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .sdfr-lines .comet { position: absolute; transform-origin: center; }
+
+        .sdfr-lines .comet .core {
+            position: absolute;
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 8px 2px rgba(125, 211, 252, .9);
+            opacity: 0;
+            animation: sdfr-comet-fly var(--dur, 8s) ease-in infinite;
+            animation-delay: var(--delay, 0s);
+        }
+
+        .sdfr-lines .comet .core::before {
+            content: '';
+            position: absolute;
+            top: 50%; right: 3px;
+            width: 170px; height: 2px;
+            transform: translateY(-50%);
+            border-radius: 2px;
+            background: linear-gradient(to left, rgba(125, 211, 252, .95), rgba(125, 211, 252, 0));
+        }
+
+        @keyframes sdfr-comet-fly {
+            0%   { transform: translateX(0);                  opacity: 0; }
+            3%   { opacity: 1; }
+            14%  { transform: translateX(var(--dist, 1400px)); opacity: 0; }
+            100% { transform: translateX(var(--dist, 1400px)); opacity: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .sdfr-lines .comet .core { animation: none !important; }
+        }
     </style>
     <script>
         function mobileMenuHandler() {
@@ -168,6 +213,9 @@
 
     <main class="flex-auto py-4">
         {{$slot}}
+        @if(request()->routeIs('client.profile.*'))
+            <x-cosmic-lines class="!fixed hidden dark:block" />
+        @endif
     </main>
 
     <!-- footer -->
