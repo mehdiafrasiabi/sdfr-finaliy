@@ -33,10 +33,11 @@
                 {{-- نقطه --}}
                 <button type="button"
                         @click="
-                            setRating('{{ $key }}', '{{ $kind }}', {{ $id }}, {{ $n['v'] }});
-                            $event.currentTarget.classList.add('dot-pop');
-                            setTimeout(() => $event.currentTarget.classList.remove('dot-pop'), 350);
-                        "
+    const btn = $event.currentTarget;
+    btn.classList.add('dot-pop');
+    setTimeout(() => btn && btn.classList.remove('dot-pop'), 350);
+    setRating('{{ $key }}', '{{ $kind }}', {{ $id }}, {{ $n['v'] }});
+"
                         class="w-6 h-6 rounded-full border-2 transition-all duration-200 active:scale-90 cursor-pointer"
                         :class="
                             ratings['{{ $key }}'] === {{ $n['v'] }}

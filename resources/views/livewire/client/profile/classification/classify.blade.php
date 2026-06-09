@@ -188,7 +188,7 @@
                 {{-- ═══ دروس عمومی ═══ --}}
 
                 {{-- باکس راهنمای دروس عمومی --}}
-                <div class="flex items-start gap-3 bg-primary/5 border border-primary/15 rounded-2xl px-4 py-3 mb-4">
+                <div class="glass flex items-start gap-3 bg-primary/5 border border-primary/15 rounded-2xl px-4 py-3 mb-4">
                     <div class="w-8 h-8 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                         <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
@@ -199,7 +199,7 @@
                     </p>
                 </div>
 
-                <div class="rounded-2xl border border-border overflow-hidden bg-card">
+                <div class="glass rounded-2xl border border-border overflow-hidden bg-card">
                     @foreach($subjects as $si => $subject)
                         @php $key = 'subject_' . $subject['id']; @endphp
                         <div
