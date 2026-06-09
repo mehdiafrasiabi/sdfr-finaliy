@@ -185,7 +185,15 @@ class AssessmentTake extends Component
             'free_value'         => null,
         ];
     }
-
+    public function goToPrevious(): void
+    {
+        if ($this->currentIndex > 1) {
+            $this->currentIndex--;
+            $this->resetValidation();
+            // اگر متدی برای بارگذاری سوال/پاسخِ این ایندکس داری، اینجا صدا بزن:
+            // $this->loadCurrentQuestion();
+        }
+    }
     public function render(): \Illuminate\Contracts\View\View
     {
         $attempt = $this->getAttempt();

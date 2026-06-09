@@ -249,7 +249,6 @@
 </div>
 
 
-<script src="/client/assets/js/dependencies/alpinejs.min.js"></script>
 <script src="/client/assets/js/dependencies/swiper-bundle.min.js"></script>
 <script src="/client/assets/js/dependencies/plyr.min.js"></script>
 <script src="/client/assets/js/app.js"></script>

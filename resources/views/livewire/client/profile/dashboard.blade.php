@@ -280,7 +280,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     {{-- ══════ 1) مشاور (زنده) ══════ --}}
-                    <div class="glass  rise md:col-span-2 p-4 flex items-center justify-between gap-4" style="animation-delay:.1s">
+                    <div class="glass rise md:col-span-2 p-4 flex items-center justify-between gap-4" style="animation-delay:.1s;margin-bottom: 26px">
                         {{-- راست: عکس + نام --}}
                         <div class="flex items-center gap-3">
                             @if($advisorStudent && !empty($advisorStudent['picture']))
