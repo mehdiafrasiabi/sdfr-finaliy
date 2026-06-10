@@ -7,8 +7,6 @@ use App\Models\AdvisingSession;
 use App\Models\AdvisingPreSession;
 use App\Services\NotificationService;
 use Artesaos\SEOTools\Traits\SEOTools;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\DB;
 
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -20,8 +18,7 @@ class Index extends Component
     use WithPagination, SEOTools;
 
     public $search = '';
-    // روز انتخابی در نمای اصلی (Carbon dayOfWeek: 0=Sun .. 6=Sat)
-    public $selectedDay = 6; // پیش‌فرض: شنبه
+
     // Modal 1: Student Selection
     public $showStudentSelectModal = false;
     public $studentSearch = '';
@@ -43,14 +40,7 @@ class Index extends Component
            $this->seo()->setTitle('اتاق مشاوره');
     }
 
-    // ==================== انتخاب روز در نمای اصلی ====================
-
-    public function selectDay($day)
-    {
-        $this->selectedDay = (int) $day;
-    }
-
-// ==================== Modal 1: Student Selection ====================
+    // ==================== Modal 1: Student Selection ====================
 
     public function openStudentSelectModal()
     {
@@ -221,53 +211,34 @@ class Index extends Component
     public function render()
     {
         $adminId = auth()->id();
-        // تبدیل روز انتخابی از کنوانسیون Carbon (0=Sun..6=Sat)
-        // به کنوانسیون ایرانی مورد استفاده در student_schedule_preference_times (0=شنبه..6=جمعه)
-        $iranianDay = ($this->selectedDay + 1) % 7;
 
-        // دانش‌آموزانی که برنامه‌ی هفتگی ثابت‌شان، روز انتخابی را پوشش می‌دهد.
-        // جلسات همان روز را هم برای نمایش زمینه‌ای ضمیمه می‌کنیم.
-
-        $dayStudents = Student::query()
+        // لیست اصلی: همه دانش‌آموزان این مشاور با قابلیت جستجو
+        $studentsQuery = Student::query()
             ->with([
                 'user.profile',
                 'user.personalInformation',
                 'payment.order.user',
-                'activeSchedulePreference.times',
-                'activeSchedulePreference.assignedAdvisor',
                 'advisingSessions' => function ($q) {
-                    $q->whereRaw('DAYOFWEEK(activation_date) = ?', [$this->selectedDay + 1])
-                        ->orderBy('activation_date');
+                    $q->orderBy('activation_date');
                 },
-
             ])
-            ->where('advisor_id', $adminId)
-            ->whereHas('activeSchedulePreference.times', function ($q) use ($iranianDay) {
-                $q->where('day_of_week', $iranianDay);
-            })
-            ->get();
+            ->where('advisor_id', $adminId);
 
-        // تعداد دانش‌آموز به ازای هر روز بر اساس برنامه‌ی هفتگی ثابت (approved preferences)
-        $prefDayCountsRaw = DB::table('student_schedule_preferences')
-            ->join('student_schedule_preference_times',
-                'student_schedule_preferences.id',
-                '=',
-                'student_schedule_preference_times.student_schedule_preference_id')
-            ->join('students', 'students.id', '=', 'student_schedule_preferences.student_id')
-            ->where('students.advisor_id', $adminId)
-            ->where('student_schedule_preferences.status', 'approved')
-            ->selectRaw('student_schedule_preference_times.day_of_week as ir_day,
-                         COUNT(DISTINCT students.id) as cnt')
-            ->groupBy('student_schedule_preference_times.day_of_week')
-            ->get();
-
-        $dayCounts = array_fill(0, 7, 0);
-        foreach ($prefDayCountsRaw as $row) {
-            // تبدیل Iranian day → Carbon day برای نمایش در تب‌های موجود
-            $carbonDay = (((int) $row->ir_day) + 6) % 7;
-            $dayCounts[$carbonDay] = (int) $row->cnt;
+        if ($this->search) {
+            $studentsQuery->where(function ($q) {
+                $q->whereHas('user.personalInformation', function ($q2) {
+                    $q2->where('name', 'like', '%' . $this->search . '%')
+                        ->orWhere('name_full', 'like', '%' . $this->search . '%');
+                })->orWhereHas('user', function ($q2) {
+                    $q2->where('mobile', 'like', '%' . $this->search . '%');
+                })->orWhereHas('user.profile', function ($q2) {
+                    $q2->where('full_name', 'like', '%' . $this->search . '%');
+                });
+            });
         }
-        // تعداد کل دانش‌آموزان این مشاور
+
+        $allStudents = $studentsQuery->get();
+
         $totalStudentCount = Student::where('advisor_id', $adminId)->count();
 
         // دانش‌آموزان مودال: فقط آنهایی که هیچ جلسه‌ای ندارند
@@ -292,11 +263,9 @@ class Index extends Component
         $modalStudents = $modalStudentsQuery->get();
 
         return view('livewire.admin.student.consultation.index', [
-            'dayStudents'       => $dayStudents,
+            'allStudents'       => $allStudents,
             'modalStudents'     => $modalStudents,
             'totalStudentCount' => $totalStudentCount,
-            'dayCounts'         => $dayCounts,
-            'iranianDay'        => $iranianDay,
         ])->layout('layouts.admin.app');
     }
 }
