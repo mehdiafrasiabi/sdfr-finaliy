@@ -134,10 +134,11 @@ class Index extends Component
 
         $service->start(
             $user,
-            (int) $pi->grade,
+            $pi->is_graduate ? \App\Models\TrialWeek::GRADE_GRADUATE : (int) $pi->grade,
             $pi->field ?: null,
             $pi->father_mobile ?? '',
             $pi->mother_mobile ?? '',
+            (bool) ($pi->attends_school ?? true),
         );
 
         return $this->redirect(route('client.profile.waiting-for-supporter'), navigate: true);

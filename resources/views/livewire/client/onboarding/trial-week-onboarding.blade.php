@@ -404,7 +404,7 @@
     @endpush
 
     @php
-        $gradeLabels = ['9'=>'نهم','10'=>'دهم','11'=>'یازدهم','12'=>'دوازدهم'];
+        $gradeLabels = ['9'=>'نهم','10'=>'دهم','11'=>'یازدهم','12'=>'دوازدهم','graduate'=>'فارغ‌التحصیل'];
         $fieldLabels = ['math'=>'ریاضی','experimental'=>'تجربی','human'=>'انسانی'];
 
         // ── options برای کامپوننت x-ui.select ──
@@ -658,6 +658,32 @@
                                                 </div>
                                             @endif
                                         </div>
+
+                                        {{-- سوال: در حال حاضر مدرسه می‌روی؟ --}}
+                                        @if($grade === 'graduate')
+                                            <div class="flex items-start gap-2 rounded-xl bg-primary/5 border border-primary/20 px-3.5 py-3">
+                                                <svg class="w-4 h-4 text-primary shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                                                </svg>
+                                                <p class="text-[11px] text-muted leading-5">چون فارغ‌التحصیل هستی، برنامه‌ات بدون نیاز به برنامه‌ی کلاسی مدرسه طراحی می‌شود.</p>
+                                            </div>
+                                        @else
+                                            <div class="field-wrap relative">
+                                                <label class="block text-xs font-semibold mb-1.5 text-muted">در حال حاضر مدرسه می‌روی؟</label>
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <button type="button" wire:click="$set('attendsSchool', true)"
+                                                            class="rounded-xl px-4 py-3 text-sm font-bold border transition-colors
+                                                            {{ $attendsSchool ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
+                                                        بله، می‌رم
+                                                    </button>
+                                                    <button type="button" wire:click="$set('attendsSchool', false)"
+                                                            class="rounded-xl px-4 py-3 text-sm font-bold border transition-colors
+                                                            {{ !$attendsSchool ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
+                                                        نه، نمی‌رم
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -793,37 +819,24 @@
                                             @endif
                                         </div>
                                         <h2 class="font-black text-2xl mb-2">حساب شما ساخته شد</h2>
-                                        <p class="text-sm text-muted">یکی از مسیرها را برای ادامه انتخاب کنید.</p>
+                                        <p class="text-sm text-muted leading-6">قدم بعدی: آزمون شخصیت‌شناسی — تا بهترین برنامه برایت طراحی بشه.</p>
                                     </div>
 
-                                    <div class="space-y-3">
-                                        <button type="button" wire:click="openTrialConfirm"
-                                                class="accent-card accent-emerald w-full rounded-2xl p-5 text-right hover:-translate-y-0.5 transition-transform">
-                                            <div class="inline-flex items-center gap-1.5 text-xs font-bold accent-icon accent-emerald rounded-full px-2.5 py-1 mb-3">
-                                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                                                رایگان
-                                            </div>
-                                            <h3 class="font-black text-lg mb-1">۱ هفته آزمایشی</h3>
-                                            <p class="text-xs text-muted leading-6">تجربه‌ی کامل امکانات بدون پرداخت</p>
-                                        </button>
-
-                                        <button type="button" wire:click="goToPurchase"
-                                                class="accent-card accent-sky w-full rounded-2xl p-5 text-right hover:-translate-y-0.5 transition-transform">
-                                            <div class="inline-flex items-center gap-1.5 text-xs font-bold accent-icon accent-sky rounded-full px-2.5 py-1 mb-3">
-                                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                                </svg>
-                                                کامل
-                                            </div>
-                                            <h3 class="font-black text-lg mb-1">خرید دوره</h3>
-                                            <p class="text-xs text-muted leading-6">دسترسی به همه‌ی امکانات</p>
-                                        </button>
-                                    </div>
+                                    <button type="button" wire:click="startAssessments"
+                                            wire:loading.attr="disabled" wire:target="startAssessments"
+                                            class="accent-card accent-emerald w-full rounded-2xl p-5 text-right hover:-translate-y-0.5 transition-transform">
+                                        <div class="inline-flex items-center gap-1.5 text-xs font-bold accent-icon accent-emerald rounded-full px-2.5 py-1 mb-3">
+                                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                                            قدم اول
+                                        </div>
+                                        <h3 class="font-black text-lg mb-1">شروع آزمون‌های شخصیت‌شناسی</h3>
+                                        <p class="text-xs text-muted leading-6">بعد از آزمون‌ها، کارنامه‌ی تحلیلی‌ات را می‌بینی و مسیرت را انتخاب می‌کنی</p>
+                                    </button>
 
                                     <div class="text-center mt-5">
-                                        <button type="button" wire:click="declineTrial"
+                                        <button type="button" wire:click="goToPurchase"
                                                 class="text-xs text-muted hover:text-foreground transition-colors">
-                                            فعلاً نه — بازگشت
+                                            می‌خواهم مستقیم دوره را خریداری کنم
                                         </button>
                                     </div>
                                 </div>
@@ -952,36 +965,23 @@
                                     @endif
                                 </div>
                                 <h2 class="font-black text-3xl mb-2">حساب شما ساخته شد</h2>
-                                <p class="text-muted">یکی از مسیرها را برای ادامه انتخاب کنید.</p>
+                                <p class="text-muted">قدم بعدی: آزمون شخصیت‌شناسی — تا بهترین برنامه برایت طراحی بشه.</p>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-4">
-                                <button type="button" wire:click="openTrialConfirm"
-                                        class="accent-card accent-emerald rounded-2xl p-6 text-right hover:-translate-y-1 transition-transform">
-                                    <div class="inline-flex items-center gap-1.5 text-xs font-bold accent-icon accent-emerald rounded-full px-2.5 py-1 mb-4">
-                                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> رایگان
-                                    </div>
-                                    <h3 class="font-black text-xl mb-1">۱ هفته آزمایشی</h3>
-                                    <p class="text-sm text-muted leading-6">تجربه‌ی کامل امکانات بدون پرداخت</p>
-                                </button>
-
-                                <button type="button" wire:click="goToPurchase"
-                                        class="accent-card accent-sky rounded-2xl p-6 text-right hover:-translate-y-1 transition-transform">
-                                    <div class="inline-flex items-center gap-1.5 text-xs font-bold accent-icon accent-sky rounded-full px-2.5 py-1 mb-4">
-                                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                                        </svg>
-                                        کامل
-                                    </div>
-                                    <h3 class="font-black text-xl mb-1">خرید دوره</h3>
-                                    <p class="text-sm text-muted leading-6">دسترسی به همه‌ی امکانات با قیمت پلکانی</p>
-                                </button>
-                            </div>
+                            <button type="button" wire:click="startAssessments"
+                                    wire:loading.attr="disabled" wire:target="startAssessments"
+                                    class="accent-card accent-emerald w-full rounded-2xl p-6 text-right hover:-translate-y-1 transition-transform">
+                                <div class="inline-flex items-center gap-1.5 text-xs font-bold accent-icon accent-emerald rounded-full px-2.5 py-1 mb-4">
+                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> قدم اول
+                                </div>
+                                <h3 class="font-black text-xl mb-1">شروع آزمون‌های شخصیت‌شناسی</h3>
+                                <p class="text-sm text-muted leading-6">بعد از آزمون‌ها، کارنامه‌ی تحلیلی‌ات را می‌بینی و مسیرت (هفته آزمایشی یا خرید) را انتخاب می‌کنی</p>
+                            </button>
 
                             <div class="text-center mt-6">
-                                <button type="button" wire:click="declineTrial"
+                                <button type="button" wire:click="goToPurchase"
                                         class="text-sm text-muted hover:text-foreground transition-colors">
-                                    فعلاً نه — بازگشت به صفحه اصلی
+                                    می‌خواهم مستقیم دوره را خریداری کنم
                                 </button>
                             </div>
                         </div>
@@ -1115,6 +1115,32 @@
                                                 <x-ui.select wire:model="field" :options="$fieldOptions" placeholder="انتخاب رشته" />
                                             </div>
                                         @endif
+
+                                        {{-- سوال: در حال حاضر مدرسه می‌روی؟ --}}
+                                        @if($grade === 'graduate')
+                                            <div class="col-span-2 flex items-start gap-2 rounded-xl bg-primary/5 border border-primary/20 px-3.5 py-3">
+                                                <svg class="w-4 h-4 text-primary shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+                                                </svg>
+                                                <p class="text-[11px] text-muted leading-5">چون فارغ‌التحصیل هستی، برنامه‌ات بدون نیاز به برنامه‌ی کلاسی مدرسه طراحی می‌شود.</p>
+                                            </div>
+                                        @else
+                                            <div class="col-span-2 field-wrap relative">
+                                                <label class="block text-xs font-semibold mb-1.5 text-muted">در حال حاضر مدرسه می‌روی؟</label>
+                                                <div class="grid grid-cols-2 gap-3">
+                                                    <button type="button" wire:click="$set('attendsSchool', true)"
+                                                            class="rounded-xl px-4 py-2.5 text-sm font-bold border transition-colors
+                                                            {{ $attendsSchool ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
+                                                        بله، می‌رم
+                                                    </button>
+                                                    <button type="button" wire:click="$set('attendsSchool', false)"
+                                                            class="rounded-xl px-4 py-2.5 text-sm font-bold border transition-colors
+                                                            {{ !$attendsSchool ? 'bg-primary/10 border-primary text-primary' : 'glass-input border-border text-muted' }}">
+                                                        نه، نمی‌رم
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @endif
                                     </div>
                                 </fieldset>
 
@@ -1197,53 +1223,6 @@
             </div>
         </div>
 
-
-        {{-- ═══ Trial Confirm Modal ═══ --}}
-        <div x-show="$wire.showTrialConfirm"
-             x-transition.opacity
-             x-cloak
-             class="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-background/80 backdrop-blur-md"
-                 wire:click="closeTrialConfirm"></div>
-
-            <div class="relative w-full max-w-sm"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 scale-90"
-                 x-transition:enter-end="opacity-100 scale-100">
-                <div class="train-border">
-                    <div class="glass-card rounded-2xl p-6 text-center">
-                        <div class="inline-block w-24 h-24 mb-3">
-                            @if($lottieSuccess)
-                                <lottie-player src="{{ $lottieSuccess }}" background="transparent" speed="1" autoplay style="width:100%;height:100%"></lottie-player>
-                            @else
-                                {!! $fbSuccess !!}
-                            @endif
-                        </div>
-
-                        <h3 class="font-black text-lg mb-2">شروع هفته‌ی آزمایشی</h3>
-                        <p class="text-sm text-muted mb-5 leading-6">
-                            با شروع آزمایشی، یک پشتیبان جذب با شما تماس می‌گیرد و فرایند را آغاز می‌کند.
-                        </p>
-                        <div class="flex items-center gap-2">
-                            {{-- ✅ مستقیماً wire:click → ریدایرکت قطعی انجام می‌شود --}}
-                            <button type="button" wire:click="confirmTrial"
-                                    wire:loading.attr="disabled" wire:target="confirmTrial"
-                                    @mousedown="pressBtn($el)"
-                                    class="btn-press flex-1 px-4 py-3 rounded-xl font-bold text-sm">
-                                <span wire:loading.remove wire:target="confirmTrial">بله، شروع می‌کنم</span>
-                                <span wire:loading wire:target="confirmTrial">در حال ارسال…</span>
-                            </button>
-                            <button type="button" wire:click="closeTrialConfirm"
-                                    wire:loading.attr="disabled" wire:target="confirmTrial"
-                                    @mousedown="pressBtn($el)"
-                                    class="btn-press-secondary px-4 py-3 rounded-xl text-sm">
-                                انصراف
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
 
     </div>
 </div>

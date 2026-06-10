@@ -5,12 +5,10 @@ namespace App\Livewire\Client\Onboarding;
 use App\Models\City;
 use App\Models\Otp;
 use App\Models\State;
-use App\Models\TrialWeek;
 use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\PersonalInformation;
 use App\Notifications\SendOtpToUser;
-use App\Services\TrialWeekService;
 use App\Traits\NormalizesDigits;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -36,6 +34,7 @@ class TrialWeekOnboarding extends Component
     public string $motherMobile = '';
     public string $grade        = '10';
     public string $field        = 'math';
+    public bool   $attendsSchool = true;
     public int    $stateId      = 0;
     public int    $cityId       = 0;
     public string $mobile       = '';
@@ -51,7 +50,6 @@ class TrialWeekOnboarding extends Component
     public string $generalError = '';
 
     public bool $registered       = false;
-    public bool $showTrialConfirm = false;
 
     public $states = [];
     public $cities = [];
@@ -163,7 +161,7 @@ class TrialWeekOnboarding extends Component
         $rules = [
             'fatherMobile' => ['required', 'regex:/^09[0-9]{9}$/'],
             'motherMobile' => ['required', 'regex:/^09[0-9]{9}$/', 'different:fatherMobile'],
-            'grade'        => ['required', 'in:9,10,11,12'],
+            'grade'        => ['required', 'in:9,10,11,12,graduate'],
         ];
         if ($this->grade !== '9') {
             $rules['field'] = ['required', 'in:math,experimental,human'];
@@ -237,6 +235,14 @@ class TrialWeekOnboarding extends Component
     // ═══════════════════════════════════════════════════════════════════════
     // INPUT NORMALIZATION
     // ═══════════════════════════════════════════════════════════════════════
+
+    public function updatedGrade(string $value): void
+    {
+        // فارغ‌التحصیل یعنی مدرسه‌اش تمام شده — سوال «مدرسه می‌روی؟» معنا ندارد.
+        if ($value === 'graduate') {
+            $this->attendsSchool = false;
+        }
+    }
 
     public function updatedStateId(int $value): void
     {
@@ -339,7 +345,10 @@ class TrialWeekOnboarding extends Component
             'code_mell'      => $this->codeMell,
             'father_mobile'  => $this->fatherMobile,
             'mother_mobile'  => $this->motherMobile,
-            'grade'          => in_array($this->grade, ['10','11','12']) ? $this->grade : '10',
+            // فارغ‌التحصیل از نظر محتوای درسی معادل پایه ۱۲ است.
+            'grade'          => in_array($this->grade, ['10','11','12']) ? $this->grade : ($this->grade === 'graduate' ? '12' : '10'),
+            'is_graduate'    => $this->grade === 'graduate',
+            'attends_school' => $this->grade === 'graduate' ? false : $this->attendsSchool,
             'field'          => $this->grade !== '9' ? $this->field : 'math',
             'birth_date'     => '',
             'place_of_birth' => '',
@@ -358,43 +367,21 @@ class TrialWeekOnboarding extends Component
     // TRIAL / FINAL
     // ═══════════════════════════════════════════════════════════════════════
 
-    public function openTrialConfirm(): void  { $this->showTrialConfirm = true; }
-    public function closeTrialConfirm(): void { $this->showTrialConfirm = false; }
-
-    public function confirmTrial(TrialWeekService $service): void
+    /**
+     * مسیر جدید: بعد از ساخت حساب، اول آزمون‌ها انجام می‌شوند؛
+     * انتخاب «هفته آزمایشی یا خرید» بعد از کارنامهٔ تحلیلی آزمون‌ها است.
+     */
+    public function startAssessments(): void
     {
-        if ($this->isLoading) return;
-
-        $this->isLoading        = true;
-        $this->showTrialConfirm = false;
-
-        $user = Auth::user();
-
-        if (! $user) {
-            $this->isLoading = false;
+        if (! Auth::check()) {
             $this->redirect(route('client.auth.login'), navigate: true);
             return;
         }
-
-        if (TrialWeek::where('user_id', $user->id)->exists()) {
-            // middleware assessments.required مسیر درست را تشخیص می‌دهد
-            $this->redirect(route('client.profile.assessment.list'), navigate: true);
-            return;
-        }
-
-        $service->start(
-            $user,
-            (int) $this->grade,
-            $this->grade !== '9' ? $this->field : null,
-            $this->fatherMobile,
-            $this->motherMobile,
-        );
 
         $this->redirect(route('client.profile.assessment.list'), navigate: true);
     }
 
     public function goToPurchase(): void { $this->redirect(route('client.purchase'), navigate: true); }
-    public function declineTrial(): void { $this->redirect(route('client.home'), navigate: true); }
 
     public function render(): \Illuminate\Contracts\View\View
     {

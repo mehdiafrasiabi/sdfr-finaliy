@@ -3,17 +3,26 @@
 namespace App\Livewire\Client\Profile\Assessment;
 
 use App\Models\StudentAssessmentAttempt;
+use App\Models\TrialWeek;
+use App\Services\AssessmentInterpretationService;
 use App\Services\AssessmentService;
+use App\Services\TrialWeekService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 /**
- * صفحهٔ ورود مرحله‌ای آزمون‌ها (به‌جای صفحهٔ باکسی قبلی):
+ * صفحهٔ ورود مرحله‌ای آزمون‌ها:
  *   - اگر آزمونی ناتمام مانده: صفحهٔ «خوش آمدی، ادامه دهیم» و رفتن مستقیم به سوال بعدی.
- *   - اگر همه تکمیل شده: صفحهٔ تشکر و ادامه به راهنمای هفتهٔ آزمایشی.
+ *   - اگر همه تکمیل شده: کارنامهٔ تحلیلی وضعیت (فقط آزمون‌های فعال) و سپس
+ *     انتخاب مسیر: «شروع هفتهٔ آزمایشی» یا «خرید دوره».
  */
 class AssessmentList extends Component
 {
+    /** بعد از خواندن کارنامهٔ تحلیلی، باکس‌های انتخاب مسیر نمایش داده می‌شوند. */
+    public bool $showChoice = false;
+
+    public bool $isStartingTrial = false;
+
     /**
      * شروع/ادامهٔ آزمون جاری — کاربر را مستقیم به اولین سوال بی‌پاسخ می‌برد.
      */
@@ -22,8 +31,7 @@ class AssessmentList extends Component
         $next = $service->nextStudentAssessment(Auth::user());
 
         if (!$next) {
-            // همه تکمیل شده — به راهنما هدایت می‌کنیم.
-            $this->redirect(route('client.profile.trial.guide'), navigate: true);
+            // همه تکمیل شده — همین صفحه کارنامهٔ تحلیلی را نشان می‌دهد.
             return;
         }
 
@@ -33,14 +41,64 @@ class AssessmentList extends Component
     }
 
     /**
-     * ادامه پس از تشکر — ورود به راهنمای هفتهٔ آزمایشی.
+     * «ادامه» بعد از خواندن کارنامهٔ تحلیلی — نمایش انتخاب مسیر.
      */
-    public function continueToGuide(): void
+    public function continueToChoice(): void
     {
-        $this->redirect(route('client.profile.trial.guide'), navigate: true);
+        // کاربری که از قبل هفتهٔ آزمایشی دارد، انتخاب مسیر ندارد و ادامه می‌دهد.
+        if (Auth::user()->trialWeek) {
+            $this->redirect(route('client.profile.trial.guide'), navigate: true);
+            return;
+        }
+
+        $this->showChoice = true;
     }
 
-    public function render(AssessmentService $service): \Illuminate\Contracts\View\View
+    /**
+     * شروع هفتهٔ آزمایشی — اطلاعات پایه/رشته از ثبت‌نام خوانده می‌شود
+     * و کاربر به صفحهٔ تخصیص «مشاور جذب» می‌رود.
+     */
+    public function confirmTrial(TrialWeekService $service): void
+    {
+        if ($this->isStartingTrial) {
+            return;
+        }
+        $this->isStartingTrial = true;
+
+        $user = Auth::user();
+
+        if ($user->trialWeek) {
+            $this->redirect(route('client.profile.trial.guide'), navigate: true);
+            return;
+        }
+
+        $info = $user->personalInformation;
+        if (!$info) {
+            $this->isStartingTrial = false;
+            session()->flash('error', 'اطلاعات ثبت‌نام شما کامل نیست. لطفاً با پشتیبانی تماس بگیرید.');
+            return;
+        }
+
+        $grade = $info->is_graduate ? TrialWeek::GRADE_GRADUATE : (int) $info->grade;
+
+        $service->start(
+            $user,
+            $grade,
+            $info->field,
+            $info->father_mobile,
+            $info->mother_mobile,
+            (bool) $info->attends_school,
+        );
+
+        $this->redirect(route('client.profile.waiting-for-supporter'), navigate: true);
+    }
+
+    public function goToPurchase(): void
+    {
+        $this->redirect(route('client.purchase'), navigate: true);
+    }
+
+    public function render(AssessmentService $service, AssessmentInterpretationService $interpreter): \Illuminate\Contracts\View\View
     {
         $user = Auth::user();
 
@@ -68,6 +126,9 @@ class AssessmentList extends Component
 
         $currentStage = $next ? $service->stageNumberFor($next) : 2;
 
+        // کارنامهٔ تحلیلی فقط از آزمون‌های «فعال» — آزمون غیرفعال‌شده نمایش داده نمی‌شود.
+        $summary = $isAllDone ? $interpreter->summaryForUser($user) : null;
+
         return view('livewire.client.profile.assessment.assessment-list', [
             'next'           => $next,
             'isAllDone'      => $isAllDone,
@@ -75,6 +136,8 @@ class AssessmentList extends Component
             'currentStage'   => $currentStage,
             'totalQuestions' => $totalQuestions,
             'answeredTotal'  => $answeredTotal,
+            'summary'        => $summary,
+            'hasTrial'       => (bool) $user->trialWeek,
         ])->layout('layouts.client.app');
     }
 }

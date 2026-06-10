@@ -14,6 +14,7 @@ class TrialWeek extends Model
     protected $guarded = [];
 
     protected $casts = [
+        'attends_school'           => 'boolean',
         'expires_at'               => 'datetime',
         'assessments_completed_at' => 'datetime',
         'supporter_assigned_at'    => 'datetime',
@@ -28,11 +29,15 @@ class TrialWeek extends Model
     const STATUS_PRE_SESSION_DONE      = 'pre_session_done';
     const STATUS_PROGRAM_BUILT         = 'program_built';
 
+    // پایه‌ی ۱۳ = فارغ‌التحصیل (مدرسه‌اش تمام شده، فقط رشته دارد)
+    const GRADE_GRADUATE = 13;
+
     const GRADE_LABELS = [
         9  => 'نهم',
         10 => 'دهم',
         11 => 'یازدهم',
         12 => 'دوازدهم',
+        13 => 'فارغ‌التحصیل',
     ];
 
     const FIELD_LABELS = [
@@ -119,6 +124,20 @@ class TrialWeek extends Model
     public function hasAnyParentCompleted(): bool
     {
         return $this->parentAssessmentInvitations()->whereNotNull('completed_at')->exists();
+    }
+
+    public function isGraduate(): bool
+    {
+        return (int) $this->grade === self::GRADE_GRADUATE;
+    }
+
+    /**
+     * آیا پر کردن «برنامه کلاسی مدرسه» برای این دانش‌آموز لازم است؟
+     * فارغ‌التحصیل‌ها و کسانی که مدرسه نمی‌روند معاف‌اند.
+     */
+    public function needsClassSchedule(): bool
+    {
+        return $this->attends_school && ! $this->isGraduate();
     }
 
     public function isExpired(): bool

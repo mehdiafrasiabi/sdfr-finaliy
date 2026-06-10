@@ -3,35 +3,38 @@
 namespace App\Livewire\Client\Profile\TrialWeek;
 
 use App\Models\TrialWeek;
+use App\Services\TrialWeekService;
 use Artesaos\SEOTools\Traits\SEOTools;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
+/**
+ * صفحهٔ تخصیص خودکار «مشاور جذب»:
+ *  - سیستم از بین ادمین‌های دارای نقش «مشاور جذب»، کسی که کمترین
+ *    دانش‌آموز دارد را انتخاب می‌کند.
+ *  - یک تایمر ۲۰ ثانیه‌ای نمایش داده می‌شود؛ بعد از رد شدن از ثانیهٔ ۱۲،
+ *    باکس مشاور جذب (نام، موبایل، عکس) ظاهر می‌شود و در پایان تایمر
+ *    کاربر وارد راهنمای هفتهٔ آزمایشی می‌شود.
+ */
 class WaitingForSupporter extends Component
 {
     use SEOTools;
 
     public ?TrialWeek $trialWeek = null;
 
-    /** ساعت شروع کار مجموعه (۲۴ ساعته) */
-    public const WORK_START_HOUR = 9;
+    /** کل زمان تایمر (ثانیه) */
+    public const TIMER_SECONDS = 20;
 
-    /** ساعت پایان کار مجموعه (۲۴ ساعته) */
-    public const WORK_END_HOUR = 21;
+    /** از این ثانیه به پایین، باکس مشاور جذب نمایش داده می‌شود. */
+    public const REVEAL_AT_SECOND = 12;
 
-    /** آیا الان داخل ساعت کاری هستیم؟ */
-    public bool $isWithinWorkingHours = true;
+    public ?string $consultantName   = null;
+    public ?string $consultantMobile = null;
+    public ?string $consultantAvatar = null;
 
-    /** پیام وضعیت ساعت کاری برای نمایش */
-    public string $workingHoursMessage = '';
-
-    /** ساعت تقریبی شروع رسیدگی (متن آماده برای نمایش) */
-    public string $nextActiveTime = '';
-
-    public function mount(): void
+    public function mount(TrialWeekService $service): void
     {
-        $this->seo()->setTitle('در انتظار پشتیبان');
+        $this->seo()->setTitle('انتخاب مشاور جذب');
         $this->trialWeek = TrialWeek::where('user_id', Auth::id())->latest()->first();
 
         if (!$this->trialWeek) {
@@ -39,85 +42,32 @@ class WaitingForSupporter extends Component
             return;
         }
 
-        // اگر پشتیبان قبلاً تخصیص داده شده، به راهنمای هفته آزمایشی برو
-        if ($this->trialWeek->status !== TrialWeek::STATUS_PENDING) {
+        // تخصیص خودکار مشاور جذب (اگر هنوز انجام نشده باشد).
+        if ($this->trialWeek->status === TrialWeek::STATUS_PENDING) {
+            $service->autoAssignAcquisitionConsultant($this->trialWeek);
+            $this->trialWeek->refresh();
+        } elseif ($this->trialWeek->status !== TrialWeek::STATUS_SUPPORTER_ASSIGNED) {
+            // مراحل بعدی — این صفحه دیگر معنا ندارد.
             redirect()->route('client.profile.trial.guide');
             return;
         }
 
-        $this->evaluateWorkingHours();
-    }
-
-    /**
-     * بررسی اینکه الان داخل ساعت کاری مجموعه (۹ تا ۲۱) هستیم یا نه،
-     * و آماده‌سازی پیام مناسب برای دانش‌آموز.
-     */
-    public function evaluateWorkingHours(): void
-    {
-        $now  = Carbon::now();
-        $hour = (int) $now->format('H');
-
-        $this->isWithinWorkingHours = $hour >= self::WORK_START_HOUR
-            && $hour < self::WORK_END_HOUR;
-
-        if ($this->isWithinWorkingHours) {
-            $this->workingHoursMessage = 'الان در ساعت کاری هستیم و تیم پشتیبانی در حال بررسی درخواست شماست.';
-            $this->nextActiveTime = '';
-        } else {
-            // خارج از ساعت کاری — محاسبه‌ی زمان شروع رسیدگی بعدی
-            if ($hour < self::WORK_START_HOUR) {
-                // قبل از ۹ صبحِ همین روز
-                $this->nextActiveTime = 'امروز ساعت ۹:۰۰ صبح';
-            } else {
-                // بعد از ۲۱ — رسیدگی فردا صبح
-                $this->nextActiveTime = 'فردا ساعت ۹:۰۰ صبح';
-            }
-
-            $this->workingHoursMessage = 'درخواست شما خارج از ساعت کاری مجموعه ثبت شده است. '
-                . 'تیم پشتیبانی از ساعت ۹ صبح تا ۹ شب پاسخگوست و درخواست شما '
-                . $this->nextActiveTime . ' بررسی خواهد شد.';
+        $consultant = $this->trialWeek->acquisitionSupporter;
+        if ($consultant) {
+            $this->consultantName   = $consultant->name;
+            $this->consultantMobile = $consultant->mobile;
+            $this->consultantAvatar = $consultant->picture
+                ? asset('adminsFile/' . $consultant->id . '/' . $consultant->picture)
+                : null;
         }
     }
 
     /**
-     * بررسی دستی وضعیت — جایگزین wire:poll.
-     * با دکمه‌ی «بررسی وضعیت» فراخوانی می‌شود.
+     * پایان تایمر — ورود به راهنمای هفتهٔ آزمایشی.
      */
-    public function checkStatus(): void
+    public function finish(): void
     {
-        if (!$this->trialWeek) {
-            return;
-        }
-
-        $this->trialWeek->refresh();
-        $this->evaluateWorkingHours();
-
-        if ($this->trialWeek->status !== TrialWeek::STATUS_PENDING) {
-            // پشتیبان تخصیص داده شد — به صفحه‌ی راهنما برو
-            $this->redirect(route('client.profile.trial.guide'), navigate: true);
-            return;
-        }
-
-        // هنوز تخصیص داده نشده — پیام به کاربر
-        $this->dispatch('status-checked', assigned: false);
-    }
-
-    /**
-     * لغو هفتهٔ آزمایشی — تنها قبل از تخصیص پشتیبان (status = pending) مجاز است.
-     */
-    public function cancelTrial(): void
-    {
-        if (!$this->trialWeek) {
-            return;
-        }
-
-        if ($this->trialWeek->status !== TrialWeek::STATUS_PENDING) {
-            session()->flash('error', 'لغو پس از تخصیص پشتیبان جذب امکان‌پذیر نیست.');
-            return;
-        }
-
-        $this->trialWeek->delete();
-        $this->redirect(route('client.purchase'), navigate: true);
+        $this->redirect(route('client.profile.trial.guide'), navigate: true);
     }
 
     public function render(): \Illuminate\Contracts\View\View

@@ -9,6 +9,12 @@ class PersonalInformation extends Model
 {
     use HasFactory;
     protected $guarded =[];
+
+    protected $casts = [
+        'is_graduate'    => 'boolean',
+        'attends_school' => 'boolean',
+    ];
+
     public function country()
     {
         return $this->belongsTo(Country::class);

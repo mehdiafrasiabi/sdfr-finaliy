@@ -3,9 +3,54 @@
 namespace App\Services;
 
 use App\Models\Assessment;
+use App\Models\StudentAssessmentAttempt;
+use App\Models\User;
 
 class AssessmentInterpretationService
 {
+    /**
+     * کارنامهٔ تحلیلی کامل دانش‌آموز از آزمون‌های تکمیل‌شده.
+     * فقط آزمون‌هایی که هنوز «فعال» هستند لحاظ می‌شوند؛ اگر مدیر آزمونی
+     * (مثلاً MBTI) را غیرفعال کند، تحلیل آن نمایش داده نمی‌شود.
+     *
+     * خروجی: ['mbti', 'vark', 'custom' => [name => facets], 'flags'] یا null.
+     */
+    public function summaryForUser(User $user): ?array
+    {
+        $attempts = StudentAssessmentAttempt::where('user_id', $user->id)
+            ->where('status', StudentAssessmentAttempt::STATUS_COMPLETED)
+            ->whereHas('assessment', fn ($q) => $q->where('is_active', true))
+            ->with('assessment')
+            ->get();
+
+        if ($attempts->isEmpty()) {
+            return null;
+        }
+
+        $summary = ['mbti' => null, 'vark' => null, 'custom' => [], 'flags' => []];
+
+        foreach ($attempts as $attempt) {
+            $kind = $attempt->assessment?->kind;
+            $cr   = $attempt->computed_result;
+
+            if ($kind === Assessment::KIND_MBTI) {
+                $summary['mbti'] = $this->interpretMbti($cr);
+            } elseif ($kind === Assessment::KIND_VARK) {
+                $summary['vark'] = $this->interpretVark($cr);
+            } else {
+                $custom = $this->interpretCustom($cr, $attempt->assessment);
+                if (!empty($custom['facets'])) {
+                    $summary['custom'][$attempt->assessment->name_fa] = $custom['facets'];
+                }
+                foreach ($custom['flags'] ?? [] as $flag) {
+                    $summary['flags'][] = $flag;
+                }
+            }
+        }
+
+        return $summary;
+    }
+
     /**
      * تفسیر MBTI — ورودی computed_result از StudentAssessmentAttempt.
      * خروجی: ['type', 'title', 'description', 'study_tip', 'axes'].

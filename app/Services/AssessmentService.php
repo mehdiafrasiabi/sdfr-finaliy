@@ -19,7 +19,6 @@ class AssessmentService
     public function __construct(
         private AssessmentScoringService $scoring,
         private ParentInvitationService $parentInvitations,
-        private TrialWeekService $trialWeek,
     ) {}
 
     /**
@@ -193,8 +192,7 @@ class AssessmentService
             $trial->refresh();
             // ارسال خودکار لینک تست‌های والدینی به پدر و مادر (اطلاع‌رسانی، غیرمسدودکننده)
             $this->parentInvitations->sendForTrialWeek($trial);
-            // مسیر کاملاً خودکار: بلافاصله جلسهٔ آزمایشی ساخته می‌شود (بدون نیاز به تخصیص دستی پشتیبان).
-            $this->trialWeek->autoStartTrialSession($trial);
+            // تخصیص «مشاور جذب» در صفحهٔ انتظار (waiting-for-supporter) به‌صورت خودکار انجام می‌شود.
         }
 
         return true;
