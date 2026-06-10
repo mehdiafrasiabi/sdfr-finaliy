@@ -23,10 +23,28 @@
                         </a>
                     </li>
                 @endif
+                @if($admin?->hasRole('site acquisition') || $admin?->hasRole('super admin'))
+                    <li class="nav-item" data-bs-placement="right" data-bs-title="پنل مشاور جذب" data-bs-toggle="tooltip">
+                        <a aria-controls="acquisitionTab" aria-selected="false"
+                           class="menu-link {{ $admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin') ? 'active' : '' }} {{ request()->routeIs('admin.acquisition-supporter.*') ? 'active' : '' }}"
+                           data-bs-toggle="tab" href="#acquisitionTab" role="tab">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                 stroke-linejoin="round" class="menu-icon">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M10 13a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
+                                <path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1"></path>
+                                <path d="M15 5a4 4 0 0 1 0 6"></path>
+                                <path d="M17 3a8 8 0 0 1 0 10"></path>
+                            </svg>
+                        </a>
+                    </li>
+                @endif
                 @if($admin?->hasRole('super admin') || $admin?->hasRole('educational-manager') || $admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('site acquisition'))
                 <li class="nav-item" data-bs-placement="right" data-bs-title="داشبورد" data-bs-toggle="tooltip">
-                    <a aria-controls="dashboardTab" aria-selected="true" class="menu-link active" data-bs-toggle="tab"
-                       href="#dashboardTab" role="tab">
+                    <a aria-controls="dashboardTab" aria-selected="true"
+                       class="menu-link {{ (($admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin')) || request()->routeIs('admin.acquisition-supporter.*')) ? '' : 'active' }}"
+                       data-bs-toggle="tab" href="#dashboardTab" role="tab">
                         <svg fill="none" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M2 12.2039C2 9.91549 2 8.77128 2.5192 7.82274C3.0384 6.87421 3.98695 6.28551 5.88403 5.10813L7.88403 3.86687C9.88939 2.62229 10.8921 2 12 2C13.1079 2 14.1106 2.62229 16.116 3.86687L18.116 5.10812C20.0131 6.28551 20.9616 6.87421 21.4808 7.82274C22 8.77128 22 9.91549 22 12.2039V13.725C22 17.6258 22 19.5763 20.8284 20.7881C19.6569 22 17.7712 22 14 22H10C6.22876 22 4.34315 22 3.17157 20.7881C2 19.5763 2 17.6258 2 13.725V12.2039Z"
@@ -201,8 +219,66 @@
                             </nav>
                         </div>
                     @endif
+                    @if($admin?->hasRole('site acquisition') || $admin?->hasRole('super admin'))
+                        <div class="tab-pane fade {{ ($admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin')) || request()->routeIs('admin.acquisition-supporter.*') ? 'show active' : '' }}"
+                             id="acquisitionTab" role="tabpanel" tabindex="0">
+                            <nav class="app-navbar" data-simplebar="">
+                                <ul class="side-menubar">
+                                    <li class="menu-heading">
+                                        <span class="menu-label">پنل مشاور جذب</span>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.dashboard') ? 'active' : '' }}"
+                                           href="{{ route('admin.acquisition-supporter.dashboard') }}">
+                                            <i class="fi fi-rr-dashboard"></i>
+                                            <span class="menu-label">داشبورد و آمار</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.my-students') ? 'active' : '' }}"
+                                           href="{{ route('admin.acquisition-supporter.my-students') }}">
+                                            <i class="fi fi-rr-graduation-cap"></i>
+                                            <span class="menu-label">دانش‌آموزان من</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.primary-call') ? 'active' : '' }}"
+                                           href="{{ route('admin.acquisition-supporter.primary-call') }}">
+                                            <i class="fi fi-rr-phone-call"></i>
+                                            <span class="menu-label">تماس اولیه</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.secondary-call') ? 'active' : '' }}"
+                                           href="{{ route('admin.acquisition-supporter.secondary-call') }}">
+                                            <i class="fi fi-rr-phone-flip"></i>
+                                            <span class="menu-label">تماس ثانویه</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.extra-call') ? 'active' : '' }}"
+                                           href="{{ route('admin.acquisition-supporter.extra-call') }}">
+                                            <i class="fi fi-rr-phone-plus"></i>
+                                            <span class="menu-label">تماس اکسترا</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.all-trials') ? 'active' : '' }}"
+                                           href="{{ route('admin.acquisition-supporter.all-trials') }}">
+                                            <i class="fi fi-rr-list"></i>
+                                            <span class="menu-label">همهٔ هفته‌های آزمایشی</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    @endif
                     @if($admin?->hasRole('super admin') || $admin?->hasRole('educational-manager') || $admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('site acquisition'))
-                    <div class="tab-pane fade show active" id="dashboardTab" role="tabpanel" tabindex="0">
+                    @php
+                        $acquisitionActive = ($admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin'))
+                            || request()->routeIs('admin.acquisition-supporter.*');
+                    @endphp
+                    <div class="tab-pane fade {{ $acquisitionActive ? '' : 'show active' }}" id="dashboardTab" role="tabpanel" tabindex="0">
                         <nav class="app-navbar" data-simplebar="">
                             <ul class="side-menubar">
                                 <li class="menu-heading">

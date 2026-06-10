@@ -178,6 +178,210 @@
 
         </div>
 
+        {{-- ============================================================ --}}
+        {{--  داده‌های دانش‌آموز: برنامه / گزارش‌ها / ساعت مطالعه          --}}
+        {{-- ============================================================ --}}
+        @php
+            $fmtDur = function ($seconds) {
+                $seconds = (int) $seconds;
+                $h = intdiv($seconds, 3600);
+                $m = intdiv($seconds % 3600, 60);
+                if ($h > 0) return $h . ' ساعت' . ($m > 0 ? ' و ' . $m . ' دقیقه' : '');
+                return $m . ' دقیقه';
+            };
+        @endphp
+
+        <div class="row g-4 mt-1">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" data-bs-toggle="tab" href="#tabProgram" role="tab">
+                                    <i class="ri-calendar-todo-line me-1"></i>برنامهٔ هفتگی
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#tabReports" role="tab">
+                                    <i class="ri-file-list-3-line me-1"></i>گزارش‌های روزانه
+                                    <span class="badge bg-primary-subtle text-primary ms-1">{{ $reports->count() }}</span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" data-bs-toggle="tab" href="#tabStudy" role="tab">
+                                    <i class="ri-time-line me-1"></i>ساعت مطالعه
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        @unless($hasStudent)
+                            <div class="alert alert-warning mb-0">
+                                <i class="ri-information-line me-1"></i>
+                                این دانش‌آموز هنوز پروندهٔ تحصیلی (Student) فعالی ندارد؛ برنامه، گزارش و ساعت مطالعه‌ای ثبت نشده است.
+                            </div>
+                        @else
+                        <div class="tab-content">
+
+                            {{-- ---------------- برنامهٔ هفتگی ---------------- --}}
+                            <div class="tab-pane fade show active" id="tabProgram" role="tabpanel">
+                                @if(!$program)
+                                    <div class="text-center text-muted py-4">
+                                        <i class="ri-calendar-line display-6 d-block mb-2"></i>
+                                        هنوز برنامه‌ای برای این دانش‌آموز ساخته نشده است.
+                                    </div>
+                                @else
+                                    <div class="d-flex flex-wrap gap-3 mb-3">
+                                        <span class="badge bg-info-subtle text-info">
+                                            بازه: {{ jdate($program->start_date)->format('Y/m/d') }}
+                                            تا {{ jdate($program->end_date)->format('Y/m/d') }}
+                                        </span>
+                                        <span class="badge {{ $program->is_active ? 'bg-success-subtle text-success' : 'bg-secondary-subtle text-secondary' }}">
+                                            {{ $program->is_active ? 'فعال' : 'غیرفعال' }}
+                                        </span>
+                                        <span class="badge bg-primary-subtle text-primary">مجموع: {{ $program->total_hours }} ساعت</span>
+                                        <span class="badge bg-warning-subtle text-warning">{{ $program->total_tests }} تست</span>
+                                        @if($program->advisor)
+                                            <span class="badge bg-light text-dark">مشاور: {{ $program->advisor->name }}</span>
+                                        @endif
+                                    </div>
+
+                                    @foreach($program->getWeekDays() as $day)
+                                        <div class="border rounded-3 mb-2">
+                                            <div class="d-flex align-items-center justify-content-between px-3 py-2 bg-light rounded-top">
+                                                <span class="fw-semibold">
+                                                    {{ $day['name'] }}
+                                                    <small class="text-muted ms-1">{{ $day['jalali_date'] }}</small>
+                                                </span>
+                                                <span>
+                                                    @if($day['is_rest_day'])
+                                                        <span class="badge bg-secondary">روز استراحت</span>
+                                                    @else
+                                                        <span class="badge bg-primary-subtle text-primary">{{ $day['total_hours'] }} ساعت</span>
+                                                        <span class="badge bg-warning-subtle text-warning">{{ $day['total_tests'] }} تست</span>
+                                                    @endif
+                                                </span>
+                                            </div>
+                                            @if($day['parts']->isNotEmpty())
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm mb-0 align-middle">
+                                                        <tbody>
+                                                        @foreach($day['parts'] as $part)
+                                                            <tr>
+                                                                <td style="width:40%">{{ $part->lesson_name ?? '—' }}</td>
+                                                                <td><span class="badge bg-soft-secondary text-muted">{{ $part->part_type_label }}</span></td>
+                                                                <td>{{ $part->lesson_type_label }}</td>
+                                                                <td class="text-nowrap">{{ $part->duration_hours }} ساعت</td>
+                                                                <td class="text-nowrap">{{ $part->test_count ?? 0 }} تست</td>
+                                                            </tr>
+                                                        @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            @elseif(!$day['is_rest_day'])
+                                                <div class="px-3 py-2 text-muted fs-13">پارتی برای این روز ثبت نشده.</div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
+
+                            {{-- ---------------- گزارش‌های روزانه ---------------- --}}
+                            <div class="tab-pane fade" id="tabReports" role="tabpanel">
+                                @forelse($reports as $report)
+                                    <div class="border rounded-3 p-3 mb-3">
+                                        <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
+                                            <div>
+                                                <span class="fw-semibold">{{ $report->day_name }}</span>
+                                                <small class="text-muted ms-1">{{ jdate($report->report_date)->format('Y/m/d') }}</small>
+                                                @if($report->is_compensatory)
+                                                    <span class="badge bg-info-subtle text-info ms-1">جبرانی</span>
+                                                @endif
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <span class="badge
+                                                    {{ $report->status === 'approved' ? 'bg-success-subtle text-success' :
+                                                       ($report->status === 'rejected' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning') }}">
+                                                    {{ $report->status_label }}
+                                                </span>
+                                                <span class="badge bg-light text-dark">امتیاز: {{ $report->rating }}</span>
+                                                <span class="badge bg-soft-primary text-primary">{{ $report->read_parts_count }}/{{ $report->total_parts }} پارت</span>
+                                            </div>
+                                        </div>
+                                        @if($report->detail?->description)
+                                            <p class="mt-2 mb-0 fs-13 text-muted">{{ $report->detail->description }}</p>
+                                        @endif
+                                        @if($report->feedback?->advisor_comment)
+                                            <div class="mt-2 p-2 bg-light rounded">
+                                                <strong class="fs-12 text-muted">نظر مشاور:</strong>
+                                                <p class="mb-0 fs-12 mt-1">{{ $report->feedback->advisor_comment }}</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                @empty
+                                    <div class="text-center text-muted py-4">
+                                        <i class="ri-file-list-line display-6 d-block mb-2"></i>
+                                        هنوز گزارشی توسط دانش‌آموز ثبت نشده است.
+                                    </div>
+                                @endforelse
+                            </div>
+
+                            {{-- ---------------- ساعت مطالعه ---------------- --}}
+                            <div class="tab-pane fade" id="tabStudy" role="tabpanel">
+                                <div class="alert alert-primary d-flex align-items-center justify-content-between">
+                                    <span><i class="ri-time-line me-1"></i>مجموع ساعت مطالعهٔ تکمیل‌شده</span>
+                                    <span class="fw-bold">{{ $fmtDur($totalStudySeconds) }}</span>
+                                </div>
+
+                                @if($studySessions->isEmpty())
+                                    <div class="text-center text-muted py-4">
+                                        <i class="ri-timer-line display-6 d-block mb-2"></i>
+                                        هنوز جلسهٔ مطالعه‌ای ثبت نشده است.
+                                    </div>
+                                @else
+                                    <div class="table-responsive">
+                                        <table class="table table-sm align-middle">
+                                            <thead>
+                                                <tr>
+                                                    <th>درس / پارت</th>
+                                                    <th>تاریخ</th>
+                                                    <th>مدت</th>
+                                                    <th>وضعیت</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            @foreach($studySessions as $session)
+                                                <tr>
+                                                    <td>{{ $session->programPart?->lesson_name ?? '—' }}</td>
+                                                    <td class="text-nowrap">
+                                                        {{ $session->started_at ? jdate($session->started_at)->format('Y/m/d H:i') : '—' }}
+                                                    </td>
+                                                    <td class="text-nowrap">{{ $fmtDur($session->duration_seconds) }}</td>
+                                                    <td>
+                                                        @if($session->is_completed)
+                                                            <span class="badge bg-success-subtle text-success">تکمیل شده</span>
+                                                        @else
+                                                            <span class="badge bg-warning-subtle text-warning">ناتمام</span>
+                                                        @endif
+                                                        @if($session->is_cheating)
+                                                            <span class="badge bg-danger-subtle text-danger ms-1">مشکوک</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
+                            </div>
+
+                        </div>
+                        @endunless
+                    </div>
+                </div>
+            </div>
+        </div>
+
         {{-- مودال ثبت تماس --}}
         @if($showContactForm)
         <div class="modal show d-block" tabindex="-1" style="background: rgba(0,0,0,.5);">
