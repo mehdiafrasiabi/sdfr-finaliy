@@ -56,6 +56,11 @@ class SessionAnalysis extends Component
 
     public function buildProgram(TrialWeekService $service): void
     {
+        // جلوگیری از ساخت دوباره (مثلاً دابل‌کلیک سریع)
+        if (!$this->trialWeek || $this->trialWeek->status !== TrialWeek::STATUS_PRE_SESSION_DONE) {
+            return;
+        }
+
         $this->validate(['dailyStudyHours' => ['required', 'integer', 'min:1', 'max:14']]);
 
         $service->buildProgram($this->trialWeek, $this->dailyStudyHours);
