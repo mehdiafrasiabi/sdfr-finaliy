@@ -226,8 +226,13 @@
     <livewire:client.layout.floating-support/>
 
     <!-- Mobile Bottom Navigation - Fixed at bottom -->
-
-    <livewire:client.layout.mobile-bottom-nav/>
+    {{-- تا وقتی برنامه‌ی هفته آزمایشی ساخته نشده، منوی پایین موبایل نمایش داده نمی‌شود --}}
+    @php
+        $bottomNavTrial = auth()->user()?->trialWeek;
+    @endphp
+    @if(!$bottomNavTrial || $bottomNavTrial->status === \App\Models\TrialWeek::STATUS_PROGRAM_BUILT)
+        <livewire:client.layout.mobile-bottom-nav/>
+    @endif
 
     <div id="video-modal"
          class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm p-4">

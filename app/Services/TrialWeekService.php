@@ -35,7 +35,8 @@ class TrialWeekService
                 'father_mobile'  => $fatherMobile,
                 'mother_mobile'  => $motherMobile,
                 'status'         => TrialWeek::STATUS_PENDING,
-                'expires_at'     => Carbon::now()->addDays(8),
+                // شمارش ۸ روز فقط بعد از «ساخت برنامه» شروع می‌شود (buildProgram).
+                'expires_at'     => null,
             ]);
         });
 

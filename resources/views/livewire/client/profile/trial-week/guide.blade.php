@@ -190,6 +190,13 @@
                     {{ $trialWeek->daysRemaining }} روز باقی‌مانده
                 @endif
             </div>
+        @elseif($trialWeek)
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/25">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5v5l3 1.7"/>
+                </svg>
+                ۸ روز دسترسی — از لحظه‌ی ساخت برنامه
+            </div>
         @endif
     </div>
 
@@ -776,41 +783,14 @@
     @endif
 
 
-    {{-- ════════════════ تور راهنمای صفحه (نمایش یک‌باره) ════════════════ --}}
-    <template x-if="tour.active">
-        <div class="fixed inset-0 z-[80]">
-            {{-- پس‌زمینه‌ی تیره --}}
-            <div class="absolute inset-0 bg-black/60 backdrop-blur-[2px]" @click="tourSkip()"></div>
-
-            {{-- تول‌تیپ --}}
-            <div class="absolute w-[300px] max-w-[calc(100vw-2rem)] rounded-2xl p-4 shadow-2xl"
-                 dir="rtl"
-                 style="background:#1e242e;border:1px solid rgba(255,255,255,0.1);"
-                 :style="`top:${tour.top}px; right:${tour.right}px;`">
-                <p class="text-sm text-white/90 leading-7 mb-1 font-bold" x-text="tourSteps[tour.index].title"></p>
-                <p class="text-xs text-white/60 leading-6 mb-4" x-text="tourSteps[tour.index].text"></p>
-
-                <div class="flex items-center justify-between gap-3">
-                    {{-- نقطه‌های پیشرفت --}}
-                    <div class="flex items-center gap-1.5">
-                        <template x-for="(s, i) in tourSteps" :key="i">
-                            <span class="rounded-full transition-all"
-                                  :class="i === tour.index ? 'w-4 h-1.5 bg-white/80' : 'w-1.5 h-1.5 bg-white/25'"></span>
-                        </template>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <button type="button" @click="tourSkip()"
-                                class="text-[11px] text-white/40 hover:text-white/70 transition-colors">رد کردن</button>
-                        <button type="button" @click="tourNext()"
-                                class="px-4 py-2 rounded-lg text-xs font-bold text-white transition-transform hover:scale-105"
-                                style="background:#2f80ed;"
-                                x-text="tour.index === tourSteps.length - 1 ? 'تمام' : 'بعدی'"></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </template>
+    {{-- ════════════════ تور راهنمای صفحه ════════════════ --}}
+    <x-client.page-tour storage-key="trial_guide_tour_done" :steps="[
+        ['el' => '[data-tour=progress]', 'title' => 'نوار پیشرفت هفته آزمایشی', 'text' => 'از اینجا می‌بینی الان در کدام مرحله‌ای و چند درصد مسیر را رفته‌ای.'],
+        ['el' => '[data-tour=step1]',    'title' => 'مشاور جذب تو', 'text' => 'مشخصات مشاور جذبت اینجاست؛ در طول هفته‌ی آزمایشی همراهت است و می‌توانی باهاش تماس بگیری.'],
+        ['el' => '[data-tour=step2]',    'title' => 'طبقه‌بندی مباحث', 'text' => 'وضعیت تسلطت روی هر درس را مشخص می‌کنی تا برنامه دقیقاً بر اساس نقاط ضعف و قوتت ساخته شود.'],
+        ['el' => '[data-tour=step3]',    'title' => 'نیازمندی‌های برنامه', 'text' => 'پیش‌جلسه (امتحان‌ها، پارت درخواستی و…) و در صورت نیاز برنامه کلاسی مدرسه را اینجا تکمیل می‌کنی.'],
+        ['el' => '[data-tour=step4]',    'title' => 'ساخت برنامه', 'text' => 'بعد از تکمیل مراحل، وارد جلسه می‌شوی، کارنامه‌ی تحلیلی‌ات را می‌بینی و برنامه‌ی اختصاصی‌ات ساخته می‌شود.'],
+    ]" />
 
 
  @push('script')
@@ -818,60 +798,7 @@
     <script>
         function guidePage() {
             return {
-                tour: { active: false, index: 0, top: 0, right: 0 },
-                tourSteps: [
-                    { el: '[data-tour="progress"]', title: 'نوار پیشرفت هفته آزمایشی', text: 'از اینجا می‌بینی الان در کدام مرحله‌ای و چند درصد مسیر را رفته‌ای.' },
-                    { el: '[data-tour="step1"]',    title: 'مشاور جذب تو', text: 'مشخصات مشاور جذبت اینجاست؛ در طول هفته‌ی آزمایشی همراهت است و می‌توانی باهاش تماس بگیری.' },
-                    { el: '[data-tour="step2"]',    title: 'طبقه‌بندی مباحث', text: 'وضعیت تسلطت روی هر درس را مشخص می‌کنی تا برنامه دقیقاً بر اساس نقاط ضعف و قوتت ساخته شود.' },
-                    { el: '[data-tour="step3"]',    title: 'نیازمندی‌های برنامه', text: 'پیش‌جلسه (امتحان‌ها، پارت درخواستی و…) و در صورت نیاز برنامه کلاسی مدرسه را اینجا تکمیل می‌کنی.' },
-                    { el: '[data-tour="step4"]',    title: 'ساخت برنامه', text: 'بعد از تکمیل مراحل، وارد جلسه می‌شوی، کارنامه‌ی تحلیلی‌ات را می‌بینی و برنامه‌ی اختصاصی‌ات ساخته می‌شود.' },
-                ],
-                _booted: false,
-                init() {
-                    // Alpine متد init را خودش هم صدا می‌زند؛ از اجرای دوباره جلوگیری می‌کنیم.
-                    if (this._booted) return;
-                    this._booted = true;
-
-                    // تور فقط یک بار نمایش داده می‌شود.
-                    if (!localStorage.getItem('trial_guide_tour_done')) {
-                        this.$nextTick(() => setTimeout(() => this.tourStart(), 700));
-                    }
-                },
-                tourStart() {
-                    this.tour.index = 0;
-                    this.tour.active = true;
-                    this.tourPosition();
-                },
-                tourNext() {
-                    if (this.tour.index >= this.tourSteps.length - 1) {
-                        this.tourFinish();
-                        return;
-                    }
-                    this.tour.index++;
-                    this.tourPosition();
-                },
-                tourSkip() { this.tourFinish(); },
-                tourFinish() {
-                    this.tour.active = false;
-                    localStorage.setItem('trial_guide_tour_done', '1');
-                },
-                tourPosition() {
-                    const target = document.querySelector(this.tourSteps[this.tour.index].el);
-                    if (!target) { this.tourNext(); return; }
-                    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    setTimeout(() => {
-                        const r = target.getBoundingClientRect();
-                        const tooltipH = 170;
-                        // زیر باکس؛ اگر جا نبود بالای باکس
-                        let top = r.bottom + 12;
-                        if (top + tooltipH > window.innerHeight) {
-                            top = Math.max(12, r.top - tooltipH - 12);
-                        }
-                        this.tour.top = top;
-                        // هم‌ترازی لبه‌ی راست تول‌تیپ با لبه‌ی راست باکس (RTL)
-                        this.tour.right = Math.max(16, window.innerWidth - r.right);
-                    }, 350);
-                },
+                init() {},
             };
         }
         document.addEventListener('alpine:init', () => {

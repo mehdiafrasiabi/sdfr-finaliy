@@ -1,6 +1,16 @@
 <div class="min-h-screen text-white" dir="rtl" style="font-family: inherit;">
     <livewire:client.profile.update-notification />
 
+    {{-- ════════ تور راهنمای داشبورد (اولین ورود + آیکون راهنما) ════════ --}}
+    <x-client.page-tour storage-key="dashboard_tour_done" :steps="[
+        ['el' => '[data-tour=trial]',   'title' => 'وضعیت هفته آزمایشی', 'text' => 'از اینجا می‌بینی چند روز از دسترسی‌ات باقی مانده و با لمسش به راهنمای هفته آزمایشی می‌روی.'],
+        ['el' => '[data-tour=advisor]', 'title' => 'مشاور تو', 'text' => 'مشاور اختصاصی‌ات اینجاست؛ در کل مسیر همراهت است.'],
+        ['el' => '[data-tour=report]',  'title' => 'ارسال گزارش روزانه', 'text' => 'هر روز گزارش مطالعه‌ات را ثبت کن؛ اینجا می‌بینی این هفته چند روز گزارش داده‌ای.'],
+        ['el' => '[data-tour=study]',   'title' => 'ساعت مطالعه', 'text' => 'مجموع ساعت‌های مطالعه‌ی ثبت‌شده‌ات در این هفته را نشان می‌دهد.'],
+        ['el' => '[data-tour=today]',   'title' => 'برنامه امروز', 'text' => 'درس‌ها و پارت‌هایی که امروز باید بخوانی؛ از همین‌جا مطالعه را شروع کن.'],
+        ['el' => '[data-tour=chart]',   'title' => 'تحلیل مطالعه', 'text' => 'نمودار مقایسه‌ی برنامه با عملکرد واقعی‌ات در طول هفته.'],
+    ]" />
+
     {{-- ════════════════════════════════════════════════════════════
          پس‌زمینه کیهانی + سفینه (دکوراتیو، خارج از کنترل Livewire)
          wire:ignore → هرگز re-render نمی‌شه و انیمیشن‌ها قطع نمی‌شن
@@ -242,7 +252,7 @@
                             </div>
                         </div>
                     @elseif($trialWeek)
-                        <a wire:navigate href="{{ route('client.profile.trial.guide') }}"
+                        <a wire:navigate href="{{ route('client.profile.trial.guide') }}" data-tour="trial"
                            class="glass rise flex items-center justify-between p-4 rounded-2xl" style="animation-delay:0s">
                             <div class="flex items-center gap-2">
                                 @php $sp = ($trialWeek->step / 4) * 100; @endphp
@@ -255,7 +265,8 @@
                                 <div class="font-semibold text-white text-sm">هفته آزمایشی — {{ $trialWeek->statusLabel }}</div>
                                 <div class="text-xs mt-0.5 text-neutral-400">
                                     @if($trialWeek->isExpired())<span class="text-red-400">منقضی شده</span>
-                                    @else{{ $trialWeek->daysRemaining }} روز باقی‌مانده@endif
+                                    @elseif($trialWeek->expires_at){{ $trialWeek->daysRemaining }} روز باقی‌مانده
+                                    @else با ساخت برنامه، ۸ روز دسترسی فعال می‌شود@endif
                                 </div>
                             </div>
                         </a>
@@ -280,7 +291,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     {{-- ══════ 1) مشاور (زنده) ══════ --}}
-                    <div class="glass rise md:col-span-2 p-4 flex items-center justify-between gap-4" style="animation-delay:.1s;margin-bottom: 26px">
+                    <div class="glass rise md:col-span-2 p-4 flex items-center justify-between gap-4" data-tour="advisor" style="animation-delay:.1s;margin-bottom: 26px">
                         {{-- راست: عکس + نام --}}
                         <div class="flex items-center gap-3">
                             @if($advisorStudent && !empty($advisorStudent['picture']))
@@ -314,7 +325,7 @@
                     </div>
 
                     {{-- ══════ 2) ارسال گزارش (زنده) ══════ --}}
-                    <div class="glass rise p-4" style="animation-delay:.15s">
+                    <div class="glass rise p-4" data-tour="report" style="animation-delay:.15s">
                         {{-- هدر --}}
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-2">
@@ -393,7 +404,7 @@
                     </div>
 
                     {{-- ══════ 3) ساعت مطالعه (زنده) ══════ --}}
-                    <div class="glass rise p-4" style="animation-delay:.2s">
+                    <div class="glass rise p-4" data-tour="study" style="animation-delay:.2s">
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-2">
                                 <div class="icon-chip">
@@ -426,7 +437,7 @@
                     </div>
 
                     {{-- ══════ 4) برنامه امروز (زنده، full-width) ══════ --}}
-                    <div class="glass rise md:col-span-2 p-4" style="animation-delay:.25s">
+                    <div class="glass rise md:col-span-2 p-4" data-tour="today" style="animation-delay:.25s">
                         <div class="flex items-center justify-between gap-2 mb-1">
                             <div class="flex items-center gap-2">
                                 <div class="icon-chip">
@@ -567,7 +578,7 @@
                     @endphp
 
                     {{-- ══════ 5) نمودار مطالعه روزانه این هفته (تحلیلی) ══════ --}}
-                    <div class="glass card-data rise p-4" style="animation-delay:.3s">
+                    <div class="glass card-data rise p-4" data-tour="chart" style="animation-delay:.3s">
                         <div class="flex items-center justify-between gap-2 mb-1">
                             <div class="flex items-center gap-2">
                                 <div class="icon-chip">
