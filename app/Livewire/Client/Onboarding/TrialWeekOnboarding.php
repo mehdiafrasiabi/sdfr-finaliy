@@ -20,13 +20,9 @@ class TrialWeekOnboarding extends Component
 {
     use NormalizesDigits;
 
-    // ─── مراحل ────────────────────────────────────────────────────────────────
-    // موبایل: 1=welcome  2=اطلاعات شخصی  3=والدین  4=مکان+رمز  5=OTP  6=نهایی
-    // دسکتاپ: همه‌ی فرم در یک صفحه؛ submitAll() → 5=OTP → 6=نهایی
     public int $currentStep = 1;
     public int $totalSteps  = 6;
 
-    // ─── فیلدها ───────────────────────────────────────────────────────────────
     public string $firstName    = '';
     public string $lastName     = '';
     public string $codeMell     = '';
@@ -41,7 +37,6 @@ class TrialWeekOnboarding extends Component
     public string $password     = '';
     public string $passwordConf = '';
 
-    // ─── OTP ──────────────────────────────────────────────────────────────────
     public string $otpInput     = '';
     public string $otpError     = '';
     public bool   $otpSent      = false;
@@ -50,6 +45,7 @@ class TrialWeekOnboarding extends Component
     public string $generalError = '';
 
     public bool $registered       = false;
+    public bool $citiesLoading    = false;
 
     public $states = [];
     public $cities = [];
@@ -62,10 +58,6 @@ class TrialWeekOnboarding extends Component
     {
         $this->states = State::orderBy('name')->get();
     }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // MOBILE NAVIGATION
-    // ═══════════════════════════════════════════════════════════════════════
 
     public function next(): void
     {
@@ -100,10 +92,6 @@ class TrialWeekOnboarding extends Component
         $this->generalError = '';
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // DESKTOP: validate all at once → OTP
-    // ═══════════════════════════════════════════════════════════════════════
-
     public function submitAll(): void
     {
         $this->generalError = '';
@@ -123,10 +111,6 @@ class TrialWeekOnboarding extends Component
             $this->dispatch('step-validation-failed');
         }
     }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // VALIDATION
-    // ═══════════════════════════════════════════════════════════════════════
 
     private function validatePersonalInfo(): void
     {
@@ -207,7 +191,7 @@ class TrialWeekOnboarding extends Component
             'stateId'      => ['required', 'exists:states,id'],
             'cityId'       => ['required', 'exists:cities,id'],
             'mobile'       => ['required', 'regex:/^09[0-9]{9}$/', 'unique:users,mobile', 'different:fatherMobile', 'different:motherMobile'],
-            'password'     => ['required', 'min:8', 'regex:/^(?=.*[A-Za-z])(?=.*\d).+$/'],
+            'password'     => ['required', 'min:8'],
             'passwordConf' => ['required', 'same:password'],
         ], [
             'stateId.required'      => 'انتخاب استان الزامی است.',
@@ -218,7 +202,6 @@ class TrialWeekOnboarding extends Component
             'mobile.different'      => 'شماره شما نباید با شماره پدر یا مادر یکسان باشد.',
             'password.required'     => 'رمز عبور الزامی است.',
             'password.min'          => 'رمز باید حداقل ۸ کاراکتر باشد.',
-            'password.regex'        => 'رمز باید شامل حرف انگلیسی و عدد باشد.',
             'passwordConf.required' => 'تکرار رمز عبور الزامی است.',
             'passwordConf.same'     => 'تکرار رمز با رمز عبور مطابقت ندارد.',
         ]);
@@ -232,22 +215,28 @@ class TrialWeekOnboarding extends Component
         }
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // INPUT NORMALIZATION
-    // ═══════════════════════════════════════════════════════════════════════
-
     public function updatedGrade(string $value): void
     {
-        // فارغ‌التحصیل یعنی مدرسه‌اش تمام شده — سوال «مدرسه می‌روی؟» معنا ندارد.
         if ($value === 'graduate') {
             $this->attendsSchool = false;
         }
     }
 
-    public function updatedStateId(int $value): void
+    // FIX: nullable int to handle null/empty from Livewire
+    public function updatedStateId($value): void
     {
+        $value = (int) ($value ?? 0);
+        $this->stateId = $value;
         $this->cityId = 0;
-        $this->cities = City::where('state_id', $value)->orderBy('name')->get();
+        $this->citiesLoading = true;
+
+        if ($value > 0) {
+            $this->cities = City::where('state_id', $value)->orderBy('name')->get();
+        } else {
+            $this->cities = [];
+        }
+
+        $this->citiesLoading = false;
     }
 
     public function updatedMobile(string $value): void       { $this->mobile = $this->convertToEnglishDigits($value); }
@@ -258,14 +247,10 @@ class TrialWeekOnboarding extends Component
     {
         $this->passwordStrength = [
             'length' => strlen($value) >= 8,
-            'letter' => (bool) preg_match('/[A-Za-z]/', $value),
-            'number' => (bool) preg_match('/\d/', $value),
+            'letter' => true,
+            'number' => true,
         ];
     }
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // OTP
-    // ═══════════════════════════════════════════════════════════════════════
 
     private function sendOtp(): void
     {
@@ -345,7 +330,6 @@ class TrialWeekOnboarding extends Component
             'code_mell'      => $this->codeMell,
             'father_mobile'  => $this->fatherMobile,
             'mother_mobile'  => $this->motherMobile,
-            // فارغ‌التحصیل از نظر محتوای درسی معادل پایه ۱۲ است.
             'grade'          => in_array($this->grade, ['10','11','12']) ? $this->grade : ($this->grade === 'graduate' ? '12' : '10'),
             'is_graduate'    => $this->grade === 'graduate',
             'attends_school' => $this->grade === 'graduate' ? false : $this->attendsSchool,
@@ -363,14 +347,6 @@ class TrialWeekOnboarding extends Component
         $this->currentStep = 6;
     }
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // TRIAL / FINAL
-    // ═══════════════════════════════════════════════════════════════════════
-
-    /**
-     * مسیر جدید: بعد از ساخت حساب، اول آزمون‌ها انجام می‌شوند؛
-     * انتخاب «هفته آزمایشی یا خرید» بعد از کارنامهٔ تحلیلی آزمون‌ها است.
-     */
     public function startAssessments(): void
     {
         if (! Auth::check()) {

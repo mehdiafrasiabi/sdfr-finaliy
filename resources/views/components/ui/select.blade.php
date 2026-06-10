@@ -85,6 +85,7 @@
         @if($wireModel)
         $watch('$wire.{{ $wireModel }}', val => syncFromValue(val));
         @endif
+        window.addEventListener('close-selects', e => { if (e.detail.except !== '{{ $componentId }}') open = false; });
     "
     @keydown.escape.window="open = false"
     class="relative w-full"
@@ -96,7 +97,7 @@
     {{-- Trigger --}}
     <button
         type="button"
-        @click.stop="if (!disabled) open = !open"
+        @click.stop="if (!disabled) { if (!open) window.dispatchEvent(new CustomEvent('close-selects', { detail: { except: '{{ $componentId }}' } })); open = !open; }"
         :disabled="disabled"
         :class="{
             'border-blue-500 ring-2 ring-blue-500/20 dark:ring-blue-500/30': open,

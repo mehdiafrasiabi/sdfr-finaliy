@@ -36,18 +36,12 @@
             }
             .glass-input::placeholder { color: hsl(var(--muted) / 0.7); }
 
-            /* ═══════════════════════════════════════════════════════════════
-               ANIMATED BORDER — نور پررنگ و دقیقاً روی border
-               ::before  = خط نوری واضح، روی لبه‌ی کارت (z بالاتر از محتوا)
-               ::after   = هاله‌ی نرم محو پشت کارت
-               ═══════════════════════════════════════════════════════════════ */
             .train-border {
                 position: relative;
                 border-radius: 1.5rem;
-                --bw: 2px;       /* ضخامت خط نور */
-                --speed: 3s;     /* سرعت چرخش */
+                --bw: 2px;
+                --speed: 3s;
             }
-            /* خط نوری واضح روی لبه */
             .train-border::before {
                 content: '';
                 position: absolute;
@@ -73,7 +67,6 @@
                 pointer-events: none;
                 z-index: 3;
             }
-            /* هاله‌ی محو (glow) که همراه خط می‌چرخد */
             .train-border::after {
                 content: '';
                 position: absolute;
@@ -109,7 +102,6 @@
             @keyframes rotate-border {
                 to { --angle: 360deg; }
             }
-            /* Fallback برای مرورگرهای بدون @property */
             @supports not (background: conic-gradient(from 0deg, red, blue)) {
                 .train-border::before,
                 .train-border::after { display: none; }
@@ -172,10 +164,8 @@
                 border: 1px solid rgb(var(--accent) / 0.25);
             }
 
-            /* ═══ STEP FADE (بدون حرکت/پرش — فقط محو) ═══ */
             .step-fade { transition: opacity 0.22s ease; }
 
-            /* ═══ FALLBACK ANIMATIONS (وقتی Lottie تنظیم نشده) ═══ */
             @keyframes pop-in {
                 0%   { transform: scale(0.6); opacity: 0; }
                 60%  { transform: scale(1.08); }
@@ -188,7 +178,6 @@
             .anim-pop   { animation: pop-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
             .anim-float { animation: soft-float 3s ease-in-out infinite; }
 
-            /* ═══ PROGRESS DOTS ═══ */
             .progress-dot {
                 width: 8px; height: 8px; border-radius: 999px;
                 background: hsl(var(--border));
@@ -197,7 +186,6 @@
             .progress-dot.active { width: 28px; background: hsl(var(--primary)); }
             .progress-dot.completed { background: hsl(var(--primary) / 0.5); }
 
-            /* ═══ TOOLTIP ═══ */
             .field-tip {
                 position: absolute;
                 bottom: calc(100% + 8px);
@@ -224,7 +212,6 @@
             }
             .field-wrap:focus-within .field-tip { opacity: 1; }
 
-            /* ═══ ERRORS / SCROLLBAR ═══ */
             @keyframes shake {
                 0%, 100% { transform: translateX(0); }
                 25% { transform: translateX(-5px); }
@@ -237,17 +224,56 @@
             ::-webkit-scrollbar-thumb { background: hsl(var(--primary) / 0.3); border-radius: 999px; }
             ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary) / 0.5); }
 
-            /* ═══ FLOATING ORBS ═══ */
             @keyframes float-orb {
                 0%, 100% { transform: translate(0, 0); }
                 50%      { transform: translate(20px, -25px); }
             }
             .float-orb { animation: float-orb 9s ease-in-out infinite; }
 
-            /* ═══ MOBILE: full-screen background ═══ */
             .mobile-bg {
                 min-height: 100dvh;
                 background: hsl(var(--background));
+            }
+
+            /* ═══ PASSWORD EYE BUTTON ═══ */
+            .password-wrapper {
+                position: relative;
+            }
+            .password-wrapper input {
+                padding-left: 2.5rem;
+            }
+            .eye-btn {
+                position: absolute;
+                left: 0.625rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: hsl(var(--muted-foreground, var(--muted)));
+                background: none;
+                border: none;
+                padding: 4px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                transition: color 0.15s ease;
+            }
+            .eye-btn:hover { color: hsl(var(--foreground)); }
+
+            /* ═══ CITY LOADING SKELETON ═══ */
+            @keyframes shimmer {
+                0%   { background-position: -200% 0; }
+                100% { background-position: 200% 0; }
+            }
+            .skeleton {
+                background: linear-gradient(90deg,
+                hsl(var(--secondary)) 25%,
+                hsl(var(--border) / 0.5) 50%,
+                hsl(var(--secondary)) 75%
+                );
+                background-size: 200% 100%;
+                animation: shimmer 1.2s infinite;
+                border-radius: 0.5rem;
             }
 
             @media (prefers-reduced-motion: reduce) {
@@ -256,14 +282,11 @@
         </style>
     @endpush
 
-    {{-- ✅ Lottie player از CDN (به‌جای فایل لوکال) --}}
     <script src="https://cdn.jsdelivr.net/npm/@lottiefiles/lottie-player@2.0.12/dist/lottie-player.js" defer></script>
 
-    {{-- Driver.js (onboarding tour) --}}
     <link rel="stylesheet" href="/client/animation/driver.css"/>
     <script src="/client/animation/driver.js.iife.js" defer></script>
 
-    {{-- ⚠️ CRITICAL: register Alpine.data BEFORE the x-data div renders --}}
     @push('script')
         <script>
             document.addEventListener('alpine:init', () => {
@@ -287,7 +310,6 @@
                         this.$nextTick(() => this.maybeShowTour());
                     },
 
-                    // پایان حالت لودینگ بین مراحل (کمی تاخیر تا چشمک نزند)
                     endTransition() {
                         setTimeout(() => { this.busy = false; }, 280);
                     },
@@ -357,14 +379,12 @@
 
                     goNext() {
                         if (this.busy) return;
-                        // مرحله ۱ → ۲ کاملاً کلاینت‌ساید
                         if (this.$wire.currentStep === 1) {
                             this.busy = true;
                             this.$wire.set('currentStep', 2).then(() => this.endTransition());
                             return;
                         }
                         this.busy = true;
-                        // next() یا step-changed یا step-validation-failed را dispatch می‌کند
                         this.$wire.next();
                     },
 
@@ -407,7 +427,6 @@
         $gradeLabels = ['9'=>'نهم','10'=>'دهم','11'=>'یازدهم','12'=>'دوازدهم','graduate'=>'فارغ‌التحصیل'];
         $fieldLabels = ['math'=>'ریاضی','experimental'=>'تجربی','human'=>'انسانی'];
 
-        // ── options برای کامپوننت x-ui.select ──
         $gradeOptions = [];
         foreach ($gradeLabels as $v => $l) { $gradeOptions[] = ['id' => (string) $v, 'name' => $l]; }
         $fieldOptions = [];
@@ -424,31 +443,22 @@
             ['t' => 'کارنامه و آزمون',       'd' => 'کارنامه‌ی ماهانه با نمودار پیشرفت',     'icon' => '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'],
         ];
 
-        // ════════════════════════════════════════════════════════════════════
-        // 🎞️ انیمیشن‌ها
-        // لینک‌ها را از https://lottiefiles.com/free-animations بردار:
-        //   انیمیشن مورد نظر → دکمه‌ی share/embed → آدرس .lottie یا .json
-        // و در سه متغیر زیر بگذار. اگر خالی بماند، یک آیکن متحرک ساده‌ی
-        // جایگزین (بدون هیچ خطایی در کنسول) نمایش داده می‌شود.
-        // ════════════════════════════════════════════════════════════════════
         $lottieWelcome = '';
         $lottieOtp     = '';
         $lottieSuccess = '';
 
-        // آیکن‌های جایگزین (همیشه لود می‌شوند)
         $fbWelcome = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-primary anim-float"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1 2.7 2.4 6 2.4s6-1.4 6-2.4v-5"/><path d="M22 10v6"/></svg>';
         $fbOtp     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-primary anim-float"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>';
         $fbSuccess = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-emerald-500 anim-pop"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>';
     @endphp
 
     {{-- ═══════════════════════════════════════════════════════════════════════════
-         ROOT WRAPPER with Alpine
+         ROOT WRAPPER
          ═══════════════════════════════════════════════════════════════════════════ --}}
     <div class="relative min-h-screen overflow-hidden bg-background text-foreground mobile-bg"
          dir="rtl"
          x-data="onboardingFlow()">
 
-        {{-- Background layers --}}
         <div class="absolute inset-0 grid-figma pointer-events-none"></div>
         <div class="absolute top-20 -right-20 w-72 h-72 bg-primary/15 rounded-full blur-3xl float-orb pointer-events-none"></div>
         <div class="absolute bottom-20 -left-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl float-orb pointer-events-none" style="animation-delay: -3s"></div>
@@ -459,7 +469,6 @@
              ───────────────────────────────────────────────────────── --}}
         <div class="md:hidden relative z-10 min-h-[100dvh] flex flex-col">
 
-            {{-- Header --}}
             <header class="px-4 pt-5 pb-3" x-show="$wire.currentStep < {{ $totalSteps }}">
                 <div class="flex items-center gap-3">
                     <div class="flex items-center gap-2">
@@ -493,14 +502,12 @@
                 </div>
             @endif
 
-            {{-- Steps --}}
             <main class="flex-1 flex items-stretch justify-center px-4 py-4"
                   @touchstart="handleTouchStart($event)"
                   @touchend="handleTouchEnd($event)">
 
                 <div class="w-full relative">
 
-                    {{-- ═══ LOADING VEIL بین مراحل (هیچ چیز پرش نمی‌کند) ═══ --}}
                     <div x-show="busy" x-cloak
                          x-transition:enter="step-fade"
                          x-transition:enter-start="opacity-0"
@@ -513,7 +520,6 @@
                         <span class="text-sm text-muted">لطفاً صبر کنید…</span>
                     </div>
 
-                    {{-- استپ‌ها فقط محو می‌شوند (بدون حرکت) --}}
                     <div class="step-fade" :class="busy ? 'opacity-0 pointer-events-none' : 'opacity-100'">
 
                         {{-- ═══ STEP 1 ═══ --}}
@@ -605,7 +611,7 @@
 
                                         <div class="field-wrap relative" data-tour="codeMell">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">کد ملی</label>
-                                            <input wire:model.blur="codeMell" type="text" maxlength="10" placeholder="۱۰ رقم" inputmode="numeric" dir="ltr"
+                                            <input wire:model.blur="codeMell" type="tel" maxlength="10" placeholder="۱۰ رقم" inputmode="numeric" dir="ltr"
                                                    class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono tracking-wider @error('codeMell') border-rose-500/60 shake @enderror">
                                             <div class="field-tip">دقیقاً ۱۰ رقم</div>
                                             @error('codeMell')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
@@ -659,7 +665,6 @@
                                             @endif
                                         </div>
 
-                                        {{-- سوال: در حال حاضر مدرسه می‌روی؟ --}}
                                         @if($grade === 'graduate')
                                             <div class="flex items-start gap-2 rounded-xl bg-primary/5 border border-primary/20 px-3.5 py-3">
                                                 <svg class="w-4 h-4 text-primary shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -712,9 +717,13 @@
                                                 <x-ui.select wire:model.live="stateId" :options="$stateOptions" :searchable="true" placeholder="انتخاب استان" search-placeholder="جستجوی استان..." />
                                                 @error('stateId')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                             </div>
+                                            {{-- شهر با loading state --}}
                                             <div class="field-wrap relative" wire:key="city-m-{{ $stateId }}">
                                                 <label class="block text-xs font-semibold mb-1.5 text-muted">شهر</label>
-                                                <x-ui.select wire:model="cityId" :options="$cityOptions" :searchable="true" :disabled="(int) $stateId === 0" placeholder="انتخاب شهر" search-placeholder="جستجوی شهر..." />
+                                                <div wire:loading wire:target="updatedStateId" class="skeleton w-full h-[42px] rounded-lg"></div>
+                                                <div wire:loading.remove wire:target="updatedStateId">
+                                                    <x-ui.select wire:model="cityId" :options="$cityOptions" :searchable="true" :disabled="(int) $stateId === 0" placeholder="انتخاب شهر" search-placeholder="جستجوی شهر..." />
+                                                </div>
                                                 @error('cityId')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                             </div>
                                         </div>
@@ -727,28 +736,48 @@
                                             @error('mobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
 
-                                        <div class="field-wrap relative">
+                                        {{-- رمز عبور با چشم --}}
+                                        <div class="field-wrap relative" x-data="{ showPw: false }">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">رمز عبور</label>
-                                            <input wire:model.live.debounce.300ms="password" type="password" dir="ltr"
-                                                   autocomplete="new-password" data-lpignore="true" data-1p-ignore="true"
-                                                   class="glass-input w-full rounded-xl px-4 py-3 text-sm @error('password') border-rose-500/60 shake @enderror">
+                                            <div class="password-wrapper">
+                                                <input wire:model.live.debounce.300ms="password"
+                                                       :type="showPw ? 'text' : 'password'"
+                                                       dir="ltr"
+                                                       class="glass-input w-full rounded-xl px-4 py-3 text-sm @error('password') border-rose-500/60 shake @enderror">
+                                                <button type="button" class="eye-btn" @click="showPw = !showPw" tabindex="-1">
+                                                    <svg x-show="!showPw" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                                                    </svg>
+                                                    <svg x-show="showPw" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
                                             <div class="flex items-center gap-1.5 mt-2 flex-wrap">
                                                 <span class="text-[10px] text-muted">قدرت:</span>
                                                 <span class="text-[10px] px-1.5 py-0.5 rounded transition-colors"
                                                       :class="$wire.passwordStrength?.length ? 'bg-emerald-500/15 text-emerald-500' : 'bg-secondary text-muted'">۸+ کاراکتر</span>
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded transition-colors"
-                                                      :class="$wire.passwordStrength?.letter ? 'bg-emerald-500/15 text-emerald-500' : 'bg-secondary text-muted'">حرف</span>
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded transition-colors"
-                                                      :class="$wire.passwordStrength?.number ? 'bg-emerald-500/15 text-emerald-500' : 'bg-secondary text-muted'">عدد</span>
                                             </div>
                                             @error('password')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
 
-                                        <div class="field-wrap relative">
+                                        {{-- تکرار رمز با چشم --}}
+                                        <div class="field-wrap relative" x-data="{ showPwc: false }">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">تکرار رمز</label>
-                                            <input wire:model.blur="passwordConf" type="password" dir="ltr"
-                                                   autocomplete="new-password" data-lpignore="true" data-1p-ignore="true"
-                                                   class="glass-input w-full rounded-xl px-4 py-3 text-sm @error('passwordConf') border-rose-500/60 shake @enderror">
+                                            <div class="password-wrapper">
+                                                <input wire:model.blur="passwordConf"
+                                                       :type="showPwc ? 'text' : 'password'"
+                                                       dir="ltr"
+                                                       class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('passwordConf') border-rose-500/60 shake @enderror">
+                                                <button type="button" class="eye-btn" @click="showPwc = !showPwc" tabindex="-1">
+                                                    <svg x-show="!showPwc" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                                                    </svg>
+                                                    <svg x-show="showPwc" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
                                             @error('passwordConf')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
                                     </div>
@@ -847,7 +876,6 @@
                 </div>
             </main>
 
-            {{-- Bottom nav --}}
             <footer class="sticky bottom-0 px-4 pb-4 pt-2 bg-gradient-to-t from-background via-background/95 to-transparent"
                     x-show="$wire.currentStep >= 2 && $wire.currentStep <= 4">
                 <div class="flex items-center gap-3">
@@ -1116,7 +1144,6 @@
                                             </div>
                                         @endif
 
-                                        {{-- سوال: در حال حاضر مدرسه می‌روی؟ --}}
                                         @if($grade === 'graduate')
                                             <div class="col-span-2 flex items-start gap-2 rounded-xl bg-primary/5 border border-primary/20 px-3.5 py-3">
                                                 <svg class="w-4 h-4 text-primary shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1155,9 +1182,13 @@
                                             <x-ui.select wire:model.live="stateId" :options="$stateOptions" :searchable="true" placeholder="انتخاب استان" search-placeholder="جستجوی استان..." />
                                             @error('stateId')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
+                                        {{-- شهر با loading state --}}
                                         <div class="field-wrap relative" wire:key="city-d-{{ $stateId }}">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">شهر</label>
-                                            <x-ui.select wire:model="cityId" :options="$cityOptions" :searchable="true" :disabled="(int) $stateId === 0" placeholder="انتخاب شهر" search-placeholder="جستجوی شهر..." />
+                                            <div wire:loading wire:target="updatedStateId" class="skeleton w-full h-[42px] rounded-lg"></div>
+                                            <div wire:loading.remove wire:target="updatedStateId">
+                                                <x-ui.select wire:model="cityId" :options="$cityOptions" :searchable="true" :disabled="(int) $stateId === 0" placeholder="انتخاب شهر" search-placeholder="جستجوی شهر..." />
+                                            </div>
                                             @error('cityId')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
 
@@ -1169,27 +1200,48 @@
                                             @error('mobile')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
 
-                                        <div class="field-wrap relative" data-tour="password">
+                                        {{-- رمز عبور با چشم - دسکتاپ --}}
+                                        <div class="field-wrap relative" x-data="{ showPw: false }" data-tour="password">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">رمز عبور</label>
-                                            <input wire:model.live.debounce.300ms="password" type="password" dir="ltr"
-                                                   autocomplete="new-password" data-lpignore="true" data-1p-ignore="true"
-                                                   class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('password') border-rose-500/60 shake @enderror">
-                                            <div class="flex items-center gap-1.5 mt-2 flex-wrap">
+                                            <div class="password-wrapper">
+                                                <input wire:model.live.debounce.300ms="password"
+                                                       :type="showPw ? 'text' : 'password'"
+                                                       dir="ltr"
+                                                       class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('password') border-rose-500/60 shake @enderror">
+                                                <button type="button" class="eye-btn" @click="showPw = !showPw" tabindex="-1">
+                                                    <svg x-show="!showPw" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                                                    </svg>
+                                                    <svg x-show="showPw" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                            <div class="flex items-center gap-1.5 mt-2">
                                                 <span class="text-[10px] text-muted">قدرت:</span>
                                                 <span class="text-[10px] px-1.5 py-0.5 rounded transition-colors"
                                                       :class="$wire.passwordStrength?.length ? 'bg-emerald-500/15 text-emerald-500' : 'bg-secondary text-muted'">۸+</span>
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded transition-colors"
-                                                      :class="$wire.passwordStrength?.letter ? 'bg-emerald-500/15 text-emerald-500' : 'bg-secondary text-muted'">حرف</span>
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded transition-colors"
-                                                      :class="$wire.passwordStrength?.number ? 'bg-emerald-500/15 text-emerald-500' : 'bg-secondary text-muted'">عدد</span>
                                             </div>
                                             @error('password')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
-                                        <div class="field-wrap relative">
+
+                                        {{-- تکرار رمز با چشم - دسکتاپ --}}
+                                        <div class="field-wrap relative" x-data="{ showPwc: false }">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">تکرار رمز</label>
-                                            <input wire:model.blur="passwordConf" type="password" dir="ltr"
-                                                   autocomplete="new-password" data-lpignore="true" data-1p-ignore="true"
-                                                   class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('passwordConf') border-rose-500/60 shake @enderror">
+                                            <div class="password-wrapper">
+                                                <input wire:model.blur="passwordConf"
+                                                       :type="showPwc ? 'text' : 'password'"
+                                                       dir="ltr"
+                                                       class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('passwordConf') border-rose-500/60 shake @enderror">
+                                                <button type="button" class="eye-btn" @click="showPwc = !showPwc" tabindex="-1">
+                                                    <svg x-show="!showPwc" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                                                    </svg>
+                                                    <svg x-show="showPwc" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+                                                    </svg>
+                                                </button>
+                                            </div>
                                             @error('passwordConf')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
                                     </div>

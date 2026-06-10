@@ -168,7 +168,7 @@
                                      x-transition:leave-start="opacity-100 translate-y-0"
                                      x-transition:leave-end="opacity-0 translate-y-4">
 
-                                    <div class="w-[280px] rounded-2xl bg-white dark:bg-slate-900 shadow-2xl shadow-black/30 ring-1 ring-black/5 dark:ring-white/10 border border-slate-200 dark:border-slate-800 overflow-hidden">
+                                    <div class="w-[280px] rounded-2xl bg-secondary shadow-2xl shadow-black/30 ring-1 ring-black/5 dark:ring-white/10 border border-slate-200 dark:border-slate-800 overflow-hidden">
                                         <!-- Header - Avatar & Name -->
                                         <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
                                             <div class="flex items-center gap-3 mb-0">
@@ -585,7 +585,7 @@
                      x-show="profileModalOpen"
                      dir="rtl">
 
-                    <div class="bg-secondary rounded-t-[28px] shadow-2xl overflow-hidden max-h-[92dvh] flex flex-col">
+                    <div class="glass rounded-t-[28px] shadow-2xl overflow-hidden max-h-[92dvh] flex flex-col">
 
                         <!-- Drag handle -->
                         <div class="flex justify-center pt-3 pb-1 shrink-0" @click="profileModalOpen = false">

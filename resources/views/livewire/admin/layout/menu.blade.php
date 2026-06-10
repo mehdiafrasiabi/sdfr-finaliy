@@ -305,6 +305,18 @@
                                     <div class="menu-divider"></div>
                                 </li>
                                 <li class="menu-item">
+                                    <a class="menu-link" href="{{route('admin.student.smartReportCard.index')}}">
+                                        <i class="fi fi-rr-file-medical-alt">
+                                        </i>
+                                        <span class="menu-label">
+                                             کارنامه هوشمند
+                                        </span>
+                                    </a>
+                                </li>
+                                <li>
+                                    <div class="menu-divider"></div>
+                                </li>
+                                <li class="menu-item">
                                     <a class="menu-link" href="{{route('admin.contact-documentation.index')}}">
                                         <i class="fi fi-rr-phone-call">
                                         </i>

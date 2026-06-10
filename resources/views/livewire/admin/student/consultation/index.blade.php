@@ -1,15 +1,4 @@
 <div>
-    @php
-        $weekDays = [
-            6 => 'شنبه',
-            0 => 'یکشنبه',
-            1 => 'دوشنبه',
-            2 => 'سه‌شنبه',
-            3 => 'چهارشنبه',
-            4 => 'پنج‌شنبه',
-            5 => 'جمعه',
-        ];
-    @endphp
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
@@ -25,7 +14,6 @@
             </ol>
         </nav>
     </div>
-
 
     <div class="row">
         <div class="col-lg-12">
@@ -45,47 +33,35 @@
                 </div>
 
                 <div class="card-body p-0">
-                    {{-- ===== بخش ۱: انتخاب روز (Day Picker) ===== --}}
-                    <div class="border-bottom bg-light px-3 pt-3 pb-0">
-                        <div class="d-flex align-items-center gap-1 mb-2">
-                            <i class="fi fi-rr-calendar-days text-muted small"></i>
-                            <span class="small text-muted fw-semibold">انتخاب روز هفته:</span>
+
+                    {{-- ===== بخش جستجو ===== --}}
+                    <div class="p-3 border-bottom bg-light">
+                        <div class="input-group">
+                            <span class="input-group-text bg-white"><i class="fi fi-rr-search"></i></span>
+                            <input type="text"
+                                   class="form-control"
+                                   wire:model.live.debounce.300ms="search"
+                                   placeholder="جستجو بر اساس نام، نام خانوادگی یا موبایل..." />
+                            @if($search)
+                                <button class="btn btn-outline-secondary" wire:click="$set('search', '')">
+                                    <i class="fi fi-rr-cross-small"></i>
+                                </button>
+                            @endif
                         </div>
-                        <ul class="nav nav-tabs border-0 flex-nowrap" style="overflow-x:auto;">
-                            @foreach($weekDays as $day => $name)
-                                <li class="nav-item">
-                                    <button wire:click="selectDay({{ $day }})"
-                                            class="nav-link px-3 py-2 {{ $selectedDay == $day ? 'active fw-bold' : '' }}">
-                                        {{ $name }}
-                                        @if(($dayCounts[$day] ?? 0) > 0)
-                                            <span class="badge rounded-pill ms-1"
-                                                  style="font-size:0.68rem;"
-                                                  class="{{ $selectedDay == $day ? 'bg-primary' : 'bg-secondary' }}">
-                                                {{ $dayCounts[$day] }}
-                                            </span>
-                                        @endif
-                                    </button>
-                                </li>
-                            @endforeach
-                        </ul>
                     </div>
 
-
-                    {{-- ===== بخش ۲: نمایش دانش‌آموزان روز انتخابی ===== --}}
+                    {{-- ===== لیست دانش‌آموزان ===== --}}
                     <div class="p-3">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 fw-semibold fs-6">
-                                    <i class="fi fi-rr-calendar me-1"></i>
-                                    روز {{ $weekDays[$selectedDay] ?? '' }}
-                                </span>
-                                <span class="text-muted small">
-                                    {{ count($dayStudents) }} دانش‌آموز در این روز
-                                </span>
-                            </div>
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <span class="text-muted small">
+                                {{ count($allStudents) }} دانش‌آموز
+                                @if($search)
+                                    یافت شد
+                                @endif
+                            </span>
                         </div>
 
-                        @forelse($dayStudents as $student)
+                        @forelse($allStudents as $student)
                             @php
                                 $profile = $student->user->profile ?? null;
                                 $info    = $student->user->personalInformation ?? null;
@@ -137,66 +113,50 @@
                                                 @endif
                                             </div>
 
-                                            {{-- برنامه هفتگی ثابت در این روز --}}
-                                            @php
-                                                $pref = $student->activeSchedulePreference ?? null;
-                                                $fixedSlot = $pref?->times
-                                                    ->firstWhere('day_of_week', $iranianDay);
-                                                $advisorName = $pref?->assignedAdvisor?->name;
-                                            @endphp
-                                            @if($fixedSlot)
-                                                <div class="mt-2 p-2 rounded" style="background-color: #e7f1ff;">
-                                                    <div class="small fw-semibold text-primary">
-                                                        <i class="fi fi-rr-calendar-clock me-1"></i>
-                                                        برنامه هفتگی ثابت:
-                                                        {{ substr($fixedSlot->start_time, 0, 5) }}
-                                                        تا
-                                                        {{ substr($fixedSlot->end_time, 0, 5) }}
+                                            {{-- لیست جلسات --}}
+                                            @if($student->advisingSessions->isNotEmpty())
+                                                <div class="mt-2 pt-2 border-top">
+                                                    <div class="small text-muted mb-2 fw-semibold">
+                                                        <i class="fi fi-rr-list me-1"></i>
+                                                        جلسات ثبت‌شده:
                                                     </div>
-                                                    @if($advisorName)
-                                                        <div class="small text-muted">
-                                                            مشاور اختصاصی: <strong>{{ $advisorName }}</strong>
-                                                        </div>
-                                                    @endif
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        @foreach($student->advisingSessions as $session)
+                                                            @php
+                                                                $jalaliDate = \Morilog\Jalali\Jalalian::fromCarbon($session->activation_date)->format('Y/m/d');
+                                                                $hasResult  = !empty($session->result_status);
+                                                                $timeStr    = $session->session_time
+                                                                                ? $session->session_time->format('H:i')
+                                                                                : '';
+                                                            @endphp
+                                                            <span class="badge rounded-pill px-3 py-2 small d-flex align-items-center gap-1
+                                                                  {{ $hasResult ? 'bg-secondary' : 'bg-light text-dark border' }}"
+                                                                  style="{{ $hasResult ? 'text-decoration:line-through; opacity:0.65;' : '' }}"
+                                                                  title="{{ $hasResult ? $session->result_label : 'در انتظار برگزاری' }}">
+                                                                <i class="fi fi-rr-calendar-day" style="font-size:0.7rem;"></i>
+                                                                {{ $jalaliDate }}
+                                                                @if($timeStr)
+                                                                    <span class="opacity-75 small">{{ $timeStr }}</span>
+                                                                @endif
+                                                                @if($session->location_type === 'in_person')
+                                                                    <i class="fi fi-rr-building" style="font-size:0.65rem;" title="حضوری"></i>
+                                                                @else
+                                                                    <i class="fi fi-rr-wifi" style="font-size:0.65rem;" title="آنلاین"></i>
+                                                                @endif
+                                                            </span>
+                                                        @endforeach
+                                                    </div>
+                                                </div>
+                                            @else
+                                                <div class="mt-2 pt-2 border-top">
+                                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle small">
+                                                        <i class="fi fi-rr-calendar-xmark me-1"></i>
+                                                        بدون جلسه
+                                                    </span>
                                                 </div>
                                             @endif
-                                            {{-- لیست جلسات --}}
-                                            <div class="mt-2 pt-2 border-top">
-                                                <div class="small text-muted mb-2 fw-semibold">
-                                                    <i class="fi fi-rr-list me-1"></i>
-                                                    جلسات ثبت‌شده در این روز:
-                                                </div>
-                                                <div class="d-flex flex-wrap gap-2">
-                                                    @foreach($student->advisingSessions as $session)
-                                                        @php
-                                                            $jalaliDate = \Morilog\Jalali\Jalalian::fromCarbon($session->activation_date)->format('Y/m/d');
-                                                            $hasResult  = !empty($session->result_status);
-                                                            $timeStr    = $session->session_time
-                                                                            ? $session->session_time->format('H:i')
-                                                                            : '';
-                                                        @endphp
-                                                        <span class="badge rounded-pill px-3 py-2 small d-flex align-items-center gap-1
-                                                              {{ $hasResult ? 'bg-secondary' : 'bg-light text-dark border' }}"
-                                                              style="{{ $hasResult ? 'text-decoration:line-through; opacity:0.65;' : '' }}"
-                                                              title="{{ $hasResult ? $session->result_label : 'در انتظار برگزاری' }}">
-                                                            <i class="fi fi-rr-calendar-day" style="font-size:0.7rem;"></i>
-                                                            {{ $jalaliDate }}
-                                                            @if($timeStr)
-                                                                <span class="opacity-75 small">{{ $timeStr }}</span>
-                                                            @endif
-                                                            @if($session->location_type === 'in_person')
-                                                                <i class="fi fi-rr-building" style="font-size:0.65rem;" title="حضوری"></i>
-                                                            @else
-                                                                <i class="fi fi-rr-wifi" style="font-size:0.65rem;" title="آنلاین"></i>
-                                                            @endif
-                                                        </span>
-                                                    @endforeach
-                                                </div>
-                                            </div>
                                         </div>
 
-
-                                        <!-- Bottom Pagination -->
                                         {{-- دکمه عملیات --}}
                                         @if($student->payment && $student->payment->order && $student->payment->order->user)
                                             <div class="flex-shrink-0">
@@ -213,20 +173,14 @@
                             </div>
                         @empty
                             <div class="text-center text-muted py-5">
-                                <i class="fi fi-rr-calendar-xmark" style="font-size:2.5rem; opacity:0.4;"></i>
+                                <i class="fi fi-rr-user-slash" style="font-size:2.5rem; opacity:0.4;"></i>
                                 <p class="mt-2 mb-1">
-                                    هیچ دانش‌آموزی با برنامه‌ی ثابت در روز
-                                    <strong>{{ $weekDays[$selectedDay] ?? '' }}</strong>
-                                    وجود ندارد.
+                                    @if($search)
+                                        دانش‌آموزی با مشخصات «{{ $search }}» یافت نشد.
+                                    @else
+                                        هیچ دانش‌آموزی یافت نشد.
+                                    @endif
                                 </p>
-                                <p class="small text-muted">
-                                    دانش‌آموزان پس از تایید برنامه‌ی هفتگی توسط مدیر آموزشی در این لیست ظاهر می‌شوند.
-                                </p>
-                                <button wire:click="openStudentSelectModal"
-                                        class="btn btn-primary btn-sm mt-2">
-                                    <i class="fi fi-rr-calendar-plus me-1"></i>
-                                    تعریف جلسه برای این روز
-                                </button>
                             </div>
                         @endforelse
 
@@ -235,6 +189,7 @@
             </div>
         </div>
     </div>
+
     {{-- ==================== Modal 1: انتخاب دانش‌آموزان ==================== --}}
     @if($showStudentSelectModal)
         <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.5);" wire:ignore.self>
@@ -249,19 +204,6 @@
                     </div>
 
                     <div class="modal-body p-0">
-                        {{-- نمایش روز انتخاب‌شده (جدا از بخش انتخاب دانش‌آموز) --}}
-                        <div class="p-3 border-bottom bg-primary-subtle">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="fi fi-rr-calendar text-primary fs-5"></i>
-                                <div>
-                                    <div class="fw-bold text-primary fs-6">
-                                        روز جلسه: {{ $weekDays[$selectedDay] ?? '' }}
-                                    </div>
-                                    <div class="small text-muted">جلسات هر هفته در این روز برگزار می‌شوند</div>
-                                </div>
-                            </div>
-                        </div>
-
                         {{-- جستجو --}}
                         <div class="p-3 border-bottom bg-light">
                             <div class="input-group mb-2">
@@ -398,6 +340,17 @@
 
     {{-- ==================== Modal 2: تنظیم روز و ساعت (به ازای هر دانش‌آموز) ==================== --}}
     @if($showScheduleModal)
+        @php
+            $weekDays = [
+                6 => 'شنبه',
+                0 => 'یکشنبه',
+                1 => 'دوشنبه',
+                2 => 'سه‌شنبه',
+                3 => 'چهارشنبه',
+                4 => 'پنج‌شنبه',
+                5 => 'جمعه',
+            ];
+        @endphp
         <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.5);" wire:ignore.self>
             <div class="modal-dialog modal-xl modal-dialog-scrollable" style="max-width:960px;">
                 <div class="modal-content">
@@ -418,13 +371,10 @@
                                 برای هر دانش‌آموز انتخاب‌شده، <strong>۴ جلسه</strong> به‌صورت خودکار در روز
                                 <strong>{{ $weekDays[$selectedDay] ?? '' }}</strong>
                                 ثبت می‌شود. هر جلسه یک هفته پس از جلسه قبلی برگزار می‌شود.
-
                                 ساعت، دقیقه و محل برگزاری را برای هر دانش‌آموز جداگانه تنظیم کنید.
-
                             </div>
                         </div>
 
-                        <!-- دانش‌آموزان انتخابی -->
                         <!-- کارت هر دانش‌آموز -->
                         @foreach($modalStudents->whereIn('id', $selectedStudents) as $selStudent)
                             @php
@@ -447,9 +397,7 @@
                                     </strong>
                                     @if($selInfo)
                                         <small class="text-muted ms-1">({{ $selStudent->user->mobile ?? '' }})</small>
-
                                     @endif
-                                    {{-- نمایش روز (جدا از انتخاب) --}}
                                     <span class="badge bg-white text-primary border border-primary ms-auto px-2 py-1">
                                         <i class="fi fi-rr-calendar me-1"></i>
                                         روز {{ $weekDays[$selectedDay] ?? '' }}
@@ -457,7 +405,6 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="row g-3 align-items-start">
-
 
                                         <!-- ساعت -->
                                         <div class="col-md-2 col-3">
@@ -472,6 +419,7 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
+
                                         <!-- دقیقه -->
                                         <div class="col-md-2 col-3">
                                             <label class="form-label fw-semibold small">
@@ -486,7 +434,6 @@
                                             @enderror
                                         </div>
 
-                        <!-- محل برگزاری -->
                                         <!-- محل برگزاری -->
                                         <div class="col-md-3 col-6">
                                             <label class="form-label fw-semibold small">
@@ -518,7 +465,6 @@
                                             </div>
                                         @endif
 
-                        <!-- لینک آنلاین -->
                                     </div>
                                 </div>
                             </div>
