@@ -79,6 +79,7 @@ class Start extends Component
             $this->grade == 9 ? null : $this->field,
             $this->fatherMobile,
             $this->motherMobile,
+            (bool) ($user->personalInformation?->attends_school ?? true),
         );
 
         $this->showFormModal = false;

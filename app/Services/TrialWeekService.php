@@ -18,25 +18,82 @@ use Illuminate\Support\Facades\DB;
 class TrialWeekService
 {
     // ایجاد هفته آزمایشی جدید + رکورد Student برای استفاده از سیستم موجود
-    public function start(User $user, int $grade, ?string $field, string $fatherMobile, string $motherMobile): TrialWeek
+    public function start(User $user, int $grade, ?string $field, string $fatherMobile, string $motherMobile, bool $attendsSchool = true): TrialWeek
     {
-        return DB::transaction(function () use ($user, $grade, $field, $fatherMobile, $motherMobile) {
-            $student = Student::create([
-                'user_id'  => $user->id,
-                'is_trial' => true,
-            ]);
+        $trial = DB::transaction(function () use ($user, $grade, $field, $fatherMobile, $motherMobile, $attendsSchool) {
+            $student = Student::firstOrCreate(
+                ['user_id' => $user->id],
+                ['is_trial' => true],
+            );
 
             return TrialWeek::create([
-                'user_id'       => $user->id,
-                'student_id'    => $student->id,
-                'grade'         => $grade,
-                'field'         => $grade == 9 ? null : $field,
-                'father_mobile' => $fatherMobile,
-                'mother_mobile' => $motherMobile,
-                'status'        => TrialWeek::STATUS_PENDING,
-                'expires_at'    => Carbon::now()->addDays(7),
+                'user_id'        => $user->id,
+                'student_id'     => $student->id,
+                'grade'          => $grade,
+                'field'          => $grade == 9 ? null : $field,
+                'attends_school' => $attendsSchool && $grade != TrialWeek::GRADE_GRADUATE,
+                'father_mobile'  => $fatherMobile,
+                'mother_mobile'  => $motherMobile,
+                'status'         => TrialWeek::STATUS_PENDING,
+                // شمارش ۸ روز فقط بعد از «ساخت برنامه» شروع می‌شود (buildProgram).
+                'expires_at'     => null,
             ]);
         });
+
+        // در مسیر جدید، آزمون‌ها قبل از ایجاد هفتهٔ آزمایشی تکمیل می‌شوند؛
+        // اگر تکمیل شده باشند همین‌جا ثبت و لینک تست والدین ارسال می‌شود.
+        if ($user->hasCompletedAllAssessments()) {
+            $trial->update(['assessments_completed_at' => Carbon::now()]);
+            app(ParentInvitationService::class)->sendForTrialWeek($trial);
+        }
+
+        return $trial;
+    }
+
+    /**
+     * انتخاب خودکار «مشاور جذب» توسط سیستم: از بین ادمین‌های دارای نقش
+     * «site acquisition»، کسی که کمترین دانش‌آموز (هفتهٔ آزمایشی) دارد.
+     * جلسهٔ آزمایشی و پیش‌جلسه نیز همین‌جا ساخته می‌شوند.
+     */
+    public function autoAssignAcquisitionConsultant(TrialWeek $trialWeek): ?Admin
+    {
+        if ($trialWeek->status !== TrialWeek::STATUS_PENDING) {
+            return $trialWeek->acquisitionSupporter;
+        }
+
+        $consultant = Admin::role('site acquisition')
+            ->withCount('acquisitionTrialWeeks')
+            ->orderBy('acquisition_trial_weeks_count')
+            ->orderBy('id')
+            ->first();
+
+        DB::transaction(function () use ($trialWeek, $consultant) {
+            $session = AdvisingSession::create([
+                'student_id'      => $trialWeek->student_id,
+                'advisor_id'      => null,
+                'title'           => 'جلسه آزمایشی',
+                'activation_date' => Carbon::now()->addDay(),
+                'status'          => AdvisingSession::STATUS_ACTIVE,
+                'location_type'   => 'online',
+                'is_active'       => true,
+            ]);
+
+            AdvisingPreSession::create([
+                'advising_session_id' => $session->id,
+                'student_id'          => $trialWeek->student_id,
+                'title'               => 'پیش‌جلسه آزمایشی',
+                'status'              => AdvisingPreSession::STATUS_PENDING,
+            ]);
+
+            $trialWeek->update([
+                'acquisition_supporter_id' => $consultant?->id,
+                'advising_session_id'      => $session->id,
+                'status'                   => TrialWeek::STATUS_SUPPORTER_ASSIGNED,
+                'supporter_assigned_at'    => Carbon::now(),
+            ]);
+        });
+
+        return $consultant;
     }
 
     // تخصیص «پشتیبان جذب» توسط مدیر آموزشی + ایجاد جلسهٔ آزمایشی
@@ -70,40 +127,6 @@ class TrialWeekService
                 'advising_session_id'      => $session->id,
                 'status'                   => TrialWeek::STATUS_SUPPORTER_ASSIGNED,
                 'supporter_assigned_at'    => Carbon::now(),
-            ]);
-        });
-    }
-
-    // مسیر کاملاً خودکار: ایجاد جلسهٔ آزمایشی بدون نیاز به تخصیص دستی «پشتیبان جذب».
-    // پس از تکمیل آزمون‌های دانش‌آموز فراخوانی می‌شود. اگر قبلاً جلسه‌ای ساخته شده باشد، کاری نمی‌کند.
-    public function autoStartTrialSession(TrialWeek $trialWeek): void
-    {
-        if ($trialWeek->advising_session_id || $trialWeek->status !== TrialWeek::STATUS_PENDING) {
-            return;
-        }
-
-        DB::transaction(function () use ($trialWeek) {
-            $session = AdvisingSession::create([
-                'student_id'      => $trialWeek->student_id,
-                'advisor_id'      => null,
-                'title'           => 'جلسه آزمایشی',
-                'activation_date' => Carbon::now()->addDay(),
-                'status'          => AdvisingSession::STATUS_ACTIVE,
-                'location_type'   => 'online',
-                'is_active'       => true,
-            ]);
-
-            AdvisingPreSession::create([
-                'advising_session_id' => $session->id,
-                'student_id'          => $trialWeek->student_id,
-                'title'               => 'پیش‌جلسه آزمایشی',
-                'status'              => AdvisingPreSession::STATUS_PENDING,
-            ]);
-
-            $trialWeek->update([
-                'advising_session_id'   => $session->id,
-                'status'                => TrialWeek::STATUS_SUPPORTER_ASSIGNED,
-                'supporter_assigned_at' => Carbon::now(),
             ]);
         });
     }
@@ -157,10 +180,12 @@ class TrialWeekService
 
             $this->generateProgramParts($program, $subjectPriorities, $dailyHours, $trialWeek->grade);
 
+            // آغاز رسمی هفتهٔ آزمایشی = لحظهٔ ساخت برنامه؛ مدت اعتبار ۸ روز.
             $trialWeek->update([
                 'daily_study_hours' => $dailyHours,
                 'status'            => TrialWeek::STATUS_PROGRAM_BUILT,
                 'program_built_at'  => Carbon::now(),
+                'expires_at'        => Carbon::now()->addDays(8),
             ]);
 
             // کارنامهٔ هوشمند برای نمایش در /profile/reportStudentStudy (تحلیل زنده در طول هفتهٔ آزمایشی).
@@ -312,8 +337,9 @@ class TrialWeekService
     private function generateProgramParts(WeeklyProgram $program, array $priorities, int $dailyHours, int $grade): void
     {
         $gradeForPart = match (true) {
-            $grade >= 10 => (string) $grade,
-            default      => '10', // پایه ۹ → از مطالب پایه ۱۰ شروع می‌کند
+            $grade >= 10 && $grade <= 12          => (string) $grade,
+            $grade == TrialWeek::GRADE_GRADUATE    => '12', // فارغ‌التحصیل → مطالب پایه ۱۲
+            default                                => '10', // پایه ۹ → از مطالب پایه ۱۰ شروع می‌کند
         };
 
         $subjectList = array_keys($priorities);

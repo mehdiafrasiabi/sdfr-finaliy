@@ -28,6 +28,13 @@ class PreSessionWizard extends Component
     public $preSession;
     public $canEdit = true;
 
+    /**
+     * اگر دانش‌آموز مدرسه نمی‌رود یا فارغ‌التحصیل است، بخش‌های مدرسه‌ای
+     * (امتحانات، پرسش و پاسخ کلاسی، تکالیف) قفل می‌شوند و فقط
+     * «پارت درخواستی» و «متفرقه» قابل ثبت هستند.
+     */
+    public bool $schoolLocked = false;
+
     // ─── حل مشکل پریدن مودال: openCard در Livewire نگه داشته میشه ───
     public $openCard = '';
 
@@ -125,6 +132,7 @@ class PreSessionWizard extends Component
         $this->sessionId = $session->id;
         $this->canEdit   = $session->canFillPreSession();
         $this->preSession = $session->preSession;
+        $this->schoolLocked = $this->resolveSchoolLocked($session);
 
         if ($this->preSession) {
             $this->loadExistingData();
@@ -141,9 +149,39 @@ class PreSessionWizard extends Component
         $this->seo()->setTitle('پیش جلسه مشاوره');
     }
 
+    /**
+     * تشخیص قفل بودن بخش‌های مدرسه‌ای: از روی هفتهٔ آزمایشی یا اطلاعات ثبت‌نام.
+     */
+    private function resolveSchoolLocked(AdvisingSession $session): bool
+    {
+        $user = $session->student?->user;
+        if (!$user) {
+            return false;
+        }
+
+        $trial = $user->trialWeek;
+        if ($trial) {
+            return ! $trial->needsClassSchedule();
+        }
+
+        $info = $user->personalInformation;
+        if ($info) {
+            return $info->is_graduate || ! $info->attends_school;
+        }
+
+        return false;
+    }
+
+    /** بخش‌هایی که برای دانش‌آموزِ بدون مدرسه قفل هستند. */
+    private const SCHOOL_CARDS = ['exams', 'qas', 'assignments'];
+
     // ─── باز / بسته کردن مودال از سرور ───
     public function openModal(string $card): void
     {
+        if ($this->schoolLocked && in_array($card, self::SCHOOL_CARDS, true)) {
+            $this->dispatch('warning', 'چون مدرسه نمی‌روی، این بخش برای تو غیرفعال است.');
+            return;
+        }
         $this->openCard = $card;
     }
 
@@ -342,6 +380,7 @@ class PreSessionWizard extends Component
     public function addExam(): void
     {
         if (!$this->canEdit) { $this->dispatch('warning', 'امکان ویرایش وجود ندارد.'); return; }
+        if ($this->schoolLocked) { $this->dispatch('warning', 'این بخش برای تو غیرفعال است.'); return; }
 
         if (!empty($this->examForm['cc_subject_id']) && empty($this->examForm['subject'])) {
             $s = CcSubject::find($this->examForm['cc_subject_id']);
@@ -398,6 +437,7 @@ class PreSessionWizard extends Component
     public function addQa(): void
     {
         if (!$this->canEdit) { $this->dispatch('warning', 'امکان ویرایش وجود ندارد.'); return; }
+        if ($this->schoolLocked) { $this->dispatch('warning', 'این بخش برای تو غیرفعال است.'); return; }
 
         if (!empty($this->qaForm['cc_subject_id']) && empty($this->qaForm['subject'])) {
             $s = CcSubject::find($this->qaForm['cc_subject_id']);
@@ -453,6 +493,7 @@ class PreSessionWizard extends Component
     public function addAssignment(): void
     {
         if (!$this->canEdit) { $this->dispatch('warning', 'امکان ویرایش وجود ندارد.'); return; }
+        if ($this->schoolLocked) { $this->dispatch('warning', 'این بخش برای تو غیرفعال است.'); return; }
 
         if (!empty($this->assignmentForm['cc_subject_id']) && empty($this->assignmentForm['subject'])) {
             $s = CcSubject::find($this->assignmentForm['cc_subject_id']);
@@ -595,6 +636,12 @@ class PreSessionWizard extends Component
     private function maybeAdvanceTrial(\App\Models\TrialWeek $trial, \App\Services\TrialWeekService $trialService): void
     {
         if ($trial->status !== \App\Models\TrialWeek::STATUS_CLASSIFICATION_DONE) {
+            return;
+        }
+
+        // دانش‌آموزی که مدرسه نمی‌رود یا فارغ‌التحصیل است، نیازی به برنامه کلاسی ندارد.
+        if (! $trial->needsClassSchedule()) {
+            $trialService->completePreSession($trial);
             return;
         }
 

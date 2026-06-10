@@ -190,6 +190,13 @@
                     {{ $trialWeek->daysRemaining }} روز باقی‌مانده
                 @endif
             </div>
+        @elseif($trialWeek)
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/25">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5v5l3 1.7"/>
+                </svg>
+                ۸ روز دسترسی — از لحظه‌ی ساخت برنامه
+            </div>
         @endif
     </div>
 
@@ -198,16 +205,17 @@
         {{-- ═══════════ کارت پیشرفت کلی ═══════════ --}}
         @php
             $progressPct = ($trialWeek->step / 4) * 100;
+            // step = مرحله‌ای که «انجام شده»؛ عنوان باید کارِ بعدیِ کاربر را بگوید.
             $stepTitles = [
-                0 => 'ثبت‌نام انجام شد',
-                1 => 'در حال تخصیص مشاور ',
-                2 => 'نوبت طبقه‌بندی دروس',
-                3 => 'نوبت تکمیل پیش‌جلسه',
-                4 => 'هفته آزمایشی کامل شد',
+                0 => 'در حال تخصیص مشاور جذب',
+                1 => 'نوبت طبقه‌بندی دروس',
+                2 => 'نوبت نیازمندی‌های برنامه',
+                3 => 'نوبت ساخت برنامه',
+                4 => 'هفته آزمایشی فعال شد',
             ];
         @endphp
 
-        <div class="rise r2 relative overflow-hidden rounded-3xl border border-border bg-secondary p-6 mb-5">
+        <div class="rise r2 relative overflow-hidden rounded-3xl border border-border bg-secondary p-6 mb-5" data-tour="progress">
             <div class="absolute -top-20 left-1/3 w-56 h-56 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
 
             <div class="relative flex items-center justify-between mb-5">
@@ -233,11 +241,11 @@
             <div class="flex justify-between mt-3">
                 @php
                     $miniSteps = [
-                        ['t' => 'ثبت‌نام',   'done' => $trialWeek->step >= 0],
-                        ['t' => 'مشاور ',   'done' => $trialWeek->step >= 1],
-                        ['t' => 'طبقه‌بندی', 'done' => $trialWeek->step >= 2],
-                        ['t' => 'پیش‌جلسه',  'done' => $trialWeek->step >= 3],
-                        ['t' => 'برنامه',    'done' => $trialWeek->step >= 4],
+                        ['t' => 'ثبت‌نام',    'done' => $trialWeek->step >= 0],
+                        ['t' => 'مشاور جذب', 'done' => $trialWeek->step >= 1],
+                        ['t' => 'طبقه‌بندی',  'done' => $trialWeek->step >= 2],
+                        ['t' => 'نیازمندی‌ها', 'done' => $trialWeek->step >= 3],
+                        ['t' => 'برنامه',     'done' => $trialWeek->step >= 4],
                     ];
                 @endphp
                 @foreach($miniSteps as $ms)
@@ -263,7 +271,7 @@
 
                 {{-- ─────────── مرحله ۱: مشاور  ─────────── --}}
                 @php $s1done = $trialWeek->step >= 1; $s1active = !$s1done; @endphp
-                <div class="rise r3 relative flex gap-4">
+                <div class="rise r3 relative flex gap-4" data-tour="step1">
                     {{-- نود تایم‌لاین --}}
                     <div class="relative z-10 shrink-0">
                         <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2
@@ -295,26 +303,49 @@
                                         <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded-full px-2 py-0.5">در حال انجام</span>
                                     @endif
                                 </div>
-                                <h3 class="font-black text-foreground">تخصیص مشاور  آزمایشی</h3>
+                                <h3 class="font-black text-foreground">مشاور جذب شما</h3>
                             </div>
                         </div>
 
-                        @if($s1done)
+                        @if($s1done && $this->consultant)
+                            {{-- کارت مشاور جذب: عکس + نام + تلفن --}}
+                            <div class="mt-3 rounded-xl border border-emerald-500/25 bg-background p-4 flex items-center gap-3.5">
+                                @if($this->consultant['avatar'])
+                                    <img src="{{ $this->consultant['avatar'] }}" alt="{{ $this->consultant['name'] }}"
+                                         class="w-14 h-14 rounded-xl object-cover border border-border shrink-0">
+                                @else
+                                    <div class="w-14 h-14 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                                        <svg class="w-7 h-7 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="12" cy="8" r="4"/><path d="M5 21v-1a7 7 0 0 1 14 0v1"/>
+                                        </svg>
+                                    </div>
+                                @endif
+                                <div class="min-w-0">
+                                    <div class="font-black text-foreground truncate">{{ $this->consultant['name'] }}</div>
+                                    @if($this->consultant['mobile'])
+                                        <a href="tel:{{ $this->consultant['mobile'] }}" dir="ltr"
+                                           class="inline-flex items-center gap-1.5 text-xs text-muted font-mono mt-1 hover:text-primary transition-colors">
+                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+                                            </svg>
+                                            {{ $this->consultant['mobile'] }}
+                                        </a>
+                                    @endif
+                                </div>
+                                <span class="mr-auto text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 rounded-full px-2 py-0.5 shrink-0">همراه توست</span>
+                            </div>
+                        @elseif($s1done)
                             <p class="text-sm text-emerald-600 dark:text-emerald-400 font-semibold mt-2 flex items-center gap-1.5">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                مشاور  شما تخصیص یافت
-                                @if($trialWeek->acquisitionSupporter)
-                                    <span class="text-foreground">— {{ $trialWeek->acquisitionSupporter->name }}</span>
-                                @endif
+                                فرایند جذب شما آغاز شد — مشاور جذب به‌زودی معرفی می‌شود.
                             </p>
                         @else
                             <p class="text-sm text-muted leading-7 mt-2">
-                                درخواستت ثبت شد. تیم ما در حال بررسی و تخصیص مشاور  مناسب برای توست —
-                                این فرایند معمولاً کمتر از ۲۴ ساعت طول می‌کشد.
+                                درخواستت ثبت شد. سیستم در حال انتخاب مشاور جذب مناسب برای توست.
                             </p>
                             <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10">
                                 <span class="live-dot w-1.5 h-1.5 rounded-full bg-amber-500 text-amber-500"></span>
-                                <span class="text-xs font-bold text-amber-600 dark:text-amber-400">در انتظار تخصیص مشاور </span>
+                                <span class="text-xs font-bold text-amber-600 dark:text-amber-400">در انتظار تخصیص مشاور جذب</span>
                             </div>
                         @endif
                     </div>
@@ -326,7 +357,7 @@
                     $s2active = $trialWeek->step === 1;
                     $s2locked = $trialWeek->step < 1;
                 @endphp
-                <div class="rise r4 relative flex gap-4 {{ $s2locked ? 'opacity-55' : '' }}">
+                <div class="rise r4 relative flex gap-4 {{ $s2locked ? 'opacity-55' : '' }}" data-tour="step2">
                     <div class="relative z-10 shrink-0">
                         <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2
                             {{ $s2done ? 'bg-emerald-500 border-emerald-500'
@@ -413,7 +444,7 @@
                     $s3active = $trialWeek->step === 2;
                     $s3locked = $trialWeek->step < 2;
                 @endphp
-                <div class="rise r5 relative flex gap-4 {{ $s3locked ? 'opacity-55' : '' }}">
+                <div class="rise r5 relative flex gap-4 {{ $s3locked ? 'opacity-55' : '' }}" data-tour="step3">
                     <div class="relative z-10 shrink-0">
                         <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2
                             {{ $s3done ? 'bg-emerald-500 border-emerald-500'
@@ -478,7 +509,9 @@
                                 <div class="rounded-xl border border-border bg-background p-3 flex flex-col gap-2">
                                     <div class="flex items-center justify-between gap-2">
                                         <span class="text-xs font-bold text-foreground">برنامه درسی مدرسه</span>
-                                        @if($this->classScheduleFinalized)
+                                        @if(!$this->needsSchedule)
+                                            <span class="text-[10px] font-bold text-sky-600 dark:text-sky-400 bg-sky-500/10 rounded-full px-2 py-0.5">لازم نیست</span>
+                                        @elseif($this->classScheduleFinalized)
                                             <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 rounded-full px-2 py-0.5 inline-flex items-center gap-1">
                                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
                                                 نهایی شد
@@ -487,7 +520,12 @@
                                             <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded-full px-2 py-0.5">در انتظار</span>
                                         @endif
                                     </div>
-                                    @if($s3active && !$this->classScheduleFinalized)
+                                    @if(!$this->needsSchedule)
+                                        <p class="text-[11px] text-muted leading-5">
+                                            {{ $trialWeek->isGraduate() ? 'چون فارغ‌التحصیل هستی' : 'چون فعلاً مدرسه نمی‌روی' }}،
+                                            نیازی به پر کردن برنامه کلاسی نداری و این مرحله خودکار رد می‌شود.
+                                        </p>
+                                    @elseif($s3active && !$this->classScheduleFinalized)
                                         <a wire:navigate
                                            href="{{ route('client.profile.consultation.class-schedule') }}"
                                            class="press btn-primary inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold w-full">
@@ -512,7 +550,7 @@
                     $s4active = $trialWeek->step === 3;
                     $s4locked = $trialWeek->step < 3;
                 @endphp
-                <div class="rise r6 relative flex gap-4 {{ $s4locked ? 'opacity-55' : '' }}">
+                <div class="rise r6 relative flex gap-4 {{ $s4locked ? 'opacity-55' : '' }}" data-tour="step4">
                     <div class="relative z-10 shrink-0">
                         <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2
                             {{ $s4done ? 'bg-emerald-500 border-emerald-500'
@@ -564,89 +602,7 @@
 
         {{-- ═══════════ وضعیت شخصیتی (پیش از ساخت برنامه) ═══════════ --}}
         @php $personality = $this->personalitySummary; @endphp
-        @if($trialWeek->step >= 3 && $personality)
-            <div class="rise r6 rounded-3xl border border-primary/30 bg-gradient-to-br from-primary/5 to-secondary p-6 mt-5">
-                <div class="flex items-center gap-2 mb-4">
-                    <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="8" r="4"/><path d="M6 21v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"/>
-                    </svg>
-                    <h3 class="font-black text-foreground">وضعیت شخصیتی تو</h3>
-                </div>
-                <p class="text-sm text-muted leading-7 mb-5">
-                    این تحلیل بر اساس پاسخ‌های تو در آزمون‌های MBTI و مایندست ساخته شده و در طراحی برنامه‌ات لحاظ می‌شود.
-                </p>
 
-                {{-- MBTI --}}
-                @if(!empty($personality['mbti']['type']))
-                    <div class="rounded-2xl border border-border bg-background p-5 mb-4">
-                        <div class="flex items-center gap-3 mb-2 flex-wrap">
-                            <span class="text-lg font-black text-primary tracking-widest">{{ $personality['mbti']['type'] }}</span>
-                            <span class="font-bold text-foreground">{{ $personality['mbti']['title'] }}</span>
-                        </div>
-                        <p class="text-sm text-muted leading-7">{{ $personality['mbti']['description'] }}</p>
-                        @if(!empty($personality['mbti']['study_tip']) && $personality['mbti']['study_tip'] !== '—')
-                            <div class="mt-3 text-xs text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 rounded-xl px-3 py-2 leading-6">
-                                💡 {{ $personality['mbti']['study_tip'] }}
-                            </div>
-                        @endif
-                    </div>
-                @endif
-
-                {{-- VARK --}}
-                @if(!empty($personality['vark']['profile']))
-                    <div class="rounded-2xl border border-border bg-background p-5 mb-4">
-                        <div class="font-bold text-foreground mb-3">سبک یادگیری (VARK): <span class="text-primary">{{ $personality['vark']['profile'] }}</span></div>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                            @foreach($personality['vark']['modalities'] as $m)
-                                <div class="rounded-xl border {{ $m['dominant'] ? 'border-primary/50 bg-primary/5' : 'border-border' }} p-2 text-center">
-                                    <div class="text-xs text-muted">{{ $m['title'] }}</div>
-                                    <div class="font-black text-foreground">{{ $m['percent'] }}%</div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                {{-- نقاط قوت و ضعف (تست‌های اختصاصی) --}}
-                @foreach($personality['custom'] as $testName => $facets)
-                    @php
-                        $strengths = collect($facets)->filter(fn($f) => $f['level'] === 'high');
-                        $weaknesses = collect($facets)->filter(fn($f) => $f['level'] === 'low');
-                    @endphp
-                    <div class="rounded-2xl border border-border bg-background p-5 mb-4">
-                        <div class="font-bold text-foreground mb-3">{{ $testName }}</div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <div class="text-xs font-bold text-emerald-600 dark:text-emerald-400 mb-2">نقاط قوت</div>
-                                @forelse($strengths as $f)
-                                    <div class="text-sm text-foreground mb-1.5">✅ {{ $f['label'] }} <span class="text-muted text-xs">({{ $f['percent'] }}%)</span></div>
-                                @empty
-                                    <div class="text-xs text-muted">—</div>
-                                @endforelse
-                            </div>
-                            <div>
-                                <div class="text-xs font-bold text-amber-600 dark:text-amber-400 mb-2">نیازمند تقویت</div>
-                                @forelse($weaknesses as $f)
-                                    <div class="text-sm text-foreground mb-1.5">⚠️ {{ $f['label'] }} <span class="text-muted text-xs">({{ $f['percent'] }}%)</span></div>
-                                @empty
-                                    <div class="text-xs text-muted">—</div>
-                                @endforelse
-                            </div>
-                        </div>
-                    </div>
-                @endforeach
-
-                {{-- پرچم‌های بالینی --}}
-                @foreach($personality['flags'] as $flag)
-                    <div class="rounded-2xl border p-4 mb-3 {{ ($flag['severity'] ?? '') === 'critical' ? 'border-red-500/40 bg-red-500/10' : 'border-amber-500/40 bg-amber-500/10' }}">
-                        <div class="font-bold text-foreground text-sm">{{ $flag['title'] ?? '' }}</div>
-                        @if(!empty($flag['text']))
-                            <p class="text-xs text-muted leading-6 mt-1">{{ $flag['text'] }}</p>
-                        @endif
-                    </div>
-                @endforeach
-            </div>
-        @endif
 
 
         {{-- ═══════════ کارت پایانی: تبریک ═══════════ --}}
@@ -743,6 +699,16 @@
             </div>
         </div>
     @endif
+
+
+    {{-- ════════════════ تور راهنمای صفحه ════════════════ --}}
+    <x-client.page-tour storage-key="trial_guide_tour_done" :steps="[
+        ['el' => '[data-tour=progress]', 'title' => 'نوار پیشرفت هفته آزمایشی', 'text' => 'از اینجا می‌بینی الان در کدام مرحله‌ای و چند درصد مسیر را رفته‌ای.'],
+        ['el' => '[data-tour=step1]',    'title' => 'مشاور جذب تو', 'text' => 'مشخصات مشاور جذبت اینجاست؛ در طول هفته‌ی آزمایشی همراهت است و می‌توانی باهاش تماس بگیری.'],
+        ['el' => '[data-tour=step2]',    'title' => 'طبقه‌بندی مباحث', 'text' => 'وضعیت تسلطت روی هر درس را مشخص می‌کنی تا برنامه دقیقاً بر اساس نقاط ضعف و قوتت ساخته شود.'],
+        ['el' => '[data-tour=step3]',    'title' => 'نیازمندی‌های برنامه', 'text' => 'پیش‌جلسه (امتحان‌ها، پارت درخواستی و…) و در صورت نیاز برنامه کلاسی مدرسه را اینجا تکمیل می‌کنی.'],
+        ['el' => '[data-tour=step4]',    'title' => 'ساخت برنامه', 'text' => 'بعد از تکمیل مراحل، وارد جلسه می‌شوی، کارنامه‌ی تحلیلی‌ات را می‌بینی و برنامه‌ی اختصاصی‌ات ساخته می‌شود.'],
+    ]" />
 
 
  @push('script')

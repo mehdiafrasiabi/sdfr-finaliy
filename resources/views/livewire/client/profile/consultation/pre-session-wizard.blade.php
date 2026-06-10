@@ -143,17 +143,30 @@
             </div>
         @endif
 
+        @if($schoolLocked)
+            <div class="mb-6 flex items-start gap-2 rounded-2xl border border-sky-200/80 bg-sky-50 dark:bg-sky-500/10 px-4 py-3 text-xs text-sky-700 dark:border-sky-500/40 dark:text-sky-300">
+                <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                <p class="leading-6">چون در حال حاضر مدرسه نمی‌روی، بخش‌های «امتحانات»، «پرسش و پاسخ کلاسی» و «تکالیف» برای تو غیرفعال‌اند. فقط <strong>پارت درخواستی</strong> و <strong>متفرقه</strong> را ثبت کن.</p>
+            </div>
+        @endif
+
         {{-- CARDS GRID --}}
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($cards as $key => $card)
-                <div class="pre-card group rounded-2xl glass border-2 border-border bg-card p-5 {{ $card['count'] > 0 ? 'is-completed' : '' }}"
+                @php $isLockedCard = $schoolLocked && in_array($key, ['exams', 'qas', 'assignments'], true); @endphp
+                <div class="pre-card group rounded-2xl glass border-2 border-border bg-card p-5 {{ $card['count'] > 0 ? 'is-completed' : '' }} {{ $isLockedCard ? 'opacity-55' : '' }}"
                      style="--accent: rgb({{ $card['hex'] }});">
                     <div class="flex items-start justify-between mb-4">
                         <div class="icon-box flex items-center justify-center w-12 h-12 rounded-xl border"
                              style="background:rgb({{ $card['hex'] }}/.1);color:rgb({{ $card['hex'] }});border-color:rgb({{ $card['hex'] }}/.3);">
                             <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $card['icon'] !!}</svg>
                         </div>
-                        @if($card['count'] > 0)
+                        @if($isLockedCard)
+                            <span class="inline-flex items-center gap-1 rounded-full border border-border bg-secondary px-2.5 py-1 text-[11px] font-black text-muted-foreground">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                قفل
+                            </span>
+                        @elseif($card['count'] > 0)
                             <span class="badge-pop inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-black"
                                   style="background:rgb({{ $card['hex'] }}/.1);color:rgb({{ $card['hex'] }});border-color:rgb({{ $card['hex'] }}/.3);">
                                 @if($key === 'misc') ثبت شده ✓ @else {{ $card['count'] }} مورد @endif
@@ -163,7 +176,9 @@
                     <h3 class="font-black text-base text-foreground mb-1">{{ $card['title'] }}</h3>
                     <p class="text-xs text-muted-foreground leading-6 mb-5">{{ $card['desc'] }}</p>
 
-                    @if($key === 'summary')
+                    @if($isLockedCard)
+                        <div class="text-center py-2.5 text-xs text-muted-foreground italic">چون مدرسه نمی‌روی، نیازی به این بخش نداری</div>
+                    @elseif($key === 'summary')
                         <button wire:click="openModal('summary')"
                                 class="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-all hover:scale-[1.02] active:scale-95"
                                 style="background:linear-gradient(135deg,rgb({{ $card['hex'] }}),rgb({{ $card['hex'] }}/.85));box-shadow:0 4px 14px rgb({{ $card['hex'] }}/.4);">

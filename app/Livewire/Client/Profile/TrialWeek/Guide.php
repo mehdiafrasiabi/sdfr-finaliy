@@ -4,10 +4,7 @@ namespace App\Livewire\Client\Profile\TrialWeek;
 
 use App\Models\ClassificationProject;
 use App\Models\ClassSchedule;
-use App\Models\StudentClassification;
 use App\Models\StudentClassificationSubmission;
-use App\Models\Assessment;
-use App\Models\StudentAssessmentAttempt;
 use App\Models\TrialWeek;
 use App\Services\AssessmentInterpretationService;
 use App\Services\TrialWeekService;
@@ -68,43 +65,39 @@ class Guide extends Component
 
     /**
      * خلاصهٔ وضعیت شخصیتی دانش‌آموز بر اساس آزمون‌های تکمیل‌شده.
-     * خروجی شامل تیپ MBTI، پروفایل VARK و نقاط قوت/ضعف تست‌های اختصاصی + پرچم‌ها.
+     * فقط آزمون‌های «فعال» لحاظ می‌شوند — آزمون غیرفعال‌شده توسط مدیر نمایش داده نمی‌شود.
      */
     public function getPersonalitySummaryProperty(): ?array
     {
-        $interpreter = app(AssessmentInterpretationService::class);
+        return app(AssessmentInterpretationService::class)->summaryForUser(Auth::user());
+    }
 
-        $attempts = StudentAssessmentAttempt::where('user_id', Auth::id())
-            ->where('status', StudentAssessmentAttempt::STATUS_COMPLETED)
-            ->with('assessment')
-            ->get();
+    /**
+     * آیا «برنامه کلاسی مدرسه» برای این دانش‌آموز لازم است؟
+     * فارغ‌التحصیل‌ها و کسانی که مدرسه نمی‌روند معاف‌اند.
+     */
+    public function getNeedsScheduleProperty(): bool
+    {
+        return (bool) $this->trialWeek?->needsClassSchedule();
+    }
 
-        if ($attempts->isEmpty()) {
+    /**
+     * اطلاعات «مشاور جذب» برای نمایش در باکس مرحلهٔ ۱.
+     */
+    public function getConsultantProperty(): ?array
+    {
+        $consultant = $this->trialWeek?->acquisitionSupporter;
+        if (!$consultant) {
             return null;
         }
 
-        $summary = ['mbti' => null, 'vark' => null, 'custom' => [], 'flags' => []];
-
-        foreach ($attempts as $attempt) {
-            $kind = $attempt->assessment?->kind;
-            $cr   = $attempt->computed_result;
-
-            if ($kind === Assessment::KIND_MBTI) {
-                $summary['mbti'] = $interpreter->interpretMbti($cr);
-            } elseif ($kind === Assessment::KIND_VARK) {
-                $summary['vark'] = $interpreter->interpretVark($cr);
-            } else {
-                $custom = $interpreter->interpretCustom($cr, $attempt->assessment);
-                if (!empty($custom['facets'])) {
-                    $summary['custom'][$attempt->assessment->name_fa] = $custom['facets'];
-                }
-                foreach ($custom['flags'] ?? [] as $flag) {
-                    $summary['flags'][] = $flag;
-                }
-            }
-        }
-
-        return $summary;
+        return [
+            'name'   => $consultant->name,
+            'mobile' => $consultant->mobile,
+            'avatar' => $consultant->picture
+                ? asset('adminsFile/' . $consultant->id . '/' . $consultant->picture)
+                : null,
+        ];
     }
 
     public function getActiveProjectProperty(): ?ClassificationProject

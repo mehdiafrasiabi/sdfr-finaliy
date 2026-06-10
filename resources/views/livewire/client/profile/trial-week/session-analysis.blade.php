@@ -107,6 +107,95 @@
 
             @endif {{-- end if analysis --}}
 
+            {{-- ═══════════ کارنامه تحلیلی پیش از ساخت برنامه ═══════════ --}}
+            <div class="bg-secondary border border-border rounded-2xl p-6">
+                <h3 class="font-black text-foreground mb-1 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+                    </svg>
+                    کارنامه‌ی تحلیلی تو
+                </h3>
+                <p class="text-xs text-muted leading-6 mb-5">خلاصه‌ی همه‌ی کارهایی که انجام دادی — برنامه‌ات دقیقاً بر اساس همین اطلاعات ساخته می‌شود.</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {{-- طبقه‌بندی --}}
+                    <div class="bg-background border border-border rounded-xl p-4">
+                        <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                            طبقه‌بندی دروس
+                        </div>
+                        @if(!empty($analysis) && $analysis['total'] > 0)
+                            <div class="text-[11px] text-muted leading-6">
+                                {{ $analysis['total'] }} مبحث ارزیابی شد:
+                                <span class="text-red-500 font-bold">{{ $analysis['weak_count'] }} ضعیف</span> ·
+                                <span class="text-amber-500 font-bold">{{ $analysis['medium_count'] }} متوسط</span> ·
+                                <span class="text-emerald-500 font-bold">{{ $analysis['strong_count'] }} قوی</span>
+                            </div>
+                        @else
+                            <div class="text-[11px] text-muted">داده‌ای ثبت نشده است.</div>
+                        @endif
+                    </div>
+
+                    {{-- پیش‌جلسه --}}
+                    <div class="bg-background border border-border rounded-xl p-4">
+                        <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            پیش‌جلسه
+                        </div>
+                        <div class="text-[11px] text-muted leading-6">
+                            @if($preSessionSummary['exams'] > 0) {{ $preSessionSummary['exams'] }} امتحان · @endif
+                            @if($preSessionSummary['qas'] > 0) {{ $preSessionSummary['qas'] }} پرسش‌وپاسخ · @endif
+                            @if($preSessionSummary['assignments'] > 0) {{ $preSessionSummary['assignments'] }} تکلیف · @endif
+                            @if($preSessionSummary['requested'] > 0) {{ $preSessionSummary['requested'] }} پارت درخواستی @endif
+                            @if($preSessionSummary['misc']) · توضیحات متفرقه ثبت شد @endif
+                            @if($preSessionSummary['exams'] + $preSessionSummary['qas'] + $preSessionSummary['assignments'] + $preSessionSummary['requested'] === 0 && !$preSessionSummary['misc'])
+                                موردی ثبت نشده است.
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- آزمون‌های شخصیت‌شناسی --}}
+                    <div class="bg-background border border-border rounded-xl p-4">
+                        <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 21v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"/></svg>
+                            تست مایندست و شخصیت
+                        </div>
+                        <div class="text-[11px] text-muted leading-6">
+                            @if($personality)
+                                @if(!empty($personality['mbti']['type']))
+                                    تیپ شخصیتی: <span class="font-black text-primary tracking-wider">{{ $personality['mbti']['type'] }}</span>
+                                @endif
+                                @if(!empty($personality['vark']['profile']))
+                                    · سبک یادگیری: <span class="font-bold text-foreground">{{ $personality['vark']['profile'] }}</span>
+                                @endif
+                                @if(!empty($personality['custom']))
+                                    · {{ count($personality['custom']) }} تست اختصاصی تحلیل شد
+                                @endif
+                            @else
+                                تحلیلی در دسترس نیست.
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- برنامه کلاسی --}}
+                    <div class="bg-background border border-border rounded-xl p-4">
+                        <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            برنامه کلاسی مدرسه
+                        </div>
+                        <div class="text-[11px] text-muted leading-6">
+                            @if(!$this->needsSchedule)
+                                نیازی نبود — {{ $trialWeek?->isGraduate() ? 'فارغ‌التحصیل هستی' : 'فعلاً مدرسه نمی‌روی' }}.
+                            @elseif($this->classScheduleFinalized)
+                                <span class="text-emerald-500 font-bold">ثبت و نهایی شد ✓</span>
+                            @else
+                                هنوز نهایی نشده است.
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- دکمه ساخت برنامه --}}
             @if($trialWeek && $trialWeek->status === \App\Models\TrialWeek::STATUS_PRE_SESSION_DONE)
             <div class="bg-gradient-to-l from-primary/10 to-primary/5 border border-primary/30 rounded-2xl p-8 text-center">
@@ -186,6 +275,81 @@
             </div>
         </div>
     </div>
+    @endif
+
+    {{-- ═══════════ اورلی ساخت برنامه (۴۵ ثانیه) ═══════════ --}}
+    @if($programJustBuilt)
+    {{-- x-data به‌صورت اینلاین تا بعد از morph لایووایر هم اجرا شود --}}
+    <div class="fixed inset-0 z-[60] flex items-center justify-center p-4"
+         wire:key="build-overlay"
+         x-data="{
+            total: {{ \App\Livewire\Client\Profile\TrialWeek\SessionAnalysis::BUILD_OVERLAY_SECONDS }},
+            remaining: {{ \App\Livewire\Client\Profile\TrialWeek\SessionAnalysis::BUILD_OVERLAY_SECONDS }},
+            done: false,
+            msgIndex: 0,
+            messages: [
+                'تحلیل طبقه‌بندی دروس و مباحث ضعیف و قوی…',
+                'بررسی نیازمندی‌های پیش‌جلسه و پارت‌های درخواستی…',
+                'لحاظ کردن تیپ شخصیتی و سبک یادگیری تو…',
+                'چیدن پارت‌های مطالعه بر اساس اولویت دروس…',
+                'بهینه‌سازی نهایی برنامه‌ی ۸ روزه‌ی تو…',
+            ],
+            get elapsed() { return this.total - this.remaining; },
+            start() {
+                const tick = setInterval(() => {
+                    if (this.remaining <= 0) { clearInterval(tick); this.done = true; return; }
+                    this.remaining--;
+                    this.msgIndex = Math.min(this.messages.length - 1, Math.floor(this.elapsed / (this.total / this.messages.length)));
+                }, 1000);
+            },
+         }"
+         x-init="start()"
+        <div class="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
+
+        <div class="relative z-10 w-full max-w-md bg-background border border-border rounded-3xl shadow-2xl p-8 text-center">
+
+            {{-- فاز ۱: در حال ساخت --}}
+            <template x-if="!done">
+                <div>
+                    <div class="relative mx-auto w-24 h-24 mb-6">
+                        <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="44" fill="none" stroke="hsl(var(--border))" stroke-width="6"/>
+                            <circle cx="50" cy="50" r="44" fill="none" stroke="hsl(var(--primary))" stroke-width="6"
+                                    stroke-linecap="round" stroke-dasharray="276"
+                                    :stroke-dashoffset="276 - (276 * elapsed / total)"
+                                    style="transition: stroke-dashoffset 1s linear;"/>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center text-2xl">🛠️</div>
+                    </div>
+
+                    <h2 class="text-xl font-black text-foreground mb-2">در حال ساخت برنامه‌ی تو…</h2>
+                    <p class="text-muted text-sm leading-7 mb-4" x-text="messages[msgIndex]"></p>
+                    <div class="text-xs text-muted font-mono" x-text="remaining + ' ثانیه'"></div>
+                </div>
+            </template>
+
+            {{-- فاز ۲: ساخته شد --}}
+            <template x-if="done">
+                <div>
+                    <div class="mx-auto w-20 h-20 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center mb-5">
+                        <svg class="w-10 h-10 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+                    </div>
+                    <h2 class="text-xl font-black text-foreground mb-2">برنامه‌ی شما ساخته شد 🎉</h2>
+                    <p class="text-muted text-sm leading-7 mb-6">
+                        هفته‌ی آزمایشی ۸ روزه‌ات از همین حالا شروع شد.
+                        <br>
+                        <span class="font-bold text-foreground">آماده‌ای شروع کنیم؟</span>
+                    </p>
+                    <button wire:click="goToDashboard"
+                            wire:loading.attr="disabled" wire:target="goToDashboard"
+                            class="w-full py-3.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-black text-base shadow-lg shadow-primary/30 transition-all hover:-translate-y-0.5">
+                        بزن بریم! 🚀
+                    </button>
+                </div>
+            </template>
+        </div>
+    </div>
+
     @endif
 
 </div>

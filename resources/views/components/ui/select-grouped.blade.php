@@ -105,7 +105,7 @@
             'opacity-50 cursor-not-allowed': disabled,
             'cursor-pointer hover:border-blue-400 dark:hover:border-blue-500': !disabled,
         }"
-        class="w-full flex items-center justify-between gap-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 py-2.5 text-sm text-right shadow-sm outline-none transition-all duration-150"
+        class="w-full flex items-center justify-between gap-2 rounded-lg border border-gray-300  dark:border-gray-600 bg-secondary px-3 py-2.5 text-sm text-right shadow-sm outline-none transition-all duration-150"
     >
         <span
             :class="selectedLabel ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400 dark:text-gray-500'"
@@ -139,7 +139,7 @@
         x-transition:leave-start="opacity-100 translate-y-0 scale-100"
         x-transition:leave-end="opacity-0 -translate-y-1 scale-[0.98]"
         @click.outside="open = false"
-        class="absolute z-50 mt-1 w-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 shadow-xl shadow-black/10 dark:shadow-black/50"
+        class="absolute z-50 mt-1 w-full rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 bg-secondary shadow-xl shadow-black/10 dark:shadow-black/50"
     >
         @if($searchable)
             <div class="p-2 border-b border-gray-200 dark:border-gray-600">
