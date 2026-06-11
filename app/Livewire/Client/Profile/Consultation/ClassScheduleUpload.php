@@ -15,21 +15,21 @@ use Livewire\Component;
 class ClassScheduleUpload extends Component
 {
     use SEOTools;
-    // مودال انتخاب درس
+
     public bool $showModal = false;
     public ?int $selectedDay = null;
     public ?int $selectedPart = null;
     public ?int $selectedSubjectId = null;
     public bool $showFinalizeModal = false;
-    // وضعیت برنامه
+
     public ?int $classScheduleId = null;
     public bool $isFinalized = false;
 
-    // اطلاعات دانش‌آموز
     public ?string $studentGrade = null;
     public ?string $studentField = null;
 
-    // لیست درس‌ها
+    // subjects رو از property حذف کردیم — هر بار که modal باز میشه load میشه
+    // تا Livewire مجبور نباشه کل collection رو serialize کنه
     public $subjects = [];
 
     public function mount()
@@ -41,28 +41,23 @@ class ClassScheduleUpload extends Component
             return redirect()->route('client.profile.consultation.sessions');
         }
 
-        // بررسی وجود مشاور (دانش‌آموزان هفته آزمایشی هنوز مشاور ندارند و مجاز هستند)
         if (! $student->advisor_id && ! $student->is_trial) {
             session()->flash('error', 'برای دسترسی به این بخش باید مشاور داشته باشید.');
             return redirect()->route('client.profile.consultation.sessions');
         }
 
-        // دریافت اطلاعات شخصی
         $personalInfo = PersonalInformation::where('user_id', $user->id)->first();
         if ($personalInfo) {
             $this->studentGrade = $personalInfo->grade;
             $this->studentField = $personalInfo->field;
         }
 
-        // بارگذاری برنامه کلاسی موجود
         $schedule = ClassSchedule::where('student_id', $student->id)->latest()->first();
         if ($schedule) {
             $this->classScheduleId = $schedule->id;
             $this->isFinalized = $schedule->is_finalized;
         }
 
-        // بارگذاری درس‌ها بر اساس پایه و رشته
-        $this->loadSubjects();
         $this->seoConfig();
     }
 
@@ -70,6 +65,8 @@ class ClassScheduleUpload extends Component
     {
         $this->seo()->setTitle('برنامه هفتگی');
     }
+
+    // فقط موقع باز شدن modal صدا زده میشه
     protected function loadSubjects(): void
     {
         if (!$this->studentGrade || !$this->studentField) {
@@ -77,14 +74,10 @@ class ClassScheduleUpload extends Component
             return;
         }
 
-        // پیدا کردن cc_grade_id بر اساس grade_number (personal_information grade is '10','11','12')
         $gradeNumber = (int) $this->studentGrade;
-
-        // پیدا کردن cc_field بر اساس slug
         $fieldSlug = CcField::mapFromPersonalInfo($this->studentField);
         $field = $fieldSlug ? CcField::where('slug', $fieldSlug)->first() : null;
 
-        // یافتن تمام پایه‌های مطابق
         $grades = CcGrade::where('grade_number', $gradeNumber)
             ->where('is_active', true)
             ->pluck('id');
@@ -94,7 +87,6 @@ class ClassScheduleUpload extends Component
             return;
         }
 
-        // یافتن درس‌ها: عمومی + تخصصی مطابق رشته
         $query = CcSubject::whereIn('cc_grade_id', $grades);
 
         if ($field) {
@@ -111,7 +103,6 @@ class ClassScheduleUpload extends Component
     {
         $schedule = $this->classScheduleId ? ClassSchedule::find($this->classScheduleId) : null;
 
-        // بررسی ترتیب پر شدن: پارت قبلی باید پر شده باشد
         if ($partOrder > 1 && $schedule) {
             $previousPart = ClassSchedulePart::where('class_schedule_id', $schedule->id)
                 ->where('day_of_week', $dayOfWeek)
@@ -124,7 +115,9 @@ class ClassScheduleUpload extends Component
             }
         }
 
-        // بررسی اینکه قبلاً پر شده باشد (ویرایش)
+        // reset state قبل از set کردن مقادیر جدید
+        $this->selectedSubjectId = null;
+
         if ($schedule) {
             $existingPart = ClassSchedulePart::where('class_schedule_id', $schedule->id)
                 ->where('day_of_week', $dayOfWeek)
@@ -133,18 +126,26 @@ class ClassScheduleUpload extends Component
 
             if ($existingPart) {
                 $this->selectedSubjectId = $existingPart->cc_subject_id;
-            } else {
-                $this->selectedSubjectId = null;
             }
         }
 
+        // مهم: اول day و part رو set کن، بعد modal رو باز کن
         $this->selectedDay = $dayOfWeek;
         $this->selectedPart = $partOrder;
+
+        // درس‌ها رو load کن
+        $this->loadSubjects();
+
         $this->showModal = true;
     }
 
     public function savePart(): void
     {
+        // اطمینان از اینکه selectedDay و selectedPart null نیستن
+        if ($this->selectedDay === null || $this->selectedPart === null) {
+            $this->dispatch('warning', 'خطا: اطلاعات پارت مشخص نیست. دوباره امتحان کنید.');
+            return;
+        }
 
         if (!$this->selectedSubjectId) {
             $this->dispatch('warning', 'لطفاً یک درس انتخاب کنید.');
@@ -158,7 +159,6 @@ class ClassScheduleUpload extends Component
             return;
         }
 
-        // ساخت یا بازیابی برنامه کلاسی
         if (!$this->classScheduleId) {
             $schedule = ClassSchedule::create([
                 'student_id' => $student->id,
@@ -170,20 +170,23 @@ class ClassScheduleUpload extends Component
         $subject = CcSubject::find($this->selectedSubjectId);
         $lessonName = $subject ? $subject->name : '';
 
-        // ذخیره یا آپدیت پارت
         ClassSchedulePart::updateOrCreate(
             [
                 'class_schedule_id' => $this->classScheduleId,
-                'day_of_week' => $this->selectedDay,
-                'part_order' => $this->selectedPart,
+                'day_of_week'       => $this->selectedDay,
+                'part_order'        => $this->selectedPart,
             ],
             [
                 'cc_subject_id' => $this->selectedSubjectId,
-                'lesson_name' => $lessonName,
+                'lesson_name'   => $lessonName,
             ]
         );
 
+        // بستن modal و پاک کردن state
         $this->closeModal();
+
+        // dispatch به Alpine که مودال رو ببنده
+        $this->dispatch('close-part-modal');
         $this->dispatch('success', 'پارت با موفقیت ذخیره شد.');
     }
 
@@ -193,13 +196,11 @@ class ClassScheduleUpload extends Component
             return;
         }
 
-        // حذف همین پارت
         ClassSchedulePart::where('class_schedule_id', $this->classScheduleId)
             ->where('day_of_week', $dayOfWeek)
             ->where('part_order', $partOrder)
             ->delete();
 
-        // شیفت دادن پارت‌های بعدی به جلو
         $nextParts = ClassSchedulePart::where('class_schedule_id', $this->classScheduleId)
             ->where('day_of_week', $dayOfWeek)
             ->where('part_order', '>', $partOrder)
@@ -228,7 +229,6 @@ class ClassScheduleUpload extends Component
 
     public function openFinalizeModal(): void
     {
-
         if (!$this->classScheduleId) {
             $this->dispatch('warning', 'ابتدا باید حداقل یک پارت ثبت کنید.');
             return;
@@ -260,6 +260,7 @@ class ClassScheduleUpload extends Component
             $this->dispatch('warning', 'برای ثبت نهایی باید حداقل یک پارت ثبت شده باشد.');
             return;
         }
+
         $wasFinalized = (bool) $schedule->is_finalized;
         $schedule->update([
             'is_finalized' => true,
@@ -268,11 +269,11 @@ class ClassScheduleUpload extends Component
 
         $this->isFinalized = true;
         $this->showFinalizeModal = false;
+
         $this->dispatch('success', $wasFinalized
             ? 'تغییرات برنامه کلاسی با موفقیت به‌روزرسانی و نهایی شد.'
             : 'برنامه کلاسی با موفقیت نهایی شد.');
 
-        // دانش‌آموز آزمایشی: پیشروی خودکار + بازگشت به راهنما.
         $trial = \Illuminate\Support\Facades\Auth::user()?->trialWeek;
         if ($trial) {
             if ($trial->status === \App\Models\TrialWeek::STATUS_CLASSIFICATION_DONE
@@ -289,6 +290,7 @@ class ClassScheduleUpload extends Component
         $this->selectedDay = null;
         $this->selectedPart = null;
         $this->selectedSubjectId = null;
+        $this->subjects = [];
     }
 
     public function render()
@@ -296,9 +298,10 @@ class ClassScheduleUpload extends Component
         $user = auth()->user();
         $student = Student::with('user.personalInformation')->where('user_id', $user->id)->first();
 
-        $schedule = $this->classScheduleId ? ClassSchedule::with('parts')->find($this->classScheduleId) : null;
+        $schedule = $this->classScheduleId
+            ? ClassSchedule::with('parts')->find($this->classScheduleId)
+            : null;
 
-        // ساختن آرایه روزها و پارت‌ها
         $days = [];
         for ($d = 0; $d < 7; $d++) {
             $dayParts = [];
@@ -307,43 +310,38 @@ class ClassScheduleUpload extends Component
                     ? $schedule->parts->where('day_of_week', $d)->where('part_order', $p)->first()
                     : null;
 
-                if ($p === 1) {
-                    $isUnlocked = true;
-                } else {
-                    // پارت قبلی باید پر شده باشد
-                    $prevPart = $schedule
-                        ? $schedule->parts->where('day_of_week', $d)->where('part_order', $p - 1)->first()
-                        : null;
-                    $isUnlocked = $prevPart !== null;
-                }
+                $isUnlocked = $p === 1
+                    ? true
+                    : ($schedule
+                        ? $schedule->parts->where('day_of_week', $d)->where('part_order', $p - 1)->first() !== null
+                        : false);
 
                 $dayParts[] = [
-                    'order' => $p,
-                    'part' => $part,
-                    'is_unlocked' => $isUnlocked,
-                    'is_filled' => $part !== null,
+                    'order'      => $p,
+                    'part'       => $part,
+                    'is_unlocked'=> $isUnlocked,
+                    'is_filled'  => $part !== null,
                 ];
             }
 
             $filledCount = collect($dayParts)->where('is_filled', true)->count();
 
             $days[] = [
-                'day_of_week' => $d,
-                'name' => ClassSchedule::getDayName($d),
-                'parts' => $dayParts,
+                'day_of_week'  => $d,
+                'name'         => ClassSchedule::getDayName($d),
+                'parts'        => $dayParts,
                 'filled_count' => $filledCount,
                 'is_mandatory' => false,
-                'is_complete' => $filledCount > 0,
+                'is_complete'  => $filledCount > 0,
             ];
         }
 
-        // بررسی آیا ثبت نهایی ممکن است
         $canFinalize = $schedule ? $schedule->canFinalize() : false;
 
         return view('livewire.client.profile.consultation.class-schedule-upload', [
-            'student' => $student,
-            'schedule' => $schedule,
-            'days' => $days,
+            'student'     => $student,
+            'schedule'    => $schedule,
+            'days'        => $days,
             'canFinalize' => $canFinalize,
         ])->layout('layouts.client.app');
     }
