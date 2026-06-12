@@ -75,7 +75,7 @@
                             @if($currentSession && $currentProgram)
 
                                 {{-- Week Days Grid --}}
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                     @foreach($weekDays as $dayIndex => $day)
                                         <div wire:key="day-{{ $dayIndex }}"
                                              class="glass border rounded-2xl p-4 transition-colors
@@ -389,7 +389,7 @@
                  wire:click="closeReportModal"></div>
 
             <div class="relative z-10 w-full sm:max-w-2xl max-h-[85vh] sm:max-h-[88vh] overflow-hidden
-                         border-t glass sm:border border-border
+                          glass sm:border border-border
                         rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col
                         pb-[env(safe-area-inset-bottom,80px)] sm:pb-0
                         transition-all duration-300 ease-out
@@ -444,7 +444,7 @@
                                 <div wire:key="part-select-{{ $part->id }}"
                                      class="relative bg-background rounded-xl border-2 transition-all duration-200
                                      {{ $partIsRejected ? 'border-red-500 bg-red-50/30 dark:bg-red-900/10' : ($partIsSelected ? 'border-green-500 bg-green-50/50 dark:bg-green-900/10' : '') }}
-                                     {{ !$partHasStudyHours && !$partIsRejected ? 'border-red-300 dark:border-red-800 opacity-70' : (!$partIsSelected && !$partIsRejected ? 'border-transparent hover:-translate-y-px' : '') }}">
+                                     {{ !$partHasStudyHours && !$partIsRejected ? 'border-red-300 dark:border-red-800 opacity-70' : (!$partIsSelected && !$partIsRejected ? 'ransparent hover:-translate-y-px' : '') }}">
 
                                     @if($partIsRejected)
                                         <div class="flex items-center gap-2 px-3 sm:px-3.5 pt-2.5 pb-1">
@@ -533,7 +533,7 @@
                                     </div>
 
                                     @if($partIsSelected)
-                                        <div class="px-3 sm:px-3.5 pb-3 sm:pb-3.5 space-y-2.5 border-t border-border/50" wire:click.stop>
+                                        <div class="px-3 sm:px-3.5 pb-3 sm:pb-3.5 space-y-2.5  border-border/50" wire:click.stop>
 
                                             @if($part->test_count)
                                                 <div>
@@ -656,7 +656,7 @@
                 </div>
 
                 {{-- Footer --}}
-                <div class="shrink-0 bg-secondary border-t border-border px-4 sm:px-6 py-3 sm:py-4">
+                <div class="shrink-0 bg-secondary  border-border px-4 sm:px-6 py-3 sm:py-4">
                     <div class="flex items-center justify-end gap-2 sm:gap-3">
                         <button type="button" wire:click="closeReportModal"
                                 class="px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl border border-border text-foreground hover:bg-muted/50 transition-all text-sm sm:text-base font-medium">
@@ -688,7 +688,7 @@
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
                  wire:click="closeCompensatoryModal"></div>
 
-            <div class="relative z-10 w-full sm:max-w-2xl max-h-[90vh] overflow-hidden bg-secondary border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0">
+            <div class="relative z-10 w-full sm:max-w-2xl max-h-[90vh] overflow-hidden bg-secondary  sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0">
 
                 {{-- Mobile handle bar --}}
                 <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
@@ -725,7 +725,7 @@
                             <div wire:click="toggleCompensatoryPart({{ $missed['part']->id }})"
                                  wire:key="comp-part-{{ $missed['part']->id }}"
                                  class="p-4 bg-muted/30 rounded-xl transition-all duration-200
-                                 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'border-2 border-green-500 bg-green-50/50 dark:bg-green-900/10' : 'border-2 border-transparent' }}
+                                 {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'border-2 border-green-500 bg-green-50/50 dark:bg-green-900/10' : 'border-2 ransparent' }}
                                  {{ !$compPartHasStudyHours ? 'border-red-300 dark:border-red-800 opacity-70 cursor-not-allowed' : 'cursor-pointer hover:-translate-y-0.5' }}">
 
                                 @if(!$compPartHasStudyHours)
@@ -838,7 +838,7 @@
                 </div>
 
                 {{-- Footer --}}
-                <div class="sticky bottom-0 bg-secondary border-t border-border px-6 py-4 flex items-center justify-between">
+                <div class="sticky bottom-0 bg-secondary  border-border px-6 py-4 flex items-center justify-between">
                     <p class="text-sm text-muted">
                         انتخاب شده: <span class="font-medium text-green-600">{{ count($selectedCompensatoryParts) }}</span>
                         از <span class="font-medium">{{ count($missedParts) }}</span> پارت
@@ -877,7 +877,7 @@
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"
                  wire:click="closeReplyModal"></div>
 
-            <div class="relative z-10 w-full sm:max-w-lg glass border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0">
+            <div class="relative z-10 w-full sm:max-w-lg glass  sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0">
 
                 {{-- Mobile handle bar --}}
                 <div class="sm:hidden flex justify-center pt-3 pb-1 shrink-0">
@@ -933,7 +933,7 @@
                 </div>
 
                 {{-- Footer --}}
-                <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
+                <div class="flex items-center justify-end gap-3 px-6 py-4  border-border">
                     <button type="button" wire:click="closeReplyModal"
                             class="px-5 py-2.5 rounded-xl border border-border text-foreground hover:bg-muted/50 transition-all text-sm font-medium">
                         بستن

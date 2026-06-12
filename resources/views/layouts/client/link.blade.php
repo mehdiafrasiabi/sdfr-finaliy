@@ -49,18 +49,19 @@
 </style>
 <style>
     .glass {
-        position: relative; border-radius: 1rem;
+        position: relative;
+        /*border-radius: 1rem;*/
         background: linear-gradient(209deg, rgb(146 146 146 / 16%), rgb(0 0 0));
         -webkit-backdrop-filter: blur(16px) saturate(140%);
         backdrop-filter: blur(16px) saturate(140%);
-        border: 1px solid rgba(255,255,255,.09);
-        box-shadow: 0 10px 34px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.07);
+        /*border: 1px solid rgba(255,255,255,.09);*/
+        /*box-shadow: 0 10px 34px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.07);*/
         transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s;
     }
-    .glass:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 18px 46px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.10);
-    }
+    /*.glass:hover {*/
+    /*    transform: translateY(-4px);*/
+    /*    box-shadow: 0 18px 46px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.10);*/
+    /*}*/
 </style>
 <style>
     [x-cloak] { display: none !important; }

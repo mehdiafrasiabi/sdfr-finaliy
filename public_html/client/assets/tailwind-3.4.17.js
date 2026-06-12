@@ -522,6 +522,11 @@
                 900: "#831843",
                 950: "#500724"
             },
+            safelist: [
+                'border-r-blue-500',
+                'border-r-orange-500',
+                'border-r-green-500',
+            ],
             rose: {
                 50: "#fff1f2",
                 100: "#ffe4e6",

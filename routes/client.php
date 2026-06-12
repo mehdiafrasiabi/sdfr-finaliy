@@ -67,7 +67,6 @@ Route::name('client.')->group(function () {
     Route::get('/konkur', ExamCountdownIndex::class)->name('exam-countdown');
     Route::get('/percentCalculator', PercentCalculatorIndex::class)->name('percent-calculator');
 
-
     // ثبت‌نام فقط از طریق هفته آزمایشی
     Route::get('/start', TrialWeekOnboarding::class)->name('onboarding')->middleware('guest');
     Route::redirect('/sign-up', '/start')->name('auth.signup');

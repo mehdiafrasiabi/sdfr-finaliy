@@ -69,160 +69,158 @@
             <circle cx="40" cy="34" r="2.5" fill="rgba(255,255,255,.55)"/>
         </svg>
     </div>
+    @assets
+    <style>
+        /* ════════ SDFR Dashboard — Cosmic Glass UI ════════ */
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-    @push('link')
-        <style>
-            /* ════════ SDFR Dashboard — Cosmic Glass UI ════════ */
-            .scrollbar-hide::-webkit-scrollbar { display: none; }
-            .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        /* كارت carousel موبایل */
+        .program-carousel {
+            display: flex; gap: 12px; overflow-x: auto;
+            scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+            scrollbar-width: none; padding-left: 16px;
+        }
+        .program-carousel::-webkit-scrollbar { display: none; }
+        .program-carousel .program-card {
+            flex-shrink: 0; scroll-snap-align: start;
+            width: calc(75vw - 32px); max-width: 240px;
+        }
+        .program-scroll-desktop {
+            display: flex; gap: 12px; overflow-x: auto;
+            scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 4px;
+        }
+        .program-scroll-desktop::-webkit-scrollbar { display: none; }
 
-            /* كارت carousel موبایل */
-            .program-carousel {
-                display: flex; gap: 12px; overflow-x: auto;
-                scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-                scrollbar-width: none; padding-left: 16px;
-            }
-            .program-carousel::-webkit-scrollbar { display: none; }
-            .program-carousel .program-card {
-                flex-shrink: 0; scroll-snap-align: start;
-                width: calc(75vw - 32px); max-width: 240px;
-            }
-            .program-scroll-desktop {
-                display: flex; gap: 12px; overflow-x: auto;
-                scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 4px;
-            }
-            .program-scroll-desktop::-webkit-scrollbar { display: none; }
+        /* زاویه چرخان برای حاشیه‌ی کارت‌های زنده */
+        @property --sdfr-ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 
-            /* زاویه چرخان برای حاشیه‌ی کارت‌های زنده */
-            @property --sdfr-ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+        /* ───── پس‌زمینه کیهانی ───── */
+        .cosmic-bg {
+            position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+            background:
+                radial-gradient(1200px 600px at 80% -10%, rgba(56,189,248,.10), transparent 60%),
+                radial-gradient(900px 500px at 8% 110%, rgba(16,185,129,.10), transparent 60%),
+                linear-gradient(180deg, #070a12 0%, #0a0f1a 45%, #070a12 100%);
+        }
+        .cosmic-bg .twinkle {
+            position: absolute; width: 2px; height: 2px; border-radius: 50%;
+            background: #cbd5e1; opacity: .5; animation: tw 3s ease-in-out infinite;
+        }
+        @keyframes tw { 0%,100% { opacity: .15; } 50% { opacity: .7; } }
 
-            /* ───── پس‌زمینه کیهانی ───── */
-            .cosmic-bg {
-                position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
-                background:
-                    radial-gradient(1200px 600px at 80% -10%, rgba(56,189,248,.10), transparent 60%),
-                    radial-gradient(900px 500px at 8% 110%, rgba(16,185,129,.10), transparent 60%),
-                    linear-gradient(180deg, #070a12 0%, #0a0f1a 45%, #070a12 100%);
-            }
-            .cosmic-bg .twinkle {
-                position: absolute; width: 2px; height: 2px; border-radius: 50%;
-                background: #cbd5e1; opacity: .5; animation: tw 3s ease-in-out infinite;
-            }
-            @keyframes tw { 0%,100% { opacity: .15; } 50% { opacity: .7; } }
+        /* شهاب‌سنگ‌ها */
+        .comet { position: absolute; transform-origin: center; }
+        .comet .core {
+            position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff;
+            box-shadow: 0 0 8px 2px rgba(125,211,252,.9); opacity: 0;
+            animation: comet-fly var(--dur,8s) ease-in infinite; animation-delay: var(--delay,0s);
+        }
+        .comet .core::before {
+            content: ''; position: absolute; top: 50%; right: 3px;
+            width: 170px; height: 2px; transform: translateY(-50%); border-radius: 2px;
+            background: linear-gradient(to left, rgba(125,211,252,.95), rgba(125,211,252,0));
+        }
+        @keyframes comet-fly {
+            0%   { transform: translateX(0);                opacity: 0; }
+            3%   { opacity: 1; }
+            14%  { transform: translateX(var(--dist,1400px)); opacity: 0; }
+            100% { transform: translateX(var(--dist,1400px)); opacity: 0; }
+        }
 
-            /* شهاب‌سنگ‌ها */
-            .comet { position: absolute; transform-origin: center; }
-            .comet .core {
-                position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff;
-                box-shadow: 0 0 8px 2px rgba(125,211,252,.9); opacity: 0;
-                animation: comet-fly var(--dur,8s) ease-in infinite; animation-delay: var(--delay,0s);
-            }
-            .comet .core::before {
-                content: ''; position: absolute; top: 50%; right: 3px;
-                width: 170px; height: 2px; transform: translateY(-50%); border-radius: 2px;
-                background: linear-gradient(to left, rgba(125,211,252,.95), rgba(125,211,252,0));
-            }
-            @keyframes comet-fly {
-                0%   { transform: translateX(0);                opacity: 0; }
-                3%   { opacity: 1; }
-                14%  { transform: translateX(var(--dist,1400px)); opacity: 0; }
-                100% { transform: translateX(var(--dist,1400px)); opacity: 0; }
-            }
+        /* سفینه */
+        .spaceship {
+            position: fixed; left: 16px; bottom: 20px; z-index: 0; width: 78px; pointer-events: none;
+            animation: ship-float 7s ease-in-out infinite;
+            filter: drop-shadow(0 8px 22px rgba(56,189,248,.35));
+        }
+        @keyframes ship-float {
+            0%   { transform: translate(0,0) rotate(-4deg); }
+            25%  { transform: translate(16px,-12px) rotate(2deg); }
+            50%  { transform: translate(30px,-4px) rotate(-3deg); }
+            75%  { transform: translate(13px,-14px) rotate(3deg); }
+            100% { transform: translate(0,0) rotate(-4deg); }
+        }
+        .spaceship .flame {
+            transform-box: fill-box; transform-origin: 50% 0%;
+            animation: flame .18s ease-in-out infinite alternate;
+        }
+        @keyframes flame {
+            from { transform: scaleY(.7) scaleX(1);   opacity: .65; }
+            to   { transform: scaleY(1.3) scaleX(.85); opacity: 1; }
+        }
 
-            /* سفینه */
-            .spaceship {
-                position: fixed; left: 16px; bottom: 20px; z-index: 0; width: 78px; pointer-events: none;
-                animation: ship-float 7s ease-in-out infinite;
-                filter: drop-shadow(0 8px 22px rgba(56,189,248,.35));
-            }
-            @keyframes ship-float {
-                0%   { transform: translate(0,0) rotate(-4deg); }
-                25%  { transform: translate(16px,-12px) rotate(2deg); }
-                50%  { transform: translate(30px,-4px) rotate(-3deg); }
-                75%  { transform: translate(13px,-14px) rotate(3deg); }
-                100% { transform: translate(0,0) rotate(-4deg); }
-            }
-            .spaceship .flame {
-                transform-box: fill-box; transform-origin: 50% 0%;
-                animation: flame .18s ease-in-out infinite alternate;
-            }
-            @keyframes flame {
-                from { transform: scaleY(.7) scaleX(1);   opacity: .65; }
-                to   { transform: scaleY(1.3) scaleX(.85); opacity: 1; }
-            }
+        /* ───── کارت شیشه‌ای پایه ───── */
+        .glass {
+            position: relative; border-radius: 1rem;
+            background: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
+            -webkit-backdrop-filter: blur(16px) saturate(140%);
+            backdrop-filter: blur(16px) saturate(140%);
+            border: 1px solid rgba(255,255,255,.09);
+            box-shadow: 0 10px 34px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.07);
+            transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s;
+        }
+        .glass:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 46px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.10);
+        }
 
-            /* ───── کارت شیشه‌ای پایه ───── */
-            .glass {
-                position: relative; border-radius: 1rem;
-                background: linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
-                -webkit-backdrop-filter: blur(16px) saturate(140%);
-                backdrop-filter: blur(16px) saturate(140%);
-                border: 1px solid rgba(255,255,255,.09);
-                box-shadow: 0 10px 34px rgba(0,0,0,.40), inset 0 1px 0 rgba(255,255,255,.07);
-                transition: transform .35s cubic-bezier(.2,.8,.2,1), box-shadow .35s, border-color .35s;
-            }
-            .glass:hover {
-                transform: translateY(-4px);
-                box-shadow: 0 18px 46px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.10);
-            }
+        /* کارت‌های «زنده» → حاشیه نوری چرخان + نقطه ضربان‌دار */
+        .card-live::before {
+            content: ''; position: absolute; inset: -1px; border-radius: inherit;
+            padding: 1.4px; pointer-events: none;
+            background: conic-gradient(from var(--sdfr-ang),
+            transparent 0deg, transparent 250deg,
+            rgba(16,185,129,.9) 300deg, rgba(56,189,248,1) 330deg, transparent 360deg);
+            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+            mask-composite: exclude;
+            animation: sdfr-spin 4.5s linear infinite;
+        }
+        @keyframes sdfr-spin { to { --sdfr-ang: 360deg; } }
+        .live-dot {
+            width: 8px; height: 8px; border-radius: 50%; background: #34d399;
+            box-shadow: 0 0 0 0 rgba(52,211,153,.6); animation: pulse-dot 1.8s ease-out infinite;
+            flex-shrink: 0;
+        }
+        @keyframes pulse-dot {
+            0%   { box-shadow: 0 0 0 0 rgba(52,211,153,.55); }
+            70%  { box-shadow: 0 0 0 7px rgba(52,211,153,0); }
+            100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
+        }
 
-            /* کارت‌های «زنده» → حاشیه نوری چرخان + نقطه ضربان‌دار */
-            .card-live::before {
-                content: ''; position: absolute; inset: -1px; border-radius: inherit;
-                padding: 1.4px; pointer-events: none;
-                background: conic-gradient(from var(--sdfr-ang),
-                transparent 0deg, transparent 250deg,
-                rgba(16,185,129,.9) 300deg, rgba(56,189,248,1) 330deg, transparent 360deg);
-                -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-                -webkit-mask-composite: xor;
-                mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-                mask-composite: exclude;
-                animation: sdfr-spin 4.5s linear infinite;
-            }
-            @keyframes sdfr-spin { to { --sdfr-ang: 360deg; } }
-            .live-dot {
-                width: 8px; height: 8px; border-radius: 50%; background: #34d399;
-                box-shadow: 0 0 0 0 rgba(52,211,153,.6); animation: pulse-dot 1.8s ease-out infinite;
-                flex-shrink: 0;
-            }
-            @keyframes pulse-dot {
-                0%   { box-shadow: 0 0 0 0 rgba(52,211,153,.55); }
-                70%  { box-shadow: 0 0 0 7px rgba(52,211,153,0); }
-                100% { box-shadow: 0 0 0 0 rgba(52,211,153,0); }
-            }
+        /* کارت‌های «تحلیلی/داده» → بافت نقطه‌چین خنک، بدون چرخش */
+        .card-data {
+            background-image:
+                radial-gradient(rgba(56,189,248,.10) 1px, transparent 1.4px),
+                linear-gradient(135deg, rgba(56,189,248,.06), rgba(255,255,255,.02));
+            background-size: 16px 16px, 100% 100%;
+            border-color: rgba(56,189,248,.18);
+        }
+        .card-data::after {
+            content: ''; position: absolute; inset: 0; border-radius: inherit;
+            pointer-events: none; box-shadow: inset 0 0 0 1px rgba(56,189,248,.10);
+        }
 
-            /* کارت‌های «تحلیلی/داده» → بافت نقطه‌چین خنک، بدون چرخش */
-            .card-data {
-                background-image:
-                    radial-gradient(rgba(56,189,248,.10) 1px, transparent 1.4px),
-                    linear-gradient(135deg, rgba(56,189,248,.06), rgba(255,255,255,.02));
-                background-size: 16px 16px, 100% 100%;
-                border-color: rgba(56,189,248,.18);
-            }
-            .card-data::after {
-                content: ''; position: absolute; inset: 0; border-radius: inherit;
-                pointer-events: none; box-shadow: inset 0 0 0 1px rgba(56,189,248,.10);
-            }
+        /* چیپ آیکن شیشه‌ای */
+        .icon-chip {
+            width: 1.9rem; height: 1.9rem; border-radius: .6rem;
+            background: rgba(255,255,255,.05);
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
+            display: flex; align-items: center; justify-content: center;
+        }
 
-            /* چیپ آیکن شیشه‌ای */
-            .icon-chip {
-                width: 1.9rem; height: 1.9rem; border-radius: .6rem;
-                background: rgba(255,255,255,.05);
-                box-shadow: inset 0 0 0 1px rgba(255,255,255,.10);
-                display: flex; align-items: center; justify-content: center;
-            }
+        /* ورود مرحله‌ای کارت‌ها */
+        .rise { opacity: 0; animation: rise .6s cubic-bezier(.2,.8,.2,1) forwards; }
+        @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
 
-            /* ورود مرحله‌ای کارت‌ها */
-            .rise { opacity: 0; animation: rise .6s cubic-bezier(.2,.8,.2,1) forwards; }
-            @keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
-
-            @media (prefers-reduced-motion: reduce) {
-                .comet .core, .spaceship, .card-live::before, .twinkle, .spaceship .flame { animation: none !important; }
-                .rise { animation: none !important; opacity: 1; }
-            }
-        </style>
-    @endpush
-
+        @media (prefers-reduced-motion: reduce) {
+            .comet .core, .spaceship, .card-live::before, .twinkle, .spaceship .flame { animation: none !important; }
+            .rise { animation: none !important; opacity: 1; }
+        }
+    </style>
+    @endassets
     <div class="max-w-7xl mx-auto px-4 py-6 relative z-10">
         <div class="flex gap-6 items-start">
 

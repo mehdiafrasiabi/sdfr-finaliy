@@ -17,8 +17,8 @@
                             </div>
                             <div class="font-black text-foreground">افزودن برنامه کلاسی</div>
                             <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
-                               class="inline-flex items-center justify-center gap-x-1.5 h-10 bg-background border border-border rounded-full text-muted transition-colors hover:text-foreground px-6 ms-auto">
-                                <span class="font-semibold text-xs">بازگشت به اتاق مشاوره</span>
+                               class="inline-flex items-center justify-center gap-x-1.5 h-10 bg-secondary border border-border rounded-full text-muted transition-colors hover:text-foreground px-6 ms-auto">
+                                <span class="font-semibold text-xs">بازگشت</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      stroke-width="1.5" stroke="currentColor" class="size-5">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -43,33 +43,32 @@
                                         <p class="text-white/70 text-sm">پایه
                                             @if($student?->personal_info)
                                                 {{ $student->personal_info->grade == '10' ? 'دهم' : ($student->personal_info->grade == '11' ? 'یازدهم' : 'دوازدهم') }}
-                                                -
-                                                {{ $student->personal_info->field == 'math' ? 'ریاضی' : ($student->personal_info->field == 'experimental' ? 'تجربی' : 'انسانی') }}
+(
+                                                {{ $student->personal_info->field == 'math' ? 'ریاضی و فیزیک' : ($student->personal_info->field == 'experimental' ? 'علوم تجربی' : 'علوم انسانی') }}
+                                                )
                                             @endif
                                         </p>
                                     </div>
                                 </div>
 
                                 @if($isFinalized)
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-green-500/20 text-green-100 rounded-full text-sm font-semibold border border-green-400/30">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                             viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M5 13l4 4L19 7"/>
-                                        </svg>
-                                        نهایی شده
-                                    </span>
+                                    <span class="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 text-white rounded-full text-sm font-semibold border border-emerald-400 shadow-lg shadow-emerald-500/30">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5 13l4 4L19 7"/>
+        </svg>
+        نهایی شده
+    </span>
                                 @else
-                                    <span
-                                        class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500/20 text-amber-100 rounded-full text-sm font-semibold border border-amber-400/30">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
-                                             viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-                                        </svg>
-                                        در حال تکمیل
-                                    </span>
+                                    <span class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-white rounded-full text-sm font-semibold border border-amber-400 shadow-lg shadow-amber-500/30">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none"
+             viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+        </svg>
+        در حال تکمیل
+    </span>
                                 @endif
                             </div>
                         </div>
@@ -83,6 +82,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                           d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
+
                                 <div class="text-sm text-muted leading-relaxed space-y-1">
                                     <p>- تمام روزهای هفته اختیاری هستند و الزامی برای تکمیل شنبه تا چهارشنبه وجود
                                         ندارد.</p>
@@ -98,32 +98,15 @@
                         {{-- جدول برنامه کلاسی --}}
                         <div dir="rtl" class="space-y-4">
                             @foreach($days as $day)
-                                <div class="rounded-2xl border border-border  overflow-hidden">
+                                <div class="rounded-2xl  overflow-hidden">
 
                                     {{-- هدر روز --}}
                                     <div
-                                        class="flex items-center justify-between px-4 py-3 glass border-b border-border">
+                                        class="flex items-center justify-between px-4 py-3 bg-secondary mb-3">
                                         <div class="flex items-center gap-3">
-                                            <span class="inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-sm
-                                                {{ $day['is_complete']
-                                                    ? 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400'
-                                                    : ($day['is_mandatory']
-                                                        ? 'bg-primary/10 text-primary'
-                                                        : 'bg-muted/30 text-muted') }}">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none"
-                                                     viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                          stroke-width="2"
-                                                          d="M8 3v2m8-2v2M4 8h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z"/>
-                                                    <text x="12" y="17" text-anchor="middle" font-size="9.5"
-                                                          font-weight="800"
-                                                          fill="currentColor" stroke="none"
-                                                          font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial">{{ $day['day_of_week'] + 1 }}</text>
-                                                </svg>
-                                            </span>
+
                                             <div>
                                                 <span class="font-bold text-foreground">{{ $day['name'] }}</span>
-                                                <span class="text-xs text-muted mr-2">(اختیاری)</span>
                                             </div>
                                         </div>
                                         <div class="flex items-center gap-3">
@@ -145,14 +128,7 @@
                                                               stroke-width="2"
                                                               d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                                     </svg>
-                                                    حذف همه
                                                 </button>
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-green-500"
-                                                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                          stroke-width="2"
-                                                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                </svg>
                                             @endif
                                         </div>
                                     </div>
@@ -177,13 +153,7 @@
                                                                     پارت {{ $partInfo['order'] }}</div>
                                                                 <div
                                                                     class="font-bold text-sm text-foreground truncate">{{ $partInfo['part']->lesson_name }}</div>
-                                                                <svg xmlns="http://www.w3.org/2000/svg"
-                                                                     class="w-4 h-4 text-green-500 mx-auto mt-1"
-                                                                     fill="none" viewBox="0 0 24 24"
-                                                                     stroke="currentColor">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                          stroke-width="2" d="M5 13l4 4L19 7"/>
-                                                                </svg>
+
                                                             </button>
                                                             {{-- دکمه حذف تک پارت --}}
                                                             <button
@@ -196,8 +166,6 @@
                                                         <button
                                                             @click="$dispatch('open-part-modal', { day: {{ $day['day_of_week'] }}, part: {{ $partInfo['order'] }} })"
                                                             class="w-full rounded-xl border-2 border-dashed border-primary/40 bg-primary/5 p-3 text-center transition-all hover:border-primary hover:bg-primary/10 hover:shadow-md cursor-pointer">
-                                                            <div class="text-xs text-muted mb-1">
-                                                                پارت {{ $partInfo['order'] }}</div>
                                                             <svg xmlns="http://www.w3.org/2000/svg"
                                                                  class="w-6 h-6 text-primary mx-auto" fill="none"
                                                                  viewBox="0 0 24 24" stroke="currentColor">
@@ -220,7 +188,6 @@
                                                                       stroke-width="2"
                                                                       d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                                             </svg>
-                                                            <div class="text-xs text-muted mt-1">قفل</div>
                                                         </div>
                                                     @endif
                                                 </div>
@@ -273,9 +240,13 @@
                                             @endforeach
 
                                             @if($filledParts->isEmpty() && ($isFinalized || !$nextUnlocked))
-                                                <div class="w-full text-center py-3 text-xs text-muted">
-                                                    پارتی ثبت نشده
-                                                </div>
+                                                    <div class="w-full rounded-xl border border-border bg-secondary/50 p-3 text-center opacity-40">
+                                                        <div class="text-xs text-muted mb-1">
+                                                            پارتی وجود ندارد !</div>
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-muted mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                                        </svg>
+                                                    </div>
                                             @endif
                                         </div>
                                     </div>
@@ -289,10 +260,10 @@
                                     wire:loading.attr="disabled"
                                     wire:target="openFinalizeModal"
                                     @if(!$canFinalize) disabled @endif
-                                    class="inline-flex items-center gap-2 px-8 py-3 rounded-xl font-bold text-sm transition-colors
+                                    class="inline-flex  items-center gap-2 px-8 py-3  rounded-xl font-bold text-sm transition-colors
                                     {{ $canFinalize
-                                        ? 'bg-green-500 hover:bg-green-600 text-white shadow-lg shadow-green-500/30'
-                                        : 'bg-muted text-muted cursor-not-allowed' }}">
+                                        ? 'bg-primary hover:bg-blue-600 text-white shadow-lg shadow-green-500/30'
+                                        : 'bg-secondary  text-muted cursor-not-allowed' }}" >
                                 <span wire:loading wire:target="openFinalizeModal">
                                     <svg class="animate-spin w-5 h-5 text-white" xmlns="http://www.w3.org/2000/svg"
                                          fill="none" viewBox="0 0 24 24">
@@ -303,13 +274,9 @@
                                     </svg>
                                 </span>
                                 <span wire:loading.remove wire:target="openFinalizeModal">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none"
-                                         viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
+                                       ثبت نهایی
                                 </span>
-                                ثبت نهایی برنامه کلاسی
+
                             </button>
                         </div>
 
@@ -352,7 +319,7 @@
                  @click="close()"></div>
 
             <div
-                class="relative z-10 w-full sm:max-w-sm bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                class="relative z-10 w-full sm:max-w-sm bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl  sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
                 x-show="show"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-8"
@@ -379,10 +346,9 @@
                     <p class="text-sm text-muted">
                         آیا از حذف درس <span class="font-bold text-foreground" x-text="`«${name}»`"></span> مطمئنید؟
                     </p>
-                    <p class="text-xs text-muted mt-1">پارت‌های بعدی یک شماره به جلو شیفت می‌یابند.</p>
                 </div>
 
-                <div class="flex items-center gap-3 border-t border-border px-5 pb-5">
+                <div class="flex items-center gap-3  border-border px-5 pb-5">
                     <button @click="close()"
                             class="w-full rounded-xl border border-border py-2.5 px-4 text-sm font-semibold text-foreground
                                    bg-background dark:bg-zinc-900 hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors">
@@ -442,7 +408,7 @@
                  @click="close()"></div>
 
             <div
-                class="relative z-10 w-full sm:max-w-sm bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                class="relative z-10 w-full sm:max-w-sm bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl  sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
                 x-show="show"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-8"
@@ -471,10 +437,11 @@
                         <span class="font-bold text-foreground" x-text="`«${name}»`"></span>
                         مطمئنید؟
                     </p>
-                    <p class="text-xs text-muted mt-1">این عمل قابل بازگشت نیست.</p>
+                    <p class="text-xs  mt-3 text-red-500">این عمل قابل بازگشت نیست.</p>
+
                 </div>
 
-                <div class="flex items-center gap-3 border-t border-border px-5 pb-5">
+                <div class="flex items-center gap-3  border-border px-5 pb-5">
                     <button @click="close()"
                             class="w-full rounded-xl border border-border py-2.5 px-4 text-sm font-semibold text-foreground
                                    bg-background dark:bg-zinc-900 hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors">
@@ -519,7 +486,7 @@
                  @click="$wire.closeFinalizeModal()"></div>
 
             <div
-                class="relative z-10 w-full sm:max-w-md bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                class="relative z-10 w-full sm:max-w-md bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl  sm:border border-border shadow-2xl flex flex-col pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
                 x-show="finalizeOpen"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-8"
@@ -534,13 +501,13 @@
                 </div>
 
                 <div class="p-5 border-b border-border">
-                    <h3 class="font-bold text-foreground text-lg">تایید ثبت نهایی / به‌روزرسانی برنامه</h3>
+                    <h3 class="font-bold text-foreground text-lg">به‌روزرسانی برنامه</h3>
                 </div>
                 <div class="p-5 space-y-2 text-sm text-muted">
                     <p>آیا از ثبت نهایی برنامه کلاسی مطمئن هستید؟</p>
-                    <p>در آینده هم می‌توانید ویرایش کنید و دوباره ثبت نهایی بزنید.</p>
+                    <p class="text-primary">در آینده هم می‌توانید ویرایش کنید و دوباره ثبت نهایی بزنید.</p>
                 </div>
-                <div class="flex items-center gap-x-3 border-t border-border p-4 pb-safe">
+                <div class="flex items-center gap-x-3  border-border p-4 pb-safe">
                     <button wire:click="closeFinalizeModal"
                             wire:loading.attr="disabled"
                             wire:target="closeFinalizeModal"
@@ -551,7 +518,7 @@
                     <button wire:click="finalizeSchedule"
                             wire:loading.attr="disabled"
                             wire:target="finalizeSchedule"
-                            class="w-full rounded-xl bg-green-500 hover:bg-green-600 text-white py-3 px-4
+                            class="w-full rounded-xl bg-primary hover:bg-primary-600 text-white py-3 px-4
                                    transition-colors inline-flex items-center justify-center gap-2 text-sm font-semibold">
                         <span wire:loading wire:target="finalizeSchedule">
                             <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -597,7 +564,7 @@
                  @click="closePart()"></div>
 
             <div
-                class="relative z-10 w-full sm:max-w-md bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl border-t sm:border border-border shadow-2xl flex flex-col max-h-[90vh] pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
+                class="relative z-10 w-full sm:max-w-md bg-background dark:bg-zinc-900 rounded-t-3xl sm:rounded-2xl  sm:border border-border shadow-2xl flex flex-col max-h-[90vh] pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
                 x-show="partModalOpen"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 translate-y-8"
@@ -643,7 +610,7 @@
                                         <div class="flex items-center justify-between">
                                             <span>{{ $subject->name }}</span>
                                             <span
-                                                class="text-xs {{ $subject->type === 'general' ? 'text-blue-500' : 'text-orange-500' }}">
+                                                class="text-xs {{ $subject->type === 'general' ? 'text-blue-500' : 'text-orange-500' }} ">
                                                 {{ $subject->type === 'general' ? 'عمومی' : 'تخصصی' }}
                                             </span>
                                         </div>
@@ -664,7 +631,7 @@
                     </div>
                 </div>
 
-                <div class="shrink-0 flex items-center gap-x-4 border-t border-border p-4 pb-safe">
+                <div class="shrink-0 flex items-center gap-x-4  border-border p-4 pb-safe">
                     <button @click="closePart()"
                             class="flex items-center justify-center gap-x-2 w-full border border-border rounded-xl text-foreground py-3 px-4
                                    hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors text-sm font-semibold">

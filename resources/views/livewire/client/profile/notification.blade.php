@@ -19,23 +19,25 @@
                 </div>
 
                 <!-- تب‌های دسته‌بندی -->
-                <div class="flex flex-wrap gap-2" dir="rtl">
-                    @foreach($categories as $key => $label)
-                        <button
-                            wire:click="setCategory('{{ $key }}')"
-                            class="relative inline-flex items-center gap-2 px-3 md:px-4 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-medium transition-all
-                                {{ $activeCategory === $key
-                                    ? 'bg-primary text-primary-foreground shadow-md'
-                                    : 'bg-background border border-border text-foreground hover:bg-muted' }}">
-                            {{ $label }}
-                            @if(isset($unreadCounts[$key]) && $unreadCounts[$key] > 0)
-                                <span class="inline-flex items-center justify-center min-w-[18px] md:min-w-[20px] h-4 md:h-5 px-1 md:px-1.5 text-[10px] md:text-xs font-bold rounded-full
-                                    {{ $activeCategory === $key ? 'bg-red-500 text-white ' : 'bg-red-500 text-white' }}">
-                                    {{ $unreadCounts[$key] }}
-                                </span>
-                            @endif
-                        </button>
-                    @endforeach
+                <!-- تب‌های دسته‌بندی -->
+                <div class="flex justify-center md:justify-end" dir="rtl">
+                    <div class="inline-flex items-center gap-1 p-1 bg-background w rounded-full border border-border">
+                        @foreach($categories as $key => $label)
+                            <button
+                                wire:click="setCategory('{{ $key }}')"
+                                class="relative inline-flex items-center gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-medium transition-all
+                {{ $activeCategory === $key
+                    ? 'bg-secondary text-primary shadow-sm'
+                    : 'text-foreground/70 hover:text-foreground' }}">
+                                {{ $label }}
+                                @if(isset($unreadCounts[$key]) && $unreadCounts[$key] > 0)
+                                    <span class="inline-flex items-center justify-center min-w-[18px] h-4 px-1 text-[10px] font-bold rounded-full bg-red-500 text-white">
+                        {{ $unreadCounts[$key] }}
+                    </span>
+                                @endif
+                            </button>
+                        @endforeach
+                    </div>
                 </div>
 
                 <!-- لیست پیام‌ها -->
@@ -44,11 +46,11 @@
                         @php
                             $notif = $recipient->notification;
 
-                            $borderColors = [
-                                'announcement' => 'border-l-blue-500',
-                                'special'      => 'border-l-orange-500',
-                                'advisor'      => 'border-l-green-500',
-                            ];
+                                $borderColors = [
+                                    'announcement' => 'border-right: 4px solid #3b82f6;',
+                                    'special'      => 'border-right: 4px solid #f97316;',
+                                    'advisor'      => 'border-right: 4px solid #22c55e;',
+                                ];
                             $bgColors = [
                                 'announcement' => 'bg-blue-500/15',
                                 'special'      => 'bg-orange-100 dark:bg-orange-900/30',
@@ -72,34 +74,25 @@
                             $iconPath    = $icons[$cat]        ?? $icons['announcement'];
                         @endphp
 
-                        <div class="glass border border-border rounded-xl overflow-hidden border-l-4 {{ $borderColor }} transition-all hover:shadow-lg">
-                            <div class="p-4 md:p-5">
+                        <div class="glass border border-border rounded-xl overflow-hidden transition-all hover:shadow-lg" style="{{ $borderColor }}">
 
-                                {{--
-                                    ══════════════════════════════════════════════
-                                    دسکتاپ: یک ردیف افقی با items-center
-                                      راست ← عنوان + آیکون
-                                      چپ  ← دکمه + جدید + زمان
-                                    موبایل: دو ردیف
-                                      ردیف ۱: عنوان (راست) + آیکون (چپ)
-                                      ردیف ۲: جدید+زمان (راست) / دکمه full-width
-                                    ══════════════════════════════════════════════
-                                --}}
-
+                        <div class="p-4 md:p-5">
                                 {{-- ── دسکتاپ ── --}}
                                 <div class="hidden sm:flex items-center justify-between gap-4" dir="rtl">
 
                                     {{-- راست: آیکون + عنوان --}}
                                     <div class="flex items-center gap-3">
-                                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center {{ $bgColor }}">
+                                        <div
+                                                class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center {{ $bgColor }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                  stroke-width="1.5" stroke="currentColor"
                                                  class="w-5 h-5 {{ $iconColor }}">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="{{ $iconPath }}"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="{{ $iconPath }}"/>
                                             </svg>
                                         </div>
                                         <h3 class="font-bold text-sm md:text-base text-foreground">
-                                            {{ $categories[$cat] ?? 'اطلاعیه' }}{{ $cat === 'special' ? ' های SDFR' : '' }}
+                                            {{$notif->title}}
                                         </h3>
                                     </div>
 
@@ -111,16 +104,22 @@
                                                     wire:loading.attr="disabled"
                                                     wire:target="markAsRead({{ $recipient->id }})"
                                                     class="inline-flex items-center gap-1.5 px-3 md:px-4 py-1.5 md:py-2 bg-primary text-primary-foreground rounded-full text-xs font-medium hover:opacity-90 transition-opacity">
-                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3 md:w-4 md:h-4">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                     stroke-width="2" stroke="currentColor"
+                                                     class="w-3 h-3 md:w-4 md:h-4">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                          d="M4.5 12.75l6 6 9-13.5"/>
                                                 </svg>
-                                                <span wire:loading.remove wire:target="markAsRead({{ $recipient->id }})">خواندن</span>
-                                                <span wire:loading wire:target="markAsRead({{ $recipient->id }})" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
+                                                <span wire:loading.remove
+                                                      wire:target="markAsRead({{ $recipient->id }})">خواندن</span>
+                                                <span wire:loading wire:target="markAsRead({{ $recipient->id }})"
+                                                      class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin"></span>
                                             </button>
                                         @endif
 
                                         @if(!$recipient->is_read)
-                                            <span class="px-2 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full">جدید</span>
+                                            <span
+                                                    class="px-2 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full">جدید</span>
                                         @endif
 
                                         <span class="text-xs text-muted font-bold whitespace-nowrap " dir="rtl">
@@ -133,11 +132,13 @@
                                 <div class="sm:hidden" dir="rtl">
                                     {{-- ردیف ۱: آیکون + عنوان --}}
                                     <div class="flex items-center gap-3 mb-3">
-                                        <div class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center {{ $bgColor }}">
+                                        <div
+                                                class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center {{ $bgColor }}">
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                  stroke-width="1.5" stroke="currentColor"
                                                  class="w-4 h-4 {{ $iconColor }}">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="{{ $iconPath }}"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="{{ $iconPath }}"/>
                                             </svg>
                                         </div>
                                         <h3 class="font-bold text-sm text-foreground">
@@ -150,7 +151,8 @@
                                             {{ \Morilog\Jalali\Jalalian::fromDateTime($recipient->created_at)->ago() }}
                                         </span>
                                         @if(!$recipient->is_read)
-                                            <span class="px-2 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full">جدید</span>
+                                            <span
+                                                    class="px-2 py-0.5 text-[10px] font-bold bg-red-500 text-white rounded-full">جدید</span>
                                         @endif
                                     </div>
                                     {{-- ردیف ۳: دکمه full-width --}}
@@ -160,18 +162,23 @@
                                                 wire:target="markAsRead({{ $recipient->id }})"
                                                 class="w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 border-2 border-primary text-primary rounded-full text-xs font-bold hover:bg-primary hover:text-primary-foreground transition-all">
 
-                                            <span wire:loading.remove wire:target="markAsRead({{ $recipient->id }})">خواندن</span>
-                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/>
+                                            <svg wire:loading.remove wire:target="markAsRead({{ $recipient->id }})"
+                                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                                 stroke-width="2" stroke="currentColor" class="w-3 h-3 md:w-4 md:h-4">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                      d="M4.5 12.75l6 6 9-13.5"/>
                                             </svg>
-                                            <span wire:loading wire:target="markAsRead({{ $recipient->id }})" class="inline-block w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin"></span>
+                                            <span wire:loading.remove wire:target="markAsRead({{ $recipient->id }})">خواندن</span>
+
+                                            <span wire:loading wire:target="markAsRead({{ $recipient->id }})"
+                                                  class="inline-block w-3.5 h-3.5 rounded-full border-2 border-current border-t-transparent animate-spin"></span>
                                         </button>
                                     @endif
                                 </div>
 
                                 {{-- ═══ محتوای پیام ═══ --}}
-                                <div class="bg-muted rounded-xl p-4 md:p-5 border border-border mt-4" style="background-color: #2b2b31">
-                                    <p class="text-xs md:text-sm text-muted leading-relaxed text-right whitespace-pre-line">
+                                <div class="bg-secondary rounded-xl p-4 md:p-5 border border-border mt-4">
+                                    <p class="text-xs md:text-sm text-muted font-bold leading-relaxed text-right whitespace-pre-line">
                                         {{ $notif->body }}
                                     </p>
                                 </div>
@@ -186,7 +193,8 @@
                                  alt="پیامی وجود ندارد"/>
                             <div class="text-center space-y-2">
                                 <h2 class="font-bold text-lg md:text-xl text-foreground">پیامی وجود ندارد</h2>
-                                <p class="text-muted text-xs md:text-sm">در حال حاضر پیامی در این بخش برای شما وجود ندارد.</p>
+                                <p class="text-muted text-xs md:text-sm">در حال حاضر پیامی در این بخش برای شما وجود
+                                    ندارد.</p>
                             </div>
                         </div>
                     @endforelse

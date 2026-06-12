@@ -25,16 +25,6 @@ class plan extends Component
             ->setTitle('برنامه های مطالعاتی من')
             ->setDescription('برنامه های مطالعاتی من');
     }
-    public $expandedPrograms = [];
-
-    public function toggleDetails($programId)
-    {
-        if (in_array($programId, $this->expandedPrograms)) {
-            $this->expandedPrograms = array_diff($this->expandedPrograms, [$programId]);
-        } else {
-            $this->expandedPrograms[] = $programId;
-        }
-    }
     public function render()
     {
         $user = Auth::user();

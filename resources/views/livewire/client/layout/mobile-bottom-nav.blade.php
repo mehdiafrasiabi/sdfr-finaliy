@@ -12,7 +12,7 @@
     </style>
 
     @if(\Illuminate\Support\Facades\Auth::check() && (request()->is('profile*') || request()->routeIs('client.profile.*')))
-        @if(!request()->routeIs('client.profile.classification.classify') and !request()->routeIs('client.profile.assessment.*') and !request()->routeIs('client.profile.trial.*'))
+        @if(!request()->routeIs(['client.profile.classification.classify','client.profile.assessment.*','client.profile.trial.*','client.profile.essay-exam.test','client.profile.essay-exam.test','client.profile.typed-exam.test'])))
             <div x-data="{
                 headerOpen: false,
                 unreadCount: {{ $unreadCount }},
