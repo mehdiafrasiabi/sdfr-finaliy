@@ -57,34 +57,6 @@
     }
 }" x-init="init()" class="min-h-screen bg-background">
 
-    @assets
-        <style>
-            [x-cloak] { display: none !important; }
-            .timer-blur-glass {
-                filter: blur(6px);
-                -webkit-backdrop-filter: blur(8px);
-                backdrop-filter: blur(8px);
-                background-color: rgba(15, 23, 42, 0.35);
-                border-radius: 1rem;
-                pointer-events: none;
-                user-select: none;
-                transition: all 0.2s ease-in-out;
-            }
-            .prose img { max-width: 100%; height: auto; border-radius: 0.5rem; }
-            .prose table { width: 100%; border-collapse: collapse; }
-            .prose table th, .prose table td { border: 1px solid #e5e7eb; padding: 0.5rem; }
-            .exam-question-img {
-                display: block;
-                width: 100%;
-                height: auto;
-                max-width: 100%;
-                object-fit: contain;
-                image-rendering: -webkit-optimize-contrast;
-                image-rendering: crisp-edges;
-            }
-        </style>
-
-    @endassets
 
     <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
@@ -123,7 +95,7 @@
                                           :class="showTimer ? 'translate-x-[22px]' : 'translate-x-[2px]'"></span>
                                 </span>
                             </button>
-                            <span class="text-xs sm:text-sm text-muted">مشاهده زمان</span>
+                            <span class="text-xs sm:text-sm text-muted" x-text="showTimer ? 'عدم مشاهده زمان' : 'مشاهده زمان'">مشاهده زمان</span>
                         </div>
                     </div>
 
@@ -210,7 +182,7 @@
                     {{-- توگل نمایش: همه سوالات / یک به یک --}}
                     <div class="max-w-5xl mx-auto mb-4 flex items-center justify-end gap-2" dir="rtl">
                         <span class="text-xs text-muted">نمایش:</span>
-                        <div class="inline-flex items-center gap-1 p-1 bg-secondary border border-border rounded-full">
+                        <div class="inline-flex items-center gap-1 p-1 bg-secondary/60 border border-border rounded-full">
                             <button type="button" @click="pagedMode = false"
                                     :class="!pagedMode ? 'bg-background text-primary shadow-sm' : 'text-foreground/70 hover:text-foreground'"
                                     class="px-3 py-1 rounded-full text-xs font-medium transition-all">
@@ -607,4 +579,31 @@
         </div>
     </div>
 
+    @push('link')
+        <style>
+            [x-cloak] { display: none !important; }
+            .timer-blur-glass {
+                filter: blur(6px);
+                -webkit-backdrop-filter: blur(8px);
+                backdrop-filter: blur(8px);
+                background-color: rgba(15, 23, 42, 0.35);
+                border-radius: 1rem;
+                pointer-events: none;
+                user-select: none;
+                transition: all 0.2s ease-in-out;
+            }
+            .prose img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+            .prose table { width: 100%; border-collapse: collapse; }
+            .prose table th, .prose table td { border: 1px solid #e5e7eb; padding: 0.5rem; }
+            .exam-question-img {
+                display: block;
+                width: 100%;
+                height: auto;
+                max-width: 100%;
+                object-fit: contain;
+                image-rendering: -webkit-optimize-contrast;
+                image-rendering: crisp-edges;
+            }
+        </style>
+    @endpush
 </div>

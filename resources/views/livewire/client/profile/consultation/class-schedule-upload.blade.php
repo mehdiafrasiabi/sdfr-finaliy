@@ -599,20 +599,69 @@
                     {{-- Content --}}
                     <div wire:loading.remove wire:target="openPartModal">
                         @if(count($subjects) > 0)
-                            <p class="text-sm text-muted mb-3">یک درس را انتخاب کنید:</p>
+                            @php
+                                $maxSelectable = \App\Models\ClassSchedule::MAX_PARTS_PER_DAY - ($selectedPart ?? 1) + 1;
+                                $selectedCount = count($selectedSubjectIds);
+                            @endphp
+
+                            {{-- هدر: راهنما + شمارنده --}}
+                            <div class="flex items-center justify-between mb-3 gap-2">
+                                <p class="text-sm text-muted">یک یا چند درس انتخاب کنید:</p>
+                                <span class="shrink-0 text-xs px-2.5 py-1 rounded-full font-bold
+                {{ $selectedCount > 0 ? 'bg-primary/10 text-primary' : 'bg-secondary text-muted' }}">
+                {{ $selectedCount }} از {{ $maxSelectable }}
+            </span>
+                            </div>
+
+                            @if($selectedCount >= $maxSelectable)
+                                <div class="mb-3 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-300 text-xs">
+                                    به حداکثر تعداد قابل انتخاب رسیدید.
+                                </div>
+                            @endif
+
                             <div class="space-y-2">
                                 @foreach($subjects as $subject)
-                                    <button wire:click="$set('selectedSubjectId', {{ $subject->id }})"
-                                            class="w-full text-right px-4 py-3 rounded-xl border transition-all
-                                            {{ $selectedSubjectId == $subject->id
-                                                ? 'border-primary bg-primary/10 text-primary font-bold'
-                                                : 'border-border bg-background dark:bg-zinc-900 hover:border-primary/40 hover:bg-primary/5 text-foreground' }}">
-                                        <div class="flex items-center justify-between">
-                                            <span>{{ $subject->name }}</span>
-                                            <span
-                                                class="text-xs {{ $subject->type === 'general' ? 'text-blue-500' : 'text-orange-500' }} ">
-                                                {{ $subject->type === 'general' ? 'عمومی' : 'تخصصی' }}
-                                            </span>
+                                    @php
+                                        $isSelected = in_array($subject->id, $selectedSubjectIds);
+                                        $orderIndex = $isSelected ? array_search($subject->id, $selectedSubjectIds) : null;
+                                        $assignedPart = $isSelected ? ($selectedPart + $orderIndex) : null;
+                                    @endphp
+
+                                    <button wire:click="toggleSubject({{ $subject->id }})"
+                                            wire:loading.attr="disabled"
+                                            wire:target="toggleSubject"
+                                            class="w-full text-right px-3 py-3 rounded-xl border transition-all
+                        {{ $isSelected
+                            ? 'border-primary bg-primary/10 text-primary font-bold'
+                            : 'border-border bg-background dark:bg-zinc-900 hover:border-primary/40 hover:bg-primary/5 text-foreground' }}">
+                                        <div class="flex items-center justify-between gap-3">
+                                            {{-- چپ‌چین: تیک + نام --}}
+                                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                            <span class="flex-shrink-0 w-5 h-5 rounded-md border-2 flex items-center justify-center transition-colors
+                                   {{ $isSelected
+                                       ? 'bg-primary border-primary'
+                                       : 'border-border bg-background dark:bg-zinc-900' }}">
+                                @if($isSelected)
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-white"
+                                         fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                    </svg>
+                                @endif
+                            </span>
+                                                <span class="truncate text-sm">{{ $subject->name }}</span>
+                                            </div>
+
+                                            {{-- راست‌چین: شماره پارت اختصاص‌یافته + نوع --}}
+                                            <div class="flex items-center gap-2 shrink-0">
+                                                @if($isSelected)
+                                                    <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-primary text-white font-bold">
+                                    پارت {{ $assignedPart }}
+                                </span>
+                                                @endif
+                                                <span class="text-[11px] {{ $subject->type === 'general' ? 'text-blue-500' : 'text-orange-500' }}">
+                                {{ $subject->type === 'general' ? 'عمومی' : 'تخصصی' }}
+                            </span>
+                                            </div>
                                         </div>
                                     </button>
                                 @endforeach
@@ -624,40 +673,38 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                           d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
                                 </svg>
-                                <p class="text-muted text-sm">درسی یافت نشد. لطفاً اطلاعات شخصی (پایه و رشته) خود را
-                                    تکمیل کنید.</p>
+                                <p class="text-muted text-sm">درسی یافت نشد. لطفاً اطلاعات شخصی (پایه و رشته) خود را تکمیل کنید.</p>
                             </div>
                         @endif
                     </div>
                 </div>
 
-                <div class="shrink-0 flex items-center gap-x-4  border-border p-4 pb-safe">
+                <div class="shrink-0 flex items-center gap-x-4 border-border p-4 pb-safe">
                     <button @click="closePart()"
                             class="flex items-center justify-center gap-x-2 w-full border border-border rounded-xl text-foreground py-3 px-4
-                                   hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors text-sm font-semibold">
+                   hover:bg-muted/50 dark:hover:bg-zinc-800 transition-colors text-sm font-semibold">
                         انصراف
                     </button>
                     <button wire:click="savePart"
                             wire:loading.attr="disabled"
                             wire:target="savePart"
-                            @if(!$selectedSubjectId) disabled @endif
+                            @if(empty($selectedSubjectIds)) disabled @endif
                             class="flex items-center justify-center gap-x-2 w-full rounded-xl py-3 px-4 transition-colors
-                            {{ $selectedSubjectId
-                                ? 'bg-primary hover:bg-primary/90'
-                                : 'bg-muted cursor-not-allowed' }}">
-                        <span wire:loading wire:target="savePart">
-                            <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                 viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                        stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                            </svg>
-                        </span>
-                        <span wire:loading.remove wire:target="savePart"
-                              class="font-bold text-sm text-white">ذخیره</span>
+            {{ !empty($selectedSubjectIds)
+                ? 'bg-primary hover:bg-primary/90'
+                : 'bg-muted cursor-not-allowed' }}">
+        <span wire:loading wire:target="savePart">
+            <svg class="animate-spin w-4 h-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+        </span>
+                        <span wire:loading.remove wire:target="savePart" class="font-bold text-sm text-white">
+            ذخیره @if(count($selectedSubjectIds) > 1) ({{ count($selectedSubjectIds) }} پارت) @endif
+        </span>
                     </button>
                 </div>
+
             </div>
         </div>
     </div>

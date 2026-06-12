@@ -5,31 +5,7 @@
      x-init="init()"
      @contextmenu.prevent
      class="min-h-screen bg-background" dir="rtl">
-    {{-- ════════════════════════════════════════
-             استایل‌ها
-           ════════════════════════════════════════ --}}
-    @push('link')
-        <style>
-            [x-cloak] { display: none !important; }
-            .no-screenshot {
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                user-select: none;
-                -webkit-touch-callout: none;
-            }
-            .timer-blur-glass {
-                filter: blur(6px);
-                -webkit-backdrop-filter: blur(8px);
-                backdrop-filter: blur(8px);
-                background-color: rgba(15, 23, 42, 0.35);
-                border-radius: 1rem;
-                pointer-events: none;
-                user-select: none;
-                transition: all 0.2s ease-in-out;
-            }
-            @media print { body { display: none !important; } }
-        </style>
-    @endpush
+
     {{-- ════════════════════════════════════════
          اوورلی سیاه امنیتی — کل صفحه را می‌پوشاند
          زمانی که اسکرین‌شات/تغییر تب/پرینت تشخیص داده شود
@@ -99,7 +75,7 @@
                                       :class="showTimer ? 'translate-x-[22px]' : 'translate-x-[2px]'"></span>
                             </span>
                         </button>
-                        <span class="text-xs sm:text-sm text-muted">مشاهده زمان</span>
+                        <span class="text-xs sm:text-sm text-muted" x-text="showTimer ? 'عدم مشاهده زمان' : 'مشاهده زمان'">مشاهده زمان</span>
                     </div>
 
                     {{-- باکس‌های زمان --}}
@@ -439,159 +415,181 @@
         </div>
     </div>
 
+    {{-- ════════════════════════════════════════
+         استایل‌ها
+       ════════════════════════════════════════ --}}
+    @push('link')
+        <style>
+            [x-cloak] { display: none !important; }
+            .no-screenshot {
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                user-select: none;
+                -webkit-touch-callout: none;
+            }
+            .timer-blur-glass {
+                filter: blur(6px);
+                -webkit-backdrop-filter: blur(8px);
+                backdrop-filter: blur(8px);
+                background-color: rgba(15, 23, 42, 0.35);
+                border-radius: 1rem;
+                pointer-events: none;
+                user-select: none;
+                transition: all 0.2s ease-in-out;
+            }
+            @media print { body { display: none !important; } }
+        </style>
+    @endpush
 
-
-    @push('script')
-        {{-- ════════════════════════════════════════
+    {{-- ════════════════════════════════════════
          اسکریپت Alpine
        ════════════════════════════════════════ --}}
-        <script>
-            function essayExamApp(config) {
-                return {
-                    // Timer
-                    remaining: config.remainingSeconds,
-                    showTimer: false,
+    <script>
+        function essayExamApp(config) {
+            return {
+                // Timer
+                remaining: config.remainingSeconds,
+                showTimer: false,
 
-                    // PDF
-                    zoom: 1,
-                    pdfBaseUrl: config.pdfUrl,
+                // PDF
+                zoom: 1,
+                pdfBaseUrl: config.pdfUrl,
 
-                    // Security
-                    securityActive: false,
+                // Security
+                securityActive: false,
 
-                    // Modals
-                    showSubmitModal: false,
-                    showImageModal: false,
-                    viewingImageUrl: '',
-                    confirmDelete: null,
+                // Modals
+                showSubmitModal: false,
+                showImageModal: false,
+                viewingImageUrl: '',
+                confirmDelete: null,
 
-                    // Upload
-                    stagedPreviews: [],
-                    isUploading: false,
-                    uploadProgress: 0,
+                // Upload
+                stagedPreviews: [],
+                isUploading: false,
+                uploadProgress: 0,
 
-                    get pdfSrc() {
-                        if (!this.pdfBaseUrl) return '';
-                        const zoomVal = Math.round(this.zoom * 100);
-                        return `${this.pdfBaseUrl}#toolbar=0&navpanes=0&scrollbar=1&zoom=${zoomVal}`;
-                    },
+                get pdfSrc() {
+                    if (!this.pdfBaseUrl) return '';
+                    const zoomVal = Math.round(this.zoom * 100);
+                    return `${this.pdfBaseUrl}#toolbar=0&navpanes=0&scrollbar=1&zoom=${zoomVal}`;
+                },
 
-                    init() {
-                        this.startTimer();
-                        this.setupSecurity();
+                init() {
+                    this.startTimer();
+                    this.setupSecurity();
 
-                        // پاک کردن پیشنمایش‌ها بعد از موفقیت آپلود
-                        this.$wire.on('photos-uploaded', () => {
-                            this.clearStaged();
-                            this.isUploading = false;
-                            this.uploadProgress = 0;
-                        });
-                    },
-
-                    // ─── Timer ───
-                    startTimer() {
-                        if (window._essayTimer) clearInterval(window._essayTimer);
-                        window._essayTimer = setInterval(() => {
-                            if (this.remaining > 0) {
-                                this.remaining--;
-                            } else {
-                                clearInterval(window._essayTimer);
-                                this.$wire.submitExam();
-                            }
-                        }, 1000);
-                    },
-
-                    formatTime() {
-                        const r = Math.max(0, this.remaining);
-                        return {
-                            hours: Math.floor(r / 3600).toString().padStart(2, '0'),
-                            minutes: Math.floor((r % 3600) / 60).toString().padStart(2, '0'),
-                            seconds: (r % 60).toString().padStart(2, '0'),
-                        };
-                    },
-
-                    // ─── Zoom ───
-                    zoomIn() {
-                        this.zoom = Math.min(2, Math.round((this.zoom + 0.25) * 100) / 100);
-                    },
-                    zoomOut() {
-                        this.zoom = Math.max(0.5, Math.round((this.zoom - 0.25) * 100) / 100);
-                    },
-                    resetZoom() {
-                        this.zoom = 1;
-                    },
-
-                    // ─── Security ───
-                    setupSecurity() {
-                        const trigger = () => { this.securityActive = true; };
-
-                        if (window._essaySecurity) {
-                            document.removeEventListener('visibilitychange', window._essaySecurity.vis);
-                            window.removeEventListener('blur', window._essaySecurity.blur);
-                            document.removeEventListener('keydown', window._essaySecurity.key);
-                            window.removeEventListener('beforeprint', window._essaySecurity.print);
-                        }
-
-                        window._essaySecurity = {
-                            vis: () => { if (document.hidden) trigger(); },
-                            blur: trigger,
-                            key: (e) => {
-                                if (e.key === 'PrintScreen') {
-                                    trigger();
-                                    navigator.clipboard?.writeText('').catch(() => {});
-                                }
-                                // Mac: Cmd+Shift+3,4,5
-                                if ((e.metaKey || e.ctrlKey) && e.shiftKey) {
-                                    if (['3', '4', '5', 'S', 's'].includes(e.key)) {
-                                        trigger();
-                                    }
-                                }
-                            },
-                            print: trigger,
-                        };
-
-                        document.addEventListener('visibilitychange', window._essaySecurity.vis);
-                        window.addEventListener('blur', window._essaySecurity.blur);
-                        document.addEventListener('keydown', window._essaySecurity.key);
-                        window.addEventListener('beforeprint', window._essaySecurity.print);
-                    },
-
-                    // ─── File Upload ───
-                    onFileSelect(event) {
-                        const files = Array.from(event.target.files || []);
+                    // پاک کردن پیشنمایش‌ها بعد از موفقیت آپلود
+                    this.$wire.on('photos-uploaded', () => {
                         this.clearStaged();
-                        this.stagedPreviews = files.map(f => ({
-                            name: f.name,
-                            url: URL.createObjectURL(f),
-                        }));
-                        this.isUploading = true;
+                        this.isUploading = false;
                         this.uploadProgress = 0;
-                    },
+                    });
+                },
 
-                    onUploadFinish() {
-                        // فایل‌ها در temp storage آماده‌اند؛ پردازش سرور را شروع کن
-                        this.$wire.uploadPhotos();
-                    },
-
-                    clearStaged() {
-                        this.stagedPreviews.forEach(p => URL.revokeObjectURL(p.url));
-                        this.stagedPreviews = [];
-                        if (this.$refs.fileInput) {
-                            this.$refs.fileInput.value = '';
+                // ─── Timer ───
+                startTimer() {
+                    if (window._essayTimer) clearInterval(window._essayTimer);
+                    window._essayTimer = setInterval(() => {
+                        if (this.remaining > 0) {
+                            this.remaining--;
+                        } else {
+                            clearInterval(window._essayTimer);
+                            this.$wire.submitExam();
                         }
-                    },
+                    }, 1000);
+                },
 
-                    // ─── Image Modal ───
-                    viewImage(url) {
-                        this.viewingImageUrl = url;
-                        this.showImageModal = true;
-                    },
-                    closeImage() {
-                        this.showImageModal = false;
-                        this.viewingImageUrl = '';
-                    },
-                };
-            }
-        </script>
-    @endpush
+                formatTime() {
+                    const r = Math.max(0, this.remaining);
+                    return {
+                        hours: Math.floor(r / 3600).toString().padStart(2, '0'),
+                        minutes: Math.floor((r % 3600) / 60).toString().padStart(2, '0'),
+                        seconds: (r % 60).toString().padStart(2, '0'),
+                    };
+                },
+
+                // ─── Zoom ───
+                zoomIn() {
+                    this.zoom = Math.min(2, Math.round((this.zoom + 0.25) * 100) / 100);
+                },
+                zoomOut() {
+                    this.zoom = Math.max(0.5, Math.round((this.zoom - 0.25) * 100) / 100);
+                },
+                resetZoom() {
+                    this.zoom = 1;
+                },
+
+                // ─── Security ───
+                setupSecurity() {
+                    const trigger = () => { this.securityActive = true; };
+
+                    if (window._essaySecurity) {
+                        document.removeEventListener('visibilitychange', window._essaySecurity.vis);
+                        window.removeEventListener('blur', window._essaySecurity.blur);
+                        document.removeEventListener('keydown', window._essaySecurity.key);
+                        window.removeEventListener('beforeprint', window._essaySecurity.print);
+                    }
+
+                    window._essaySecurity = {
+                        vis: () => { if (document.hidden) trigger(); },
+                        blur: trigger,
+                        key: (e) => {
+                            if (e.key === 'PrintScreen') {
+                                trigger();
+                                navigator.clipboard?.writeText('').catch(() => {});
+                            }
+                            // Mac: Cmd+Shift+3,4,5
+                            if ((e.metaKey || e.ctrlKey) && e.shiftKey) {
+                                if (['3', '4', '5', 'S', 's'].includes(e.key)) {
+                                    trigger();
+                                }
+                            }
+                        },
+                        print: trigger,
+                    };
+
+                    document.addEventListener('visibilitychange', window._essaySecurity.vis);
+                    window.addEventListener('blur', window._essaySecurity.blur);
+                    document.addEventListener('keydown', window._essaySecurity.key);
+                    window.addEventListener('beforeprint', window._essaySecurity.print);
+                },
+
+                // ─── File Upload ───
+                onFileSelect(event) {
+                    const files = Array.from(event.target.files || []);
+                    this.clearStaged();
+                    this.stagedPreviews = files.map(f => ({
+                        name: f.name,
+                        url: URL.createObjectURL(f),
+                    }));
+                    this.isUploading = true;
+                    this.uploadProgress = 0;
+                },
+
+                onUploadFinish() {
+                    // فایل‌ها در temp storage آماده‌اند؛ پردازش سرور را شروع کن
+                    this.$wire.uploadPhotos();
+                },
+
+                clearStaged() {
+                    this.stagedPreviews.forEach(p => URL.revokeObjectURL(p.url));
+                    this.stagedPreviews = [];
+                    if (this.$refs.fileInput) {
+                        this.$refs.fileInput.value = '';
+                    }
+                },
+
+                // ─── Image Modal ───
+                viewImage(url) {
+                    this.viewingImageUrl = url;
+                    this.showImageModal = true;
+                },
+                closeImage() {
+                    this.showImageModal = false;
+                    this.viewingImageUrl = '';
+                },
+            };
+        }
+    </script>
 </div>

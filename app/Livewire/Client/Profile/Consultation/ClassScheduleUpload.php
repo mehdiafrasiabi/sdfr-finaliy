@@ -19,7 +19,10 @@ class ClassScheduleUpload extends Component
     public bool $showModal = false;
     public ?int $selectedDay = null;
     public ?int $selectedPart = null;
-    public ?int $selectedSubjectId = null;
+
+    /** @var array<int> آی‌دی درس‌های انتخاب‌شده — به ترتیب کلیک */
+    public array $selectedSubjectIds = [];
+
     public bool $showFinalizeModal = false;
 
     public ?int $classScheduleId = null;
@@ -28,8 +31,6 @@ class ClassScheduleUpload extends Component
     public ?string $studentGrade = null;
     public ?string $studentField = null;
 
-    // subjects رو از property حذف کردیم — هر بار که modal باز میشه load میشه
-    // تا Livewire مجبور نباشه کل collection رو serialize کنه
     public $subjects = [];
 
     public function mount()
@@ -66,7 +67,6 @@ class ClassScheduleUpload extends Component
         $this->seo()->setTitle('برنامه هفتگی');
     }
 
-    // فقط موقع باز شدن modal صدا زده میشه
     protected function loadSubjects(): void
     {
         if (!$this->studentGrade || !$this->studentField) {
@@ -115,9 +115,10 @@ class ClassScheduleUpload extends Component
             }
         }
 
-        // reset state قبل از set کردن مقادیر جدید
-        $this->selectedSubjectId = null;
+        // ریست انتخاب‌ها قبل از set کردن
+        $this->selectedSubjectIds = [];
 
+        // اگر این پارت قبلاً پر شده، درس فعلی‌اش به‌عنوان انتخاب اولیه
         if ($schedule) {
             $existingPart = ClassSchedulePart::where('class_schedule_id', $schedule->id)
                 ->where('day_of_week', $dayOfWeek)
@@ -125,30 +126,47 @@ class ClassScheduleUpload extends Component
                 ->first();
 
             if ($existingPart) {
-                $this->selectedSubjectId = $existingPart->cc_subject_id;
+                $this->selectedSubjectIds = [$existingPart->cc_subject_id];
             }
         }
 
-        // مهم: اول day و part رو set کن، بعد modal رو باز کن
         $this->selectedDay = $dayOfWeek;
         $this->selectedPart = $partOrder;
 
-        // درس‌ها رو load کن
         $this->loadSubjects();
-
         $this->showModal = true;
+    }
+
+    /**
+     * تغییر وضعیت انتخاب یک درس (toggle)
+     */
+    public function toggleSubject(int $subjectId): void
+    {
+        if (in_array($subjectId, $this->selectedSubjectIds, true)) {
+            // اگر انتخاب بود، حذفش کن (و ایندکس‌ها رو reset کن)
+            $this->selectedSubjectIds = array_values(array_diff($this->selectedSubjectIds, [$subjectId]));
+            return;
+        }
+
+        // محدودیت: تعداد انتخاب نمی‌تواند از اسلات‌های باقی‌مانده بیشتر شود
+        $availableSlots = ClassSchedule::MAX_PARTS_PER_DAY - ($this->selectedPart ?? 1) + 1;
+        if (count($this->selectedSubjectIds) >= $availableSlots) {
+            $this->dispatch('warning', 'حداکثر ' . $availableSlots . ' درس می‌توانید برای این روز انتخاب کنید.');
+            return;
+        }
+
+        $this->selectedSubjectIds[] = $subjectId;
     }
 
     public function savePart(): void
     {
-        // اطمینان از اینکه selectedDay و selectedPart null نیستن
         if ($this->selectedDay === null || $this->selectedPart === null) {
             $this->dispatch('warning', 'خطا: اطلاعات پارت مشخص نیست. دوباره امتحان کنید.');
             return;
         }
 
-        if (!$this->selectedSubjectId) {
-            $this->dispatch('warning', 'لطفاً یک درس انتخاب کنید.');
+        if (empty($this->selectedSubjectIds)) {
+            $this->dispatch('warning', 'لطفاً حداقل یک درس انتخاب کنید.');
             return;
         }
 
@@ -167,27 +185,42 @@ class ClassScheduleUpload extends Component
             $this->classScheduleId = $schedule->id;
         }
 
-        $subject = CcSubject::find($this->selectedSubjectId);
-        $lessonName = $subject ? $subject->name : '';
+        $savedCount = 0;
 
-        ClassSchedulePart::updateOrCreate(
-            [
-                'class_schedule_id' => $this->classScheduleId,
-                'day_of_week'       => $this->selectedDay,
-                'part_order'        => $this->selectedPart,
-            ],
-            [
-                'cc_subject_id' => $this->selectedSubjectId,
-                'lesson_name'   => $lessonName,
-            ]
-        );
+        // هر درس انتخاب‌شده به‌ترتیب در یک پارت متوالی ذخیره می‌شود
+        foreach ($this->selectedSubjectIds as $i => $subjectId) {
+            $partOrder = $this->selectedPart + $i;
 
-        // بستن modal و پاک کردن state
+            if ($partOrder > ClassSchedule::MAX_PARTS_PER_DAY) {
+                break;
+            }
+
+            $subject = CcSubject::find($subjectId);
+            if (!$subject) continue;
+
+            ClassSchedulePart::updateOrCreate(
+                [
+                    'class_schedule_id' => $this->classScheduleId,
+                    'day_of_week'       => $this->selectedDay,
+                    'part_order'        => $partOrder,
+                ],
+                [
+                    'cc_subject_id' => $subjectId,
+                    'lesson_name'   => $subject->name,
+                ]
+            );
+
+            $savedCount++;
+        }
+
         $this->closeModal();
-
-        // dispatch به Alpine که مودال رو ببنده
         $this->dispatch('close-part-modal');
-        $this->dispatch('success', 'پارت با موفقیت ذخیره شد.');
+        $this->dispatch(
+            'success',
+            $savedCount === 1
+                ? 'پارت با موفقیت ذخیره شد.'
+                : $savedCount . ' پارت با موفقیت ذخیره شدند.'
+        );
     }
 
     public function deletePart(int $dayOfWeek, int $partOrder): void
@@ -289,7 +322,7 @@ class ClassScheduleUpload extends Component
         $this->showModal = false;
         $this->selectedDay = null;
         $this->selectedPart = null;
-        $this->selectedSubjectId = null;
+        $this->selectedSubjectIds = [];
         $this->subjects = [];
     }
 

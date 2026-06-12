@@ -51,6 +51,7 @@
     .glass {
         position: relative;
         /*border-radius: 1rem;*/
+        z-index: 1;
         background: linear-gradient(209deg, rgb(146 146 146 / 16%), rgb(0 0 0));
         -webkit-backdrop-filter: blur(16px) saturate(140%);
         backdrop-filter: blur(16px) saturate(140%);

@@ -97,7 +97,7 @@
 
         /* ───── پس‌زمینه کیهانی ───── */
         .cosmic-bg {
-            position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+            position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none;
             background:
                 radial-gradient(1200px 600px at 80% -10%, rgba(56,189,248,.10), transparent 60%),
                 radial-gradient(900px 500px at 8% 110%, rgba(16,185,129,.10), transparent 60%),
@@ -130,7 +130,7 @@
 
         /* سفینه */
         .spaceship {
-            position: fixed; left: 16px; bottom: 20px; z-index: 0; width: 78px; pointer-events: none;
+            position: fixed; left: 16px; bottom: 20px; z-index: -1; width: 78px; pointer-events: none;
             animation: ship-float 7s ease-in-out infinite;
             filter: drop-shadow(0 8px 22px rgba(56,189,248,.35));
         }
