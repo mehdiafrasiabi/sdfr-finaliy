@@ -88,6 +88,11 @@ Route::name('client.')->group(function () {
         Route::get('/{slug}/take', AssessmentTake::class)->name('take');
     });
 
+    Route::prefix('parent/portal')->name('parent.portal.')->group(function () {
+        Route::get('/login', \App\Livewire\Client\Parent\ParentLogin::class)->name('login');
+        Route::get('/dashboard', \App\Livewire\Client\Parent\ParentDashboard::class)->name('dashboard');
+    });
+
     // مسیر عمومی تست‌های والدینی — بدون auth، با token validation داخل خود components
     Route::prefix('parent/assessment')->name('parent.assessment.')->group(function () {
         Route::get('/{token}', ParentAssessmentEntry::class)->name('entry');
