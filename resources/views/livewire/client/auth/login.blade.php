@@ -104,14 +104,6 @@
                     </button>
                 </div>
 
-                <div class="flex items-center gap-3 mb-5">
-                    <div class="flex items-center gap-1">
-                        <div class="w-1 h-1 bg-foreground rounded-full"></div>
-                        <div class="w-2 h-2 bg-foreground rounded-full"></div>
-                    </div>
-                    <div class="font-black text-foreground">ورود به پرتال</div>
-                </div>
-
                 <!-- Password Login -->
                 @if($loginMethod === 'password')
                     <form wire:submit.prevent="loginWithPassword" class="space-y-5">

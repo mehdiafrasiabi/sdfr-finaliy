@@ -360,24 +360,24 @@
             </a>
         </li>
 
-        <li>
-            <a wire:navigate href="{{route('client.profile.star')}}"
-               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.star') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     viewBox="0 0 20 20"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="1.5"
-                     class="w-5 h-5">
+{{--        <li>--}}
+{{--            <a wire:navigate href="{{route('client.profile.star')}}"--}}
+{{--               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.star') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">--}}
+{{--                <svg xmlns="http://www.w3.org/2000/svg"--}}
+{{--                     viewBox="0 0 20 20"--}}
+{{--                     fill="none"--}}
+{{--                     stroke="currentColor"--}}
+{{--                     stroke-width="1.5"--}}
+{{--                     class="w-5 h-5">--}}
 
-                    <path stroke-linecap="round"
-                          stroke-linejoin="round"
-                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 0 0 .95.69h4.154c.969 0 1.371 1.24.588 1.81l-3.36 2.441a1 1 0 0 0-.364 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.36-2.441a1 1 0 0 0-1.175 0l-3.36 2.441c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 0 0-.364-1.118L2.49 9.377c-.783-.57-.38-1.81.588-1.81h4.154a1 1 0 0 0 .95-.69l1.287-3.95Z"/>
-                </svg>
+{{--                    <path stroke-linecap="round"--}}
+{{--                          stroke-linejoin="round"--}}
+{{--                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 0 0 .95.69h4.154c.969 0 1.371 1.24.588 1.81l-3.36 2.441a1 1 0 0 0-.364 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.36-2.441a1 1 0 0 0-1.175 0l-3.36 2.441c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 0 0-.364-1.118L2.49 9.377c-.783-.57-.38-1.81.588-1.81h4.154a1 1 0 0 0 .95-.69l1.287-3.95Z"/>--}}
+{{--                </svg>--}}
 
-                <span class="font-semibold text-xs">ستاره ها (بزودی)</span>
-            </a>
-        </li>
+{{--                <span class="font-semibold text-xs">ستاره ها (بزودی)</span>--}}
+{{--            </a>--}}
+{{--        </li>--}}
         <li>
             <a wire:navigate href="{{route('client.profile.edit')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.edit') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
@@ -392,7 +392,7 @@
         </li>
         <li>
             <a href="{{route('client.logout')}}"
-               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.logout') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
+               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.logout') ? 'bg-red-500 text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-red-500 hover:text-primary-foreground px-4' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                      stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                     <path stroke-linecap="round" stroke-linejoin="round"

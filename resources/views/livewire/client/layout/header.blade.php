@@ -154,9 +154,6 @@
                                         </svg>
                                     </span>
                                 </button>
-
-
-                                <!-- Profile Dropdown Menu - Desktop - طراحی ساده مطابق تصویر -->
                                 <div class="absolute left-0 pt-3 z-50"
                                      x-show="desktopProfileOpen"
                                      x-cloak

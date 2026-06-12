@@ -1,7 +1,5 @@
 <div>
     @assets
-    <!-- Tom Select CSS -->
-    {{--        <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">--}}
     <style>
         .tom-select .ts-control {
             background: hsl(var(--secondary)) !important;
