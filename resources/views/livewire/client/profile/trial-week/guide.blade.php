@@ -207,7 +207,7 @@
             $progressPct = ($trialWeek->step / 4) * 100;
             // step = مرحله‌ای که «انجام شده»؛ عنوان باید کارِ بعدیِ کاربر را بگوید.
             $stepTitles = [
-                0 => 'در حال تخصیص مشاور جذب',
+                0 => 'در حال تخصیص مشاور تخصصی',
                 1 => 'نوبت طبقه‌بندی دروس',
                 2 => 'نوبت نیازمندی‌های برنامه',
                 3 => 'نوبت ساخت برنامه',
@@ -242,7 +242,7 @@
                 @php
                     $miniSteps = [
                         ['t' => 'ثبت‌نام',    'done' => $trialWeek->step >= 0],
-                        ['t' => 'مشاور جذب', 'done' => $trialWeek->step >= 1],
+                        ['t' => 'مشاور متخصص', 'done' => $trialWeek->step >= 1],
                         ['t' => 'طبقه‌بندی',  'done' => $trialWeek->step >= 2],
                         ['t' => 'نیازمندی‌ها', 'done' => $trialWeek->step >= 3],
                         ['t' => 'برنامه',     'done' => $trialWeek->step >= 4],
@@ -303,12 +303,12 @@
                                         <span class="text-[10px] font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded-full px-2 py-0.5">در حال انجام</span>
                                     @endif
                                 </div>
-                                <h3 class="font-black text-foreground">مشاور جذب شما</h3>
+                                <h3 class="font-black text-foreground">مشاور متخصص شما</h3>
                             </div>
                         </div>
 
                         @if($s1done && $this->consultant)
-                            {{-- کارت مشاور جذب: عکس + نام + تلفن --}}
+                            {{-- کارت مشاور متخصص: عکس + نام + تلفن --}}
                             <div class="mt-3 rounded-xl border border-emerald-500/25 bg-background p-4 flex items-center gap-3.5">
                                 @if($this->consultant['avatar'])
                                     <img src="{{ $this->consultant['avatar'] }}" alt="{{ $this->consultant['name'] }}"
@@ -337,15 +337,15 @@
                         @elseif($s1done)
                             <p class="text-sm text-emerald-600 dark:text-emerald-400 font-semibold mt-2 flex items-center gap-1.5">
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                فرایند جذب شما آغاز شد — مشاور جذب به‌زودی معرفی می‌شود.
+                                فرایند متخصص شما آغاز شد — مشاور متخصص به‌زودی معرفی می‌شود.
                             </p>
                         @else
                             <p class="text-sm text-muted leading-7 mt-2">
-                                درخواستت ثبت شد. سیستم در حال انتخاب مشاور جذب مناسب برای توست.
+                                درخواستت ثبت شد. سیستم در حال انتخاب مشاور متخصص مناسب برای توست.
                             </p>
                             <div class="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10">
                                 <span class="live-dot w-1.5 h-1.5 rounded-full bg-amber-500 text-amber-500"></span>
-                                <span class="text-xs font-bold text-amber-600 dark:text-amber-400">در انتظار تخصیص مشاور جذب</span>
+                                <span class="text-xs font-bold text-amber-600 dark:text-amber-400">در انتظار تخصیص مشاور متخصص</span>
                             </div>
                         @endif
                     </div>
@@ -483,7 +483,7 @@
                                 {{-- پیش‌جلسه --}}
                                 <div class="rounded-xl border border-border bg-background p-3 flex flex-col gap-2">
                                     <div class="flex items-center justify-between gap-2">
-                                        <span class="text-xs font-bold text-foreground">پیش‌جلسه</span>
+                                        <span class="text-xs font-bold text-foreground">مواردی که پیش از نوشتن برنامه مورد توجه قرار میگیره</span>
                                         @if($this->preSessionCompleted)
                                             <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 rounded-full px-2 py-0.5 inline-flex items-center gap-1">
                                                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
@@ -497,7 +497,7 @@
                                         <a wire:navigate
                                            href="{{ route('client.profile.consultation.pre-session', $trialWeek->advising_session_id) }}"
                                            class="press btn-primary inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold w-full">
-                                            رفتن به پیش‌جلسه
+                                             ادامه
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M19 12H5M12 19l-7-7 7-7"/>
                                             </svg>
@@ -523,7 +523,7 @@
                                     @if(!$this->needsSchedule)
                                         <p class="text-[11px] text-muted leading-5">
                                             {{ $trialWeek->isGraduate() ? 'چون فارغ‌التحصیل هستی' : 'چون فعلاً مدرسه نمی‌روی' }}،
-                                            نیازی به پر کردن برنامه کلاسی نداری و این مرحله خودکار رد می‌شود.
+                                            نیازی به پر کردن برنامه کلاسی نداری .
                                         </p>
                                     @elseif($s3active && !$this->classScheduleFinalized)
                                         <a wire:navigate
@@ -579,20 +579,19 @@
                                 </div>
                                 <h3 class="font-black text-foreground">ورود به جلسه و ساخت برنامه</h3>
                             </div>
-
-                            @if($s4active)
-                                <a wire:navigate href="{{ route('client.profile.trial.session-analysis') }}"
-                                   class="press btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold">
-                                    ورود به جلسه
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M19 12H5M12 19l-7-7 7-7"/>
-                                    </svg>
-                                </a>
-                            @endif
                         </div>
                         <p class="text-sm text-muted leading-7 mt-2">
-                            وضعیت تو تحلیل می‌شود و یک برنامه‌ی مطالعاتی شخصی بر اساس طبقه‌بندی و پیش‌جلسه برایت ساخته می‌شود.
+                            وضعیت تو تحلیل می‌شود و یک برنامه‌ی مطالعاتی شخصی برایت ساخته می‌شود.
                         </p>
+                        @if($s4active)
+                            <a wire:navigate href="{{ route('client.profile.trial.session-analysis') }}"
+                               class="press btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold">
+                                ورود به جلسه
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                                </svg>
+                            </a>
+                        @endif
                     </div>
                 </div>
 
@@ -704,7 +703,7 @@
     {{-- ════════════════ تور راهنمای صفحه ════════════════ --}}
     <x-client.page-tour storage-key="trial_guide_tour_done" :steps="[
         ['el' => '[data-tour=progress]', 'title' => 'نوار پیشرفت هفته آزمایشی', 'text' => 'از اینجا می‌بینی الان در کدام مرحله‌ای و چند درصد مسیر را رفته‌ای.'],
-        ['el' => '[data-tour=step1]',    'title' => 'مشاور جذب تو', 'text' => 'مشخصات مشاور جذبت اینجاست؛ در طول هفته‌ی آزمایشی همراهت است و می‌توانی باهاش تماس بگیری.'],
+        ['el' => '[data-tour=step1]',    'title' => 'مشاور متخصص تو', 'text' => 'مشخصات مشاور متخصصت اینجاست؛ در طول هفته‌ی آزمایشی همراهت است و می‌توانی باهاش تماس بگیری.'],
         ['el' => '[data-tour=step2]',    'title' => 'طبقه‌بندی مباحث', 'text' => 'وضعیت تسلطت روی هر درس را مشخص می‌کنی تا برنامه دقیقاً بر اساس نقاط ضعف و قوتت ساخته شود.'],
         ['el' => '[data-tour=step3]',    'title' => 'نیازمندی‌های برنامه', 'text' => 'پیش‌جلسه (امتحان‌ها، پارت درخواستی و…) و در صورت نیاز برنامه کلاسی مدرسه را اینجا تکمیل می‌کنی.'],
         ['el' => '[data-tour=step4]',    'title' => 'ساخت برنامه', 'text' => 'بعد از تکمیل مراحل، وارد جلسه می‌شوی، کارنامه‌ی تحلیلی‌ات را می‌بینی و برنامه‌ی اختصاصی‌ات ساخته می‌شود.'],

@@ -1,5 +1,5 @@
 <div>
-    @assets
+    @push('link')
         <style>
             .grid-figma {
                 background-image:
@@ -35,8 +35,8 @@
             .train-border {
                 position: relative;
                 border-radius: 1.5rem;
-                --bw: 2px;
-                --speed: 3s;
+                --bw: 3px;
+                --speed: 9s;
             }
             .train-border::before {
                 content: '';
@@ -162,7 +162,8 @@
                 * { animation: none !important; transition: none !important; }
             }
         </style>
-    @endassets
+    @endpush
+
 
     @php
         $gradeLabels = ['9'=>'نهم','10'=>'دهم','11'=>'یازدهم','12'=>'دوازدهم','graduate'=>'فارغ‌التحصیل'];
@@ -176,16 +177,22 @@
         $cityOptions  = collect($cities)->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values()->all();
 
         $features = [
-            ['t' => 'برنامه‌ی هفتگی اختصاصی', 'd' => 'مشاور متخصص برای شما برنامه می‌نویسد', 'icon' => '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'],
-            ['t' => 'گزارش لحظه‌ای پیشرفت',   'd' => 'هر روز عملکرد خودتو رصد می‌کنید',     'icon' => '<line x1="3" y1="3" x2="3" y2="21"/><line x1="3" y1="21" x2="21" y2="21"/><polyline points="7 16 11 12 15 16 21 10"/>'],
-            ['t' => 'تایمر هوشمند مطالعه',   'd' => 'ساعت مفید مطالعه‌ی هر درس را ثبت کنید', 'icon' => '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'],
-            ['t' => 'آزمون‌های آنلاین',       'd' => 'سنجش مرحله‌ای با بازخورد تخصصی',       'icon' => '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'],
+            ['t' => 'برنامه‌ی هفتگی اختصاصی', 'd' => 'مشاور متخصص برای تو برنامه می‌نویسه', 'icon' => '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'],
+            ['t' => 'گزارش لحظه‌ای پیشرفت',   'd' => 'هر روز عملکرد خودتو رصد می‌کنی',     'icon' => '<line x1="3" y1="3" x2="3" y2="21"/><line x1="3" y1="21" x2="21" y2="21"/><polyline points="7 16 11 12 15 16 21 10"/>'],
+            ['t' => 'تایمر هوشمند مطالعه',   'd' => 'ساعت مفید مطالعه‌ی هر درس رو ثبت می کنی', 'icon' => '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>'],
+            ['t' => 'آزمون‌های آنلاین اختصاصی',       'd' => 'آزمون های تشریحی و تستی متناسب با سطح تو',       'icon' => '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>'],
             ['t' => 'اتاق مشاوره',           'd' => 'ارتباط مستقیم با مشاور تخصصی',         'icon' => '<path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8z"/>'],
             ['t' => 'کارنامه و آزمون',       'd' => 'کارنامه‌ی ماهانه با نمودار پیشرفت',     'icon' => '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'],
         ];
 
         // ═══ SVG fallbacks for hero illustrations (replace lottie)
-        $svgWelcome = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-primary anim-float"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1 2.7 2.4 6 2.4s6-1.4 6-2.4v-5"/><path d="M22 10v6"/></svg>';
+$svgWelcome = '
+<img
+    src="/client/assets/images/theme/intro/header.png"
+    alt="logo"
+    class="anim-float mx-auto block w- md:w-40 h-auto"
+    style="margin-top:20px"
+/>';
         $svgOtp     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-primary anim-float"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>';
         $svgSuccess = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-emerald-500 anim-pop"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>';
     @endphp
@@ -253,9 +260,6 @@
                                 <div class="glass-card rounded-3xl p-6 text-center">
                                     <div class="inline-block w-36 h-36 mb-3">{!! $svgWelcome !!}</div>
 
-                                    <h1 class="font-black text-2xl leading-tight mb-3">
-                                        به <span class="text-primary">SDFR</span> خوش آمدید
-                                    </h1>
                                     <p class="text-muted text-sm leading-7 mb-6">
                                         پلتفرم هوشمند پایش مطالعه و مشاوره‌ی تخصصی.
                                         در کمتر از ۲ دقیقه حساب‌تون ساخته می‌شه.
@@ -296,7 +300,6 @@
                                         </div>
                                         <div>
                                             <h2 class="font-black text-lg">اطلاعات شخصی</h2>
-                                            <p class="text-[11px] text-muted">اسمتو فارسی وارد کن</p>
                                         </div>
                                     </div>
 
@@ -451,11 +454,6 @@
                                                     <svg x-show="showPw" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                                                 </button>
                                             </div>
-                                            <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-                                                <span class="text-[10px] text-muted">قدرت:</span>
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded transition-colors"
-                                                      :class="$wire.passwordStrength?.length ? 'bg-emerald-500/15 text-emerald-500' : 'bg-secondary text-muted'">۸+ کاراکتر</span>
-                                            </div>
                                             @error('password')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
 
@@ -531,24 +529,16 @@
                                     <div class="text-center mb-6">
                                         <div class="inline-block w-28 h-28 mb-2">{!! $svgSuccess !!}</div>
                                         <h2 class="font-black text-2xl mb-2">حساب شما ساخته شد</h2>
-                                        <p class="text-sm text-muted leading-6">قدم بعدی: آزمون شخصیت‌شناسی — تا بهترین برنامه برایت طراحی بشه.</p>
+                                        <p class="text-sm text-muted leading-6">قدم بعدی: آزمون شخصیت‌شناسی
+                                            <br>
+                                            تا بهترین برنامه واست طراحی بشه.</p>
                                     </div>
 
                                     <button type="button" wire:click="startAssessments" wire:loading.attr="disabled" wire:target="startAssessments"
                                             class="accent-card accent-emerald w-full rounded-2xl p-5 text-right hover:-translate-y-0.5 transition-transform">
-                                        <div class="inline-flex items-center gap-1.5 text-xs font-bold accent-icon accent-emerald rounded-full px-2.5 py-1 mb-3">
-                                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                                            قدم اول
-                                        </div>
                                         <h3 class="font-black text-lg mb-1">شروع آزمون‌های روانشناختی SDFR</h3>
                                         <p class="text-xs text-muted leading-6">بعد از آزمون‌ها، کارنامه‌ی تحلیلی‌ات را می‌بینی و مسیرت را انتخاب می‌کنی</p>
                                     </button>
-
-                                    <div class="text-center mt-5">
-                                        <button type="button" wire:click="goToPurchase" class="text-xs text-muted hover:text-foreground transition-colors">
-                                            می‌خواهم مستقیم دوره را خریداری کنم
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
                         </section>
@@ -644,7 +634,9 @@
                             <div class="text-center mb-8">
                                 <div class="inline-block w-32 h-32 mb-2">{!! $svgSuccess !!}</div>
                                 <h2 class="font-black text-3xl mb-2">حساب شما ساخته شد</h2>
-                                <p class="text-muted">قدم بعدی: آزمون شخصیت‌شناسی — تا بهترین برنامه برایت طراحی بشه.</p>
+                                <p class="text-muted">قدم بعدی: آزمون شخصیت‌شناسی
+                                    <br>
+                                    تا بهترین برنامه واست طراحی بشه.</p>
                             </div>
 
                             <button type="button" wire:click="startAssessments" wire:loading.attr="disabled" wire:target="startAssessments"
@@ -655,12 +647,6 @@
                                 <h3 class="font-black text-xl mb-1">شروع آزمون‌های شخصیت‌شناسی</h3>
                                 <p class="text-sm text-muted leading-6">بعد از آزمون‌ها، کارنامه‌ی تحلیلی‌ات را می‌بینی و مسیرت (هفته آزمایشی یا خرید) را انتخاب می‌کنی</p>
                             </button>
-
-                            <div class="text-center mt-6">
-                                <button type="button" wire:click="goToPurchase" class="text-sm text-muted hover:text-foreground transition-colors">
-                                    می‌خواهم مستقیم دوره را خریداری کنم
-                                </button>
-                            </div>
                         </div>
                     </div>
                 </section>
@@ -671,9 +657,6 @@
                 <div class="grid grid-cols-12 gap-8 items-start">
 
                     <div class="col-span-5 sticky top-8 space-y-6">
-                        <h1 class="font-black text-4xl leading-tight">
-                            به <span class="text-primary">SDFR</span> خوش آمدید
-                        </h1>
                         <p class="text-muted leading-8 text-sm">
                             پلتفرم هوشمند پایش مطالعه و مشاوره‌ی تخصصی برای دانش‌آموزان جدی.
                             با تکمیل فرم روبه‌رو، حساب کاربری شما ساخته می‌شه و وارد یک هفته‌ی آزمایشی رایگان می‌شید.
@@ -743,7 +726,7 @@
                                     </div>
                                 </fieldset>
 
-                                <fieldset class="space-y-4 pt-5 border-t border-border">
+                                <fieldset class="space-y-4 pt-5  border-border">
                                     <legend class="flex items-center gap-2 font-bold text-sm text-foreground mb-1">
                                         <span class="flex items-center justify-center w-5 h-5 rounded-md bg-primary/10 text-primary text-[10px] font-black border border-primary/20">۲</span>
                                         والدین و پایه‌ی تحصیلی
@@ -797,7 +780,7 @@
                                     </div>
                                 </fieldset>
 
-                                <fieldset class="space-y-4 pt-5 border-t border-border">
+                                <fieldset class="space-y-4 pt-5  border-border">
                                     <legend class="flex items-center gap-2 font-bold text-sm text-foreground mb-1">
                                         <span class="flex items-center justify-center w-5 h-5 rounded-md bg-primary/10 text-primary text-[10px] font-black border border-primary/20">۳</span>
                                         مکان و رمز عبور
@@ -856,7 +839,7 @@
                                     </div>
                                 </fieldset>
 
-                                <div class="flex items-center justify-between gap-3 pt-5 border-t border-border">
+                                <div class="flex items-center justify-between gap-3 pt-5  border-border">
                                     <p class="text-[11px] text-muted leading-5 max-w-[50%]">
                                         با ارسال این فرم، یک کد تأیید روی شماره‌ی موبایلتون ارسال می‌شه.
                                     </p>
@@ -884,162 +867,162 @@
 
     </div>
 
-    @script
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('onboardingFlow', () => ({
-                busy: false,
-                countdownTimer: null,
-                busyWatchdog: null,
-                touchStartX: 0,
-                touchEndX: 0,
-                tourShown: false,
+    @push('script')
+            <script>
+                document.addEventListener('alpine:init', () => {
+                    Alpine.data('onboardingFlow', () => ({
+                        busy: false,
+                        countdownTimer: null,
+                        busyWatchdog: null,
+                        touchStartX: 0,
+                        touchEndX: 0,
+                        tourShown: false,
 
-                init() {
-                    // ═══ FIX: Reset busy on every init (covers wire:navigate stale state)
-                    this.busy = false;
+                        init() {
+                            // ═══ FIX: Reset busy on every init (covers wire:navigate stale state)
+                            this.busy = false;
 
-                    this.startCountdownIfNeeded();
+                            this.startCountdownIfNeeded();
 
-                    // ═══ Livewire event listeners
-                    Livewire.on('start-countdown', () => this.startCountdownIfNeeded());
-                    Livewire.on('step-validation-failed', () => { this.clearBusy(); });
-                    Livewire.on('step-changed', () => {
-                        this.endTransition();
-                        this.$nextTick(() => this.maybeShowTour());
-                    });
+                            // ═══ Livewire event listeners
+                            Livewire.on('start-countdown', () => this.startCountdownIfNeeded());
+                            Livewire.on('step-validation-failed', () => { this.clearBusy(); });
+                            Livewire.on('step-changed', () => {
+                                this.endTransition();
+                                this.$nextTick(() => this.maybeShowTour());
+                            });
 
-                    // ═══ FIX: Reset busy when ANY Livewire commit completes (safety net)
-                    if (window.Livewire && Livewire.hook) {
-                        this.livewireHookHandle = Livewire.hook('commit', ({ succeed, fail }) => {
-                            succeed(() => { setTimeout(() => this.clearBusy(), 250); });
-                            fail(() => { this.clearBusy(); });
-                        });
-                    }
+                            // ═══ FIX: Reset busy when ANY Livewire commit completes (safety net)
+                            if (window.Livewire && Livewire.hook) {
+                                this.livewireHookHandle = Livewire.hook('commit', ({ succeed, fail }) => {
+                                    succeed(() => { setTimeout(() => this.clearBusy(), 250); });
+                                    fail(() => { this.clearBusy(); });
+                                });
+                            }
 
-                    // ═══ FIX: Reset busy on navigation events
-                    document.addEventListener('livewire:navigated', this.boundNavigated = () => {
-                        this.clearBusy();
-                    });
+                            // ═══ FIX: Reset busy on navigation events
+                            document.addEventListener('livewire:navigated', this.boundNavigated = () => {
+                                this.clearBusy();
+                            });
 
-                    this.$nextTick(() => this.maybeShowTour());
-                },
+                            this.$nextTick(() => this.maybeShowTour());
+                        },
 
-                destroy() {
-                    if (this.countdownTimer) clearInterval(this.countdownTimer);
-                    if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
-                    if (this.boundNavigated) document.removeEventListener('livewire:navigated', this.boundNavigated);
-                },
+                        destroy() {
+                            if (this.countdownTimer) clearInterval(this.countdownTimer);
+                            if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
+                            if (this.boundNavigated) document.removeEventListener('livewire:navigated', this.boundNavigated);
+                        },
 
-                clearBusy() {
-                    this.busy = false;
-                    if (this.busyWatchdog) {
-                        clearTimeout(this.busyWatchdog);
-                        this.busyWatchdog = null;
-                    }
-                },
+                        clearBusy() {
+                            this.busy = false;
+                            if (this.busyWatchdog) {
+                                clearTimeout(this.busyWatchdog);
+                                this.busyWatchdog = null;
+                            }
+                        },
 
-                setBusy() {
-                    this.busy = true;
-                    // ═══ Watchdog: if for any reason busy stays true >8s, force reset
-                    if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
-                    this.busyWatchdog = setTimeout(() => {
-                        console.warn('[onboarding] watchdog reset busy after 8s');
-                        this.clearBusy();
-                    }, 8000);
-                },
+                        setBusy() {
+                            this.busy = true;
+                            // ═══ Watchdog: if for any reason busy stays true >8s, force reset
+                            if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
+                            this.busyWatchdog = setTimeout(() => {
+                                console.warn('[onboarding] watchdog reset busy after 8s');
+                                this.clearBusy();
+                            }, 8000);
+                        },
 
-                endTransition() {
-                    setTimeout(() => { this.clearBusy(); }, 280);
-                },
+                        endTransition() {
+                            setTimeout(() => { this.clearBusy(); }, 280);
+                        },
 
-                pressBtn(el) {
-                    if (!el) return;
-                    el.classList.add('pressed');
-                    setTimeout(() => el.classList.remove('pressed'), 120);
-                    if (navigator.vibrate) navigator.vibrate(10);
-                },
+                        pressBtn(el) {
+                            if (!el) return;
+                            el.classList.add('pressed');
+                            setTimeout(() => el.classList.remove('pressed'), 120);
+                            if (navigator.vibrate) navigator.vibrate(10);
+                        },
 
-                maybeShowTour() {
-                    if (this.tourShown) return;
-                    if (localStorage.getItem('sdfr_onboarding_tour_done')) return;
-                    if (typeof window.driver === 'undefined') return;
+                        maybeShowTour() {
+                            if (this.tourShown) return;
+                            if (localStorage.getItem('sdfr_onboarding_tour_done')) return;
+                            if (typeof window.driver === 'undefined') return;
 
-                    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-                    if (!isDesktop && this.$wire.currentStep !== 2) return;
-                    if (isDesktop && this.$wire.currentStep > 4) return;
-                    if (!document.querySelector('[data-tour="firstName"]')) return;
+                            const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+                            if (!isDesktop && this.$wire.currentStep !== 2) return;
+                            if (isDesktop && this.$wire.currentStep > 4) return;
+                            if (!document.querySelector('[data-tour="firstName"]')) return;
 
-                    this.tourShown = true;
-                    const driver = window.driver.js.driver;
-                    const tour = driver({
-                        showProgress: true,
-                        allowClose: true,
-                        nextBtnText: 'بعدی', prevBtnText: 'قبلی', doneBtnText: 'فهمیدم',
-                        steps: [
-                            { element: '[data-tour="firstName"]', popover: { title: 'اطلاعات اولیه', description: 'این اطلاعات روی کارنامه و گزارش‌ها درج می‌شه. حتماً فارسی و کامل وارد کنید.', side: isDesktop ? 'right' : 'bottom' } },
-                            { element: '[data-tour="codeMell"]', popover: { title: 'کد ملی', description: 'کد ملی برای احراز هویت در سامانه استفاده می‌شه.', side: 'bottom' } },
-                        ],
-                        onDestroyed: () => { localStorage.setItem('sdfr_onboarding_tour_done', '1'); }
-                    });
-                    setTimeout(() => tour.drive(), 500);
-                },
+                            this.tourShown = true;
+                            const driver = window.driver.js.driver;
+                            const tour = driver({
+                                showProgress: true,
+                                allowClose: true,
+                                nextBtnText: 'بعدی', prevBtnText: 'قبلی', doneBtnText: 'فهمیدم',
+                                steps: [
+                                    { element: '[data-tour="firstName"]', popover: { title: 'اطلاعات اولیه', description: 'این اطلاعات روی کارنامه و گزارش‌ها درج می‌شه. حتماً فارسی و کامل وارد کنید.', side: isDesktop ? 'right' : 'bottom' } },
+                                    { element: '[data-tour="codeMell"]', popover: { title: 'کد ملی', description: 'کد ملی برای احراز هویت در سامانه استفاده می‌شه.', side: 'bottom' } },
+                                ],
+                                onDestroyed: () => { localStorage.setItem('sdfr_onboarding_tour_done', '1'); }
+                            });
+                            setTimeout(() => tour.drive(), 500);
+                        },
 
-                startCountdownIfNeeded() {
-                    if (this.countdownTimer) clearInterval(this.countdownTimer);
-                    if (this.$wire.currentStep !== 5) return; // ═══ FIX: only run on OTP step
-                    if (this.$wire.countdown <= 0) return;
-                    this.countdownTimer = setInterval(() => {
-                        if (this.$wire.countdown > 0) {
-                            this.$wire.set('countdown', this.$wire.countdown - 1, false);
-                        } else {
-                            clearInterval(this.countdownTimer);
-                            this.$wire.countdownFinished();
-                        }
-                    }, 1000);
-                },
+                        startCountdownIfNeeded() {
+                            if (this.countdownTimer) clearInterval(this.countdownTimer);
+                            if (this.$wire.currentStep !== 5) return; // ═══ FIX: only run on OTP step
+                            if (this.$wire.countdown <= 0) return;
+                            this.countdownTimer = setInterval(() => {
+                                if (this.$wire.countdown > 0) {
+                                    this.$wire.set('countdown', this.$wire.countdown - 1, false);
+                                } else {
+                                    clearInterval(this.countdownTimer);
+                                    this.$wire.countdownFinished();
+                                }
+                            }, 1000);
+                        },
 
-                goNext() {
-                    if (this.busy) return;
-                    if (this.$wire.currentStep === 1) {
-                        this.setBusy();
-                        this.$wire.set('currentStep', 2).then(() => this.endTransition());
-                        return;
-                    }
-                    this.setBusy();
-                    this.$wire.next();
-                },
+                        goNext() {
+                            if (this.busy) return;
+                            if (this.$wire.currentStep === 1) {
+                                this.setBusy();
+                                this.$wire.set('currentStep', 2).then(() => this.endTransition());
+                                return;
+                            }
+                            this.setBusy();
+                            this.$wire.next();
+                        },
 
-                goPrev() {
-                    if (this.busy) return;
-                    if (this.$wire.currentStep <= 1) return;
-                    if (this.$wire.currentStep === 2) {
-                        this.setBusy();
-                        this.$wire.set('currentStep', 1).then(() => this.endTransition());
-                        return;
-                    }
-                    this.setBusy();
-                    this.$wire.previous().then(() => this.endTransition());
-                },
+                        goPrev() {
+                            if (this.busy) return;
+                            if (this.$wire.currentStep <= 1) return;
+                            if (this.$wire.currentStep === 2) {
+                                this.setBusy();
+                                this.$wire.set('currentStep', 1).then(() => this.endTransition());
+                                return;
+                            }
+                            this.setBusy();
+                            this.$wire.previous().then(() => this.endTransition());
+                        },
 
-                submitDesktopForm() {
-                    if (this.busy) return;
-                    this.setBusy();
-                    this.$wire.submitAll();
-                },
+                        submitDesktopForm() {
+                            if (this.busy) return;
+                            this.setBusy();
+                            this.$wire.submitAll();
+                        },
 
-                handleTouchStart(e) { this.touchStartX = e.changedTouches[0].screenX; },
-                handleTouchEnd(e) {
-                    this.touchEndX = e.changedTouches[0].screenX;
-                    const diff = this.touchEndX - this.touchStartX;
-                    if (Math.abs(diff) < 60) return;
-                    if (['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName)) return;
-                    if (diff > 0 && this.$wire.currentStep > 1 && this.$wire.currentStep <= 4) {
-                        this.goPrev();
-                    }
-                },
-            }));
-        });
-    </script>
-    @endscript
+                        handleTouchStart(e) { this.touchStartX = e.changedTouches[0].screenX; },
+                        handleTouchEnd(e) {
+                            this.touchEndX = e.changedTouches[0].screenX;
+                            const diff = this.touchEndX - this.touchStartX;
+                            if (Math.abs(diff) < 60) return;
+                            if (['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName)) return;
+                            if (diff > 0 && this.$wire.currentStep > 1 && this.$wire.currentStep <= 4) {
+                                this.goPrev();
+                            }
+                        },
+                    }));
+                });
+            </script>
+    @endpush
 </div>

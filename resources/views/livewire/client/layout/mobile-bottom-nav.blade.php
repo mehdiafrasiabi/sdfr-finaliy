@@ -59,7 +59,7 @@
                                     <span x-show="isActive('{{ route('client.profile.dashboard', [], false) }}')" x-cloak
                                           class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></span>
                                 </div>
-                                <span class="text-[10px] font-semibold">داشبورد</span>
+                                <span class="text-[10px] font-semibold">اتاق مشاوره</span>
                             </a>
 
                             <!-- اطلاع رسانی -->
@@ -79,7 +79,7 @@
                                     <span x-show="isActive('{{ route('client.profile.notification', [], false) }}')" x-cloak
                                           class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></span>
                                 </div>
-                                <span class="text-[10px] font-semibold">پیام ها</span>
+                                <span class="text-[10px] font-semibold">برنامه درسی</span>
                             </a>
 
                             <!-- جای خالی برای لوگو (لوگو بیرون از nav قرار داره) -->
@@ -100,7 +100,7 @@
                                     <span x-show="isActive('{{ route('client.profile.ticket', [], false) }}')" x-cloak
                                           class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></span>
                                 </div>
-                                <span class="text-[10px] font-semibold">پشتیبانی</span>
+                                <span class="text-[10px] font-semibold">گزارش</span>
                             </a>
 
                             <!-- آچار فرانسه -->
@@ -111,7 +111,7 @@
                                         <path d="M4.1 21h.8A1.101 1.101 0 0 0 6 19.9v-.8A1.101 1.101 0 0 0 4.9 18h-.8A1.101 1.101 0 0 0 3 19.1v.8A1.101 1.101 0 0 0 4.1 21zM4 19.1a.1.1 0 0 1 .1-.1h.8a.1.1 0 0 1 .1.1v.8a.1.1 0 0 1-.1.1h-.8a.1.1 0 0 1-.1-.1z"/>
                                     </svg>
                                 </div>
-                                <span class="text-[10px] font-semibold">آچار فرانسه</span>
+                                <span class="text-[10px] font-semibold">آزمون</span>
                             </a>
 
                         </div>

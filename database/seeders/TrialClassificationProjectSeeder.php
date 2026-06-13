@@ -12,8 +12,8 @@ class TrialClassificationProjectSeeder extends Seeder
         ClassificationProject::updateOrCreate(
             ['is_trial' => true],
             [
-                'name'        => 'طبقه‌بندی آزمایشی (دوره ۱ هفته)',
-                'description' => 'طبقه‌بندی ویژه‌ی کاربران دوره‌ی ۱ هفته آزمایشی — همیشه فعال و بدون محدودیت زمانی.',
+                'name'        => 'طبقه‌بندی دروس',
+                'description' => '',
                 'start_at'    => now()->subYear(),
                 'end_at'      => now()->addYears(10),
                 'is_active'   => true,

@@ -10,12 +10,6 @@
                 <p class="text-sm text-blue-300">{{ session('info') }}</p>
             </div>
         @endif
-        @if(session()->has('success'))
-            <div class="flex items-center gap-3 px-4 py-3 rounded-xl mb-5" style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);">
-                <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                <p class="text-sm text-emerald-300">{{ session('success') }}</p>
-            </div>
-        @endif
 
         @php $percent = $totalQuestions > 0 ? (int) round(($answeredTotal / $totalQuestions) * 100) : 0; @endphp
 
@@ -43,7 +37,7 @@
                         </div>
                         <h3 class="font-black text-lg text-white mb-1">شروع ۱ هفته آزمایشی</h3>
                         <p class="text-xs text-white/55 leading-6">
-                            <span wire:loading.remove wire:target="confirmTrial">تجربه‌ی کامل امکانات بدون پرداخت — مشاور جذب اختصاصی برایت انتخاب می‌شود</span>
+                            <span wire:loading.remove wire:target="confirmTrial">تجربه‌ی کامل امکانات بدون پرداخت ، با نظارت مشاور اختصاصی</span>
                             <span wire:loading wire:target="confirmTrial" class="inline-flex items-center gap-2">
                                 <span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin"></span>
                                 در حال آماده‌سازی…
@@ -83,8 +77,8 @@
                                 <svg class="w-8 h-8 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                             </div>
                         </div>
-                        <h1 class="text-2xl font-black text-white mb-2">کارنامه‌ی تحلیلی تو 🌱</h1>
-                        <p class="text-sm text-white/55 leading-7">همه‌ی آزمون‌ها تکمیل شد. این خلاصه‌ی وضعیت توست — بر همین اساس برنامه‌ات طراحی می‌شود.</p>
+                        <h1 class="text-2xl font-black text-white mb-2">تحلیل نتیجه  Mindet Test </h1>
+                        <p class="text-sm text-white/55 leading-7">این خلاصه‌ی تحلیل روانشناسی - تحصیلی شماست  بر همین اساس برنامه‌ شما طراحی می‌شود.</p>
                     </div>
 
                     @if($summary)
@@ -165,12 +159,6 @@
                             تحلیلی برای نمایش وجود ندارد.
                         </div>
                     @endif
-
-                    <div class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl" style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);">
-                        <svg class="w-4 h-4 text-emerald-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-                        <span class="text-xs text-emerald-400 font-semibold">{{ $answeredTotal }} سوال پاسخ داده شد</span>
-                    </div>
-
                     <button wire:click="continueToChoice"
                             class="w-full h-12 rounded-xl font-bold text-sm text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                             style="background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 4px 20px rgba(34,197,94,0.3);">
@@ -185,38 +173,14 @@
                 <div class="h-1" style="background:linear-gradient(to left,#3b82f6,#8b5cf6,#ec4899);"></div>
                 <div class="p-7 space-y-6">
 
-                    {{-- نشانگر مراحل --}}
-                    <div class="flex items-center justify-center gap-3">
-                        <div class="flex items-center gap-2">
-                            <span class="flex w-8 h-8 items-center justify-center rounded-full text-xs font-black"
-                                  style="{{ $currentStage >= 1 ? 'background:rgba(59,130,246,0.8);color:white;' : 'background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.1);' }}">۱</span>
-                            <span class="text-xs font-bold {{ $currentStage == 1 ? 'text-blue-400' : 'text-white/30' }}">MBTI</span>
-                        </div>
-                        <div class="h-px w-8" style="background:rgba(255,255,255,0.1);"></div>
-                        <div class="flex items-center gap-2">
-                            <span class="flex w-8 h-8 items-center justify-center rounded-full text-xs font-black"
-                                  style="{{ $currentStage >= 2 ? 'background:rgba(59,130,246,0.8);color:white;' : 'background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.1);' }}">۲</span>
-                            <span class="text-xs font-bold {{ $currentStage == 2 ? 'text-blue-400' : 'text-white/30' }}">مایندست</span>
-                        </div>
-                    </div>
-
-                    {{-- بج مرحله --}}
-                    <div class="flex justify-center">
-                        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full"
-                             style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);">
-                            <div class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></div>
-                            <span class="text-xs font-bold text-blue-300">مرحله‌ی {{ $currentStage == 1 ? 'یک — MBTI' : 'دو — مایندست' }}</span>
-                        </div>
-                    </div>
 
                     {{-- عنوان --}}
                     <div class="text-center">
                         @if($hasStarted)
                             <h1 class="text-2xl font-black text-white mb-2">خوش برگشتی! 👋</h1>
-                            <p class="text-sm text-white/55 leading-7">از همان‌جایی که رها کردی ادامه می‌دهیم؛ مستقیم می‌روی سراغ سوال بعدی.</p>
                         @else
-                            <h1 class="text-2xl font-black text-white mb-2">خوش اومدی! 👋</h1>
-                            <p class="text-sm text-white/55 leading-7">برای طراحی برنامه‌ی اختصاصی‌ات ابتدا آزمون شخصیت‌شناسی را در دو مرحله انجام می‌دهیم.</p>
+                            <h1 class="text-2xl font-black text-white mb-2">شروع تست مایندت</h1>
+                            <p class="text-sm text-white/55 leading-7">این پلتفرم هوشمند تمامی خدمات آموزشی را متناسب با نیاز های تحصیلی - روانشناسی شما ارائه می دهد</p>
                         @endif
                     </div>
 

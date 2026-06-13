@@ -37,78 +37,10 @@
                 </div>
             </div>
 
-            {{-- نمودار توزیع رتبه‌ها --}}
-            <div class="bg-secondary border border-border rounded-2xl p-6">
-                <h3 class="font-black text-foreground mb-5 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                    توزیع سطح مباحث
-                </h3>
-
-                <div class="space-y-3">
-                    @php
-                        $ratingColors = [
-                            'D'  => 'bg-red-500',    'D+' => 'bg-red-400',
-                            'C'  => 'bg-orange-500', 'C+' => 'bg-orange-400',
-                            'B'  => 'bg-amber-500',  'B+' => 'bg-amber-400',
-                            'A'  => 'bg-emerald-500','A+' => 'bg-emerald-400',
-                        ];
-                        $total = max(1, $analysis['total']);
-                    @endphp
-
-                    @foreach($analysis['rating_counts'] as $label => $count)
-                        @if($count > 0)
-                        <div class="flex items-center gap-3">
-                            <span class="w-6 text-xs font-black text-foreground text-right">{{ $label }}</span>
-                            <div class="flex-1 bg-border rounded-full h-6 overflow-hidden">
-                                <div class="{{ $ratingColors[$label] ?? 'bg-primary' }} h-full rounded-full flex items-center justify-end pr-2 transition-all duration-700"
-                                     style="width: {{ max(5, ($count / $total) * 100) }}%">
-                                    <span class="text-white text-[10px] font-bold">{{ $count }}</span>
-                                </div>
-                            </div>
-                            <span class="w-8 text-xs text-muted text-left">{{ round(($count / $total) * 100) }}%</span>
-                        </div>
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-
-            {{-- وضعیت هر درس --}}
-            @if(!empty($analysis['subject_averages']))
-            <div class="bg-secondary border border-border rounded-2xl p-6">
-                <h3 class="font-black text-foreground mb-5 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                    </svg>
-                    وضعیت هر درس
-                </h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    @foreach($analysis['subject_averages'] as $subjectName => $data)
-                    <div class="flex items-center justify-between p-4 bg-background border border-border rounded-xl">
-                        <span class="font-semibold text-sm text-foreground">{{ $subjectName }}</span>
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs text-muted">{{ $data['count'] }} مبحث</span>
-                            <span class="px-3 py-1 rounded-full text-xs font-black
-                                @if($data['average'] >= 6) bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400
-                                @elseif($data['average'] >= 4) bg-amber-100 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400
-                                @else bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400
-                                @endif">
-                                {{ $data['label'] }}
-                            </span>
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-            </div>
-            @endif
-
-
             @endif {{-- end if analysis --}}
 
             {{-- ═══════════ کارنامه تحلیلی پیش از ساخت برنامه ═══════════ --}}
-            <div class="bg-secondary border border-border rounded-2xl p-6">
+            <div class="glass border border-border rounded-2xl p-6">
                 <h3 class="font-black text-foreground mb-1 flex items-center gap-2">
                     <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
@@ -118,8 +50,29 @@
                 <p class="text-xs text-muted leading-6 mb-5">خلاصه‌ی همه‌ی کارهایی که انجام دادی — برنامه‌ات دقیقاً بر اساس همین اطلاعات ساخته می‌شود.</p>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                    {{-- آزمون‌های شخصیت‌شناسی --}}
+                    <div class="bg-secondary border border-border rounded-xl p-4">
+                        <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 21v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"/></svg>
+                            Mindet Test
+                        </div>
+                        <div class="text-[11px] text-muted leading-6">
+                            @if($personality)
+                                @if(!empty($personality['mbti']['type']))
+                                    تیپ شخصیتی: <span class="font-black text-primary tracking-wider">{{ $personality['mbti']['type'] }}</span>
+                                @endif
+                                @if(!empty($personality['vark']['profile']))
+                                    · سبک یادگیری: <span class="font-bold text-foreground">{{ $personality['vark']['profile'] }}</span>
+                                @endif
+                                تست تحصیلی - روانشناسی مایندت
+                            @else
+                                تحلیلی در دسترس نیست.
+                            @endif
+                        </div>
+                    </div>
                     {{-- طبقه‌بندی --}}
-                    <div class="bg-background border border-border rounded-xl p-4">
+                    <div class="bg-secondary border border-border rounded-xl p-4">
                         <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
                             <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
                             طبقه‌بندی دروس
@@ -136,49 +89,8 @@
                         @endif
                     </div>
 
-                    {{-- پیش‌جلسه --}}
-                    <div class="bg-background border border-border rounded-xl p-4">
-                        <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-                            پیش‌جلسه
-                        </div>
-                        <div class="text-[11px] text-muted leading-6">
-                            @if($preSessionSummary['exams'] > 0) {{ $preSessionSummary['exams'] }} امتحان · @endif
-                            @if($preSessionSummary['qas'] > 0) {{ $preSessionSummary['qas'] }} پرسش‌وپاسخ · @endif
-                            @if($preSessionSummary['assignments'] > 0) {{ $preSessionSummary['assignments'] }} تکلیف · @endif
-                            @if($preSessionSummary['requested'] > 0) {{ $preSessionSummary['requested'] }} پارت درخواستی @endif
-                            @if($preSessionSummary['misc']) · توضیحات متفرقه ثبت شد @endif
-                            @if($preSessionSummary['exams'] + $preSessionSummary['qas'] + $preSessionSummary['assignments'] + $preSessionSummary['requested'] === 0 && !$preSessionSummary['misc'])
-                                موردی ثبت نشده است.
-                            @endif
-                        </div>
-                    </div>
-
-                    {{-- آزمون‌های شخصیت‌شناسی --}}
-                    <div class="bg-background border border-border rounded-xl p-4">
-                        <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
-                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 21v-1a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v1"/></svg>
-                            تست مایندست و شخصیت
-                        </div>
-                        <div class="text-[11px] text-muted leading-6">
-                            @if($personality)
-                                @if(!empty($personality['mbti']['type']))
-                                    تیپ شخصیتی: <span class="font-black text-primary tracking-wider">{{ $personality['mbti']['type'] }}</span>
-                                @endif
-                                @if(!empty($personality['vark']['profile']))
-                                    · سبک یادگیری: <span class="font-bold text-foreground">{{ $personality['vark']['profile'] }}</span>
-                                @endif
-                                @if(!empty($personality['custom']))
-                                    · {{ count($personality['custom']) }} تست اختصاصی تحلیل شد
-                                @endif
-                            @else
-                                تحلیلی در دسترس نیست.
-                            @endif
-                        </div>
-                    </div>
-
                     {{-- برنامه کلاسی --}}
-                    <div class="bg-background border border-border rounded-xl p-4">
+                    <div class="bg-secondary border border-border rounded-xl p-4">
                         <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
                             <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                             برنامه کلاسی مدرسه
@@ -193,22 +105,40 @@
                             @endif
                         </div>
                     </div>
+
+                    {{-- پیش‌جلسه --}}
+                    <div class="bg-secondary border border-border rounded-xl p-4">
+                        <div class="text-xs font-bold text-foreground mb-2 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                            نیازمندی های جلسه
+                        </div>
+                        <div class="text-[11px] text-muted leading-6">
+                            @if($preSessionSummary['exams'] > 0) {{ $preSessionSummary['exams'] }} امتحان · @endif
+                            @if($preSessionSummary['qas'] > 0) {{ $preSessionSummary['qas'] }} پرسش‌وپاسخ · @endif
+                            @if($preSessionSummary['assignments'] > 0) {{ $preSessionSummary['assignments'] }} تکلیف · @endif
+                            @if($preSessionSummary['requested'] > 0) {{ $preSessionSummary['requested'] }} پارت درخواستی @endif
+                            @if($preSessionSummary['misc']) · توضیحات متفرقه ثبت شد @endif
+                            @if($preSessionSummary['exams'] + $preSessionSummary['qas'] + $preSessionSummary['assignments'] + $preSessionSummary['requested'] === 0 && !$preSessionSummary['misc'])
+                                موردی ثبت نشده است.
+                            @endif
+                        </div>
+                    </div>
+
+
+
                 </div>
             </div>
 
             {{-- دکمه ساخت برنامه --}}
             @if($trialWeek && $trialWeek->status === \App\Models\TrialWeek::STATUS_PRE_SESSION_DONE)
-            <div class="bg-gradient-to-l from-primary/10 to-primary/5 border border-primary/30 rounded-2xl p-8 text-center">
+            <div class="glass  border border-primary rounded-2xl p-8 text-center">
                 <div class="text-5xl mb-4">📅</div>
-                <h3 class="font-black text-foreground text-xl mb-3">آماده ساخت برنامه</h3>
+                <h3 class="font-black text-foreground text-xl mb-3">شروع یک هفته مطالعه هوشمند</h3>
                 <p class="text-muted text-sm mb-6 leading-relaxed">
-                    براساس تمام اطلاعات ثبت شده در سیستم مشاور شما برنامه اختصاصی برای شما آماده میکند!
+                    سیستم هوشمند SDFR برای هفته پیش روی شما آماده ساخت برنامه اختصاصی با نظارت مشاور متخصص می باشد
                 </p>
                 <button wire:click="openHoursModal"
                         class="inline-flex items-center gap-3 px-8 py-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-2xl font-black text-base shadow-lg shadow-primary/30 hover:-translate-y-0.5 transition-all duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
-                    </svg>
                     ساخت برنامه
                 </button>
             </div>

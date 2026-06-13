@@ -261,11 +261,13 @@
                                 <span class="text-xs text-green-400">{{ (int)$sp }}%</span>
                             </div>
                             <div class="text-right">
-                                <div class="font-semibold text-white text-sm">هفته آزمایشی — {{ $trialWeek->statusLabel }}</div>
-                                <div class="text-xs mt-0.5 text-neutral-400">
+                                <div class="font-semibold text-white text-sm">
+                                    هفته آزمایشی  -
                                     @if($trialWeek->isExpired())<span class="text-red-400">منقضی شده</span>
                                     @elseif($trialWeek->expires_at){{ $trialWeek->daysRemaining }} روز باقی‌مانده
-                                    @else با ساخت برنامه، ۸ روز دسترسی فعال می‌شود@endif
+                                    @else با ساخت برنامه، ۸ روز دسترسی فعال می‌شود@endif</div>
+                                <div class="text-xs text-neutral-400">
+
                                 </div>
                             </div>
                         </a>
@@ -312,7 +314,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     {{-- ══════ 1) مشاور (زنده) ══════ --}}
-                    <div class="glass rise md:col-span-2 p-4 flex items-center justify-between gap-4" data-tour="advisor" style="animation-delay:.1s;margin-bottom: 26px">
+                    <div class="glass rise md:col-span-2 p-4 flex items-center justify-between gap-4" data-tour="advisor" style="animation-delay:.1s;margin-bottom: 36px">
                         {{-- راست: عکس + نام --}}
                         <div class="flex items-center gap-3">
                             @if($advisorStudent && !empty($advisorStudent['picture']))
@@ -331,7 +333,6 @@
                                     {{ $advisorStudent['name'] ?? 'تعیین نشده' }}
                                 </div>
                                 <div class="text-xs mt-1 text-sky-400">{{ $advisorStudent['label'] ?? 'مشاور شما' }}</div>
-                                <div class="text-[11px] mt-1 text-neutral-400">مشاور اختصاصی تو که در کل مسیر همراهت است</div>
                             </div>
                         </div>
                         {{-- چپ: نقطه زنده + دکمه فلش --}}
@@ -458,7 +459,7 @@
                     </div>
 
                     {{-- ══════ 4) برنامه امروز (زنده، full-width) ══════ --}}
-                    <div class="glass rise md:col-span-2 p-4" data-tour="today" style="animation-delay:.25s">
+                    <div class="glass rise md:col-span-2 p-4" data-tour="today" style="animation-delay:.25s;margin-bottom: 36px">
                         <div class="flex items-center justify-between gap-2 mb-1">
                             <div class="flex items-center gap-2">
                                 <div class="icon-chip">
@@ -704,7 +705,7 @@
             <div class="flex items-center justify-between mb-6">
                 <h3 class="text-base font-bold text-white flex items-center gap-2">
                     <span class="live-dot"></span>
-                    اطلاعات مشاور اختصاصی
+                    اطلاعات مشاور متخصص
                 </h3>
                 <button @click="openAdvisorModal = false" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition cursor-pointer text-neutral-400 hover:text-white">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
@@ -729,7 +730,6 @@
                     @endif
                     <div class="text-center md:text-right">
                         <h4 class="text-lg font-black text-white">{{ $advisorStudent['name'] ?? 'تعیین نشده' }}</h4>
-                        <p class="text-sm text-sky-400 mt-1">{{ $advisorStudent['label'] ?? 'مشاور ارشد مجموعه' }}</p>
                     </div>
                 </div>
 
@@ -742,8 +742,8 @@
                         </span>
                     </div>
                     <div class="bg-white/5 p-3 rounded-xl text-right leading-relaxed">
-                        <span class="text-neutral-400 block mb-1 text-xs">توضیحات مشاور:</span>
-                        تکالیف و گزارش‌های شما هر روز توسط این مشاور بررسی و تحلیل می‌شود. در صورت داشتن هرگونه سوال می‌توانید از طریق بخش تیکت‌ها با ایشان در ارتباط باشید.
+                        <span class="text-neutral-400 block mb-1 text-xs">خلاصه معرفی:</span>
+                        تحصیلات مشاور
                     </div>
                 </div>
             </div>
