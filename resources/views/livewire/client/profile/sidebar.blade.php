@@ -175,28 +175,6 @@
                 <span class="font-semibold text-xs">برنامه های مطالعاتی </span>
             </a>
         </li>
-        <li>
-            <a wire:navigate href="{{route('client.profile.studySession')}}"
-               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.studySession') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                     viewBox="0 0 20 20"
-                     fill="none"
-                     stroke="currentColor"
-                     stroke-width="1.5"
-                     class="w-5 h-5">
-
-                    <circle cx="10" cy="10" r="8"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"/>
-
-                    <path d="M10 5v5h4"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"/>
-                </svg>
-
-                <span class="font-semibold text-xs">ثبت ساعت مطالعه</span>
-            </a>
-        </li>
 
         <li>
             <a wire:navigate href="{{route('client.profile.report')}}"

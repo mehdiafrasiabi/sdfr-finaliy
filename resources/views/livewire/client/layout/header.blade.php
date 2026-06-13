@@ -690,7 +690,7 @@
                                             ['label'=>'اطلاع‌رسانی',     'route'=> route('client.profile.notification'),           'icon'=>'bell'],
                                             ['label'=>'اتاق مشاوره',     'route'=> route('client.profile.consultation.sessions'),  'icon'=>'screen'],
                                             ['label'=>'برنامه درسی',     'route'=> route('client.profile.plan'),                   'icon'=>'book'],
-                                            ['label'=>'ثبت ساعت مطالعه', 'route'=> route('client.profile.studySession'),           'icon'=>'clock'],
+
                                             ['label'=>'گزارش درسی',      'route'=> route('client.profile.report'),                 'icon'=>'clipboard'],
                                             ['label'=>'آزمون',           'route'=> route('client.profile.typed-exam.list'),        'icon'=>'edit'],
                                             ['label'=>'کارنامه وضعیت',   'route'=> route('client.profile.reportStudentStudy'),     'icon'=>'file'],

@@ -27,7 +27,6 @@ use App\Livewire\Client\Profile\Notification as ProfileNotification;
 use App\Livewire\Client\Profile\Report as ProfileReport;
 use App\Livewire\Client\Profile\ReportStudentStudy as ProfileReportStudentStudy;
 use App\Livewire\Client\Profile\Star;
-use App\Livewire\Client\Profile\StudySession;
 use App\Livewire\Client\Profile\Ticket\Create as ProfileTicketCreate;
 use App\Livewire\Client\Profile\Ticket\Index as ProfileTicketIndex;
 use App\Livewire\Client\Profile\Ticket\Show as ProfileTicketShow;
@@ -125,8 +124,6 @@ Route::name('client.')->group(function () {
             Route::get('/installmentDetail',ProfileInstallmentDetail::class)->name('installmentDetail');
             Route::get('/plan',ProfilePlan::class)->name('plan');
             Route::get('/report',ProfileReport::class)->name('report');
-            Route::get('/studySession',StudySession::class)->name('studySession');
-
 //          Ticketing Route
             Route::get('/ticket',ProfileTicketIndex::class)->name('ticket');
             Route::get('/ticket/{ticket}/show',ProfileTicketShow::class)->name('ticket.show');
