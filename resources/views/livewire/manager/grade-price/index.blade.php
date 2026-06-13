@@ -17,13 +17,14 @@
     <div class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm">
         <div class="flex items-center justify-between p-5 border-b border-slate-100 dark:border-slate-800">
             <div>
-                <h4 class="m-0 text-slate-800 dark:text-slate-100 font-bold">قیمت‌گذاری پایه‌ها</h4>
+                <h4 class="m-0 text-slate-800 dark:text-slate-100 font-bold">قیمت‌گذاری «ماه ورود و تخفیف»</h4>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    برای هر پایه فقط یک رکورد قابل ثبت است. پس از ذخیره، صفحهٔ جزئیات باز می‌شود تا تخفیف هر ماه را تعیین کنید.
+                    برای هر پایه «نرخ ماهانه»، «درصد پیش‌پرداخت» و «سال خدمت» را تعیین کنید.
+                    سال خدمت از تیر تا پایان خرداد سال بعد است. پس از ذخیره، تخفیف هر ماه را در صفحهٔ جزئیات تنظیم کنید.
                 </p>
             </div>
             <button wire:click="openCreate"
-                    class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm">
+                    class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm whitespace-nowrap">
                 افزودن قیمت پایه
             </button>
         </div>
@@ -33,10 +34,10 @@
                 <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300">
                     <tr>
                         <th class="text-start px-4 py-3">پایه</th>
-                        <th class="text-start px-4 py-3">مبلغ کل (تومان)</th>
-                        <th class="text-start px-4 py-3">تاریخ شروع</th>
-                        <th class="text-start px-4 py-3">تاریخ پایان</th>
-                        <th class="text-start px-4 py-3">تعداد ماه</th>
+                        <th class="text-start px-4 py-3">نرخ ماهانه (تومان)</th>
+                        <th class="text-start px-4 py-3">پیش‌پرداخت</th>
+                        <th class="text-start px-4 py-3">سال خدمت</th>
+                        <th class="text-start px-4 py-3">پایان دسترسی</th>
                         <th class="text-start px-4 py-3">وضعیت</th>
                         <th class="text-start px-4 py-3"></th>
                     </tr>
@@ -45,10 +46,10 @@
                     @forelse ($prices as $price)
                         <tr class="border-t border-slate-100 dark:border-slate-800">
                             <td class="px-4 py-3 font-semibold">{{ $price->grade_label }}</td>
-                            <td class="px-4 py-3">{{ number_format($price->total_amount) }}</td>
-                            <td class="px-4 py-3">{{ \Morilog\Jalali\Jalalian::fromCarbon($price->start_at)->format('Y/m/d') }}</td>
+                            <td class="px-4 py-3">{{ number_format($price->monthly_rate) }}</td>
+                            <td class="px-4 py-3">{{ (int) ($price->initial_percentage ?? 30) }}٪</td>
+                            <td class="px-4 py-3">{{ $price->serviceYear() ? 'تیر ' . $price->serviceYear() : '—' }}</td>
                             <td class="px-4 py-3">{{ $price->end_at ? \Morilog\Jalali\Jalalian::fromCarbon($price->end_at)->format('Y/m/d') : '—' }}</td>
-                            <td class="px-4 py-3">{{ $price->months_count }}</td>
                             <td class="px-4 py-3">
                                 @if($price->is_active)
                                     <span class="px-2 py-0.5 rounded text-xs bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300">فعال</span>
@@ -60,7 +61,7 @@
                                 <a href="{{ route('manager.grade-price.show', ['price' => $price->id]) }}"
                                    wire:navigate
                                    class="px-3 py-1 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-xs font-semibold">
-                                    جزئیات
+                                    تخفیف ماه‌ها
                                 </a>
                                 <button wire:click="openEdit({{ $price->id }})"
                                         class="px-3 py-1 rounded-md bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs">
@@ -90,12 +91,7 @@
     </div>
 
     @if ($showForm)
-        <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker@0.9.12/dist/jalalidatepicker.min.css">
-        <script src="https://unpkg.com/@majidh1/jalalidatepicker@0.9.12/dist/jalalidatepicker.min.js"></script>
-
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm"
-             x-data
-             x-init="$nextTick(() => { if (window.jalaliDatepicker) { jalaliDatepicker.startWatch({ time: false, autoShow: true, showTodayBtn: true, showEmptyBtn: true, separatorChars: { date: '/' } }); } })">
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 dark:bg-black/80 backdrop-blur-sm">
             <div class="w-full max-w-md rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl">
                 <div class="flex items-center justify-between px-5 py-4 border-b border-slate-100 dark:border-slate-800">
                     <h5 class="m-0 font-bold text-slate-800 dark:text-slate-100">
@@ -118,26 +114,30 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-200">مبلغ کل (تومان)</label>
-                        <input type="number" min="1" wire:model="totalAmount"
-                               class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm">
-                        @error('totalAmount')<div class="text-rose-600 dark:text-rose-400 text-xs mt-1">{{ $message }}</div>@enderror
+                        <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-200">نرخ ماهانه (تومان)</label>
+                        <input type="number" min="1" wire:model.live="monthlyRate"
+                               class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm" dir="ltr">
+                        @if($monthlyRate > 0)
+                            <p class="text-xs text-slate-400 mt-1">{{ number_format($monthlyRate) }} تومان</p>
+                        @endif
+                        @error('monthlyRate')<div class="text-rose-600 dark:text-rose-400 text-xs mt-1">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">
                         <div>
-                            <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-200">تاریخ شروع (شمسی)</label>
-                            <input type="text" wire:model="startAtJ" data-jdp data-jdp-only-date placeholder="1405/04/01"
+                            <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-200">پیش‌پرداخت (٪)</label>
+                            <input type="number" min="0" max="100" wire:model="initialPercentage"
                                    class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm" dir="ltr">
-                            @error('startAtJ')<div class="text-rose-600 dark:text-rose-400 text-xs mt-1">{{ $message }}</div>@enderror
+                            @error('initialPercentage')<div class="text-rose-600 dark:text-rose-400 text-xs mt-1">{{ $message }}</div>@enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-200">تاریخ پایان (شمسی)</label>
-                            <input type="text" wire:model="endAtJ" data-jdp data-jdp-only-date placeholder="1406/03/29"
+                            <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-200">سال خدمت (تیر)</label>
+                            <input type="number" min="1390" max="1450" wire:model="serviceYear" placeholder="1405"
                                    class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm" dir="ltr">
-                            @error('endAtJ')<div class="text-rose-600 dark:text-rose-400 text-xs mt-1">{{ $message }}</div>@enderror
+                            @error('serviceYear')<div class="text-rose-600 dark:text-rose-400 text-xs mt-1">{{ $message }}</div>@enderror
                         </div>
                     </div>
+                    <p class="text-xs text-slate-400">سال خدمت از تیر {{ $serviceYear ?: '—' }} تا پایان خرداد {{ $serviceYear ? $serviceYear + 1 : '—' }} خواهد بود.</p>
 
                     <label class="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-200">
                         <input type="checkbox" wire:model="isActive" class="form-check-input">

@@ -8,13 +8,11 @@ use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * گِیت آزمون‌های روان‌شناختی: اگر دانش‌آموز هفته‌ی آزمایشی دارد و هنوز
- * trial_weeks.assessments_completed_at پر نشده است، فقط مسیرهای مربوط به
- * تکمیل آزمون‌ها (و logout) قابل دسترسی هستند. سایر مسیرها به لیست آزمون‌ها
- * هدایت می‌شوند.
- *
- * دانش‌آموزان پرداختی (بدون TrialWeek) و کسانی که آزمون‌ها را تکمیل کرده‌اند
- * از این middleware عبور می‌کنند.
+ * گِیت آزمون‌های روان‌شناختی برای «همهٔ» کاربران احرازشده:
+ * تا وقتی دانش‌آموز همهٔ آزمون‌های روان‌شناختیِ فعال را تکمیل نکرده باشد، فقط
+ * مسیرهای مربوط به تکمیل آزمون‌ها (و logout) قابل دسترسی هستند و بقیه به لیست
+ * آزمون‌ها هدایت می‌شوند. این تضمین می‌کند هیچ‌کس بدون پر کردن تست به صفحهٔ
+ * خرید/آزمایشی نرسد؛ پس از اتمام تست، صفحهٔ انتخاب مسیر نمایش داده می‌شود.
  */
 class EnsureAssessmentsCompleted
 {
@@ -31,13 +29,8 @@ class EnsureAssessmentsCompleted
             return $next($request);
         }
 
-        $trial = $user->trialWeek;
-
-        if (! $trial) {
-            return $next($request);
-        }
-
-        if ($trial->assessments_completed_at) {
+        // اگر همهٔ آزمون‌ها تکمیل شده‌اند (یا آزمونی تعریف نشده) عبور بده.
+        if ($user->hasCompletedAllAssessments()) {
             return $next($request);
         }
 

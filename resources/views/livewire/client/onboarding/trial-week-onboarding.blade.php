@@ -1,8 +1,6 @@
 <div>
-    @push('link')
+    @assets
         <style>
-            [x-cloak] { display: none !important; }
-
             .grid-figma {
                 background-image:
                     linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
@@ -164,169 +162,7 @@
                 * { animation: none !important; transition: none !important; }
             }
         </style>
-    @endpush
-
-    <link rel="stylesheet" href="/client/animation/driver.css"/>
-    <script src="/client/animation/driver.js.iife.js" defer></script>
-
-    @push('script')
-        <script>
-            document.addEventListener('alpine:init', () => {
-                Alpine.data('onboardingFlow', () => ({
-                    busy: false,
-                    countdownTimer: null,
-                    busyWatchdog: null,
-                    touchStartX: 0,
-                    touchEndX: 0,
-                    tourShown: false,
-
-                    init() {
-                        // ═══ FIX: Reset busy on every init (covers wire:navigate stale state)
-                        this.busy = false;
-
-                        this.startCountdownIfNeeded();
-
-                        // ═══ Livewire event listeners
-                        Livewire.on('start-countdown', () => this.startCountdownIfNeeded());
-                        Livewire.on('step-validation-failed', () => { this.clearBusy(); });
-                        Livewire.on('step-changed', () => {
-                            this.endTransition();
-                            this.$nextTick(() => this.maybeShowTour());
-                        });
-
-                        // ═══ FIX: Reset busy when ANY Livewire commit completes (safety net)
-                        if (window.Livewire && Livewire.hook) {
-                            this.livewireHookHandle = Livewire.hook('commit', ({ succeed, fail }) => {
-                                succeed(() => { setTimeout(() => this.clearBusy(), 250); });
-                                fail(() => { this.clearBusy(); });
-                            });
-                        }
-
-                        // ═══ FIX: Reset busy on navigation events
-                        document.addEventListener('livewire:navigated', this.boundNavigated = () => {
-                            this.clearBusy();
-                        });
-
-                        this.$nextTick(() => this.maybeShowTour());
-                    },
-
-                    destroy() {
-                        if (this.countdownTimer) clearInterval(this.countdownTimer);
-                        if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
-                        if (this.boundNavigated) document.removeEventListener('livewire:navigated', this.boundNavigated);
-                    },
-
-                    clearBusy() {
-                        this.busy = false;
-                        if (this.busyWatchdog) {
-                            clearTimeout(this.busyWatchdog);
-                            this.busyWatchdog = null;
-                        }
-                    },
-
-                    setBusy() {
-                        this.busy = true;
-                        // ═══ Watchdog: if for any reason busy stays true >8s, force reset
-                        if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
-                        this.busyWatchdog = setTimeout(() => {
-                            console.warn('[onboarding] watchdog reset busy after 8s');
-                            this.clearBusy();
-                        }, 8000);
-                    },
-
-                    endTransition() {
-                        setTimeout(() => { this.clearBusy(); }, 280);
-                    },
-
-                    pressBtn(el) {
-                        if (!el) return;
-                        el.classList.add('pressed');
-                        setTimeout(() => el.classList.remove('pressed'), 120);
-                        if (navigator.vibrate) navigator.vibrate(10);
-                    },
-
-                    maybeShowTour() {
-                        if (this.tourShown) return;
-                        if (localStorage.getItem('sdfr_onboarding_tour_done')) return;
-                        if (typeof window.driver === 'undefined') return;
-
-                        const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-                        if (!isDesktop && this.$wire.currentStep !== 2) return;
-                        if (isDesktop && this.$wire.currentStep > 4) return;
-                        if (!document.querySelector('[data-tour="firstName"]')) return;
-
-                        this.tourShown = true;
-                        const driver = window.driver.js.driver;
-                        const tour = driver({
-                            showProgress: true,
-                            allowClose: true,
-                            nextBtnText: 'بعدی', prevBtnText: 'قبلی', doneBtnText: 'فهمیدم',
-                            steps: [
-                                { element: '[data-tour="firstName"]', popover: { title: 'اطلاعات اولیه', description: 'این اطلاعات روی کارنامه و گزارش‌ها درج می‌شه. حتماً فارسی و کامل وارد کنید.', side: isDesktop ? 'right' : 'bottom' } },
-                                { element: '[data-tour="codeMell"]', popover: { title: 'کد ملی', description: 'کد ملی برای احراز هویت در سامانه استفاده می‌شه.', side: 'bottom' } },
-                            ],
-                            onDestroyed: () => { localStorage.setItem('sdfr_onboarding_tour_done', '1'); }
-                        });
-                        setTimeout(() => tour.drive(), 500);
-                    },
-
-                    startCountdownIfNeeded() {
-                        if (this.countdownTimer) clearInterval(this.countdownTimer);
-                        if (this.$wire.currentStep !== 5) return; // ═══ FIX: only run on OTP step
-                        if (this.$wire.countdown <= 0) return;
-                        this.countdownTimer = setInterval(() => {
-                            if (this.$wire.countdown > 0) {
-                                this.$wire.set('countdown', this.$wire.countdown - 1, false);
-                            } else {
-                                clearInterval(this.countdownTimer);
-                                this.$wire.countdownFinished();
-                            }
-                        }, 1000);
-                    },
-
-                    goNext() {
-                        if (this.busy) return;
-                        if (this.$wire.currentStep === 1) {
-                            this.setBusy();
-                            this.$wire.set('currentStep', 2).then(() => this.endTransition());
-                            return;
-                        }
-                        this.setBusy();
-                        this.$wire.next();
-                    },
-
-                    goPrev() {
-                        if (this.busy) return;
-                        if (this.$wire.currentStep <= 1) return;
-                        if (this.$wire.currentStep === 2) {
-                            this.setBusy();
-                            this.$wire.set('currentStep', 1).then(() => this.endTransition());
-                            return;
-                        }
-                        this.setBusy();
-                        this.$wire.previous().then(() => this.endTransition());
-                    },
-
-                    submitDesktopForm() {
-                        if (this.busy) return;
-                        this.setBusy();
-                        this.$wire.submitAll();
-                    },
-
-                    handleTouchStart(e) { this.touchStartX = e.changedTouches[0].screenX; },
-                    handleTouchEnd(e) {
-                        this.touchEndX = e.changedTouches[0].screenX;
-                        const diff = this.touchEndX - this.touchStartX;
-                        if (Math.abs(diff) < 60) return;
-                        if (['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName)) return;
-                        if (diff > 0 && this.$wire.currentStep > 1 && this.$wire.currentStep <= 4) {
-                            this.goPrev();
-                        }
-                    },
-                }));
-            });
-        </script>
-    @endpush
+    @endassets
 
     @php
         $gradeLabels = ['9'=>'نهم','10'=>'دهم','11'=>'یازدهم','12'=>'دوازدهم','graduate'=>'فارغ‌التحصیل'];
@@ -368,13 +204,6 @@
 
             <header class="px-4 pt-5 pb-3" x-show="$wire.currentStep < {{ $totalSteps }}">
                 <div class="flex items-center gap-3">
-                    {{-- LOGO --}}
-                    <div class="flex items-center gap-2">
-                        <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-primary/5 border border-primary/20">
-                            <img src="/client/assets/images/favicon.svg" class="w-7 h-7 object-contain" alt="SDFR"/>
-                        </div>
-                        <span class="font-black text-sm tracking-wider">SDFR</span>
-                    </div>
 
                     <div class="flex-1 flex items-center justify-center gap-2">
                         @for ($i = 1; $i <= $totalSteps; $i++)
@@ -444,14 +273,6 @@
                                                 </div>
                                             </div>
                                         @endforeach
-                                    </div>
-
-                                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-500 text-xs font-bold mb-5">
-                                        <span class="relative flex w-1.5 h-1.5">
-                                            <span class="absolute inline-flex w-full h-full bg-emerald-500 rounded-full opacity-75 animate-ping"></span>
-                                            <span class="relative inline-flex w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                                        </span>
-                                        هفته آزمایشی رایگان
                                     </div>
 
                                     <button type="button" @click="goNext()" @mousedown="pressBtn($el)"
@@ -767,15 +588,6 @@
         {{-- ═══════════════ 🖥️ DESKTOP ═══════════════ --}}
         <div class="hidden md:block relative z-10 min-h-screen">
 
-            <div class="max-w-7xl mx-auto px-8 pt-6">
-                <div class="flex items-center gap-2">
-                    <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-primary/5 border border-primary/20">
-                        <img src="/client/assets/images/favicon.svg" class="w-8 h-8 object-contain" alt="SDFR"/>
-                    </div>
-                    <span class="font-black text-base tracking-wider">SDFR</span>
-                </div>
-            </div>
-
             @if ($generalError)
                 <div class="max-w-7xl mx-auto px-8 mt-4">
                     <div class="rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 px-4 py-3 text-sm">
@@ -859,14 +671,6 @@
                 <div class="grid grid-cols-12 gap-8 items-start">
 
                     <div class="col-span-5 sticky top-8 space-y-6">
-                        <div class="inline-flex items-center gap-2 glass-card rounded-full px-3 py-1.5">
-                            <span class="relative flex w-1.5 h-1.5">
-                                <span class="absolute inline-flex w-full h-full bg-primary rounded-full opacity-75 animate-ping"></span>
-                                <span class="relative inline-flex w-1.5 h-1.5 bg-primary rounded-full"></span>
-                            </span>
-                            <span class="font-semibold text-xs">هفته‌ی آزمایشی رایگان</span>
-                        </div>
-
                         <h1 class="font-black text-4xl leading-tight">
                             به <span class="text-primary">SDFR</span> خوش آمدید
                         </h1>
@@ -1032,11 +836,6 @@
                                                     <svg x-show="showPw" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                                                 </button>
                                             </div>
-                                            <div class="flex items-center gap-1.5 mt-2">
-                                                <span class="text-[10px] text-muted">قدرت:</span>
-                                                <span class="text-[10px] px-1.5 py-0.5 rounded transition-colors"
-                                                      :class="$wire.passwordStrength?.length ? 'bg-emerald-500/15 text-emerald-500' : 'bg-secondary text-muted'">۸+</span>
-                                            </div>
                                             @error('password')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
 
@@ -1084,4 +883,163 @@
         </div>
 
     </div>
+
+    @script
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('onboardingFlow', () => ({
+                busy: false,
+                countdownTimer: null,
+                busyWatchdog: null,
+                touchStartX: 0,
+                touchEndX: 0,
+                tourShown: false,
+
+                init() {
+                    // ═══ FIX: Reset busy on every init (covers wire:navigate stale state)
+                    this.busy = false;
+
+                    this.startCountdownIfNeeded();
+
+                    // ═══ Livewire event listeners
+                    Livewire.on('start-countdown', () => this.startCountdownIfNeeded());
+                    Livewire.on('step-validation-failed', () => { this.clearBusy(); });
+                    Livewire.on('step-changed', () => {
+                        this.endTransition();
+                        this.$nextTick(() => this.maybeShowTour());
+                    });
+
+                    // ═══ FIX: Reset busy when ANY Livewire commit completes (safety net)
+                    if (window.Livewire && Livewire.hook) {
+                        this.livewireHookHandle = Livewire.hook('commit', ({ succeed, fail }) => {
+                            succeed(() => { setTimeout(() => this.clearBusy(), 250); });
+                            fail(() => { this.clearBusy(); });
+                        });
+                    }
+
+                    // ═══ FIX: Reset busy on navigation events
+                    document.addEventListener('livewire:navigated', this.boundNavigated = () => {
+                        this.clearBusy();
+                    });
+
+                    this.$nextTick(() => this.maybeShowTour());
+                },
+
+                destroy() {
+                    if (this.countdownTimer) clearInterval(this.countdownTimer);
+                    if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
+                    if (this.boundNavigated) document.removeEventListener('livewire:navigated', this.boundNavigated);
+                },
+
+                clearBusy() {
+                    this.busy = false;
+                    if (this.busyWatchdog) {
+                        clearTimeout(this.busyWatchdog);
+                        this.busyWatchdog = null;
+                    }
+                },
+
+                setBusy() {
+                    this.busy = true;
+                    // ═══ Watchdog: if for any reason busy stays true >8s, force reset
+                    if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
+                    this.busyWatchdog = setTimeout(() => {
+                        console.warn('[onboarding] watchdog reset busy after 8s');
+                        this.clearBusy();
+                    }, 8000);
+                },
+
+                endTransition() {
+                    setTimeout(() => { this.clearBusy(); }, 280);
+                },
+
+                pressBtn(el) {
+                    if (!el) return;
+                    el.classList.add('pressed');
+                    setTimeout(() => el.classList.remove('pressed'), 120);
+                    if (navigator.vibrate) navigator.vibrate(10);
+                },
+
+                maybeShowTour() {
+                    if (this.tourShown) return;
+                    if (localStorage.getItem('sdfr_onboarding_tour_done')) return;
+                    if (typeof window.driver === 'undefined') return;
+
+                    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+                    if (!isDesktop && this.$wire.currentStep !== 2) return;
+                    if (isDesktop && this.$wire.currentStep > 4) return;
+                    if (!document.querySelector('[data-tour="firstName"]')) return;
+
+                    this.tourShown = true;
+                    const driver = window.driver.js.driver;
+                    const tour = driver({
+                        showProgress: true,
+                        allowClose: true,
+                        nextBtnText: 'بعدی', prevBtnText: 'قبلی', doneBtnText: 'فهمیدم',
+                        steps: [
+                            { element: '[data-tour="firstName"]', popover: { title: 'اطلاعات اولیه', description: 'این اطلاعات روی کارنامه و گزارش‌ها درج می‌شه. حتماً فارسی و کامل وارد کنید.', side: isDesktop ? 'right' : 'bottom' } },
+                            { element: '[data-tour="codeMell"]', popover: { title: 'کد ملی', description: 'کد ملی برای احراز هویت در سامانه استفاده می‌شه.', side: 'bottom' } },
+                        ],
+                        onDestroyed: () => { localStorage.setItem('sdfr_onboarding_tour_done', '1'); }
+                    });
+                    setTimeout(() => tour.drive(), 500);
+                },
+
+                startCountdownIfNeeded() {
+                    if (this.countdownTimer) clearInterval(this.countdownTimer);
+                    if (this.$wire.currentStep !== 5) return; // ═══ FIX: only run on OTP step
+                    if (this.$wire.countdown <= 0) return;
+                    this.countdownTimer = setInterval(() => {
+                        if (this.$wire.countdown > 0) {
+                            this.$wire.set('countdown', this.$wire.countdown - 1, false);
+                        } else {
+                            clearInterval(this.countdownTimer);
+                            this.$wire.countdownFinished();
+                        }
+                    }, 1000);
+                },
+
+                goNext() {
+                    if (this.busy) return;
+                    if (this.$wire.currentStep === 1) {
+                        this.setBusy();
+                        this.$wire.set('currentStep', 2).then(() => this.endTransition());
+                        return;
+                    }
+                    this.setBusy();
+                    this.$wire.next();
+                },
+
+                goPrev() {
+                    if (this.busy) return;
+                    if (this.$wire.currentStep <= 1) return;
+                    if (this.$wire.currentStep === 2) {
+                        this.setBusy();
+                        this.$wire.set('currentStep', 1).then(() => this.endTransition());
+                        return;
+                    }
+                    this.setBusy();
+                    this.$wire.previous().then(() => this.endTransition());
+                },
+
+                submitDesktopForm() {
+                    if (this.busy) return;
+                    this.setBusy();
+                    this.$wire.submitAll();
+                },
+
+                handleTouchStart(e) { this.touchStartX = e.changedTouches[0].screenX; },
+                handleTouchEnd(e) {
+                    this.touchEndX = e.changedTouches[0].screenX;
+                    const diff = this.touchEndX - this.touchStartX;
+                    if (Math.abs(diff) < 60) return;
+                    if (['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName)) return;
+                    if (diff > 0 && this.$wire.currentStep > 1 && this.$wire.currentStep <= 4) {
+                        this.goPrev();
+                    }
+                },
+            }));
+        });
+    </script>
+    @endscript
 </div>

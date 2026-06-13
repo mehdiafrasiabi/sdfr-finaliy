@@ -51,6 +51,18 @@
 
                         <li class="nav-item">
 
+                            <a class="nav-link {{ $activeTab === 'panel' ? 'active' : '' }}"
+
+                               wire:click.prevent="setTab('panel')" href="#">
+
+                                <i class="ri-lock-2-line me-1"></i> بستن پنل
+
+                            </a>
+
+                        </li>
+
+                        <li class="nav-item">
+
                             <a class="nav-link text-muted disabled" href="#">
 
                                 <i class="ri-image-line me-1"></i> مدیا
@@ -842,6 +854,109 @@
 
                             </div>
 
+
+                        </div>
+
+                    @endif
+
+                    @if($activeTab === 'panel')
+
+                        <div class="row">
+
+                            <div class="col-lg-12 mb-4">
+
+                                <div class="card border card-border-warning">
+
+                                    <div class="card-header bg-warning-subtle">
+
+                                        <div class="d-flex align-items-center">
+
+                                            <i class="ri-lock-2-line fs-18 text-warning me-2"></i>
+
+                                            <h5 class="card-title mb-0 text-warning">بستن موقت پنل دانش‌آموز</h5>
+
+                                        </div>
+
+                                        <p class="text-muted mb-0 mt-2">
+
+                                            <small>با فعال‌کردن این گزینه، دانش‌آموزان هنگام ورود به پنل پیام زیر را می‌بینند و دسترسی موقتاً بسته می‌شود. سایت عمومی و پنل مدیریت باز می‌مانند.</small>
+
+                                        </p>
+
+                                    </div>
+
+                                    <div class="card-body">
+
+                                        <form wire:submit.prevent="savePanelStatus">
+
+                                            <div class="row g-3">
+
+                                                <div class="col-12">
+
+                                                    <div class="form-check form-switch fs-18">
+
+                                                        <input class="form-check-input" type="checkbox" role="switch"
+                                                               id="studentPanelClosed" wire:model="student_panel_closed">
+
+                                                        <label class="form-check-label ms-2" for="studentPanelClosed">
+
+                                                            پنل دانش‌آموز بسته باشد
+
+                                                        </label>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="col-12">
+
+                                                    <label class="form-label">پیام نمایشی هنگام بسته بودن پنل</label>
+
+                                                    <textarea class="form-control" rows="3"
+                                                              wire:model="student_panel_closed_message"
+                                                              placeholder="مثلاً: پنل به‌دلیل به‌روزرسانی موقتاً بسته است. لطفاً ساعاتی دیگر مراجعه کنید."></textarea>
+
+                                                    @error('student_panel_closed_message')
+
+                                                    <span class="text-danger small">{{ $message }}</span>
+
+                                                    @enderror
+
+                                                </div>
+
+                                                <div class="col-12">
+
+                                                    <div class="text-end">
+
+                                                        <button type="submit" class="btn btn-warning">
+
+                                                            <span wire:loading.remove wire:target="savePanelStatus">
+
+                                                                <i class="ri-save-line me-1"></i> ذخیره وضعیت پنل
+
+                                                            </span>
+
+                                                            <span wire:loading wire:target="savePanelStatus">
+
+                                                                <i class="ri-loader-4-line ri-spin me-1"></i> در حال ذخیره...
+
+                                                            </span>
+
+                                                        </button>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
 
                         </div>
 

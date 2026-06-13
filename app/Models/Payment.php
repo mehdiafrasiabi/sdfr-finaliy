@@ -24,5 +24,17 @@ class Payment extends Model
         return $this->belongsTo(PersonalInformation::class);
     }
 
+    public function installmentPlan()
+    {
+        return $this->belongsTo(InstallmentPlan::class, 'installment_plan_id');
+    }
 
+    public function installment()
+    {
+        return $this->belongsTo(Installment::class, 'installment_id');
+    }
+
+    public const PURPOSE_COURSE_FULL        = 'course_full';
+    public const PURPOSE_INSTALLMENT_INITIAL = 'installment_initial';
+    public const PURPOSE_INSTALLMENT        = 'installment';
 }

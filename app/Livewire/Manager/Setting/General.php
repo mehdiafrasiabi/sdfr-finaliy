@@ -78,6 +78,13 @@ class General extends Component
     public $floating_telegram;
 
 
+    // بستن موقت پنل دانش‌آموز
+
+    public $student_panel_closed = false;
+
+    public $student_panel_closed_message;
+
+
     public function mount()
 
     {
@@ -152,7 +159,30 @@ class General extends Component
 
             $this->floating_telegram = $settings->floating_telegram;
 
+
+            $this->student_panel_closed = (bool) ($settings->student_panel_closed ?? false);
+
+            $this->student_panel_closed_message = $settings->student_panel_closed_message;
+
         }
+
+    }
+
+
+    public function savePanelStatus()
+
+    {
+
+        $this->updateOrCreateSettings([
+
+            'student_panel_closed' => $this->student_panel_closed ? true : false,
+
+            'student_panel_closed_message' => $this->student_panel_closed_message,
+
+        ]);
+
+
+        $this->dispatch('success', $this->student_panel_closed ? 'پنل دانش‌آموز بسته شد.' : 'پنل دانش‌آموز باز شد.');
 
     }
 

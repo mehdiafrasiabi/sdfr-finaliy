@@ -75,14 +75,14 @@ Route::name('client.')->group(function () {
         Route::get('/forgot-password',ForgotPassword::class)->name('auth.forgotPassword');
     });
 
-    // صفحه انتظار برای تخصیص پشتیبان (auth + گِیت آزمون‌ها)
+    // صفحه انتظار برای تخصیص پشتیبان (auth + گِیت آزمون‌ها + گِیت بستن پنل)
     Route::get('/profile/waiting-for-supporter',
         \App\Livewire\Client\Profile\TrialWeek\WaitingForSupporter::class)
-        ->middleware(['auth', 'assessments.required'])
+        ->middleware(['auth', 'student.panel.open', 'assessments.required'])
         ->name('profile.waiting-for-supporter');
 
     // صفحات آزمون‌های روان‌شناختی (auth بدون trial.step — کاربر در همان status pending)
-    Route::middleware('auth')->prefix('profile/assessments')->name('profile.assessment.')->group(function () {
+    Route::middleware(['auth', 'student.panel.open'])->prefix('profile/assessments')->name('profile.assessment.')->group(function () {
         Route::get('/', AssessmentList::class)->name('list');
         Route::get('/{slug}/take', AssessmentTake::class)->name('take');
     });
@@ -99,10 +99,10 @@ Route::name('client.')->group(function () {
         Route::get('/{token}/{slug}/take', ParentAssessmentTakePage::class)->name('take');
     });
 
-    // B-2: صفحهٔ پرداخت اختصاصی (auth)
+    // B-2: صفحهٔ پرداخت اختصاصی (auth + گِیت آزمون‌ها + گِیت بستن پنل)
     Route::get('/purchase',
         \App\Livewire\Client\Purchase\Index::class)
-        ->middleware('auth')
+        ->middleware(['auth', 'student.panel.open', 'assessments.required'])
         ->name('purchase');
 
     Route::middleware('auth')->group(function () {
@@ -112,7 +112,7 @@ Route::name('client.')->group(function () {
         Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
 
 
-        Route::prefix('profile')->name('profile.')->middleware(['client.active', 'assessments.required', 'trial.step', 'block.during.study'])->group(function () {
+        Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'installments.current', 'trial.step', 'block.during.study'])->group(function () {
             //Profile
             Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
             Route::get('/star',Star::class)->name('star');
@@ -124,6 +124,7 @@ Route::name('client.')->group(function () {
             Route::get('/installmentDetail',ProfileInstallmentDetail::class)->name('installmentDetail');
             Route::get('/plan',ProfilePlan::class)->name('plan');
             Route::get('/report',ProfileReport::class)->name('report');
+
 //          Ticketing Route
             Route::get('/ticket',ProfileTicketIndex::class)->name('ticket');
             Route::get('/ticket/{ticket}/show',ProfileTicketShow::class)->name('ticket.show');

@@ -7,20 +7,27 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Morilog\Jalali\Jalalian;
 
 /**
- * قیمت پایه‌ای دوره برای یک «پایه تحصیلی» (9, 10, 11, 12).
+ * قیمت‌گذاری دوره برای یک «پایه تحصیلی» (9, 10, 11, 12) — مدل «ماه ورود و تخفیف»
+ * مطابق فایل اکسل مجموعه.
  *
- * مدل قیمت‌گذاری:
- *   - مدیر مبلغ کل (`total_amount`)، تاریخ شروع و تاریخ پایان را مشخص می‌کند.
- *   - سیستم خودش تعداد ماه‌ها را از تفاضل دو تاریخ محاسبه می‌کند.
- *   - قیمت ثابت هر ماه پلکانی است:
- *           priceAtMonth(i) = total_amount − floor(total_amount / months) × i
- *     این یعنی هر ماه که می‌گذرد، (total ÷ months) تومان از قیمت کم می‌شود تا
- *     دانش‌آموزی که دیرتر می‌پیوندد، فقط معادل خدماتی که می‌گیرد بپردازد.
- *   - مدیر می‌تواند برای هر ماه (`GradePriceMonthDiscount`) درصد تخفیف اضافه
- *     بگذارد و علاوه بر آن یک «روز خاص» (`GradePriceDailyDiscount`) با تخفیف
- *     ویژه تعریف کند.
+ * منطق:
+ *   - سال خدمت از «تیر» (اندیس ۰) تا «خرداد» (اندیس ۱۱) است (۱۲ ماه).
+ *   - مدیر برای هر پایه «نرخ ماهانه» (monthly_rate) و «درصد پیش‌پرداخت»
+ *     (initial_percentage) و سالِ خدمت (start_at = تیر۱، end_at = پایان خرداد) را
+ *     مشخص می‌کند، و برای هر ماهِ ورود یک «تخفیف زودهنگام» در
+ *     `GradePriceMonthDiscount` تعریف می‌کند (پیش‌فرض: تیر۱۵٪، مرداد۱۲٪، شهریور۹٪،
+ *     مهر۶٪، بقیه ۰).
+ *   - برای ماهِ ورودِ i:
+ *       remainingMonths = 12 − i
+ *       effectiveRate   = monthly_rate × (1 − discount(i)/100)
+ *       total           = effectiveRate × remainingMonths      (کل پرداختی سال)
+ *       initial         = total × initial_percentage/100        (پیش‌پرداخت)
+ *       installmentCount= remainingMonths − 1
+ *       installment     = (total − initial) / installmentCount  (مبلغ هر قسط)
+ *   - دسترسی همهٔ دانش‌آموزان در پایان خرداد (end_at) تمام می‌شود.
  */
 class GradePrice extends Model
 {
@@ -29,10 +36,28 @@ class GradePrice extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'start_at'  => 'date',
-        'end_at'    => 'date',
-        'is_active' => 'boolean',
+        'start_at'           => 'date',
+        'end_at'             => 'date',
+        'is_active'          => 'boolean',
+        'monthly_rate'       => 'integer',
+        'initial_percentage' => 'integer',
     ];
+
+    /** شمارهٔ ماهِ شمسی به‌ازای هر اندیسِ سال خدمت (۰=تیر … ۱۱=خرداد). */
+    public const SERVICE_MONTHS = [4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3];
+
+    public const PERSIAN_MONTH_NAMES = [
+        1 => 'فروردین', 2 => 'اردیبهشت', 3 => 'خرداد', 4 => 'تیر',
+        5 => 'مرداد', 6 => 'شهریور', 7 => 'مهر', 8 => 'آبان',
+        9 => 'آذر', 10 => 'دی', 11 => 'بهمن', 12 => 'اسفند',
+    ];
+
+    /** تخفیف‌های پیش‌فرض اکسل بر حسب اندیس ماهِ ورود. */
+    public const DEFAULT_DISCOUNTS = [0 => 15, 1 => 12, 2 => 9, 3 => 6];
+
+    public const SERVICE_MONTH_COUNT = 12;
+
+    // ───────────────────────── روابط ─────────────────────────
 
     public function createdBy(): BelongsTo
     {
@@ -54,167 +79,157 @@ class GradePrice extends Model
         return TrialWeek::GRADE_LABELS[$this->grade] ?? "پایه {$this->grade}";
     }
 
-    // ─────────────────────────────────────────────────────────────────
-    // محاسبهٔ تعداد ماه‌ها و قیمت پلکانی
-    // ─────────────────────────────────────────────────────────────────
+    // ────────────────── کمک‌متدهای ماهِ ورود ──────────────────
 
-    /**
-     * تعداد ماهِ کامل از start_at تا end_at (حداقل ۱).
-     * مثال: 1405/04/01 تا 1406/03/29  →  12 ماه.
-     */
-    public function getMonthsCountAttribute(): int
+    public function monthlyRate(): int
     {
-        if (! $this->start_at || ! $this->end_at) {
-            return 1;
-        }
+        return (int) $this->monthly_rate;
+    }
 
-        $start = $this->start_at instanceof Carbon ? $this->start_at : Carbon::parse($this->start_at);
-        $end   = $this->end_at   instanceof Carbon ? $this->end_at   : Carbon::parse($this->end_at);
+    public function initialPercentage(): int
+    {
+        $pct = (int) ($this->initial_percentage ?? 30);
+        return max(0, min(100, $pct));
+    }
 
-        $months = (int) $start->copy()->startOfDay()->diffInMonths($end->copy()->endOfDay()) + 1;
-        return max(1, $months);
+    /** شمارهٔ ماهِ شمسی (۱..۱۲) برای اندیس سال خدمت. */
+    public static function persianMonthForIndex(int $i): int
+    {
+        $i = self::clampIndex($i);
+        return self::SERVICE_MONTHS[$i];
+    }
+
+    /** نام فارسی ماهِ ورود برای اندیس. */
+    public static function monthLabel(int $i): string
+    {
+        return self::PERSIAN_MONTH_NAMES[self::persianMonthForIndex($i)] ?? '';
     }
 
     /**
-     * مبلغی که هر ماه از قیمت کل کاسته می‌شود.
+     * اندیس ماهِ ورود برای یک تاریخ (پیش‌فرض: امروز = ماهِ خرید).
+     * نگاشت: تیر(۴)→۰، مرداد(۵)→۱ … خرداد(۳)→۱۱.
      */
-    public function getMonthlyReductionAttribute(): int
+    public function entryMonthIndex(?Carbon $at = null): int
     {
-        $months = $this->months_count;
-        if ($months <= 0) {
+        $jMonth = (int) Jalalian::fromCarbon($at ?? Carbon::now())->getMonth();
+        return (($jMonth - 4) + 12) % 12;
+    }
+
+    /** درصد تخفیف زودهنگامِ ماهِ ورودِ i. */
+    public function discountFor(int $i): int
+    {
+        $i = self::clampIndex($i);
+
+        if ($this->relationLoaded('monthDiscounts')) {
+            $md = $this->monthDiscounts->firstWhere('month_index', $i);
+            return (int) ($md->discount_percentage ?? 0);
+        }
+
+        return (int) ($this->monthDiscounts()->where('month_index', $i)->value('discount_percentage') ?? 0);
+    }
+
+    /** تعداد ماه‌های باقی‌مانده تا پایان خرداد (با احتساب ماهِ ورود). */
+    public function remainingMonths(int $i): int
+    {
+        return self::SERVICE_MONTH_COUNT - self::clampIndex($i);
+    }
+
+    /** نرخ مؤثر ماهانه = نرخ پایه × (۱ − تخفیف). */
+    public function effectiveRate(int $i, ?int $discountPct = null): int
+    {
+        $pct = $discountPct ?? $this->discountFor($i);
+        $pct = max(0, min(100, $pct));
+        return (int) round($this->monthlyRate() * (1 - $pct / 100));
+    }
+
+    /** کل پرداختی سال برای ماهِ ورودِ i. */
+    public function totalFor(int $i, ?int $discountPct = null): int
+    {
+        return $this->effectiveRate($i, $discountPct) * $this->remainingMonths($i);
+    }
+
+    /** مبلغ پیش‌پرداخت (۳۰٪ پیش‌فرض). */
+    public function initialPayment(int $i, ?int $discountPct = null): int
+    {
+        return (int) round($this->totalFor($i, $discountPct) * $this->initialPercentage() / 100);
+    }
+
+    /** تعداد اقساط (بدون احتساب پیش‌پرداخت). */
+    public function installmentCount(int $i): int
+    {
+        return max(0, $this->remainingMonths($i) - 1);
+    }
+
+    /** مبلغ هر قسط. اگر فقط یک ماه مانده باشد، قسطی نیست (۰). */
+    public function installmentAmount(int $i, ?int $discountPct = null): int
+    {
+        $count = $this->installmentCount($i);
+        if ($count <= 0) {
             return 0;
         }
-        return (int) floor($this->total_amount / $months);
+        return (int) round(($this->totalFor($i, $discountPct) - $this->initialPayment($i, $discountPct)) / $count);
     }
 
-    /**
-     * چندمین ماه از شروع پلن گذشته‌ایم (۰ = همان ماه اول).
-     */
-    public function monthIndex(?Carbon $at = null): int
+    /** تاریخ پایان دسترسی (پایان خرداد سالِ خدمت). */
+    public function accessEndsAt(): ?Carbon
     {
-        $at    = $at ?? Carbon::now();
+        if (! $this->end_at) {
+            return null;
+        }
+        $end = $this->end_at instanceof Carbon ? $this->end_at : Carbon::parse($this->end_at);
+        return $end->copy()->endOfDay();
+    }
+
+    /** سالِ خدمت (سال شمسیِ تیر). */
+    public function serviceYear(): ?int
+    {
+        if (! $this->start_at) {
+            return null;
+        }
         $start = $this->start_at instanceof Carbon ? $this->start_at : Carbon::parse($this->start_at);
+        return (int) Jalalian::fromCarbon($start)->getYear();
+    }
 
-        if ($at->lessThan($start)) {
-            return 0;
+    /**
+     * جدول کاملِ ۱۲ ماه با همهٔ مقادیر محاسبه‌شده — برای UI مدیریت و صفحهٔ خرید.
+     */
+    public function entryMonthsTable(?Carbon $at = null): array
+    {
+        $current = $this->entryMonthIndex($at);
+        $rows = [];
+        for ($i = 0; $i < self::SERVICE_MONTH_COUNT; $i++) {
+            $pct = $this->discountFor($i);
+            $rows[] = [
+                'index'             => $i,
+                'persian_month'     => self::persianMonthForIndex($i),
+                'label'             => self::monthLabel($i),
+                'discount'          => $pct,
+                'effective_rate'    => $this->effectiveRate($i, $pct),
+                'remaining_months'  => $this->remainingMonths($i),
+                'total'             => $this->totalFor($i, $pct),
+                'initial'           => $this->initialPayment($i, $pct),
+                'installment_count' => $this->installmentCount($i),
+                'installment'       => $this->installmentAmount($i, $pct),
+                'is_current'        => $i === $current,
+            ];
         }
-
-        $diff = (int) $start->copy()->startOfDay()->diffInMonths($at);
-        return min($diff, max($this->months_count - 1, 0));
+        return $rows;
     }
 
-    /**
-     * قیمت ثابت پلکانی ماه n‌ام (n=0 → ماه اول).
-     * این مقدار «سقف» قیمت آن ماه است.
-     */
-    public function priceAtMonth(int $monthIndex): int
-    {
-        $monthIndex = max(0, $monthIndex);
-        $price = $this->total_amount - ($this->monthly_reduction * $monthIndex);
-        return max(0, (int) $price);
-    }
-
-    /**
-     * بازهٔ تاریخی ماه n‌ام (start, end).
-     */
-    public function monthRange(int $monthIndex): array
-    {
-        $start = ($this->start_at instanceof Carbon ? $this->start_at : Carbon::parse($this->start_at))
-            ->copy()->startOfDay()->addMonths($monthIndex);
-
-        $months = $this->months_count;
-        if ($monthIndex >= $months - 1) {
-            $end = ($this->end_at instanceof Carbon ? $this->end_at : Carbon::parse($this->end_at))
-                ->copy()->endOfDay();
-        } else {
-            $end = $start->copy()->addMonth()->subDay()->endOfDay();
-        }
-
-        return [$start, $end];
-    }
-
-    // ─────────────────────────────────────────────────────────────────
-    // اعمال تخفیف ماهانه + تخفیف روز خاص
-    // ─────────────────────────────────────────────────────────────────
-
-    public function monthDiscountFor(int $monthIndex): ?GradePriceMonthDiscount
-    {
-        return $this->monthDiscounts()->where('month_index', $monthIndex)->first();
-    }
-
-    public function activeDailyDiscount(?Carbon $at = null): ?GradePriceDailyDiscount
-    {
-        $at = $at ?? Carbon::now();
-        return $this->dailyDiscounts()
-            ->where('is_active', true)
-            ->where('starts_on', '<=', $at->toDateString())
-            ->where('ends_on',   '>=', $at->toDateString())
-            ->orderByDesc('discount_percentage')
-            ->first();
-    }
-
-    /**
-     * قیمت نهایی ماه n‌ام = قیمت پلکانی × (1 − month_discount%) × (1 − daily_discount%)
-     * تخفیف روزانه فقط در صورتی اعمال می‌شود که روز جاری در همان ماه `i` افتاده باشد.
-     */
-    public function effectivePriceForMonth(int $monthIndex, ?Carbon $at = null): int
-    {
-        $at      = $at ?? Carbon::now();
-        $stepped = $this->priceAtMonth($monthIndex);
-
-        $multiplier = 1.0;
-
-        $md = $this->monthDiscountFor($monthIndex);
-        if ($md && $md->discount_percentage > 0) {
-            $multiplier *= (1 - $md->discount_percentage / 100);
-        }
-
-        [$monthStart, $monthEnd] = $this->monthRange($monthIndex);
-        if ($at->between($monthStart, $monthEnd)) {
-            $daily = $this->activeDailyDiscount($at);
-            if ($daily) {
-                $multiplier *= (1 - $daily->discount_percentage / 100);
-            }
-        }
-
-        return (int) round($stepped * $multiplier);
-    }
-
-    /**
-     * قیمت نهایی برای زمان فعلی (یا $at).
-     */
-    public function effectivePrice(?Carbon $at = null): int
-    {
-        return $this->effectivePriceForMonth($this->monthIndex($at), $at);
-    }
-
-    /**
-     * قیمت پلکانی ماه جاری (بدون تخفیف).
-     */
-    public function getCurrentSteppedPriceAttribute(): int
-    {
-        return $this->priceAtMonth($this->monthIndex());
-    }
-
-    /**
-     * قیمت پلکانی ماه بعد (بدون تخفیف روز خاص).
-     */
-    public function getNextMonthSteppedPriceAttribute(): int
-    {
-        return $this->priceAtMonth($this->monthIndex() + 1);
-    }
-
-    // ─────────────────────────────────────────────────────────────────
-    // یافتن قیمت فعال برای یک پایه
-    // ─────────────────────────────────────────────────────────────────
+    // ────────────────── یافتن قیمت فعال ──────────────────
 
     public static function activeFor(int $grade): ?self
     {
         return self::where('grade', $grade)
             ->where('is_active', true)
             ->where('start_at', '<=', now()->toDateString())
-            ->where(fn($q) => $q->whereNull('end_at')->orWhere('end_at', '>=', now()->toDateString()))
+            ->where(fn ($q) => $q->whereNull('end_at')->orWhere('end_at', '>=', now()->toDateString()))
             ->orderByDesc('start_at')
             ->first();
+    }
+
+    private static function clampIndex(int $i): int
+    {
+        return max(0, min(self::SERVICE_MONTH_COUNT - 1, $i));
     }
 }

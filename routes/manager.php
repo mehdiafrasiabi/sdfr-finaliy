@@ -143,10 +143,9 @@ Route::name('manager.')->group(function () {
             ->name('grade-price.index');
         Route::get('/grade-prices/{price}', \App\Livewire\Manager\GradePrice\Show::class)
             ->name('grade-price.show');
-        // Legacy route for daily discounts kept for backward compatibility
-        Route::get('/grade-prices/{price}/daily-discounts',
-            \App\Livewire\Manager\GradePrice\DailyDiscount::class)
-            ->name('grade-price.daily-discount');
+        // مدیریت اقساط دانش‌آموزان (مشاهده و ثبت دستی)
+        Route::get('/installments', \App\Livewire\Manager\Installment\Index::class)
+            ->name('installment.index');
 
         // Trial Week Routes (هفته آزمایشی)
         // مدیریت آزمون‌های روان‌شناختی

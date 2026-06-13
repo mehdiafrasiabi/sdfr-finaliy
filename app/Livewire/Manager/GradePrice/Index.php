@@ -3,33 +3,36 @@
 namespace App\Livewire\Manager\GradePrice;
 
 use App\Models\GradePrice;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Morilog\Jalali\Jalalian;
 
 /**
- * D-2 (بازطراحی) — قیمت‌گذاری پایه‌ای.
+ * قیمت‌گذاری «ماه ورود و تخفیف» — به‌ازای هر پایه (۹/۱۰/۱۱/۱۲) یک رکورد:
+ *   - نرخ ماهانه (monthly_rate)
+ *   - درصد پیش‌پرداخت (initial_percentage، پیش‌فرض ۳۰)
+ *   - سالِ خدمت (سال شمسیِ تیر) → start_at = تیر۱، end_at = پایان خرداد سالِ بعد.
  *
- * مدیر برای هر پایه (۹/۱۰/۱۱/۱۲) یک رکورد قیمت ثبت می‌کند:
- *   - مبلغ کل (تومان)
- *   - تاریخ شروع و پایان (شمسی، توسط jalalidatepicker)
- *   - وضعیت فعال/غیرفعال
- *
- * هر پایه فقط یک رکورد می‌تواند داشته باشد. پس از ذخیره، صفحهٔ Show باز می‌شود
- * تا مدیر برای هر ماه تخفیف خاص یا تخفیف روز خاص تعریف کند.
+ * پس از ذخیره، صفحهٔ Show باز می‌شود تا تخفیف زودهنگامِ هر ماه تنظیم شود.
  */
 class Index extends Component
 {
-    public bool $showForm   = false;
-    public ?int $editingId  = null;
+    public bool $showForm  = false;
+    public ?int $editingId = null;
 
-    public int    $grade        = 12;
-    public int    $totalAmount  = 0;
-    public string $startAtJ     = ''; // شمسی yyyy/mm/dd
-    public string $endAtJ       = '';
-    public bool   $isActive     = true;
+    public int    $grade             = 12;
+    public int    $monthlyRate       = 1650000;
+    public int    $initialPercentage = 30;
+    public int    $serviceYear       = 0;   // سال شمسیِ تیر، مثل ۱۴۰۵
+    public bool   $isActive          = true;
+
+    public function mount(): void
+    {
+        // پیش‌فرض: سالِ خدمتِ جاری (اگر بعد از خرداد هستیم همین سال، وگرنه سال قبل).
+        $now = Jalalian::now();
+        $this->serviceYear = (int) $now->getMonth() >= 4 ? (int) $now->getYear() : (int) $now->getYear() - 1;
+    }
 
     protected function rules(): array
     {
@@ -38,21 +41,19 @@ class Index extends Component
                 'required', 'integer', 'in:9,10,11,12',
                 Rule::unique('grade_prices', 'grade')->ignore($this->editingId),
             ],
-            'totalAmount' => ['required', 'integer', 'min:1'],
-            'startAtJ'    => ['required', 'string', 'regex:/^\d{4}\/\d{2}\/\d{2}$/'],
-            'endAtJ'      => ['required', 'string', 'regex:/^\d{4}\/\d{2}\/\d{2}$/'],
-            'isActive'    => ['boolean'],
+            'monthlyRate'       => ['required', 'integer', 'min:1'],
+            'initialPercentage' => ['required', 'integer', 'min:0', 'max:100'],
+            'serviceYear'       => ['required', 'integer', 'min:1390', 'max:1450'],
+            'isActive'          => ['boolean'],
         ];
     }
 
     protected array $messages = [
-        'grade.unique'        => 'برای این پایه قبلاً قیمت تعریف شده است.',
-        'totalAmount.required'=> 'مبلغ کل الزامی است.',
-        'totalAmount.min'     => 'مبلغ کل باید بیشتر از صفر باشد.',
-        'startAtJ.required'   => 'تاریخ شروع الزامی است.',
-        'startAtJ.regex'      => 'فرمت تاریخ شروع باید yyyy/mm/dd شمسی باشد.',
-        'endAtJ.required'     => 'تاریخ پایان الزامی است.',
-        'endAtJ.regex'        => 'فرمت تاریخ پایان باید yyyy/mm/dd شمسی باشد.',
+        'grade.unique'              => 'برای این پایه قبلاً قیمت تعریف شده است.',
+        'monthlyRate.required'      => 'نرخ ماهانه الزامی است.',
+        'monthlyRate.min'           => 'نرخ ماهانه باید بیشتر از صفر باشد.',
+        'initialPercentage.required'=> 'درصد پیش‌پرداخت الزامی است.',
+        'serviceYear.required'      => 'سال خدمت الزامی است.',
     ];
 
     public function openCreate(): void
@@ -65,41 +66,32 @@ class Index extends Component
     public function openEdit(int $id): void
     {
         $price = GradePrice::findOrFail($id);
-        $this->editingId   = $id;
-        $this->grade       = (int) $price->grade;
-        $this->totalAmount = (int) $price->total_amount;
-        $this->startAtJ    = Jalalian::fromCarbon($price->start_at)->format('Y/m/d');
-        $this->endAtJ      = $price->end_at
-            ? Jalalian::fromCarbon($price->end_at)->format('Y/m/d')
-            : '';
-        $this->isActive    = (bool) $price->is_active;
-        $this->showForm    = true;
+        $this->editingId         = $id;
+        $this->grade             = (int) $price->grade;
+        $this->monthlyRate       = (int) $price->monthly_rate;
+        $this->initialPercentage = (int) ($price->initial_percentage ?? 30);
+        $this->serviceYear       = $price->serviceYear() ?? $this->serviceYear;
+        $this->isActive          = (bool) $price->is_active;
+        $this->showForm          = true;
+        $this->resetErrorBag();
     }
 
     public function save(): void
     {
         $this->validate();
 
-        $startAt = $this->jalaliToCarbon($this->startAtJ);
-        $endAt   = $this->jalaliToCarbon($this->endAtJ);
-
-        if (! $startAt || ! $endAt) {
-            $this->addError('startAtJ', 'تبدیل تاریخ شمسی به میلادی ناموفق بود.');
-            return;
-        }
-
-        if ($endAt->lessThan($startAt)) {
-            $this->addError('endAtJ', 'تاریخ پایان باید پس از تاریخ شروع باشد.');
-            return;
-        }
+        $startAt = Jalalian::fromFormat('Y/m/d', sprintf('%d/04/01', $this->serviceYear))->toCarbon();
+        $endAt   = Jalalian::fromFormat('Y/m/d', sprintf('%d/03/31', $this->serviceYear + 1))->toCarbon();
 
         $payload = [
-            'grade'        => $this->grade,
-            'total_amount' => $this->totalAmount,
-            'start_at'     => $startAt->toDateString(),
-            'end_at'       => $endAt->toDateString(),
-            'is_active'    => $this->isActive,
-            'created_by'   => Auth::guard('admin')->id() ?? Auth::id(),
+            'grade'              => $this->grade,
+            'monthly_rate'       => $this->monthlyRate,
+            'initial_percentage' => $this->initialPercentage,
+            'total_amount'       => $this->monthlyRate, // ستون قدیمی NOT NULL — مقدار بی‌اثر
+            'start_at'           => $startAt->toDateString(),
+            'end_at'             => $endAt->toDateString(),
+            'is_active'          => $this->isActive,
+            'created_by'         => Auth::guard('admin')->id() ?? Auth::guard('manager')->id() ?? Auth::id(),
         ];
 
         if ($this->editingId) {
@@ -109,7 +101,7 @@ class Index extends Component
         } else {
             $price = GradePrice::create($payload);
             $id = $price->id;
-            session()->flash('success', 'قیمت جدید با موفقیت ثبت شد.');
+            session()->flash('success', 'قیمت جدید ثبت شد. اکنون تخفیف هر ماه را تنظیم کنید.');
         }
 
         $this->closeForm();
@@ -137,26 +129,11 @@ class Index extends Component
 
     private function resetForm(): void
     {
-        $this->grade       = 12;
-        $this->totalAmount = 0;
-        $this->startAtJ    = '';
-        $this->endAtJ      = '';
-        $this->isActive    = true;
-    }
-
-    /**
-     * تبدیل yyyy/mm/dd شمسی به Carbon میلادی.
-     */
-    private function jalaliToCarbon(string $jdate): ?Carbon
-    {
-        if (! preg_match('/^(\d{4})\/(\d{2})\/(\d{2})$/', $jdate, $m)) {
-            return null;
-        }
-        try {
-            return Jalalian::fromFormat('Y/m/d', $jdate)->toCarbon();
-        } catch (\Throwable $e) {
-            return null;
-        }
+        $this->grade             = 12;
+        $this->monthlyRate       = 1650000;
+        $this->initialPercentage = 30;
+        $this->isActive          = true;
+        $this->resetErrorBag();
     }
 
     public function render()

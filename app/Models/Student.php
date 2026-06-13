@@ -13,7 +13,44 @@ class Student extends Model
 
     protected $guarded = [];
 
-    protected $casts = ['is_trial' => 'boolean'];
+    protected $casts = [
+        'is_trial'       => 'boolean',
+        'access_ends_at' => 'datetime',
+    ];
+
+    /**
+     * آیا دسترسی پرداختی فعال است؟ = پرداخت موفق دارد و دسترسی منقضی نشده.
+     * نکته: اگر access_ends_at تهی باشد (دانش‌آموزان قدیمی، پیش از این قابلیت)
+     * دسترسی نامحدود تلقی می‌شود تا قفل نشوند؛ انقضا فقط وقتی اعمال می‌شود که
+     * تاریخ پایان صریحاً ثبت شده و گذشته باشد.
+     */
+    public function hasActivePaidAccess(): bool
+    {
+        $hasPaid = \App\Models\Payment::where('user_id', $this->user_id)
+            ->where('status', 'completed')
+            ->exists();
+
+        return $hasPaid && ! $this->accessExpired();
+    }
+
+    public function accessExpired(): bool
+    {
+        return $this->access_ends_at !== null && $this->access_ends_at->isPast();
+    }
+
+    public function installmentPlans(): HasMany
+    {
+        return $this->hasMany(InstallmentPlan::class);
+    }
+
+    /** طرح اقساطیِ فعالِ جاری (آخرین طرحِ غیرتکمیل‌شده). */
+    public function activeInstallmentPlan(): ?InstallmentPlan
+    {
+        return $this->installmentPlans()
+            ->whereIn('status', [InstallmentPlan::STATUS_ACTIVE, InstallmentPlan::STATUS_PENDING])
+            ->latest('id')
+            ->first();
+    }
 
     public function payment()
     {

@@ -3,6 +3,7 @@
 namespace App\Livewire\Client\Payment;
 use App\Contracts\PaymentGateWayInterface;
 use App\Models\Payment;
+use App\Services\PurchaseFinalizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -11,7 +12,7 @@ class Callback extends Component
     public $paymentData;
     public $isWalletPurchase = false;
     public $isWalletCharge = false;
-    public function mount(Request $request, PaymentGateWayInterface $paymentGateWay)
+    public function mount(Request $request, PaymentGateWayInterface $paymentGateWay, PurchaseFinalizer $finalizer)
     {
         // Check if this is a wallet-only purchase (no gateway)
         if (session('paymentSuccess')) {
@@ -50,6 +51,11 @@ class Callback extends Component
                 $pendingOrderNumber = session('pending_order_number');
                 if ($pendingWalletDeduction && $pendingOrderNumber === $payment->order_number && $payment->status === 'completed') {
                     $this->processPartialWalletPayment($pendingWalletDeduction, $payment);
+                }
+                // نهایی‌سازی خرید دوره/اقساط (به‌جز شارژ کیف پول): فعال‌سازی دسترسی،
+                // طرح اقساطی یا علامت‌زدن قسط پرداخت‌شده.
+                if (! $isWalletCharge && $payment->status === 'completed') {
+                    $finalizer->finalize($payment);
                 }
                 $this->paymentData = [
                     'order_number' => $payment->order_number,

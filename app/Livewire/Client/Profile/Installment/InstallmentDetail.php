@@ -10,9 +10,8 @@ class InstallmentDetail extends Component
     use SEOTools;
     public function mount()
     {
-        $this->seo()
-            ->setTitle('اقساط(بزودی)')
-            ->setDescription('اقساط(بزودی)');
+        // جزئیات اقساط در همان صفحهٔ اصلی اقساط نمایش داده می‌شود.
+        return $this->redirect(route('client.profile.installment'), navigate: true);
     }
     public function render()
     {

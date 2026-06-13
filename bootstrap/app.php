@@ -20,6 +20,8 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'assessments.required' => \App\Http\Middleware\EnsureAssessmentsCompleted::class,
             'trial.step'    => \App\Http\Middleware\EnsureTrialStepUnlocked::class,
             'block.during.study' => \App\Http\Middleware\BlockProfileDuringActiveStudy::class,
+            'installments.current' => \App\Http\Middleware\EnsureInstallmentsCurrent::class,
+            'student.panel.open' => \App\Http\Middleware\EnsureStudentPanelOpen::class,
         ]);
 
         $middleware->redirectGuestsTo(function () {

@@ -45,9 +45,18 @@ class AssessmentList extends Component
      */
     public function continueToChoice(): void
     {
+        $user = Auth::user();
+
         // کاربری که از قبل هفتهٔ آزمایشی دارد، انتخاب مسیر ندارد و ادامه می‌دهد.
-        if (Auth::user()->trialWeek) {
+        if ($user->trialWeek) {
             $this->redirect(route('client.profile.trial.guide'), navigate: true);
+            return;
+        }
+
+        // دانش‌آموز مدرسه یا کسی که دسترسی پرداختیِ فعال دارد، نیازی به انتخاب
+        // آزمایشی/خرید ندارد و مستقیم به داشبورد می‌رود.
+        if ($user->isSchoolStudent() || ($user->student && $user->student->hasActivePaidAccess())) {
+            $this->redirect(route('client.profile.dashboard'), navigate: true);
             return;
         }
 
