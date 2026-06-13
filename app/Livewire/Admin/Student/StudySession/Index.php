@@ -116,14 +116,21 @@ class Index extends Component
 
     protected function studentsBaseQuery(int $adminId): Builder
     {
-        return Student::query()
+        $query = Student::query()
             ->with([
                 'payment.order.orderItems.product',
                 'payment.order.user',
-                'user.personalInformation',
-                'user.profile'
-            ])
-            ->where('advisor_id', $adminId);
+                'user.personalInformation',  // ✅ این باید باشه
+                'user.profile',
+                'advisor',
+            ]);
+        // مدیر مدرسه فقط دانش‌آموزان مدرسهٔ خود را می‌بیند.
+        $admin = auth('admin')->user();
+        if ($admin?->hasRole('school-manager') && $admin->school_id) {
+            return $query->where('school_id', $admin->school_id);
+        }
+
+        return $query->where('advisor_id', $adminId);
     }
     public function formatHourMinute(?int $seconds): string
     {

@@ -104,7 +104,7 @@ class Index extends Component
 
     protected function studentsBaseQuery(int $adminId): Builder
     {
-        return Student::query()
+        $query = Student::query()
             ->with([
                 'payment.order.orderItems.product',
                 'payment.order.user',
@@ -118,7 +118,15 @@ class Index extends Component
                 },
             ])
             ->withMax('reportdaily as latest_student_reply_at', 'student_replied_at')
-            ->where('advisor_id', $adminId);
+            ->with('advisor');
+
+        // مدیر مدرسه فقط دانش‌آموزان مدرسهٔ خود را می‌بیند.
+        $admin = auth('admin')->user();
+        if ($admin?->hasRole('school-manager') && $admin->school_id) {
+            return $query->where('school_id', $admin->school_id);
+        }
+
+        return $query->where('advisor_id', $adminId);
     }
     /**
      * Batch-compute not-sent report counts for a set of student IDs.

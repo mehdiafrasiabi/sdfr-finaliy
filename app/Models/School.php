@@ -26,9 +26,20 @@ class School extends Model
         return $this->hasOne(SchoolStaff::class)->where('role', 'deputy');
     }
 
-    public function supporters()
+    /**
+     * مشاوران تحصیلی فعال‌شده برای این مدرسه.
+     */
+    public function advisors()
     {
-        return $this->belongsToMany(Admin::class, 'school_admin')->withTimestamps();
+        return $this->belongsToMany(Admin::class, 'school_advisor')->withTimestamps();
+    }
+
+    /**
+     * اکانت ادمینِ «مدیر مدرسه» (نقش school-manager) متعلق به این مدرسه.
+     */
+    public function schoolManagerAdmin()
+    {
+        return $this->hasOne(Admin::class, 'school_id');
     }
 
     public function students()

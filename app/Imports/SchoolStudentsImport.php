@@ -18,8 +18,8 @@ class SchoolStudentsImport implements ToCollection
     public array $invalidRows = [];
 
     protected array $gradeMap = [
-        '10' => '10', '11' => '11', '12' => '12',
-        'دهم' => '10', 'یازدهم' => '11', 'دوازدهم' => '12',
+        '9' => '9', '10' => '10', '11' => '11', '12' => '12',
+        'نهم' => '9', 'دهم' => '10', 'یازدهم' => '11', 'دوازدهم' => '12',
     ];
 
     protected array $fieldMap = [
@@ -89,11 +89,14 @@ class SchoolStudentsImport implements ToCollection
 
             $grade = $this->gradeMap[$gradeRaw] ?? null;
             if (!$grade) {
-                $errors[] = 'پایه معتبر نیست (مجاز: 10/11/12 یا دهم/یازدهم/دوازدهم)';
+                $errors[] = 'پایه معتبر نیست (مجاز: 9/10/11/12 یا نهم/دهم/یازدهم/دوازدهم)';
             }
 
+            // برای پایه نهم رشته معنا ندارد و اختیاری است.
             $field = $this->fieldMap[$fieldRaw] ?? null;
-            if (!$field) {
+            if ($grade === '9') {
+                $field = null;
+            } elseif (!$field) {
                 $errors[] = 'رشته معتبر نیست (مجاز: math/experimental/human یا ریاضی/تجربی/انسانی)';
             }
 
@@ -136,18 +139,18 @@ class SchoolStudentsImport implements ToCollection
 
     public function save(): int
     {
-        $school = School::with('supporters')->find($this->schoolId);
+        $school = School::with('advisors')->find($this->schoolId);
         if (!$school) {
             return 0;
         }
 
-        $autoSupporterId = null;
-        if ($school->supporters->count() === 1) {
-            $autoSupporterId = $school->supporters->first()->id;
+        $autoAdvisorId = null;
+        if ($school->advisors->count() === 1) {
+            $autoAdvisorId = $school->advisors->first()->id;
         }
 
         $count = 0;
-        DB::transaction(function () use ($school, $autoSupporterId, &$count) {
+        DB::transaction(function () use ($school, $autoAdvisorId, &$count) {
             foreach ($this->validRows as $row) {
                 $user = User::create([
                     'name'     => $row['name'],
@@ -158,7 +161,7 @@ class SchoolStudentsImport implements ToCollection
                 Student::create([
                     'user_id'             => $user->id,
                     'school_id'           => $school->id,
-                    'school_supporter_id' => $autoSupporterId,
+                    'advisor_id'          => $autoAdvisorId,
                     'national_code'       => $row['national_code'],
                     'father_mobile'       => $row['father_mobile'],
                     'mother_mobile'       => $row['mother_mobile'],

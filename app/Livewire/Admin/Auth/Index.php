@@ -54,6 +54,12 @@ class Index extends Component
             }
 
             session()->flash('messageSuccess','مدیر عزیز، خوش اومدی');
+
+            // مدیر مدرسه دسترسی به داشبورد ندارد؛ مستقیم به لیست دانش‌آموزان مدرسه هدایت می‌شود.
+            if ($adminUser->hasRole('school-manager')) {
+                return redirect()->route('admin.student.index');
+            }
+
             return redirect()->route('admin.dashboard.index');
         } else {
             session()->flash('message','نام کاربری یا رمز عبور نامعتبر است .');

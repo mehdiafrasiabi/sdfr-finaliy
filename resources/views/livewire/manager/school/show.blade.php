@@ -20,38 +20,38 @@
 
     <div class="card mt-4">
         <div class="card-header">
-            <h5 class="card-title mb-0">پشتیبان‌های مدرسه</h5>
+            <h5 class="card-title mb-0">مشاوران مدرسه</h5>
         </div>
         <div class="card-body">
             <p class="text-muted">
-                از میان ادمین‌هایی که نقش «پشتیبان مدرسه» دارند، یک یا چند نفر را برای این مدرسه انتخاب کنید.
+                از میان ادمین‌هایی که نقش «مشاور تحصیلی» دارند، یک یا چند نفر را برای این مدرسه انتخاب کنید.
                 اگر هیچ ادمینی با این نقش وجود ندارد، ابتدا در صفحه‌ی «مدیریت ادمین‌ها» نقش را به یک ادمین اختصاص دهید.
             </p>
 
-            @if ($availableSupporters->isEmpty())
+            @if ($availableAdvisors->isEmpty())
                 <div class="alert alert-warning">
-                    هیچ ادمینی با نقش «پشتیبان مدرسه» وجود ندارد.
+                    هیچ ادمینی با نقش «مشاور تحصیلی» وجود ندارد.
                 </div>
             @else
                 <div class="row">
-                    @foreach($availableSupporters as $supporter)
+                    @foreach($availableAdvisors as $advisor)
                         <div class="col-md-4 mb-2">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox"
-                                       wire:model="selectedSupporters"
-                                       value="{{ $supporter->id }}"
-                                       id="sup-{{ $supporter->id }}">
-                                <label class="form-check-label" for="sup-{{ $supporter->id }}">
-                                    {{ $supporter->name }}
-                                    <small class="text-muted d-block">{{ $supporter->mobile }}</small>
+                                       wire:model="selectedAdvisors"
+                                       value="{{ $advisor->id }}"
+                                       id="adv-{{ $advisor->id }}">
+                                <label class="form-check-label" for="adv-{{ $advisor->id }}">
+                                    {{ $advisor->name }}
+                                    <small class="text-muted d-block">{{ $advisor->mobile }}</small>
                                 </label>
                             </div>
                         </div>
                     @endforeach
                 </div>
                 <div class="text-end mt-3">
-                    <button wire:click="syncSupporters" class="btn btn-success">
-                        <span wire:loading.remove>ذخیره پشتیبان‌ها</span>
+                    <button wire:click="syncAdvisors" class="btn btn-success">
+                        <span wire:loading.remove>ذخیره مشاوران</span>
                         <span wire:loading>در حال ذخیره...</span>
                     </button>
                 </div>
@@ -78,7 +78,7 @@
                         <th>تلفن دانش‌آموز</th>
                         <th>پایه</th>
                         <th>رشته</th>
-                        <th>پشتیبان تحصیلی</th>
+                        <th>مشاور</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -90,7 +90,7 @@
                             <td>{{ $st->user?->mobile ?? '---' }}</td>
                             <td>{{ $st->grade ?? '---' }}</td>
                             <td>{{ $st->field ?? '---' }}</td>
-                            <td>{{ $st->schoolSupporter?->name ?? '---' }}</td>
+                            <td>{{ $st->advisor?->name ?? '---' }}</td>
                         </tr>
                     @empty
                         <tr><td colspan="7" class="text-center text-muted">هنوز دانش‌آموزی برای این مدرسه ثبت نشده است.</td></tr>

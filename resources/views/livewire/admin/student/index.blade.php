@@ -67,6 +67,53 @@
                         <div class="row mt-2 justify-content-between ">
                             <div
                                 class="d-md-flex justify-content-between align-items-center col-12  col-md">
+                                @if($isSchoolManager)
+                                    @php
+                                        $gradeLabels = ['9' => 'نهم', '10' => 'دهم', '11' => 'یازدهم', '12' => 'دوازدهم'];
+                                        $fieldLabels = ['math' => 'ریاضی', 'experimental' => 'تجربی', 'human' => 'انسانی'];
+                                    @endphp
+                                    <table class="table display" style="width: 100%;">
+                                        <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>دانش‌آموز</th>
+                                            <th>موبایل</th>
+                                            <th>پایه</th>
+                                            <th>رشته</th>
+                                            <th>مشاور</th>
+                                            <th>جلسات برگزارشده</th>
+                                            <th>برنامه هفتگی</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @forelse($students as $student)
+                                            @php $activeProgram = $student->weeklyPrograms->first(); @endphp
+                                            <tr>
+                                                <td>{{ $loop->iteration + $students->firstItem() - 1 }}</td>
+                                                <td>{{ $student->user?->name ?? '-' }}</td>
+                                                <td>{{ $student->user?->mobile ?? '-' }}</td>
+                                                <td>{{ $gradeLabels[$student->grade] ?? ($student->grade ?? '-') }}</td>
+                                                <td>{{ $student->grade == '9' ? '—' : ($fieldLabels[$student->field] ?? ($student->field ?? '-')) }}</td>
+                                                <td>{{ $student->advisor?->name ?? '— تعیین‌نشده —' }}</td>
+                                                <td>{{ $student->held_sessions_count ?? 0 }}</td>
+                                                <td>
+                                                    @if($activeProgram)
+                                                        <span class="badge bg-success-subtle text-success">
+                                                            دارد ({{ $activeProgram->total_hours }} ساعت)
+                                                        </span>
+                                                    @else
+                                                        <span class="badge bg-secondary-subtle text-secondary">ندارد</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="8" class="text-danger text-center">دانش‌آموزی یافت نشد</td>
+                                            </tr>
+                                        @endforelse
+                                        </tbody>
+                                    </table>
+                                @else
                                 <table class="table display" style="width: 100%;">
 
 
@@ -216,6 +263,7 @@
                                     </tbody>
 
                                 </table>
+                                @endif
 
 
                             </div>

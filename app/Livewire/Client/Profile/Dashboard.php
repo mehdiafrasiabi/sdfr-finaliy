@@ -43,10 +43,6 @@ class Dashboard extends Component
     {
         $this->user = Auth::user();
 
-        if ($this->user && method_exists($this->user, 'isSchoolStudent') && $this->user->isSchoolStudent()) {
-            return redirect()->route('client.profile.school.dashboard');
-        }
-
         $this->seoConfig();
 
         $this->student = $this->user?->student ?? null;
@@ -615,6 +611,19 @@ class Dashboard extends Component
                 ->latest()
                 ->first();
         }
+        // اطلاعات مدرسه برای دانش‌آموزان مدرسه‌ای
+        $schoolInfo = null;
+        if ($this->user && method_exists($this->user, 'isSchoolStudent') && $this->user->isSchoolStudent()) {
+            $school = $this->student?->school()->with(['manager', 'schoolManagerAdmin'])->first();
+            if ($school) {
+                $schoolInfo = [
+                    'name'    => $school->name,
+                    'manager' => $school->manager?->name ?? $school->schoolManagerAdmin?->name,
+                    'phone'   => $school->public_phone,
+                ];
+            }
+        }
+
         return view('livewire.client.profile.dashboard', [
             'advisorStudent' => $advisorStudent,
             'unreadNotificationsCount' => $unreadNotificationsCount,
@@ -624,6 +633,7 @@ class Dashboard extends Component
             'weeklyInsights' => $weeklyInsights,
             'monthlyInsights' => $monthlyInsights,
             'classSchedule' => $classSchedule,
+            'schoolInfo' => $schoolInfo,
         ])->layout('layouts.client.app');
 
     }

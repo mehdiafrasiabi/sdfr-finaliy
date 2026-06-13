@@ -677,13 +677,7 @@
                             {{-- ─── منو ─── --}}
                             @php
                                 $menuGroups = [];
-                                if(auth()->user()?->isSchoolStudent()) {
-                                    $menuGroups = [
-                                        [['label'=>'داشبورد',          'route'=> route('client.profile.school.dashboard'),     'icon'=>'home'],
-                                         ['label'=>'گزارش‌های من',     'route'=> route('client.profile.school.report.index'),  'icon'=>'report'],
-                                         ['label'=>'ثبت گزارش جدید',   'route'=> route('client.profile.school.report.create'), 'icon'=>'plus']],
-                                    ];
-                                } else {
+                                {
                                     $menuGroups = [
                                         [
                                             ['label'=>'پیشخوان',         'route'=> route('client.profile.dashboard'),              'icon'=>'home'],

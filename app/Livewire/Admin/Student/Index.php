@@ -30,7 +30,7 @@ class Index extends Component
     }
     public function render()
     {
-        $adminId = auth()->id();
+        $admin = auth('admin')->user();
         $studentsQuery = Student::query()
             ->with([
                 'payment.order.orderItems.product',
@@ -39,16 +39,40 @@ class Index extends Component
                 'user.personalInformation.state',
                 'user.personalInformation.city',
                 'user.profile',
-            ])
-            ->where('advisor_id', $adminId);
-        if ($this->search) {
-            $studentsQuery->whereHas('user.personalInformation', function ($q) {
-                $q->where('name', 'like', '%' . $this->search . '%');
-            });
+                'advisor',
+            ]);
+
+        // مدیر مدرسه فقط دانش‌آموزان مدرسهٔ خود را می‌بیند؛ سایر ادمین‌ها دانش‌آموزان تحت مشاورهٔ خود.
+        $isSchoolManager = $admin?->hasRole('school-manager') && $admin->school_id;
+
+        if ($isSchoolManager) {
+            $studentsQuery
+                ->where('school_id', $admin->school_id)
+                ->withCount([
+                    'advisingSessions as held_sessions_count' => fn($q) => $q->where('result_status', 'held'),
+                ])
+                ->with(['weeklyPrograms' => fn($q) => $q->where('is_active', true)->latest()]);
+
+            if ($this->search) {
+                $studentsQuery->whereHas('user', function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%')
+                      ->orWhere('mobile', 'like', '%' . $this->search . '%');
+                });
+            }
+        } else {
+            $studentsQuery->where('advisor_id', $admin?->id);
+
+            if ($this->search) {
+                $studentsQuery->whereHas('user.personalInformation', function ($q) {
+                    $q->where('name', 'like', '%' . $this->search . '%');
+                });
+            }
         }
+
         $students = $studentsQuery->paginate(10);
         return view('livewire.admin.student.index', [
-            'students' => $students,
+            'students'        => $students,
+            'isSchoolManager' => $isSchoolManager,
         ])->layout('layouts.admin.app');
     }
 

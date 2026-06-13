@@ -27,12 +27,6 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="{{ route('manager.school-students.index') }}"
-                                       class="nav-link {{ request()->routeIs('manager.school-students.*') ? 'active' : '' }}">
-                                        دانش‌آموزان مدارس
-                                    </a>
-                                </li>
-                                <li class="nav-item">
                                     <a href="{{ route('manager.schools.cooperation-requests') }}"
                                        class="nav-link {{ request()->routeIs('manager.schools.cooperation-requests') ? 'active' : '' }}">
                                         درخواست‌های همکاری

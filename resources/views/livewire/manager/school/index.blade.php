@@ -9,6 +9,18 @@
             @endif
         </div>
         <div class="card-body">
+            @if($newAccountDetails)
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <h5 class="alert-heading text-dark fw-bold"><i class="ri-key-2-line me-1"></i> اطلاعات ورود مدیر مدرسه (بسیار مهم)</h5>
+                    <p class="mb-2 text-dark">لطفاً اطلاعات زیر را کپی کرده و در اختیار مدیر مدرسه قرار دهید. این اطلاعات فقط یک‌بار نمایش داده می‌شوند.</p>
+                    <div class="bg-white p-3 rounded border">
+                        <div class="mb-1"><strong>ایمیل ورود:</strong> <code>{{ $newAccountDetails['email'] }}</code></div>
+                        <div class="mb-1"><strong>موبایل:</strong> <code>{{ $newAccountDetails['mobile'] }}</code></div>
+                        <div class="mb-0"><strong>رمز عبور:</strong> <span class="badge bg-danger fs-6">{{ $newAccountDetails['password'] }}</span></div>
+                    </div>
+                    <button type="button" class="btn-close" wire:click="$set('newAccountDetails', null)" aria-label="Close"></button>
+                </div>
+            @endif
             <form wire:submit="submit(Object.fromEntries(new FormData($event.target)))">
                 <div class="row">
                     <div class="col-md-6 mb-3">
@@ -25,6 +37,26 @@
                         <label class="form-label">تلفن عمومی مدرسه <sup class="text-danger">*</sup></label>
                         <input type="text" name="public_phone" wire:model="public_phone" class="form-control" placeholder="مثلا 02112345678">
                         @error('public_phone') <span class="text-danger small">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">نوع مدرسه <sup class="text-danger">*</sup></label>
+                        <select name="type" wire:model="type" class="form-select">
+                            <option value="">انتخاب کنید...</option>
+                            @foreach($schoolTypes as $schoolType)
+                                <option value="{{ $schoolType }}">{{ $schoolType }}</option>
+                            @endforeach
+                        </select>
+                        @error('type') <span class="text-danger small">{{ $message }}</span> @enderror
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">مشاوران تحصیلی مدرسه <sup class="text-danger">*</sup></label>
+                        <select wire:model="advisor_ids" class="form-select" multiple size="4">
+                            @foreach($advisorOptions as $advisor)
+                                <option value="{{ $advisor->id }}">{{ $advisor->name }}</option>
+                            @endforeach
+                        </select>
+                        <small class="text-muted">برای انتخاب چند مشاور، کلید Ctrl را نگه دارید.</small>
+                        @error('advisor_ids') <span class="text-danger small">{{ $message }}</span> @enderror
                     </div>
                     <div class="col-md-12 mb-3">
                         <label class="form-label">آدرس مدرسه <sup class="text-danger">*</sup></label>
@@ -96,9 +128,10 @@
                         <th>نام مدرسه</th>
                         <th>کد</th>
                         <th>تلفن</th>
+                        <th>نوع</th>
                         <th>مدیر</th>
                         <th>معاون</th>
-                        <th>پشتیبان‌ها</th>
+                        <th>مشاوران</th>
                         <th>دانش‌آموزان</th>
                         <th>اقدام</th>
                     </tr>
@@ -110,14 +143,15 @@
                             <td>{{ $school->name }}</td>
                             <td>{{ $school->code }}</td>
                             <td>{{ $school->public_phone }}</td>
+                            <td>{{ $school->type ?? '---' }}</td>
                             <td>{{ $school->manager?->name ?? '---' }}</td>
                             <td>{{ $school->deputy?->name ?? '---' }}</td>
-                            <td>{{ $school->supporters_count }}</td>
+                            <td>{{ $school->advisors_count }}</td>
                             <td>{{ $school->students_count }}</td>
                             <td>
-                                <a href="{{ route('manager.schools.show', $school->id) }}"
+                                <a href="{{ route('manager.school-students.index', $school->id) }}"
                                    class="btn btn-sm btn-soft-info">
-                                    <i class="ri-eye-line"></i> جزئیات / پشتیبان‌ها
+                                    <i class="ri-group-line"></i> دانش‌آموزان
                                 </a>
                                 <button wire:click="edit({{ $school->id }})"
                                         class="btn btn-sm btn-soft-success">
@@ -132,7 +166,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center text-muted">هیچ مدرسه‌ای ثبت نشده است.</td>
+                            <td colspan="10" class="text-center text-muted">هیچ مدرسه‌ای ثبت نشده است.</td>
                         </tr>
                     @endforelse
                     </tbody>

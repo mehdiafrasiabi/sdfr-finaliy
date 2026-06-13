@@ -1,5 +1,6 @@
-<div class="min-h-screen text-white" dir="rtl" style="font-family: inherit;">
+<div class="min-h-screen text-white" dir="rtl" style="font-family: inherit;" x-data="{ openAdvisorModal: false }">
     <livewire:client.profile.update-notification />
+
 
     {{-- ════════ تور راهنمای داشبورد (اولین ورود + آیکون راهنما) ════════ --}}
     <x-client.page-tour storage-key="dashboard_tour_done" :steps="[
@@ -286,6 +287,28 @@
                        کارت‌های «تحلیلی» (مطالعه روزانه، پیشرفت دروس)
                          → glass + card-data (بافت نقطه‌چین خنک)
                 ════════════════════════════════════════════ --}}
+
+                @if(!empty($schoolInfo))
+                    <div class="relative z-10 mb-4 rounded-2xl glass p-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <svg class="w-5 h-5 flex-shrink-0 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M22 9 12 5 2 9l10 4 10-4v6"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 10.6V16a6 3 0 0 0 12 0v-5.4"/>
+                            </svg>
+                            <span class="font-bold text-sm">مدرسه: {{ $schoolInfo['name'] }}</span>
+                        </div>
+                        @if($schoolInfo['manager'] || $schoolInfo['phone'])
+                            <div class="flex flex-wrap gap-x-4 gap-y-1 text-sm text-foreground/80 pr-7">
+                                @if($schoolInfo['manager'])
+                                    <div>مدیر مدرسه: <span class="font-semibold">{{ $schoolInfo['manager'] }}</span></div>
+                                @endif
+                                @if($schoolInfo['phone'])
+                                    <div>تلفن: <span class="font-semibold" dir="ltr">{{ $schoolInfo['phone'] }}</span></div>
+                                @endif
+                            </div>
+                        @endif
+                    </div>
+                @endif
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     {{-- ══════ 1) مشاور (زنده) ══════ --}}
@@ -314,7 +337,7 @@
                         {{-- چپ: نقطه زنده + دکمه فلش --}}
                         <div class="flex items-center gap-3 flex-shrink-0">
                             <span class="live-dot" title="در دسترس"></span>
-                            <button class="w-9 h-9 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center hover:bg-white/10 transition">
+                            <button @click="openAdvisorModal = true" class="w-9 h-9 rounded-full bg-white/5 ring-1 ring-white/10 flex items-center justify-center hover:bg-white/10 transition cursor-pointer">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="#cbd5e1" class="w-4 h-4">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
                                 </svg>
@@ -645,7 +668,94 @@
             </div>{{-- end main --}}
         </div>{{-- end flex --}}
     </div>{{-- end container --}}
+    {{-- ════════════════ MODAL: ADVISOR INFO ════════════════ --}}
+    <div x-show="openAdvisorModal"
+         class="fixed inset-0 z-[80] flex items-end md:items-center justify-center p-0 md:p-4"
+         style="display: none;"
+         role="dialog"
+         aria-modal="true">
 
+        {{-- پس‌زمینه تاریک و مات کننده پشت مودال --}}
+        <div x-show="openAdvisorModal"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="openAdvisorModal = false"
+             class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+        {{-- باکس اصلی مودال --}}
+        <div x-show="openAdvisorModal"
+             {{-- انیمیشن ورود از پایین در موبایل و بزرگ شدن در دسکتاپ --}}
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="translate-y-full md:translate-y-0 md:scale-95 md:opacity-0"
+             x-transition:enter-end="translate-y-0 md:scale-100 md:opacity-100"
+             x-transition:leave="transition ease-in duration-200 transform"
+             x-transition:leave-start="translate-y-0 md:scale-100 md:opacity-100"
+             x-transition:leave-end="translate-y-full md:translate-y-0 md:scale-95 md:opacity-0"
+             class="glass w-full md:max-w-md rounded-t-3xl md:rounded-2xl p-6 relative z-10 overflow-hidden max-h-[85vh] md:max-h-none overflow-y-auto">
+
+            {{-- دستگیره بالای مودال مخصوص موبایل --}}
+            <div class="w-12 h-1 bg-white/20 rounded-full mx-auto mb-4 md:hidden" @click="openAdvisorModal = false"></div>
+
+            {{-- هدر مودال و دکمه بستن در دسکتاپ --}}
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                    <span class="live-dot"></span>
+                    اطلاعات مشاور اختصاصی
+                </h3>
+                <button @click="openAdvisorModal = false" class="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition cursor-pointer text-neutral-400 hover:text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            {{-- محتوای درون مودال (اطلاعات مشاور) --}}
+            <div class="text-center md:text-right space-y-4">
+                <div class="flex flex-col md:flex-row items-center gap-4 border-b border-white/10 pb-4">
+                    @if($advisorStudent && !empty($advisorStudent['picture']))
+                        <img src="{{ asset('adminsFile/' . $advisorStudent['id'] . '/' . $advisorStudent['picture']) }}"
+                             alt="{{ $advisorStudent['name'] }}"
+                             class="w-20 h-20 rounded-full object-cover ring-4 ring-sky-500/30 flex-shrink-0">
+                    @else
+                        <div class="w-20 h-20 rounded-full bg-white/5 ring-4 ring-white/10 flex items-center justify-center flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#94a3b8" class="w-10 h-10">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+                            </svg>
+                        </div>
+                    @endif
+                    <div class="text-center md:text-right">
+                        <h4 class="text-lg font-black text-white">{{ $advisorStudent['name'] ?? 'تعیین نشده' }}</h4>
+                        <p class="text-sm text-sky-400 mt-1">{{ $advisorStudent['label'] ?? 'مشاور ارشد مجموعه' }}</p>
+                    </div>
+                </div>
+
+                {{-- فیلدهای جزئیات بیشتر --}}
+                <div class="space-y-3 text-sm text-neutral-300">
+                    <div class="bg-white/5 p-3 rounded-xl flex justify-between items-center">
+                        <span class="text-neutral-400">وضعیت پشتیبانی:</span>
+                        <span class="text-green-400 font-semibold flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-green-400 block animate-pulse"></span> آنلاین و در دسترس
+                        </span>
+                    </div>
+                    <div class="bg-white/5 p-3 rounded-xl text-right leading-relaxed">
+                        <span class="text-neutral-400 block mb-1 text-xs">توضیحات مشاور:</span>
+                        تکالیف و گزارش‌های شما هر روز توسط این مشاور بررسی و تحلیل می‌شود. در صورت داشتن هرگونه سوال می‌توانید از طریق بخش تیکت‌ها با ایشان در ارتباط باشید.
+                    </div>
+                </div>
+            </div>
+
+            {{-- دکمه اکشن پایین مودال --}}
+            <div class="mt-6">
+                <button @click="openAdvisorModal = false" class="w-full py-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-bold text-sm transition shadow-lg shadow-sky-500/20 cursor-pointer">
+                    متوجه شدم
+                </button>
+            </div>
+        </div>
+    </div>
     {{-- ════════════════ CHART INITIALIZATION ════════════════ --}}
     @push('script')
         <script>

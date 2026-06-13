@@ -179,9 +179,4 @@ class Student extends Model
     {
         return $this->belongsTo(School::class);
     }
-
-    public function schoolSupporter()
-    {
-        return $this->belongsTo(Admin::class, 'school_supporter_id');
-    }
 }

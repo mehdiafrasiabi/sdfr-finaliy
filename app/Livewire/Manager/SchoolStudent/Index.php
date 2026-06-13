@@ -21,14 +21,13 @@ class Index extends Component
 {
     use WithPagination, WithFileUploads, SEOTools;
 
-    // فیلتر
-    public $school = '';
+    // مدرسهٔ جاری (route-model-bound)
+    public School $school;
     public $search = '';
 
     // فرم دانش‌آموز (دستی)
     public $studentId;
-    public $form_school_id;
-    public $form_school_supporter_id;
+    public $form_advisor_id;
     public $name;
     public $mobile;
     public $national_code;
@@ -39,49 +38,43 @@ class Index extends Component
     public $educational_pursuer;
 
     // ایمپورت اکسل
-    public $import_school_id;
     public $excel_file;
     public array $importValidRows = [];
     public array $importInvalidRows = [];
     public bool $importPreviewReady = false;
 
-    public function mount(): void
+    public function mount(School $school): void
     {
-        $this->school = request('school', '');
-        $this->seo()->setTitle('دانش‌آموزان مدارس');
+        $this->school = $school;
+        $this->seo()->setTitle('دانش‌آموزان مدرسهٔ ' . $school->name);
+
+        // اگر مدرسه تنها ۱ مشاور داشت، به‌صورت پیش‌فرض انتخاب شود.
+        $this->autoAssignAdvisor();
     }
 
-    public function updatedFormSchoolId(): void
+    protected function autoAssignAdvisor(): void
     {
-        // اگر مدرسه تنها ۱ پشتیبان داشت، خودکار انتخاب کن
-        $this->autoAssignSupporter();
-    }
-
-    protected function autoAssignSupporter(): void
-    {
-        if (!$this->form_school_id) {
-            $this->form_school_supporter_id = null;
-            return;
-        }
-        $school = School::with('supporters')->find($this->form_school_id);
-        if ($school && $school->supporters->count() === 1) {
-            $this->form_school_supporter_id = (string) $school->supporters->first()->id;
+        $advisors = $this->school->advisors;
+        if ($advisors->count() === 1) {
+            $this->form_advisor_id = (string) $advisors->first()->id;
         }
     }
 
     public function submit(array $formData): void
     {
+        // مشاور انتخابی از prop خوانده می‌شود (select تکی).
+        $formData['advisor_id'] = $this->form_advisor_id ?: null;
+
         $rules = [
-            'school_id'           => 'required|exists:schools,id',
             'name'                => 'required|string|max:255',
             'mobile'              => 'required|regex:/^09\d{9}$/|unique:users,mobile',
             'national_code'       => 'required|digits:10|unique:students,national_code',
             'father_mobile'       => 'nullable|regex:/^0\d{10}$/',
             'mother_mobile'       => 'nullable|regex:/^0\d{10}$/',
-            'grade'               => 'required|in:10,11,12',
-            'field'               => 'required|in:math,experimental,human',
+            'grade'               => 'required|in:9,10,11,12',
+            'field'               => 'nullable|required_unless:grade,9|in:math,experimental,human',
             'educational_pursuer' => 'required|in:father,mother',
-            'school_supporter_id' => 'nullable|exists:admins,id',
+            'advisor_id'          => 'nullable|exists:admins,id',
         ];
 
         if (!empty($this->studentId)) {
@@ -91,6 +84,7 @@ class Index extends Component
 
         $messages = [
             '*.required'             => 'فیلد ضروری است',
+            'field.required_unless'  => 'برای پایه‌های دهم تا دوازدهم، رشته الزامی است',
             'mobile.regex'           => 'فرمت تلفن دانش‌آموز نادرست است',
             'mobile.unique'          => 'این تلفن قبلاً در سامانه ثبت شده',
             'national_code.digits'   => 'کدملی باید ۱۰ رقم باشد',
@@ -111,16 +105,21 @@ class Index extends Component
             return;
         }
 
-        // اتو-اساین پشتیبان اگر خالی بود و مدرسه ۱ پشتیبان داشت
-        $supporterId = $formData['school_supporter_id'] ?? null;
-        if (empty($supporterId)) {
-            $school = School::with('supporters')->find($formData['school_id']);
-            if ($school && $school->supporters->count() === 1) {
-                $supporterId = $school->supporters->first()->id;
-            }
+        // مشاور انتخابی باید جزو مشاوران همین مدرسه باشد.
+        $advisorId = $formData['advisor_id'] ?? null;
+        $schoolAdvisorIds = $this->school->advisors->pluck('id');
+        if ($advisorId && !$schoolAdvisorIds->contains((int) $advisorId)) {
+            $this->addError('form_advisor_id', 'مشاور انتخابی متعلق به این مدرسه نیست');
+            return;
+        }
+        if (empty($advisorId) && $schoolAdvisorIds->count() === 1) {
+            $advisorId = $schoolAdvisorIds->first();
         }
 
-        DB::transaction(function () use ($formData, $supporterId) {
+        // برای پایه نهم رشته معنا ندارد.
+        $field = $formData['grade'] === '9' ? null : ($formData['field'] ?? null);
+
+        DB::transaction(function () use ($formData, $advisorId, $field) {
             if ($this->studentId) {
                 $student = Student::findOrFail($this->studentId);
                 $student->user?->update([
@@ -128,13 +127,13 @@ class Index extends Component
                     'mobile' => $formData['mobile'],
                 ]);
                 $student->update([
-                    'school_id'           => $formData['school_id'],
-                    'school_supporter_id' => $supporterId,
+                    'school_id'           => $this->school->id,
+                    'advisor_id'          => $advisorId,
                     'national_code'       => $formData['national_code'],
                     'father_mobile'       => $formData['father_mobile'] ?? null,
                     'mother_mobile'       => $formData['mother_mobile'] ?? null,
                     'grade'               => $formData['grade'],
-                    'field'               => $formData['field'],
+                    'field'               => $field,
                     'educational_pursuer' => $formData['educational_pursuer'],
                 ]);
             } else {
@@ -146,13 +145,13 @@ class Index extends Component
 
                 Student::create([
                     'user_id'             => $user->id,
-                    'school_id'           => $formData['school_id'],
-                    'school_supporter_id' => $supporterId,
+                    'school_id'           => $this->school->id,
+                    'advisor_id'          => $advisorId,
                     'national_code'       => $formData['national_code'],
                     'father_mobile'       => $formData['father_mobile'] ?? null,
                     'mother_mobile'       => $formData['mother_mobile'] ?? null,
                     'grade'               => $formData['grade'],
-                    'field'               => $formData['field'],
+                    'field'               => $field,
                     'educational_pursuer' => $formData['educational_pursuer'],
                 ]);
             }
@@ -169,8 +168,7 @@ class Index extends Component
             return;
         }
         $this->studentId                  = $student->id;
-        $this->form_school_id             = $student->school_id;
-        $this->form_school_supporter_id   = $student->school_supporter_id;
+        $this->form_advisor_id            = $student->advisor_id ? (string) $student->advisor_id : null;
         $this->name                       = $student->user?->name;
         $this->mobile                     = $student->user?->mobile;
         $this->national_code              = $student->national_code;
@@ -198,10 +196,11 @@ class Index extends Component
     public function resetForm(): void
     {
         $this->reset([
-            'studentId', 'form_school_id', 'form_school_supporter_id',
+            'studentId', 'form_advisor_id',
             'name', 'mobile', 'national_code', 'father_mobile', 'mother_mobile',
             'grade', 'field', 'educational_pursuer',
         ]);
+        $this->autoAssignAdvisor();
     }
 
     public function downloadSample()
@@ -212,15 +211,14 @@ class Index extends Component
     public function previewImport(): void
     {
         Validator::make(
-            ['import_school_id' => $this->import_school_id, 'excel_file' => $this->excel_file],
+            ['excel_file' => $this->excel_file],
             [
-                'import_school_id' => 'required|exists:schools,id',
-                'excel_file'       => 'required|file|mimes:xlsx,xls|max:5120',
+                'excel_file' => 'required|file|mimes:xlsx,xls|max:5120',
             ],
             ['*.required' => 'فیلد ضروری است', 'excel_file.mimes' => 'فقط فرمت xlsx/xls پذیرفته می‌شود']
         )->validate();
 
-        $import = new SchoolStudentsImport((int) $this->import_school_id);
+        $import = new SchoolStudentsImport($this->school->id);
         Excel::import($import, $this->excel_file->getRealPath());
 
         $this->importValidRows = $import->validRows;
@@ -236,7 +234,7 @@ class Index extends Component
         }
 
         // بازسازی import با همان داده‌های معتبر و save
-        $import = new SchoolStudentsImport((int) $this->import_school_id);
+        $import = new SchoolStudentsImport($this->school->id);
         $import->validRows = $this->importValidRows;
         $count = $import->save();
 
@@ -251,22 +249,12 @@ class Index extends Component
 
     public function render()
     {
-        $schools = School::orderBy('name')->get(['id', 'name']);
-
-        $supportersForForm = collect();
-        if ($this->form_school_id) {
-            $supportersForForm = School::find($this->form_school_id)?->supporters()->get(['admins.id', 'admins.name']) ?? collect();
-        }
-
-        $supportersForImport = collect();
-        if ($this->import_school_id) {
-            $supportersForImport = School::find($this->import_school_id)?->supporters()->get(['admins.id', 'admins.name']) ?? collect();
-        }
+        // مشاوران فعال‌شدهٔ همین مدرسه برای انتخاب در فرم/ایمپورت
+        $advisors = $this->school->advisors()->get(['admins.id', 'admins.name']);
 
         $students = Student::query()
-            ->with(['user', 'school', 'schoolSupporter'])
-            ->whereNotNull('school_id')
-            ->when($this->school, fn($q) => $q->where('school_id', $this->school))
+            ->with(['user', 'school', 'advisor'])
+            ->where('school_id', $this->school->id)
             ->when($this->search, function ($q) {
                 $q->where(function ($q) {
                     $q->where('national_code', 'like', "%{$this->search}%")
@@ -278,10 +266,8 @@ class Index extends Component
             ->paginate(15);
 
         return view('livewire.manager.school-student.index', [
-            'schools'             => $schools,
-            'students'            => $students,
-            'supportersForForm'   => $supportersForForm,
-            'supportersForImport' => $supportersForImport,
+            'students' => $students,
+            'advisors' => $advisors,
         ])->layout('layouts.manager.app');
     }
 }

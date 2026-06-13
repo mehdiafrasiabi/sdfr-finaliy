@@ -62,11 +62,19 @@ class Admin extends Authenticatable
     }
 
     /**
-     * مدارسی که این ادمین به‌عنوان «پشتیبان مدرسه» به آن‌ها تخصیص داده شده است.
+     * مدرسه‌ای که این ادمین به‌عنوان «مدیر مدرسه» (نقش school-manager) آن را مدیریت می‌کند.
      */
-    public function supportedSchools()
+    public function managedSchool()
     {
-        return $this->belongsToMany(School::class, 'school_admin')->withTimestamps();
+        return $this->belongsTo(School::class, 'school_id');
+    }
+
+    /**
+     * مدارسی که این ادمین به‌عنوان «مشاور تحصیلی» در آن‌ها فعال شده است.
+     */
+    public function advisorSchools()
+    {
+        return $this->belongsToMany(School::class, 'school_advisor')->withTimestamps();
     }
 
     /**

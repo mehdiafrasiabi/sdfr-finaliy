@@ -182,26 +182,6 @@ Route::name('admin.')->group(function () {
                 ->name('answer-sheet');
         });
 
-        // پنل پشتیبان مدرسه
-        Route::prefix('school-supporter')->name('school-supporter.')
-            ->middleware('role:school-supporter|super admin')
-            ->group(function () {
-                Route::get('/', \App\Livewire\Admin\SchoolSupporter\SchoolList::class)
-                    ->name('schools');
-                Route::get('/schools/{school}/students',
-                    \App\Livewire\Admin\SchoolSupporter\StudentList::class)
-                    ->name('students');
-                Route::get('/schools/{school}/students/{student}/reports',
-                    \App\Livewire\Admin\SchoolSupporter\StudentReports::class)
-                    ->name('student.reports');
-                Route::get('/schools/{school}/students/{student}/contacts',
-                    \App\Livewire\Admin\SchoolSupporter\StudentContacts::class)
-                    ->name('student.contacts');
-                Route::get('/schools/{school}/students/{student}/grades',
-                    \App\Livewire\Admin\SchoolSupporter\StudentGrades::class)
-                    ->name('student.grades');
-            });
-
         // تیکت‌ها و پشتیبانی
         Route::get('/tickets', TicketIndex::class)->name('ticket.index');
 //            ->middleware('admin.permission:admin.tickets.view');

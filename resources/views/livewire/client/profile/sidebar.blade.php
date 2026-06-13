@@ -31,47 +31,6 @@
         </div>
     </div>
     <ul class="flex flex-col space-y-3 glass rounded-2xl p-5">
-        @if(auth()->user()?->isSchoolStudent())
-            <li>
-                <a wire:navigate href="{{ route('client.profile.school.dashboard') }}"
-                   class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.school.dashboard') ? 'bg-primary text-primary-foreground px-4' : 'bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12 12 2.25 21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75"/>
-                    </svg>
-                    <span class="font-semibold text-xs">داشبورد</span>
-                </a>
-            </li>
-            <li>
-                <a wire:navigate href="{{ route('client.profile.school.report.index') }}"
-                   class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.school.report.index') ? 'bg-primary text-primary-foreground px-4' : 'bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                         class="w-5 h-5">
-                        <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V5C15 5.55228 14.5523 6 14 6H10C9.44772 6 9 5.55228 9 5V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M8.5 12L10 13.5L12 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 12.5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M8.5 17L10 18.5L12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 17.5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span class="font-semibold text-xs">گزارش‌های من</span>
-                </a>
-            </li>
-            <li>
-                <a wire:navigate href="{{ route('client.profile.school.report.create') }}"
-                   class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.school.report.create') ? 'bg-primary text-primary-foreground px-4' : 'bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                         class="w-5 h-5">
-                        <path d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V5C15 5.55228 14.5523 6 14 6H10C9.44772 6 9 5.55228 9 5V5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M8.5 12L10 13.5L12 11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 12.5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M8.5 17L10 18.5L12 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 17.5H16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                    <span class="font-semibold text-xs">ثبت گزارش جدید</span>
-                </a>
-            </li>
-        @else
         <li>
 
             <a wire:navigate href="{{route('client.profile.dashboard')}}"
@@ -380,7 +339,6 @@
                 <span class="font-semibold text-xs">خروج از حساب</span>
             </a>
         </li>
-        @endif
     </ul>
 
 </div>

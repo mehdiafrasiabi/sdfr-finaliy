@@ -163,23 +163,23 @@
 
                                                     <div class="d-flex flex-column">
                                                           <span class="text-truncate fw-medium">
-                                                            {{ $personalInfo->name ?? '-' }}
-                                                              {{ $personalInfo->name_full ?? '' }}
+                                                           {{ $personalInfo->name ?? $student->user->name ?? '-' }}
+
 
                                                               [
-                                                              @if($student->user->personalInformation->grade == 12)
+                                                              @if(($student->user->personalInformation?->grade ?? $student->grade) == 12)
                                                                   دوازدهم
-                                                              @elseif($student->user->personalInformation->grade == 11)
+                                                              @elseif(($student->user->personalInformation?->grade ?? $student->grade) == 11)
                                                                   یازدهم
-                                                              @elseif($student->user->personalInformation->grade == 10)
+                                                              @elseif(($student->user->personalInformation?->grade ?? $student->grade) == 10)
                                                                   دهم
                                                               @endif
 
-                                                              @if($student->user->personalInformation->field == 'math')
+                                                              @if(($student->user->personalInformation?->field ?? $student->field) == 'math')
                                                                   ریاضی
-                                                              @elseif($student->user->personalInformation->field == 'experimental')
+                                                              @elseif(($student->user->personalInformation?->field ?? $student->field) == 'experimental')
                                                                   تجربی
-                                                              @elseif($student->user->personalInformation->field == 'human')
+                                                              @elseif(($student->user->personalInformation?->field ?? $student->field) == 'human')
                                                                   انسانی
                                                               @endif
                                                             ]
@@ -221,7 +221,8 @@
                                                     </button>
                                                     <ul class="dropdown-menu dropdown-menu-end">
                                                         <li>
-                                                            <a class="dropdown-item" href="{{route('admin.student.reportDailyActivities.detail',$student->payment->order->user->id)}}">
+                                                            <a class="dropdown-item" href="{{ route('admin.student.reportDailyActivities.detail', $student->user_id) }}"
+                                                            >
                                                                مشاهده گزارش
                                                             </a>
                                                         </li>

@@ -9,11 +9,11 @@
         </div>
         <div class="app-navbar-tabs" data-simplebar="">
             <ul aria-orientation="vertical" class="nav" id="appMenubarTabs" role="tablist">
-                @if($admin?->hasRole('school-supporter') || $admin?->hasRole('super admin'))
-                    <li class="nav-item" data-bs-placement="right" data-bs-title="پنل پشتیبان مدرسه" data-bs-toggle="tooltip">
-                        <a aria-controls="schoolSupporterTab" aria-selected="false"
-                           class="menu-link {{ $admin?->hasRole('school-supporter') && !$admin?->hasRole('super admin') ? 'active' : '' }}"
-                           data-bs-toggle="tab" href="#schoolSupporterTab" role="tab">
+                @if($admin?->hasRole('school-manager') || $admin?->hasRole('super admin'))
+                    <li class="nav-item" data-bs-placement="right" data-bs-title="پنل مدیر مدرسه" data-bs-toggle="tooltip">
+                        <a aria-controls="schoolManagerTab" aria-selected="false"
+                           class="menu-link {{ $admin?->hasRole('school-manager') && !$admin?->hasRole('super admin') ? 'active' : '' }}"
+                           data-bs-toggle="tab" href="#schoolManagerTab" role="tab">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                  class="menu-icon">
@@ -204,18 +204,33 @@
             </div>
             <div class="app-content-inner">
                 <div class="tab-content" id="appMenubarTabsContent">
-                    @if($admin?->hasRole('school-supporter') || $admin?->hasRole('super admin'))
-                        <div class="tab-pane fade {{ $admin?->hasRole('school-supporter') && !$admin?->hasRole('super admin') ? 'show active' : '' }}"
-                             id="schoolSupporterTab" role="tabpanel" tabindex="0">
+                    @if($admin?->hasRole('school-manager') || $admin?->hasRole('super admin'))
+                        <div class="tab-pane fade {{ $admin?->hasRole('school-manager') && !$admin?->hasRole('super admin') ? 'show active' : '' }}"
+                             id="schoolManagerTab" role="tabpanel" tabindex="0">
                             <nav class="app-navbar" data-simplebar="">
                                 <ul class="side-menubar">
                                     <li class="menu-heading">
-                                        <span class="menu-label">پنل پشتیبان مدرسه</span>
+                                        <span class="menu-label">پنل مدیر مدرسه</span>
                                     </li>
                                     <li class="menu-item">
-                                        <a class="menu-link" href="{{ route('admin.school-supporter.schools') }}" role="button">
-                                            <i class="fi fi-rr-school"></i>
-                                            <span class="menu-label">مدارس تحت پشتیبانی من</span>
+                                        <a class="menu-link {{ request()->routeIs('admin.student.index') ? 'active' : '' }}"
+                                           href="{{ route('admin.student.index') }}" role="button">
+                                            <i class="fi fi-rr-graduation-cap"></i>
+                                            <span class="menu-label">دانش‌آموزان مدرسه</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.student.studySession.index') ? 'active' : '' }}"
+                                           href="{{ route('admin.student.studySession.index') }}" role="button">
+                                            <i class="fi fi-rr-calendar"></i>
+                                            <span class="menu-label">ساعت مطالعه</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.student.reportDailyActivities.index') ? 'active' : '' }}"
+                                           href="{{ route('admin.student.reportDailyActivities.index') }}" role="button">
+                                            <i class="fi fi-rs-usd-circle"></i>
+                                            <span class="menu-label">گزارش جامع فعالیت</span>
                                         </a>
                                     </li>
                                 </ul>

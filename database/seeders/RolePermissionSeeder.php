@@ -99,6 +99,10 @@ class RolePermissionSeeder extends Seeder
             'admin.consultants.view',
             'admin.supporters.view',
             'admin.students.view',
+
+            // مدیر مدرسه (school-manager) — مشاهدهٔ صفحات دانش‌آموزان مدرسهٔ خود
+            'admin.daily-activities.view',
+            'admin.study-session.view',
         ];
 
         foreach ($permissions as $permission) {
@@ -155,12 +159,20 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         // ────────────────────────────────────────────────────────────
-        // ۵) پشتیبان مدرسه — permission‌های اختصاصی در SchoolSupporterRoleSeeder
+        // ۵) مدیر مدرسه (school-manager) — فقط مشاهدهٔ دانش‌آموزان مدرسهٔ خود
         // ────────────────────────────────────────────────────────────
-        Role::query()->firstOrCreate([
-            'name'       => 'school-supporter',
+        $schoolManager = Role::query()->firstOrCreate([
+            'name'       => 'school-manager',
             'guard_name' => 'admin',
         ]);
+        $schoolManager->syncPermissions([
+            'admin.students.view',
+            'admin.daily-activities.view',
+            'admin.study-session.view',
+        ]);
+
+        // نقش منسوخ‌شدهٔ «پشتیبان مدرسه» در صورت وجود حذف می‌شود.
+        Role::query()->where('name', 'school-supporter')->where('guard_name', 'admin')->delete();
 
         // ────────────────────────────────────────────────────────────
         // کاربران نمونه برای ۴ نقش

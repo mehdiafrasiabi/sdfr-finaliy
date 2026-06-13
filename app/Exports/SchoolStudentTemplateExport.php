@@ -31,7 +31,7 @@ class SchoolStudentTemplateExport implements FromArray, WithHeadings
             'تلفن دانش‌آموز',
             'تلفن پدر',
             'تلفن مادر',
-            'پایه (10/11/12)',
+            'پایه (9/10/11/12)',
             'رشته (math/experimental/human)',
             'پیگیر آموزشی (father/mother)',
         ];
