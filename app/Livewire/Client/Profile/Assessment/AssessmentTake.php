@@ -13,7 +13,7 @@ use Livewire\Component;
 class AssessmentTake extends Component
 {
     public string $slug = '';
-
+    public int $currentIndex = 1;
     public ?int $selectedOptionId = null;     // single-select
     public array $selectedOptionIds = [];     // multi-select (VARK)
     public ?string $likertValue = null;       // '1'..'5'
@@ -187,11 +187,33 @@ class AssessmentTake extends Component
     }
     public function goToPrevious(): void
     {
+        $attempt = $this->getAttempt();
+        $totalActive = $attempt->assessment->questions()->where('is_active', true)->count();
+
+        // به‌روزرسانی کانتر سراسری کلاس
+        $this->currentIndex = $attempt->answered_count + 1;
+        if ($this->currentIndex > $totalActive) {
+            $this->currentIndex = $totalActive;
+        }
+
         if ($this->currentIndex > 1) {
-            $this->currentIndex--;
+            $lastAnswer = \App\Models\StudentAssessmentAnswer::where('attempt_id', $attempt->id)
+                ->latest('id')
+                ->first();
+
+            if ($lastAnswer) {
+                $lastAnswer->delete();
+
+                // اعمال فیزیکی تغییرات روی آبجکت دیتابیس
+                $attempt->decrement('answered_count');
+                $attempt->refresh();
+            }
+
             $this->resetValidation();
-            // اگر متدی برای بارگذاری سوال/پاسخِ این ایندکس داری، اینجا صدا بزن:
-            // $this->loadCurrentQuestion();
+            $this->preloadExistingAnswer();
+
+            // همگام‌سازی نهایی ایندکس برای لایه نمایش بعد از حذف رکورد
+            $this->currentIndex = $attempt->answered_count + 1;
         }
     }
     public function render(): \Illuminate\Contracts\View\View

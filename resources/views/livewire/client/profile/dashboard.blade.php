@@ -461,6 +461,7 @@
                     {{-- ══════ 4) برنامه امروز (زنده، full-width) ══════ --}}
                     <div class="glass rise md:col-span-2 p-4" data-tour="today" style="animation-delay:.25s;margin-bottom: 36px">
                         <div class="flex items-center justify-between gap-2 mb-1">
+
                             <div class="flex items-center gap-2">
                                 <div class="icon-chip">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#34d399" class="w-4 h-4">
@@ -470,6 +471,9 @@
                                 <span class="font-bold text-white text-[15px]">برنامه امروز</span>
                                 <span class="live-dot"></span>
                             </div>
+                            <button class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary ring-1 ring-white/10 text-neutral-300 hover:bg-white/10 hover:text-white transition cursor-pointer">
+                                اتفاقات یهویی
+                            </button>
                         </div>
                         <p class="text-[11px] text-neutral-400 mb-4">درس‌ها و تکالیفی که امروز باید انجام بدهی</p>
 
@@ -715,6 +719,7 @@
             </div>
 
             {{-- محتوای درون مودال (اطلاعات مشاور) --}}
+            {{-- محتوای درون مودال (اطلاعات مشاور) --}}
             <div class="text-center md:text-right space-y-4">
                 <div class="flex flex-col md:flex-row items-center gap-4 border-b border-white/10 pb-4">
                     @if($advisorStudent && !empty($advisorStudent['picture']))
@@ -736,14 +741,16 @@
                 {{-- فیلدهای جزئیات بیشتر --}}
                 <div class="space-y-3 text-sm text-neutral-300">
                     <div class="bg-white/5 p-3 rounded-xl flex justify-between items-center">
-                        <span class="text-neutral-400">وضعیت پشتیبانی:</span>
-                        <span class="text-green-400 font-semibold flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-green-400 block animate-pulse"></span> آنلاین و در دسترس
-                        </span>
+                        <span class="text-neutral-400">نام و نام خانوادگی:</span>
+                        <span class="font-semibold text-white">{{ $advisorStudent['name'] ?? '—' }}</span>
+                    </div>
+                    <div class="bg-white/5 p-3 rounded-xl flex justify-between items-center">
+                        <span class="text-neutral-400">تحصیلات:</span>
+                        <span class="font-semibold text-white">{{ $advisorStudent['education'] ?? '—' }}</span>
                     </div>
                     <div class="bg-white/5 p-3 rounded-xl text-right leading-relaxed">
                         <span class="text-neutral-400 block mb-1 text-xs">خلاصه معرفی:</span>
-                        تحصیلات مشاور
+                        <p class="text-sm leading-7">{{ $advisorStudent['bio'] ?? '—' }}</p>
                     </div>
                 </div>
             </div>

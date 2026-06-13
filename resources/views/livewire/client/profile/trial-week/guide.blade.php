@@ -1,7 +1,7 @@
 <div class="max-w-5xl mx-auto px-4 py-6 sm:py-10" dir="rtl"
      x-data="guidePage()" x-init="init()">
 
-@push('link')
+    @push('link')
         <style>
             [x-cloak] { display: none !important; }
 
@@ -65,12 +65,12 @@
             .press:active:not(:disabled) { transform: translateY(3px); }
 
             .btn-primary {
-                box-shadow: 0 4px 0 0 hsl(var(--primary) / 0.4);
-                background: hsl(var(--primary));
-                color: hsl(var(--primary-foreground));
+                box-shadow: 0 4px 0 0 rgba(59, 130, 246, 0.4);
+                background: #3b82f6;
+                color: #fff;
             }
-            .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 0 hsl(var(--primary) / 0.45); }
-            .btn-primary:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4); }
+            .btn-primary:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 0 rgba(59, 130, 246, 0.45); }
+            .btn-primary:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
             .btn-primary:disabled { opacity: 0.6; }
 
             .btn-success {
@@ -163,7 +163,7 @@
                 *, *::before, *::after { animation: none !important; transition: none !important; }
             }
         </style>
-@endpush
+    @endpush
 
     {{-- ═══════════ سرتیتر + تایمر انقضا ═══════════ --}}
     <div class="rise r1 flex items-center justify-between gap-3 mb-5 flex-wrap">
@@ -191,7 +191,7 @@
                 @endif
             </div>
         @elseif($trialWeek)
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-primary/10 text-primary border border-primary/25">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/25">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5v5l3 1.7"/>
                 </svg>
@@ -205,7 +205,6 @@
         {{-- ═══════════ کارت پیشرفت کلی ═══════════ --}}
         @php
             $progressPct = ($trialWeek->step / 4) * 100;
-            // step = مرحله‌ای که «انجام شده»؛ عنوان باید کارِ بعدیِ کاربر را بگوید.
             $stepTitles = [
                 0 => 'در حال تخصیص مشاور تخصصی',
                 1 => 'نوبت طبقه‌بندی دروس',
@@ -215,8 +214,8 @@
             ];
         @endphp
 
-        <div class="rise r2 relative overflow-hidden rounded-3xl border border-border bg-secondary p-6 mb-5" data-tour="progress">
-            <div class="absolute -top-20 left-1/3 w-56 h-56 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="rise r2 relative overflow-hidden rounded-3xl border border-border glass p-6 mb-5" data-tour="progress">
+            <div class="absolute -top-20 left-1/3 w-56 h-56 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
             <div class="relative flex items-center justify-between mb-5">
                 <div>
@@ -224,37 +223,45 @@
                     <div class="font-black text-foreground text-base">{{ $stepTitles[$trialWeek->step] ?? $trialWeek->statusLabel }}</div>
                 </div>
                 <div class="text-left">
-                    <div class="font-black text-2xl text-primary" x-data="counter({{ (int)$progressPct }})" x-text="display + '٪'"></div>
+                    <div class="font-black text-2xl text-blue-500" x-data="counter({{ (int)$progressPct }})" x-text="display + '٪'"></div>
                     <div class="text-[11px] text-muted">{{ $trialWeek->step }} از ۴ مرحله</div>
                 </div>
             </div>
 
-            {{-- نوار پیشرفت --}}
+            {{-- نوار پیشرفت (تغییر به رنگ آبی اختصاصی) --}}
             <div class="relative h-2.5 rounded-full bg-background overflow-hidden">
-                <div class="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-emerald-400 to-primary progress-fill"
+                <div class="absolute inset-y-0 right-0 rounded-full bg-gradient-to-l from-sky-400 to-blue-600 progress-fill"
                      style="width: {{ $progressPct }}%">
                     <div class="absolute inset-0 progress-shimmer"></div>
                 </div>
             </div>
 
-            {{-- نقاط مراحل --}}
-            <div class="flex justify-between mt-3">
-                @php
-                    $miniSteps = [
-                        ['t' => 'ثبت‌نام',    'done' => $trialWeek->step >= 0],
-                        ['t' => 'مشاور متخصص', 'done' => $trialWeek->step >= 1],
-                        ['t' => 'طبقه‌بندی',  'done' => $trialWeek->step >= 2],
-                        ['t' => 'نیازمندی‌ها', 'done' => $trialWeek->step >= 3],
-                        ['t' => 'برنامه',     'done' => $trialWeek->step >= 4],
-                    ];
-                @endphp
-                @foreach($miniSteps as $ms)
-                    <div class="flex flex-col items-center gap-1.5">
-                        <div class="w-3 h-3 rounded-full border-2 transition-all
-                            {{ $ms['done'] ? 'bg-primary border-primary' : 'bg-background border-border' }}"></div>
-                        <span class="text-[10px] {{ $ms['done'] ? 'text-foreground font-bold' : 'text-muted' }}">{{ $ms['t'] }}</span>
-                    </div>
-                @endforeach
+            {{-- نقاط پیشرفت میانی (اصلاح پوزیشن برای قرارگیری دقیق در میان واژه‌ها) --}}
+            <div class="relative flex items-center mt-4 px-2">
+                <div class="absolute left-6 right-6 h-0.5 bg-border/40 z-0"></div>
+
+                <div class="w-full flex justify-between relative z-10">
+                    @php
+                        $miniSteps = [
+                            ['t' => 'ثبت‌نام',    'done' => $trialWeek->step >= 0],
+                            ['t' => 'مشاور متخصص', 'done' => $trialWeek->step >= 1],
+                            ['t' => 'طبقه‌بندی',  'done' => $trialWeek->step >= 2],
+                            ['t' => 'نیازمندی‌ها', 'done' => $trialWeek->step >= 3],
+                            ['t' => 'برنامه',     'done' => $trialWeek->step >= 4],
+                        ];
+                    @endphp
+                    @foreach($miniSteps as $ms)
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="w-4 h-4 rounded-full border-2 transition-all flex items-center justify-center
+                                {{ $ms['done'] ? 'bg-blue-500 border-blue-500 shadow-sm shadow-blue-500/50' : 'bg-background border-border' }}">
+                                @if($ms['done'])
+                                    <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+                                @endif
+                            </div>
+                            <span class="text-[11px] mt-1.5 {{ $ms['done'] ? 'text-blue-400 font-bold' : 'text-muted' }}">{{ $ms['t'] }}</span>
+                        </div>
+                    @endforeach
+                </div>
             </div>
         </div>
 
@@ -262,9 +269,9 @@
         {{-- ═══════════════ تایم‌لاین عمودی مراحل ═══════════════ --}}
         <div class="relative">
             {{-- خط عمودی پس‌زمینه --}}
-            <div class="absolute top-6 bottom-6 right-[27px] sm:right-[31px] w-0.5 bg-border"></div>
-            {{-- خط پیشرفت‌رنگ --}}
-            <div class="absolute top-6 right-[27px] sm:right-[31px] w-0.5 bg-gradient-to-b from-emerald-400 to-primary transition-all duration-700"
+            <div class="absolute top-6 bottom-6 right-[13px] sm:right-[13px] w-0.5 bg-border"></div>
+            {{-- خط پیشرفت عمودی به رنگ آبی --}}
+            <div class="absolute top-6 right-[13px] sm:right-[13px] w-0.5 bg-gradient-to-b from-sky-400 to-blue-600 transition-all duration-700"
                  style="height: calc({{ min(100, ($trialWeek->step / 4) * 100) }}% - 1.5rem);"></div>
 
             <div class="space-y-4">
@@ -274,7 +281,7 @@
                 <div class="rise r3 relative flex gap-4" data-tour="step1">
                     {{-- نود تایم‌لاین --}}
                     <div class="relative z-10 shrink-0">
-                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2
+                        <div class="w-7 h-7 rounded-2xl flex items-center justify-center border-2
                             {{ $s1done ? 'bg-emerald-500 border-emerald-500'
                                : 'bg-amber-500 border-amber-500 node-active' }}">
                             @if($s1done)
@@ -291,8 +298,8 @@
                     </div>
 
                     {{-- محتوای کارت --}}
-                    <div class="flex-1 rounded-2xl border bg-secondary p-5
-                        {{ $s1active ? 'border-amber-400/60 shadow-lg shadow-amber-500/5' : 'border-border' }}">
+                    <div class="flex-1 rounded-2xl border glass p-5
+                        {{ $s1active ? 'border-blue-400/60 shadow-lg shadow-blue-500/5' : 'border-border' }}">
                         <div class="flex items-start justify-between gap-3 flex-wrap">
                             <div>
                                 <div class="flex items-center gap-2 mb-1">
@@ -308,8 +315,8 @@
                         </div>
 
                         @if($s1done && $this->consultant)
-                            {{-- کارت مشاور متخصص: عکس + نام + تلفن --}}
-                            <div class="mt-3 rounded-xl border border-emerald-500/25 bg-background p-4 flex items-center gap-3.5">
+                            {{-- کارت مشاور متخصص --}}
+                            <div class="mt-3 rounded-xl border border-blue-500/25 bg-background p-4 flex items-center gap-3.5">
                                 @if($this->consultant['avatar'])
                                     <img src="{{ $this->consultant['avatar'] }}" alt="{{ $this->consultant['name'] }}"
                                          class="w-14 h-14 rounded-xl object-cover border border-border shrink-0">
@@ -322,17 +329,7 @@
                                 @endif
                                 <div class="min-w-0">
                                     <div class="font-black text-foreground truncate">{{ $this->consultant['name'] }}</div>
-                                    @if($this->consultant['mobile'])
-                                        <a href="tel:{{ $this->consultant['mobile'] }}" dir="ltr"
-                                           class="inline-flex items-center gap-1.5 text-xs text-muted font-mono mt-1 hover:text-primary transition-colors">
-                                            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
-                                            </svg>
-                                            {{ $this->consultant['mobile'] }}
-                                        </a>
-                                    @endif
                                 </div>
-                                <span class="mr-auto text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 rounded-full px-2 py-0.5 shrink-0">همراه توست</span>
                             </div>
                         @elseif($s1done)
                             <p class="text-sm text-emerald-600 dark:text-emerald-400 font-semibold mt-2 flex items-center gap-1.5">
@@ -359,21 +356,21 @@
                 @endphp
                 <div class="rise r4 relative flex gap-4 {{ $s2locked ? 'opacity-55' : '' }}" data-tour="step2">
                     <div class="relative z-10 shrink-0">
-                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2
+                        <div class="w-7 h-7 rounded-2xl flex items-center justify-center border-2
                             {{ $s2done ? 'bg-emerald-500 border-emerald-500'
-                               : ($s2active ? 'bg-primary border-primary node-active' : 'bg-secondary border-border') }}">
+                               : ($s2active ? 'bg-blue-500 border-blue-500 node-active' : 'bg-secondary border-border') }}">
                             @if($s2done)
                                 <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
                             @else
-                                <svg class="w-6 h-6 {{ $s2active ? 'text-primary-foreground' : 'text-muted' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="w-6 h-6 {{ $s2active ? 'text-white' : 'text-muted' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
                                 </svg>
                             @endif
                         </div>
                     </div>
 
-                    <div class="flex-1 rounded-2xl border bg-secondary p-5
-                        {{ $s2active ? 'border-primary/60 shadow-lg shadow-primary/5' : 'border-border' }}">
+                    <div class="flex-1 rounded-2xl border glass p-5
+                        {{ $s2active ? 'border-blue-500/60 shadow-lg shadow-blue-500/5' : 'border-border' }}">
                         <div class="flex items-start justify-between gap-3 flex-wrap">
                             <div>
                                 <div class="flex items-center gap-2 mb-1">
@@ -381,7 +378,7 @@
                                     @if($s2done)
                                         <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 rounded-full px-2 py-0.5">قفل شد</span>
                                     @elseif($s2active)
-                                        <span class="text-[10px] font-bold text-primary bg-primary/10 rounded-full px-2 py-0.5">اکنون</span>
+                                        <span class="text-[10px] font-bold text-blue-400 bg-blue-500/10 rounded-full px-2 py-0.5">اکنون</span>
                                     @endif
                                 </div>
                                 <h3 class="font-black text-foreground">طبقه‌بندی مباحث</h3>
@@ -389,18 +386,14 @@
                         </div>
 
                         @if(!$s2done)
-
                             <p class="text-sm text-muted leading-7 mt-2">
                                 وضعیت خودتان را در هر درس مشخص کنید!
                                 <br>
                                 مشاور شما برای ارائه برنامه تخصصی و حرفه ای نیازمند آگاهی کلی از وضعیت تسلط شما در هر درس می باشد.
-
-
                             </p>
 
                             @if($s2active)
                                 @if($activeProject)
-                                    {{-- پیام موفقیت طبقه‌بندی --}}
                                     @if($this->classificationDone)
                                         <div class="mt-3 flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/25">
                                             <svg class="w-4 h-4 text-emerald-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
@@ -408,24 +401,28 @@
                                         </div>
                                     @endif
 
-                                    <div class="flex items-center gap-2 mt-3 flex-wrap">
+                                    {{-- تغییر چیدمان دکمه‌ها: دکمه رفتن به طبقه‌بندی در سمت چپ و تایید در سمت راست قرار گرفت --}}
+                                    <div class="flex items-center justify-between gap-2 mt-3 flex-wrap w-full">
+                                        <div>
+                                            @if($this->classificationDone)
+                                                <button type="button" wire:click="openLockConfirm"
+                                                        class="press btn-success inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold">
+                                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                                    </svg>
+                                                    تأیید و قفل کردن
+                                                </button>
+                                            @endif
+                                        </div>
+
                                         <a wire:navigate
                                            href="{{ route('client.profile.classification.classify', ['project' => $activeProject->id, 'grade' => ($trialWeek->grade >= 10 ? $trialWeek->grade : 10)]) }}"
-                                           class="press btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold">
+                                           class="press btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold mr-auto">
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                                             </svg>
                                             رفتن به طبقه‌بندی
                                         </a>
-                                        @if($this->classificationDone)
-                                            <button type="button" wire:click="openLockConfirm"
-                                                    class="press btn-success inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold">
-                                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                                    <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                                                </svg>
-                                                تأیید و قفل کردن
-                                            </button>
-                                        @endif
                                     </div>
                                 @else
                                     <div class="mt-3 inline-flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
@@ -446,21 +443,21 @@
                 @endphp
                 <div class="rise r5 relative flex gap-4 {{ $s3locked ? 'opacity-55' : '' }}" data-tour="step3">
                     <div class="relative z-10 shrink-0">
-                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2
+                        <div class="w-7 h-7 rounded-2xl flex items-center justify-center border-2
                             {{ $s3done ? 'bg-emerald-500 border-emerald-500'
-                               : ($s3active ? 'bg-primary border-primary node-active' : 'bg-secondary border-border') }}">
+                               : ($s3active ? 'bg-blue-500 border-blue-500 node-active' : 'bg-secondary border-border') }}">
                             @if($s3done)
                                 <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
                             @else
-                                <svg class="w-6 h-6 {{ $s3active ? 'text-primary-foreground' : 'text-muted' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="w-6 h-6 {{ $s3active ? 'text-white' : 'text-muted' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
                                 </svg>
                             @endif
                         </div>
                     </div>
 
-                    <div class="flex-1 rounded-2xl border bg-secondary p-5
-                        {{ $s3active ? 'border-primary/60 shadow-lg shadow-primary/5' : 'border-border' }}">
+                    <div class="flex-1 rounded-2xl border glass p-5
+                        {{ $s3active ? 'border-blue-500/60 shadow-lg shadow-blue-500/5' : 'border-border' }}">
                         <div class="flex items-start justify-between gap-3 flex-wrap">
                             <div>
                                 <div class="flex items-center gap-2 mb-1">
@@ -468,15 +465,13 @@
                                     @if($s3done)
                                         <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 rounded-full px-2 py-0.5">تکمیل شد</span>
                                     @elseif($s3active)
-                                        <span class="text-[10px] font-bold text-primary bg-primary/10 rounded-full px-2 py-0.5">اکنون</span>
+                                        <span class="text-[10px] font-bold text-blue-400 bg-blue-500/10 rounded-full px-2 py-0.5">اکنون</span>
                                     @endif
                                 </div>
                                 <h3 class="font-black text-foreground">نیازمندی های برنامه </h3>
                             </div>
                         </div>
-                        <p class="text-sm text-muted leading-7 mt-2">
-
-                        </p>
+                        <p class="text-sm text-muted leading-7 mt-2"></p>
 
                         @if($s3active || $s3done)
                             <div class="mt-4 grid sm:grid-cols-2 gap-3">
@@ -497,7 +492,7 @@
                                         <a wire:navigate
                                            href="{{ route('client.profile.consultation.pre-session', $trialWeek->advising_session_id) }}"
                                            class="press btn-primary inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-xs font-bold w-full">
-                                             ادامه
+                                            ادامه
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M19 12H5M12 19l-7-7 7-7"/>
                                             </svg>
@@ -552,21 +547,21 @@
                 @endphp
                 <div class="rise r6 relative flex gap-4 {{ $s4locked ? 'opacity-55' : '' }}" data-tour="step4">
                     <div class="relative z-10 shrink-0">
-                        <div class="w-14 h-14 rounded-2xl flex items-center justify-center border-2
+                        <div class="w-7 h-7 rounded-2xl flex items-center justify-center border-2
                             {{ $s4done ? 'bg-emerald-500 border-emerald-500'
-                               : ($s4active ? 'bg-primary border-primary node-active' : 'bg-secondary border-border') }}">
+                               : ($s4active ? 'bg-blue-500 border-blue-500 node-active' : 'bg-secondary border-border') }}">
                             @if($s4done)
                                 <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
                             @else
-                                <svg class="w-6 h-6 {{ $s4active ? 'text-primary-foreground' : 'text-muted' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="w-6 h-6 {{ $s4active ? 'text-white' : 'text-muted' }}" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                                 </svg>
                             @endif
                         </div>
                     </div>
 
-                    <div class="flex-1 rounded-2xl border bg-secondary p-5
-                        {{ $s4active ? 'border-primary/60 shadow-lg shadow-primary/5' : 'border-border' }}">
+                    <div class="flex-1 rounded-2xl border glass p-5
+                        {{ $s4active ? 'border-blue-500/60 shadow-lg shadow-blue-500/5' : 'border-border' }}">
                         <div class="flex items-start justify-between gap-3 flex-wrap">
                             <div>
                                 <div class="flex items-center gap-2 mb-1">
@@ -574,7 +569,7 @@
                                     @if($s4done)
                                         <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 rounded-full px-2 py-0.5">کامل شد</span>
                                     @elseif($s4active)
-                                        <span class="text-[10px] font-bold text-primary bg-primary/10 rounded-full px-2 py-0.5">اکنون</span>
+                                        <span class="text-[10px] font-bold text-blue-400 bg-blue-500/10 rounded-full px-2 py-0.5">اکنون</span>
                                     @endif
                                 </div>
                                 <h3 class="font-black text-foreground">ورود به جلسه و ساخت برنامه</h3>
@@ -603,17 +598,16 @@
         @php $personality = $this->personalitySummary; @endphp
 
 
-
         {{-- ═══════════ کارت پایانی: تبریک ═══════════ --}}
         @if($trialWeek->step >= 4)
-            <div class="rise r6 relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-primary/5 p-7 mt-5 text-center">
+            <div class="rise r6 relative overflow-hidden rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-blue-500/5 p-7 mt-5 text-center">
                 {{-- confetti --}}
                 <div class="absolute inset-x-0 top-0 h-20 pointer-events-none overflow-hidden">
                     <span class="confetti rounded-sm bg-emerald-400" style="left:15%; animation-delay:0s;"></span>
-                    <span class="confetti rounded-full bg-primary" style="left:32%; animation-delay:0.3s;"></span>
+                    <span class="confetti rounded-full bg-blue-500" style="left:32%; animation-delay:0.3s;"></span>
                     <span class="confetti rounded-sm bg-amber-400" style="left:50%; animation-delay:0.6s;"></span>
                     <span class="confetti rounded-full bg-emerald-400" style="left:68%; animation-delay:0.15s;"></span>
-                    <span class="confetti rounded-sm bg-primary" style="left:85%; animation-delay:0.45s;"></span>
+                    <span class="confetti rounded-sm bg-blue-500" style="left:85%; animation-delay:0.45s;"></span>
                 </div>
 
                 <div class="pop-in relative inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-500 mb-4">
@@ -710,33 +704,32 @@
     ]" />
 
 
- @push('script')
-     {{-- ─── Alpine ─── --}}
-    <script>
-        function guidePage() {
-            return {
-                init() {},
-            };
-        }
-        document.addEventListener('alpine:init', () => {
-            if (Alpine.data && !Alpine.__guideCounter) {
-                Alpine.__guideCounter = true;
-                Alpine.data('counter', (target) => ({
-                    display: 0,
-                    init() {
-                        const dur = 900, start = performance.now();
-                        const tick = (now) => {
-                            const t = Math.min(1, (now - start) / dur);
-                            const eased = 1 - Math.pow(1 - t, 3);
-                            this.display = Math.floor(target * eased);
-                            if (t < 1) requestAnimationFrame(tick);
-                            else this.display = target;
-                        };
-                        requestAnimationFrame(tick);
-                    },
-                }));
+    @push('script')
+        <script>
+            function guidePage() {
+                return {
+                    init() {},
+                };
             }
-        });
-    </script>
- @endpush
+            document.addEventListener('alpine:init', () => {
+                if (Alpine.data && !Alpine.__guideCounter) {
+                    Alpine.__guideCounter = true;
+                    Alpine.data('counter', (target) => ({
+                        display: 0,
+                        init() {
+                            const dur = 900, start = performance.now();
+                            const tick = (now) => {
+                                const t = Math.min(1, (now - start) / dur);
+                                const eased = 1 - Math.pow(1 - t, 3);
+                                this.display = Math.floor(target * eased);
+                                if (t < 1) requestAnimationFrame(tick);
+                                else this.display = target;
+                            };
+                            requestAnimationFrame(tick);
+                        },
+                    }));
+                }
+            });
+        </script>
+    @endpush
 </div>

@@ -134,7 +134,6 @@
     }
 
 </style>
-{{-- استایل‌های سفارشی Toast --}}
 <style>
     /* Base Toast Styles */
     .toastify {
@@ -170,13 +169,13 @@
     }
 
     /* Toast Warning */
-    .toast-warning {
+    .toast-warning{
         background: linear-gradient(135deg, #f59e0b, #d97706) !important;
         animation: slideInRight 0.3s ease-out;
     }
 
     /* Toast Info */
-    .toast-info {
+    .toast-info{
         background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
         animation: slideInRight 0.3s ease-out;
     }

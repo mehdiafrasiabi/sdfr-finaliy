@@ -1,299 +1,326 @@
-<div class="min-h-screen flex flex-col lg:flex-row bg-background p-0" x-data="loginForm()">
+<div class="relative min-h-screen overflow-hidden bg-background text-foreground" dir="rtl" x-data="loginForm()">
 
     @push('link')
         <style>
-            .auth-hero {
-                background: linear-gradient(135deg, rgba(0,0,0,.25), rgba(0,0,0,.25)),
-                url('/client/auth-illustration.webp') center / cover no-repeat;
-            }
-            .auth-hero-inner { min-height: 210px; }
-            @media (min-width: 1024px) { .auth-hero-inner { min-height: 100vh; } }
 
-            .shadow-soft {
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            }
-            .dark .shadow-soft-dark {
-                box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            /* ═══ Gray grid background ═══ */
+            .grid-figma {
+                background-image:
+                    linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
+                    linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px),
+                    linear-gradient(to right, hsl(var(--border) / 0.2) 1px, transparent 1px),
+                    linear-gradient(to bottom, hsl(var(--border) / 0.2) 1px, transparent 1px);
+                background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
+                -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, #000 30%, transparent 90%);
+                mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, #000 30%, transparent 90%);
             }
 
-            .input-icon { left: 12px; }
-            .password-toggle { left: 12px; }
+            /* ═══ Glass card ═══ */
+            .glass-card {
+                background: hsl(var(--background) / 0.6);
+                backdrop-filter: blur(18px) saturate(140%);
+                -webkit-backdrop-filter: blur(18px) saturate(140%);
+                border: 1px solid hsl(var(--border) / 0.6);
+            }
 
-            .tab-button {
-                transition: all 0.3s ease;
-                background: transparent;
-                color: hsl(var(--muted));
+            /* ═══ Glass input ═══ */
+            .glass-input {
+                background: hsl(var(--secondary) / 0.6);
+                border: 1px solid hsl(var(--border));
+                transition: all 0.2s ease;
+                color: hsl(var(--foreground));
             }
-            .tab-button.active {
-                background: hsl(var(--primary));
-                color: white;
-            }
-            .tab-button:not(.active):hover {
+            .glass-input:focus {
                 background: hsl(var(--secondary));
-            }
-
-            .loading-spinner {
-                border: 2px solid transparent;
-                border-top-color: currentColor;
-                border-radius: 50%;
-                width: 16px;
-                height: 16px;
-                animation: spin 0.8s linear infinite;
-            }
-            @keyframes spin { to { transform: rotate(360deg); } }
-
-            .countdown-circle {
-                width: 60px;
-                height: 60px;
-                border-radius: 50%;
-                background: hsl(var(--secondary));
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                font-size: 18px;
-                color: hsl(var(--primary));
-                border: 3px solid hsl(var(--primary));
-            }
-
-            .form-input {
-                transition: all 0.3s ease;
-            }
-            .form-input:focus {
                 border-color: hsl(var(--primary));
-                box-shadow: 0 0 0 3px rgba(var(--primary-rgb), 0.1);
+                box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15);
+                outline: none;
+            }
+            .glass-input::placeholder { color: hsl(var(--muted) / 0.7); }
+
+            /* ═══ Rotating train border ═══ */
+            .train-border {
+                position: relative;
+                border-radius: 1.5rem;
+                --bw: 2px;
+                --speed: 3s;
+            }
+            .train-border::before {
+                content: '';
+                position: absolute; inset: 0; border-radius: inherit;
+                padding: var(--bw);
+                background: conic-gradient(from var(--angle, 0deg),
+                transparent 0deg, transparent 200deg,
+                hsl(var(--primary) / 0.45) 270deg, #3b82f6 318deg,
+                #93c5fd 340deg, #ffffff 351deg, #93c5fd 360deg);
+                -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+                -webkit-mask-composite: xor;
+                mask-composite: exclude;
+                animation: rotate-border var(--speed) linear infinite;
+                pointer-events: none; z-index: 3;
+            }
+            .train-border > * { position: relative; z-index: 1; }
+
+            @property --angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+            @keyframes rotate-border { to { --angle: 360deg; } }
+            @supports not (background: conic-gradient(from 0deg, red, blue)) {
+                .train-border::before { display: none; }
+            }
+
+            /* ═══ Press button ═══ */
+            .btn-press {
+                position: relative; transform: translateY(0);
+                box-shadow: 0 4px 0 0 hsl(var(--primary) / 0.4), 0 6px 12px hsl(var(--primary) / 0.25);
+                transition: transform 0.08s ease, box-shadow 0.08s ease;
+                background: hsl(var(--primary)); color: white; user-select: none;
+            }
+            .btn-press:hover:not(:disabled) {
+                transform: translateY(-1px);
+                box-shadow: 0 5px 0 0 hsl(var(--primary) / 0.4), 0 8px 16px hsl(var(--primary) / 0.35);
+            }
+            .btn-press:active:not(:disabled) {
+                transform: translateY(3px);
+                box-shadow: 0 1px 0 0 hsl(var(--primary) / 0.4), 0 2px 4px hsl(var(--primary) / 0.2);
+            }
+            .btn-press:disabled { opacity: 0.6; cursor: not-allowed; }
+
+            /* ═══ Floating orbs ═══ */
+            @keyframes float-orb {
+                0%, 100% { transform: translate(0, 0); }
+                50% { transform: translate(20px, -25px); }
+            }
+            .float-orb { animation: float-orb 9s ease-in-out infinite; }
+
+            /* ═══ Password eye btn ═══ */
+            .password-wrapper { position: relative; }
+            .password-wrapper input { padding-left: 2.5rem; }
+            .eye-btn {
+                position: absolute; left: 0.625rem; top: 50%;
+                transform: translateY(-50%);
+                color: hsl(var(--muted));
+                background: none; border: none; padding: 4px;
+                cursor: pointer; display: flex; align-items: center; justify-content: center;
+                border-radius: 4px; transition: color 0.15s ease;
+            }
+            .eye-btn:hover { color: hsl(var(--foreground)); }
+
+            /* ═══ Countdown circle ═══ */
+            .countdown-circle {
+                width: 56px; height: 56px;
+                border-radius: 50%;
+                background: hsl(var(--secondary) / 0.6);
+                display: flex; align-items: center; justify-content: center;
+                font-weight: 900; font-size: 16px;
+                color: hsl(var(--primary));
+                border: 2px solid hsl(var(--primary) / 0.4);
+                font-variant-numeric: tabular-nums;
+            }
+
+            /* ═══ Shake on error ═══ */
+            @keyframes shake {
+                0%, 100% { transform: translateX(0); }
+                25% { transform: translateX(-5px); }
+                75% { transform: translateX(5px); }
+            }
+            .shake { animation: shake 0.4s ease; }
+
+            @media (prefers-reduced-motion: reduce) {
+                * { animation: none !important; transition: none !important; }
             }
         </style>
     @endpush
 
-    <!-- Hero Section -->
-    <div class="lg:w-1/2 auth-hero relative flex items-stretch justify-center overflow-hidden rounded-3xl">
-        <div class="absolute inset-0 bg-black/10 dark:bg-black/30"></div>
-        <div class="relative z-10 w-full auth-hero-inner flex flex-row items-center justify-center gap-4 lg:flex-col text-center px-4 py-6 lg:px-6 lg:py-10">
-            <div class="relative flex items-center justify-center shrink-0">
-                <img src="/client/step-01.webp" alt="" class="max-w-[120px] sm:max-w-[140px] lg:max-w-[420px] h-auto drop-shadow-2xl"/>
-            </div>
-            <div class="lg:mt-6 max-w-md text-right lg:text-center">
-                <h2 class="font-black text-white text-lg sm:text-xl lg:text-4xl leading-relaxed">خوش آمدید</h2>
-                <p class="mt-2 lg:mt-3 text-white/90 text-xs sm:text-sm lg:text-base leading-6 lg:leading-7">
-                    برای ورود به حساب کاربری، لطفاً اطلاعات خود را وارد نمایید.
-                </p>
-            </div>
-        </div>
-    </div>
+    {{-- ═══ Background layers ═══ --}}
+    <div class="absolute inset-0 grid-figma pointer-events-none"></div>
+    <div class="absolute top-20 -right-20 w-72 h-72 bg-primary/15 rounded-full blur-3xl float-orb pointer-events-none"></div>
+    <div class="absolute bottom-20 -left-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl float-orb pointer-events-none" style="animation-delay: -3s"></div>
 
-    <!-- Form Section -->
-    <div class="lg:w-1/2 flex items-center justify-center p-6">
+    {{-- ═══ Main content ═══ --}}
+    <div class="relative z-10 min-h-screen flex items-center justify-center px-4 py-8">
         <div class="w-full max-w-md">
-            <div class="bg-gradient-to-b from-secondary to-background space-y-5 px-5 pb-5 rounded-3xl shadow-soft dark:shadow-soft-dark border border-border">
 
-                <!-- Header -->
-                <div class="bg-background rounded-b-3xl space-y-2 p-5 text-center">
-                    <a wire:navigate href="{{route('client.home')}}" class="inline-flex items-center gap-2 text-primary">
-                        <img src="/client/assets/images/theme/intro/header.png" style="width: 100px;" alt="Logo">
-                    </a>
-                </div>
+            {{-- ═══ Logo header ═══ --}}
+            <div class="flex flex-col items-center mb-6">
+                <a wire:navigate href="{{ route('client.home') }}" class="flex items-center gap-2 mb-3">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center ">
+                        <img src="/client/assets/images/favicon.svg" class="w-9 h-9 " alt="SDFR"/>
+                    </div>
+                </a>
+            </div>
 
-                <!-- Tabs -->
-                <div class="flex mb-6 rounded-xl overflow-hidden border border-border">
-                    <button type="button" wire:click="switchMethod('password')" class="tab-button flex-1 py-3 px-4 text-sm font-medium {{ $loginMethod === 'password' ? 'active' : '' }}">
-                        ورود با رمز عبور
-                    </button>
-                    <button type="button" wire:click="switchMethod('otp')" class="tab-button flex-1 py-3 px-4 text-sm font-medium {{ $loginMethod === 'otp' ? 'active' : '' }}">
-                        ورود با پیامک
-                    </button>
-                </div>
+            {{-- ═══ Main glass card ═══ --}}
+            <div class="train-border">
+                <div class="glass-card rounded-3xl p-6 space-y-5">
 
-                <!-- Password Login -->
-                @if($loginMethod === 'password')
-                    <form wire:submit.prevent="loginWithPassword" class="space-y-5">
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-2 text-sm font-medium text-foreground">
-                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                                </svg>
-                                شماره موبایل
-                            </label>
-                            <div class="relative">
-                                <input
-                                    wire:model.live="mobile"
-                                    class="form-input w-full py-3 px-4 pl-12 rounded-xl border border-border bg-secondary text-foreground focus:outline-none @error('mobile') border-red-500 @enderror"
-                                    type="tel"
-                                    inputmode="numeric"
-                                />
-                                <div class="absolute input-icon top-1/2 transform -translate-y-1/2 text-muted">
-                                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                            @error('mobile') <p class="mt-1 text-xs text-red-500 flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                </svg>
-                                {{ $message }}
-                            </p> @enderror
-                        </div>
-
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-2 text-sm font-medium text-foreground">
-                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                </svg>
-                                رمز عبور
-                            </label>
-                            <div class="relative">
-                                <input x-bind:type="showPassword ? 'text' : 'password'" wire:model.defer="password"
-                                       class="form-input w-full py-3 px-4 pl-12 rounded-xl border border-border bg-secondary text-foreground focus:outline-none @error('password') border-red-500 @enderror"
-                                       placeholder="********">
-                                <button type="button" @click="showPassword = !showPassword" class="absolute password-toggle top-1/2 transform -translate-y-1/2 text-muted hover:text-foreground transition-colors">
-                                    <svg x-show="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                    </svg>
-                                    <svg x-show="showPassword" x-cloak class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                            @error('password') <p class="mt-1 text-xs text-red-500 flex items-center gap-1">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                </svg>
-                                {{ $message }}
-                            </p> @enderror
-                        </div>
-
-                        <div class="flex items-center justify-between">
-                            <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" wire:model="rememberMe" class="w-4 h-4 rounded border-border">
-                                <span class="text-sm text-foreground">مرا به خاطر بسپار</span>
-                            </label>
-                            <a  wire:navigate href="{{ route('client.auth.forgotPassword') }}" class="text-sm font-medium text-primary hover:underline">فراموشی رمز عبور</a>
-                        </div>
-
-                        <button type="submit" wire:loading.attr="disabled" wire:target="loginWithPassword"
-                                class="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2">
-                            <span wire:loading.remove wire:target="loginWithPassword">
-                                ورود به حساب
-                                <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
-                                </svg>
-                            </span>
-                            <span wire:loading wire:target="loginWithPassword" class="inline-flex items-center gap-2">
-                                <span class="loading-spinner"></span>
-                                در حال ورود...
-                            </span>
+                    {{-- ═══ Tabs ═══ --}}
+                    <div class="inline-flex items-center gap-1 p-1 bg-secondary border border-border rounded-full w-full">
+                        <button type="button" wire:click="switchMethod('password')"
+                                class="flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all
+                                {{ $loginMethod === 'password' ? 'bg-background text-primary shadow-sm' : 'text-foreground/70 hover:text-foreground' }}">
+                            رمز عبور
                         </button>
-                    </form>
-                @endif
+                        <button type="button" wire:click="switchMethod('otp')"
+                                class="flex-1 py-2 px-4 rounded-full text-sm font-semibold transition-all
+                                {{ $loginMethod === 'otp' ? 'bg-background text-primary shadow-sm' : 'text-foreground/70 hover:text-foreground' }}">
+                            پیامک
+                        </button>
+                    </div>
 
-                <!-- OTP Login -->
-                @if($loginMethod === 'otp')
-                    @if($otpStep === 1)
-                        <form wire:submit.prevent="sendOtp" class="space-y-5">
-                            <div class="space-y-2">
-                                <label class="flex items-center gap-2 text-sm font-medium text-foreground">
-                                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
-                                    </svg>
-                                    شماره موبایل
-                                </label>
-                                <input type="tel" wire:model.live="otpMobile" maxlength="11" dir="ltr"
-                                       class="form-input w-full py-3 px-4 rounded-xl border border-border bg-secondary text-foreground focus:outline-none @error('mobile') border-red-500 @enderror"
-                                       placeholder="09123456789">
-                                @error('mobile') <p class="mt-1 text-xs text-red-500 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                    </svg>
+                    {{-- ═══ Password Login ═══ --}}
+                    @if($loginMethod === 'password')
+                        <form wire:submit.prevent="loginWithPassword" autocomplete="on" class="space-y-4">
+                            <div class="relative">
+                                <label class="block text-xs font-semibold mb-1.5 text-muted">شماره موبایل</label>
+                                <input wire:model.live="mobile" type="tel" inputmode="numeric" dir="ltr"
+                                       autocomplete="username" placeholder="09..."
+                                       class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('mobile') border-rose-500/60 shake @enderror">
+                                @error('mobile')<div class="text-xs text-rose-500 mt-1.5 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
                                     {{ $message }}
-                                </p> @enderror
-                                <p class="mt-2 text-xs text-muted">کد تایید به این شماره ارسال خواهد شد</p>
+                                </div>@enderror
                             </div>
 
-                            <button type="submit" wire:loading.attr="disabled" wire:target="sendOtp"
-                                    class="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2">
-                                <span wire:loading.remove wire:target="sendOtp">
-                                    دریافت کد تایید
-                                    <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
-                                    </svg>
-                                </span>
-                                <span wire:loading wire:target="sendOtp" class="inline-flex items-center gap-2">
-                                    <span class="loading-spinner"></span>
-                                    در حال ارسال...
-                                </span>
-                            </button>
-                        </form>
-                    @else
-                        <form wire:submit.prevent="verifyOtp" class="space-y-5">
-                            <div class="bg-secondary rounded-xl p-4 text-sm text-foreground border border-border">
-                                <p class="text-center">کد تایید به شماره <span class="font-bold" dir="ltr">{{ $otpMobile }}</span> ارسال شد</p>
-                                <button type="button" wire:click="backToMobileStep" class="text-xs text-primary hover:underline mt-2 block mx-auto">تغییر شماره</button>
-                            </div>
-
-                            <div class="space-y-2">
-                                <label class="flex items-center gap-2 text-sm font-medium text-foreground">
-                                    <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path>
-                                    </svg>
-                                    کد تایید
-                                </label>
-                                <input type="tel" wire:model.live="otpCode" maxlength="6" dir="ltr"
-                                       class="form-input w-full py-3 px-4 rounded-xl border border-border bg-secondary text-foreground focus:outline-none text-center text-2xl font-bold tracking-widest @error('code') border-red-500 @enderror"
-                                       placeholder="• • • • • •">
-                                @error('code') <p class="mt-1 text-xs text-red-500 flex items-center gap-1">
-                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                                    </svg>
-                                    {{ $message }}
-                                </p> @enderror
-                            </div>
-
-                            <div class="text-center">
-                                <div x-show="countdown > 0" class="flex flex-col items-center gap-2">
-                                    <p class="text-sm text-muted">ارسال مجدد کد تا</p>
-                                    <div class="countdown-circle">
-                                        <span x-text="countdown"></span>
-                                    </div>
+                            <div class="relative">
+                                <label class="block text-xs font-semibold mb-1.5 text-muted">رمز عبور</label>
+                                <div class="password-wrapper">
+                                    <input wire:model.defer="password"
+                                           :type="showPassword ? 'text' : 'password'"
+                                           dir="ltr" autocomplete="current-password" placeholder="********"
+                                           class="glass-input w-full rounded-xl px-4 py-3 text-sm @error('password') border-rose-500/60 shake @enderror">
+                                    <button type="button" class="eye-btn" @click="showPassword = !showPassword" tabindex="-1">
+                                        <svg x-show="!showPassword" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                        <svg x-show="showPassword" x-cloak class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+                                        </svg>
+                                    </button>
                                 </div>
-                                <button type="button" x-show="countdown === 0" x-cloak wire:click="resendOtp" @click="startCountdown(90)"
-                                        class="text-primary font-medium hover:underline flex items-center justify-center gap-2 mx-auto">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                    </svg>
-                                    ارسال مجدد کد
-                                </button>
+                                @error('password')<div class="text-xs text-rose-500 mt-1.5 flex items-center gap-1">
+                                    <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                    {{ $message }}
+                                </div>@enderror
                             </div>
 
-                            <button type="submit" wire:loading.attr="disabled" wire:target="verifyOtp"
-                                    class="w-full py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:opacity-90 transition-all duration-300 flex items-center justify-center gap-2">
-                                <span wire:loading.remove wire:target="verifyOtp">
-                                    تایید و ورود
-                                    <svg class="w-5 h-5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
+                            <div class="flex items-center justify-between text-sm">
+                                <label class="flex items-center gap-2 cursor-pointer">
+                                    <input type="checkbox" wire:model="rememberMe" class="w-4 h-4 rounded border-border accent-primary">
+                                    <span class="text-foreground">مرا به خاطر بسپار</span>
+                                </label>
+                                <a wire:navigate href="{{ route('client.auth.forgotPassword') }}" class="font-medium text-primary hover:underline">فراموشی رمز</a>
+                            </div>
+
+                            <button type="submit" wire:loading.attr="disabled" wire:target="loginWithPassword"
+                                    class="btn-press w-full h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                                <span wire:loading.remove wire:target="loginWithPassword" class="flex items-center gap-2">
+                                    ورود به حساب
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
                                 </span>
-                                <span wire:loading wire:target="verifyOtp" class="inline-flex items-center gap-2">
-                                    <span class="loading-spinner"></span>
-                                    در حال بررسی...
+                                <span wire:loading wire:target="loginWithPassword" class="inline-flex items-center gap-2">
+                                    <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="32" stroke-linecap="round" opacity="0.5"/>
+                                    </svg>
                                 </span>
                             </button>
                         </form>
                     @endif
-                @endif
 
-                <div class="mt-6 text-center text-sm text-muted">
-                    حساب کاربری ندارید؟
-                    <a wire:navigate href="{{ route('client.auth.signup') }}" class="font-medium text-primary hover:underline">ثبت نام کنید</a>
+                    {{-- ═══ OTP Login ═══ --}}
+                    @if($loginMethod === 'otp')
+                        @if($otpStep === 1)
+                            <form wire:submit.prevent="sendOtp" autocomplete="on" class="space-y-4">
+                                <div class="relative">
+                                    <label class="block text-xs font-semibold mb-1.5 text-muted">شماره موبایل</label>
+                                    <input type="tel" wire:model.live="otpMobile" maxlength="11" dir="ltr"
+                                           autocomplete="username" inputmode="numeric" placeholder="09..."
+                                           class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('mobile') border-rose-500/60 shake @enderror">
+                                    @error('mobile')<div class="text-xs text-rose-500 mt-1.5 flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                        {{ $message }}
+                                    </div>@enderror
+                                    <p class="mt-2 text-[11px] text-muted">کد تأیید روی این شماره ارسال می‌شود</p>
+                                </div>
+
+                                <button type="submit" wire:loading.attr="disabled" wire:target="sendOtp"
+                                        class="btn-press w-full h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                                    <span wire:loading.remove wire:target="sendOtp" class="flex items-center gap-2">
+                                        دریافت کد تأیید
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+                                    </span>
+                                    <span wire:loading wire:target="sendOtp" class="inline-flex items-center gap-2">
+                                        <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="32" stroke-linecap="round" opacity="0.5"/>
+                                        </svg>
+                                    </span>
+                                </button>
+                            </form>
+                        @else
+                            <form wire:submit.prevent="verifyOtp" autocomplete="off" class="space-y-4">
+                                <div class="rounded-xl p-3.5 bg-primary/5 border border-primary/20">
+                                    <p class="text-xs text-center text-foreground/80">
+                                        کد تأیید به <span class="font-bold text-primary" dir="ltr">{{ $otpMobile }}</span> ارسال شد
+                                    </p>
+                                    <button type="button" wire:click="backToMobileStep" class="text-xs text-primary hover:underline mt-2 block mx-auto font-semibold">تغییر شماره</button>
+                                </div>
+
+                                <div class="relative">
+                                    <label class="block text-xs font-semibold mb-1.5 text-muted">کد تأیید</label>
+                                    <input type="tel" wire:model.live="otpCode" maxlength="6" dir="ltr"
+                                           autocomplete="one-time-code" inputmode="numeric" placeholder="------"
+                                           class="glass-input w-full text-center tracking-[0.6em] text-2xl font-mono rounded-xl px-4 py-3.5 @error('code') border-rose-500/60 shake @enderror">
+                                    @error('code')<div class="text-xs text-rose-500 mt-1.5 flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                                        {{ $message }}
+                                    </div>@enderror
+                                </div>
+
+                                <div class="flex items-center justify-center">
+                                    <div x-show="countdown > 0" class="flex flex-col items-center gap-2">
+                                        <p class="text-xs text-muted">ارسال مجدد تا</p>
+                                        <div class="countdown-circle">
+                                            <span x-text="countdown"></span>
+                                        </div>
+                                    </div>
+                                    <button type="button" x-show="countdown === 0" x-cloak wire:click="resendOtp" @click="startCountdown(90)"
+                                            class="text-primary font-semibold hover:underline flex items-center gap-2 text-sm">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                        ارسال مجدد کد
+                                    </button>
+                                </div>
+
+                                <button type="submit" wire:loading.attr="disabled" wire:target="verifyOtp"
+                                        class="btn-press w-full h-12 rounded-xl font-bold text-sm flex items-center justify-center gap-2">
+                                    <span wire:loading.remove wire:target="verifyOtp" class="flex items-center gap-2">
+                                        تأیید و ورود
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                    </span>
+                                    <span wire:loading wire:target="verifyOtp" class="inline-flex items-center gap-2">
+                                        <svg class="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="32" stroke-linecap="round" opacity="0.5"/>
+                                        </svg>
+                                    </span>
+                                </button>
+                            </form>
+                        @endif
+                    @endif
+
+                    {{-- ═══ Signup link ═══ --}}
+                    <div class="pt-2 border-t border-border text-center text-sm text-muted">
+                        حساب کاربری ندارید؟
+                        <a wire:navigate href="{{ route('client.auth.signup') }}" class="font-bold text-primary hover:underline mr-1">ثبت نام کنید</a>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-secondary rounded-xl space-y-5 p-5 mt-3">
-                <div class="font-medium text-xs text-center text-muted">
-                    ورود شما به معنای پذیرش <a href="{{route('client.terms')}}" class="text-foreground hover:text-primary hover:underline">شرایط</a> و
-                    <a href="{{route('client.terms')}}" class="text-foreground hover:text-primary hover:underline">قوانین حریم خصوصی</a> است.
-                </div>
+            {{-- ═══ Terms footer ═══ --}}
+            <div class="mt-4 text-center">
+                <p class="text-[11px] text-muted leading-6">
+                    ورود شما به معنای پذیرش
+                    <a href="{{ route('client.terms') }}" class="text-foreground hover:text-primary hover:underline font-semibold">شرایط</a>
+                    و
+                    <a href="{{ route('client.terms') }}" class="text-foreground hover:text-primary hover:underline font-semibold">قوانین حریم خصوصی</a>
+                    است.
+                </p>
             </div>
         </div>
     </div>
@@ -321,8 +348,11 @@
                             } else {
                                 clearInterval(this.timer);
                             @this.call('countdownFinished');
-                            }}, 1000);
-                    }}}
+                            }
+                        }, 1000);
+                    }
+                }
+            }
         </script>
     @endpush
 </div>

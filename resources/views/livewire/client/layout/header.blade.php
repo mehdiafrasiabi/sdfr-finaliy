@@ -35,19 +35,14 @@
         </style>
     @endassets
     <div x-data="mobileMenuHandler()" x-init="init()" @resize.window="handleResize()">
-
-
-
         <!-- Header -->
         <header
-
-            class="header-main bg-background/95 backdrop-blur-xl border-b border-border transition-all duration-300"
+            class="header-main bg-background/95 backdrop-blur-xl border-b border-border transition-all duration-300 rounded-b-[24px] md:rounded-b-none"
             :class="{
-                'fixed top-0 left-0 right-0 z-50 shadow-lg': isScrolled || offcanvasOpen || profileModalOpen,
-                'relative z-30': !isScrolled && !offcanvasOpen && !profileModalOpen
-            }">
+        'fixed top-0 left-0 right-0 z-50 shadow-lg': isScrolled || offcanvasOpen || profileModalOpen,
+        'relative z-30': !isScrolled && !offcanvasOpen && !profileModalOpen
+    }">
             <div class="max-w-7xl relative px-4 mx-auto">
-
                 <!-- Desktop Header -->
                 <div class="hidden lg:flex items-center gap-8 h-20">
                     <div class="flex items-center gap-3">
@@ -340,8 +335,8 @@
         </header>
 
         <!-- Spacer for fixed header -->
-        <div class="h-16 lg:h-20" x-show="isScrolled || offcanvasOpen || profileModalOpen" x-cloak></div>
-
+        <!-- Spacer for fixed header -->
+        <div class="pt-16 lg:pt-20" x-show="offcanvasOpen || profileModalOpen" x-cloak></div>
         <!-- Mobile Menu Offcanvas -->
         <div x-cloak class="lg:hidden">
             <!-- Overlay -->
@@ -765,7 +760,5 @@
             </div>
         @endif
         <!-- Scroll to Top Button -->
-
     </div>
-
 </div>

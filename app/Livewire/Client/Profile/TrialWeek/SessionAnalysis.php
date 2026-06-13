@@ -56,21 +56,24 @@ class SessionAnalysis extends Component
 
     public function buildProgram(TrialWeekService $service): void
     {
-        // جلوگیری از ساخت دوباره (مثلاً دابل‌کلیک سریع)
+        // ۱. جلوگیری از ساخت دوباره (مثلاً دابل‌کلیک سریع)
         if (!$this->trialWeek || $this->trialWeek->status !== TrialWeek::STATUS_PRE_SESSION_DONE) {
             return;
         }
 
+        // ۲. اعتبار سنجی میزان ساعت انتخاب شده
         $this->validate(['dailyStudyHours' => ['required', 'integer', 'min:1', 'max:14']]);
 
+        // ۳. اجرای منطق ساخت برنامه در دیتابیس
         $service->buildProgram($this->trialWeek, $this->dailyStudyHours);
         $this->trialWeek->refresh();
+
+        // ۴. بستن مودال انتخاب ساعت
         $this->showHoursModal = false;
 
-        // اورلی ۴۵ ثانیه‌ای «در حال ساخت برنامه» → سپس «آماده‌ای شروع کنیم؟»
-        $this->programJustBuilt = true;
+        // ۵. [اصلی] هدایت آنی و مستقیم کاربر به داشبورد (بدون فعال کردن وضعیت اورلی ساخت برنامه)
+        $this->redirect(route('client.profile.dashboard'), navigate: true);
     }
-
     /**
      * «بریم!» — پایان اورلی ساخت برنامه و ورود به داشبورد.
      */

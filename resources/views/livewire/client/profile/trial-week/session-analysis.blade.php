@@ -156,57 +156,65 @@
         </div>
     </div>
 
-    {{-- مودال ساعت مطالعه روزانه --}}
+    {{-- ════════════════ مودال انتخاب ساعت مطالعاتی ════════════════ --}}
     @if($showHoursModal)
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4"
-         @keydown.escape.window="$wire.closeHoursModal()">
-        <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" wire:click="closeHoursModal"></div>
-        <div class="relative z-10 w-full max-w-sm bg-background border border-border rounded-3xl shadow-2xl p-8 text-center"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 scale-90"
-             x-transition:enter-end="opacity-100 scale-100">
+        <div x-data x-init="document.body.style.overflow='hidden'"
+             @keydown.escape.window="$wire.closeHoursModal()">
 
-            <div class="text-4xl mb-4">⏱️</div>
-            <h2 class="text-xl font-black text-foreground mb-2">برنامه روزانه</h2>
-            <p class="text-muted text-sm mb-6">در روز چند ساعت می‌توانید مطالعه کنید؟</p>
+            <!-- لایه تاریک پس‌زمینه (Overlay) -->
+            <div class="m-overlay" wire:click="closeHoursModal"></div>
 
-            <div class="flex items-center justify-center gap-4 mb-6">
-                <button wire:click="$set('dailyStudyHours', {{ max(1, $dailyStudyHours - 1) }})"
-                        class="w-10 h-10 rounded-full bg-secondary border border-border text-foreground font-black text-lg hover:bg-border transition-colors">
-                    −
-                </button>
-                <div class="text-4xl font-black text-primary min-w-[60px]">
-                    {{ $dailyStudyHours }}
+            <!-- بدنه اصلی مودال (در موبایل از پایین باز می‌شود و در دسکتاپ وسط‌چین است) -->
+            <div class="m-sheet" @click.stop>
+                <!-- خط دستگیره بالای مودال مخصوص موبایل -->
+                <div class="m-handle"></div>
+
+                <div class="p-6 text-center overflow-y-auto">
+                    <!-- آیکون مودال -->
+                    <div class="pop-in inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500/15 border border-blue-500/30 mb-4">
+                        <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </div>
+
+                    <h2 class="text-lg font-black text-foreground mb-2">تعیین ساعت مطالعه روزانه</h2>
+                    <p class="text-sm text-muted leading-7 mb-5">
+                        لطفاً میانگین ساعتی که می‌توانی در روز مطالعه کنی را مشخص کن تا برنامه‌ات بر اساس آن ساخته شود.
+                    </p>
+
+                    <!-- بخش انتخاب ساعت (به صورت Select یا اینپوت بسته به سلیقه خودتان) -->
+                    <div class="mb-6 max-w-xs mx-auto">
+                        <select wire:model="dailyStudyHours" class="w-full bg-secondary border border-border text-foreground rounded-xl px-4 py-3 font-bold text-center focus:outline-none focus:border-blue-500">
+                            @for($i = 1; $i <= 14; $i++)
+                                <option value="{{ $i }}">{{ $i }} ساعت در روز</option>
+                            @endfor
+                        </select>
+                        @error('dailyStudyHours')<p class="text-xs text-red-500 mt-2">{{ $message }}</p>@enderror
+                    </div>
+
+                    <!-- دکمه‌های اکشن -->
+                    <div class="flex gap-3">
+                        <button type="button" wire:click="buildProgram"
+                                wire:loading.attr="disabled" wire:target="buildProgram"
+                                class="press btn-primary flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm">
+                            <svg wire:loading wire:target="buildProgram" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.4 0 0 5.4 0 12h4z"/>
+                            </svg>
+                            <span wire:loading.remove wire:target="buildProgram">تأیید و ساخت برنامه</span>
+                            <span wire:loading wire:target="buildProgram">در حال ایجاد…</span>
+                        </button>
+
+                        <button type="button" wire:click="closeHoursModal"
+                                class="press btn-soft flex-1 py-3 rounded-xl font-bold text-sm">
+                            انصراف
+                        </button>
+                    </div>
                 </div>
-                <button wire:click="$set('dailyStudyHours', {{ min(14, $dailyStudyHours + 1) }})"
-                        class="w-10 h-10 rounded-full bg-secondary border border-border text-foreground font-black text-lg hover:bg-border transition-colors">
-                    +
-                </button>
-            </div>
-            <p class="text-xs text-muted mb-6">ساعت در روز</p>
-
-            @error('dailyStudyHours') <p class="text-sm text-red-500 mb-4">{{ $message }}</p> @enderror
-
-            <div class="flex gap-3">
-                <button wire:click="buildProgram"
-                        wire:loading.attr="disabled"
-                        class="flex-1 py-3 bg-primary hover:bg-primary/90 disabled:opacity-50 text-primary-foreground rounded-xl font-bold transition-colors flex items-center justify-center gap-2">
-                    <svg wire:loading wire:target="buildProgram" class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                    </svg>
-                    <span wire:loading.remove wire:target="buildProgram">بسازید!</span>
-                    <span wire:loading wire:target="buildProgram">در حال ساخت...</span>
-                </button>
-                <button wire:click="closeHoursModal"
-                        class="flex-1 py-3 bg-secondary hover:bg-border text-foreground rounded-xl font-bold transition-colors">
-                    انصراف
-                </button>
             </div>
         </div>
-    </div>
     @endif
-
     {{-- ═══════════ اورلی ساخت برنامه (۴۵ ثانیه) ═══════════ --}}
     @if($programJustBuilt)
     {{-- x-data به‌صورت اینلاین تا بعد از morph لایووایر هم اجرا شود --}}

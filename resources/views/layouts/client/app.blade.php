@@ -98,7 +98,7 @@
                 },
 
                 checkScroll() {
-                    this.isScrolled = window.scrollY > 50;
+                    this.isScrolled = window.scrollY > 28;
                 },
 
                 handleResize() {
@@ -256,7 +256,6 @@
 
 </div>
 @include('layouts.client.script')
-{{--<script src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>--}}
 <script data-navigate-once>
     //remove wire:snapshot form tags in client
     let attrs = [
