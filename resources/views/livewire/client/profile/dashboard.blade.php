@@ -6,9 +6,9 @@
     <x-client.page-tour storage-key="dashboard_tour_done" :steps="[
         ['el' => '[data-tour=trial]',   'title' => 'وضعیت هفته آزمایشی', 'text' => 'از اینجا می‌بینی چند روز از دسترسی‌ات باقی مانده و با لمسش به راهنمای هفته آزمایشی می‌روی.'],
         ['el' => '[data-tour=advisor]', 'title' => 'مشاور تو', 'text' => 'مشاور اختصاصی‌ات اینجاست؛ در کل مسیر همراهت است.'],
-        ['el' => '[data-tour=report]',  'title' => 'ارسال گزارش روزانه', 'text' => 'هر روز گزارش مطالعه‌ات را ثبت کن؛ اینجا می‌بینی این هفته چند روز گزارش داده‌ای.'],
-        ['el' => '[data-tour=study]',   'title' => 'ساعت مطالعه', 'text' => 'مجموع ساعت‌های مطالعه‌ی ثبت‌شده‌ات در این هفته را نشان می‌دهد.'],
-        ['el' => '[data-tour=today]',   'title' => 'برنامه امروز', 'text' => 'درس‌ها و پارت‌هایی که امروز باید بخوانی؛ از همین‌جا مطالعه را شروع کن.'],
+        ['el' => '[data-tour=report]',  'title' => ' وضعیت گزارش درسی من', 'text' => 'هر روز گزارش مطالعه‌ات را ثبت کن؛ اینجا می‌بینی این هفته چند روز گزارش داده‌ای.'],
+        ['el' => '[data-tour=study]',   'title' => 'ساعت مطالعه من', 'text' => 'مجموع ساعت‌های مطالعه‌ی ثبت‌شده‌ات در این هفته را نشان می‌دهد.'],
+        ['el' => '[data-tour=today]',   'title' => 'برنامه امروز من', 'text' => 'درس‌ها و پارت‌هایی که امروز باید بخوانی؛ از همین‌جا مطالعه را شروع کن.'],
         ['el' => '[data-tour=chart]',   'title' => 'تحلیل مطالعه', 'text' => 'نمودار مقایسه‌ی برنامه با عملکرد واقعی‌ات در طول هفته.'],
     ]" />
 
@@ -357,7 +357,7 @@
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-2">
                                 <span class="live-dot"></span>
-                                <span class="font-bold text-white text-[15px]">ارسال گزارش</span>
+                                <span class="font-bold text-white text-[15px]">وضعیت گزارش روزانه من</span>
 
                             </div>
                             <div class="text-2xl font-black text-sky-400 tracking-tight" style="direction:ltr;">
@@ -431,7 +431,7 @@
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-2">
                                 <span class="live-dot"></span>
-                                <span class="font-bold text-white text-[15px]">ساعت مطالعه</span>
+                                <span class="font-bold text-white text-[15px]">ساعت مطالعه من</span>
                             </div>
                             <div class="text-xl font-black text-sky-400">
                                 {{ $studyHoursProgress['total_hours'] }} ساعت
@@ -455,15 +455,15 @@
                     </div>
 
                     {{-- ══════ 4) برنامه امروز (زنده، full-width) ══════ --}}
-                    <div class="glass rise md:col-span-2 p-4" data-tour="today" style="animation-delay:.25s;margin-bottom: 36px">
+                    <div class="glass rise md:col-span-2 p-4" data-tour="today" style="animation-delay:.25s">
                         <div class="flex items-center justify-between gap-2 mb-1">
 
                             <div class="flex items-center gap-2">
                                 <span class="live-dot"></span>
-                                <span class="font-bold text-white text-[15px]">برنامه امروز</span>
+                                <span class="font-bold text-white text-[15px]">برنامه امروز من </span>
                             </div>
                             <button class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary ring-1 ring-white/10 text-neutral-300 hover:bg-white/10 hover:text-white transition cursor-pointer">
-                                اتفاقات یهویی
+                                اتفاقات یهویی !!
                             </button>
                         </div>
                         <p class="text-[11px] text-neutral-400 mb-4">درس‌ها و تکالیفی که امروز باید انجام بدهی</p>
@@ -586,15 +586,12 @@
                         <div class="glass rise md:col-span-2 p-4" style="animation-delay:.28s;margin-bottom: 36px">
                             <div class="flex items-center justify-between gap-2 mb-1">
                                 <div class="flex items-center gap-2">
-                                    <span class="font-bold text-white text-[15px]">امتحان، تکلیف و کلاس</span>
+                                    <span class="font-bold text-white text-[15px]">مدرسه من</span>
                                     <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/20">این هفته</span>
                                 </div>
                                 <a wire:navigate href="{{ route('client.profile.consultation.class-schedule') }}"
                                    class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-300 hover:bg-amber-500/25 hover:text-amber-200 transition flex items-center gap-1.5">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-3.5 h-3.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
-                                    </svg>
-                                    برنامه درس
+                                    برنامه کلاسی مدرسه
                                 </a>
                             </div>
 

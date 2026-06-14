@@ -1,16 +1,18 @@
 <div>
-    <style>
-        /* notch دایره‌ای زیر لوگو وسط — با mask برش می‌خوره */
-        .bottom-nav-notch {
-            -webkit-mask-image: radial-gradient(circle 38px at 50% 0, transparent 0, transparent 37px, #000 38px);
-            mask-image: radial-gradient(circle 37px at 50% 0, transparent 0, transparent 31px, #000 47px);
-            -webkit-mask-repeat: no-repeat;
-            mask-repeat: no-repeat;
-            -webkit-mask-size: 100% 100%;
-            mask-size: 100% 100%;
-        }
-    </style>
+   @push('link')
+        <style>
+            /* notch دایره‌ای زیر لوگو وسط — با mask برش می‌خوره */
+            .bottom-nav-notch {
+                -webkit-mask-image: radial-gradient(circle 38px at 50% 0, transparent 0, transparent 37px, #000 38px);
+                mask-image: radial-gradient(circle 37px at 50% 0, transparent 0, transparent 31px, #000 47px);
+                -webkit-mask-repeat: no-repeat;
+                mask-repeat: no-repeat;
+                -webkit-mask-size: 100% 100%;
+                mask-size: 100% 100%;
+            }
+        </style>
 
+    @endpush
     @if(\Illuminate\Support\Facades\Auth::check() && (request()->is('profile*') || request()->routeIs('client.profile.*') ))
         {{-- جدید --}}
         @if(!request()->routeIs(['client.profile.classification.classify','client.profile.assessment.*','client.profile.trial.*','client.profile.essay-exam.test','client.profile.essay-exam.test','client.profile.typed-exam.test']))
@@ -40,7 +42,7 @@
                     <div class="absolute left-1/2 -translate-x-1/2 -top-8 z-10">
                         <a wire:navigate href="{{route('client.profile.dashboard')}}"
                            class="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40">
-                            <img src="/client/logo-mobile.png" alt="لوگو" class="w-13 h-12" style="filter: brightness(0) invert(1);">
+                            <img src="/client/assets/images/favicon.svg" alt="لوگو" class="w-10 h-10" style="filter: brightness(0) invert(1);">
                         </a>
                     </div>
 
