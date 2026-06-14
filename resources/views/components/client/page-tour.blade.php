@@ -163,55 +163,41 @@
                  `">
                 </div>
 
-                {{-- ░░ تولتیپ ░░ --}}
+                {{-- ░░ تولتیپ معمولی (مراحل غیر navbar) ░░ --}}
                 <div class="absolute pointer-events-auto"
+                     x-show="steps[index].el !== '[data-tour=navbar]'"
                      :style="`top: ${tipTop}px; right: ${tipRight}px; width: 300px; max-width: calc(100vw - 2rem);`"
                      :class="transitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'"
                      style="transition: opacity .22s ease, transform .22s ease;">
 
-                    {{-- فلش اتصال ─ بالا یا پایین --}}
                     <div class="absolute w-3 h-3 rotate-45 bg-[#131825] border border-white/10"
                          :class="tipSide === 'bottom' ? '-top-1.5 right-5' : '-bottom-1.5 right-5'"
                          style="z-index:-1"></div>
 
                     <div class="rounded-2xl p-4 shadow-2xl border border-white/10 backdrop-blur-xl"
                          style="background: rgba(13,18,30,.92);">
-
-                        {{-- هدر --}}
                         <div class="flex items-center justify-between mb-2">
                             <p class="text-sm font-bold text-white" x-text="steps[index].title"></p>
                             <button type="button" @click="finish()"
                                     class="w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition text-neutral-400 hover:text-white">
-                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                                     stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M18 6 6 18M6 6l12 12"/>
                                 </svg>
                             </button>
                         </div>
-
                         <p class="text-xs text-neutral-400 leading-6 mb-4" x-text="steps[index].text"></p>
-
-                        {{-- پایین: نقطه‌ها + دکمه‌ها --}}
                         <div class="flex items-center justify-between gap-3">
-                            {{-- نقطه‌های پیشرفت --}}
                             <div class="flex items-center gap-1.5">
                                 <template x-for="(s, i) in steps" :key="i">
-                                <span class="rounded-full transition-all duration-300"
-                                      :class="i === index
-                                            ? 'w-4 h-1.5 bg-sky-400'
-                                            : (i < index ? 'w-1.5 h-1.5 bg-sky-700' : 'w-1.5 h-1.5 bg-white/15')">
-                                </span>
+                    <span class="rounded-full transition-all duration-300"
+                          :class="i === index ? 'w-4 h-1.5 bg-sky-400' : (i < index ? 'w-1.5 h-1.5 bg-sky-700' : 'w-1.5 h-1.5 bg-white/15')">
+                    </span>
                                 </template>
                             </div>
-
                             <div class="flex items-center gap-2">
-                                <button type="button" @click="finish()"
-                                        class="text-[11px] text-neutral-500 hover:text-neutral-300 transition-colors px-2">
-                                    رد کردن
-                                </button>
+                                <button type="button" @click="finish()" class="text-[11px] text-neutral-500 hover:text-neutral-300 transition-colors px-2">رد کردن</button>
                                 <button type="button" @click="next()"
-                                        class="px-4 py-2 rounded-lg text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white
-                                           transition-all hover:scale-105 shadow-lg shadow-sky-500/20">
+                                        class="px-4 py-2 rounded-lg text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-all hover:scale-105 shadow-lg shadow-sky-500/20">
                                     <span x-text="index >= steps.length - 1 ? 'تمام 🎉' : 'بعدی ←'"></span>
                                 </button>
                             </div>
