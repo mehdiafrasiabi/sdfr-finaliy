@@ -1,12 +1,10 @@
 <?php
 
 namespace App\Livewire\Client\Profile;
-
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Models\AdvisingSession;
-
 use App\Models\NotificationRecipient;
 use App\Models\WeeklyProgram;
 use App\Models\DailyReport;
@@ -16,7 +14,6 @@ use App\Models\ClassSchedule;
 use App\Models\TrialWeek;
 use App\Models\ProgramPart;
 use App\Models\SmartReportCard;
-
 use Carbon\Carbon;
 
 class Dashboard extends Component
@@ -465,6 +462,44 @@ class Dashboard extends Component
     }
 
     /**
+     * آیا دانش‌آموز فارغ‌التحصیل است؟ (برای فارغ‌التحصیل‌ها باکس برنامه کلاسی نمایش داده نمی‌شود)
+     */
+    public function isGraduateStudent(): bool
+    {
+        // دانش‌آموز آزمایشی: از روی TrialWeek تشخیص بده
+        if ($this->student && $this->student->is_trial) {
+            $trial = TrialWeek::where('user_id', $this->user->id)->latest()->first();
+            if ($trial) {
+                return $trial->isGraduate();
+            }
+        }
+
+        // سایر دانش‌آموزان: از اطلاعات فردی
+        $info = $this->user?->personalInformation;
+        return (bool) ($info?->is_graduate ?? false);
+    }
+
+    /**
+     * پارت‌های امتحان، پرسش و پاسخ کلاسی و تکلیف هفته جاری (هفته جلسه مشاور)
+     */
+    public function getWeeklySpecialParts(): array
+    {
+        $program = $this->getActiveWeeklyProgram();
+        if (!$program || !$this->student) {
+            return [];
+        }
+
+        $parts = $program->parts()
+            ->whereIn('source_type', ['exam', 'class_qa', 'homework'])
+            ->with(['lesson', 'ccSubject'])
+            ->orderBy('day_of_week')
+            ->orderBy('part_order')
+            ->get();
+
+        return $parts->toArray();
+    }
+
+    /**
      * دریافت برنامه امروز
      */
     public function getTodayProgram()
@@ -602,6 +637,8 @@ class Dashboard extends Component
 
         $weeklyInsights = $this->getWeeklyInsights();
         $monthlyInsights = $this->getMonthlyInsights();
+        $weeklySpecialParts = $this->getWeeklySpecialParts();
+        $isGraduateStudent = $this->isGraduateStudent();
 // برنامه کلاسی
         $classSchedule = null;
         if ($this->student) {
@@ -634,6 +671,8 @@ class Dashboard extends Component
             'monthlyInsights' => $monthlyInsights,
             'classSchedule' => $classSchedule,
             'schoolInfo' => $schoolInfo,
+            'weeklySpecialParts' => $weeklySpecialParts,
+            'isGraduateStudent' => $isGraduateStudent,
         ])->layout('layouts.client.app');
 
     }

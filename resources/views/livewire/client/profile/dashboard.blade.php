@@ -332,7 +332,6 @@
                                 <div class="font-bold text-white text-base leading-tight">
                                     {{ $advisorStudent['name'] ?? 'تعیین نشده' }}
                                 </div>
-                                <div class="text-xs mt-1 text-sky-400">{{ $advisorStudent['label'] ?? 'مشاور شما' }}</div>
                             </div>
                         </div>
                         {{-- چپ: نقطه زنده + دکمه فلش --}}
@@ -351,13 +350,9 @@
                         {{-- هدر --}}
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-2">
-                                <div class="icon-chip">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#34d399" class="w-4 h-4">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
-                                    </svg>
-                                </div>
-                                <span class="font-bold text-white text-[15px]">ارسال گزارش</span>
                                 <span class="live-dot"></span>
+                                <span class="font-bold text-white text-[15px]">ارسال گزارش</span>
+
                             </div>
                             <div class="text-2xl font-black text-sky-400 tracking-tight" style="direction:ltr;">
                                 {{ $reportProgress['submitted_days'] }}/{{ $reportProgress['total_days'] }}
@@ -429,13 +424,8 @@
                     <div class="glass rise p-4" data-tour="study" style="animation-delay:.2s">
                         <div class="flex items-center justify-between mb-1">
                             <div class="flex items-center gap-2">
-                                <div class="icon-chip">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#34d399" class="w-4 h-4">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                    </svg>
-                                </div>
-                                <span class="font-bold text-white text-[15px]">ساعت مطالعه</span>
                                 <span class="live-dot"></span>
+                                <span class="font-bold text-white text-[15px]">ساعت مطالعه</span>
                             </div>
                             <div class="text-xl font-black text-sky-400">
                                 {{ $studyHoursProgress['total_hours'] }} ساعت
@@ -463,13 +453,8 @@
                         <div class="flex items-center justify-between gap-2 mb-1">
 
                             <div class="flex items-center gap-2">
-                                <div class="icon-chip">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="#34d399" class="w-4 h-4">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
-                                    </svg>
-                                </div>
-                                <span class="font-bold text-white text-[15px]">برنامه امروز</span>
                                 <span class="live-dot"></span>
+                                <span class="font-bold text-white text-[15px]">برنامه امروز</span>
                             </div>
                             <button class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary ring-1 ring-white/10 text-neutral-300 hover:bg-white/10 hover:text-white transition cursor-pointer">
                                 اتفاقات یهویی
@@ -589,6 +574,76 @@
                             <div class="text-center py-8 text-neutral-500 text-[13px]">برنامه‌ای برای امروز تعریف نشده</div>
                         @endif
                     </div>
+
+                    {{-- ══════ باکس امتحان / پرسش و پاسخ / تکلیف هفته ══════ --}}
+                    @unless($isGraduateStudent)
+                        <div class="glass rise md:col-span-2 p-4" style="animation-delay:.28s;margin-bottom: 36px">
+                            <div class="flex items-center justify-between gap-2 mb-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-white text-[15px]">امتحان، تکلیف و کلاس</span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/20">این هفته</span>
+                                </div>
+                                <a wire:navigate href="{{ route('client.profile.consultation.class-schedule') }}"
+                                   class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-300 hover:bg-amber-500/25 hover:text-amber-200 transition flex items-center gap-1.5">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" class="w-3.5 h-3.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/>
+                                    </svg>
+                                    برنامه درس
+                                </a>
+                            </div>
+
+                            @php
+                                $sourceLabels = [
+                                    'exam'     => ['label' => 'امتحان',              'color' => 'text-red-400',    'bg' => 'bg-red-500/10',    'ring' => 'ring-red-500/25'],
+                                    'class_qa' => ['label' => 'پرسش و پاسخ کلاسی', 'color' => 'text-sky-400',    'bg' => 'bg-sky-500/10',    'ring' => 'ring-sky-500/25'],
+                                    'homework' => ['label' => 'تکلیف',               'color' => 'text-amber-400',  'bg' => 'bg-amber-500/10',  'ring' => 'ring-amber-500/25'],
+                                ];
+                                $weekDayNames = ['شنبه','یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنج‌شنبه','جمعه'];
+                            @endphp
+
+                            @if(!empty($weeklySpecialParts))
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    @foreach($weeklySpecialParts as $sp)
+                                        @php
+                                            $src = $sp['source_type'] ?? 'exam';
+                                            $meta = $sourceLabels[$src] ?? $sourceLabels['exam'];
+                                            $lessonName = $sp['lesson_name'] ?? ($sp['cc_subject']['name'] ?? ($sp['lesson']['name'] ?? 'درس'));
+                                            $dayName = $weekDayNames[$sp['day_of_week']] ?? '';
+                                            $minutes = $sp['duration_minutes'] ?? 0;
+                                            $tests   = $sp['test_count'] ?? 0;
+                                        @endphp
+                                        <div class="rounded-xl bg-white/5 ring-1 ring-white/10 px-4 py-3 flex items-center justify-between gap-3">
+                                            <div class="flex flex-col gap-1">
+                                                <span class="font-bold text-white text-[14px] leading-tight">{{ $lessonName }}</span>
+                                                @if($dayName)
+                                                    <span class="text-[11px] text-neutral-500">{{ $dayName }}</span>
+                                                @endif
+                                            </div>
+                                            <div class="flex items-center gap-2 flex-shrink-0">
+                                                @if($minutes > 0)
+                                                    <div class="flex flex-col items-center leading-tight">
+                                                        <span class="font-black text-white text-sm">{{ $minutes }}</span>
+                                                        <span class="text-[10px] text-neutral-400">دقیقه</span>
+                                                    </div>
+                                                @endif
+                                                @if($tests > 0)
+                                                    <div class="flex flex-col items-center leading-tight">
+                                                        <span class="font-black text-white text-sm">{{ $tests }}</span>
+                                                        <span class="text-[10px] text-neutral-400">تست</span>
+                                                    </div>
+                                                @endif
+                                                <span class="text-[11px] font-semibold px-2 py-0.5 rounded-full {{ $meta['bg'] }} {{ $meta['color'] }} ring-1 {{ $meta['ring'] }}">
+                                                {{ $meta['label'] }}
+                                            </span>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="text-center py-8 text-neutral-500 text-[13px]">دیتایی وجود ندارد</div>
+                            @endif
+                        </div>
+                    @endunless
 
                     {{-- ══════ آمار کلی هفته (محاسبات) ══════ --}}
                     @php
