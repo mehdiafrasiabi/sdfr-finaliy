@@ -657,6 +657,9 @@ class Dashboard extends Component
                     'name'    => $school->name,
                     'manager' => $school->manager?->name ?? $school->schoolManagerAdmin?->name,
                     'phone'   => $school->public_phone,
+                    'image'   => $school->image
+                        ? asset('schools/' . $school->id . '/' . $school->image)
+                        : null,
                 ];
             }
         }

@@ -12,7 +12,8 @@
     </style>
 
     @if(\Illuminate\Support\Facades\Auth::check() && (request()->is('profile*') || request()->routeIs('client.profile.*') ))
-        @if(!request()->routeIs(['client.profile.classification.classify','client.profile.assessment.*','client.profile.trial.*','client.profile.essay-exam.test','client.profile.essay-exam.test','client.profile.typed-exam.test'])))
+        {{-- جدید --}}
+        @if(!request()->routeIs(['client.profile.classification.classify','client.profile.assessment.*','client.profile.trial.*','client.profile.essay-exam.test','client.profile.essay-exam.test','client.profile.typed-exam.test']))
             <div x-data="{
                 headerOpen: false,
                 unreadCount: {{ $unreadCount }},
@@ -36,10 +37,11 @@
                      class="md:hidden fixed bottom-2.5 left-5 right-5 z-50">
 
                     {{-- لوگو بیرون از nav قرار داره تا mask برشش نزنه --}}
-                    <div class="absolute left-1/2 -translate-x-1/2 -top-8 z-10 pointer-events-none">
-                        <div class="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40">
-                            <img src="/client/assets/images/favicon.svg" alt="لوگو" class="w-10 h-10" style="filter: brightness(0) invert(1);">
-                        </div>
+                    <div class="absolute left-1/2 -translate-x-1/2 -top-8 z-10">
+                        <a wire:navigate href="{{route('client.profile.dashboard')}}"
+                           class="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40">
+                            <img src="/client/logo-mobile.png" alt="لوگو" class="w-13 h-12" style="filter: brightness(0) invert(1);">
+                        </a>
                     </div>
 
                     {{-- border-t حذف شد چون لبه‌ی برش رو خراب می‌کرد --}}
@@ -48,9 +50,9 @@
                         <div class="flex items-center justify-around h-16 px-6 max-w-lg mx-auto">
 
                             <!-- داشبورد -->
-                            <a href="{{ route('client.profile.dashboard') }}" wire:navigate
+                            <a href="{{ route('client.profile.consultation.sessions') }}" wire:navigate
                                class="flex flex-col items-center justify-center gap-1 min-w-[60px] py-2 px-1 rounded-xl transition-all"
-                               :class="isActive('{{ route('client.profile.dashboard', [], false) }}') ? 'text-primary' : 'text-muted hover:text-foreground'">
+                               :class="isActive('{{ route('client.profile.consultation.sessions', [], false) }}') ? 'text-primary' : 'text-muted hover:text-foreground'">
                                 <div class="relative">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-foreground/60">
                                         <path d="M8 21H16" stroke-linecap="round" stroke-linejoin="round"></path><path d="M12 17V21" stroke-linecap="round" stroke-linejoin="round"></path><path d="M20 3H4C2.89543 3 2 3.89543 2 5V15C2 16.1046 2.89543 17 4 17H20C21.1046 17 22 16.1046 22 15V5C22 3.89543 21.1046 3 20 3Z" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -62,9 +64,9 @@
                             </a>
 
                             <!-- اطلاع رسانی -->
-                            <a href="{{ route('client.profile.notification') }}" wire:navigate
+                            <a href="{{ route('client.profile.plan') }}" wire:navigate
                                class="flex flex-col items-center justify-center gap-1 min-w-[60px] py-2 px-1 rounded-xl transition-all"
-                               :class="isActive('{{ route('client.profile.notification', [], false) }}') ? 'text-primary' : 'text-muted hover:text-foreground'">
+                               :class="isActive('{{ route('client.profile.plan', [], false) }}') ? 'text-primary' : 'text-muted hover:text-foreground'">
                                 <div class="relative">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-foreground/60">
                                         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
@@ -75,8 +77,6 @@
                                             <span class="relative inline-flex items-center justify-center rounded-full h-4 w-4 bg-red-500 text-white font-bold text-[8px]" x-text="unreadCount > 9 ? '9+' : unreadCount"></span>
                                         </span>
                                     </template>
-                                    <span x-show="isActive('{{ route('client.profile.notification', [], false) }}')" x-cloak
-                                          class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></span>
                                 </div>
                                 <span class="text-[10px] font-semibold">برنامه درسی</span>
                             </a>
@@ -85,21 +85,21 @@
                             <div class="w-16 flex-shrink-0" aria-hidden="true"></div>
 
                             <!-- تیکت و پشتیبانی -->
-                            <a href="{{ route('client.profile.ticket') }}" wire:navigate
+                            <a href="{{ route('client.profile.report') }}" wire:navigate
                                class="flex flex-col items-center justify-center gap-1 min-w-[60px] py-2 px-1 rounded-xl transition-all"
-                               :class="isActive('{{ route('client.profile.ticket', [], false) }}') ? 'text-primary' : 'text-muted hover:text-foreground'">
+                               :class="isActive('{{ route('client.profile.report', [], false) }}') ? 'text-primary' : 'text-muted hover:text-foreground'">
                                 <div class="relative">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-foreground/60">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                     </svg>
-                                    <span x-show="isActive('{{ route('client.profile.ticket', [], false) }}')" x-cloak
+                                    <span x-show="isActive('{{ route('client.profile.report', [], false) }}')" x-cloak
                                           class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full"></span>
                                 </div>
                                 <span class="text-[10px] font-semibold">گزارش</span>
                             </a>
 
                             <!-- آچار فرانسه -->
-                            <a class="flex flex-col items-center justify-center gap-1 min-w-[60px] py-2 px-1 rounded-xl transition-all text-muted hover:text-foreground">
+                            <a href="{{route('client.profile.typed-exam.list')}}" class="flex flex-col items-center justify-center gap-1 min-w-[60px] py-2 px-1 rounded-xl transition-all text-muted hover:text-foreground">
                                 <div class="relative">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-7 h-7 text-foreground/60">
                                         <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>

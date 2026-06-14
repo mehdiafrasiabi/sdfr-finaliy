@@ -11,10 +11,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Traits\UploadFile;
+use Livewire\Features\SupportFileUploads\WithFileUploads;
 
 class Index extends Component
 {
-    use WithPagination, SEOTools;
+    use WithPagination, SEOTools, WithFileUploads, UploadFile;
 
     public $search = '';
 
@@ -25,6 +27,10 @@ class Index extends Component
     public $public_phone;
     public $type;
     public array $advisor_ids = [];
+    /** تصویر جدید مدرسه (آپلود) */
+    public $image;
+    /** نام فایل تصویر فعلی (هنگام ویرایش) */
+    public $currentImage;
 
     public $manager_name;
     public $manager_phone;
@@ -43,12 +49,22 @@ class Index extends Component
     {
         $this->seo()->setTitle('مدیریت مدارس');
     }
-
+    public function updatedImage(): void
+    {
+        $this->validate([
+            'image' => 'image|mimes:jpg,jpeg,png,webp|max:10240',
+        ], [
+            'image.image' => 'فایل باید یک تصویر باشد.',
+            'image.mimes' => 'فرمت‌های مجاز: JPG, PNG, WEBP',
+            'image.max'   => 'حجم مجاز تصویر تا 10 مگابایت می‌باشد.',
+        ]);
+    }
     public function submit(array $formData): void
     {
         // مقادیر آرایه‌ای/چندانتخابی از طریق FormData منتقل نمی‌شوند؛ از prop خوانده می‌شوند.
         $formData['advisor_ids'] = $this->advisor_ids;
         $formData['type']        = $this->type;
+        $formData['image']       = $this->image;
 
         $rules = [
             'name'          => 'required|string|max:255',
@@ -56,6 +72,8 @@ class Index extends Component
             'address'       => 'required|string|max:1000',
             'public_phone'  => 'required|regex:/^0\d{10}$/',
             'type'          => 'required|in:' . implode(',', self::SCHOOL_TYPES),
+            'image'         => 'nullable|image|mimes:jpg,jpeg,png,webp|max:10240',
+
             'advisor_ids'   => 'required|array|min:1',
             'advisor_ids.*' => 'exists:admins,id',
             'manager_name'  => 'required|string|max:255',
@@ -101,6 +119,17 @@ class Index extends Component
                 ['school_id' => $school->id, 'role' => 'manager'],
                 ['name' => $formData['manager_name'], 'phone' => $formData['manager_phone']]
             );
+            // آپلود و ذخیره تصویر مدرسه (در صورت انتخاب فایل جدید)
+            if ($this->image) {
+                $filename = $this->uploadImageInWebpFormatSdfrSchool(
+                    $this->image,
+                    $school->id,
+                    null,
+                    null,
+                    'schools'
+                );
+                $school->update(['image' => $filename]);
+            }
 
             SchoolStaff::updateOrCreate(
                 ['school_id' => $school->id, 'role' => 'deputy'],
@@ -191,6 +220,9 @@ class Index extends Component
         $this->advisor_ids   = $school->advisors->pluck('id')->map(fn($id) => (string) $id)->all();
         $this->manager_name  = $school->manager?->name;
         $this->manager_phone = $school->manager?->phone;
+        $this->image         = null;
+        $this->currentImage  = $school->image;
+
         $this->deputy_name   = $school->deputy?->name;
         $this->deputy_phone  = $school->deputy?->phone;
     }
@@ -210,6 +242,8 @@ class Index extends Component
         $this->reset([
             'schoolId', 'name', 'code', 'address', 'public_phone', 'type', 'advisor_ids',
             'manager_name', 'manager_phone', 'deputy_name', 'deputy_phone',
+            'image', 'currentImage',
+
         ]);
 
         if ($resetDetails) {

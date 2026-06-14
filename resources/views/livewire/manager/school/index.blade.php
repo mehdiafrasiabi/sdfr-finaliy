@@ -64,7 +64,30 @@
                         @error('address') <span class="text-danger small">{{ $message }}</span> @enderror
                     </div>
                 </div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label">تصویر مدرسه</label>
+                    <input type="file" wire:model="image" accept="image/*" class="form-control">
+                    <small class="text-muted">فرمت‌های مجاز: JPG, PNG, WEBP — حداکثر ۱۰ مگابایت. این تصویر در داشبورد دانش‌آموزان مدرسه نمایش داده می‌شود.</small>
+                    @error('image') <span class="text-danger small">{{ $message }}</span> @enderror
 
+                    <div wire:loading wire:target="image" class="text-muted small mt-1">در حال بارگذاری تصویر...</div>
+
+                    <div class="mt-2 d-flex gap-3 align-items-start">
+                        @if ($image)
+                            <div>
+                                <div class="small text-muted mb-1">پیش‌نمایش تصویر جدید:</div>
+                                <img src="{{ $image->temporaryUrl() }}" alt="پیش‌نمایش"
+                                     class="rounded border" style="max-height: 140px; max-width: 100%;">
+                            </div>
+                        @elseif ($currentImage && $schoolId)
+                            <div>
+                                <div class="small text-muted mb-1">تصویر فعلی:</div>
+                                <img src="{{ asset('schools/' . $schoolId . '/' . $currentImage) }}" alt="تصویر مدرسه"
+                                     class="rounded border" style="max-height: 140px; max-width: 100%;">
+                            </div>
+                        @endif
+                    </div>
+                </div>
                 <hr>
                 <h5 class="mt-2 mb-3">اطلاعات مدیر مدرسه</h5>
                 <div class="row">
@@ -125,6 +148,7 @@
                     <thead>
                     <tr>
                         <th>ردیف</th>
+                        <th>تصویر</th>
                         <th>نام مدرسه</th>
                         <th>کد</th>
                         <th>تلفن</th>
@@ -140,6 +164,15 @@
                     @forelse($schools as $school)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
+                            <td>
+                                @if ($school->image)
+                                    <img src="{{ asset('schools/' . $school->id . '/' . $school->image) }}"
+                                         alt="{{ $school->name }}"
+                                         class="rounded" style="height: 40px; width: 40px; object-fit: cover;">
+                                @else
+                                    <span class="text-muted">---</span>
+                                @endif
+                            </td>
                             <td>{{ $school->name }}</td>
                             <td>{{ $school->code }}</td>
                             <td>{{ $school->public_phone }}</td>
@@ -166,7 +199,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="10" class="text-center text-muted">هیچ مدرسه‌ای ثبت نشده است.</td>
+                            <td colspan="11" class="text-center text-muted">هیچ مدرسه‌ای ثبت نشده است.</td>
                         </tr>
                     @endforelse
                     </tbody>

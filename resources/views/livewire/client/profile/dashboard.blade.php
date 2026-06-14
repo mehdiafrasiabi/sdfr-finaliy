@@ -291,6 +291,12 @@
                 ════════════════════════════════════════════ --}}
 
                 @if(!empty($schoolInfo))
+                    @if(!empty($schoolInfo['image']))
+                        <div class="relative z-10 mb-4 rounded-2xl overflow-hidden glass">
+                            <img src="{{ $schoolInfo['image'] }}" alt="{{ $schoolInfo['name'] }}"
+                                 class="w-full h-auto object-cover" style="max-height: 360px;">
+                        </div>
+                    @endif
                     <div class="relative z-10 mb-4 rounded-2xl glass p-4">
                         <div class="flex items-center gap-2 mb-2">
                             <svg class="w-5 h-5 flex-shrink-0 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
