@@ -548,27 +548,26 @@
 
                             </div>
                             <div class="text-2xl font-black text-sky-400 tracking-tight" style="direction:ltr;">
-                                {{ $reportProgress['submitted_days'] }}/{{ $reportProgress['total_days'] }}
+                                @if($reportProgress['has_program'])
+                                    {{ $reportProgress['submitted_days'] }}/{{ $reportProgress['total_days'] }}
+                                @else
+                                    <span class="text-base text-neutral-500" style="direction:rtl;">وجود ندارد</span>
+                                @endif
                             </div>
                         </div>
                         <p class="text-[11px] text-neutral-400 mb-4">تعداد روزهایی که این هفته گزارش روزانه ثبت
                             کرده‌ای</p>
 
-                        {{-- روزهای هفته --}}
-                        @php
-                            $activeProgram = $this->getActiveWeeklyProgram();
-                            $startDate = $activeProgram
-                                ? \Carbon\Carbon::parse($activeProgram->start_date)
-                                : \Carbon\Carbon::today()->subDays(2);
-                            $endDate = $activeProgram
-                                ? \Carbon\Carbon::parse($activeProgram->end_date)
-                                : $startDate->copy()->addDays(6);
-                            $today = \Carbon\Carbon::today();
+                        @if($reportProgress['has_program'])
+                            {{-- روزهای هفته (بر اساس بازهٔ جلسهٔ مشاوره) --}}
+                            @php
+                                $activeProgram = $this->getActiveWeeklyProgram();
+                                $startDate = $reportProgress['start_date']
+                                    ? \Carbon\Carbon::parse($reportProgress['start_date'])
+                                    : \Carbon\Carbon::parse($activeProgram->start_date);
+                                $endDate = $startDate->copy()->addDays(6);
+                                $today = \Carbon\Carbon::today();
 
-                            $submittedDates = [];
-                            $restDayIndices = []; // ایندکس روزهای استراحت
-
-                            if ($activeProgram && $student) {
                                 $submittedDates = \App\Models\DailyReport::where('student_id', $student->id)
                                     ->where('weekly_program_id', $activeProgram->id)
                                     ->where('is_compensatory', false)
@@ -578,41 +577,44 @@
                                     ->toArray();
 
                                 // روزهای بدون پارت = روز استراحت
+                                $restDayIndices = [];
                                 for ($ri = 0; $ri < 7; $ri++) {
                                     $hasParts = $activeProgram->parts()->where('day_of_week', $ri)->exists();
                                     if (!$hasParts) $restDayIndices[] = $ri;
                                 }
-                            }
-                        @endphp
+                            @endphp
 
-                        <div class="flex items-center gap-1.5">
-                            @for($i = 0; $i < 7; $i++)
-                                @php
-                                    $currentDate  = $startDate->copy()->addDays($i);
-                                    $dayNum       = jdate($currentDate)->format('j');
-                                    $isToday      = $currentDate->isSameDay($today);
-                                    $isSubmitted  = in_array($currentDate->toDateString(), $submittedDates);
-                                    $isRestDay    = in_array($i, $restDayIndices);
-                                    $isPast       = $currentDate->lt($today);
+                            <div class="flex items-center gap-1.5">
+                                @for($i = 0; $i < 7; $i++)
+                                    @php
+                                        $currentDate  = $startDate->copy()->addDays($i);
+                                        $dayNum       = jdate($currentDate)->format('j');
+                                        $isToday      = $currentDate->isSameDay($today);
+                                        $isSubmitted  = in_array($currentDate->toDateString(), $submittedDates);
+                                        $isRestDay    = in_array($i, $restDayIndices);
+                                        $isPast       = $currentDate->lt($today);
 
-                                    if ($isRestDay) {
-                                        $cls = 'bg-green-600/80 border-green-500 text-white';
-                                    } elseif ($isSubmitted) {
-                                        $cls = 'bg-sky-500 border-sky-400 text-white';
-                                    } elseif ($isToday && !$isSubmitted) {
-                                        $cls = 'bg-red-700/80 border-red-600 text-white';
-                                    } elseif ($isPast && !$isSubmitted) {
-                                        $cls = 'bg-red-950/60 border-red-800 text-red-300/80';
-                                    } else {
-                                        $cls = 'bg-white/5 border-white/10 text-neutral-500';
-                                    }
-                                @endphp
-                                <div
-                                    class="flex-1 aspect-square rounded-full border-2 flex items-center justify-center font-bold text-[12px] transition {{ $cls }}">
-                                    {{ $dayNum }}
-                                </div>
-                            @endfor
-                        </div>
+                                        if ($isRestDay) {
+                                            $cls = 'bg-green-600/80 border-green-500 text-white';
+                                        } elseif ($isSubmitted) {
+                                            $cls = 'bg-sky-500 border-sky-400 text-white';
+                                        } elseif ($isToday && !$isSubmitted) {
+                                            $cls = 'bg-red-700/80 border-red-600 text-white';
+                                        } elseif ($isPast && !$isSubmitted) {
+                                            $cls = 'bg-red-950/60 border-red-800 text-red-300/80';
+                                        } else {
+                                            $cls = 'bg-white/5 border-white/10 text-neutral-500';
+                                        }
+                                    @endphp
+                                    <div
+                                        class="flex-1 aspect-square rounded-full border-2 flex items-center justify-center font-bold text-[12px] transition {{ $cls }}">
+                                        {{ $dayNum }}
+                                    </div>
+                                @endfor
+                            </div>
+                        @else
+                            <div class="text-center py-6 text-neutral-500 text-[13px]">هنوز برنامه‌ای برایت ثبت نشده است.</div>
+                        @endif
                     </div>
 
                     {{-- ══════ 3) ساعت مطالعه (زنده) ══════ --}}
@@ -638,13 +640,27 @@
                             <div class="text-sky-400">{{ $studyHoursProgress['completed_hours'] }}
                                 از {{ $studyHoursProgress['total_hours'] }}</div>
                         </div>
-                        @if($studyHoursProgress['extra_hours'] > 0)
-                            <div
-                                class="mt-3 text-xs font-semibold px-3 py-2 rounded-xl inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20">
-                                ↑ {{ $studyHoursProgress['extra_hours'] }} ساعت اضافی! عالی پیش می‌روی
-                            </div>
-                        @endif
                     </div>
+
+                    {{-- ══════ 3.5) اضافه بر سازمان (فقط در صورت وجود) ══════ --}}
+                    @if($extraOrgProgress['has_extra'])
+                        <div class="glass rise p-4" style="animation-delay:.22s">
+                            <div class="flex items-center justify-between mb-1">
+                                <div class="flex items-center gap-2">
+                                    <span class="live-dot"></span>
+                                    <span class="font-bold text-white text-[15px]">اضافه بر سازمان</span>
+                                </div>
+                                <div class="text-xl font-black text-emerald-400" style="direction:ltr;">
+                                    {{ $extraOrgProgress['hours'] }} ساعت
+                                </div>
+                            </div>
+                            <p class="text-[11px] text-neutral-400 mb-3">میزان مطالعهٔ اضافه بر سازمان که این هفته ثبت کرده‌ای</p>
+                            <div
+                                class="text-xs font-semibold px-3 py-2 rounded-xl inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20">
+                                ↑ {{ $extraOrgProgress['hours'] }} ساعت اضافه بر سازمان! عالی پیش می‌روی
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- ══════ 4) برنامه امروز (زنده، full-width) ══════ --}}
                     <div class="glass rise md:col-span-2 p-4" data-tour="today" style="animation-delay:.25s">
@@ -654,7 +670,8 @@
                                 <span class="live-dot"></span>
                                 <span class="font-bold text-white text-[15px]">برنامه امروز من </span>
                             </div>
-                            <button
+                            <button type="button"
+                                @click="Livewire.dispatch('open-sudden-event')"
                                 class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary ring-1 ring-white/10 text-neutral-300 hover:bg-white/10 hover:text-white transition cursor-pointer">
                                 اتفاقات یهویی !!
                             </button>
@@ -821,10 +838,16 @@
                                             class="rounded-xl bg-white/5 ring-1 ring-white/10 px-4 py-3 flex items-center justify-between gap-3">
                                             <div class="flex flex-col gap-1">
                                                 <span
-                                                    class="font-bold text-white text-[14px] leading-tight">{{ $lessonName }}</span>
+                                                    class="font-bold text-white text-[14px] leading-tight">{{ $lessonName }}
+                                                  <span
+                                                      class="text-[11px] font-semibold px-2 py-0.5 rounded-full {{ $meta['bg'] }} {{ $meta['color'] }} ring-1 {{ $meta['ring'] }}">
+                                                {{ $meta['label'] }}
+                                            </span>
+                                                </span>
                                                 @if($dayName)
                                                     <span class="text-[11px] text-neutral-500">{{ $dayName }}</span>
                                                 @endif
+
                                             </div>
                                             <div class="flex items-center gap-2 flex-shrink-0">
                                                 @if($minutes > 0)
@@ -840,10 +863,7 @@
                                                         <span class="text-[10px] text-neutral-400">تست</span>
                                                     </div>
                                                 @endif
-                                                <span
-                                                    class="text-[11px] font-semibold px-2 py-0.5 rounded-full {{ $meta['bg'] }} {{ $meta['color'] }} ring-1 {{ $meta['ring'] }}">
-                                                {{ $meta['label'] }}
-                                            </span>
+
                                             </div>
                                         </div>
                                     @endforeach
@@ -1049,6 +1069,10 @@
             </div>
         </div>
     </div>
+
+    {{-- ════════════════ مودال اتفاقات یهویی ════════════════ --}}
+    <livewire:client.profile.sudden-event-modal/>
+
     {{-- ════════════════ CHART INITIALIZATION ════════════════ --}}
     @push('script')
         <script>

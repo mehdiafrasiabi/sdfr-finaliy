@@ -8,6 +8,7 @@
         storageKey: @js($storageKey),
         active: false,
         transitioning: false,
+        tipVisible: false,
         index: 0,
         _booted: false,
 
@@ -22,51 +23,118 @@
         tipRight: 0,
         tipSide: 'bottom', /* bottom | top */
 
+        /* آیا این step مربوط به mobile-nav هست؟ (اجباری، بدون دکمه بستن) */
+        isNavStep(idx) {
+            const sel = (this.steps[idx] && this.steps[idx].el) || '';
+            return sel.indexOf('[data-tour=nav-') === 0 || sel === '[data-tour=navbar]';
+        },
+
+        /* دکمه بستن فقط در steps غیر-nav نشون داده میشه */
+        canClose() {
+            return !this.isNavStep(this.index);
+        },
+
         init() {
             if (this._booted) return;
             this._booted = true;
             window.addEventListener('resize', () => { if (this.active) this.calcPosition(false); });
-            if (!localStorage.getItem(this.storageKey)) {
+            // فقط در موبایل auto-start؛ در دسکتاپ کاربر باید دکمه راهنما رو بزنه
+            if (!localStorage.getItem(this.storageKey) && window.innerWidth < 768) {
                 setTimeout(() => this.start(), 800);
             }
         },
 
-        firstVisible(from) {
-            for (let i = from; i < this.steps.length; i++) {
-                if (document.querySelector(this.steps[i].el)) return i;
+        /* بررسی واقعی نمایش بودن المنت (md:hidden رو هم تشخیص میده) */
+        isElVisible(el) {
+            if (!el) return false;
+            const r = el.getBoundingClientRect();
+            if (r.width === 0 && r.height === 0) return false;
+            const style = window.getComputedStyle(el);
+            if (style.display === 'none' || style.visibility === 'hidden' || parseFloat(style.opacity) === 0) return false;
+            if (!el.offsetParent && style.position !== 'fixed') return false;
+            return true;
+        },
+
+        /* پیدا کردن اولین step قابل نمایش (direction: 1 جلو، -1 عقب) */
+        firstVisible(from, direction) {
+            direction = direction || 1;
+            if (direction > 0) {
+                for (let i = from; i < this.steps.length; i++) {
+                    if (this.isElVisible(document.querySelector(this.steps[i].el))) return i;
+                }
+            } else {
+                for (let i = from; i >= 0; i--) {
+                    if (this.isElVisible(document.querySelector(this.steps[i].el))) return i;
+                }
             }
             return -1;
         },
 
+        hasPrev() {
+            return this.firstVisible(this.index - 1, -1) !== -1;
+        },
+
         start() {
-            const first = this.firstVisible(0);
+            const first = this.firstVisible(0, 1);
             if (first === -1) return;
             this.index = first;
             this.active = true;
-            this.$nextTick(() => this.calcPosition(true));
+            this.tipVisible = false;
+            this.$nextTick(() => {
+                this.calcPosition(true);
+                setTimeout(() => { this.tipVisible = true; }, 500);
+            });
         },
 
         next() {
-            const n = this.firstVisible(this.index + 1);
-            if (n === -1) { this.finish(); return; }
-            this.transitioning = true;
-            setTimeout(() => {
-                this.index = n;
-                this.$nextTick(() => {
-                    this.calcPosition(true);
-                    setTimeout(() => { this.transitioning = false; }, 60);
-                });
-            }, 220);
+            const n = this.firstVisible(this.index + 1, 1);
+            if (n === -1) { this.forceFinish(); return; }
+            this.transitionTo(n);
         },
 
-        finish() {
+        prev() {
+            const p = this.firstVisible(this.index - 1, -1);
+            if (p === -1) return;
+            this.transitionTo(p);
+        },
+
+        /* انیمیشن جمع شدن spotlight روی نقطه، رفتن به بعدی، باز شدن دوباره */
+        transitionTo(newIndex) {
+            this.transitioning = true;
+            this.tipVisible = false;
+
+            // فاز ۱: spotlight به نقطه مرکزی جمع میشه
+            const cx = this.spotLeft + this.spotWidth / 2;
+            const cy = this.spotTop + this.spotHeight / 2;
+            this.spotTop = cy;
+            this.spotLeft = cx;
+            this.spotWidth = 0;
+            this.spotHeight = 0;
+
+            // فاز ۲: بعد از جمع شدن، index تغییر و spotlight روی المنت جدید باز میشه
+            setTimeout(() => {
+                this.index = newIndex;
+                this.$nextTick(() => {
+                    this.calcPosition(true);
+                    // فاز ۳: نمایش تولتیپ بعد از باز شدن spotlight
+                    setTimeout(() => {
+                        this.transitioning = false;
+                        this.tipVisible = true;
+                    }, 500);
+                });
+            }, 350);
+        },
+
+        /* بستن اجباری - فقط در steps غیر-اجباری از طریق دکمه X صدا زده میشه */
+        forceFinish() {
             this.active = false;
+            this.tipVisible = false;
             localStorage.setItem(this.storageKey, '1');
         },
 
         calcPosition(scroll) {
             const el = document.querySelector(this.steps[this.index].el);
-            if (!el) { this.next(); return; }
+            if (!el || !this.isElVisible(el)) { this.next(); return; }
 
             if (scroll) {
                 el.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -84,7 +152,7 @@
 
                 /* تولتیپ */
                 const tipW = Math.min(300, window.innerWidth - 32);
-                const tipH = 170;
+                const tipH = 200;
                 const spaceBelow = window.innerHeight - r.bottom - pad;
                 const spaceAbove = r.top - pad;
 
@@ -96,7 +164,6 @@
                     this.tipTop  = r.top - pad - tipH - 12;
                 }
 
-                /* افست افقی: تولتیپ از راست المان شروع، ولی داخل صفحه بمونه */
                 const rightAligned = window.innerWidth - r.right;
                 this.tipRight = Math.max(16, Math.min(rightAligned, window.innerWidth - tipW - 16));
             };
@@ -123,11 +190,11 @@
 
         {{-- ────── تور اصلی ────── --}}
         <template x-if="active">
-            <div class="fixed inset-0 z-[90] pointer-events-none" aria-modal="true" role="dialog">
+            <div class="fixed inset-0 z-[90]" aria-modal="true" role="dialog">
 
-                {{-- ░░ لایه‌ی blur/dark با clip-path برای spotlight ░░ --}}
+                {{-- ░░ لایه‌ی blur/dark با clip-path برای spotlight ░░
+                     ❌ کلیک روی این لایه باعث بسته شدن نمیشه (per request) --}}
                 <div class="absolute inset-0 pointer-events-auto"
-                     @click="finish()"
                      :style="`
                     background: rgba(0,0,0,.72);
                     backdrop-filter: blur(4px);
@@ -141,7 +208,7 @@
                         ${spotLeft + spotWidth}px ${spotTop}px,
                         0% ${spotTop}px
                     );
-                    transition: clip-path .4s cubic-bezier(.4,0,.2,1);
+                    transition: clip-path .45s cubic-bezier(.4,0,.2,1);
                  `">
                 </div>
 
@@ -156,19 +223,18 @@
                         0 0 0 2px rgba(56,189,248,.9),
                         0 0 0 5px rgba(56,189,248,.20),
                         0 0 28px 4px rgba(56,189,248,.30);
-                    transition: top .4s cubic-bezier(.4,0,.2,1),
-                                left .4s cubic-bezier(.4,0,.2,1),
-                                width .4s cubic-bezier(.4,0,.2,1),
-                                height .4s cubic-bezier(.4,0,.2,1);
+                    transition: top .45s cubic-bezier(.4,0,.2,1),
+                                left .45s cubic-bezier(.4,0,.2,1),
+                                width .45s cubic-bezier(.4,0,.2,1),
+                                height .45s cubic-bezier(.4,0,.2,1);
                  `">
                 </div>
 
-                {{-- ░░ تولتیپ معمولی (مراحل غیر navbar) ░░ --}}
+                {{-- ░░ تولتیپ ░░ --}}
                 <div class="absolute pointer-events-auto"
-                     x-show="steps[index].el !== '[data-tour=navbar]'"
                      :style="`top: ${tipTop}px; right: ${tipRight}px; width: 300px; max-width: calc(100vw - 2rem);`"
-                     :class="transitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'"
-                     style="transition: opacity .22s ease, transform .22s ease;">
+                     :class="tipVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-2 scale-95'"
+                     style="transition: opacity .3s ease, transform .3s cubic-bezier(.2,.8,.2,1);">
 
                     <div class="absolute w-3 h-3 rotate-45 bg-[#131825] border border-white/10"
                          :class="tipSide === 'bottom' ? '-top-1.5 right-5' : '-bottom-1.5 right-5'"
@@ -176,29 +242,66 @@
 
                     <div class="rounded-2xl p-4 shadow-2xl border border-white/10 backdrop-blur-xl"
                          style="background: rgba(13,18,30,.92);">
-                        <div class="flex items-center justify-between mb-2">
-                            <p class="text-sm font-bold text-white" x-text="steps[index].title"></p>
-                            <button type="button" @click="finish()"
-                                    class="w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition text-neutral-400 hover:text-white">
-                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M18 6 6 18M6 6l12 12"/>
-                                </svg>
-                            </button>
+
+                        {{-- ─── Header: عنوان + دکمه بستن (یا badge اجباری) ─── --}}
+                        <div class="flex items-center justify-between gap-2 mb-2">
+                            <p class="text-sm font-bold text-white flex-1 min-w-0 truncate" x-text="steps[index].title"></p>
+
+                            {{-- دکمه بستن - فقط در steps غیر-nav --}}
+                            <template x-if="canClose()">
+                                <button type="button" @click="forceFinish()"
+                                        class="w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition text-neutral-400 hover:text-white flex-shrink-0">
+                                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M18 6 6 18M6 6l12 12"/>
+                                    </svg>
+                                </button>
+                            </template>
+
+                            {{-- نشان اجباری - در steps مربوط به nav --}}
+                            <template x-if="!canClose()">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 flex-shrink-0">
+                                    <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 9v4M12 17.01l.01-.011"/>
+                                        <circle cx="12" cy="12" r="10"/>
+                                    </svg>
+                                    معرفی اجباری
+                                </span>
+                            </template>
                         </div>
+
                         <p class="text-xs text-neutral-400 leading-6 mb-4" x-text="steps[index].text"></p>
+
+                        {{-- ─── Footer: نقاط پیشرفت + دکمه‌های قبلی/بعدی ─── --}}
                         <div class="flex items-center justify-between gap-3">
                             <div class="flex items-center gap-1.5">
                                 <template x-for="(s, i) in steps" :key="i">
-                    <span class="rounded-full transition-all duration-300"
-                          :class="i === index ? 'w-4 h-1.5 bg-sky-400' : (i < index ? 'w-1.5 h-1.5 bg-sky-700' : 'w-1.5 h-1.5 bg-white/15')">
-                    </span>
+                                    <span class="rounded-full transition-all duration-300"
+                                          :class="i === index ? 'w-4 h-1.5 bg-sky-400' : (i < index ? 'w-1.5 h-1.5 bg-sky-700' : 'w-1.5 h-1.5 bg-white/15')">
+                                    </span>
                                 </template>
                             </div>
-                            <div class="flex items-center gap-2">
-                                <button type="button" @click="finish()" class="text-[11px] text-neutral-500 hover:text-neutral-300 transition-colors px-2">رد کردن</button>
+
+                            <div class="flex items-center gap-1.5">
+                                {{-- دکمه قبلی --}}
+                                <button type="button" @click="prev()"
+                                        :disabled="!hasPrev() || transitioning"
+                                        :class="hasPrev() && !transitioning ? 'bg-white/5 hover:bg-white/10 text-neutral-300 cursor-pointer' : 'bg-white/5 text-neutral-600 cursor-not-allowed opacity-40'"
+                                        class="w-9 h-9 rounded-lg flex items-center justify-center transition-all">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="m9 18 6-6-6-6"/>
+                                    </svg>
+                                </button>
+
+                                {{-- دکمه بعدی --}}
                                 <button type="button" @click="next()"
-                                        class="px-4 py-2 rounded-lg text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-all hover:scale-105 shadow-lg shadow-sky-500/20">
-                                    <span x-text="index >= steps.length - 1 ? 'تمام 🎉' : 'بعدی ←'"></span>
+                                        :disabled="transitioning"
+                                        class="px-4 h-9 rounded-lg text-xs font-bold bg-sky-500 hover:bg-sky-400 text-white transition-all hover:scale-105 shadow-lg shadow-sky-500/20 flex items-center gap-1.5 disabled:opacity-60 disabled:cursor-wait">
+                                    <span x-text="index >= steps.length - 1 ? 'تمام 🎉' : 'بعدی'"></span>
+                                    <template x-if="index < steps.length - 1">
+                                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="m15 18-6-6 6-6"/>
+                                        </svg>
+                                    </template>
                                 </button>
                             </div>
                         </div>

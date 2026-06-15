@@ -541,14 +541,12 @@ class Dashboard extends Component
             return [
                 'total_hours' => 0,
                 'completed_hours' => 0,
-                'extra_hours' => 0,
                 'percentage' => 0,
-                'extra_percentage' => 0,
             ];
         }
 
-        // کل ساعات برنامه
-        $totalMinutes = $activeProgram->parts()->sum('duration_minutes');
+        // کل ساعاتی که مشاور در نظر گرفته (پارت‌های غیرِ افزوده توسط دانش‌آموز)
+        $totalMinutes = $activeProgram->parts()->where('is_student_added', false)->sum('duration_minutes');
         $totalHours = round($totalMinutes / 60, 1);
 
         // ساعات انجام شده در این هفته
@@ -569,17 +567,39 @@ class Dashboard extends Component
 
         $completedHours = round($completedMinutes / 60, 1);
 
-        // محاسبه درصد و ساعات اضافی
+        // محاسبه درصد
         $percentage = $totalHours > 0 ? min(($completedHours / $totalHours) * 100, 100) : 0;
-        $extraHours = max($completedHours - $totalHours, 0);
-        $extraPercentage = $totalHours > 0 && $extraHours > 0 ? ($extraHours / $totalHours) * 100 : 0;
 
         return [
             'total_hours' => $totalHours,
             'completed_hours' => min($completedHours, $totalHours),
-            'extra_hours' => $extraHours,
             'percentage' => round($percentage, 1),
-            'extra_percentage' => round($extraPercentage, 1),
+        ];
+    }
+
+    /**
+     * محاسبه «اضافه بر سازمان» این هفته (مجموع زمان اضافه ثبت‌شده روی پارت‌ها)
+     */
+    public function getExtraOrgProgress(): array
+    {
+        $activeProgram = $this->getActiveWeeklyProgram();
+
+        if (!$activeProgram || !$this->student) {
+            return ['has_extra' => false, 'total_seconds' => 0, 'hours' => 0];
+        }
+
+        $startDate = Carbon::parse($activeProgram->start_date);
+        $endDate = Carbon::parse($activeProgram->end_date);
+
+        $extraSeconds = (int) StudyPartSession::where('student_id', $this->student->id)
+            ->where('weekly_program_id', $activeProgram->id)
+            ->whereBetween('started_at', [$startDate, $endDate])
+            ->sum('extra_seconds');
+
+        return [
+            'has_extra' => $extraSeconds > 0,
+            'total_seconds' => $extraSeconds,
+            'hours' => round($extraSeconds / 3600, 1),
         ];
     }
 
@@ -590,33 +610,40 @@ class Dashboard extends Component
     {
         $activeProgram = $this->getActiveWeeklyProgram();
 
+        // تا زمانی که دانش‌آموز برنامه‌ای نداشته باشد، چیزی نمایش داده نمی‌شود
         if (!$activeProgram) {
             return [
-                'total_days' => 7,
+                'has_program' => false,
+                'total_days' => 0,
                 'submitted_days' => 0,
                 'percentage' => 0,
+                'start_date' => null,
             ];
         }
 
-        $startDate = Carbon::parse($activeProgram->start_date);
-        $endDate = Carbon::parse($activeProgram->end_date);
+        // بازهٔ هفته بر اساس جلسهٔ مشاورهٔ برگزارشده
+        $session = $this->getActiveAdvisingSession();
+        $startDate = $session && $session->activation_date
+            ? Carbon::parse($session->activation_date)->startOfDay()
+            : Carbon::parse($activeProgram->start_date)->startOfDay();
+        $endDate = $startDate->copy()->addDays(7);
 
         $submittedReports = DailyReport::where('student_id', $this->student->id)
             ->where('weekly_program_id', $activeProgram->id)
             ->where('is_compensatory', false)
-
             ->whereBetween('report_date', [$startDate, $endDate])
             ->count();
 
-        // تعداد روزهایی که برنامه دارند (برای محاسبه درصد)
-        $programDays = $activeProgram->parts()->distinct('day_of_week')->count('day_of_week');
-        $totalDays = max($programDays, 1);
-        $percentage = ($submittedReports / $totalDays) * 100;
+        // تعداد روزهایی که برنامه دارند (روزهای غیرِ استراحت)
+        $totalDays = (int) $activeProgram->parts()->distinct('day_of_week')->count('day_of_week');
+        $percentage = $totalDays > 0 ? ($submittedReports / $totalDays) * 100 : 0;
 
         return [
+            'has_program' => true,
             'total_days' => $totalDays,
             'submitted_days' => $submittedReports,
             'percentage' => round(min($percentage, 100), 1),
+            'start_date' => $startDate->toDateString(),
         ];
     }
 
@@ -634,6 +661,8 @@ class Dashboard extends Component
         $studyHoursProgress = $this->getStudyHoursProgress();
 
         $reportProgress = $this->getReportProgress();
+
+        $extraOrgProgress = $this->getExtraOrgProgress();
 
         $weeklyInsights = $this->getWeeklyInsights();
         $monthlyInsights = $this->getMonthlyInsights();
@@ -670,6 +699,7 @@ class Dashboard extends Component
             'todayProgram' => $todayProgram,
             'studyHoursProgress' => $studyHoursProgress,
             'reportProgress' => $reportProgress,
+            'extraOrgProgress' => $extraOrgProgress,
             'weeklyInsights' => $weeklyInsights,
             'monthlyInsights' => $monthlyInsights,
             'classSchedule' => $classSchedule,
