@@ -19,25 +19,22 @@ use Livewire\Component;
 class SuddenEventModal extends Component
 {
     public bool $open = false;
+    public $step = 0;
 
-    /** مرحله جریان: 0=هشدار، 1=انتخاب روز، 2=دسته، 3=کتاب/فصل، 4=پارت/ساعت، 5=تایید بار مطالعه، 6=جابجایی پارت‌ها */
-    public int $step = 0;
+    // ─── بدون strict type تا coercion ایمن کار کنه ───
+    public $eventDayIndex = null;
+    public $category = null;
+    public $ccSubjectId = null;
+    public $ccChapterId = null;
+    public $partCount = 1;
+    public $hours = 0;
+    public $minutes = 30;
 
-    // ─── داده‌های فرم ───
-    public ?int $eventDayIndex = null;       // آفست روز اتفاق از start_date برنامه
-    public ?string $category = null;          // exam | homework | class_qa
-    public ?int $ccSubjectId = null;
-    public ?int $ccChapterId = null;
-    public int $partCount = 1;
-    public int $hours = 1;
-    public int $minutes = 0;
-
-    /** پارت‌های کم‌اهمیت انتخاب‌شده برای جابجایی (حالت «اوکی نیست») */
     public array $lowImportancePartIds = [];
-
-    // ─── داده‌های کمکی (لود از سرور) ───
     public array $availableSubjects = [];
     public array $availableChapters = [];
+
+    public const MIN_PART_MINUTES = 30;
 
     protected $student;
 
@@ -46,9 +43,22 @@ class SuddenEventModal extends Component
         $this->student = Auth::user()?->student;
     }
 
-    // ────────────────────────────────────────────────────────────
-    //  باز/بسته کردن
-    // ────────────────────────────────────────────────────────────
+    // ─── Updating hooks برای coercion ایمن ───
+    public function updatedHours($value): void
+    {
+        $this->hours = max(0, min(12, (int) ($value ?? 0)));
+    }
+
+    public function updatedMinutes($value): void
+    {
+        $this->minutes = max(0, min(59, (int) ($value ?? 0)));
+    }
+
+    public function updatedPartCount($value): void
+    {
+        $this->partCount = max(1, min(20, (int) ($value ?? 1)));
+    }
+
     #[On('open-sudden-event')]
     public function openModal(): void
     {
@@ -71,29 +81,22 @@ class SuddenEventModal extends Component
         $this->ccSubjectId = null;
         $this->ccChapterId = null;
         $this->partCount = 1;
-        $this->hours = 1;
-        $this->minutes = 0;
+        $this->hours = 0;
+        $this->minutes = 30;
         $this->lowImportancePartIds = [];
         $this->availableChapters = [];
     }
 
-    // ────────────────────────────────────────────────────────────
-    //  برنامه فعال (هم‌منطق با Dashboard)
-    // ────────────────────────────────────────────────────────────
     protected function activeProgram(): ?WeeklyProgram
     {
         $student = $this->student ?? Auth::user()?->student;
-        if (!$student) {
-            return null;
-        }
+        if (!$student) return null;
 
         if ($student->is_trial) {
             $trial = TrialWeek::where('user_id', Auth::id())->latest()->first();
             if ($trial && $trial->advising_session_id) {
                 $prog = WeeklyProgram::where('advising_session_id', $trial->advising_session_id)->latest()->first();
-                if ($prog) {
-                    return $prog;
-                }
+                if ($prog) return $prog;
             }
             return WeeklyProgram::where('student_id', $student->id)->latest()->first();
         }
@@ -119,33 +122,22 @@ class SuddenEventModal extends Component
     protected function maxOffset(): int
     {
         $program = $this->activeProgram();
-        if (!$program) {
-            return 7;
-        }
+        if (!$program) return 7;
         $start = Carbon::parse($program->start_date)->startOfDay();
         $end = Carbon::parse($program->end_date ?? $start->copy()->addDays(7))->startOfDay();
         return max(0, (int) $start->diffInDays($end));
     }
 
-    // ────────────────────────────────────────────────────────────
-    //  لیست روزهای قابل‌انتخاب (فقط روزهای آینده، نه گذشته و نه امروز)
-    // ────────────────────────────────────────────────────────────
     public function getAvailableDaysProperty(): array
     {
         $start = $this->programStart();
-        if (!$start) {
-            return [];
-        }
+        if (!$start) return [];
         $today = Carbon::today();
         $max = $this->maxOffset();
         $days = [];
-
-        // i>=1 لازم است تا «روز قبل» (هدف) درون بازه باشد
         for ($i = 1; $i <= $max; $i++) {
             $date = $start->copy()->addDays($i);
-            if (!$date->gt($today)) {
-                continue; // گذشته یا امروز را نمایش نده
-            }
+            if (!$date->gt($today)) continue;
             $days[] = [
                 'index' => $i,
                 'date' => $date->toDateString(),
@@ -156,14 +148,11 @@ class SuddenEventModal extends Component
         return $days;
     }
 
-    /** پارت‌های روز قبل از اتفاق (روز هدف) */
     public function getTargetDayPartsProperty()
     {
         $program = $this->activeProgram();
-        if (!$program || $this->eventDayIndex === null) {
-            return collect();
-        }
-        $targetIndex = $this->eventDayIndex - 1;
+        if (!$program || $this->eventDayIndex === null) return collect();
+        $targetIndex = ((int) $this->eventDayIndex) - 1;
         return $program->parts()
             ->where('day_of_week', $targetIndex)
             ->with(['ccSubject', 'ccChapter'])
@@ -171,14 +160,13 @@ class SuddenEventModal extends Component
             ->get();
     }
 
-    /** بار مطالعه روز هدف: ساعت مشاور و ساعت خود دانش‌آموز */
     public function getTargetLoadProperty(): array
     {
         $program = $this->activeProgram();
         if (!$program || $this->eventDayIndex === null) {
             return ['advisor_minutes' => 0, 'student_minutes' => 0, 'new_minutes' => 0];
         }
-        $targetIndex = $this->eventDayIndex - 1;
+        $targetIndex = ((int) $this->eventDayIndex) - 1;
 
         $advisorMinutes = (int) $program->parts()
             ->where('day_of_week', $targetIndex)
@@ -190,24 +178,21 @@ class SuddenEventModal extends Component
             ->where('is_student_added', true)
             ->sum('duration_minutes');
 
+        $partMin = ((int) $this->hours) * 60 + ((int) $this->minutes);
+
         return [
             'advisor_minutes' => $advisorMinutes,
             'student_minutes' => $studentMinutes,
-            'new_minutes' => $this->partCount * ($this->hours * 60 + $this->minutes),
+            'new_minutes' => ((int) $this->partCount) * $partMin,
         ];
     }
 
-    // ────────────────────────────────────────────────────────────
-    //  بارگذاری دروس/فصل بر اساس پایه و رشته
-    // ────────────────────────────────────────────────────────────
     protected function loadStudentSubjects(): void
     {
         $this->availableSubjects = [];
         $student = $this->student ?? Auth::user()?->student;
         $personalInfo = $student?->user?->personalInformation;
-        if (!$personalInfo) {
-            return;
-        }
+        if (!$personalInfo) return;
 
         $grade = $personalInfo->grade;
         $field = $personalInfo->field;
@@ -246,25 +231,20 @@ class SuddenEventModal extends Component
         }
     }
 
-    // ────────────────────────────────────────────────────────────
-    //  ناوبری مراحل
-    // ────────────────────────────────────────────────────────────
-    public function goToStep(int $step): void
+    public function goToStep($step): void
     {
-        $this->step = $step;
+        $this->step = (int) $step;
     }
 
-    public function selectDay(int $index): void
+    public function selectDay($index): void
     {
-        $this->eventDayIndex = $index;
+        $this->eventDayIndex = (int) $index;
         $this->step = 2;
     }
 
     public function selectCategory(string $category): void
     {
-        if (!in_array($category, ['exam', 'homework', 'class_qa'], true)) {
-            return;
-        }
+        if (!in_array($category, ['exam', 'homework', 'class_qa'], true)) return;
         $this->category = $category;
     }
 
@@ -289,17 +269,21 @@ class SuddenEventModal extends Component
     public function nextFromParts(): void
     {
         $this->partCount = max(1, (int) $this->partCount);
-        $this->hours = max(0, (int) $this->hours);
-        $this->minutes = max(0, min(59, (int) $this->minutes));
-        if (($this->hours * 60 + $this->minutes) <= 0) {
-            $this->dispatch('warning', 'مدت زمان هر پارت باید بیشتر از صفر باشد.');
+        $this->hours    = max(0, (int) $this->hours);
+        $this->minutes  = max(0, min(59, (int) $this->minutes));
+
+        $total = $this->hours * 60 + $this->minutes;
+
+        if ($total < self::MIN_PART_MINUTES) {
+            $this->dispatch('warning', 'مدت زمان هر پارت باید حداقل ' . self::MIN_PART_MINUTES . ' دقیقه باشد.');
             return;
         }
         $this->step = 5;
     }
 
-    public function toggleLowImportance(int $partId): void
+    public function toggleLowImportance($partId): void
     {
+        $partId = (int) $partId;
         if (in_array($partId, $this->lowImportancePartIds, true)) {
             $this->lowImportancePartIds = array_values(array_diff($this->lowImportancePartIds, [$partId]));
         } else {
@@ -307,24 +291,17 @@ class SuddenEventModal extends Component
         }
     }
 
-    // ────────────────────────────────────────────────────────────
-    //  اعمال نهایی
-    // ────────────────────────────────────────────────────────────
-
-    /** «اوکی هست» → فقط افزودن پارت‌های اتفاق به روز قبل */
     public function confirmOkay(): void
     {
         $this->applyChanges(false);
     }
 
-    /** رفتن به مرحله انتخاب پارت‌های کم‌اهمیت */
     public function startRedistribute(): void
     {
         $this->lowImportancePartIds = [];
         $this->step = 6;
     }
 
-    /** «اوکی نیست» → جابجایی پارت‌های کم‌اهمیت + افزودن پارت اتفاق */
     public function confirmRedistribute(): void
     {
         if (empty($this->lowImportancePartIds)) {
@@ -342,15 +319,14 @@ class SuddenEventModal extends Component
             return;
         }
 
-        $targetIndex = $this->eventDayIndex - 1;
+        $targetIndex = ((int) $this->eventDayIndex) - 1;
         $start = Carbon::parse($program->start_date)->startOfDay();
         $subject = CcSubject::find($this->ccSubjectId);
         $personalInfo = ($this->student ?? Auth::user()?->student)?->user?->personalInformation;
-        $partMinutes = $this->hours * 60 + $this->minutes;
+        $partMinutes = ((int) $this->hours) * 60 + ((int) $this->minutes);
 
         DB::transaction(function () use ($program, $targetIndex, $start, $subject, $personalInfo, $partMinutes, $redistribute) {
 
-            // ۱) در حالت «اوکی نیست»: جابجایی پارت‌های کم‌اهمیت روز هدف به روزهای بعد از اتفاق
             if ($redistribute && !empty($this->lowImportancePartIds)) {
                 $targetDays = $this->remainingDayIndices();
                 if (!empty($targetDays)) {
@@ -373,11 +349,10 @@ class SuddenEventModal extends Component
                 }
             }
 
-            // ۲) افزودن پارت‌های اتفاق به روز هدف (روز قبل از اتفاق)
             $baseOrder = (int) ProgramPart::where('weekly_program_id', $program->id)
                 ->where('day_of_week', $targetIndex)->max('part_order');
 
-            for ($n = 1; $n <= $this->partCount; $n++) {
+            for ($n = 1; $n <= (int) $this->partCount; $n++) {
                 ProgramPart::create([
                     'weekly_program_id' => $program->id,
                     'lesson_name' => $subject?->name ?? 'درس',
@@ -403,24 +378,18 @@ class SuddenEventModal extends Component
         $this->dispatch('sudden-event-applied');
     }
 
-    /** آفست روزهای بعد از روز اتفاق که روز استراحت نیستند (برای پخش پارت‌ها) */
     protected function remainingDayIndices(): array
     {
         $program = $this->activeProgram();
-        if (!$program || $this->eventDayIndex === null) {
-            return [];
-        }
+        if (!$program || $this->eventDayIndex === null) return [];
         $max = $this->maxOffset();
         $result = [];
-        for ($j = $this->eventDayIndex; $j <= $max; $j++) {
+        for ($j = (int) $this->eventDayIndex; $j <= $max; $j++) {
             $hasParts = $program->parts()->where('day_of_week', $j)->exists();
-            if ($hasParts) {
-                $result[] = $j; // روز استراحت = بدون پارت، نادیده گرفته می‌شود
-            }
+            if ($hasParts) $result[] = $j;
         }
-        // اگر روزی پیدا نشد، همه روزهای بعد را در نظر بگیر
         if (empty($result)) {
-            for ($j = $this->eventDayIndex; $j <= $max; $j++) {
+            for ($j = (int) $this->eventDayIndex; $j <= $max; $j++) {
                 $result[] = $j;
             }
         }

@@ -1,4 +1,18 @@
 {{-- محتوای مشترک مودال «اتفاقات یهویی» (مراحل سرور-محور بر اساس $step) --}}
+@php
+    /** فرمت دقیقه به "X ساعت و Y دقیقه" */
+    $fmtDuration = function ($minutes) {
+        $minutes = max(0, (int) $minutes);
+        if ($minutes === 0) return '۰ دقیقه';
+        $h = intdiv($minutes, 60);
+        $m = $minutes % 60;
+        if ($h > 0 && $m > 0) return $h . ' ساعت و ' . $m . ' دقیقه';
+        if ($h > 0) return $h . ' ساعت';
+        return $m . ' دقیقه';
+    };
+    $minPartMinutes = \App\Livewire\Client\Profile\SuddenEventModal::MIN_PART_MINUTES;
+@endphp
+
 <div class="p-5 sm:p-6 text-right" dir="rtl">
 
     {{-- دکمه بستن --}}
@@ -71,7 +85,7 @@
             @forelse($targetDayParts as $p)
                 <div class="flex items-center justify-between text-[12px]">
                     <span class="text-white font-semibold">{{ $p->lesson_name ?? ($p->ccSubject->name ?? 'درس') }}</span>
-                    <span class="text-neutral-400" style="direction:ltr;">{{ $p->duration_minutes }} دقیقه</span>
+                    <span class="text-neutral-400">{{ $fmtDuration($p->duration_minutes) }}</span>
                 </div>
             @empty
                 <div class="text-center text-neutral-500 text-[12px] py-3">برنامه‌ای برای روز قبل ثبت نشده است.</div>
@@ -132,24 +146,108 @@
     {{-- ░░░ مرحله ۴: تعداد پارت و ساعت/دقیقه ░░░ --}}
     @if($step === 4)
         <p class="text-[13px] text-neutral-300 mb-3 font-semibold">چند پارت و با چه مدتی؟</p>
-        <div class="space-y-3">
-            <div class="flex items-center justify-between bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-2.5">
-                <span class="text-[13px] text-neutral-300">تعداد پارت</span>
-                <input type="number" min="1" wire:model="partCount"
-                       class="w-20 bg-background/40 border border-white/10 rounded-lg px-2 py-1.5 text-center text-white text-sm" style="direction:ltr;">
-            </div>
-            <div class="flex items-center justify-between bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-2.5">
-                <span class="text-[13px] text-neutral-300">مدت هر پارت (ساعت)</span>
-                <input type="number" min="0" wire:model="hours"
-                       class="w-20 bg-background/40 border border-white/10 rounded-lg px-2 py-1.5 text-center text-white text-sm" style="direction:ltr;">
-            </div>
-            <div class="flex items-center justify-between bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-2.5">
-                <span class="text-[13px] text-neutral-300">مدت هر پارت (دقیقه)</span>
-                <input type="number" min="0" max="59" wire:model="minutes"
-                       class="w-20 bg-background/40 border border-white/10 rounded-lg px-2 py-1.5 text-center text-white text-sm" style="direction:ltr;">
+
+        <div x-data="{
+                partCount: @entangle('partCount').live,
+                hours: @entangle('hours').live,
+                minutes: @entangle('minutes').live,
+                get totalMinutes() { return (parseInt(this.hours) || 0) * 60 + (parseInt(this.minutes) || 0); },
+                get totalMinutesAll() { return this.totalMinutes * (parseInt(this.partCount) || 0); },
+                get isValid() { return this.totalMinutes >= {{ $minPartMinutes }}; },
+                fmt(mins) {
+                    mins = Math.max(0, parseInt(mins) || 0);
+                    if (mins === 0) return '۰ دقیقه';
+                    const h = Math.floor(mins / 60);
+                    const m = mins % 60;
+                    if (h > 0 && m > 0) return h + ' ساعت و ' + m + ' دقیقه';
+                    if (h > 0) return h + ' ساعت';
+                    return m + ' دقیقه';
+                },
+                incHours()  { this.hours = Math.min(12, (parseInt(this.hours)||0) + 1); },
+                decHours()  { this.hours = Math.max(0,  (parseInt(this.hours)||0) - 1); },
+                incMinutes(){ this.minutes = Math.min(55, (parseInt(this.minutes)||0) + 5); },
+                decMinutes(){ this.minutes = Math.max(0,  (parseInt(this.minutes)||0) - 5); },
+                incCount()  { this.partCount = Math.min(20, (parseInt(this.partCount)||1) + 1); },
+                decCount()  { this.partCount = Math.max(1,  (parseInt(this.partCount)||1) - 1); },
+            }">
+
+            <div class="space-y-3">
+                {{-- تعداد پارت --}}
+                <div class="bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="text-[13px] text-neutral-300 font-semibold">تعداد پارت</span>
+                        <div class="flex items-center gap-2">
+                            <button type="button" @click="decCount()"
+                                    class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">−</button>
+                            <input type="number" min="1" max="20" x-model.number="partCount"
+                                   class="w-16 bg-white/10 border border-white/15 rounded-lg px-2 py-1.5 text-center text-white text-sm font-bold focus:border-sky-400 focus:outline-none"
+                                   style="direction:ltr;">
+                            <button type="button" @click="incCount()"
+                                    class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- ساعت --}}
+                <div class="bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="text-[13px] text-neutral-300 font-semibold">ساعت (هر پارت)</span>
+                        <div class="flex items-center gap-2">
+                            <button type="button" @click="decHours()"
+                                    class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">−</button>
+                            <input type="number" min="0" max="12" x-model.number="hours"
+                                   class="w-16 bg-white/10 border border-white/15 rounded-lg px-2 py-1.5 text-center text-white text-sm font-bold focus:border-sky-400 focus:outline-none"
+                                   style="direction:ltr;">
+                            <button type="button" @click="incHours()"
+                                    class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- دقیقه --}}
+                <div class="bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-3">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="text-[13px] text-neutral-300 font-semibold">دقیقه (هر پارت)</span>
+                        <div class="flex items-center gap-2">
+                            <button type="button" @click="decMinutes()"
+                                    class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">−</button>
+                            <input type="number" min="0" max="59" step="5" x-model.number="minutes"
+                                   class="w-16 bg-white/10 border border-white/15 rounded-lg px-2 py-1.5 text-center text-white text-sm font-bold focus:border-sky-400 focus:outline-none"
+                                   style="direction:ltr;">
+                            <button type="button" @click="incMinutes()"
+                                    class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold text-base flex items-center justify-center transition">+</button>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-neutral-500 mt-2">برای افزایش/کاهش، گام ۵ دقیقه‌ای استفاده می‌شود.</p>
+                </div>
+
+                {{-- نمایش زنده مجموع --}}
+                <div class="rounded-xl p-3 ring-1 transition-all"
+                     :class="isValid ? 'bg-emerald-500/10 ring-emerald-500/30' : 'bg-red-500/10 ring-red-500/30'">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[12px] font-semibold"
+                              :class="isValid ? 'text-emerald-200' : 'text-red-200'">مدت هر پارت</span>
+                        <span class="text-[14px] font-black"
+                              :class="isValid ? 'text-emerald-300' : 'text-red-300'"
+                              x-text="fmt(totalMinutes)"></span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-[11px] text-neutral-400">مجموع کل (× <span x-text="partCount"></span> پارت)</span>
+                        <span class="text-[12px] font-bold text-white" x-text="fmt(totalMinutesAll)"></span>
+                    </div>
+
+                    <template x-if="!isValid">
+                        <div class="flex items-center gap-1.5 mt-2 pt-2 border-t border-red-500/20">
+                            <svg class="w-3.5 h-3.5 text-red-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M12 8v4M12 16h.01"/>
+                            </svg>
+                            <span class="text-[11px] font-semibold text-red-300">هر پارت باید حداقل {{ $minPartMinutes }} دقیقه باشد.</span>
+                        </div>
+                    </template>
+                </div>
             </div>
         </div>
-        <p class="text-[11px] text-neutral-500 mt-3">مثلاً ۳ پارت با مدت ۱ ساعت = ۳ پارت یک‌ساعته اضافه می‌شود.</p>
 
         <div class="flex items-center gap-2 mt-5">
             <button type="button" wire:click="goToStep(3)"
@@ -161,24 +259,23 @@
 
     {{-- ░░░ مرحله ۵: نمایش بار مطالعه و تایید ░░░ --}}
     @if($step === 5)
-        @php
-            $advH = round($targetLoad['advisor_minutes'] / 60, 1);
-            $stuH = round($targetLoad['student_minutes'] / 60, 1);
-            $newH = round($targetLoad['new_minutes'] / 60, 1);
-        @endphp
         <p class="text-[13px] text-neutral-300 mb-3 font-semibold">بار مطالعهٔ روز قبل از اتفاق</p>
         <div class="space-y-2 mb-4">
             <div class="flex items-center justify-between bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-2.5 text-[13px]">
                 <span class="text-neutral-300">برنامهٔ تعیین‌شده توسط مشاور</span>
-                <span class="text-sky-400 font-bold" style="direction:ltr;">{{ $advH }} ساعت</span>
+                <span class="text-sky-400 font-bold">{{ $fmtDuration($targetLoad['advisor_minutes']) }}</span>
             </div>
             <div class="flex items-center justify-between bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-2.5 text-[13px]">
                 <span class="text-neutral-300">اضافه‌شده توسط خودت</span>
-                <span class="text-emerald-400 font-bold" style="direction:ltr;">{{ $stuH }} ساعت</span>
+                <span class="text-emerald-400 font-bold">{{ $fmtDuration($targetLoad['student_minutes']) }}</span>
             </div>
             <div class="flex items-center justify-between bg-amber-500/10 ring-1 ring-amber-500/25 rounded-xl px-3 py-2.5 text-[13px]">
                 <span class="text-amber-200">اتفاق جدید ({{ $partCount }} پارت)</span>
-                <span class="text-amber-300 font-bold" style="direction:ltr;">{{ $newH }} ساعت</span>
+                <span class="text-amber-300 font-bold">{{ $fmtDuration($targetLoad['new_minutes']) }}</span>
+            </div>
+            <div class="flex items-center justify-between bg-sky-500/10 ring-1 ring-sky-500/25 rounded-xl px-3 py-3 text-[13px]">
+                <span class="text-sky-200 font-bold">مجموع کل روز قبل</span>
+                <span class="text-sky-200 font-black text-base">{{ $fmtDuration($targetLoad['advisor_minutes'] + $targetLoad['student_minutes'] + $targetLoad['new_minutes']) }}</span>
             </div>
         </div>
         <p class="text-[13px] text-neutral-200 mb-4 font-semibold text-center">با این حجم مطالعه در روز قبل اوکی هستی؟</p>
@@ -207,7 +304,7 @@
                         </span>
                         <span class="text-white font-semibold">{{ $p->lesson_name ?? ($p->ccSubject->name ?? 'درس') }}</span>
                     </span>
-                    <span class="text-neutral-400" style="direction:ltr;">{{ $p->duration_minutes }} دقیقه</span>
+                    <span class="text-neutral-400">{{ $fmtDuration($p->duration_minutes) }}</span>
                 </button>
             @empty
                 <div class="text-center text-neutral-500 text-[12px] py-3">پارتی برای جابجایی وجود ندارد.</div>
