@@ -36,9 +36,7 @@
 
                                                         {{-- تصویر بالا --}}
                                                         <div class="w-full h-36 flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200 dark:from-blue-950 dark:to-blue-900">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20 text-blue-600 dark:text-blue-300 drop-shadow-md" viewBox="0 0 20 20" fill="currentColor">
-                                                                <path fill-rule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z" clip-rule="evenodd"/>
-                                                            </svg>
+                                                            <img src="/client/icons/plan.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
                                                         </div>
 
                                                         {{-- اطلاعات --}}
@@ -101,9 +99,7 @@
 
                                                         {{-- ستون تصویر --}}
                                                         <div class="flex-shrink-0 w-[120px] flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-[#1e3a5f] dark:to-[#1e40af]">
-                                                            <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-blue-600 dark:text-blue-200 drop-shadow-md" viewBox="0 0 20 20" fill="currentColor">
-                                                                <path fill-rule="evenodd" d="M5.75 2a.75.75 0 0 1 .75.75V4h7V2.75a.75.75 0 0 1 1.5 0V4h.25A2.75 2.75 0 0 1 18 6.75v8.5A2.75 2.75 0 0 1 15.25 18H4.75A2.75 2.75 0 0 1 2 15.25v-8.5A2.75 2.75 0 0 1 4.75 4H5V2.75A.75.75 0 0 1 5.75 2Zm-1 5.5c-.69 0-1.25.56-1.25 1.25v6.5c0 .69.56 1.25 1.25 1.25h10.5c.69 0 1.25-.56 1.25-1.25v-6.5c0-.69-.56-1.25-1.25-1.25H4.75Z" clip-rule="evenodd"/>
-                                                            </svg>
+                                                            <img src="/client/icons/plan.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
                                                         </div>
 
                                                         {{-- محتوا: items-center برای وسط‌چینی عمودی دکمه‌ها --}}
@@ -229,7 +225,9 @@
                                     @else
                                         <!-- حالت خالی -->
                                         <div class="flex flex-col items-center justify-center py-12 space-y-4">
-                                            <img src="/client/empty/plan.png" class="w-full max-w-xs" alt="empty"/>
+                                            <img src="/client/svg/empty2.svg"
+                                                 class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
+                                                 alt="پیامی وجود ندارد"/>
                                             <div class="text-center space-y-2">
                                                 <h2 class="font-bold text-xl text-foreground">برنامه‌ای وجود ندارد!</h2>
                                                 <p class="text-muted text-sm">هنوز برنامه‌ای برای شما ثبت نشده است.</p>

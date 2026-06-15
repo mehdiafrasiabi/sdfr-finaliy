@@ -213,10 +213,38 @@
                                         <span class="menu-label">پنل مدیر مدرسه</span>
                                     </li>
                                     <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.school-manager.dashboard') ? 'active' : '' }}"
+                                           href="{{ route('admin.school-manager.dashboard') }}" role="button">
+                                            <i class="fi fi-rr-dashboard"></i>
+                                            <span class="menu-label">داشبورد</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.student.index') ? 'active' : '' }}"
                                            href="{{ route('admin.student.index') }}" role="button">
                                             <i class="fi fi-rr-graduation-cap"></i>
                                             <span class="menu-label">دانش‌آموزان مدرسه</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.school-manager.academic-status') || request()->routeIs('admin.school-manager.student.progress') ? 'active' : '' }}"
+                                           href="{{ route('admin.school-manager.academic-status') }}" role="button">
+                                            <i class="fi fi-rr-chart-histogram"></i>
+                                            <span class="menu-label">وضعیت تحصیلی</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.school-manager.grades') ? 'active' : '' }}"
+                                           href="{{ route('admin.school-manager.grades') }}" role="button">
+                                            <i class="fi fi-rr-edit"></i>
+                                            <span class="menu-label">ثبت نمرات</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.school-manager.advising') ? 'active' : '' }}"
+                                           href="{{ route('admin.school-manager.advising') }}" role="button">
+                                            <i class="fi fi-rr-comments"></i>
+                                            <span class="menu-label">آمار جلسات مشاوره</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">

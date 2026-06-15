@@ -686,7 +686,6 @@
                                         ],
                                         [
                                             ['label'=>'تراکنش‌های مالی', 'route'=> route('client.profile.financial'),   'icon'=>'money'],
-                                            ['label'=>'اقساط و شهریه',   'route'=> route('client.profile.installment'), 'icon'=>'invoice'],
                                         ],
                                         [
                                             ['label'=>'تیکت و پشتیبانی', 'route'=> route('client.profile.ticket'), 'icon'=>'chat'],

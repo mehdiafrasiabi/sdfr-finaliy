@@ -103,6 +103,13 @@ class RolePermissionSeeder extends Seeder
             // مدیر مدرسه (school-manager) — مشاهدهٔ صفحات دانش‌آموزان مدرسهٔ خود
             'admin.daily-activities.view',
             'admin.study-session.view',
+
+            // مدیر مدرسه — قابلیت‌های پنل اختصاصی
+            'admin.school-manager.dashboard.view',
+            'admin.school-manager.academic-status.view',
+            'admin.school-manager.advising.view',
+            'admin.school-manager.grades.manage',
+            'admin.school-manager.student.progress.view',
         ];
 
         foreach ($permissions as $permission) {
@@ -169,6 +176,11 @@ class RolePermissionSeeder extends Seeder
             'admin.students.view',
             'admin.daily-activities.view',
             'admin.study-session.view',
+            'admin.school-manager.dashboard.view',
+            'admin.school-manager.academic-status.view',
+            'admin.school-manager.advising.view',
+            'admin.school-manager.grades.manage',
+            'admin.school-manager.student.progress.view',
         ]);
 
         // نقش منسوخ‌شدهٔ «پشتیبان مدرسه» در صورت وجود حذف می‌شود.

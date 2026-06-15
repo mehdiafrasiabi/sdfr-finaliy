@@ -35,9 +35,8 @@
 
                                                     {{-- تصویر بالا --}}
                                                     <div class="w-full h-36 flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200 dark:from-blue-950 dark:to-blue-900">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20 text-blue-600 dark:text-blue-300 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/>
-                                                        </svg>
+                                                        <img src="/client/icons/karname.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
+
                                                     </div>
 
                                                     {{-- اطلاعات --}}
@@ -81,9 +80,8 @@
 
                                                     {{-- ستون تصویر --}}
                                                     <div class="flex-shrink-0 w-[120px] flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-[#1e3a5f] dark:to-[#1e40af]">
-                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-blue-600 dark:text-blue-200 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2z"/>
-                                                        </svg>
+                                                        <img src="/client/icons/karname.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
+
                                                     </div>
 
                                                     {{-- محتوا --}}
@@ -121,7 +119,6 @@
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                                                 </svg>
-                                                                مشاهده کارنامه
                                                             </a>
                                                         </div>
                                                     </div>
@@ -131,7 +128,9 @@
                                     </div>
                                 @else
                                     <div class="flex flex-col items-center justify-center space-y-8 py-12">
-                                        <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="..." />
+                                        <img src="/client/svg/empty2.svg"
+                                             class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
+                                             alt="پیامی وجود ندارد"/>
                                         <div class="text-center space-y-2">
                                             <h2 class="font-bold text-xl text-foreground">کارنامه هوشمندی برای شما فعال نشده است.</h2>
                                             <p class="text-sm text-muted">پس از فعال‌سازی توسط مشاور، ماه‌های فعال در این بخش نمایش داده می‌شود.</p>

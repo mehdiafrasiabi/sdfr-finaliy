@@ -26,22 +26,15 @@
                                 </div>
                                 <div class="font-black text-foreground">اتاق مشاوره</div>
                             </div>
-                            @if($student && $student->advisor_id)
-                                <a wire:navigate href="{{ route('client.profile.consultation.class-schedule') }}"
-                                   class="inline-flex items-center gap-2 px-4 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors shadow-lg shadow-primary/20">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                                    </svg>
-                                    افزودن برنامه کلاسی
-                                </a>
-                            @endif
                         </div>
                         <!-- end section:title -->
 
                         <!-- لیست جلسات -->
                         @if($sessions->isEmpty())
                             <div class="flex flex-col items-center justify-center space-y-12 py-16">
-                                <img src="/client/empty/consultation.png" class="w-full max-w-xs" alt="empty"/>
+                                <img src="/client/svg/empty2.svg"
+                                     class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
+                                     alt="پیامی وجود ندارد"/>
                                 <div class="text-center space-y-3">
                                     <h2 class="font-bold text-xl text-foreground">
                                         جلسه‌ای وجود ندارد!
@@ -73,7 +66,7 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                                     </svg>
                                                 @else
-                                                    <img src="https://biomaze.ir/_nuxt/img/clipboard-blue.b61a561.webp" class="w-24 h-24 object-contain drop-shadow-md" alt="">
+                                                    <img src="/client/icons/counsolotion.webp" class="w-24 h-24 object-contain drop-shadow-md" alt="">
                                                 @endif
                                             </div>
 
@@ -114,8 +107,6 @@
 
                                                     @if($session->location_type === 'online')
                                                         <span class="inline-flex items-center gap-1 px-2 py-1 bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-xs rounded-full">مجازی</span>
-                                                    @else
-                                                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs rounded-full">حضوری</span>
                                                     @endif
 
                                                     @if(!$isLocked && $session->preSession)
@@ -199,7 +190,7 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                                     </svg>
                                                 @else
-                                                    <img src="https://biomaze.ir/_nuxt/img/clipboard-blue.b61a561.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
+                                                    <img src="/client/icons/counsolotion.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
                                                 @endif
                                             </div>
 
@@ -243,8 +234,6 @@
 
                                                         @if($session->location_type === 'online')
                                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-sky-100 dark:bg-sky-900/30 text-sky-600 dark:text-sky-400 text-xs rounded-full">مجازی</span>
-                                                        @else
-                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs rounded-full">حضوری</span>
                                                         @endif
 
                                                         @if(!$isLocked && $session->preSession)

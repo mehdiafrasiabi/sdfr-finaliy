@@ -1,5 +1,5 @@
 <div>
-   @push('link')
+    @push('link')
         <style>
             /* notch دایره‌ای زیر لوگو وسط — با mask برش می‌خوره */
             .bottom-nav-notch {
@@ -74,12 +74,6 @@
                                         <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
                                         <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
                                     </svg>
-                                    <template x-if="unreadCount > 0">
-            <span class="absolute -top-1 -right-1 flex h-4 w-4">
-                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                <span class="relative inline-flex items-center justify-center rounded-full h-4 w-4 bg-red-500 text-white font-bold text-[8px]" x-text="unreadCount > 9 ? '9+' : unreadCount"></span>
-            </span>
-                                    </template>
                                 </div>
                                 <span class="text-[10px] font-semibold transition-all overflow-hidden"
                                       :class="isActive('{{ route('client.profile.plan', [], false) }}') ? 'max-h-4 opacity-100' : 'max-h-0 opacity-0'">

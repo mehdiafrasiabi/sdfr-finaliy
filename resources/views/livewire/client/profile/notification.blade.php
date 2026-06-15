@@ -188,8 +188,8 @@
 
                     @empty
                         <div class="flex flex-col items-center justify-center py-12 md:py-16">
-                            <img src="/client/assets/images/theme/empty.svg"
-                                 class="w-full max-w-[200px] md:max-w-xs opacity-35 mb-4 md:mb-6"
+                            <img src="/client/svg/empty2.svg"
+                                 class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
                                  alt="پیامی وجود ندارد"/>
                             <div class="text-center space-y-2">
                                 <h2 class="font-bold text-lg md:text-xl text-foreground">پیامی وجود ندارد</h2>

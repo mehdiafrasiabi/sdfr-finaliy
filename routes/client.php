@@ -21,8 +21,6 @@ use App\Livewire\Client\Profile\Edit as ProfileEdit;
 use App\Livewire\Client\Profile\TrialWeek\Guide as TrialWeekGuide;
 use App\Livewire\Client\Profile\TrialWeek\SessionAnalysis as TrialWeekSessionAnalysis;
 use App\Livewire\Client\Profile\Financial as ProfileFinancial;
-use App\Livewire\Client\Profile\Installment\Installment as ProfileInstallment;
-use App\Livewire\Client\Profile\Installment\InstallmentDetail as ProfileInstallmentDetail;
 use App\Livewire\Client\Profile\Notification as ProfileNotification;
 use App\Livewire\Client\Profile\Report as ProfileReport;
 use App\Livewire\Client\Profile\ReportStudentStudy as ProfileReportStudentStudy;
@@ -112,7 +110,7 @@ Route::name('client.')->group(function () {
         Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
 
 
-        Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'installments.current', 'trial.step', 'block.during.study'])->group(function () {
+        Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'trial.step', 'block.during.study'])->group(function () {
             //Profile
             Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
             Route::get('/star',Star::class)->name('star');
@@ -120,8 +118,6 @@ Route::name('client.')->group(function () {
             Route::get('/edit',ProfileEdit::class)->name('edit');
             Route::get('/financial',ProfileFinancial::class)->name('financial');
             Route::get('/smartReportCard/{smartReportCard}',ProfileSmartReportCardShow::class)->name('smartReportCard.show');
-            Route::get('/installment',ProfileInstallment::class)->name('installment');
-            Route::get('/installmentDetail',ProfileInstallmentDetail::class)->name('installmentDetail');
             Route::get('/plan',ProfilePlan::class)->name('plan');
             Route::get('/report',ProfileReport::class)->name('report');
 

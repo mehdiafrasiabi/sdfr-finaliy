@@ -7,6 +7,16 @@
         .ss-scroll { -ms-overflow-style: none; scrollbar-width: none; }
         .timer-ring { transform: rotate(-90deg); transform-origin: center; transition: stroke-dashoffset .4s linear; }
         .drop-ring { transition: stroke-dashoffset .6s ease; }
+        .spinner-circle {
+            width: 1.125rem; height: 1.125rem;
+            border: 2.25px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            display: inline-block;
+        }
+        .spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
     @endassets
 
@@ -34,7 +44,7 @@
          }">
 
         {{-- ════════════════════════════════════════════════════════════
-             صفحه تمام‌صفحه تایمر (دایره قطره‌ای)
+             صفحه تمام‌صفحه تایمر
            ════════════════════════════════════════════════════════════ --}}
         @if($timerActive)
             <div class="fixed inset-0 z-[90] overflow-y-auto"
@@ -64,7 +74,6 @@
                         </button>
                     </div>
 
-                    {{-- عنوان --}}
                     <div class="mb-6 text-center">
                         @if($isMakeupMode)
                             <span class="text-xs font-bold px-3 py-1 rounded-full bg-blue-500/20 text-blue-300">مطالعه اضافه بر سازمان</span>
@@ -87,7 +96,6 @@
                         @endif
                     </div>
 
-                    {{-- دایره تایمر --}}
                     @php
                         if ($isMakeupMode) {
                             $ovRemaining = $makeupRemainingSeconds; $ovTarget = $makeupTargetSeconds;
@@ -151,76 +159,63 @@
                         </span>
                     </div>
 
-                    {{-- دکمه‌های ۸۰٪ --}}
                     @if(!$isMakeupMode && $this->canShowEarlyOrMore)
                         <div class="grid grid-cols-2 gap-2 mt-6 w-full max-w-sm">
-                            <button wire:click="openEarlyFinishConfirm" wire:loading.attr="disabled"
-                                    class="h-11 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 disabled:opacity-50">
-                                ⚡ زودتر تمام کردم
+                            <button wire:click="openEarlyFinishConfirm" wire:loading.attr="disabled" wire:target="openEarlyFinishConfirm"
+                                    class="h-11 rounded-full text-xs font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/40 disabled:opacity-50 inline-flex items-center justify-center gap-2">
+                                <span wire:loading.remove wire:target="openEarlyFinishConfirm">⚡ زودتر تمام کردم</span>
+                                <span wire:loading wire:target="openEarlyFinishConfirm" class="spinner-circle spinner-sm"></span>
                             </button>
-                            <button wire:click="openStudyMoreModal" wire:loading.attr="disabled"
-                                    class="h-11 rounded-full text-xs font-bold bg-blue-500/15 text-blue-400 border border-blue-500/40 disabled:opacity-50">
-                                ➕ مطالعه بیشتر
+                            <button wire:click="openStudyMoreModal" wire:loading.attr="disabled" wire:target="openStudyMoreModal"
+                                    class="h-11 rounded-full text-xs font-bold bg-blue-500/15 text-blue-400 border border-blue-500/40 disabled:opacity-50 inline-flex items-center justify-center gap-2">
+                                <span wire:loading.remove wire:target="openStudyMoreModal">➕ مطالعه بیشتر</span>
+                                <span wire:loading wire:target="openStudyMoreModal" class="spinner-circle spinner-sm"></span>
                             </button>
                         </div>
                     @endif
 
-                    {{-- کنترل‌های پایین --}}
                     <div class="flex items-center justify-center gap-14 mt-10">
                         <button wire:click="openCancelConfirm"
-                                class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10"
-                                title="لغو">
+                                class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10" title="لغو">
                             <span class="block w-5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                         </button>
 
                         @if($isMakeupMode)
                             @if($makeupTimerRunning)
-                                <button wire:click="pauseMakeup" wire:loading.attr="disabled"
+                                <button wire:click="pauseMakeup" wire:loading.attr="disabled" wire:target="pauseMakeup"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="توقف">
                                     <span wire:loading.remove wire:target="pauseMakeup" class="flex gap-1.5">
                                         <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                                         <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                                     </span>
-                                    <svg wire:loading wire:target="pauseMakeup" class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                    </svg>
+                                    <span wire:loading wire:target="pauseMakeup" class="spinner-circle" style="color:{{ $ovColor }};"></span>
                                 </button>
                             @else
-                                <button wire:click="resumeMakeup" wire:loading.attr="disabled"
+                                <button wire:click="resumeMakeup" wire:loading.attr="disabled" wire:target="resumeMakeup"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="ادامه">
                                     <svg wire:loading.remove wire:target="resumeMakeup" viewBox="0 0 24 24" fill="{{ $ovColor }}" class="w-6 h-6" style="margin-right:-2px;">
                                         <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
                                     </svg>
-                                    <svg wire:loading wire:target="resumeMakeup" class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                    </svg>
+                                    <span wire:loading wire:target="resumeMakeup" class="spinner-circle" style="color:{{ $ovColor }};"></span>
                                 </button>
                             @endif
                         @else
                             @if($isRunning)
-                                <button wire:click="pausePart" wire:loading.attr="disabled"
+                                <button wire:click="pausePart" wire:loading.attr="disabled" wire:target="pausePart"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="توقف">
                                     <span wire:loading.remove wire:target="pausePart" class="flex gap-1.5">
                                         <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                                         <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                                     </span>
-                                    <svg wire:loading wire:target="pausePart" class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                    </svg>
+                                    <span wire:loading wire:target="pausePart" class="spinner-circle" style="color:{{ $ovColor }};"></span>
                                 </button>
                             @elseif($pausedAtTs)
-                                <button wire:click="resumePart" wire:loading.attr="disabled"
+                                <button wire:click="resumePart" wire:loading.attr="disabled" wire:target="resumePart"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="ادامه">
                                     <svg wire:loading.remove wire:target="resumePart" viewBox="0 0 24 24" fill="{{ $ovColor }}" class="w-6 h-6" style="margin-right:-2px;">
                                         <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
                                     </svg>
-                                    <svg wire:loading wire:target="resumePart" class="animate-spin w-5 h-5 text-white" fill="none" viewBox="0 0 24 24">
-                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                    </svg>
+                                    <span wire:loading wire:target="resumePart" class="spinner-circle" style="color:{{ $ovColor }};"></span>
                                 </button>
                             @endif
                         @endif
@@ -231,15 +226,12 @@
 
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
-            {{-- ═══ سایدبار ═══ --}}
             <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
                 <livewire:client.profile.sidebar/>
             </div>
 
-            {{-- ═══ محتوای اصلی ═══ --}}
             <div class="lg:col-span-9 md:col-span-8 space-y-6">
 
-                {{-- ===== هدر برنامه ===== --}}
                 <section class="overflow-hidden rounded-2xl border border-border glass">
                     <div class="bg-gradient-to-r from-blue-900 via-blue-600 to-blue-400 px-4 py-5 sm:px-6 sm:py-6">
                         <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -278,7 +270,6 @@
                     </div>
                 </section>
 
-                {{-- ===== آمار کلی (فقط غیر از تب ثبت مطالعه) ===== --}}
                 <section x-show="tab !== 'study'" x-cloak class="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
                     <div class="rounded-2xl bg-gradient-to-br from-sky-500 to-sky-600 p-4 text-white shadow-md">
                         <div class="flex items-center justify-between">
@@ -326,18 +317,19 @@
                 @if($isActiveProgram)
                     <section x-show="tab === 'study'" x-cloak class="space-y-4">
 
-                        {{-- دکمه جبرانی --}}
                         @if(!$timerActive)
-                            <button wire:click="openMakeupModal"
-                                    class="w-full h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-l from-blue-600 to-sky-500 text-white shadow-md shadow-blue-500/20">
-                                <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-                                </svg>
-                                ثبت ساعت مطالعه اضافه بر سازمان
+                            <button wire:click="openMakeupModal" wire:loading.attr="disabled" wire:target="openMakeupModal"
+                                    class="w-full h-12 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 bg-gradient-to-l from-blue-600 to-sky-500 text-white shadow-md shadow-blue-500/20 disabled:opacity-60">
+                                <span wire:loading.remove wire:target="openMakeupModal" class="flex items-center gap-2">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+                                    </svg>
+                                    ثبت ساعت مطالعه اضافه بر سازمان
+                                </span>
+                                <span wire:loading wire:target="openMakeupModal" class="spinner-circle"></span>
                             </button>
                         @endif
 
-                        {{-- دایره‌های روز --}}
                         <div class="glass border border-border rounded-2xl p-3">
                             <div class="flex items-center gap-2 mb-3 px-1">
                                 <span class="text-xs font-bold text-primary">{{ jdate($program->start_date)->format('d') }} تا {{ jdate($program->end_date)->format('d F') }}</span>
@@ -371,7 +363,6 @@
                             </div>
                         </div>
 
-                        {{-- محتوای روز انتخاب‌شده --}}
                         @foreach($weekDays as $day)
                             <div x-show="selectedDay === '{{ $day['date'] }}'" x-cloak class="space-y-4">
 
@@ -383,7 +374,6 @@
                                     </div>
 
                                 @elseif($day['parts_count'] > 0)
-                                    {{-- دایره قطره‌ای پیشرفت روز --}}
                                     @php
                                         $plannedMin = $day['parts']->sum('duration_minutes');
                                         $doneMin    = $day['parts']->filter(fn($p) => in_array($p->id, $completedParts))->sum('duration_minutes');
@@ -429,8 +419,8 @@
                                         </div>
                                     </div>
 
-                                    {{-- کارت‌های پارت --}}
-                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                    {{-- ✅ FIX: items-start جلوگیری از stretch شدن کارت بغلی --}}
+                                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
                                         @foreach($day['parts']->sortBy('part_order') as $part)
                                             @php
                                                 $isDone   = in_array($part->id, $completedParts);
@@ -440,7 +430,7 @@
                                                     : ($part->part_type === 'descriptive' ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500');
                                             @endphp
 
-                                            <div x-data="{ open: false }"
+                                            <div x-data="{ open: false }" wire:key="part-card-{{ $part->id }}"
                                                  class="glass border rounded-2xl overflow-hidden transition-colors
                                                         {{ $isActive ? 'border-primary' : ($isDone ? 'border-emerald-500/30' : ($isMissed ? 'border-red-500/30' : 'border-border')) }}">
 
@@ -523,15 +513,9 @@
                                                         @elseif(!$timerActive)
                                                             <button wire:click="startPart({{ $part->id }})"
                                                                     wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
-                                                                    class="w-full h-11 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-60">
+                                                                    class="w-full h-11 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
                                                                 <span wire:loading.remove wire:target="startPart({{ $part->id }})">شروع مطالعه</span>
-                                                                <span wire:loading wire:target="startPart({{ $part->id }})" class="flex items-center justify-center gap-2">
-                                                                    <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                                                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-                                                                    </svg>
-                                                                    صبر کنید...
-                                                                </span>
+                                                                <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
                                                             </button>
                                                         @endif
                                                     </div>
@@ -555,12 +539,14 @@
                          class="rounded-2xl border border-border glass"
                          x-data="{
                             currentDayIndex: 0,
+                            dayDropOpen: false,
                             totalDays: {{ count($weekDays) }},
+                            dayLabels: @js(collect($weekDays)->map(fn($d) => $d['name'].' — '.$d['jalali_date'].($d['is_rest_day'] ? ' (استراحت)' : ''))->values()->all()),
                             goNext() { if (this.currentDayIndex < this.totalDays - 1) this.currentDayIndex++; },
                             goPrev() { if (this.currentDayIndex > 0) this.currentDayIndex--; }
                          }">
 
-                    {{-- ناوبری موبایل --}}
+                    {{-- ناوبری موبایل با dropdown هم‌سبک x-ui.select --}}
                     <div class="flex md:hidden items-center gap-2 px-3 py-3 border-b border-border">
                         <button type="button" @click="goPrev()" :disabled="currentDayIndex === 0"
                                 :class="currentDayIndex === 0 ? 'opacity-40' : 'hover:bg-primary/10 active:scale-95'"
@@ -569,19 +555,38 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
                             </svg>
                         </button>
-                        <div class="flex-1 relative">
-                            <select x-model.number="currentDayIndex"
-                                    class="w-full appearance-none rounded-xl border border-border glass text-foreground text-[12px] font-medium px-3 py-2 pl-7 focus:outline-none focus:ring-2 focus:ring-primary/30">
-                                @foreach($weekDays as $i => $day)
-                                    <option value="{{ $i }}">{{ $day['name'] }} — {{ $day['jalali_date'] }} @if($day['is_rest_day']) (استراحت) @endif</option>
-                                @endforeach
-                            </select>
-                            <div class="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-muted">
-                                <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+
+                        {{-- ✅ FIX: drop‌down هم‌سبک x-ui.select بجای select native --}}
+                        <div class="flex-1 relative" @click.outside="dayDropOpen = false" @keydown.escape="dayDropOpen = false">
+                            <button type="button" @click.stop="dayDropOpen = !dayDropOpen"
+                                    :class="dayDropOpen ? 'border-blue-500 ring-2 ring-blue-500/20' : ''"
+                                    class="w-full flex items-center justify-between gap-2 rounded-xl border border-border bg-secondary px-3 py-2 text-[12px] text-foreground transition-all">
+                                <span class="flex-1 truncate text-right" x-text="dayLabels[currentDayIndex] || 'انتخاب روز'"></span>
+                                <svg class="w-3.5 h-3.5 text-muted transition-transform" :class="{ 'rotate-180': dayDropOpen }"
+                                     fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
                                 </svg>
+                            </button>
+
+                            <div x-show="dayDropOpen" x-cloak
+                                 x-transition:enter="transition ease-out duration-150"
+                                 x-transition:enter-start="opacity-0 -translate-y-1"
+                                 x-transition:enter-end="opacity-100 translate-y-0"
+                                 class="absolute z-50 mt-1 w-full rounded-xl overflow-hidden border border-border bg-secondary shadow-xl shadow-black/10 max-h-56 overflow-y-auto">
+                                @foreach($weekDays as $i => $day)
+                                    <button type="button"
+                                            @click="currentDayIndex = {{ $i }}; dayDropOpen = false"
+                                            :class="currentDayIndex === {{ $i }} ? 'bg-blue-600 text-white' : 'text-foreground hover:bg-background'"
+                                            class="w-full text-right px-3 py-2.5 text-sm flex items-center justify-between gap-2 transition-colors">
+                                        <span class="truncate">{{ $day['name'] }} — {{ $day['jalali_date'] }} @if($day['is_rest_day'])<span class="text-emerald-500 text-[10px]">(استراحت)</span>@endif</span>
+                                        <svg x-show="currentDayIndex === {{ $i }}" class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                    </button>
+                                @endforeach
                             </div>
                         </div>
+
                         <button type="button" @click="goNext()" :disabled="currentDayIndex === totalDays - 1"
                                 :class="currentDayIndex === totalDays - 1 ? 'opacity-40' : 'hover:bg-primary/10 active:scale-95'"
                                 class="flex items-center justify-center w-9 h-9 rounded-xl border border-border glass text-foreground transition-all shrink-0">
@@ -591,7 +596,6 @@
                         </button>
                     </div>
 
-                    {{-- نقطه‌های پیشرفت موبایل --}}
                     <div class="flex md:hidden items-center justify-center gap-1.5 px-3 py-2 border-b border-border/50">
                         @foreach($weekDays as $i => $day)
                             <button type="button" @click="currentDayIndex = {{ $i }}"
@@ -600,7 +604,6 @@
                         @endforeach
                     </div>
 
-                    {{-- دسکتاپ: جدول --}}
                     <div class="hidden md:block overflow-x-auto">
                         <table class="w-full min-w-[720px] text-xs">
                             <thead>
@@ -630,7 +633,6 @@
                         </table>
                     </div>
 
-                    {{-- موبایل: تک روز --}}
                     <div class="block md:hidden">
                         @foreach($weekDays as $i => $day)
                             <div x-show="currentDayIndex === {{ $i }}"
@@ -662,7 +664,6 @@
                     </div>
                 </section>
 
-                {{-- ════════════════ آرشیو (فقط خلاصه) ════════════════ --}}
                 <section x-show="tab === 'archive'" x-cloak class="rounded-2xl border border-border glass p-4 sm:p-5">
                     <div class="mb-4 flex items-center justify-between">
                         <h3 class="text-base font-semibold text-foreground">آرشیو مطالعه این هفته</h3>
@@ -692,9 +693,7 @@
             </div>
         </div>
 
-        {{-- ════════════════════════════════════════════════════════════
-             مودال‌ها — همه فرانت‌اند (x-show با entangle) بدون لگ
-           ════════════════════════════════════════════════════════════ --}}
+        {{-- ════════════════════════════════════════════════════════════ مودال‌ها ════════════════════════════════════════════════════════════ --}}
 
         {{-- مودال دسترسی --}}
         <div x-cloak x-show="permissionModal" class="fixed inset-0 z-[150] flex flex-col justify-end sm:items-center sm:justify-center" @keydown.escape.window="permissionModal=false">
@@ -716,8 +715,11 @@
                     </div>
                 </div>
                 <div class="flex justify-end px-6 py-4 border-t border-border">
-                    <button wire:click="permissionUnderstood" wire:loading.attr="disabled"
-                            class="px-6 h-11 rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60">متوجه شدم</button>
+                    <button wire:click="permissionUnderstood" wire:loading.attr="disabled" wire:target="permissionUnderstood"
+                            class="px-6 h-11 rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
+                        <span wire:loading.remove wire:target="permissionUnderstood">متوجه شدم</span>
+                        <span wire:loading wire:target="permissionUnderstood" class="spinner-circle"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -739,14 +741,15 @@
                         @if($isInExtraPhase) تایم مطالعه اضافه بر مشاور به پایان رسید @else تایم مطالعه به پایان رسید @endif
                     </p>
                     <div class="flex gap-3 justify-center pt-2">
-                        <button wire:click="closeFinishModal" class="px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">بستن</button>
+                        <button wire:click="closeFinishModal" wire:loading.attr="disabled" wire:target="closeFinishModal"
+                                class="px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[80px]">
+                            <span wire:loading.remove wire:target="closeFinishModal">بستن</span>
+                            <span wire:loading wire:target="closeFinishModal" class="spinner-circle"></span>
+                        </button>
                         <button wire:click="savePart" wire:loading.attr="disabled" wire:target="savePart"
-                                class="px-8 h-11 rounded-xl font-semibold text-sm text-white disabled:opacity-60 {{ $isInExtraPhase ? 'bg-blue-600' : 'bg-emerald-600' }}">
+                                class="px-8 h-11 rounded-xl font-semibold text-sm text-white disabled:opacity-60 {{ $isInExtraPhase ? 'bg-blue-600' : 'bg-emerald-600' }} inline-flex items-center justify-center gap-2 min-w-[110px]">
                             <span wire:loading.remove wire:target="savePart">ثبت پارت</span>
-                            <span wire:loading wire:target="savePart" class="flex items-center gap-2">
-                                <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                                ثبت...
-                            </span>
+                            <span wire:loading wire:target="savePart" class="spinner-circle"></span>
                         </button>
                     </div>
                 </div>
@@ -765,7 +768,11 @@
                     <div class="flex gap-3 justify-center pt-2">
                         <button @click="cancelModal=false" class="px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">ادامه مطالعه</button>
                         <button wire:click="{{ $isMakeupMode ? 'cancelMakeup' : 'cancelPart' }}" wire:loading.attr="disabled"
-                                class="px-8 h-11 rounded-xl font-semibold text-sm bg-red-500 text-white disabled:opacity-60">بله، لغو کن</button>
+                                wire:target="{{ $isMakeupMode ? 'cancelMakeup' : 'cancelPart' }}"
+                                class="px-8 h-11 rounded-xl font-semibold text-sm bg-red-500 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
+                            <span wire:loading.remove wire:target="{{ $isMakeupMode ? 'cancelMakeup' : 'cancelPart' }}">بله، لغو کن</span>
+                            <span wire:loading wire:target="{{ $isMakeupMode ? 'cancelMakeup' : 'cancelPart' }}" class="spinner-circle"></span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -786,8 +793,11 @@
                     <p class="text-xs text-muted">مدت ثبت‌شده: <span class="text-foreground font-bold">{{ $this->formatClock($liveSeconds) }}</span> از {{ $this->formatClock($targetSeconds) }}</p>
                     <div class="flex gap-3 justify-center pt-2">
                         <button @click="earlyModal=false" class="px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">انصراف</button>
-                        <button wire:click="confirmEarlyFinish" wire:loading.attr="disabled"
-                                class="px-8 h-11 rounded-xl font-semibold text-sm bg-emerald-600 text-white disabled:opacity-60">بله، ثبت کن</button>
+                        <button wire:click="confirmEarlyFinish" wire:loading.attr="disabled" wire:target="confirmEarlyFinish"
+                                class="px-8 h-11 rounded-xl font-semibold text-sm bg-emerald-600 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[110px]">
+                            <span wire:loading.remove wire:target="confirmEarlyFinish">بله، ثبت کن</span>
+                            <span wire:loading wire:target="confirmEarlyFinish" class="spinner-circle"></span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -839,8 +849,11 @@
                 </div>
                 <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-border">
                     <button @click="studyMoreModal=false" class="px-5 h-10 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">انصراف</button>
-                    <button wire:click="confirmStudyMore" wire:loading.attr="disabled"
-                            class="px-6 h-10 rounded-xl font-semibold text-sm bg-blue-600 text-white disabled:opacity-60">شروع پس از پایان</button>
+                    <button wire:click="confirmStudyMore" wire:loading.attr="disabled" wire:target="confirmStudyMore"
+                            class="px-6 h-10 rounded-xl font-semibold text-sm bg-blue-600 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[150px]">
+                        <span wire:loading.remove wire:target="confirmStudyMore">شروع پس از پایان</span>
+                        <span wire:loading wire:target="confirmStudyMore" class="spinner-circle"></span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -860,12 +873,9 @@
                     <div class="flex gap-3 justify-center pt-2">
                         <button wire:click="closeMakeupFinishModal" class="px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">بستن</button>
                         <button wire:click="saveMakeupSession" wire:loading.attr="disabled" wire:target="saveMakeupSession"
-                                class="px-8 h-11 rounded-xl font-semibold text-sm bg-blue-600 text-white disabled:opacity-60">
+                                class="px-8 h-11 rounded-xl font-semibold text-sm bg-blue-600 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
                             <span wire:loading.remove wire:target="saveMakeupSession">ثبت مطالعه</span>
-                            <span wire:loading wire:target="saveMakeupSession" class="flex items-center gap-2">
-                                <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                                ثبت...
-                            </span>
+                            <span wire:loading wire:target="saveMakeupSession" class="spinner-circle"></span>
                         </button>
                     </div>
                 </div>
@@ -879,7 +889,7 @@
                  x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="flex items-center justify-between px-6 py-4 border-b border-border">
-                    <h3 class="font-bold text-foreground">بازخورد مطالعه مطالعه</h3>
+                    <h3 class="font-bold text-foreground">بازخورد مطالعه</h3>
                 </div>
                 <div class="px-6 py-5 space-y-5">
                     @if($pendingFeedbackPartName)
@@ -909,13 +919,10 @@
                 </div>
                 <div class="flex justify-end px-6 py-4 border-t border-border">
                     <button wire:click="submitFeedback" wire:loading.attr="disabled" wire:target="submitFeedback"
-                            class="px-6 h-11 rounded-xl font-semibold text-sm text-primary-foreground disabled:opacity-60 {{ $feedbackRating<1 ? 'bg-secondary text-muted cursor-not-allowed' : 'bg-primary hover:bg-primary/90' }}"
+                            class="px-6 h-11 rounded-xl font-semibold text-sm text-primary-foreground disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px] {{ $feedbackRating<1 ? 'bg-secondary text-muted cursor-not-allowed' : 'bg-primary hover:bg-primary/90' }}"
                         {{ $feedbackRating<1 ? 'disabled' : '' }}>
                         <span wire:loading.remove wire:target="submitFeedback">ثبت بازخورد</span>
-                        <span wire:loading wire:target="submitFeedback" class="flex items-center gap-2">
-                            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                            ثبت...
-                        </span>
+                        <span wire:loading wire:target="submitFeedback" class="spinner-circle"></span>
                     </button>
                 </div>
             </div>
@@ -934,7 +941,6 @@
                     </button>
                 </div>
                 <div class="px-6 py-5 space-y-5">
-                    {{-- جستجو --}}
                     <div>
                         <label class="block text-xs font-semibold text-foreground mb-1.5">جستجوی سریع</label>
                         <input type="text" wire:model.live.debounce.300ms="makeupSearch"
@@ -956,7 +962,6 @@
                             </div>
                         @endif
                     </div>
-                    {{-- فیلترها --}}
                     <div class="border-t border-border pt-4 space-y-3">
                         @if($this->grades->isNotEmpty())
                             <div>
@@ -991,7 +996,6 @@
                             </div>
                         @endif
                     </div>
-                    {{-- نوع --}}
                     <div class="border-t border-border pt-4">
                         <label class="block text-xs font-semibold text-foreground mb-2">نوع مطالعه</label>
                         <div class="grid grid-cols-3 gap-2">
@@ -1003,7 +1007,6 @@
                             @endforeach
                         </div>
                     </div>
-                    {{-- مدت --}}
                     <div class="border-t border-border pt-4">
                         <label class="block text-xs font-semibold text-foreground mb-2">مدت زمان</label>
                         <div x-data="{ h:@entangle('makeupDurationHours'), m:@entangle('makeupDurationMinutes') }" class="flex items-center gap-3" dir="ltr">
@@ -1035,13 +1038,10 @@
                 <div class="flex items-center justify-end gap-3 px-6 py-4 sticky bottom-0 glass border-t border-border">
                     <button wire:click="closeMakeupModal" class="px-5 h-10 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">انصراف</button>
                     <button wire:click="startMakeupTimer" wire:loading.attr="disabled" wire:target="startMakeupTimer"
-                            class="px-6 h-10 rounded-xl font-semibold text-sm text-white disabled:opacity-60 {{ !$makeupTopicId ? 'bg-secondary text-muted cursor-not-allowed' : 'bg-blue-600' }}"
+                            class="px-6 h-10 rounded-xl font-semibold text-sm text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px] {{ !$makeupTopicId ? 'bg-secondary text-muted cursor-not-allowed' : 'bg-blue-600' }}"
                         {{ !$makeupTopicId ? 'disabled' : '' }}>
                         <span wire:loading.remove wire:target="startMakeupTimer">شروع تایمر</span>
-                        <span wire:loading wire:target="startMakeupTimer" class="flex items-center gap-2">
-                            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
-                            شروع...
-                        </span>
+                        <span wire:loading wire:target="startMakeupTimer" class="spinner-circle"></span>
                     </button>
                 </div>
             </div>

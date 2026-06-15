@@ -94,6 +94,20 @@ Route::name('admin.')->group(function () {
                 ->name('student');
         });
 
+        // مدیر مدرسه (نقش school-manager) — قابلیت‌های پنل اختصاصی
+        Route::prefix('school-manager')->name('school-manager.')->group(function () {
+            Route::get('/dashboard', \App\Livewire\Admin\SchoolManager\Dashboard::class)
+                ->name('dashboard')->middleware('admin.permission:admin.school-manager.dashboard.view');
+            Route::get('/academic-status', \App\Livewire\Admin\SchoolManager\AcademicStatus::class)
+                ->name('academic-status')->middleware('admin.permission:admin.school-manager.academic-status.view');
+            Route::get('/advising', \App\Livewire\Admin\SchoolManager\AdvisingStats::class)
+                ->name('advising')->middleware('admin.permission:admin.school-manager.advising.view');
+            Route::get('/grades', \App\Livewire\Admin\SchoolManager\GradeEntry::class)
+                ->name('grades')->middleware('admin.permission:admin.school-manager.grades.manage');
+            Route::get('/students/{student}/progress', \App\Livewire\Admin\SchoolManager\StudentProgress::class)
+                ->name('student.progress')->middleware('admin.permission:admin.school-manager.student.progress.view');
+        });
+
         // مدیر آموزشی — درخواست‌های تعیین وقت و جابجایی
         Route::get('/educational-manager/appointments',
             \App\Livewire\Admin\EducationalManager\Appointment\Index::class)

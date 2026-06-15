@@ -672,6 +672,18 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-3 col-6">
+                                <div class="card bg-primary bg-opacity-10 border-0 h-100">
+                                    <div class="card-body text-center py-3">
+                                        @php
+                                            $sm = (int) ($selectedReportData['study_minutes'] ?? 0);
+                                            $pm = (int) ($selectedReportData['planned_minutes'] ?? 0);
+                                        @endphp
+                                        <h3 class="text-primary mb-1">{{ intdiv($sm, 60) }}:{{ str_pad($sm % 60, 2, '0', STR_PAD_LEFT) }}</h3>
+                                        <small class="text-muted">ساعت مطالعه (از {{ intdiv($pm, 60) }}:{{ str_pad($pm % 60, 2, '0', STR_PAD_LEFT) }})</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <!-- Rating & Description & Missed Parts Reason -->
                         <div class="row g-3 mb-4">

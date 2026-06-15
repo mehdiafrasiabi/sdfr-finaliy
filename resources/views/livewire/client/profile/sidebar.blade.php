@@ -1,35 +1,6 @@
 <div class="hidden md:block"
      x-data="{ unreadCount: {{ $unreadCount }} }"
      x-on:notification-read.window="if (unreadCount > 0) { unreadCount--; }">
-    <div class="flex items-center gap-5 mb-5">
-        <div class="flex items-center gap-3">
-            <div class="flex-shrink-0 w-10 h-10 rounded-full overflow-hidden glass from-blue-100  flex items-center justify-center">
-                @if($profilePictureUrl)
-                    <img src="{{ $profilePictureUrl }}" class="w-full h-full object-cover rounded-full" alt="avatar">
-                @elseif($this->defaultAvatarType === 'female')
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-pink-500">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                    </svg>
-                @else
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-pink-500">
-                        <!-- سر -->
-                        <circle cx="12" cy="7" r="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        <!-- بدن -->
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.5 21c0-3.866 2.91-7 6.5-7s6.5 3.134 6.5 7"/>
-                        <!-- موهای بلند (برای تمایز) -->
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.5 6.5C8.5 5.5 9 4 12 4s3.5 1.5 3.5 2.5"/>
-                    </svg>
-                @endif
-            </div>
-            <div class="flex flex-col items-start space-y-1">
-                <span class="text-xs text-muted"> سلام ! </span>
-                <div
-                    class="line-clamp-1 font-semibold text-sm text-foreground cursor-default">{{auth()->user()->name}}
-                    <span class="text-xs text-muted">عزیز</span>
-                </div>
-            </div>
-        </div>
-    </div>
     <ul class="flex flex-col space-y-3 glass rounded-2xl p-5">
         <li>
 
@@ -99,29 +70,7 @@
                 <span class="font-semibold text-xs">اتاق مشاوره</span>
             </a>
         </li>
-        <li>
-            <a wire:navigate href="{{route('client.profile.consultation.class-schedule')}}"
-               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.consultation.class-schedule') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-                </svg>
-                <span class="font-semibold text-xs">برنامه کلاسی</span>
-            </a>
-        </li>
-{{--        <li>--}}
-{{--            <a wire:navigate href="{{route('client.profile.appointment')}}"--}}
-{{--               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.appointment') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">--}}
-{{--                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"--}}
-{{--                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"--}}
-{{--                     class="w-5 h-5">--}}
-{{--                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>--}}
-{{--                    <line x1="16" y1="2" x2="16" y2="6"></line>--}}
-{{--                    <line x1="8" y1="2" x2="8" y2="6"></line>--}}
-{{--                    <line x1="3" y1="10" x2="21" y2="10"></line>--}}
-{{--                </svg>--}}
-{{--                <span class="font-semibold text-xs">تعیین وقت جلسه</span>--}}
-{{--            </a>--}}
-{{--        </li>--}}
+
         <li>
             <a wire:navigate href="{{route('client.profile.plan')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.plan') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
@@ -241,36 +190,10 @@
            9 9 0 0 1 18 0Z"/>
                 </svg>
 
-                <span class="font-semibold text-xs">تراکنش های مالی</span>
+                <span class="font-semibold text-xs">امور مالی </span>
             </a>
         </li>
 
-        <li>
-            <a wire:navigate href="{{route('client.profile.installment')}}"
-               class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.installment') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
-                     class="w-5 h-5"
-                     strokeWidth="2">
-                    <path
-                        d="M22 6V8.42C22 10 21 11 19.42 11H16V4.01C16 2.9 16.91 2 18.02 2C19.11 2.01 20.11 2.45 20.83 3.17C21.55 3.9 22 4.9 22 6Z"
-                        stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                        stroke-linejoin="round"></path>
-                    <path
-                        d="M2 7V21C2 21.83 2.94 22.3 3.6 21.8L5.31 20.52C5.71 20.22 6.27 20.26 6.63 20.62L8.29 22.29C8.68 22.68 9.32 22.68 9.71 22.29L11.39 20.61C11.74 20.26 12.3 20.22 12.69 20.52L14.4 21.8C15.06 22.29 16 21.82 16 21V4C16 2.9 16.9 2 18 2H7H6C3 2 2 3.79 2 6V7Z"
-                        stroke="currentColor" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round"
-                        stroke-linejoin="round"></path>
-                    <path d="M9 13.0098H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                          stroke-linejoin="round"></path>
-                    <path d="M9 9.00977H12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                          stroke-linejoin="round"></path>
-                    <path d="M5.99561 13H6.00459" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                          stroke-linejoin="round"></path>
-                    <path d="M5.99561 9H6.00459" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                          stroke-linejoin="round"></path>
-                </svg>
-                <span class="font-semibold text-xs">اقساط شهریه </span>
-            </a>
-        </li>
 
         <li>
             <a wire:navigate href="{{route('client.profile.ticket')}}"
@@ -297,24 +220,6 @@
             </a>
         </li>
 
-{{--        <li>--}}
-{{--            <a wire:navigate href="{{route('client.profile.star')}}"--}}
-{{--               class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.star') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">--}}
-{{--                <svg xmlns="http://www.w3.org/2000/svg"--}}
-{{--                     viewBox="0 0 20 20"--}}
-{{--                     fill="none"--}}
-{{--                     stroke="currentColor"--}}
-{{--                     stroke-width="1.5"--}}
-{{--                     class="w-5 h-5">--}}
-
-{{--                    <path stroke-linecap="round"--}}
-{{--                          stroke-linejoin="round"--}}
-{{--                          d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.95a1 1 0 0 0 .95.69h4.154c.969 0 1.371 1.24.588 1.81l-3.36 2.441a1 1 0 0 0-.364 1.118l1.287 3.95c.3.921-.755 1.688-1.54 1.118l-3.36-2.441a1 1 0 0 0-1.175 0l-3.36 2.441c-.784.57-1.838-.197-1.539-1.118l1.287-3.95a1 1 0 0 0-.364-1.118L2.49 9.377c-.783-.57-.38-1.81.588-1.81h4.154a1 1 0 0 0 .95-.69l1.287-3.95Z"/>--}}
-{{--                </svg>--}}
-
-{{--                <span class="font-semibold text-xs">ستاره ها (بزودی)</span>--}}
-{{--            </a>--}}
-{{--        </li>--}}
         <li>
             <a wire:navigate href="{{route('client.profile.edit')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.edit') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">

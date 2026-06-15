@@ -96,11 +96,9 @@
                                 {{-- ═══ Mobile ═══ --}}
                                 <div class="md:hidden">
                                     <div class="relative w-full h-36 flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200 dark:from-blue-950 dark:to-blue-900">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20 text-blue-600 dark:text-blue-300 drop-shadow-md"
-                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                                        </svg>
-                                        @if($unread > 0)
+                                        <img src="/client/icons/ticket1.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
+
+                                    @if($unread > 0)
                                             <span class="absolute top-3 left-3 inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 bg-red-500 rounded-full text-white text-[11px] font-bold shadow-lg">
                                                 {{ $unread }}
                                             </span>
@@ -142,11 +140,9 @@
                                 {{-- ═══ Desktop ═══ --}}
                                 <div class="hidden md:flex flex-row min-h-[130px]">
                                     <div class="relative flex-shrink-0 w-[120px] flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-[#1e3a5f] dark:to-[#1e40af]">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-blue-600 dark:text-blue-200 drop-shadow-md"
-                                             fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                                        </svg>
-                                        @if($unread > 0)
+                                        <img src="/client/icons/ticket1.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
+
+                                    @if($unread > 0)
                                             <span class="absolute top-2 left-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-red-500 rounded-full text-white text-[10px] font-bold shadow-lg">
                                                 {{ $unread }}
                                             </span>
@@ -189,7 +185,9 @@
                             </div>
                         @empty
                             <div class="flex flex-col items-center justify-center space-y-6 py-12">
-                                <img src="/client/assets/images/theme/empty.svg" class="w-full max-w-xs opacity-35" alt="..."/>
+                                <img src="/client/svg/empty2.svg"
+                                     class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
+                                     alt="پیامی وجود ندارد"/>
                                 <div class="text-center space-y-3">
                                     <h2 class="font-bold text-xl text-foreground">تیکتی برای شما وجود ندارد.</h2>
                                     <p class="text-sm text-muted">برای ارسال درخواست پشتیبانی، یک تیکت جدید ایجاد کنید.</p>

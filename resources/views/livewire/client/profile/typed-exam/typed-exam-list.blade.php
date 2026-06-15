@@ -42,7 +42,9 @@
                             @include('livewire.client.profile.typed-exam._essay-list', ['essayAssignments' => $essayAssignments])
                         @elseif($assignments->isEmpty())
                             <div class="flex flex-col items-center justify-center space-y-12 py-16">
-                                <img src="/client/empty/exam.png" class="w-full max-w-xs" alt="empty"/>
+                                <img src="/client/svg/empty2.svg"
+                                     class="w-full max-w-[370px] md:max-w-xs opacity-35 mb-4 md:mb-6"
+                                     alt="پیامی وجود ندارد"/>
                                 <div class="text-center space-y-3">
                                     <h2 class="font-bold text-xl text-foreground">آزمونی برای شما وجود ندارد!</h2>
                                     <p class="text-muted text-sm">هنوز آزمونی برای شما ثبت نشده است.</p>
@@ -59,9 +61,7 @@
                                         {{-- ═══ موبایل ═══ --}}
                                         <div class="md:hidden">
                                             <div class="w-full h-36 flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200 dark:from-blue-950 dark:to-blue-900">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-20 h-20 text-blue-600 dark:text-blue-300 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                                </svg>
+                                                <img src="/client/icons/exam-test.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
                                             </div>
 
                                             <div class="p-4 space-y-3" dir="rtl">
@@ -136,9 +136,7 @@
                                         {{-- ═══ دسکتاپ ═══ --}}
                                         <div class="hidden md:flex flex-row min-h-[130px]">
                                             <div class="flex-shrink-0 w-[120px] flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-[#1e3a5f] dark:to-[#1e40af]">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-blue-600 dark:text-blue-200 drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                                </svg>
+                                                <img src="/client/icons/exam-test.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
                                             </div>
 
                                             <div class="flex-1 p-4 flex items-center justify-between gap-4" dir="rtl">

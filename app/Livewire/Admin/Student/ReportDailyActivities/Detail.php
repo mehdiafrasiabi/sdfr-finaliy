@@ -605,6 +605,8 @@ class Detail extends Component
         $totalParts = 0;
         $readParts = 0;
         $ratingSum = 0;
+        $studyMinutes = 0;      // مجموع زمان مطالعه‌ی پارت‌های خوانده‌شده
+        $plannedMinutes = 0;    // مجموع زمان برنامه‌ریزی‌شده
         foreach ($programParts as $programPart) {
             if (!$programPart) continue;
             $reportPart = $reportPartsMap->get($programPart->id);
@@ -618,6 +620,8 @@ class Detail extends Component
             $totalTests += $testCount;
             $doneTests += $testsDone;
             $ratingSum += $sessionRating;
+            $plannedMinutes += (int) ($programPart->duration_minutes ?? 0);
+            if ($isRead) $studyMinutes += (int) ($programPart->duration_minutes ?? 0);
             $this->reportPartsDetails[] = [
                 'id' => $programPart->id,
                 'lesson_name' => $programPart->lesson_name,
@@ -652,6 +656,8 @@ class Detail extends Component
         $this->selectedReportData['undone_tests'] = $totalTests - $doneTests;
         $this->selectedReportData['rating'] = $avgRating;
         $this->selectedReportData['rating_label'] = $this->getRatingLabel($avgRating);
+        $this->selectedReportData['study_minutes'] = $studyMinutes;
+        $this->selectedReportData['planned_minutes'] = $plannedMinutes;
         $this->detailModalOpen = true;
     }
 
