@@ -508,7 +508,7 @@
                                                             </div>
                                                         @elseif($isActive)
                                                             <div class="text-xs font-bold py-2.5 rounded-xl bg-primary/10 text-primary text-center">در حال مطالعه...</div>
-                                                            @elseif($isMissed && !$timerActive)
+                                                            @elseif($isMissed)
                                                                 <button wire:click="startPart({{ $part->id }})"
                                                                         wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
                                                                         class="w-full h-11 rounded-xl font-bold text-sm bg-amber-500 hover:bg-amber-600 text-white transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
@@ -521,8 +521,6 @@
                                                                     <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
                                                                 </button>
                                                                 <p class="text-[10px] text-amber-500/80 text-center mt-1">این پارت در روزهای گذشته بوده — می‌توانی الان جبرانش کنی</p>
-                                                            @elseif($isMissed)
-                                                                <div class="text-xs font-bold py-2.5 rounded-xl bg-red-500/10 text-red-500 text-center">ثبت نشده — ابتدا تایمر فعلی را تمام کن</div>
                                                             @elseif(!$timerActive)
                                                                 <button wire:click="startPart({{ $part->id }})"
                                                                         wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"

@@ -241,24 +241,38 @@
                                         </a>
                                     </li>
                                     <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.school-manager.report-cards') ? 'active' : '' }}"
+                                           href="{{ route('admin.school-manager.report-cards') }}" role="button">
+                                            <i class="fi fi-rr-trophy"></i>
+                                            <span class="menu-label">کارنامه و رتبه‌بندی</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.school-manager.classification-insights') ? 'active' : '' }}"
+                                           href="{{ route('admin.school-manager.classification-insights') }}" role="button">
+                                            <i class="fi fi-rr-megaphone"></i>
+                                            <span class="menu-label">تحلیل طبقه‌بندی</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.school-manager.exam-stats') ? 'active' : '' }}"
+                                           href="{{ route('admin.school-manager.exam-stats') }}" role="button">
+                                            <i class="fi fi-rr-stats"></i>
+                                            <span class="menu-label">آمار آزمون‌ها</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.school-manager.call-report') ? 'active' : '' }}"
+                                           href="{{ route('admin.school-manager.call-report') }}" role="button">
+                                            <i class="fi fi-rr-phone-call"></i>
+                                            <span class="menu-label">گزارش تماس‌ها</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.school-manager.advising') ? 'active' : '' }}"
                                            href="{{ route('admin.school-manager.advising') }}" role="button">
                                             <i class="fi fi-rr-comments"></i>
                                             <span class="menu-label">آمار جلسات مشاوره</span>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.student.studySession.index') ? 'active' : '' }}"
-                                           href="{{ route('admin.student.studySession.index') }}" role="button">
-                                            <i class="fi fi-rr-calendar"></i>
-                                            <span class="menu-label">ساعت مطالعه</span>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.student.reportDailyActivities.index') ? 'active' : '' }}"
-                                           href="{{ route('admin.student.reportDailyActivities.index') }}" role="button">
-                                            <i class="fi fi-rs-usd-circle"></i>
-                                            <span class="menu-label">گزارش جامع فعالیت</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -379,6 +393,26 @@
                                         </span>
                                         </a>
                                     </li>
+                                    @if($admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('super admin'))
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.consultant.grades') ? 'active' : '' }}" href="{{route('admin.consultant.grades')}}">
+                                            <i class="fi fi-rr-edit">
+                                            </i>
+                                            <span class="menu-label">
+                                            ثبت نمرات کارنامه
+                                        </span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.consultant.emergency-calls') ? 'active' : '' }}" href="{{route('admin.consultant.emergency-calls')}}">
+                                            <i class="fi fi-rr-siren-on">
+                                            </i>
+                                            <span class="menu-label">
+                                            تماس اورژانسی
+                                        </span>
+                                        </a>
+                                    </li>
+                                    @endif
                                     <li>
                                         <div class="menu-divider">
                                         </div>

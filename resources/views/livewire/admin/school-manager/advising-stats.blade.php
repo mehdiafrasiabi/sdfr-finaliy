@@ -1,10 +1,31 @@
 <div class="container-fluid">
-    <h4 class="mb-3">آمار جلسات مشاوره</h4>
+    <h4 class="mb-3">آمار جلسات مشاوره (ماهانه)</h4>
+
+    {{-- انتخاب ماه --}}
+    <div class="card mb-3"><div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">سال</label>
+                <select wire:model.live="jalaliYear" class="form-select form-select-sm">
+                    @foreach($yearOptions as $y)<option value="{{ $y }}">{{ $y }}</option>@endforeach
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">ماه</label>
+                <select wire:model.live="jalaliMonth" class="form-select form-select-sm">
+                    @foreach($monthNames as $num => $name)<option value="{{ $num }}">{{ $name }}</option>@endforeach
+                </select>
+            </div>
+            <div class="col-md-6">
+                <div class="text-muted small">هدف: حداقل {{ $target }} جلسه (برنامه) در ماه برای هر دانش‌آموز.</div>
+            </div>
+        </div>
+    </div></div>
 
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-6">
             <div class="card text-center"><div class="card-body py-3">
-                <div class="text-muted small">کل جلسات</div>
+                <div class="text-muted small">کل جلسات این ماه</div>
                 <h3 class="mb-0 mt-1">{{ $summary['total'] }}</h3>
             </div></div>
         </div>
@@ -16,14 +37,14 @@
         </div>
         <div class="col-md-3 col-6">
             <div class="card text-center"><div class="card-body py-3">
-                <div class="text-muted small">غیبت دانش‌آموز</div>
-                <h3 class="mb-0 mt-1 text-warning">{{ $summary['student_absent'] }}</h3>
+                <div class="text-muted small">هدف ماه ({{ $studentCount }}×{{ $target }})</div>
+                <h3 class="mb-0 mt-1 text-primary">{{ $expected }}</h3>
             </div></div>
         </div>
         <div class="col-md-3 col-6">
             <div class="card text-center"><div class="card-body py-3">
-                <div class="text-muted small">غیبت مشاور</div>
-                <h3 class="mb-0 mt-1 text-danger">{{ $summary['advisor_absent'] }}</h3>
+                <div class="text-muted small">به هدف رسیده</div>
+                <h3 class="mb-0 mt-1">{{ $metCount }} / {{ $studentCount }}</h3>
             </div></div>
         </div>
     </div>
@@ -35,23 +56,31 @@
                 <thead class="table-light">
                 <tr>
                     <th>دانش‌آموز</th>
-                    <th class="text-center">کل</th>
                     <th class="text-center">برگزارشده</th>
+                    <th class="text-center">کل</th>
                     <th class="text-center">غیبت دانش‌آموز</th>
                     <th class="text-center">غیبت مشاور</th>
+                    <th class="text-center">وضعیت هدف</th>
                 </tr>
                 </thead>
                 <tbody>
                 @forelse($perStudent as $row)
                     <tr>
-                        <td>{{ $row['student']?->user?->name ?? '—' }}</td>
+                        <td>{{ $row['name'] }}</td>
+                        <td class="text-center text-success"><strong>{{ $row['held'] }}</strong></td>
                         <td class="text-center">{{ $row['total'] }}</td>
-                        <td class="text-center text-success">{{ $row['held'] }}</td>
                         <td class="text-center text-warning">{{ $row['student_absent'] }}</td>
                         <td class="text-center text-danger">{{ $row['advisor_absent'] }}</td>
+                        <td class="text-center">
+                            @if($row['met'])
+                                <span class="badge bg-success">رسیده</span>
+                            @else
+                                <span class="badge bg-danger">کسری {{ $target - $row['held'] }}</span>
+                            @endif
+                        </td>
                     </tr>
                 @empty
-                    <tr><td colspan="5" class="text-center text-muted py-4">جلسه‌ای ثبت نشده.</td></tr>
+                    <tr><td colspan="6" class="text-center text-muted py-4">دانش‌آموزی یافت نشد.</td></tr>
                 @endforelse
                 </tbody>
             </table>

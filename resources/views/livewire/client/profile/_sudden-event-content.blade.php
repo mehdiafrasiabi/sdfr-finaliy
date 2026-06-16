@@ -62,14 +62,14 @@
     {{-- ░░░ مرحله ۱: انتخاب روز اتفاق ░░░ --}}
     @if($step === 1)
         <p class="text-[13px] text-neutral-300 mb-3 font-semibold">این اتفاق در چه روزی افتاده/می‌افتد؟</p>
-        <p class="text-[11px] text-neutral-500 mb-4">فقط روزهای باقی‌ماندهٔ این هفته قابل انتخاب‌اند (روزهای گذشته و امروز غیرفعال است).</p>
+        <p class="text-[11px] text-neutral-500 mb-4">امروز و روزهای باقی‌ماندهٔ این هفته قابل انتخاب‌اند (روزهای گذشته غیرفعال است).</p>
         @if(count($availableDays) > 0)
             <div class="grid grid-cols-2 gap-2 mb-5">
                 @foreach($availableDays as $day)
                     <button type="button" wire:click="selectDay({{ $day['index'] }})"
                             class="px-3 py-3 rounded-xl text-sm font-bold transition text-center
                                 {{ $eventDayIndex === $day['index'] ? 'bg-sky-500 text-white ring-1 ring-sky-300' : 'bg-white/5 text-neutral-200 ring-1 ring-white/10 hover:bg-white/10' }}">
-                        {{ $day['label'] }}
+                        {{ $day['label'] }}@if(!empty($day['is_today'])) <span class="text-[10px] opacity-80">(امروز)</span>@endif
                     </button>
                 @endforeach
             </div>
@@ -80,7 +80,7 @@
 
     {{-- ░░░ مرحله ۲: برنامهٔ روز قبل + دستهٔ اتفاق ░░░ --}}
     @if($step === 2)
-        <p class="text-[13px] text-neutral-300 mb-2 font-semibold">برنامهٔ روز قبل از اتفاق</p>
+        <p class="text-[13px] text-neutral-300 mb-2 font-semibold">برنامهٔ روز {{ $targetDayLabel }}</p>
         <div class="rounded-2xl bg-white/5 ring-1 ring-white/10 p-3 mb-4 max-h-40 overflow-auto space-y-2">
             @forelse($targetDayParts as $p)
                 <div class="flex items-center justify-between text-[12px]">
@@ -102,6 +102,7 @@
                 ['id' => 'class_qa', 'name' => 'پرسش و پاسخ کلاسی'],
             ]"
             placeholder="انتخاب دستهٔ اتفاق..."
+            :drop-up="true"
         />
 
         <div class="flex items-center gap-2 mt-5">
@@ -122,6 +123,7 @@
             value-key="id" label-key="name"
             placeholder="انتخاب کتاب..."
             :searchable="true" search-placeholder="جستجوی درس..."
+            :drop-up="true"
         />
 
         <p class="text-[13px] text-neutral-300 mb-2 mt-4 font-semibold">فصل</p>
@@ -133,6 +135,7 @@
             placeholder="ابتدا کتاب را انتخاب کن..."
             :searchable="true" search-placeholder="جستجوی فصل..."
             :disabled="empty($availableChapters)"
+            :drop-up="true"
         />
 
         <div class="flex items-center gap-2 mt-5">
@@ -259,7 +262,7 @@
 
     {{-- ░░░ مرحله ۵: نمایش بار مطالعه و تایید ░░░ --}}
     @if($step === 5)
-        <p class="text-[13px] text-neutral-300 mb-3 font-semibold">بار مطالعهٔ روز قبل از اتفاق</p>
+        <p class="text-[13px] text-neutral-300 mb-3 font-semibold">بار مطالعهٔ روز {{ $targetDayLabel }}</p>
         <div class="space-y-2 mb-4">
             <div class="flex items-center justify-between bg-white/5 ring-1 ring-white/10 rounded-xl px-3 py-2.5 text-[13px]">
                 <span class="text-neutral-300">برنامهٔ تعیین‌شده توسط مشاور</span>
@@ -274,12 +277,14 @@
                 <span class="text-amber-300 font-bold">{{ $fmtDuration($targetLoad['new_minutes']) }}</span>
             </div>
             <div class="flex items-center justify-between bg-sky-500/10 ring-1 ring-sky-500/25 rounded-xl px-3 py-3 text-[13px]">
-                <span class="text-sky-200 font-bold">مجموع کل روز قبل</span>
+                <span class="text-sky-200 font-bold">مجموع کل روز {{ $targetDayLabel }}</span>
                 <span class="text-sky-200 font-black text-base">{{ $fmtDuration($targetLoad['advisor_minutes'] + $targetLoad['student_minutes'] + $targetLoad['new_minutes']) }}</span>
             </div>
         </div>
-        <p class="text-[13px] text-neutral-200 mb-4 font-semibold text-center">با این حجم مطالعه در روز قبل اوکی هستی؟</p>
+        <p class="text-[13px] text-neutral-200 mb-4 font-semibold text-center">با این حجم مطالعه در این روز اوکی هستی؟</p>
         <div class="flex items-center gap-2">
+            <button type="button" wire:click="goToStep(4)"
+                    class="px-4 py-2.5 rounded-xl bg-white/5 ring-1 ring-white/10 text-neutral-300 text-sm font-semibold hover:bg-white/10 transition">بازگشت</button>
             <button type="button" wire:click="startRedistribute"
                     class="flex-1 py-2.5 rounded-xl bg-white/5 ring-1 ring-white/10 text-neutral-200 font-bold text-sm hover:bg-white/10 transition">خیر، سنگین است</button>
             <button type="button" wire:click="confirmOkay"
@@ -289,8 +294,8 @@
 
     {{-- ░░░ مرحله ۶: انتخاب پارت‌های کم‌اهمیت برای جابجایی ░░░ --}}
     @if($step === 6)
-        <p class="text-[13px] text-neutral-300 mb-2 font-semibold">پارت‌های کم‌اهمیت روز قبل را انتخاب کن</p>
-        <p class="text-[11px] text-neutral-500 mb-4">این پارت‌ها به روزهای باقی‌مانده پخش می‌شوند تا روز قبل سبک‌تر شود.</p>
+        <p class="text-[13px] text-neutral-300 mb-2 font-semibold">پارت‌های کم‌اهمیت روز {{ $targetDayLabel }} را انتخاب کن</p>
+        <p class="text-[11px] text-neutral-500 mb-4">این پارت‌ها به روزهای باقی‌مانده پخش می‌شوند تا آن روز سبک‌تر شود.</p>
         <div class="space-y-2 mb-5 max-h-56 overflow-auto">
             @forelse($targetDayParts as $p)
                 <button type="button" wire:click="toggleLowImportance({{ $p->id }})"

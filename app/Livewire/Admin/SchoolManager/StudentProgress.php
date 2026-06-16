@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin\SchoolManager;
 
 use App\Models\Student;
+use App\Support\ClassificationProgress;
 use App\Support\ExamProgress;
 use Livewire\Component;
 
@@ -28,11 +29,16 @@ class StudentProgress extends Component
         $schoolTrend = ExamProgress::schoolGradeTrend([$this->student->id]);
         $typedTrend  = ExamProgress::typedExamTrend([$this->student->id]);
 
+        $subjectTrends = $this->student->user_id
+            ? ClassificationProgress::studentSubjectTrends($this->student->user_id)
+            : [];
+
         return view('livewire.admin.school-manager.student-progress', [
-            'schoolTrend' => $schoolTrend,
-            'typedTrend'  => $typedTrend,
-            'schoolDelta' => ExamProgress::latestDelta($schoolTrend),
-            'typedDelta'  => ExamProgress::latestDelta($typedTrend),
+            'schoolTrend'    => $schoolTrend,
+            'typedTrend'     => $typedTrend,
+            'schoolDelta'    => ExamProgress::latestDelta($schoolTrend),
+            'typedDelta'     => ExamProgress::latestDelta($typedTrend),
+            'subjectTrends'  => $subjectTrends,
         ])->layout('layouts.admin.app');
     }
 }

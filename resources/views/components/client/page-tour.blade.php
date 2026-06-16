@@ -23,15 +23,14 @@
         tipRight: 0,
         tipSide: 'bottom', /* bottom | top */
 
-        /* آیا این step مربوط به mobile-nav هست؟ (اجباری، بدون دکمه بستن) */
-        isNavStep(idx) {
-            const sel = (this.steps[idx] && this.steps[idx].el) || '';
-            return sel.indexOf('[data-tour=nav-') === 0 || sel === '[data-tour=navbar]';
+        /* آیا این step اجباری هست؟ (بدون دکمه بستن) */
+        isForced(idx) {
+            return !!(this.steps[idx] && this.steps[idx].forced);
         },
 
-        /* دکمه بستن فقط در steps غیر-nav نشون داده میشه */
+        /* دکمه بستن فقط در steps غیر-اجباری نشون داده میشه */
         canClose() {
-            return !this.isNavStep(this.index);
+            return !this.isForced(this.index);
         },
 
         init() {
@@ -247,7 +246,7 @@
                         <div class="flex items-center justify-between gap-2 mb-2">
                             <p class="text-sm font-bold text-white flex-1 min-w-0 truncate" x-text="steps[index].title"></p>
 
-                            {{-- دکمه بستن - فقط در steps غیر-nav --}}
+                            {{-- دکمه بستن - فقط در steps غیر-اجباری --}}
                             <template x-if="canClose()">
                                 <button type="button" @click="forceFinish()"
                                         class="w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition text-neutral-400 hover:text-white flex-shrink-0">
@@ -257,16 +256,6 @@
                                 </button>
                             </template>
 
-                            {{-- نشان اجباری - در steps مربوط به nav --}}
-                            <template x-if="!canClose()">
-                                <span class="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 flex-shrink-0">
-                                    <svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 9v4M12 17.01l.01-.011"/>
-                                        <circle cx="12" cy="12" r="10"/>
-                                    </svg>
-                                    معرفی اجباری
-                                </span>
-                            </template>
                         </div>
 
                         <p class="text-xs text-neutral-400 leading-6 mb-4" x-text="steps[index].text"></p>

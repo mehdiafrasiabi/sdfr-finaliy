@@ -104,6 +104,14 @@ Route::name('admin.')->group(function () {
                 ->name('advising')->middleware('admin.permission:admin.school-manager.advising.view');
             Route::get('/grades', \App\Livewire\Admin\SchoolManager\GradeEntry::class)
                 ->name('grades')->middleware('admin.permission:admin.school-manager.grades.manage');
+            Route::get('/report-cards', \App\Livewire\Admin\SchoolManager\ReportCards::class)
+                ->name('report-cards')->middleware('admin.permission:admin.school-manager.academic-status.view');
+            Route::get('/classification-insights', \App\Livewire\Admin\SchoolManager\ClassificationInsights::class)
+                ->name('classification-insights')->middleware('admin.permission:admin.school-manager.academic-status.view');
+            Route::get('/exam-stats', \App\Livewire\Admin\SchoolManager\ExamStats::class)
+                ->name('exam-stats')->middleware('admin.permission:admin.school-manager.academic-status.view');
+            Route::get('/call-report', \App\Livewire\Admin\SchoolManager\CallReport::class)
+                ->name('call-report')->middleware('admin.permission:admin.school-manager.academic-status.view');
             Route::get('/students/{student}/progress', \App\Livewire\Admin\SchoolManager\StudentProgress::class)
                 ->name('student.progress')->middleware('admin.permission:admin.school-manager.student.progress.view');
         });
@@ -128,6 +136,16 @@ Route::name('admin.')->group(function () {
         Route::get('/consultant/reschedule',
             \App\Livewire\Admin\Consultant\Reschedule\Index::class)
             ->name('consultant.reschedule');
+
+        // پنل مشاور — ثبت نمرات کارنامهٔ ماهانه برای دانش‌آموزان تحت مشاوره
+        Route::get('/consultant/grades',
+            \App\Livewire\Admin\Consultant\GradeEntry::class)
+            ->name('consultant.grades');
+
+        // پنل مشاور — ثبت تماس اورژانسی برای پیگیری مدیر مدرسه
+        Route::get('/consultant/emergency-calls',
+            \App\Livewire\Admin\Consultant\EmergencyCalls::class)
+            ->name('consultant.emergency-calls');
         // اعلان‌ها
 
         Route::get('/notification', NotificationCreate::class)->name('student.notification')

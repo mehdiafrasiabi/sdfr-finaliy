@@ -135,24 +135,57 @@ class SuddenEventModal extends Component
         $today = Carbon::today();
         $max = $this->maxOffset();
         $days = [];
-        for ($i = 1; $i <= $max; $i++) {
+        // امروز و روزهای آیندهٔ این هفته قابل انتخاب‌اند (روزهای گذشته غیرفعال).
+        for ($i = 0; $i <= $max; $i++) {
             $date = $start->copy()->addDays($i);
-            if (!$date->gt($today)) continue;
+            if ($date->lt($today)) continue;
             $days[] = [
                 'index' => $i,
                 'date' => $date->toDateString(),
                 'label' => jdate($date)->format('l j F'),
                 'short' => jdate($date)->format('j F'),
+                'is_today' => $date->equalTo($today),
             ];
         }
         return $days;
     }
 
+    /**
+     * شاخصِ روزی که برنامه‌اش اصلاح می‌شود.
+     * به‌صورت پیش‌فرض «روز قبل از اتفاق» است (برای آماده‌سازی قبل از اتفاق)؛
+     * اما اگر روزِ قبل در گذشته باشد (مثلاً اتفاق امروز است)، خودِ روزِ اتفاق هدف می‌شود.
+     */
+    protected function targetDayIndex(): ?int
+    {
+        if ($this->eventDayIndex === null) return null;
+        $start = $this->programStart();
+        if (!$start) return null;
+
+        $dayBefore = ((int) $this->eventDayIndex) - 1;
+        if ($dayBefore < 0) {
+            return (int) $this->eventDayIndex;
+        }
+        $dayBeforeDate = $start->copy()->addDays($dayBefore);
+        if ($dayBeforeDate->lt(Carbon::today())) {
+            return (int) $this->eventDayIndex; // روز قبل گذشته است؛ همان روزِ اتفاق را اصلاح کن
+        }
+        return $dayBefore;
+    }
+
+    /** برچسب تاریخ شمسیِ روزی که برنامه‌اش اصلاح می‌شود (مثلاً «شنبه ۲۵ خرداد»). */
+    public function getTargetDayLabelProperty(): string
+    {
+        $start = $this->programStart();
+        $ti = $this->targetDayIndex();
+        if (!$start || $ti === null) return '';
+        return jdate($start->copy()->addDays($ti))->format('l j F');
+    }
+
     public function getTargetDayPartsProperty()
     {
         $program = $this->activeProgram();
-        if (!$program || $this->eventDayIndex === null) return collect();
-        $targetIndex = ((int) $this->eventDayIndex) - 1;
+        $targetIndex = $this->targetDayIndex();
+        if (!$program || $targetIndex === null) return collect();
         return $program->parts()
             ->where('day_of_week', $targetIndex)
             ->with(['ccSubject', 'ccChapter'])
@@ -163,10 +196,10 @@ class SuddenEventModal extends Component
     public function getTargetLoadProperty(): array
     {
         $program = $this->activeProgram();
-        if (!$program || $this->eventDayIndex === null) {
+        $targetIndex = $this->targetDayIndex();
+        if (!$program || $targetIndex === null) {
             return ['advisor_minutes' => 0, 'student_minutes' => 0, 'new_minutes' => 0];
         }
-        $targetIndex = ((int) $this->eventDayIndex) - 1;
 
         $advisorMinutes = (int) $program->parts()
             ->where('day_of_week', $targetIndex)
@@ -319,7 +352,7 @@ class SuddenEventModal extends Component
             return;
         }
 
-        $targetIndex = ((int) $this->eventDayIndex) - 1;
+        $targetIndex = $this->targetDayIndex();
         $start = Carbon::parse($program->start_date)->startOfDay();
         $subject = CcSubject::find($this->ccSubjectId);
         $personalInfo = ($this->student ?? Auth::user()?->student)?->user?->personalInformation;
@@ -381,15 +414,17 @@ class SuddenEventModal extends Component
     protected function remainingDayIndices(): array
     {
         $program = $this->activeProgram();
-        if (!$program || $this->eventDayIndex === null) return [];
+        $targetIndex = $this->targetDayIndex();
+        if (!$program || $targetIndex === null) return [];
         $max = $this->maxOffset();
         $result = [];
-        for ($j = (int) $this->eventDayIndex; $j <= $max; $j++) {
+        // پارت‌های کم‌اهمیت به روزهای بعد از روزِ هدف پخش می‌شوند.
+        for ($j = $targetIndex + 1; $j <= $max; $j++) {
             $hasParts = $program->parts()->where('day_of_week', $j)->exists();
             if ($hasParts) $result[] = $j;
         }
         if (empty($result)) {
-            for ($j = (int) $this->eventDayIndex; $j <= $max; $j++) {
+            for ($j = $targetIndex + 1; $j <= $max; $j++) {
                 $result[] = $j;
             }
         }
@@ -402,6 +437,7 @@ class SuddenEventModal extends Component
             'availableDays' => $this->getAvailableDaysProperty(),
             'targetDayParts' => $this->getTargetDayPartsProperty(),
             'targetLoad' => $this->getTargetLoadProperty(),
+            'targetDayLabel' => $this->getTargetDayLabelProperty(),
         ]);
     }
 }

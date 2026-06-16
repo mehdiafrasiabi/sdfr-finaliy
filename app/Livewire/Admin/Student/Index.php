@@ -46,12 +46,7 @@ class Index extends Component
         $isSchoolManager = $admin?->hasRole('school-manager') && $admin->school_id;
 
         if ($isSchoolManager) {
-            $studentsQuery
-                ->where('school_id', $admin->school_id)
-                ->withCount([
-                    'advisingSessions as held_sessions_count' => fn($q) => $q->where('result_status', 'held'),
-                ])
-                ->with(['weeklyPrograms' => fn($q) => $q->where('is_active', true)->latest()]);
+            $studentsQuery->where('school_id', $admin->school_id);
 
             if ($this->search) {
                 $studentsQuery->whereHas('user', function ($q) {

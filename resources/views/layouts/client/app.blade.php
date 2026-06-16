@@ -177,10 +177,6 @@
 <!-- container -->
 <div class="flex flex-col min-h-screen bg-background">
 
-
-
-
-
     <!-- Loading Overlay برای نصب -->
     <div id="pwaLoading"
          class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">

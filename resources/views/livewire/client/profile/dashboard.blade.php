@@ -4,24 +4,14 @@
 
     {{-- ════════ تور راهنمای داشبورد (اولین ورود + آیکون راهنما) ════════ --}}
     <x-client.page-tour storage-key="dashboard_tour_done" :steps="[
-    ['el' => '[data-tour=nav-consultation]', 'title' => 'اتاق مشاوره',  'text' => 'از اینجا می‌تونی وارد اتاق مشاوره بشی و با مشاورت ارتباط بگیری.'],
-['el' => '[data-tour=nav-plan]',         'title' => 'برنامه درسی',  'text' => 'برنامه مطالعه درسیت رو اینجا می‌بینی و اجرا می‌کنی.'],
-['el' => '[data-tour=nav-logo]',         'title' => 'داشبورد',      'text' => 'با لمس لوگو وسط، هر جا باشی سریع به داشبورد اصلی برمی‌گردی.'],
-['el' => '[data-tour=nav-report]',       'title' => 'گزارش روزانه', 'text' => 'گزارش مطالعه امروزت رو از همین‌جا ثبت کن.'],
-['el' => '[data-tour=nav-exam]',         'title' => 'آزمون',        'text' => 'آزمون‌های تستی و تشریحیت رو از این بخش شروع کن.'],
-        ['el' => '[data-tour=trial]',   'title' => 'وضعیت هفته آزمایشی', 'text' => 'از اینجا می‌بینی چند روز از دسترسی‌ات باقی مانده و با لمسش به راهنمای هفته آزمایشی می‌روی.'],
-        ['el' => '[data-tour=advisor]', 'title' => 'مشاور تو', 'text' => 'مشاور اختصاصی‌ات اینجاست؛ در کل مسیر همراهت است.'],
-        ['el' => '[data-tour=report]',  'title' => ' وضعیت گزارش درسی من', 'text' => 'هر روز گزارش مطالعه‌ات را ثبت کن؛ اینجا می‌بینی این هفته چند روز گزارش داده‌ای.'],
-        ['el' => '[data-tour=study]',   'title' => 'ساعت مطالعه من', 'text' => 'مجموع ساعت‌های مطالعه‌ی ثبت‌شده‌ات در این هفته را نشان می‌دهد.'],
-        ['el' => '[data-tour=today]',   'title' => 'برنامه امروز من', 'text' => 'درس‌ها و پارت‌هایی که امروز باید بخوانی؛ از همین‌جا مطالعه را شروع کن.'],
-        ['el' => '[data-tour=chart]',   'title' => 'تحلیل مطالعه', 'text' => 'نمودار مقایسه‌ی برنامه با عملکرد واقعی‌ات در طول هفته.'],
-
-
-  ]
-
-"
-
-
+        ['el' => '[data-tour=nav-consultation]', 'title' => 'اتاق مشاوره',       'text' => 'از اینجا می‌تونی وارد اتاق مشاوره بشی و با مشاورت ارتباط بگیری.',                                                                                        'forced' => true],
+        ['el' => '[data-tour=nav-plan]',         'title' => 'برنامه درسی',       'text' => 'برنامه مطالعه درسیت رو اینجا می‌بینی و اجرا می‌کنی.',                                                                                                       'forced' => true],
+        ['el' => '[data-tour=nav-logo]',         'title' => 'داشبورد',           'text' => 'با لمس لوگو وسط، هر جا باشی سریع به داشبورد اصلی برمی‌گردی.',                                                                                               'forced' => true],
+        ['el' => '[data-tour=nav-report]',       'title' => 'گزارش روزانه',      'text' => 'گزارش مطالعه امروزت رو از همین‌جا ثبت کن.',                                                                                                                  'forced' => true],
+        ['el' => '[data-tour=nav-exam]',         'title' => 'آزمون',             'text' => 'آزمون‌های تستی و تشریحیت رو از این بخش شروع کن.',                                                                                                           'forced' => true],
+        ['el' => '[data-tour=sudden-event]',     'title' => 'اتفاقات یهویی',    'text' => 'اگه یه اتفاق غیرمنتظره پیش اومد (مثل بیماری یا مسافرت)، از این دکمه ثبت کن تا برنامه‌ات تنظیم بشه.',                                                     'forced' => true],
+        ['el' => '[data-tour=class-schedule]',   'title' => 'برنامه کلاسی مدرسه','text' => 'برنامه هفتگی کلاس‌های مدرسه‌ات رو از اینجا ببین تا با برنامه مطالعه‌ات هماهنگ کنی.',                                                                   'forced' => true],
+    ]"
     />
 
     {{-- ════════════════════════════════════════════════════════════
@@ -670,9 +660,11 @@
                                 <span class="live-dot"></span>
                                 <span class="font-bold text-white text-[15px]">برنامه امروز من </span>
                             </div>
+                            {{-- ★ data-tour اضافه شد --}}
                             <button type="button"
-                                @click="Livewire.dispatch('open-sudden-event')"
-                                class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary ring-1 ring-white/10 text-neutral-300 hover:bg-white/10 hover:text-white transition cursor-pointer">
+                                    data-tour="sudden-event"
+                                    @click="Livewire.dispatch('open-sudden-event')"
+                                    class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary ring-1 ring-white/10 text-neutral-300 hover:bg-white/10 hover:text-white transition cursor-pointer">
                                 اتفاقات یهویی !!
                             </button>
                         </div>
@@ -808,7 +800,9 @@
                                     <span
                                         class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/20">این هفته</span>
                                 </div>
+                                {{-- ★ data-tour اضافه شد --}}
                                 <a wire:navigate href="{{ route('client.profile.consultation.class-schedule') }}"
+                                   data-tour="class-schedule"
                                    class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-500/15 ring-1 ring-amber-500/30 text-amber-300 hover:bg-amber-500/25 hover:text-amber-200 transition flex items-center gap-1.5">
                                     برنامه کلاسی مدرسه
                                 </a>
@@ -1020,7 +1014,6 @@
                 </button>
             </div>
 
-            {{-- محتوای درون مودال (اطلاعات مشاور) --}}
             {{-- محتوای درون مودال (اطلاعات مشاور) --}}
             <div class="text-center md:text-right space-y-4">
                 <div class="flex flex-col md:flex-row items-center gap-4 border-b border-white/10 pb-4">

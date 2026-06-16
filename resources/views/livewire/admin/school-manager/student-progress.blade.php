@@ -37,4 +37,43 @@
             ])
         </div>
     </div>
+
+    {{-- پیشرفت/پسرفت بر اساس طبقه‌بندی دروس (M5) --}}
+    <div class="card mt-4">
+        <div class="card-header"><strong>روند طبقه‌بندی دروس (A بهترین — D ضعیف‌ترین)</strong></div>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                <tr>
+                    <th>درس</th>
+                    <th class="text-center">طبقه‌بندی قبلی</th>
+                    <th class="text-center">طبقه‌بندی فعلی</th>
+                    <th class="text-center">روند</th>
+                </tr>
+                </thead>
+                <tbody>
+                @forelse($subjectTrends as $row)
+                    <tr>
+                        <td>{{ $row['subject'] }}</td>
+                        <td class="text-center">{{ \App\Support\ClassificationProgress::ratingLabel($row['previous']) }}</td>
+                        <td class="text-center"><strong>{{ \App\Support\ClassificationProgress::ratingLabel($row['latest']) }}</strong></td>
+                        <td class="text-center">
+                            @if($row['delta'] === null)
+                                <span class="text-muted">—</span>
+                            @elseif($row['delta'] > 0)
+                                <span class="badge bg-success">پیشرفت ▲ {{ $row['delta'] }}</span>
+                            @elseif($row['delta'] < 0)
+                                <span class="badge bg-danger">پسرفت ▼ {{ abs($row['delta']) }}</span>
+                            @else
+                                <span class="badge bg-secondary">بدون تغییر</span>
+                            @endif
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="4" class="text-center text-muted py-4">داده‌ی طبقه‌بندی‌ای برای این دانش‌آموز ثبت نشده است.</td></tr>
+                @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>

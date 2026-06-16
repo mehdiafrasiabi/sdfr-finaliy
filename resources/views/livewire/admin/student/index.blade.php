@@ -81,13 +81,13 @@
                                             <th>پایه</th>
                                             <th>رشته</th>
                                             <th>مشاور</th>
-                                            <th>جلسات برگزارشده</th>
-                                            <th>برنامه هفتگی</th>
+                                            <th>شماره پدر</th>
+                                            <th>شماره مادر</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         @forelse($students as $student)
-                                            @php $activeProgram = $student->weeklyPrograms->first(); @endphp
+                                            @php $pi = $student->user?->personalInformation; @endphp
                                             <tr>
                                                 <td>{{ $loop->iteration + $students->firstItem() - 1 }}</td>
                                                 <td>{{ $student->user?->name ?? '-' }}</td>
@@ -95,16 +95,8 @@
                                                 <td>{{ $gradeLabels[$student->grade] ?? ($student->grade ?? '-') }}</td>
                                                 <td>{{ $student->grade == '9' ? '—' : ($fieldLabels[$student->field] ?? ($student->field ?? '-')) }}</td>
                                                 <td>{{ $student->advisor?->name ?? '— تعیین‌نشده —' }}</td>
-                                                <td>{{ $student->held_sessions_count ?? 0 }}</td>
-                                                <td>
-                                                    @if($activeProgram)
-                                                        <span class="badge bg-success-subtle text-success">
-                                                            دارد ({{ $activeProgram->total_hours }} ساعت)
-                                                        </span>
-                                                    @else
-                                                        <span class="badge bg-secondary-subtle text-secondary">ندارد</span>
-                                                    @endif
-                                                </td>
+                                                <td>{{ $student->father_mobile ?? $pi?->father_mobile ?? '-' }}</td>
+                                                <td>{{ $student->mother_mobile ?? $pi?->mother_mobile ?? '-' }}</td>
                                             </tr>
                                         @empty
                                             <tr>
