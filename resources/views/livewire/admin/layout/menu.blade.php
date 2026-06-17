@@ -233,25 +233,19 @@
                                             <span class="menu-label">وضعیت تحصیلی</span>
                                         </a>
                                     </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.school-manager.grades') ? 'active' : '' }}"
-                                           href="{{ route('admin.school-manager.grades') }}" role="button">
-                                            <i class="fi fi-rr-edit"></i>
-                                            <span class="menu-label">ثبت نمرات</span>
-                                        </a>
-                                    </li>
+
                                     <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.school-manager.report-cards') ? 'active' : '' }}"
                                            href="{{ route('admin.school-manager.report-cards') }}" role="button">
                                             <i class="fi fi-rr-trophy"></i>
-                                            <span class="menu-label">کارنامه و رتبه‌بندی</span>
+                                            <span class="menu-label">کارنامه ماهانه</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.school-manager.classification-insights') ? 'active' : '' }}"
                                            href="{{ route('admin.school-manager.classification-insights') }}" role="button">
                                             <i class="fi fi-rr-megaphone"></i>
-                                            <span class="menu-label">تحلیل طبقه‌بندی</span>
+                                            <span class="menu-label">تحلیل دبیران</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
