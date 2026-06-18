@@ -170,7 +170,9 @@
     @include('layouts.client.pwa')
     {!! SEO::generate() !!}
     <link rel="preload" href="/client/assets/images/theme/intro/header.png" as="image">
-    <link rel="preload" href="/client/assets/images/favicon.svg" as="image" type="image/svg+xml">
+    {{-- favicon: use rel=icon (preload-as-image was unused and caused the console warning) --}}
+    <link rel="icon" type="image/svg+xml" href="/client/assets/images/favicon.svg">
+    <link rel="shortcut icon" href="/client/assets/images/favicon.svg">
 </head>
 
 <body class="dark">
@@ -207,7 +209,8 @@
 
     <!-- end header -->
 
-    <main class="flex-auto py-4">
+    {{-- صفحه‌ی اصلی full-bleed است؛ روی بقیه صفحات پدینگ عمودی نگه داشته می‌شود --}}
+    <main class="flex-auto @unless(request()->routeIs('client.home')) py-4 @endunless">
         {{$slot}}
         @if(request()->routeIs('client.profile.*'))
             <x-cosmic-lines class="!fixed hidden dark:block" />
@@ -218,9 +221,6 @@
     <livewire:client.layout.footer/>
     <!-- end footer -->
 
-    <!-- Floating Support Button -->
-    <livewire:client.layout.floating-support/>
-
     <!-- Mobile Bottom Navigation - Fixed at bottom -->
     {{-- تا وقتی برنامه‌ی هفته آزمایشی ساخته نشده، منوی پایین موبایل نمایش داده نمی‌شود --}}
     @php
@@ -229,26 +229,6 @@
     @if(!$bottomNavTrial || $bottomNavTrial->status === \App\Models\TrialWeek::STATUS_PROGRAM_BUILT)
         <livewire:client.layout.mobile-bottom-nav/>
     @endif
-
-    <div id="video-modal"
-         class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-        <div class="absolute inset-0" data-close-video></div>
-
-        <div class="relative w-full max-w-4xl bg-background dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
-            <div class="flex items-center justify-between p-4 md:p-5 border-b border-border">
-                <h3 id="video-modal-title" class="text-lg font-bold text-foreground">ویدیو راهنما</h3>
-
-                <button type="button" data-close-video
-                        class="w-8 h-8 rounded-full hover:bg-secondary text-white flex items-center justify-center transition-colors">
-                    ✕
-                </button>
-            </div>
-
-            <div class="p-4 md:p-6">
-                <div id="video-container" class="w-full aspect-video bg-black rounded-lg overflow-hidden"></div>
-            </div>
-        </div>
-    </div>
 
 </div>
 @include('layouts.client.script')
@@ -270,95 +250,6 @@
     window.addEventListener('load', (ev) => {
         snapKill();
     });
-</script>
-<script>
-    function collapseGuide(key) {
-        return {
-            open: false,
-
-            init() {
-                const saved = localStorage.getItem(key);
-                this.open = saved !== null ? saved === 'true' : true;
-            },
-
-            toggle() {
-                this.open = !this.open;
-                localStorage.setItem(key, this.open);
-            }
-        }
-    }
-</script>
-<script>
-    (function () {
-        const modal = () => document.getElementById('video-modal');
-        const container = () => document.getElementById('video-container');
-        const titleEl = () => document.getElementById('video-modal-title');
-
-        function openVideo({url, title}) {
-            const m = modal();
-            const c = container();
-            if (!m || !c) return;
-
-            c.innerHTML = '';
-
-            // بهترین روش برای آپارات: iframe
-            const iframe = document.createElement('iframe');
-            iframe.src = url;
-            iframe.setAttribute('allowfullscreen', 'true');
-            iframe.setAttribute('allow', 'autoplay; encrypted-media');
-            iframe.className = 'w-full h-full';
-            iframe.style.border = '0';
-            c.appendChild(iframe);
-
-            if (titleEl() && title) titleEl().textContent = title;
-
-            m.classList.remove('hidden');
-            m.classList.add('flex');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeVideo() {
-            const m = modal();
-            const c = container();
-            if (!m || !c) return;
-
-            m.classList.add('hidden');
-            m.classList.remove('flex');
-            c.innerHTML = '';
-            document.body.style.overflow = '';
-        }
-
-        // کلیک روی دکمه‌های باز کردن (حتی بعد از navigate)
-        document.addEventListener('click', (e) => {
-            const openBtn = e.target.closest('[data-video-url]');
-            if (openBtn) {
-                const url = openBtn.getAttribute('data-video-url');
-                const title = openBtn.getAttribute('data-video-title') || 'ویدیو راهنما';
-                if (url) openVideo({url, title});
-                return;
-            }
-
-            // بستن مدال
-            if (e.target.closest('[data-close-video]')) {
-                closeVideo();
-                return;
-            }
-        });
-
-        // ESC برای بستن
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') closeVideo();
-        });
-
-        // Livewire v3: بعد از navigate اگر مدال باز مونده بود، ببند
-        document.addEventListener('livewire:navigated', () => {
-            closeVideo();
-        });
-
-        // برای استفاده در جاهای دیگه (اختیاری)
-        window.openVideoModal = (url, title = 'ویدیو راهنما') => openVideo({url, title});
-        window.closeVideoModal = closeVideo;
-    })();
 </script>
 
 {{-- Keyframe Animations --}}

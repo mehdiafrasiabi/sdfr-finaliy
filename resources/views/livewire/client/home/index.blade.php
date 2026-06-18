@@ -22,16 +22,16 @@
                 color:hsl(var(--foreground)); transition:border-color .25s, transform .25s; cursor:pointer; }
             .btn-ghost:hover { transform:translateY(-2px); border-color:hsl(var(--primary) / .6) !important; }
 
-            /* ---------- Glass ---------- */
-            .glass { background: hsl(var(--background) / .55);
+            /* ---------- Glass (home) ---------- */
+            .glass-home { background: hsl(var(--background) / .5);
                 -webkit-backdrop-filter: blur(18px) saturate(140%); backdrop-filter: blur(18px) saturate(140%);
                 border: 1px solid hsl(var(--border) / .65); }
 
             /* ---------- Grid bg ---------- */
-            .grid-bg { background-image: linear-gradient(to right, hsl(var(--border) / .45) 1px, transparent 1px),
-            linear-gradient(to bottom, hsl(var(--border) / .45) 1px, transparent 1px); background-size: 46px 46px;
-                -webkit-mask-image: radial-gradient(ellipse 75% 60% at 50% 38%, #000 35%, transparent 100%);
-                mask-image: radial-gradient(ellipse 75% 60% at 50% 38%, #000 35%, transparent 100%); }
+            .grid-bg { background-image: linear-gradient(to right, hsl(var(--border) / .35) 1px, transparent 1px),
+            linear-gradient(to bottom, hsl(var(--border) / .35) 1px, transparent 1px); background-size: 46px 46px;
+                -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 35%, transparent 100%);
+                mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 35%, transparent 100%); }
 
             /* ---------- Shimmer ---------- */
             @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
@@ -43,116 +43,68 @@
             .reveal, .reveal-up { opacity:0; transform:translateY(30px);
                 transition:opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1); will-change:opacity,transform; }
             .reveal.is-visible, .reveal-up.is-visible { opacity:1; transform:translateY(0); }
+            .rv-d1{transition-delay:.08s}.rv-d2{transition-delay:.16s}.rv-d3{transition-delay:.24s}
 
             /* ================== HERO (pinned, phased) ================== */
-            .hero-track  { height: 320vh; position: relative; }
+            .hero-track  { height: 180vh; position: relative; } /* مقدار قبلی 300vh بود */
             .hero-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
 
-            .hero-glow { position:absolute; inset:0; pointer-events:none; z-index:0; }
-            .hero-glow::before{ content:''; position:absolute; top:2%; left:50%; transform:translateX(-50%);
-                width:62vw; height:48vh; background:radial-gradient(closest-side, hsl(var(--primary)/.28), transparent 75%); filter:blur(10px); }
+            /* full-bleed blue ambient that fills the first screen */
+            .hero-blue { position:absolute; inset:0; z-index:0; pointer-events:none;
+                background:
+                    radial-gradient(ellipse 95% 80% at 50% 62%, rgba(23,60,128,.55), rgba(10,26,62,.30) 42%, transparent 78%),
+                    radial-gradient(ellipse 70% 50% at 50% 12%, rgba(56,90,170,.18), transparent 70%); }
 
             .hero-intro { position:absolute; top:0; left:0; right:0; z-index:10; text-align:center;
-                padding:13vh 1rem 0; will-change:opacity,transform; }
+                padding:12vh 1.25rem 0; will-change:opacity,transform; }
 
-            .hero-stage { position:absolute; inset:0; z-index:5; display:flex; align-items:center; justify-content:center; }
+            .hero-stage { position:absolute; inset:0; z-index:5; display:flex; align-items:center; justify-content:center;
+                will-change:opacity; }
 
-            /* ---------- Device (iPhone Pro Style) ---------- */
+            /* ---------- Device (iPhone Pro) — dark bezel so the gray blends away ---------- */
             .device {
-                position: relative;
-                z-index: 5;
-                aspect-ratio: 430 / 932;
-                border-radius: 49px;
-                background: linear-gradient(145deg, #4b5060, #181a20);
-                padding: 8px;
-                box-shadow: 0 60px 120px -20px rgba(0, 0, 0, 0.85), inset 0 0 0 2px rgba(255, 255, 255, 0.15), inset 0 0 0 7px #000;
-                width: auto;
-                height: min(85vh, 750px);
-                will-change: transform;
+                position: relative; z-index: 5;
+                aspect-ratio: 430 / 932; border-radius: 50px;
+                background: linear-gradient(160deg, #1a1c22, #050507);
+                padding: 9px;
+                box-shadow: 0 55px 110px -25px rgba(0,0,0,.9), inset 0 0 0 2px rgba(255,255,255,.06), inset 0 0 0 7px #000;
+                width: auto; height: min(80vh, 660px); will-change: transform;
             }
-            @media (min-width: 768px) {
-                .device {
-                    /* سایز خیره‌کننده و تمام‌قد برای دسکتاپ */
-                    height: min(95vh, 950px);
-                    border-radius: 64px;
-                    padding: 14px;
-                }
-            }
+            @media (min-width: 768px) { .device { height: min(82vh, 780px); border-radius: 60px; padding: 12px; } }
 
             .device-screen {
-                position: relative;
-                width: 100%;
-                height: 100%;
-                border-radius: 38px;
-                overflow: hidden;
-                /* گرادیانت سرمه‌ای عمیق دقیقاً مشابه عکس */
-                background: radial-gradient(circle at 50% 15%, #0d285c 0%, #040c1e 50%, #000000 100%);
-                display: flex;
-                flex-direction: column;
+                position: relative; width: 100%; height: 100%; border-radius: 41px; overflow: hidden;
+                background: radial-gradient(circle at 50% 16%, #11336a 0%, #0a1f48 34%, #04102b 64%, #01060f 100%);
+                display: flex; flex-direction: column;
             }
-            @media (min-width: 768px) {
-                .device-screen { border-radius: 53px; }
-            }
+            @media (min-width: 768px) { .device-screen { border-radius: 49px; } }
 
-            .device-island {
-                position: absolute;
-                top: 23px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 74px;
-                height: 21px;
-                background: #000;
-                border-radius: 20px;
-                z-index: 6;
-                box-shadow: inset 0 -1px 3px rgba(255,255,255,0.1);
-            }
-
-            .device-status {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 15px 18px 4px; /* تنظیم پدینگ برای تراز شدن کنار داینامیک آیلند */
-                direction: ltr;
-                position: relative;
-                z-index: 7;
-            }
+            .device-island { position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+                width: 78px; height: 22px; background: #000; border-radius: 20px; z-index: 6; }
+            .device-status { display: flex; align-items: center; justify-content: space-between;
+                padding: 14px 20px 4px; direction: ltr; position: relative; z-index: 7; }
             .device-status .t { font-size: 13px; font-weight: 800; color: #fff; }
-            .device-status .ic { display: flex; gap: 5px; align-items: center; color: #fff; opacity: 0.9; }
+            .device-status .ic { display: flex; gap: 5px; align-items: center; color: #fff; opacity: .9; }
 
-            .device-chat {
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-                padding: 22px 9px 24px;
-                direction: rtl;
-                overflow: hidden;
-            }
+            .device-chat { flex: 1; display: flex; flex-direction: column; gap: 9px; padding: 20px 11px 22px; direction: rtl; overflow: hidden; }
+            .chat-bubble { max-width: 84%; font-size: 13px; line-height: 1.9; border-radius: 18px; padding: 9px 13px;
+                opacity: 0; transform: translateY(10px) scale(.96); transition: opacity .5s ease, transform .5s ease; }
+            .chat-bubble.shown { opacity: 1; transform: none; }
+            .chat-bubble--me  { align-self: flex-end; background: hsl(var(--primary)); color: #fff; border-bottom-left-radius: 5px; }
+            .chat-bubble--bot { align-self: flex-start; background: rgba(255,255,255,.09); color: #e6eeff; border-bottom-right-radius: 5px; }
 
-            /* تغییر جزئی سایز حباب‌ها برای تناسب با صفحه جدید */
-            .chat-bubble {
-                max-width: 84%;
-                font-size: 13px; /* کمی خواناتر */
-                line-height: 1.9;
-                border-radius: 18px;
-                padding: 10px 14px;
-                opacity: 0;
-                transform: translateY(10px) scale(.96);
-                transition: opacity .5s ease, transform .5s ease;
-            }
-            .chat-bubble.shown { opacity:1; transform:none; }
-            .chat-bubble--me  { align-self:flex-end; background:hsl(var(--primary)); color:#fff; border-bottom-left-radius:5px; }
-            .chat-bubble--bot { align-self:flex-start; background:rgba(255,255,255,.09); color:#e6eeff; border-bottom-right-radius:5px; }
-
+            /* ---------- Floating step-labels (mobile: top-center rolling; desktop: around phone) ---------- */
             .hero-label { position:absolute; z-index:6; font-weight:900; white-space:nowrap; letter-spacing:-.01em; line-height:1.3;
                 text-align:center; pointer-events:none; left:50%; transform:translate(-50%,-22px);
-                font-size:clamp(17px,5.6vw,27px); text-shadow:0 0 0 transparent; opacity:0;
-                transition:opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1), text-shadow .8s ease; }
+                font-size:clamp(18px,6vw,28px); text-shadow:0 0 0 transparent; opacity:0;
+                transition:opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1), text-shadow .7s ease; }
             .hero-label.on { opacity:1; transform:translate(-50%,0); }
-            .hl-1 { color:#38bdf8; top:1.5%; } .hl-2 { color:#a78bfa; top:7.5%; } .hl-3 { color:#34d399; top:13.5%; }
-            .hl-1.on { text-shadow:0 0 30px rgba(56,189,248,.75); }
-            .hl-2.on { text-shadow:0 0 30px rgba(167,139,250,.75); }
-            .hl-3.on { text-shadow:0 0 30px rgba(52,211,153,.75); }
+            .hl-1 { color:#38bdf8; top:5%; }
+            .hl-2 { color:#a78bfa; top:5%; }
+            .hl-3 { color:#34d399; top:5%; }
+            .hl-1.on { text-shadow:0 0 30px rgba(56,189,248,.8); }
+            .hl-2.on { text-shadow:0 0 30px rgba(167,139,250,.8); }
+            .hl-3.on { text-shadow:0 0 30px rgba(52,211,153,.8); }
             @media (min-width:768px){
                 .hero-label { left:auto; right:auto; text-align:right; font-size:clamp(20px,2vw,32px); transform:translateY(-22px); }
                 .hero-label.on { transform:translateY(0); }
@@ -161,11 +113,11 @@
                 .hl-3 { top:auto; bottom:19%; right:15%; left:auto; }
             }
 
-            /* ================== TRUST (pinned) ================== */
-            .logos-track  { height: 240vh; position: relative; }
+            /* ================== TRUST (pinned, shorter) ================== */
+            .logos-track  { height: 140vh; position: relative; }
             .logos-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display:flex; align-items:center; justify-content:center; }
-            .logos-marq {position:absolute; inset:0; z-index:2; display:flex; flex-direction:column; justify-content:space-between;
-                padding:28vh 0; opacity:0; will-change:opacity; }
+            .logos-marq { position:absolute; inset:0; z-index:2; display:flex; flex-direction:column; justify-content:space-between;
+                padding:24vh 0; opacity:0; will-change:opacity; }
             .marq-mask { overflow:hidden; width:100%;
                 -webkit-mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
                 mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent); }
@@ -178,21 +130,21 @@
             .feat-desktop { display:none; } .feat-mobile { display:block; }
             @media (min-width:768px){ .feat-desktop{ display:block; } .feat-mobile{ display:none; } }
 
-            .feat-track  { height: 580vh; position:relative; }
+            .feat-track  { height: 560vh; position:relative; }
             .feat-sticky { position:sticky; top:0; height:100vh; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 
-            .acc-item { position:relative; padding:14px 18px 14px 14px; border-radius:16px; cursor:default; transition:background .4s; }
-            .acc-item::before { content:''; position:absolute; top:12px; bottom:12px; right:0; width:3px; border-radius:3px;
-                background:hsl(var(--primary)); opacity:0; transform:scaleY(.3); transition:opacity .4s, transform .4s; transform-origin:center; }
-            .acc-item.active { background:hsl(var(--primary) / .06); }
-            .acc-item.active::before { opacity:1; transform:scaleY(1); }
-            .acc-head { display:flex; align-items:center; gap:12px; opacity:.5; transition:opacity .4s; }
+            /* accordion items as glass cards */
+            .acc-item { position:relative; padding:14px 16px; border-radius:18px; cursor:default;
+                transition:background .4s, border-color .4s, transform .4s; border:1px solid hsl(var(--border) / .5);
+                background: linear-gradient(209deg, rgb(146 146 146 / 16%), rgb(0 0 0)); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); }
+            .acc-item.active { background:hsl(var(--primary) / .08); border-color:hsl(var(--primary) / .35); }
+            .acc-head { display:flex; align-items:center; gap:12px; opacity:.55; transition:opacity .4s; }
             .acc-item.active .acc-head { opacity:1; }
             .acc-ico { display:flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:13px; flex:none;
                 background:hsl(var(--primary) / .12); color:hsl(var(--primary)); border:1px solid hsl(var(--primary) / .22); transition:.4s; }
             .acc-item.active .acc-ico { background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); border-color:transparent; box-shadow:0 10px 24px -8px hsl(var(--primary) / .7); }
             .acc-desc { max-height:0; opacity:0; overflow:hidden; padding-right:54px; transition:max-height .5s ease, opacity .5s ease, margin .5s ease; }
-            .acc-item.active .acc-desc { max-height:160px; opacity:1; margin-top:10px; }
+            .acc-item.active .acc-desc { max-height:170px; opacity:1; margin-top:10px; }
 
             .feat-stage { position:relative; width:100%; height:min(54vh,430px); border-radius:30px; }
             .feat-preview { position:absolute; inset:0; opacity:0; transform:translateY(26px) scale(.97);
@@ -248,6 +200,15 @@
             .fp-track span { display:block; height:100%; border-radius:999px; }
             .fp-note { margin-top:11px; font-size:10px; font-weight:700; color:#475569; background:#fff; border:1px dashed #cbd5e1; border-radius:11px; padding:9px 11px; }
 
+            /* ================== PRICING (livelier) ================== */
+            .price-card { position:relative; transition: transform .4s cubic-bezier(.2,.8,.2,1), box-shadow .4s, border-color .4s; }
+            .price-card:hover { transform: translateY(-8px); box-shadow: 0 34px 70px -28px hsl(var(--primary) / .5); border-color: hsl(var(--primary) / .5) !important; }
+            .price-card .price-ico-row li { transition: transform .25s; }
+            .price-card:hover .price-ico-row li { transform: translateX(-3px); }
+            @keyframes priceRing { 0%{ box-shadow:0 0 0 0 hsl(var(--primary)/.35);} 70%{ box-shadow:0 0 0 14px hsl(var(--primary)/0);} 100%{ box-shadow:0 0 0 0 hsl(var(--primary)/0);} }
+            .price-feat { animation: priceRing 3.2s ease-out infinite; }
+            .price-feat:hover { animation-play-state: paused; }
+
             /* ---------- Inputs ---------- */
             .field { width:100%; height:2.85rem; background:hsl(var(--secondary) / .6); color:hsl(var(--foreground));
                 border:1px solid hsl(var(--border)); border-radius:.85rem; padding:0 1rem; font-size:.85rem; transition:border-color .2s, box-shadow .2s, background .2s; }
@@ -255,11 +216,15 @@
             .field::placeholder { color:hsl(var(--muted)); }
             .field:focus { outline:none; border-color:hsl(var(--primary)); background:hsl(var(--secondary) / .85); box-shadow:0 0 0 3px hsl(var(--primary) / .2); }
 
+            /* ---------- header hide while the phone is on stage ---------- */
+            header { transition: transform .5s cubic-bezier(.16,1,.3,1), opacity .4s ease !important; will-change: transform, opacity; }
+            header.is-hidden { transform: translateY(-110%) !important; opacity: 0 !important; pointer-events: none !important; }
+
             /* ---------- Reduced motion ---------- */
             .reduce-motion .hero-track, .reduce-motion .logos-track, .reduce-motion .feat-track { height:auto !important; }
             .reduce-motion .hero-sticky, .reduce-motion .logos-sticky, .reduce-motion .feat-sticky { position:static !important; height:auto !important; padding-block:3.5rem; }
             .reduce-motion .hero-intro { position:static; padding-top:0; }
-            .reduce-motion .hero-stage { position:static; margin-top:2rem; }
+            .reduce-motion .hero-stage { position:static; margin-top:2rem; opacity:1 !important; }
             .reduce-motion .logos-marq { position:static; opacity:.55 !important; }
             .reduce-motion .logos-veil { display:none; }
             .reduce-motion .feat-desktop { display:none !important; }
@@ -271,21 +236,11 @@
             /* ---------- Cosmic backdrop ---------- */
             .space-fx { position:absolute; inset:0; z-index:0; pointer-events:none; overflow:hidden;
                 background:
-                    radial-gradient(42vw 42vw at 8% 5%,   rgba(99,102,241,.13), transparent 70%),
-                    radial-gradient(46vw 46vw at 95% 16%,  rgba(56,189,248,.09), transparent 72%),
-                    radial-gradient(54vw 54vw at 78% 52%,  rgba(139,92,246,.11), transparent 72%),
-                    radial-gradient(40vw 40vw at 12% 84%,  rgba(56,189,248,.08), transparent 72%),
-                    radial-gradient(60vw 40vw at 60% 100%, rgba(99,102,241,.08), transparent 72%); }
+                    radial-gradient(42vw 42vw at 8% 5%,   rgba(99,102,241,.10), transparent 70%),
+                    radial-gradient(46vw 46vw at 95% 16%,  rgba(56,189,248,.08), transparent 72%),
+                    radial-gradient(54vw 54vw at 78% 52%,  rgba(139,92,246,.09), transparent 72%),
+                    radial-gradient(40vw 40vw at 12% 84%,  rgba(56,189,248,.07), transparent 72%); }
             .space-fx .sdfr-lines { z-index:0; }
-            header {
-                transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease !important;
-                will-change: transform, opacity;
-            }
-            header.is-hidden {
-                transform: translateY(-100%);
-                opacity: 0;
-                pointer-events: none;
-            }
         </style>
     @endpush
 
@@ -308,6 +263,15 @@
                 ['id'=>'report','t'=>'کارنامه و تحلیل','d'=>'کارنامه‌ی هوشمند و نمودارهای پیشرفت که نقاط ضعف و قوت را شفاف نشان می‌دهد تا برنامه‌ریزی هدفمندتر شود.',
                  'icon'=>'<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>'],
             ];
+            // تصویر هر ویژگی. فعلاً تصویر فیک (placeholder)؛ بعداً با اسکرین‌شات واقعی جایگزین کن:
+            //   مثلاً: '/client/assets/images/features/dashboard.png'
+            $featImgs = [
+                'dashboard' => 'https://placehold.co/900x680/0b1e4a/38bdf8?text=Dashboard',
+                'planning'  => 'https://placehold.co/900x680/0b1e4a/38bdf8?text=Weekly+Program',
+                'consult'   => 'https://placehold.co/900x680/0b1e4a/38bdf8?text=Consulting+Room',
+                'exam'      => 'https://placehold.co/900x680/0b1e4a/38bdf8?text=Online+Exam',
+                'report'    => 'https://placehold.co/900x680/0b1e4a/38bdf8?text=Report',
+            ];
             $logos = ['دبیرستان فرزانگان','مجتمع علامه حلی','دبیرستان شهید بهشتی','آموزشگاه نمونه','ماندگار البرز','دبیرستان دکتر حسابی','مجتمع نیکان','دبیرستان مفید','آموزشگاه اندیشه','مدرسه‌ی سلام','دبیرستان رشد','مجتمع آفرینش'];
             $longLogos = array_merge($logos, $logos, $logos);
         @endphp
@@ -316,12 +280,12 @@
         <section id="hero" class="relative z-10" wire:ignore>
             <div id="hero-track" class="hero-track">
                 <div class="hero-sticky">
-                    <div class="absolute inset-0 grid-bg pointer-events-none" style="z-index:0;"></div>
-                    <div class="hero-glow"></div>
+                    <div class="hero-blue"></div>
+                    <div class="absolute inset-0 grid-bg pointer-events-none" style="z-index:1;"></div>
 
                     {{-- Section 1: intro --}}
                     <div id="hero-intro" class="hero-intro">
-                        <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-2 mb-5">
+                        <div class="inline-flex items-center gap-2 glass-home rounded-full px-4 py-2 mb-5">
                             <span class="relative flex w-2 h-2">
                                 <span class="absolute inline-flex w-full h-full bg-brand rounded-full opacity-75 animate-ping"></span>
                                 <span class="relative inline-flex w-2 h-2 bg-brand rounded-full"></span>
@@ -335,17 +299,17 @@
                         <p class="font-medium text-sm sm:text-base text-muted leading-8 max-w-xl mx-auto mt-5">
                             با <span class="font-black text-foreground">SDFR</span> ساعت مطالعه ثبت می‌شود، برنامه‌ی اختصاصی می‌گیری و هوش مصنوعی هر روز عملکردت را تحلیل می‌کند.
                         </p>
-                        <div class="flex flex-wrap items-center justify-center gap-3 mt-7">
-                            <a href="{{ route('client.auth.login') }}" class="btn-brand group">
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
+                            <a href="{{ route('client.auth.login') }}" class="btn-brand group w-60 sm:w-auto">
                                 <span>شروع رایگان</span>
                                 <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
                             </a>
-                            <a href="#features" class="btn-ghost glass">مشاهده ویژگی‌ها</a>
+                            <a href="#features" class="btn-ghost glass-home w-60 sm:w-auto">مشاهده ویژگی‌ها</a>
                         </div>
                     </div>
 
                     {{-- Section 2: phone + labels --}}
-                    <div class="hero-stage">
+                    <div id="hero-stage" class="hero-stage">
                         <span class="hero-label hl-1">تحلیل هوشمند</span>
                         <span class="hero-label hl-2">برنامه‌ی شخصی</span>
                         <span class="hero-label hl-3">پیشرفت روزانه</span>
@@ -383,7 +347,7 @@
                         <div class="marq-mask">
                             <div class="marq-row" id="marq-top">
                                 @foreach($longLogos as $logo)
-                                    <div class="flex-shrink-0 flex items-center justify-center h-14 sm:h-16 px-5 sm:px-7 glass rounded-2xl">
+                                    <div class="flex-shrink-0 flex items-center justify-center h-14 sm:h-16 px-5 sm:px-7 glass-home rounded-2xl">
                                         <span class="font-bold text-xs sm:text-sm text-muted whitespace-nowrap">{{ $logo }}</span>
                                     </div>
                                 @endforeach
@@ -392,7 +356,7 @@
                         <div class="marq-mask">
                             <div class="marq-row" id="marq-bottom">
                                 @foreach($longLogos as $logo)
-                                    <div class="flex-shrink-0 flex items-center justify-center h-14 sm:h-16 px-5 sm:px-7 glass rounded-2xl">
+                                    <div class="flex-shrink-0 flex items-center justify-center h-14 sm:h-16 px-5 sm:px-7 glass-home rounded-2xl">
                                         <span class="font-bold text-xs sm:text-sm text-muted whitespace-nowrap">{{ $logo }}</span>
                                     </div>
                                 @endforeach
@@ -415,22 +379,21 @@
 
             {{-- ===================== FEATURES (Section 4) ===================== --}}
             <section id="features" class="relative scroll-mt-24" wire:ignore>
-                {{-- Desktop: title pinned together with boxes --}}
                 <div class="feat-desktop">
                     <div id="feat-track" class="feat-track">
                         <div class="feat-sticky">
                             <div class="w-full">
                                 <div class="text-center space-y-2 max-w-3xl mx-auto mb-6">
-                                    <div class="inline-flex items-center gap-2 glass rounded-full px-3 py-1.5">
+                                    <div class="inline-flex items-center gap-2 glass-home rounded-full px-3 py-1.5">
                                         <svg class="w-3.5 h-3.5 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>
                                         <span class="font-semibold text-xs text-foreground">امکانات پلتفرم</span>
                                     </div>
                                     <h2 class="font-black text-2xl md:text-4xl text-foreground">همه‌ی ابزارها در <span class="shimmer-text">یک پلتفرم</span></h2>
                                 </div>
                                 <div class="grid grid-cols-12 gap-10 items-center">
-                                    <div class="col-span-5 space-y-1">
+                                    <div class="col-span-5 space-y-2.5">
                                         @foreach($features as $i => $f)
-                                            <div class="acc-item" data-i="{{ $i }}">
+                                            <div class="acc-item glass" data-i="{{ $i }}">
                                                 <div class="acc-head">
                                                     <span class="acc-ico">
                                                         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $f['icon'] !!}</svg>
@@ -442,11 +405,15 @@
                                         @endforeach
                                     </div>
                                     <div class="col-span-7">
-                                        <div class="feat-stage glass rounded-[30px] p-2 shadow-2xl">
+                                        <div class="feat-stage glass-home rounded-[30px] p-2 shadow-2xl">
                                             @foreach($features as $i => $f)
                                                 <div class="feat-preview" data-i="{{ $i }}">
                                                     <div class="w-full h-full rounded-[24px] overflow-hidden">
-                                                        @include('livewire.client.home.feature-preview', ['type' => $f['id']])
+                                                        @if(!empty($featImgs[$f['id']]))
+                                                            <img src="{{ $featImgs[$f['id']] }}" alt="{{ $f['t'] }}" loading="lazy" class="w-full h-full object-cover">
+                                                        @else
+                                                            @include('livewire.client.home.feature-preview', ['type' => $f['id']])
+                                                        @endif
                                                     </div>
                                                 </div>
                                             @endforeach
@@ -458,10 +425,9 @@
                     </div>
                 </div>
 
-                {{-- Mobile: title + stacked cards (tight gap) --}}
                 <div class="feat-mobile">
                     <div class="text-center space-y-2 max-w-3xl mx-auto">
-                        <div class="inline-flex items-center gap-2 glass rounded-full px-3 py-1.5">
+                        <div class="inline-flex items-center gap-2 glass-home rounded-full px-3 py-1.5">
                             <svg class="w-3.5 h-3.5 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></svg>
                             <span class="font-semibold text-xs text-foreground">امکانات پلتفرم</span>
                         </div>
@@ -471,7 +437,11 @@
                         @foreach($features as $f)
                             <div class="reveal-up glass rounded-3xl p-2.5">
                                 <div class="rounded-2xl overflow-hidden" style="height:250px;">
-                                    @include('livewire.client.home.feature-preview', ['type' => $f['id']])
+                                    @if(!empty($featImgs[$f['id']]))
+                                        <img src="{{ $featImgs[$f['id']] }}" alt="{{ $f['t'] }}" loading="lazy" class="w-full h-full object-cover">
+                                    @else
+                                        @include('livewire.client.home.feature-preview', ['type' => $f['id']])
+                                    @endif
                                 </div>
                                 <div class="p-4">
                                     <div class="flex items-center gap-3 mb-2">
@@ -490,14 +460,14 @@
 
 
             {{-- ===================== PRICING ===================== --}}
-            <section id="pricing" class="relative space-y-8 scroll-mt-24 reveal-up">
-                <div class="text-center space-y-2 max-w-2xl mx-auto">
+            <section id="pricing" class="relative space-y-8 scroll-mt-24">
+                <div class="text-center space-y-2 max-w-2xl mx-auto reveal-up">
                     <h2 class="font-black text-3xl md:text-4xl"><span class="shimmer-text">قیمت SDFR</span></h2>
                     <p class="font-medium text-sm text-muted px-4">با هفته‌ی آزمایشیِ رایگان شروع کن؛ هر وقت خواستی ادامه بده.</p>
                 </div>
 
                 <div class="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto items-stretch">
-                    <div class="glass rounded-3xl p-6 flex flex-col space-y-5">
+                    <div class="price-card glass rounded-3xl p-6 flex flex-col space-y-5 reveal-up">
                         <div class="space-y-1">
                             <h3 class="font-black text-xl text-foreground">هفته‌ی آزمایشی</h3>
                             <p class="font-medium text-xs text-muted">بدون نیاز به پرداخت، همین حالا شروع کن</p>
@@ -506,20 +476,20 @@
                             <span class="font-black text-3xl text-foreground">رایگان</span>
                             <span class="text-xs text-muted pb-1">۷ روز کامل</span>
                         </div>
-                        <ul class="space-y-3 flex-1">
+                        <ul class="space-y-3 flex-1 price-ico-row">
                             @foreach(['دسترسی کامل به مدت ۷ روز','برنامه‌ی هفتگی آزمایشی','ثبت ساعت مطالعه','آشنایی با مشاور و پلتفرم'] as $it)
                                 <li class="flex items-center gap-2.5">
                                     <span class="flex items-center justify-center w-5 h-5 bg-brand-soft text-brand border border-brand-soft rounded-md shrink-0">
                                         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                                     </span>
-                                    <span class="font-semibold text-xs text-foreground">{{ $it }}</span>
+                                    <span class="font-semibold text-xs text-foreground glass">{{ $it }}</span>
                                 </li>
                             @endforeach
                         </ul>
-                        <a href="{{ route('client.onboarding') }}" class="btn-ghost glass w-full">شروع هفته‌ی آزمایشی</a>
+                        <a href="{{ route('client.onboarding') }}" class="btn-ghost glass-home w-full">شروع هفته‌ی آزمایشی</a>
                     </div>
 
-                    <div class="relative rounded-3xl p-6 flex flex-col space-y-5 bg-brand-soft border-2 border-brand md:-translate-y-3 mt-3 md:mt-0" style="box-shadow:0 30px 60px -25px hsl(var(--primary)/.5);">
+                    <div class="price-card price-feat glass relative rounded-3xl p-6 flex flex-col space-y-5 bg-brand-soft border-2 border-brand md:-translate-y-3 mt-3 md:mt-0 reveal-up rv-d1" style="box-shadow:0 30px 60px -25px hsl(var(--primary)/.5);">
                         <div class="absolute -top-3 left-1/2 -translate-x-1/2 inline-flex items-center bg-brand text-white font-black text-[11px] rounded-full px-4 py-1 shadow-lg">پیشنهاد ویژه</div>
                         <div class="space-y-1">
                             <h3 class="font-black text-xl text-foreground">نقدی</h3>
@@ -534,7 +504,7 @@
                                 <span class="text-xs text-muted pb-1">اعلام قیمت</span>
                             @endif
                         </div>
-                        <ul class="space-y-3 flex-1">
+                        <ul class="space-y-3 flex-1 price-ico-row">
                             @foreach(['همه‌ی امکانات پلتفرم','مشاور تخصصی اختصاصی','برنامه‌ی کاملاً شخصی‌سازی‌شده','آزمون‌های آنلاین نامحدود','تحلیل هوشمند با هوش مصنوعی','پشتیبانی اولویت‌دار'] as $it)
                                 <li class="flex items-center gap-2.5">
                                     <span class="flex items-center justify-center w-5 h-5 bg-brand text-white rounded-md shrink-0">
@@ -551,7 +521,7 @@
                         <a href="{{ route('client.onboarding') }}" class="btn-brand w-full">شروع ثبت‌نام</a>
                     </div>
 
-                    <div class="glass rounded-3xl p-6 flex flex-col space-y-5">
+                    <div class="price-card glass rounded-3xl p-6 flex flex-col space-y-5 reveal-up rv-d2">
                         <div class="space-y-1">
                             <div class="flex items-center justify-between">
                                 <h3 class="font-black text-xl text-foreground">مدارس</h3>
@@ -562,7 +532,7 @@
                         <div class="flex items-end gap-1 border-b border-border pb-5">
                             <span class="font-black text-2xl text-foreground">قرارداد اختصاصی</span>
                         </div>
-                        <ul class="space-y-3 flex-1">
+                        <ul class="space-y-3 flex-1 price-ico-row">
                             @foreach(['پنل مدیریتی مدرسه','گزارش‌گیری دوره‌ای و تحلیلی','مدیر موفقیت اختصاصی','تعرفه‌ی پلکانی هر دانش‌آموز','پشتیبانی و قرارداد ویژه'] as $it)
                                 <li class="flex items-center gap-2.5">
                                     <span class="flex items-center justify-center w-5 h-5 bg-brand-soft text-brand border border-brand-soft rounded-md shrink-0">
@@ -572,7 +542,7 @@
                                 </li>
                             @endforeach
                         </ul>
-                        <a href="{{ route('client.schools') }}" class="btn-ghost glass w-full">مشاهده قرارداد مدارس</a>
+                        <a href="{{ route('client.schools') }}" class="btn-ghost glass-home w-full">مشاهده قرارداد مدارس</a>
                     </div>
                 </div>
             </section>
@@ -581,7 +551,7 @@
             {{-- ===================== CONTACT ===================== --}}
             <section id="contact" class="relative space-y-8 scroll-mt-24 reveal-up">
                 <div class="text-center space-y-2 max-w-2xl mx-auto">
-                    <div class="inline-flex items-center gap-2 glass rounded-full px-4 py-2">
+                    <div class="inline-flex items-center gap-2 glass-home rounded-full px-4 py-2">
                         <svg class="w-3.5 h-3.5 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg>
                         <span class="font-semibold text-xs text-foreground">تماس با ما</span>
                     </div>
@@ -664,9 +634,9 @@
 
             {{-- ===================== FINAL CTA ===================== --}}
             <section class="reveal-up">
-                <div class="relative rounded-3xl glass overflow-hidden">
+                <div class="relative rounded-3xl glass-home overflow-hidden">
                     <div class="absolute inset-0 grid-bg pointer-events-none"></div>
-                    <div class="hero-glow"></div>
+                    <div class="hero-blue" style="opacity:.5"></div>
                     <div class="relative max-w-2xl mx-auto text-center space-y-6 p-7 sm:p-10 md:p-14">
                         <h2 class="font-black text-2xl md:text-4xl text-foreground leading-tight">آماده‌ای مسیر تحصیلت را <span class="shimmer-text">هوشمند</span> کنی؟</h2>
                         <p class="font-medium text-sm md:text-base text-muted leading-8">همین امروز به جمع هزاران دانش‌آموزی بپیوند که با SDFR یادگیری را شفاف، هدفمند و قابل‌اندازه‌گیری کرده‌اند.</p>
@@ -675,7 +645,7 @@
                                 <span>شروع رایگان</span>
                                 <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
                             </a>
-                            <a href="#contact" class="btn-ghost glass">تماس با ما</a>
+                            <a href="#contact" class="btn-ghost glass-home">تماس با ما</a>
                         </div>
                     </div>
                 </div>
@@ -697,8 +667,10 @@
                     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
                     function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
 
+                    var header    = document.querySelector('header.header-main') || document.querySelector('header');
                     var heroTrack = document.getElementById('hero-track');
                     var heroIntro = document.getElementById('hero-intro');
+                    var heroStage = document.getElementById('hero-stage');
                     var phone     = document.getElementById('hero-phone');
                     var labels    = root.querySelectorAll('.hero-label');
                     var bubbles   = root.querySelectorAll('#hero-chat .chat-bubble');
@@ -713,7 +685,6 @@
                     var accItems  = root.querySelectorAll('.feat-desktop .acc-item');
                     var previews  = root.querySelectorAll('.feat-desktop .feat-preview');
 
-                    /* ---- reveal (re-appliable after morph) ---- */
                     function revealVisible() {
                         root.querySelectorAll('.reveal, .reveal-up').forEach(function (el) {
                             if (el.getBoundingClientRect().top < window.innerHeight * 0.92) el.classList.add('is-visible');
@@ -731,41 +702,81 @@
                         return clamp((-r.top) / total, 0, 1);
                     }
 
-                    /* ===== Section 1 + 2 : intro -> phone rises -> labels & bubbles ===== */
+                    function setLabelStyle(el, op, blur, y) {
+                        if (!el) return;
+                        el.style.transition = 'none';
+                        el.style.opacity = op.toFixed(3);
+                        el.style.filter = 'blur(' + blur.toFixed(2) + 'px)';
+                        el.style.transform = 'translate(-50%,' + y.toFixed(1) + 'px)';
+                        el.style.textShadow = op > 0.12 ? '0 0 26px currentColor' : 'none';
+                    }
+                    function setLabels(cP) {
+                        if (window.innerWidth < 768) {
+                            // MOBILE: ترانزیشن متوالی در قسمت بالای گوشی (ناچ)
+                            labels.forEach(function (l) { l.classList.remove('on'); });
+
+                            // لیبل اول: ظاهر می‌شود، سپس به سمت بالا می‌رود و محو می‌شود
+                            var o0 = clamp(cP / 0.15, 0, 1);
+                            var up0 = clamp((cP - 0.28) / 0.15, 0, 1);
+                            setLabelStyle(labels[0], o0 * (1 - up0), 0, -40 * up0);
+
+                            // لیبل دوم: با یک پرش کوتاه می‌آید جای اولی و سپس آن هم بالا می‌رود
+                            var o1 = clamp((cP - 0.35) / 0.15, 0, 1);
+                            var rise1 = 1 - clamp((cP - 0.35) / 0.15, 0, 1);
+                            var up1 = clamp((cP - 0.65) / 0.15, 0, 1);
+                            setLabelStyle(labels[1], o1 * (1 - up1), rise1 * 4, (rise1 * 30) - (40 * up1));
+
+                            // لیبل سوم: از فاصله‌ی بسیار کم (۷۰ پیکسل) می‌آید جای دومی می‌نشیند
+                            var o2 = clamp((cP - 0.70) / 0.15, 0, 1);
+                            var rise2 = 1 - clamp((cP - 0.70) / 0.20, 0, 1);
+                            setLabelStyle(labels[2], o2, rise2 * 4, rise2 * 70);
+                        } else {
+                            // DESKTOP: (بدون تغییر)
+                            var st = [0.04, 0.30, 0.56], en = [0.58, 0.84, 1.06];
+                            labels.forEach(function (l, i) {
+                                l.style.opacity = ''; l.style.filter = ''; l.style.transform = ''; l.style.textShadow = ''; l.style.transition = '';
+                                l.classList.toggle('on', cP >= st[i] && cP < en[i]);
+                            });
+                        }
+                    }
+
+                    /* ===== Section 1+2 : intro -> phone rises (header hides) -> bubbles -> rolling labels -> fade ===== */
                     function setHero(p) {
-                        var riseT = clamp((p - 0.28) / 0.24, 0, 1);          // phone rise window
-                        var introO = 1 - clamp((p - 0.28) / 0.20, 0, 1);     // intro fades out
+                        var introO = 1 - clamp((p - 0.06) / 0.16, 0, 1);
                         if (heroIntro) {
                             heroIntro.style.opacity = introO;
-                            heroIntro.style.transform = 'translateY(' + (-40 * (1 - introO)) + 'px)';
+                            heroIntro.style.transform = 'translateY(' + (-50 * (1 - introO)) + 'px)';
                             heroIntro.style.pointerEvents = introO < 0.05 ? 'none' : 'auto';
                         }
+
+                        var riseT = clamp((p - 0.08) / 0.26, 0, 1);
                         if (phone) {
-                            var startOff = window.innerHeight * 0.5 + phone.offsetHeight * 0.24; // peek (~top portion only)
+                            var startOff = window.innerHeight * 0.5 + phone.offsetHeight * 0.20;
                             var off = startOff * (1 - riseT);
                             var s = 0.9 + 0.1 * riseT;
                             phone.style.transform = 'translateY(' + off.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
                         }
-                        var cP = clamp((p - 0.52) / 0.48, 0, 1);             // phase C progress
-                        var th = [0.08, 0.32, 0.56];
-                        labels.forEach(function (l, i) { l.classList.toggle('on', cP >= th[i]); });
+
+                        var bP = clamp((p - 0.18) / 0.50, 0, 1);
                         var n = bubbles.length;
-                        var show = cP <= 0 ? 0 : Math.max(1, Math.min(n, Math.ceil((cP / 0.85) * n)));
+                        var show = Math.max(1, Math.min(n, Math.ceil((bP / 0.8) * n)));
                         bubbles.forEach(function (b, i) { b.classList.toggle('shown', i < show); });
+
+                        var cP = clamp((p - 0.40) / 0.60, 0, 1);
+                        setLabels(cP);
+
+                        // 👇 این خط را کامنت یا حذف کن تا گوشی غیب نشود
+                        // if (heroStage) heroStage.style.opacity = 1 - clamp((p - 0.86) / 0.14, 0, 1);
                     }
 
-                    /* ===== Section 3 : title centered (stays) + logos move on scroll ===== */
                     function setLogos(p) {
-                        var textO = clamp(p / 0.16, 0, 1);                   // title fades IN, then stays
-                        if (logosText) logosText.style.opacity = textO;
-                        var marqO = clamp((p - 0.16) / 0.16, 0, 1);          // logos fade in
-                        if (logosMarq) logosMarq.style.opacity = marqO * 0.85;
-                        var moveP = clamp((p - 0.30) / 0.70, 0, 1);          // logos slide with scroll
+                        if (logosText) logosText.style.opacity = clamp(p / 0.08, 0, 1);
+                        if (logosMarq) logosMarq.style.opacity = clamp((p - 0.08) / 0.12, 0, 1) * 0.85;
+                        var moveP = clamp((p - 0.16) / 0.84, 0, 1);
                         if (marqTop)    marqTop.style.transform    = 'translateX(' + (moveP * -26) + '%)';
                         if (marqBottom) marqBottom.style.transform = 'translateX(' + (moveP *  26) + '%)';
                     }
 
-                    /* ===== Section 4 : features accordion swap ===== */
                     function setFeatures(p) {
                         if (!accItems.length) return;
                         var n = accItems.length;
@@ -774,18 +785,27 @@
                         previews.forEach(function (pv, i) { pv.classList.toggle('active', i === idx); });
                     }
 
-                    /* ---- heavy / weighted scroll (lerp friction) ---- */
-                    var hT = 0, hS = 0, lT = 0, lS = 0, fT = 0, fS = 0, raf = null;
+                    function updateHeader() {
+                        if (!header || !heroTrack) return;
+                        var r = heroTrack.getBoundingClientRect();
+
+                        // شرط برگشتن هدر رو حذف کردیم. حالا فقط چک می‌کنه که از صفحه اول پایین‌تر رفته باشی.
+                        var hide = (r.top < -window.innerHeight * 0.18);
+
+                        header.classList.toggle('is-hidden', !reduce && hide);
+                    }
+                    /* ---- heavy, consistent, reversible scroll (lerp) ---- */
+                    var hT=0,hS=0, lT=0,lS=0, fT=0,fS=0, raf=null;
                     function loop() {
-                        var k = 0.07; // smaller = heavier
-                        hS += (hT - hS) * k; lS += (lT - lS) * k; fS += (fT - fS) * k;
+                        var k = 0.06; // smaller = heavier
+                        hS += (hT-hS)*k; lS += (lT-lS)*k; fS += (fT-fS)*k;
                         if (heroTrack) setHero(hS);
                         if (logosTrack) setLogos(lS);
                         if (featTrack && window.innerWidth >= 768) setFeatures(fS);
-                        if (Math.abs(hT - hS) > 0.0004 || Math.abs(lT - lS) > 0.0004 || Math.abs(fT - fS) > 0.0004) {
+                        if (Math.abs(hT-hS)>0.0004 || Math.abs(lT-lS)>0.0004 || Math.abs(fT-fS)>0.0004) {
                             raf = requestAnimationFrame(loop);
                         } else {
-                            hS = hT; lS = lT; fS = fT;
+                            hS=hT; lS=lT; fS=fT;
                             if (heroTrack) setHero(hS);
                             if (logosTrack) setLogos(lS);
                             if (featTrack && window.innerWidth >= 768) setFeatures(fS);
@@ -796,10 +816,10 @@
                         if (heroTrack) hT = progress(heroTrack);
                         if (logosTrack) lT = progress(logosTrack);
                         fT = (featTrack && window.innerWidth >= 768) ? progress(featTrack) : 0;
+                        updateHeader();
                         if (!raf) raf = requestAnimationFrame(loop);
                     }
 
-                    /* ---- re-apply after Livewire morph (form submit etc.) ---- */
                     function reapply() {
                         revealVisible();
                         if (reduce) return;
@@ -823,6 +843,7 @@
 
                     if (reduce) {
                         root.classList.add('reduce-motion');
+                        if (header) header.classList.remove('is-hidden');
                         if (heroIntro) heroIntro.style.opacity = 1;
                         if (phone) phone.style.transform = 'none';
                         labels.forEach(function (l) { l.classList.add('on'); });

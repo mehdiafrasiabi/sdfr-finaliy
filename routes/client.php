@@ -55,7 +55,7 @@ Route::name('client.')->group(function () {
     Route::get('/application', DownloadIndex::class)->name('download');
     Route::redirect('/shop', '/')->name('shop');
     Route::redirect('/product/{p_code}/{slug?}', '/')->name('product');
-    Route::get('/schools', SchoolsIndex::class)->name('schools');
+    Route::get('/schools2', SchoolsIndex::class)->name('schools');
     Route::get('/terms',RuleIndex::class)->name('terms');
     Route::get('/about-us',AboutUs::class)->name('about-us');
     Route::get('/contact-us',ContactUs::class)->name('contact-us');
