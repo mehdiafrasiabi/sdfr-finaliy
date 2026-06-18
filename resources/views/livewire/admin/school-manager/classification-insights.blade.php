@@ -32,7 +32,7 @@
             <div class="card h-100">
                 <div class="card-header bg-danger-subtle">
                     <strong class="text-danger">⚠ دروسی که دانش‌آموزان در آن‌ها ضعیف‌اند</strong>
-                    <div class="text-muted small">طبقهٔ فعلی C یا D</div>
+                    <div class="text-muted small">کیفیت تدریس دبیران این دروس نیاز مند پیگیری میباشد</div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover mb-0 align-middle">
@@ -68,7 +68,7 @@
             <div class="card h-100">
                 <div class="card-header bg-success-subtle">
                     <strong class="text-success">▲ دروسی با بیشترین پیشرفت</strong>
-                    <div class="text-muted small">میانگین تغییر طبقه نسبت به طبقه‌بندی قبلی</div>
+                    <div class="text-muted small">دبیران این دروس در پیشرفت دانش آموزان نقش داشتند</div>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-hover mb-0 align-middle">

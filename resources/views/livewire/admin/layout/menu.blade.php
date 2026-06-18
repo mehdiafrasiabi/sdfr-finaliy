@@ -238,7 +238,7 @@
                                         <a class="menu-link {{ request()->routeIs('admin.school-manager.report-cards') ? 'active' : '' }}"
                                            href="{{ route('admin.school-manager.report-cards') }}" role="button">
                                             <i class="fi fi-rr-trophy"></i>
-                                            <span class="menu-label">کارنامه ماهانه</span>
+                                            <span class="menu-label">کارنامه ماهانه مدرسه</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
@@ -252,21 +252,21 @@
                                         <a class="menu-link {{ request()->routeIs('admin.school-manager.exam-stats') ? 'active' : '' }}"
                                            href="{{ route('admin.school-manager.exam-stats') }}" role="button">
                                             <i class="fi fi-rr-stats"></i>
-                                            <span class="menu-label">آمار آزمون‌ها</span>
+                                            <span class="menu-label">آزمون‌های SDFR</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.school-manager.call-report') ? 'active' : '' }}"
                                            href="{{ route('admin.school-manager.call-report') }}" role="button">
                                             <i class="fi fi-rr-phone-call"></i>
-                                            <span class="menu-label">گزارش تماس‌ها</span>
+                                            <span class="menu-label">گزارش تماس‌ مشاور</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.school-manager.advising') ? 'active' : '' }}"
                                            href="{{ route('admin.school-manager.advising') }}" role="button">
                                             <i class="fi fi-rr-comments"></i>
-                                            <span class="menu-label">آمار جلسات مشاوره</span>
+                                            <span class="menu-label">گزارش جلسات مشاوره</span>
                                         </a>
                                     </li>
                                 </ul>
