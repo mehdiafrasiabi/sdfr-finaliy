@@ -1,7 +1,7 @@
 <div>
     @assets
-    <link rel="stylesheet" href="https://unpkg.com/jalalidatepicker/dist/jalalidatepicker.min.css">
-    <script src="https://unpkg.com/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+    <link rel="stylesheet" href="/client/assets/date/jalalidatepicker.min.css">
+    <script src="/client/assets/date/persian-datepicker.min.js"></script>
 
     <style>
         .remove-image-btn {

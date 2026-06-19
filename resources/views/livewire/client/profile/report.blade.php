@@ -156,7 +156,8 @@
                                                 </div>
 
                                                 @if($day['can_submit'])
-                                                    <button type="button" wire:click="openReportModal({{ $dayIndex }})" wire:loading.attr="disabled" wire:target="openReportModal({{ $dayIndex }})"
+                                                    {{-- مودال بلافاصله با Alpine باز می‌شود (بدون لگ)، و داده‌ها با Livewire بارگذاری می‌شوند --}}
+                                                    <button type="button" @click="showReportModal = true" wire:click="openReportModal({{ $dayIndex }})" wire:loading.attr="disabled" wire:target="openReportModal({{ $dayIndex }})"
                                                             class="w-full bg-primary hover:bg-primary/90 text-white rounded-xl py-2.5 font-semibold text-sm transition-all disabled:opacity-60 inline-flex items-center justify-center gap-2">
                                                         <span wire:loading.remove wire:target="openReportModal({{ $dayIndex }})">ثبت گزارش</span>
                                                         <span wire:loading wire:target="openReportModal({{ $dayIndex }})" class="spinner-circle spinner-sm"></span>
@@ -663,9 +664,10 @@
                     </div>
                 </div>
             @else
-                {{-- Empty placeholder while data loads --}}
-                <div class="flex-1 flex items-center justify-center p-12">
+                {{-- حالت بارگذاری: تا رسیدن اطلاعات روز از سرور --}}
+                <div class="flex-1 flex flex-col items-center justify-center gap-3 p-12">
                     <span class="spinner-circle text-primary"></span>
+                    <span class="text-sm text-muted">در حال بارگذاری اطلاعات…</span>
                 </div>
             @endif
         </div>

@@ -63,35 +63,10 @@ Route::name('admin.')->group(function () {
         Route::get('/trial-week', \App\Livewire\Admin\TrialWeek\Index::class)
             ->name('trial-week.index');
 
-        // پشتیبان جذب سایت
-        Route::prefix('acquisition-supporter')->name('acquisition-supporter.')->group(function () {
-            // C-5 — داشبورد تجمیعی (آمار)
-            Route::get('/dashboard', \App\Livewire\Admin\AcquisitionSupporter\StatsDashboard\Index::class)
-                ->name('dashboard');
-
-            // قدیمی — لیست تمام trial weeks با فیلتر (بقایای صفحه قدیمی)
-            Route::get('/all-trials', \App\Livewire\Admin\AcquisitionSupporter\Dashboard::class)
-                ->name('all-trials');
-
-            // C-1 — دانش‌آموزان من
-            Route::get('/my-students', \App\Livewire\Admin\AcquisitionSupporter\MyStudents\Index::class)
-                ->name('my-students');
-
-            // C-2 — تماس اولیه
-            Route::get('/primary-call', \App\Livewire\Admin\AcquisitionSupporter\PrimaryCall\Index::class)
-                ->name('primary-call');
-
-            // C-3 — تماس ثانویه
-            Route::get('/secondary-call', \App\Livewire\Admin\AcquisitionSupporter\SecondaryCall\Index::class)
-                ->name('secondary-call');
-
-            // C-4 — تماس اکسترا
-            Route::get('/extra-call', \App\Livewire\Admin\AcquisitionSupporter\ExtraCall\Index::class)
-                ->name('extra-call');
-
-            // جزئیات دانش‌آموز (فرم ثبت تماس قدیمی برای backward compat)
-            Route::get('/student/{id}', \App\Livewire\Admin\AcquisitionSupporter\StudentDetail::class)
-                ->name('student');
+        // مشاور جذب یک هفته آزمایشی (جریان یکپارچهٔ جدید — جایگزین acquisition-supporter)
+        Route::prefix('trial-acquisition')->name('trial-acquisition.')->group(function () {
+            Route::get('/', \App\Livewire\Admin\TrialAcquisition\Index::class)->name('index');
+            Route::get('/dashboard', \App\Livewire\Admin\TrialAcquisition\Dashboard::class)->name('dashboard');
         });
 
         // مدیر مدرسه (نقش school-manager) — قابلیت‌های پنل اختصاصی
@@ -131,6 +106,48 @@ Route::name('admin.')->group(function () {
         Route::get('/educational-manager/new-purchased-students',
             \App\Livewire\Admin\EducationalManager\NewPurchasedStudents\Index::class)
             ->name('educational-manager.new-purchased-students');
+
+        // مدیر آموزشی — جذب تلفنی
+        Route::prefix('educational-manager/phone-acquisition')
+            ->name('educational-manager.phone-acquisition.')
+            ->group(function () {
+                Route::get('/dashboard',
+                    \App\Livewire\Admin\EducationalManager\PhoneAcquisition\Dashboard::class)
+                    ->name('dashboard');
+                Route::get('/leads',
+                    \App\Livewire\Admin\EducationalManager\PhoneAcquisition\Leads\Index::class)
+                    ->name('leads');
+                Route::get('/assign',
+                    \App\Livewire\Admin\EducationalManager\PhoneAcquisition\Leads\Assign::class)
+                    ->name('assign');
+                Route::get('/history',
+                    \App\Livewire\Admin\EducationalManager\PhoneAcquisition\Leads\History::class)
+                    ->name('history');
+                Route::get('/history/{lead}',
+                    \App\Livewire\Admin\EducationalManager\PhoneAcquisition\Leads\Show::class)
+                    ->name('history.show');
+                Route::get('/goals',
+                    \App\Livewire\Admin\EducationalManager\PhoneAcquisition\Goals\Index::class)
+                    ->name('goals');
+                Route::get('/receipts',
+                    \App\Livewire\Admin\EducationalManager\PhoneAcquisition\Receipts\Index::class)
+                    ->name('receipts');
+            });
+
+        // مشاور جذب تلفنی — پنل مشاور
+        Route::prefix('phone-acquisition')
+            ->name('phone-acquisition.')
+            ->group(function () {
+                Route::get('/queue',
+                    \App\Livewire\Admin\PhoneAcquisition\Queue\Index::class)
+                    ->name('queue');
+                Route::get('/follow-ups',
+                    \App\Livewire\Admin\PhoneAcquisition\FollowUps\Index::class)
+                    ->name('follow-ups');
+                Route::get('/receipts',
+                    \App\Livewire\Admin\PhoneAcquisition\Receipts\Index::class)
+                    ->name('receipts');
+            });
 
         // پنل مشاور — درخواست‌های جابجایی مربوط به خودش
         Route::get('/consultant/reschedule',

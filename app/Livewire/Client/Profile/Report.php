@@ -119,6 +119,7 @@ class Report extends Component
         $this->currentSession = AdvisingSession::where('student_id', $student->id)
             ->where('result_status', 'held')
             ->orderBy('activation_date', 'desc')
+            ->orderBy('id', 'desc') // تساوی تاریخ: جدیدترین جلسهٔ برگزارشده انتخاب شود
             ->first();
 
         if ($this->currentSession) {
@@ -126,7 +127,7 @@ class Report extends Component
                 ->with(['parts' => function ($query) {
                     $query->orderBy('day_of_week')->orderBy('part_order');
                 }])
-                ->first();
+                ->latest('id')->first();
 
             if ($this->currentProgram) {
                 $this->loadCompletedStudyParts();

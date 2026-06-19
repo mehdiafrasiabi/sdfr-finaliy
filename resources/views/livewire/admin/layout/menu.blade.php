@@ -28,7 +28,7 @@
                 @if($admin?->hasRole('super admin') || $admin?->hasRole('educational-manager') || $admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('site acquisition'))
                     <li class="nav-item" data-bs-placement="right" data-bs-title="داشبورد" data-bs-toggle="tooltip">
                         <a aria-controls="dashboardTab" aria-selected="true"
-                           class="menu-link {{ (($admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin')) || request()->routeIs('admin.acquisition-supporter.*')) ? '' : 'active' }}"
+                           class="menu-link {{ (($admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin')) || request()->routeIs('admin.trial-acquisition.*')) ? '' : 'active' }}"
                            data-bs-toggle="tab" href="#dashboardTab" role="tab">
                             <svg fill="none" height="24" viewbox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -73,9 +73,9 @@
                         </a>
                     </li>
                         @if($admin?->hasRole('site acquisition') || $admin?->hasRole('super admin'))
-                            <li class="nav-item" data-bs-placement="right" data-bs-title="پنل مشاور جذب" data-bs-toggle="tooltip">
+                            <li class="nav-item" data-bs-placement="right" data-bs-title="جذب یک هفته آزمایشی" data-bs-toggle="tooltip">
                                 <a aria-controls="acquisitionTab" aria-selected="false"
-                                   class="menu-link {{ $admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin') ? 'active' : '' }} {{ request()->routeIs('admin.acquisition-supporter.*') ? 'active' : '' }}"
+                                   class="menu-link {{ $admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin') ? 'active' : '' }} {{ request()->routeIs('admin.trial-acquisition.*') ? 'active' : '' }}"
                                    data-bs-toggle="tab" href="#acquisitionTab" role="tab">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -85,6 +85,20 @@
                                         <path d="M8 21v-1a2 2 0 0 1 2 -2h4a2 2 0 0 1 2 2v1"></path>
                                         <path d="M15 5a4 4 0 0 1 0 6"></path>
                                         <path d="M17 3a8 8 0 0 1 0 10"></path>
+                                    </svg>
+                                </a>
+                            </li>
+                        @endif
+                        @if($admin?->hasRole('مشاور جذب تلفنی') || $admin?->hasRole('super admin'))
+                            <li class="nav-item" data-bs-placement="right" data-bs-title="جذب تلفنی" data-bs-toggle="tooltip">
+                                <a aria-controls="phoneAcquisitionTab" aria-selected="false"
+                                   class="menu-link {{ $admin?->hasRole('مشاور جذب تلفنی') && !$admin?->hasRole('super admin') && !$admin?->hasRole('site acquisition') ? 'active' : '' }} {{ request()->routeIs('admin.phone-acquisition.*') ? 'active' : '' }}"
+                                   data-bs-toggle="tab" href="#phoneAcquisitionTab" role="tab">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                         stroke-linejoin="round" class="menu-icon">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2"></path>
                                     </svg>
                                 </a>
                             </li>
@@ -238,7 +252,7 @@
                                         <a class="menu-link {{ request()->routeIs('admin.school-manager.report-cards') ? 'active' : '' }}"
                                            href="{{ route('admin.school-manager.report-cards') }}" role="button">
                                             <i class="fi fi-rr-trophy"></i>
-                                            <span class="menu-label">کارنامه ماهانه مدرسه</span>
+                                            <span class="menu-label">کارنامه ماهانه</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
@@ -252,21 +266,21 @@
                                         <a class="menu-link {{ request()->routeIs('admin.school-manager.exam-stats') ? 'active' : '' }}"
                                            href="{{ route('admin.school-manager.exam-stats') }}" role="button">
                                             <i class="fi fi-rr-stats"></i>
-                                            <span class="menu-label">آزمون‌های SDFR</span>
+                                            <span class="menu-label">آمار آزمون‌ها</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.school-manager.call-report') ? 'active' : '' }}"
                                            href="{{ route('admin.school-manager.call-report') }}" role="button">
                                             <i class="fi fi-rr-phone-call"></i>
-                                            <span class="menu-label">گزارش تماس‌ مشاور</span>
+                                            <span class="menu-label">گزارش تماس‌ها</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.school-manager.advising') ? 'active' : '' }}"
                                            href="{{ route('admin.school-manager.advising') }}" role="button">
                                             <i class="fi fi-rr-comments"></i>
-                                            <span class="menu-label">گزارش جلسات مشاوره</span>
+                                            <span class="menu-label">آمار جلسات مشاوره</span>
                                         </a>
                                     </li>
                                 </ul>
@@ -274,55 +288,60 @@
                         </div>
                     @endif
                     @if($admin?->hasRole('site acquisition') || $admin?->hasRole('super admin'))
-                        <div class="tab-pane fade {{ ($admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin')) || request()->routeIs('admin.acquisition-supporter.*') ? 'show active' : '' }}"
+                        <div class="tab-pane fade {{ ($admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin')) || request()->routeIs('admin.trial-acquisition.*') ? 'show active' : '' }}"
                              id="acquisitionTab" role="tabpanel" tabindex="0">
                             <nav class="app-navbar" data-simplebar="">
                                 <ul class="side-menubar">
                                     <li class="menu-heading">
-                                        <span class="menu-label">پنل مشاور جذب</span>
+                                        <span class="menu-label">پنل جذب آزمایشی</span>
                                     </li>
                                     <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.dashboard') ? 'active' : '' }}"
-                                           href="{{ route('admin.acquisition-supporter.dashboard') }}">
+                                        <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.dashboard') ? 'active' : '' }}"
+                                           href="{{ route('admin.trial-acquisition.dashboard') }}">
                                             <i class="fi fi-rr-dashboard"></i>
                                             <span class="menu-label">داشبورد و آمار</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.my-students') ? 'active' : '' }}"
-                                           href="{{ route('admin.acquisition-supporter.my-students') }}">
+                                        <a class="menu-link {{ request()->routeIs('admin.trial-acquisition.index') ? 'active' : '' }}"
+                                           href="{{ route('admin.trial-acquisition.index') }}">
                                             <i class="fi fi-rr-graduation-cap"></i>
-                                            <span class="menu-label">دانش‌آموزان من</span>
+                                            <span class="menu-label">دانش‌آموزان و تماس‌ها</span>
                                         </a>
                                     </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    @endif
+                    @if($admin?->hasRole('مشاور جذب تلفنی') || $admin?->hasRole('super admin'))
+                        <div class="tab-pane fade {{ ($admin?->hasRole('مشاور جذب تلفنی') && !$admin?->hasRole('super admin') && !$admin?->hasRole('site acquisition')) || request()->routeIs('admin.phone-acquisition.*') ? 'show active' : '' }}"
+                             id="phoneAcquisitionTab" role="tabpanel" tabindex="0">
+                            <nav class="app-navbar" data-simplebar="">
+                                <ul class="side-menubar">
+                                    <li class="menu-heading">
+                                        <span class="menu-label">پنل مشاور جذب تلفنی</span>
+                                    </li>
                                     <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.primary-call') ? 'active' : '' }}"
-                                           href="{{ route('admin.acquisition-supporter.primary-call') }}">
+                                        <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.queue') ? 'active' : '' }}"
+                                           href="{{ route('admin.phone-acquisition.queue') }}">
                                             <i class="fi fi-rr-phone-call"></i>
-                                            <span class="menu-label">تماس اولیه</span>
+                                            <span class="menu-label">صف تماس‌های من</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.secondary-call') ? 'active' : '' }}"
-                                           href="{{ route('admin.acquisition-supporter.secondary-call') }}">
-                                            <i class="fi fi-rr-phone-flip"></i>
-                                            <span class="menu-label">تماس ثانویه</span>
+                                        <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.follow-ups') ? 'active' : '' }}"
+                                           href="{{ route('admin.phone-acquisition.follow-ups') }}">
+                                            <i class="fi fi-rr-calendar-clock"></i>
+                                            <span class="menu-label">پیگیری‌های من</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.extra-call') ? 'active' : '' }}"
-                                           href="{{ route('admin.acquisition-supporter.extra-call') }}">
-                                            <i class="fi fi-rr-phone-plus"></i>
-                                            <span class="menu-label">تماس اکسترا</span>
+                                        <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.receipts') ? 'active' : '' }}"
+                                           href="{{ route('admin.phone-acquisition.receipts') }}">
+                                            <i class="fi fi-rr-receipt"></i>
+                                            <span class="menu-label">رسیدهای شارژ</span>
                                         </a>
                                     </li>
-{{--                                    <li class="menu-item">--}}
-{{--                                        <a class="menu-link {{ request()->routeIs('admin.acquisition-supporter.all-trials') ? 'active' : '' }}"--}}
-{{--                                           href="{{ route('admin.acquisition-supporter.all-trials') }}">--}}
-{{--                                            <i class="fi fi-rr-list"></i>--}}
-{{--                                            <span class="menu-label">همهٔ هفته‌های آزمایشی</span>--}}
-{{--                                        </a>--}}
-{{--                                    </li>--}}
                                 </ul>
                             </nav>
                         </div>
@@ -330,7 +349,7 @@
                     @if($admin?->hasRole('super admin') || $admin?->hasRole('educational-manager') || $admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('site acquisition'))
                         @php
                             $acquisitionActive = ($admin?->hasRole('site acquisition') && !$admin?->hasRole('super admin'))
-                                || request()->routeIs('admin.acquisition-supporter.*');
+                                || request()->routeIs('admin.trial-acquisition.*');
                         @endphp
                         <div class="tab-pane fade {{ $acquisitionActive ? '' : 'show active' }}" id="dashboardTab" role="tabpanel" tabindex="0">
                             <nav class="app-navbar" data-simplebar="">
@@ -594,6 +613,48 @@
                                         <a class="menu-link" href="{{ route('admin.educational-manager.reschedule') }}">
                                             <i class="fi fi-rr-calendar-clock"></i>
                                             <span class="menu-label">درخواست‌های جابجایی</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.phone-acquisition.dashboard') ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.phone-acquisition.dashboard') }}">
+                                            <i class="fi fi-rr-dashboard"></i>
+                                            <span class="menu-label">داشبورد جذب تلفنی</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.phone-acquisition.leads') ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.phone-acquisition.leads') }}">
+                                            <i class="fi fi-rr-list"></i>
+                                            <span class="menu-label">شماره‌های جذب تلفنی</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.phone-acquisition.assign') ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.phone-acquisition.assign') }}">
+                                            <i class="fi fi-rr-share"></i>
+                                            <span class="menu-label">اختصاص شماره به مشاور</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.phone-acquisition.history*') ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.phone-acquisition.history') }}">
+                                            <i class="fi fi-rr-time-past"></i>
+                                            <span class="menu-label">تاریخچهٔ تماس‌ها</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.phone-acquisition.goals') ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.phone-acquisition.goals') }}">
+                                            <i class="fi fi-rr-target"></i>
+                                            <span class="menu-label">هدف‌گذاری ثبت‌نام</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.phone-acquisition.receipts') ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.phone-acquisition.receipts') }}">
+                                            <i class="fi fi-rr-receipt"></i>
+                                            <span class="menu-label">رسیدهای شارژ</span>
                                         </a>
                                     </li>
                                     <li><div class="menu-divider"></div></li>

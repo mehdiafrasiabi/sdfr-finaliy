@@ -167,7 +167,7 @@
                         <button wire:click="openModal('summary')"
                                 class="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-colors"
                                 style="background:linear-gradient(135deg,rgb({{ $card['hex'] }}),rgb({{ $card['hex'] }}/.85));box-shadow:0 4px 14px rgb({{ $card['hex'] }}/.4);">
-                            خلاصه و ثبت نهایی
+                            ثبت نهایی
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </button>
                     @elseif($canEdit)
@@ -246,12 +246,9 @@
                                                     <span class="font-bold mr-1">{{ $exam['subject'] }}</span>
                                                     <span class="text-muted-foreground">({{ $exam['part_count'] }} پارت | {{ $exam['time_per_part'] }} دقیقه)</span>
                                                 </div>
-                                                @if($canEdit)
-                                                    <button wire:click="deleteExam({{ $exam['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0">
-                                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg>
-                                                    </button>
-                                                @endif
-
+                                                <button wire:click="deleteExam({{ $exam['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0">
+                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg>
+                                                </button>
                                             </div>
                                         @endforeach
                                     </div>
@@ -387,10 +384,7 @@
                                                     <span class="font-bold mr-1">{{ $qa['subject'] }}</span>
                                                     <span class="text-muted-foreground">({{ $qa['part_count'] }} پارت | {{ $qa['time_per_part'] }} دقیقه)</span>
                                                 </div>
-                                                @if($canEdit)
-                                                    <button wire:click="deleteQa({{ $qa['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
-
-                                                @endif
+                                                <button wire:click="deleteQa({{ $qa['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
                                             </div>
                                         @endforeach
                                     </div>
@@ -505,9 +499,7 @@
                                                     <span class="font-bold mr-1">{{ $assignment['subject'] }}</span>
                                                     <span class="text-muted-foreground">({{ $assignment['part_count'] }} پارت | {{ $assignment['time_per_part'] }} دقیقه)</span>
                                                 </div>
-                                                @if($canEdit)
-                                                    <button wire:click="deleteAssignment({{ $assignment['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
-                                                @endif
+                                                <button wire:click="deleteAssignment({{ $assignment['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
                                             </div>
                                         @endforeach
                                     </div>
@@ -616,10 +608,7 @@
                                                     <span class="text-muted-foreground mr-1">({{ $rp['part_count'] }} پارت | {{ $rp['time_per_part'] }} دقیقه)</span>
                                                     @if(!empty($rp['description']))<p class="mt-1 text-muted-foreground text-[11px] leading-5">{{ $rp['description'] }}</p>@endif
                                                 </div>
-                                                @if($canEdit)
-                                                    <button wire:click="deleteRequestedPart({{ $rp['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
-
-                                                @endif
+                                                <button wire:click="deleteRequestedPart({{ $rp['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
                                             </div>
                                         @endforeach
                                     </div>

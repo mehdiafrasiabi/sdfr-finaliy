@@ -96,14 +96,14 @@
     <div class="row g-3 mb-4">
         <div class="col-md-3 col-6">
             <div class="card text-center h-100" role="button" wire:click="openModal('grew')"><div class="card-body py-3">
-                <div class="text-muted small">پیشرفت دانش آموزان نسبت به ماه قبل</div>
+                <div class="text-muted small">رشد نسبت به ماه قبل</div>
                 <h3 class="mb-0 mt-1 text-success">{{ $grew->count() }} ▲</h3>
                 <div class="text-primary small mt-1">اسامی</div>
             </div></div>
         </div>
         <div class="col-md-3 col-6">
             <div class="card text-center h-100" role="button" wire:click="openModal('regressed')"><div class="card-body py-3">
-                <div class="text-muted small">پسرفت دانش آموزان نسبت به ماه قبل</div>
+                <div class="text-muted small">پسرفت نسبت به ماه قبل</div>
                 <h3 class="mb-0 mt-1 text-danger">{{ $regressed->count() }} ▼</h3>
                 <div class="text-primary small mt-1">اسامی</div>
             </div></div>
@@ -127,7 +127,7 @@
     <div class="row g-3 mb-4">
         <div class="col-lg-6">
             <div class="card h-100">
-                <div class="card-header"><strong>🏆 نفرات برتر کارنامهٔ ماهانه مدرسه (معدل کل)</strong></div>
+                <div class="card-header"><strong>🏆 نفرات برتر کارنامهٔ ماهانه (معدل کل)</strong></div>
                 <div class="table-responsive">
                     <table class="table table-hover mb-0 align-middle">
                         <thead class="table-light"><tr><th class="text-center">#</th><th>دانش‌آموز</th><th class="text-center">معدل کل</th></tr></thead>
@@ -163,7 +163,7 @@
 
     {{-- ۲) میزان تسلط دانش‌آموزان --}}
     <div class="card mb-4">
-        <div class="card-header"><strong>تحلیل عملکرد دبیران مدرسه (میزان تسلط دانش آموزان بصورت میانگین در هر درس)</strong>
+        <div class="card-header"><strong>میزان تسلط دانش‌آموزان (بر اساس طبقه‌بندی)</strong>
             <span class="text-muted small">A خیلی‌خوب · B خوب · C متوسط · D ضعیف</span>
         </div>
         <div class="card-body">
@@ -177,7 +177,7 @@
 
     {{-- ۷) تماس‌های اورژانسی --}}
     <div class="card mb-4">
-        <div class="card-header"><strong>🚨 پیگیری فوری (تماسی که نیازمند پیگیری مدرسه است )</strong></div>
+        <div class="card-header"><strong>🚨 تماس‌های اورژانسی (ثبت‌شده توسط مشاور)</strong></div>
         <div class="table-responsive">
             <table class="table table-hover mb-0 align-middle">
                 <thead class="table-light">

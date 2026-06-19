@@ -21,6 +21,9 @@ class TrialWeek extends Model
         'classification_locked_at' => 'datetime',
         'pre_session_completed_at' => 'datetime',
         'program_built_at'         => 'datetime',
+        'acq_probability'          => 'integer',
+        'acq_confirmed'            => 'boolean',
+        'acq_reminder_at'          => 'datetime',
     ];
 
     const STATUS_PENDING               = 'pending';
@@ -67,6 +70,39 @@ class TrialWeek extends Model
     public function acquisitionContacts(): \Illuminate\Database\Eloquent\Relations\HasMany
     {
         return $this->hasMany(AcquisitionContact::class)->orderBy('contacted_at');
+    }
+
+    /**
+     * تماس‌های جریان «جذب یک هفته آزمایشی» (جریان یکپارچهٔ جدید).
+     */
+    public function trialAcquisitionCalls(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(TrialAcquisitionCall::class)->orderBy('called_at');
+    }
+
+    /**
+     * تاریخ مبدأ مراحل جذب = روز ثبت‌نام / شروع هفتهٔ آزمایشی.
+     */
+    public function acquisitionStartDate(): Carbon
+    {
+        return Carbon::parse($this->created_at)->startOfDay();
+    }
+
+    /**
+     * چند روز از شروع هفتهٔ آزمایشی گذشته است (۰-based).
+     */
+    public function daysSinceAcquisitionStart(): int
+    {
+        return (int) $this->acquisitionStartDate()->diffInDays(Carbon::now()->startOfDay());
+    }
+
+    /**
+     * آیا مرحله‌ای از نظر تاریخی سررسید شده است؟
+     */
+    public function isStageDue(string $stage): bool
+    {
+        $dueDay = TrialAcquisitionCall::STAGE_DUE_DAY[$stage] ?? 0;
+        return $this->daysSinceAcquisitionStart() >= $dueDay;
     }
 
     public function advisingSession(): BelongsTo

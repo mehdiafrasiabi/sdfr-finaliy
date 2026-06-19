@@ -285,16 +285,16 @@
 
                     {{-- Section 1: intro --}}
                     <div id="hero-intro" class="hero-intro">
-
-                        <h1 class="font-black text-4xl sm:text-5xl md:text-6xl text-foreground" style="line-height:1.35">
-                           برنامه درسی هوشمند،
-                            <br>
-                            <span class="shimmer-text">
-                               با نظارت مشاور تحصیلی
-
+                        <div class="inline-flex items-center gap-2 glass-home rounded-full px-4 py-2 mb-5">
+                            <span class="relative flex w-2 h-2">
+                                <span class="absolute inline-flex w-full h-full bg-brand rounded-full opacity-75 animate-ping"></span>
+                                <span class="relative inline-flex w-2 h-2 bg-brand rounded-full"></span>
                             </span>
-
-
+                            <span class="font-semibold text-[11px] sm:text-xs text-foreground">پلتفرم هوشمند پایش و مشاوره‌ی تحصیلی</span>
+                        </div>
+                        <h1 class="font-black text-4xl sm:text-5xl md:text-6xl text-foreground" style="line-height:1.35">
+                            مسیر موفقیت تحصیلی‌ات،<br>
+                            <span class="shimmer-text">هوشمند</span> و بی‌وقفه
                         </h1>
                         <p class="font-medium text-sm sm:text-base text-muted leading-8 max-w-xl mx-auto mt-5">
                             با <span class="font-black text-foreground">SDFR</span> ساعت مطالعه ثبت می‌شود، برنامه‌ی اختصاصی می‌گیری و هوش مصنوعی هر روز عملکردت را تحلیل می‌کند.
@@ -310,7 +310,7 @@
 
                     {{-- Section 2: phone + labels --}}
                     <div id="hero-stage" class="hero-stage">
-                        <span class="hero-label hl-1">آنالیز فردی</span>
+                        <span class="hero-label hl-1">تحلیل هوشمند</span>
                         <span class="hero-label hl-2">برنامه‌ی شخصی</span>
                         <span class="hero-label hl-3">پیشرفت روزانه</span>
 

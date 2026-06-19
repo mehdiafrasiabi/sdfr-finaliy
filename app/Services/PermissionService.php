@@ -133,6 +133,8 @@ class PermissionService
 
             'site acquisition'    => 'پشتیبان جذب',
 
+            'مشاور جذب تلفنی'     => 'مشاور جذب تلفنی',
+
             'school-supporter'    => 'پشتیبان مدرسه',
 
         ];

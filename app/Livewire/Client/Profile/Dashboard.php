@@ -81,6 +81,7 @@ class Dashboard extends Component
         return AdvisingSession::where('student_id', $this->student->id)
             ->where('result_status', 'held')
             ->orderBy('activation_date', 'desc')
+            ->orderBy('id', 'desc') // تساوی تاریخ: جدیدترین جلسهٔ برگزارشده انتخاب شود
             ->first();
     }
     /**
@@ -113,7 +114,9 @@ class Dashboard extends Component
             return $this->activeProgramCache = WeeklyProgram::where('student_id', $this->student->id)->latest()->first();
         }
 
-        return $this->activeProgramCache = WeeklyProgram::where('advising_session_id', $activeSession->id)->first();
+        // اگر برنامه برای همین جلسه بازسازی شده باشد، جدیدترین نسخه نمایش داده شود (نه قدیمی‌ترین)
+        return $this->activeProgramCache = WeeklyProgram::where('advising_session_id', $activeSession->id)
+            ->latest('id')->first();
     }
 
     // ====================================================================
