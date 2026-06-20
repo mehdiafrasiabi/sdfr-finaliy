@@ -289,7 +289,7 @@ class Show extends Component
     protected function loadMakeupSessions()
     {
         $query = MakeupSession::where('student_id', $this->studentId)
-            ->with(['ccTopic.chapter.subject']);
+            ->with(['ccChapter.subject', 'ccTopic.chapter.subject']);
 
         // Apply same date filters
         if ($this->dateFrom) {
@@ -340,7 +340,7 @@ class Show extends Component
         $this->selectedSessionType = $type;
 
         if ($type === 'makeup') {
-            $this->selectedSession = MakeupSession::with(['ccTopic.chapter.subject.grade', 'student.user.personalInformation'])->find($sessionId);
+            $this->selectedSession = MakeupSession::with(['ccChapter.subject.grade', 'ccTopic.chapter.subject.grade', 'student.user.personalInformation'])->find($sessionId);
         } else {
             $this->selectedSession = StudyPartSession::with(['programPart.ccSubject', 'programPart.ccChapter', 'programPart.ccTopic', 'feedback', 'student.user.personalInformation', 'weeklyProgram.advisingSession'])->find($sessionId);
 

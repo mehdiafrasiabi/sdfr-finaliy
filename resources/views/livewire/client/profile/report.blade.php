@@ -503,12 +503,9 @@
                                         </div>
 
                                         <div class="flex-1 min-w-0">
-                                            <h4 class="font-semibold {{ !$partHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm sm:text-base line-clamp-1">{{ $part->lesson_name }}@if($part->ccChapter)<span class="font-normal text-muted">({{ $part->ccChapter->name }})</span>@endif</h4>
+                                            <h4 class="font-semibold {{ !$partHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm sm:text-base line-clamp-1">{{ $part->lesson_name }}@include('livewire.client.profile.partials.part-chapter-label', ['part' => $part])</h4>
 
                                             <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1">
-                                                @if($part->ccTopic)
-                                                    <span class="text-[10px] sm:text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded">{{ $part->ccTopic->name }}</span>
-                                                @endif
                                                 @if($part->source_type && $part->source_type !== 'normal')
                                                     <span class="text-[10px] sm:text-xs rounded-full px-2 py-0.5 font-medium {{ $part->source_type_tw_class }}">{{ $part->source_type_label }}</span>
                                                 @endif
@@ -604,7 +601,10 @@
                             <div class="space-y-1.5">
                                 @foreach($currentDayMakeupSessions as $ms)
                                     <div class="flex items-center justify-between text-xs text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-900/30 rounded-lg px-3 py-1.5">
-                                        <span class="font-medium">{{ $ms['topic_name'] }}</span>
+                                        <span class="font-medium">
+                                            @if($ms['subject_name']){{ $ms['subject_name'] }}@endif
+                                            @if($ms['chapter_name']) <span class="text-blue-400">«</span> {{ $ms['chapter_name'] }}@elseif(!$ms['subject_name'])نامشخص@endif
+                                        </span>
                                         <div class="flex items-center gap-2 text-blue-500">
                                             <span>{{ $ms['part_type_label'] }}</span>
                                             @if($ms['duration_minutes'] > 0)
@@ -749,11 +749,8 @@
                                             {{ $missed['day_name'] }} - {{ $missed['jalali_date'] }}
                                         </span>
                                     </div>
-                                    <h4 class="font-medium {{ !$compPartHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm">{{ $missed['part']->lesson_name }}@if($missed['part']->ccChapter)<span class="font-normal text-muted">({{ $missed['part']->ccChapter->name }})</span>@endif</h4>
+                                    <h4 class="font-medium {{ !$compPartHasStudyHours ? 'text-muted' : 'text-foreground' }} text-sm">{{ $missed['part']->lesson_name }}@include('livewire.client.profile.partials.part-chapter-label', ['part' => $missed['part']])</h4>
                                     <div class="flex flex-wrap items-center gap-1.5 mt-1">
-                                        @if($missed['part']->ccTopic)
-                                            <span class="text-[10px] sm:text-xs text-primary bg-primary/10 px-1.5 py-0.5 rounded">{{ $missed['part']->ccTopic->name }}</span>
-                                        @endif
                                         @if($missed['part']->source_type && $missed['part']->source_type !== 'normal')
                                             <span class="text-[10px] sm:text-xs rounded-full px-2 py-0.5 font-medium {{ $missed['part']->source_type_tw_class }}">{{ $missed['part']->source_type_label }}</span>
                                         @endif
@@ -773,11 +770,7 @@
                                     <div class="pb-3 border-b border-amber-200/50 dark:border-amber-800/50 last:border-0 last:pb-0">
                                         <div class="flex items-center justify-between text-sm mb-2 flex-wrap gap-2">
                                             <span class="text-foreground font-medium">
-                                                {{ $missed['part']->lesson_name }}@if($missed['part']->ccChapter)<span class="font-normal text-muted">({{ $missed['part']->ccChapter->name }})</span>@endif
-                                                @if($missed['part']->ccTopic)
-                                                    <span class="text-xs text-primary font-normal mx-1">></span>
-                                                    <span class="text-xs text-primary font-normal">{{ $missed['part']->ccTopic->name }}</span>
-                                                @endif
+                                                {{ $missed['part']->lesson_name }}@include('livewire.client.profile.partials.part-chapter-label', ['part' => $missed['part']])
                                             </span>
                                             @if($missed['part']->test_count)
                                                 <div class="flex items-center gap-2">

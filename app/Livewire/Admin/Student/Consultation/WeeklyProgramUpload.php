@@ -47,6 +47,10 @@ class WeeklyProgramUpload extends Component
     // ==================== Part Modal ====================
     public bool $showPartModal = false;
     public ?int $editingPartId = null;
+    // مرحله انتخاب حالت پارت (عادی / کل کتاب / پارت مروری) قبل از نمایش فرم
+    public bool $showPartModeStep = false;
+    // فصل‌های انتخاب‌شده برای حالت «پارت مروری»
+    public array $reviewChapterIds = [];
     public array $partForm = [
         'education_level_id' => '',
         'cc_grade_id'        => '',
@@ -62,6 +66,7 @@ class WeeklyProgramUpload extends Component
         'program_part_source_id' => null,
         'lesson_type'        => 'specialized',
         'grade'              => '',
+        'part_mode'          => 'normal',
     ];
     public $partSources  = [];
     public $grades       = [];
@@ -270,7 +275,7 @@ class WeeklyProgramUpload extends Component
         if (!$prevSession) return;
 
         $prevProgram = WeeklyProgram::where('advising_session_id', $prevSession->id)
-            ->with(['parts.studyPartSessions.feedback'])
+            ->with(['parts.studyPartSessions.feedback', 'parts.ccChapter'])
             ->first();
         if (!$prevProgram) return;
 
@@ -355,6 +360,9 @@ class WeeklyProgramUpload extends Component
                     'test_count'         => $part->test_count,
                     'part_type'          => $part->part_type,
                     'part_type_label'    => $part->part_type_label,
+                    'part_mode'          => $part->part_mode ?? 'normal',
+                    'chapter_name'       => $part->ccChapter?->name,
+                    'review_chapters'    => $part->review_chapters ?? [],
                     'source_type'        => $part->source_type ?? 'normal',
                     'source_type_label'  => $part->source_type_label,
                     'source_type_color'  => $part->source_type_color,
@@ -577,6 +585,7 @@ class WeeklyProgramUpload extends Component
                     'duration_minutes'   => $part->duration_minutes,
                     'test_count'         => $part->test_count,
                     'part_type'          => $part->part_type,
+                    'part_mode'          => $part->part_mode,
                     'source_type'        => $part->source_type,
                     'lesson_type'        => $part->lesson_type,
                     'grade'              => $part->grade,
@@ -586,6 +595,7 @@ class WeeklyProgramUpload extends Component
                     'cc_subject_id'      => $part->cc_subject_id,
                     'cc_chapter_id'      => $part->cc_chapter_id,
                     'cc_topic_id'        => $part->cc_topic_id,
+                    'review_chapters'    => $part->review_chapters,
                     'grade_label'        => $part->grade_label,
                 ]);
                 $copied++;
@@ -626,8 +636,28 @@ class WeeklyProgramUpload extends Component
     {
         $this->selectedDay = $dayIndex;
         $this->resetPartForm();
-        $this->showPartModal = true;
+        // ابتدا مرحله انتخاب حالت پارت نمایش داده می‌شود
+        $this->showPartModeStep = true;
+        $this->showPartModal    = true;
+    }
+
+    // انتخاب حالت پارت و رفتن به فرم
+    public function selectPartMode(string $mode): void
+    {
+        if (!in_array($mode, ['normal', 'whole_book', 'review'], true)) {
+            $mode = 'normal';
+        }
+        $this->partForm['part_mode'] = $mode;
+        $this->reviewChapterIds      = [];
+        $this->showPartModeStep      = false;
         $this->dispatch('modal-opened');
+    }
+
+    // بازگشت به مرحله انتخاب حالت پارت
+    public function backToPartModeStep(): void
+    {
+        $this->showPartModeStep = true;
+        $this->dispatch('modal-closed');
     }
 
     public function editPart(int $partId): void
@@ -637,6 +667,10 @@ class WeeklyProgramUpload extends Component
 
         $this->editingPartId = $partId;
         $this->selectedDay   = $part->day_of_week;
+        // در حالت ویرایش، مرحله انتخاب حالت پارت نمایش داده نمی‌شود
+        $this->showPartModeStep = false;
+        $this->reviewChapterIds = collect($part->review_chapters ?? [])
+            ->pluck('id')->map(fn($id) => (int) $id)->all();
 
         $this->partForm = [
             'education_level_id' => $part->education_level_id,
@@ -653,14 +687,12 @@ class WeeklyProgramUpload extends Component
             'part_type'          => $part->part_type,
             'lesson_type'        => $part->lesson_type,
             'grade'              => $part->grade,
+            'part_mode'          => $part->part_mode ?? 'normal',
         ];
 
         if ($part->education_level_id) {
-            $this->grades = CcGrade::where('education_level_id', $part->education_level_id)
-                ->where('is_active', true)->with('field')->orderBy('order')->get();
+            $this->grades = $this->loadGradesForStudent($part->education_level_id);
         }
-
-        $this->fields = CcField::active()->ordered()->get();
 
         if ($part->cc_grade_id) {
             $this->subjects = CcSubject::where('cc_grade_id', $part->cc_grade_id)
@@ -689,7 +721,7 @@ class WeeklyProgramUpload extends Component
         $this->partForm = [
             'education_level_id' => '',
             'cc_grade_id'        => '',
-            'cc_field_id'        => '',
+            'cc_field_id'        => $this->getStudentFieldFilter() ?: '',
             'cc_subject_id'      => '',
             'cc_chapter_id'      => '',
             'cc_topic_id'        => '',
@@ -700,7 +732,9 @@ class WeeklyProgramUpload extends Component
             'part_type'          => 'descriptive',
             'lesson_type'        => 'specialized',
             'grade'              => '',
+            'part_mode'          => 'normal',
         ];
+        $this->reviewChapterIds = [];
         $this->grades   = [];
         $this->fields   = [];
         $this->subjects = [];
@@ -712,7 +746,8 @@ class WeeklyProgramUpload extends Component
 
     public function closePartModal(): void
     {
-        $this->showPartModal = false;
+        $this->showPartModal    = false;
+        $this->showPartModeStep = false;
         $this->resetPartForm();
         $this->dispatch('modal-closed');
     }
@@ -721,7 +756,6 @@ class WeeklyProgramUpload extends Component
     public function updatedPartFormEducationLevelId($value): void
     {
         $this->partForm['cc_grade_id']   = '';
-        $this->partForm['cc_field_id']   = '';
         $this->partForm['cc_subject_id'] = '';
         $this->partForm['cc_chapter_id'] = '';
         $this->partForm['cc_topic_id']   = '';
@@ -729,12 +763,25 @@ class WeeklyProgramUpload extends Component
         $this->chapters = [];
         $this->topics   = [];
 
-        $this->grades = $value
-            ? CcGrade::where('education_level_id', $value)->where('is_active', true)->with('field')->orderBy('order')->get()
-            : [];
+        // رشته به‌صورت خودکار از روی رشته‌ی خود دانش‌آموز تعیین می‌شود
+        $this->partForm['cc_field_id'] = $this->getStudentFieldFilter() ?: '';
 
-        $this->fields = CcField::active()->ordered()->get();
-        $this->dispatchSelectUpdates(['grades', 'fields', 'subjects', 'chapters', 'topics']);
+        $this->grades = $this->loadGradesForStudent($value);
+
+        $this->dispatchSelectUpdates(['grades', 'subjects', 'chapters', 'topics']);
+    }
+
+    // بارگذاری پایه‌ها فقط برای پایه‌های مجاز خود دانش‌آموز
+    protected function loadGradesForStudent($educationLevelId)
+    {
+        if (!$educationLevelId) return collect();
+
+        $allowedGrades = $this->getStudentGradeFilter()['grade_numbers'];
+
+        return CcGrade::where('education_level_id', $educationLevelId)
+            ->where('is_active', true)
+            ->when($allowedGrades !== null, fn($q) => $q->whereIn('grade_number', $allowedGrades))
+            ->with('field')->orderBy('order')->get();
     }
 
     public function updatedPartFormCcGradeId($value): void
@@ -758,7 +805,7 @@ class WeeklyProgramUpload extends Component
             $this->subjects = [];
         }
 
-        $this->dispatchSelectUpdates(['subjects', 'chapters', 'topics']);
+        $this->dispatchSelectUpdates(['subjects', 'chapters']);
     }
 
     public function updatedPartFormCcFieldId($value): void
@@ -783,6 +830,7 @@ class WeeklyProgramUpload extends Component
     {
         $this->partForm['cc_chapter_id'] = '';
         $this->partForm['cc_topic_id']   = '';
+        $this->reviewChapterIds          = [];
         $this->topics = [];
 
         if ($value) {
@@ -797,18 +845,23 @@ class WeeklyProgramUpload extends Component
             $this->chapters = [];
         }
 
-        $this->dispatchSelectUpdates(['chapters', 'topics']);
+        $this->dispatchSelectUpdates(['chapters']);
     }
 
     public function updatedPartFormCcChapterId($value): void
     {
         $this->partForm['cc_topic_id'] = '';
+        $this->topics = [];
 
-        $this->topics = $value
-            ? CcTopic::where('cc_chapter_id', $value)->where('is_active', true)->whereNull('parent_id')->orderBy('order')->get()
-            : [];
-
-        $this->dispatchSelectUpdates(['topics']);
+        if ($value) {
+            $chapter = CcChapter::with('subject')->find($value);
+            if ($chapter) {
+                $subjectName = $chapter->subject?->name;
+                $this->partForm['description'] = $subjectName
+                    ? $subjectName . ' » ' . $chapter->name
+                    : $chapter->name;
+            }
+        }
     }
 
     public function updatedPartFormCcTopicId($value): void
@@ -1109,11 +1162,9 @@ class WeeklyProgramUpload extends Component
         $this->partForm['cc_subject_id']      = $result['subject_id'];
         $this->partForm['cc_chapter_id']      = $result['chapter_id'] ?? '';
         $this->partForm['cc_topic_id']        = $result['topic_id'] ?? '';
+        $this->reviewChapterIds               = [];
 
-        $this->grades = CcGrade::where('education_level_id', $result['education_level_id'])
-            ->where('is_active', true)->with('field')->orderBy('order')->get();
-
-        $this->fields = CcField::active()->ordered()->get();
+        $this->grades = $this->loadGradesForStudent($result['education_level_id']);
 
         $fieldId        = $result['field_id'] ?: null;
         $this->subjects = CcSubject::where('cc_grade_id', $result['grade_id'])
@@ -1161,22 +1212,39 @@ class WeeklyProgramUpload extends Component
             'disabled' => false,
         ]);
 
-        $this->dispatchSelectUpdates(['grades', 'fields', 'subjects', 'chapters', 'topics']);
+        $this->dispatchSelectUpdates(['grades', 'subjects', 'chapters']);
     }
 
     // ==================== Save Part ====================
     public function savePart(): void
     {
-        $this->validate([
-            'partForm.cc_subject_id'      => 'required|exists:cc_subjects,id',
-            'partForm.duration_minutes'   => 'required|integer|min:15',
-            'partForm.part_type'          => 'required|in:test,descriptive,video,topic_exam',
-        ], [
+        $mode = in_array($this->partForm['part_mode'] ?? 'normal', ['normal', 'whole_book', 'review'], true)
+            ? $this->partForm['part_mode']
+            : 'normal';
+
+        $rules = [
+            'partForm.cc_subject_id'    => 'required|exists:cc_subjects,id',
+            'partForm.duration_minutes' => 'required|integer|min:15',
+            'partForm.part_type'        => 'required|in:test,descriptive,video,topic_exam',
+        ];
+        $messages = [
             'partForm.cc_subject_id.required'    => 'انتخاب درس الزامی است.',
             'partForm.duration_minutes.required' => 'مدت زمان الزامی است.',
             'partForm.duration_minutes.min'      => 'حداقل مدت زمان هر پارت ۱۵ دقیقه است.',
             'partForm.part_type.required'        => 'نوع پارت الزامی است.',
-        ]);
+        ];
+
+        // در حالت عادی فصل اجباری است؛ در حالت مروری حداقل یک فصل لازم است؛ کل کتاب نیازی به فصل ندارد
+        if ($mode === 'normal') {
+            $rules['partForm.cc_chapter_id'] = 'required|exists:cc_chapters,id';
+            $messages['partForm.cc_chapter_id.required'] = 'انتخاب فصل الزامی است.';
+        } elseif ($mode === 'review') {
+            $rules['reviewChapterIds']           = 'required|array|min:1';
+            $messages['reviewChapterIds.required'] = 'برای پارت مروری حداقل یک فصل انتخاب کنید.';
+            $messages['reviewChapterIds.min']      = 'برای پارت مروری حداقل یک فصل انتخاب کنید.';
+        }
+
+        $this->validate($rules, $messages);
 
         $gradeValue = ($this->partForm['grade'] !== '' && $this->partForm['grade'] !== null)
             ? (string)$this->partForm['grade']
@@ -1187,17 +1255,50 @@ class WeeklyProgramUpload extends Component
 
         $this->saveProgram();
 
-        $partDate   = Carbon::parse($this->start_date)->addDays((int)$this->selectedDay);
-        $subject    = CcSubject::find($this->partForm['cc_subject_id']);
-        $lessonName = $subject?->name ?? $this->partForm['lesson_name'];
-        $lessonType = $subject?->type ?? 'specialized';
+        $partDate    = Carbon::parse($this->start_date)->addDays((int)$this->selectedDay);
+        $subject     = CcSubject::find($this->partForm['cc_subject_id']);
+        $subjectName = $subject?->name ?? $this->partForm['lesson_name'];
+        $lessonType  = $subject?->type ?? 'specialized';
+
+        $chapterId      = $this->partForm['cc_chapter_id'] ?: null;
+        $topicId        = $this->partForm['cc_topic_id'] ?: null;
+        $description    = $this->partForm['description'];
+        $reviewChapters = null;
+
+        if ($mode === 'whole_book') {
+            // کل کتاب: فقط درس، بدون فصل
+            $lessonName = $subjectName;
+            $chapterId  = null;
+            $topicId    = null;
+            if (trim((string)$description) === '') {
+                $description = $subjectName . ' » کل کتاب';
+            }
+        } elseif ($mode === 'review') {
+            // پارت مروری: عنوان ثابت، چند فصل، یک زمان کلی
+            $lessonName = 'پارت مروری';
+            $chapters   = CcChapter::whereIn('id', $this->reviewChapterIds)->orderBy('order')->get(['id', 'name']);
+            $reviewChapters = $chapters->map(fn($c) => ['id' => (int) $c->id, 'name' => $c->name])->values()->all();
+            $chapterId  = null;
+            $topicId    = null;
+            if (trim((string)$description) === '') {
+                $description = $subjectName . ' » ' . $chapters->pluck('name')->implode('، ');
+            }
+        } else {
+            // عادی
+            $lessonName = $subjectName;
+        }
+
+        // در حالت کل کتاب و پارت مروری «نوع پارت» و «تعداد تست» معنا ندارند
+        $partType  = $mode === 'normal' ? $this->partForm['part_type'] : 'descriptive';
+        $testCount = $mode === 'normal' ? $this->partForm['test_count'] : null;
 
         $commonData = [
             'lesson_name'        => $lessonName,
-            'description'        => $this->partForm['description'],
+            'description'        => $description,
             'duration_minutes'   => $this->partForm['duration_minutes'],
-            'test_count'         => $this->partForm['test_count'],
-            'part_type'          => $this->partForm['part_type'],
+            'test_count'         => $testCount,
+            'part_type'          => $partType,
+            'part_mode'          => $mode,
             'lesson_type'        => $lessonType,
             'grade'              => $gradeValue,
             'grade_label'        => $gradeLabel,
@@ -1205,8 +1306,9 @@ class WeeklyProgramUpload extends Component
             'cc_grade_id'        => $this->partForm['cc_grade_id'] ?: null,
             'cc_field_id'        => $this->partForm['cc_field_id'] ?: null,
             'cc_subject_id'      => $this->partForm['cc_subject_id'] ?: null,
-            'cc_chapter_id'      => $this->partForm['cc_chapter_id'] ?: null,
-            'cc_topic_id'        => $this->partForm['cc_topic_id'] ?: null,
+            'cc_chapter_id'      => $chapterId,
+            'cc_topic_id'        => $topicId,
+            'review_chapters'    => $reviewChapters,
         ];
 
         if ($this->editingPartId) {
@@ -2711,6 +2813,8 @@ class WeeklyProgramUpload extends Component
                     'subject_name'      => $part->ccSubject?->name ?? '',
                     'chapter_name'      => $part->ccChapter?->name ?? '',
                     'topic_name'        => $part->ccTopic?->name  ?? '',
+                    'part_mode'         => $part->part_mode ?? 'normal',
+                    'review_chapters'   => $part->review_chapters ?? [],
                 ];
             })->toArray();
 
@@ -3289,6 +3393,7 @@ class WeeklyProgramUpload extends Component
                     'duration_minutes'   => $part->duration_minutes,
                     'test_count'         => $part->test_count,
                     'part_type'          => $part->part_type,
+                    'part_mode'          => $part->part_mode,
                     'source_type'        => ProgramPart::SOURCE_NORMAL,
                     'lesson_type'        => $part->lesson_type,
                     'grade'              => $part->grade,
@@ -3298,6 +3403,7 @@ class WeeklyProgramUpload extends Component
                     'cc_subject_id'      => $part->cc_subject_id,
                     'cc_chapter_id'      => $part->cc_chapter_id,
                     'cc_topic_id'        => $part->cc_topic_id,
+                    'review_chapters'    => $part->review_chapters,
                 ]);
                 $copied++;
             }
@@ -3350,6 +3456,7 @@ class WeeklyProgramUpload extends Component
                 'duration_minutes'   => $part->duration_minutes,
                 'test_count'         => $part->test_count,
                 'part_type'          => $part->part_type,
+                'part_mode'          => $part->part_mode,
                 'source_type'        => $part->source_type,
                 'lesson_type'        => $part->lesson_type,
                 'grade'              => $part->grade,
@@ -3359,6 +3466,7 @@ class WeeklyProgramUpload extends Component
                 'cc_subject_id'      => $part->cc_subject_id,
                 'cc_chapter_id'      => $part->cc_chapter_id,
                 'cc_topic_id'        => $part->cc_topic_id,
+                'review_chapters'    => $part->review_chapters,
                 'grade_label'        => $part->grade_label,
             ]);
 
@@ -3502,6 +3610,18 @@ class WeeklyProgramUpload extends Component
             default          => $collection->sortBy('day_of_week')->values()->toArray(),
         };
     }
+    // قالب‌بندی دقیقه به «X ساعت و Y دقیقه»
+    public function fmtDuration($minutes): string
+    {
+        $minutes = (int) round((float) $minutes);
+        $h = intdiv($minutes, 60);
+        $m = $minutes % 60;
+
+        if ($h > 0 && $m > 0) return $h . ' ساعت و ' . $m . ' دقیقه';
+        if ($h > 0)           return $h . ' ساعت';
+        return $m . ' دقیقه';
+    }
+
     // ==================== Render ====================
     public function render()
     {
@@ -3520,7 +3640,7 @@ class WeeklyProgramUpload extends Component
             $dayOfWeek   = $jalaliDate->getDayOfWeek();
 
             $dayParts    = $weeklyProgram
-                ? $weeklyProgram->parts()->where('day_of_week', $i)->orderBy('part_order')->get()
+                ? $weeklyProgram->parts()->with('ccChapter')->where('day_of_week', $i)->orderBy('part_order')->get()
                 : collect();
 
             $isRestDay = $weeklyProgram ? $weeklyProgram->isRestDay($i) : false;
@@ -3531,9 +3651,10 @@ class WeeklyProgramUpload extends Component
                 'name'        => $jalaliDayNames[$dayOfWeek],
                 'date'        => $date,
                 'jalali_date' => $jalaliDate->format('Y/m/d'),
-                'parts'       => $dayParts,
-                'total_hours' => round($dayParts->sum('duration_minutes') / 60, 1),
-                'total_tests' => $dayParts->sum('test_count') ?? 0,
+                'parts'         => $dayParts,
+                'total_hours'   => round($dayParts->sum('duration_minutes') / 60, 1),
+                'total_minutes' => (int) $dayParts->sum('duration_minutes'),
+                'total_tests'   => $dayParts->sum('test_count') ?? 0,
                 'is_rest_day' => $isRestDay,
                 'is_exam_day' => $isExamDay,
             ];

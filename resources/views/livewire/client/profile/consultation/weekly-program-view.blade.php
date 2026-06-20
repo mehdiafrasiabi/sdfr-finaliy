@@ -85,8 +85,24 @@
                                 <div class="text-xs mb-1 text-gray-500">{{ $activePart->ccSubject->name }}</div>
                             @endif
                             <div class="font-black text-white text-lg">{{ $activePart?->lesson_name ?? '—' }}</div>
-                            @if($activePart?->ccChapter)
+                            @php $apm = $activePart?->part_mode ?? 'normal'; @endphp
+                            @if($apm === 'review')
+                                @php $arcs = collect($activePart->review_chapters ?? []); @endphp
+                                @if($arcs->count())
+                                    <div class="flex flex-wrap items-center justify-center gap-1 mt-1">
+                                        @foreach($arcs as $rc)
+                                            <span class="text-[10px] px-1.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300">{{ $rc['name'] }}</span>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="text-xs mt-1 text-gray-400">بدون فصل</div>
+                                @endif
+                            @elseif($apm === 'whole_book')
+                                <div class="text-xs mt-1 text-emerald-400">کل کتاب</div>
+                            @elseif($activePart?->ccChapter)
                                 <div class="text-xs mt-1 text-blue-400">{{ $activePart->ccChapter->name }}</div>
+                            @else
+                                <div class="text-xs mt-1 text-gray-400">بدون فصل</div>
                             @endif
                             @if($pendingExtraTargetSeconds !== null)
                                 <span class="inline-block mt-2 text-[10px] px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300">
@@ -437,8 +453,27 @@
                                                 <div class="flex items-center justify-between gap-3 p-4 cursor-pointer" @click="open = !open">
                                                     <div class="min-w-0 flex-1">
                                                         <h4 class="font-bold text-foreground text-sm truncate">{{ $part->lesson_name }}</h4>
-                                                        @if($part->ccSubject)
+                                                        @php $pm = $part->part_mode ?? 'normal'; @endphp
+                                                        @if($pm === 'review' && $part->ccSubject)
                                                             <p class="text-[11px] text-muted truncate mt-0.5">{{ $part->ccSubject->name }}</p>
+                                                        @endif
+                                                        @if($pm === 'review')
+                                                            @php $rcs = collect($part->review_chapters ?? []); @endphp
+                                                            @if($rcs->count())
+                                                                <div class="flex flex-wrap gap-1 mt-1">
+                                                                    @foreach($rcs as $rc)
+                                                                        <span class="inline-block rounded-md bg-amber-500/10 text-amber-600 px-1.5 py-0.5 text-[10px] font-semibold">{{ $rc['name'] }}</span>
+                                                                    @endforeach
+                                                                </div>
+                                                            @else
+                                                                <p class="text-[11px] text-muted mt-0.5">بدون فصل</p>
+                                                            @endif
+                                                        @elseif($pm === 'whole_book')
+                                                            <p class="text-[11px] text-emerald-600 mt-0.5">کل کتاب</p>
+                                                        @elseif($part->ccChapter)
+                                                            <p class="text-[11px] text-muted truncate mt-0.5">{{ $part->ccChapter->name }}</p>
+                                                        @else
+                                                            <p class="text-[11px] text-muted mt-0.5">بدون فصل</p>
                                                         @endif
                                                     </div>
                                                     <div class="flex items-center gap-3 flex-shrink-0">
@@ -479,13 +514,28 @@
 
                                                 <div x-show="open" x-collapse x-cloak>
                                                     <div class="px-4 pb-4 space-y-3 border-t border-border pt-3">
-                                                        @if($part->ccSubject || $part->ccChapter)
-                                                            <div class="flex items-center justify-center gap-1.5 flex-wrap text-xs text-foreground/80">
-                                                                @if($part->ccSubject)<span>{{ $part->ccSubject->name }}</span>@endif
-                                                                @if($part->ccSubject && $part->ccChapter)<span class="text-muted">«</span>@endif
-                                                                @if($part->ccChapter)<span>{{ $part->ccChapter->name }}</span>@endif
-                                                            </div>
-                                                        @endif
+                                                        @php $pmd = $part->part_mode ?? 'normal'; @endphp
+                                                        <div class="flex items-center justify-center gap-1.5 flex-wrap text-xs text-foreground/80">
+                                                            @if($part->ccSubject)<span>{{ $part->ccSubject->name }}</span>@endif
+                                                            @if($pmd === 'review')
+                                                                @php $rcs = collect($part->review_chapters ?? []); @endphp
+                                                                @if($rcs->count())
+                                                                    <span class="text-muted">«</span>
+                                                                    @foreach($rcs as $rc)
+                                                                        <span class="rounded-md bg-amber-500/10 text-amber-600 px-1.5 py-0.5 text-[11px] font-semibold">{{ $rc['name'] }}</span>
+                                                                    @endforeach
+                                                                @else
+                                                                    <span class="text-muted">« بدون فصل</span>
+                                                                @endif
+                                                            @elseif($pmd === 'whole_book')
+                                                                <span class="text-muted">«</span><span class="text-emerald-600">کل کتاب</span>
+                                                            @elseif($part->ccChapter)
+                                                                @if($part->ccSubject)<span class="text-muted">«</span>@endif
+                                                                <span>{{ $part->ccChapter->name }}</span>
+                                                            @else
+                                                                <span class="text-muted">« بدون فصل</span>
+                                                            @endif
+                                                        </div>
                                                         <div class="flex items-center justify-center gap-1.5 flex-wrap">
                                                             <span class="rounded-full px-2.5 py-0.5 text-[11px] font-semibold {{ $typeStyle }}">{{ $part->part_type_label }}</span>
                                                             @if($part->grade)
@@ -508,27 +558,27 @@
                                                             </div>
                                                         @elseif($isActive)
                                                             <div class="text-xs font-bold py-2.5 rounded-xl bg-primary/10 text-primary text-center">در حال مطالعه...</div>
-                                                            @elseif($isMissed)
-                                                                <button wire:click="startPart({{ $part->id }})"
-                                                                        wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
-                                                                        class="w-full h-11 rounded-xl font-bold text-sm bg-amber-500 hover:bg-amber-600 text-white transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                                                        @elseif($isMissed)
+                                                            <button wire:click="startPart({{ $part->id }})"
+                                                                    wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
+                                                                    class="w-full h-11 rounded-xl font-bold text-sm bg-amber-500 hover:bg-amber-600 text-white transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
         <span wire:loading.remove wire:target="startPart({{ $part->id }})" class="flex items-center gap-1.5">
             <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0011.667 0l3.181-3.183m-4.991-2.696v-.001h4.992m-4.992 0L21 4.356"/>
             </svg>
             ثبت جبرانی
         </span>
-                                                                    <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
-                                                                </button>
-                                                                <p class="text-[10px] text-amber-500/80 text-center mt-1">این پارت در روزهای گذشته بوده — می‌توانی الان جبرانش کنی</p>
-                                                            @elseif(!$timerActive)
-                                                                <button wire:click="startPart({{ $part->id }})"
-                                                                        wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
-                                                                        class="w-full h-11 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
-                                                                    <span wire:loading.remove wire:target="startPart({{ $part->id }})">شروع مطالعه</span>
-                                                                    <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
-                                                                </button>
-                                                            @endif
+                                                                <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
+                                                            </button>
+                                                            <p class="text-[10px] text-amber-500/80 text-center mt-1">این پارت در روزهای گذشته بوده — می‌توانی الان جبرانش کنی</p>
+                                                        @elseif(!$timerActive)
+                                                            <button wire:click="startPart({{ $part->id }})"
+                                                                    wire:loading.attr="disabled" wire:target="startPart({{ $part->id }})"
+                                                                    class="w-full h-11 rounded-xl font-bold text-sm bg-primary hover:bg-primary/90 text-primary-foreground transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2">
+                                                                <span wire:loading.remove wire:target="startPart({{ $part->id }})">شروع مطالعه</span>
+                                                                <span wire:loading wire:target="startPart({{ $part->id }})" class="spinner-circle"></span>
+                                                            </button>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </div>
@@ -951,18 +1001,24 @@
                         <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>
                 </div>
+                {{-- نشانگر بارگذاری هنگام واکشی اطلاعات آبشاری --}}
+                <div wire:loading.flex wire:target="makeupSearch,makeupGradeId,makeupSubjectId,makeupChapterId,selectSearchResult"
+                     class="items-center justify-center gap-2 py-2 bg-blue-500/5 border-b border-border text-xs font-semibold text-blue-500">
+                    <span class="spinner-circle spinner-sm"></span>
+                    در حال بارگذاری اطلاعات...
+                </div>
                 <div class="px-6 py-5 space-y-5">
                     <div>
                         <label class="block text-xs font-semibold text-foreground mb-1.5">جستجوی سریع</label>
                         <input type="text" wire:model.live.debounce.300ms="makeupSearch"
-                               class="w-full rounded-xl px-4 py-3 text-sm focus:outline-none bg-secondary border border-border text-foreground" placeholder="نام درس، فصل یا مبحث...">
+                               class="w-full rounded-xl px-4 py-3 text-sm focus:outline-none bg-secondary border border-border text-foreground" placeholder="نام درس یا فصل...">
                         @if(mb_strlen($makeupSearch) >= 2 && $this->searchResults->isNotEmpty())
                             <div class="mt-1 rounded-xl border border-border bg-secondary max-h-52 overflow-y-auto">
                                 @foreach($this->searchResults as $r)
                                     <button type="button" wire:click="selectSearchResult('{{ $r['type'] }}', {{ $r['id'] }})"
                                             class="w-full text-right px-4 py-3 text-sm flex items-start gap-2 hover:bg-background transition border-b border-border last:border-0">
-                                        <span class="text-xs font-bold px-1.5 py-0.5 rounded-md mt-0.5 flex-shrink-0 {{ $r['type']==='chapter' ? 'bg-blue-500/10 text-blue-500' : 'bg-emerald-500/10 text-emerald-500' }}">
-                                            {{ $r['type']==='chapter' ? 'فصل' : 'مبحث' }}
+                                        <span class="text-xs font-bold px-1.5 py-0.5 rounded-md mt-0.5 flex-shrink-0 bg-blue-500/10 text-blue-500">
+                                            فصل
                                         </span>
                                         <div class="min-w-0">
                                             <div class="font-semibold text-foreground truncate">{{ $r['name'] }}</div>
@@ -996,14 +1052,6 @@
                                 <x-ui.select wire:model.live="makeupChapterId" wire:key="select-chapter-{{ $makeupSubjectId }}"
                                              :options="$this->chapters->map(fn($c)=>['id'=>$c->id,'name'=>$c->name])->values()->toArray()"
                                              value-key="id" label-key="name" placeholder="انتخاب فصل..."/>
-                            </div>
-                        @endif
-                        @if($makeupChapterId)
-                            <div>
-                                <label class="block text-xs font-semibold text-foreground mb-1">مبحث</label>
-                                <x-ui.select wire:model.live="makeupTopicId" wire:key="select-topic-{{ $makeupChapterId }}"
-                                             :options="$this->topics->map(fn($t)=>['id'=>$t->id,'name'=>$t->name])->values()->toArray()"
-                                             value-key="id" label-key="name" placeholder="انتخاب مبحث..."/>
                             </div>
                         @endif
                     </div>
@@ -1049,8 +1097,8 @@
                 <div class="flex items-center justify-end gap-3 px-6 py-4 sticky bottom-0 glass border-t border-border">
                     <button wire:click="closeMakeupModal" class="px-5 h-10 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">انصراف</button>
                     <button wire:click="startMakeupTimer" wire:loading.attr="disabled" wire:target="startMakeupTimer"
-                            class="px-6 h-10 rounded-xl font-semibold text-sm text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px] {{ !$makeupTopicId ? 'bg-secondary text-muted cursor-not-allowed' : 'bg-blue-600' }}"
-                        {{ !$makeupTopicId ? 'disabled' : '' }}>
+                            class="px-6 h-10 rounded-xl font-semibold text-sm text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px] {{ !$makeupChapterId ? 'bg-secondary text-muted cursor-not-allowed' : 'bg-blue-600' }}"
+                        {{ !$makeupChapterId ? 'disabled' : '' }}>
                         <span wire:loading.remove wire:target="startMakeupTimer">شروع تایمر</span>
                         <span wire:loading wire:target="startMakeupTimer" class="spinner-circle"></span>
                     </button>

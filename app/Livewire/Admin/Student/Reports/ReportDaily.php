@@ -638,11 +638,12 @@ class ReportDaily extends Component
         $makeupSessions = MakeupSession::where('student_id', $report->student_id)
             ->whereNotNull('ended_at')
             ->whereBetween('ended_at', [$windowStart, $windowEnd])
-            ->with('ccTopic')
+            ->with(['ccChapter.subject', 'ccTopic.chapter'])
             ->get();
 
         $this->selectedReportData['makeup_sessions'] = $makeupSessions->map(fn($ms) => [
-            'topic_name'       => $ms->ccTopic?->name ?? 'نامشخص',
+            // اضافه بر سازمان اکنون بر اساس فصل است؛ برای رکوردهای قدیمی از مبحث
+            'topic_name'       => ($ms->ccChapter?->name ?? $ms->ccTopic?->chapter?->name ?? $ms->ccTopic?->name) ?: 'نامشخص',
             'part_type_label'  => $ms->part_type_label,
             'duration_minutes' => $ms->started_at && $ms->ended_at
                 ? (int) $ms->started_at->diffInMinutes($ms->ended_at)

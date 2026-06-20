@@ -375,16 +375,22 @@ class Report extends Component
         $this->currentDayMakeupSessions = MakeupSession::where('student_id', $student->id)
             ->whereNotNull('ended_at')
             ->whereBetween('ended_at', [$start, $end])
-            ->with('ccTopic')
+            ->with(['ccChapter.subject', 'ccTopic.chapter.subject'])
             ->get()
-            ->map(fn($ms) => [
-                'id'               => $ms->id,
-                'topic_name'       => $ms->ccTopic?->name ?? 'نامشخص',
-                'part_type_label'  => $ms->part_type_label,
-                'duration_minutes' => $ms->started_at && $ms->ended_at
-                    ? (int) $ms->started_at->diffInMinutes($ms->ended_at)
-                    : 0,
-            ])
+            ->map(function ($ms) {
+                // فصل از روی فیلد جدید، و برای رکوردهای قدیمی از روی مبحث
+                $chapter = $ms->ccChapter ?? $ms->ccTopic?->chapter;
+                $subject = $chapter?->subject;
+                return [
+                    'id'               => $ms->id,
+                    'subject_name'     => $subject?->name,
+                    'chapter_name'     => $chapter?->name,
+                    'part_type_label'  => $ms->part_type_label,
+                    'duration_minutes' => $ms->started_at && $ms->ended_at
+                        ? (int) $ms->started_at->diffInMinutes($ms->ended_at)
+                        : 0,
+                ];
+            })
             ->toArray();
     }
     public function togglePart(int $partId)

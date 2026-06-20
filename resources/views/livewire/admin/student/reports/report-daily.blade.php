@@ -747,7 +747,7 @@
                                             <thead class="table-light">
                                             <tr>
                                                 <th class="text-nowrap">ردیف</th>
-                                                <th class="text-nowrap">مبحث</th>
+                                                <th class="text-nowrap">درس / فصل</th>
                                                 <th class="text-center text-nowrap">نوع</th>
                                                 <th class="text-center text-nowrap">مدت مطالعه</th>
                                                 <th class="text-center text-nowrap">ساعت پایان</th>

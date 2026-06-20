@@ -545,18 +545,20 @@ class Dashboard extends Component
                 'total_hours' => 0,
                 'completed_hours' => 0,
                 'percentage' => 0,
+                'total_minutes' => 0,
+                'completed_minutes' => 0,
             ];
         }
 
         // کل ساعاتی که مشاور در نظر گرفته (پارت‌های غیرِ افزوده توسط دانش‌آموز)
-        $totalMinutes = $activeProgram->parts()->where('is_student_added', false)->sum('duration_minutes');
+        $totalMinutes = (int) $activeProgram->parts()->where('is_student_added', false)->sum('duration_minutes');
         $totalHours = round($totalMinutes / 60, 1);
 
         // ساعات انجام شده در این هفته
         $startDate = Carbon::parse($activeProgram->start_date);
         $endDate = Carbon::parse($activeProgram->end_date);
 
-        $completedMinutes = StudyPartSession::where('student_id', $this->student->id)
+        $completedMinutes = (int) StudyPartSession::where('student_id', $this->student->id)
             ->where('weekly_program_id', $activeProgram->id)
             ->whereBetween('started_at', [$startDate, $endDate])
             ->whereNotNull('ended_at')
@@ -573,10 +575,15 @@ class Dashboard extends Component
         // محاسبه درصد
         $percentage = $totalHours > 0 ? min(($completedHours / $totalHours) * 100, 100) : 0;
 
+        // دقیقهٔ نمایش‌دادنی محدود به سقف برنامه
+        $completedMinutesCapped = min($completedMinutes, $totalMinutes);
+
         return [
             'total_hours' => $totalHours,
             'completed_hours' => min($completedHours, $totalHours),
             'percentage' => round($percentage, 1),
+            'total_minutes' => $totalMinutes,
+            'completed_minutes' => $completedMinutesCapped,
         ];
     }
 

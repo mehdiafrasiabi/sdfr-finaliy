@@ -25,8 +25,27 @@
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0 flex-1">
                             <h4 class="font-bold text-foreground text-sm truncate">{{ $part->lesson_name }}</h4>
-                            @if($part->ccChapter)
+                            @php $pm = $part->part_mode ?? 'normal'; @endphp
+                            @if($pm === 'review' && $part->ccSubject)
+                                <p class="text-[11px] text-muted truncate mt-0.5">{{ $part->ccSubject->name }}</p>
+                            @endif
+                            @if($pm === 'review')
+                                @php $rcs = collect($part->review_chapters ?? []); @endphp
+                                @if($rcs->count())
+                                    <div class="flex flex-wrap gap-1 mt-1">
+                                        @foreach($rcs as $rc)
+                                            <span class="inline-block rounded-md bg-amber-500/10 text-amber-600 px-1.5 py-0.5 text-[10px] font-semibold">{{ $rc['name'] }}</span>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <p class="text-[11px] text-muted mt-0.5">بدون فصل</p>
+                                @endif
+                            @elseif($pm === 'whole_book')
+                                <p class="text-[11px] text-emerald-600 mt-0.5">کل کتاب</p>
+                            @elseif($part->ccChapter)
                                 <p class="text-[11px] text-muted truncate mt-0.5">{{ $part->ccChapter->name }}</p>
+                            @else
+                                <p class="text-[11px] text-muted mt-0.5">بدون فصل</p>
                             @endif
                         </div>
 

@@ -21,6 +21,7 @@ class ProgramPart extends Model
         'grade' => 'string',
         'part_date' => 'date',
         'day_of_week' => 'integer',
+        'review_chapters' => 'array',
 
     ];
 
@@ -37,6 +38,10 @@ class ProgramPart extends Model
     const PART_TYPE_EXAM_ANALYSIS = 'exam_analysis';
     const LESSON_TYPE_GENERAL = 'general';
     const LESSON_TYPE_SPECIALIZED = 'specialized';
+    // Part modes - how the consultant structured the part
+    const PART_MODE_NORMAL = 'normal';
+    const PART_MODE_WHOLE_BOOK = 'whole_book';
+    const PART_MODE_REVIEW = 'review';
     // Source types - where the part originated from
     const SOURCE_NORMAL = 'normal';
     const SOURCE_CLASS_QA = 'class_qa';
@@ -68,6 +73,16 @@ class ProgramPart extends Model
             self::PART_TYPE_COMPREHENSIVE_EXAM => 'آزمون جامع',
             self::PART_TYPE_EXAM_ANALYSIS => 'تحلیل آزمون',
             default => 'نامشخص',
+        };
+    }
+
+    // نمایش حالت پارت فارسی
+    public function getPartModeLabelAttribute(): string
+    {
+        return match ($this->part_mode) {
+            self::PART_MODE_WHOLE_BOOK => 'کل کتاب',
+            self::PART_MODE_REVIEW     => 'پارت مروری',
+            default                    => 'عادی',
         };
     }
 

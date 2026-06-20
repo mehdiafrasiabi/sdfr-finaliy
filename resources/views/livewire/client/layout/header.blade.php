@@ -103,12 +103,6 @@
                                     </ul>
                                 </div>
                             </div>
-                            <li>
-                                <a target="_blank" href="https://survey.porsline.ir/s/stlcBHD8"
-                                   class="inline-flex text-muted transition-colors hover:text-foreground">
-                                    <span class="font-semibold">همکاری با مجموعه</span>
-                                </a>
-                            </li>
                         </ul>
                     </div>
 
@@ -658,7 +652,7 @@
                                         'label' => 'پرتال',
                                         'items' => [
                                             ['label' => 'داشبورد',    'route' => route('client.profile.dashboard'),  'icon' => 'home'],
-                                            ['label' => 'پیشخوان',   'route' => route('client.profile.notification'), 'icon' => 'bell'],
+                                            ['label' => 'اطلاع رسانی',   'route' => route('client.profile.notification'), 'icon' => 'bell'],
                                         ],
                                     ],
                                     [
@@ -668,7 +662,7 @@
                                             ['label' => 'برنامه درسی',     'route' => route('client.profile.plan'),                    'icon' => 'book'],
                                             ['label' => 'گزارش درسی',      'route' => route('client.profile.report'),                  'icon' => 'clipboard'],
                                             ['label' => 'آزمون',           'route' => route('client.profile.typed-exam.list'),         'icon' => 'edit'],
-                                            ['label' => 'کارنامه وضعیت',   'route' => route('client.profile.reportStudentStudy'),      'icon' => 'file'],
+                                            ['label' => 'کارنامه هوشمند',   'route' => route('client.profile.reportStudentStudy'),      'icon' => 'file'],
                                             ['label' => 'طبقه‌بندی دروس',  'route' => route('client.profile.classification.projects'), 'icon' => 'layers'],
                                         ],
                                     ],

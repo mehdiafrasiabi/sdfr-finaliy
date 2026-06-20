@@ -9,8 +9,8 @@
         ['el' => '[data-tour=nav-logo]',         'title' => 'داشبورد',           'text' => 'با لمس لوگو وسط، هر جا باشی سریع به داشبورد اصلی برمی‌گردی.',                                                                                               'forced' => true],
         ['el' => '[data-tour=nav-report]',       'title' => 'گزارش روزانه',      'text' => 'گزارش مطالعه امروزت رو از همین‌جا ثبت کن.',                                                                                                                  'forced' => true],
         ['el' => '[data-tour=nav-exam]',         'title' => 'آزمون',             'text' => 'آزمون‌های تستی و تشریحیت رو از این بخش شروع کن.',                                                                                                           'forced' => true],
-        ['el' => '[data-tour=sudden-event]',     'title' => 'اتفاقات یهویی',    'text' => 'اگه یه اتفاق غیرمنتظره پیش اومد (مثل بیماری یا مسافرت)، از این دکمه ثبت کن تا برنامه‌ات تنظیم بشه.',                                                     'forced' => true],
-        ['el' => '[data-tour=class-schedule]',   'title' => 'برنامه کلاسی مدرسه','text' => 'برنامه هفتگی کلاس‌های مدرسه‌ات رو از اینجا ببین تا با برنامه مطالعه‌ات هماهنگ کنی.',                                                                   'forced' => true],
+        ['el' => '[data-tour=sudden-event]',     'title' => 'اتفاقات یهویی',    'text' => 'اگه یه اتفاق غیرمنتظره پیش اومد (مثل بیماری یا امتحان یهویی)، از این دکمه ثبت کن تا برنامه‌ات تنظیم بشه.',                                                     'forced' => true],
+        ['el' => '[data-tour=class-schedule]',   'title' => 'برنامه کلاسی مدرسه','text' => 'برنامه هفتگی مدرسه‌ات رو از اینجا وارد کن تا با برنامه مطالعه‌ات هماهنگ باشه.',                                                                   'forced' => true],
     ]"
     />
 
@@ -381,6 +381,25 @@
         }
     </style>
     @endassets
+
+    {{-- ════════ فرمت‌کنندهٔ زمان: ثانیه → «X ساعت و Y دقیقه» ════════
+         در سراسر این ویو استفاده می‌شود تا به‌جای ساعت اعشاری (مثل ۳.۱)،
+         زمان دقیق نمایش داده شود (مثل «۳ ساعت و ۶ دقیقه»).
+    ════════════════════════════════════════════════════════════ --}}
+    @php
+        $fmtHm = function ($seconds) {
+            $seconds = max(0, (int) round($seconds));
+            $h = intdiv($seconds, 3600);
+            $m = intdiv($seconds % 3600, 60);
+            if ($h > 0 && $m > 0) return $h . ' ساعت و ' . $m . ' دقیقه';
+            if ($h > 0)           return $h . ' ساعت';
+            if ($m > 0)           return $m . ' دقیقه';
+            return '۰ دقیقه';
+        };
+        // دقیقه → همان خروجی
+        $fmtMin = fn ($minutes) => $fmtHm(((int) round($minutes)) * 60);
+    @endphp
+
     <div class="max-w-7xl mx-auto px-4 py-6 relative z-10">
         <div class="flex gap-6 items-start">
 
@@ -509,7 +528,12 @@
                                 </div>
                             @endif
                             <div class="text-right">
+                                <span class="font-bold text-[11px] text-primary">
+                                    مشاور شما:
+                                </span>
+
                                 <div class="font-bold text-white text-base leading-tight">
+
                                     {{ $advisorStudent['name'] ?? 'تعیین نشده' }}
                                 </div>
                             </div>
@@ -614,8 +638,8 @@
                                 <span class="live-dot"></span>
                                 <span class="font-bold text-white text-[15px]">ساعت مطالعه من</span>
                             </div>
-                            <div class="text-xl font-black text-sky-400">
-                                {{ $studyHoursProgress['total_hours'] }} ساعت
+                            <div class="text-base font-black text-sky-400 whitespace-nowrap">
+                                {{ $fmtMin($studyHoursProgress['total_minutes'] ?? 0) }}
                             </div>
                         </div>
                         <p class="text-[11px] text-neutral-400 mb-4">مجموع ساعت مطالعه‌ات نسبت به هدف این هفته</p>
@@ -627,8 +651,8 @@
                         </div>
                         <div class="flex items-center justify-between text-[13px]">
                             <div class="text-neutral-400">{{ round($studyHoursProgress['percentage']) }}%</div>
-                            <div class="text-sky-400">{{ $studyHoursProgress['completed_hours'] }}
-                                از {{ $studyHoursProgress['total_hours'] }}</div>
+                            <div class="text-sky-400">{{ $fmtMin($studyHoursProgress['completed_minutes'] ?? 0) }}
+                                از {{ $fmtMin($studyHoursProgress['total_minutes'] ?? 0) }}</div>
                         </div>
                     </div>
 
@@ -640,14 +664,14 @@
                                     <span class="live-dot"></span>
                                     <span class="font-bold text-white text-[15px]">اضافه بر سازمان</span>
                                 </div>
-                                <div class="text-xl font-black text-emerald-400" style="direction:ltr;">
-                                    {{ $extraOrgProgress['hours'] }} ساعت
+                                <div class="text-base font-black text-emerald-400 whitespace-nowrap">
+                                    {{ $fmtHm($extraOrgProgress['total_seconds'] ?? 0) }}
                                 </div>
                             </div>
                             <p class="text-[11px] text-neutral-400 mb-3">میزان مطالعهٔ اضافه بر سازمان که این هفته ثبت کرده‌ای</p>
                             <div
                                 class="text-xs font-semibold px-3 py-2 rounded-xl inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20">
-                                ↑ {{ $extraOrgProgress['hours'] }} ساعت اضافه بر سازمان! عالی پیش می‌روی
+                                ↑ {{ $fmtHm($extraOrgProgress['total_seconds'] ?? 0) }} اضافه بر سازمان! عالی پیش می‌روی
                             </div>
                         </div>
                     @endif
@@ -833,10 +857,7 @@
                                             <div class="flex flex-col gap-1">
                                                 <span
                                                     class="font-bold text-white text-[14px] leading-tight">{{ $lessonName }}
-                                                  <span
-                                                      class="text-[11px] font-semibold px-2 py-0.5 rounded-full {{ $meta['bg'] }} {{ $meta['color'] }} ring-1 {{ $meta['ring'] }}">
-                                                {{ $meta['label'] }}
-                                            </span>
+
                                                 </span>
                                                 @if($dayName)
                                                     <span class="text-[11px] text-neutral-500">{{ $dayName }}</span>
@@ -844,20 +865,11 @@
 
                                             </div>
                                             <div class="flex items-center gap-2 flex-shrink-0">
-                                                @if($minutes > 0)
-                                                    <div class="flex flex-col items-center leading-tight">
-                                                        <span
-                                                            class="font-black text-white text-sm">{{ $minutes }}</span>
-                                                        <span class="text-[10px] text-neutral-400">دقیقه</span>
-                                                    </div>
-                                                @endif
-                                                @if($tests > 0)
-                                                    <div class="flex flex-col items-center leading-tight">
-                                                        <span class="font-black text-white text-sm">{{ $tests }}</span>
-                                                        <span class="text-[10px] text-neutral-400">تست</span>
-                                                    </div>
-                                                @endif
 
+                                        <span
+                                            class="text-[11px] font-semibold px-2 py-0.5 rounded-full {{ $meta['bg'] }} {{ $meta['color'] }} ring-1 {{ $meta['ring'] }}">
+                                                {{ $meta['label'] }}
+                                            </span>
                                             </div>
                                         </div>
                                     @endforeach
@@ -870,14 +882,6 @@
 
                     {{-- ══════ آمار کلی هفته (محاسبات) ══════ --}}
                     @php
-                        $fmtHm = function ($seconds) {
-                            $seconds = max(0, (int) $seconds);
-                            $h = intdiv($seconds, 3600);
-                            $m = intdiv($seconds % 3600, 60);
-                            if ($h > 0 && $m > 0) return $h . ' ساعت ' . $m . ' دقیقه';
-                            if ($h > 0) return $h . ' ساعت';
-                            return $m . ' دقیقه';
-                        };
                         $wi = $weeklyInsights;
                     @endphp
 

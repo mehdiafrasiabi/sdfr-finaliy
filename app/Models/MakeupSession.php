@@ -35,7 +35,10 @@ class MakeupSession extends Model
     {
         return $this->belongsTo(CcTopic::class);
     }
-
+    public function ccChapter(): BelongsTo
+    {
+        return $this->belongsTo(CcChapter::class);
+    }
     public function feedback(): BelongsTo
     {
         return $this->belongsTo(SessionFeedback::class, 'id', 'makeup_session_id');

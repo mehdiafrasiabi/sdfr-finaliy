@@ -39,7 +39,7 @@
                      class="md:hidden fixed bottom-2.5 left-5 right-5 z-50">
 
                     {{-- لوگو بیرون از nav قرار داره تا mask برشش نزنه --}}
-                    <div class="absolute left-1/2 -translate-x-1/2 -top-8 z-10">
+                    <div class="absolute left-1/2 -translate-x-1/2 z-10" style="top: -1rem">
                         <a wire:navigate href="{{route('client.profile.dashboard')}}"   data-tour="nav-logo"
                            class="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/40">
                             <img src="/client/assets/images/favicon.svg" alt="لوگو" class="w-10 h-10" style="filter: brightness(0) invert(1);">
@@ -97,7 +97,6 @@
         گزارش
     </span>
                             </a>
-
                             {{-- آزمون --}}
                             <a href="{{ route('client.profile.typed-exam.list') }}" wire:navigate
                                data-tour="nav-exam"
@@ -112,8 +111,6 @@
         آزمون
     </span>
                             </a>
-
-
                         </div>
                     </nav>
                 </div>

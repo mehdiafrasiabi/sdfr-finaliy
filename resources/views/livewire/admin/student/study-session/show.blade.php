@@ -452,7 +452,6 @@
                             <thead class="table-light">
                             <tr class="small text-muted">
                                 <th class="px-3">#</th>
-                                <th class="px-3">مبحث</th>
                                 <th class="px-3">درس / فصل</th>
                                 <th class="px-3">نوع</th>
                                 <th class="px-3">زمان شروع</th>
@@ -470,13 +469,14 @@
                                         <span class="pill-index bg-gradient text-white shadow-sm fw-bold"
                                               style="background:#8b5cf6;">{{ $idx + 1 }}</span>
                                     </td>
-                                    <td class="fw-semibold">{{ $mk->ccTopic?->name ?? '-' }}</td>
-
+                                    @php $mkChapter = $mk->ccChapter ?? $mk->ccTopic?->chapter; @endphp
                                     <td>
-                                        <span class="small text-muted">
-                                            {{ $mk->ccTopic?->chapter?->subject?->name ?? '' }}
-                                            @if($mk->ccTopic?->chapter?->name)
-                                                / {{ $mk->ccTopic->chapter->name }}
+                                        <span class="small">
+                                            <span class="fw-semibold">{{ $mkChapter?->subject?->name ?? '-' }}</span>
+                                            @if($mkChapter?->name)
+                                                <span class="text-muted">/ {{ $mkChapter->name }}</span>
+                                            @else
+                                                <span class="text-muted">/ بدون فصل</span>
                                             @endif
                                         </span>
                                     </td>
@@ -755,28 +755,21 @@
                     <div class="modal-body">
                         @if($selectedSessionType === 'makeup')
                             {{-- جزئیات جبرانی --}}
+                            @php $selChapter = $selectedSession->ccChapter ?? $selectedSession->ccTopic?->chapter; @endphp
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="small text-muted mb-1">مبحث</label>
-                                    <div class="fw-semibold">{{ $selectedSession->ccTopic?->name ?? '-' }}</div>
-                                </div>
-
-                                <div class="col-md-6">
                                     <label class="small text-muted mb-1">درس</label>
-                                    <div
-                                        class="fw-semibold">{{ $selectedSession->ccTopic?->chapter?->subject?->name ?? '-' }}</div>
+                                    <div class="fw-semibold">{{ $selChapter?->subject?->name ?? '-' }}</div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <label class="small text-muted mb-1">فصل</label>
-                                    <div
-                                        class="fw-semibold">{{ $selectedSession->ccTopic?->chapter?->name ?? '-' }}</div>
+                                    <div class="fw-semibold">{{ $selChapter?->name ?? 'بدون فصل' }}</div>
                                 </div>
 
                                 <div class="col-md-6">
                                     <label class="small text-muted mb-1">پایه</label>
-                                    <div
-                                        class="fw-semibold">{{ $selectedSession->ccTopic?->chapter?->subject?->grade?->name ?? '-' }}</div>
+                                    <div class="fw-semibold">{{ $selChapter?->subject?->grade?->name ?? '-' }}</div>
                                 </div>
 
                                 <div class="col-md-4">

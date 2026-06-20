@@ -279,8 +279,8 @@ class WeeklyProgramView extends Component
         }
 
         $makeupTimerState = session('active_makeup_timer_state');
-        if ($makeupTimerState && isset($makeupTimerState['topicId'])) {
-            $this->makeupTopicId = $makeupTimerState['topicId'];
+        if ($makeupTimerState && isset($makeupTimerState['chapterId'])) {
+            $this->makeupChapterId = $makeupTimerState['chapterId'];
             $this->makeupPartType = $makeupTimerState['partType'];
             $this->makeupNote = $makeupTimerState['note'] ?? '';
             $this->makeupTargetSeconds = $makeupTimerState['targetSeconds'];
@@ -325,7 +325,7 @@ class WeeklyProgramView extends Component
 
         if ($this->makeupTimerRunning || $this->makeupPausedAtTs) {
             session(['active_makeup_timer_state' => [
-                'topicId' => $this->makeupTopicId,
+                'chapterId' => $this->makeupChapterId,
                 'partType' => $this->makeupPartType,
                 'note' => $this->makeupNote,
                 'targetSeconds' => $this->makeupTargetSeconds,
@@ -911,8 +911,8 @@ class WeeklyProgramView extends Component
 
     private function doStartMakeupTimer()
     {
-        if (!$this->makeupTopicId || !$this->makeupPartType) {
-            $this->dispatch('error', 'لطفاً مبحث و نوع پارت را انتخاب کنید.');
+        if (!$this->makeupChapterId || !$this->makeupPartType) {
+            $this->dispatch('error', 'لطفاً فصل و نوع پارت را انتخاب کنید.');
             return;
         }
 
@@ -967,7 +967,7 @@ class WeeklyProgramView extends Component
 
     public function finishMakeup()
     {
-        if (!$this->makeupTopicId) return;
+        if (!$this->makeupChapterId) return;
 
         $this->makeupTimerRunning = false;
         $this->showMakeupFinishModal = true;
@@ -976,8 +976,8 @@ class WeeklyProgramView extends Component
 
     public function saveMakeupSession()
     {
-        if (!auth()->user()->student || !$this->makeupTopicId) {
-            $this->dispatch('error', 'لطفاً مبحث مورد نظر را انتخاب کنید.');
+        if (!auth()->user()->student || !$this->makeupChapterId) {
+            $this->dispatch('error', 'لطفاً فصل مورد نظر را انتخاب کنید.');
             return;
         }
 
@@ -990,7 +990,7 @@ class WeeklyProgramView extends Component
 
         $makeup = MakeupSession::create([
             'student_id' => auth()->user()->student->id,
-            'cc_topic_id' => $this->makeupTopicId,
+            'cc_chapter_id' => $this->makeupChapterId,
             'part_type' => $this->makeupPartType,
             'duration_seconds' => $duration,
             'started_at' => $this->makeupStartedAt,
@@ -999,7 +999,7 @@ class WeeklyProgramView extends Component
             'status' => 'pending',
         ]);
 
-        $topic = CcTopic::with(['chapter.subject.grade'])->find($this->makeupTopicId);
+        $chapter = CcChapter::with(['subject'])->find($this->makeupChapterId);
 
         $this->resetMakeupTimer();
         $this->showMakeupFinishModal = false;
@@ -1007,8 +1007,8 @@ class WeeklyProgramView extends Component
         $this->pendingFeedbackMakeupId = $makeup->id;
         $this->pendingFeedbackType = 'makeup';
         $this->pendingFeedbackPartName = collect([
-            $topic?->chapter?->subject?->name,
-            $topic?->chapter?->name,
+            $chapter?->subject?->name,
+            $chapter?->name,
         ])->filter()->implode(' » ') ?: 'جلسه اضافه بر سازمان';
         $this->feedbackRating = 0;
         $this->feedbackComment = '';
@@ -1192,61 +1192,7 @@ class WeeklyProgramView extends Component
                     'topic_id'   => null,
                 ];
             }
-
-            foreach ($chapter->topics as $topic) {
-                $key = 'topic_' . $topic->id;
-                if (isset($seen[$key])) continue;
-                $seen[$key] = true;
-                $results[] = [
-                    'type'       => 'topic',
-                    'sort'       => 2,
-                    'id'         => $topic->id,
-                    'name'       => $topic->name,
-                    'label'      => $subject->name . ' / ' . $chapter->name . ' / ' . $topic->name,
-                    'subject_id' => $subject->id,
-                    'chapter_id' => $chapter->id,
-                    'topic_id'   => $topic->id,
-                ];
-            }
         }
-
-        // 3. Search topics directly (main topics only)
-        $topicQuery = CcTopic::where('is_active', true)
-            ->whereNull('parent_id')
-            ->where('name', 'like', "%{$term}%")
-            ->with(['chapter.subject.grade'])
-            ->whereHas('chapter.subject', function ($sq) {
-                if (!empty($this->allowedGradeIds)) {
-                    $sq->whereIn('cc_grade_id', $this->allowedGradeIds);
-                }
-                if ($this->studentFieldId) {
-                    $sq->where(function ($fq) {
-                        $fq->where('cc_field_id', $this->studentFieldId)->orWhereNull('cc_field_id');
-                    });
-                }
-            });
-        foreach ($topicQuery->limit(10)->get() as $topic) {
-            $key = 'topic_' . $topic->id;
-            if (isset($seen[$key])) continue;
-            $seen[$key] = true;
-            $chapter = $topic->chapter;
-            if (!$chapter) continue;
-            $subject = $chapter->subject;
-            if (!$subject) continue;
-            $results[] = [
-                'type'       => 'topic',
-                'sort'       => 2,
-                'id'         => $topic->id,
-                'name'       => $topic->name,
-                'label'      => $subject->name . ' / ' . $chapter->name . ' / ' . $topic->name,
-                'subject_id' => $subject->id,
-                'chapter_id' => $chapter->id,
-                'topic_id'   => $topic->id,
-            ];
-        }
-
-        // Sort: chapters first (sort=1), topics second (sort=2)
-        usort($results, fn($a, $b) => $a['sort'] <=> $b['sort']);
 
         return collect(array_slice($results, 0, 20));
     }
