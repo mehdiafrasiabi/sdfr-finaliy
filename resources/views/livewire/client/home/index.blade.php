@@ -45,23 +45,41 @@
             .reveal.is-visible, .reveal-up.is-visible { opacity:1; transform:translateY(0); }
             .rv-d1{transition-delay:.08s}.rv-d2{transition-delay:.16s}.rv-d3{transition-delay:.24s}
 
-            /* ================== HERO (pinned, phased) ================== */
-            .hero-track  { height: 180vh; position: relative; } /* مقدار قبلی 300vh بود */
-            .hero-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
-
-            /* full-bleed blue ambient that fills the first screen */
+            /* ================== SECTION 1 : INTRO (single screen) ================== */
+            .hero-screen { position:relative; min-height:100vh; display:flex; align-items:center; justify-content:center; overflow:hidden; }
             .hero-blue { position:absolute; inset:0; z-index:0; pointer-events:none;
                 background:
                     radial-gradient(ellipse 95% 80% at 50% 62%, rgba(23,60,128,.55), rgba(10,26,62,.30) 42%, transparent 78%),
                     radial-gradient(ellipse 70% 50% at 50% 12%, rgba(56,90,170,.18), transparent 70%); }
+            .hero-intro { position:relative; z-index:10; text-align:center; padding:0 1.25rem; }
 
-            .hero-intro { position:absolute; top:0; left:0; right:0; z-index:10; text-align:center;
-                padding:12vh 1.25rem 0; will-change:opacity,transform; }
+            /* ================== SECTION 1.5 : STORY (black, scroll-driven Q&A) ================== */
+            .story-track  { height: 360vh; position: relative; }
+            .story-sticky { position: sticky; top:0; height:100vh; overflow:hidden; background:#000;
+                display:flex; align-items:center; justify-content:center; }
+            .story-layer  { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+                text-align:center; padding:0 1.5rem; opacity:0; will-change:opacity,transform; }
+            .story-q { font-weight:900; font-size:clamp(21px,5.6vw,36px); color:#fff; line-height:1.6; max-width:42ch;
+                opacity:0; transform:translateY(18px); transition:opacity .55s cubic-bezier(.16,1,.3,1), transform .55s cubic-bezier(.16,1,.3,1); }
+            .story-a { font-weight:800; font-size:clamp(18px,5vw,30px); color:#5b6473; margin-top:1rem;
+                opacity:0; transform:translateY(12px); transition:opacity .55s ease, transform .55s ease; }
+            .story-q.on, .story-a.on { opacity:1; transform:none; }
+            .story-msg h2 { font-weight:900; font-size:clamp(27px,7vw,54px); color:#fff; line-height:1.45; }
+            .story-brand { color:#38bdf8; text-shadow:0 0 42px rgba(56,189,248,.55); }
+            .story-msg p { font-weight:500; color:#9aa3b2; font-size:clamp(14px,3.8vw,18px); line-height:2.1; margin-top:1.1rem; max-width:44ch; }
+            .story-badge { display:inline-flex; align-items:center; gap:.45rem; font-weight:900; letter-spacing:.6px;
+                color:#38bdf8; background:rgba(56,189,248,.12); border:1px solid rgba(56,189,248,.32);
+                padding:.45rem 1.1rem; border-radius:999px; font-size:13px; margin-bottom:1.3rem; }
+            .story-chips { display:flex; flex-wrap:wrap; gap:.6rem; justify-content:center; margin-top:1.7rem; }
+            .story-chip { font-weight:800; font-size:13px; color:#cbd5e1; background:rgba(255,255,255,.06);
+                border:1px solid rgba(255,255,255,.12); padding:.5rem 1rem; border-radius:999px; }
 
-            .hero-stage { position:absolute; inset:0; z-index:5; display:flex; align-items:center; justify-content:center;
-                will-change:opacity; }
+            /* ================== SECTION 2 : PHONE (pinned, rises) ================== */
+            .phone-track  { height: 240vh; position: relative; }
+            .phone-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
+            .hero-stage { position:absolute; inset:0; z-index:5; display:flex; align-items:center; justify-content:center; will-change:opacity; }
 
-            /* ---------- Device (iPhone Pro) — dark bezel so the gray blends away ---------- */
+            /* ---------- Device (iPhone Pro) — dark bezel ---------- */
             .device {
                 position: relative; z-index: 5;
                 aspect-ratio: 430 / 932; border-radius: 50px;
@@ -93,7 +111,7 @@
             .chat-bubble--me  { align-self: flex-end; background: hsl(var(--primary)); color: #fff; border-bottom-left-radius: 5px; }
             .chat-bubble--bot { align-self: flex-start; background: rgba(255,255,255,.09); color: #e6eeff; border-bottom-right-radius: 5px; }
 
-            /* ---------- Floating step-labels (mobile: top-center rolling; desktop: around phone) ---------- */
+            /* ---------- Floating step-labels ---------- */
             .hero-label { position:absolute; z-index:6; font-weight:900; white-space:nowrap; letter-spacing:-.01em; line-height:1.3;
                 text-align:center; pointer-events:none; left:50%; transform:translate(-50%,-22px);
                 font-size:clamp(18px,6vw,28px); text-shadow:0 0 0 transparent; opacity:0;
@@ -113,7 +131,7 @@
                 .hl-3 { top:auto; bottom:19%; right:15%; left:auto; }
             }
 
-            /* ================== TRUST (pinned, shorter) ================== */
+            /* ================== TRUST (pinned) ================== */
             .logos-track  { height: 140vh; position: relative; }
             .logos-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display:flex; align-items:center; justify-content:center; }
             .logos-marq { position:absolute; inset:0; z-index:2; display:flex; flex-direction:column; justify-content:space-between;
@@ -133,7 +151,6 @@
             .feat-track  { height: 560vh; position:relative; }
             .feat-sticky { position:sticky; top:0; height:100vh; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 
-            /* accordion items as glass cards */
             .acc-item { position:relative; padding:14px 16px; border-radius:18px; cursor:default;
                 transition:background .4s, border-color .4s, transform .4s; border:1px solid hsl(var(--border) / .5);
                 background: linear-gradient(209deg, rgb(146 146 146 / 16%), rgb(0 0 0)); -webkit-backdrop-filter: blur(14px) saturate(140%); backdrop-filter: blur(14px) saturate(140%); }
@@ -216,14 +233,15 @@
             .field::placeholder { color:hsl(var(--muted)); }
             .field:focus { outline:none; border-color:hsl(var(--primary)); background:hsl(var(--secondary) / .85); box-shadow:0 0 0 3px hsl(var(--primary) / .2); }
 
-            /* ---------- header hide while the phone is on stage ---------- */
+            /* ---------- header hide after the first screen ---------- */
             header { transition: transform .5s cubic-bezier(.16,1,.3,1), opacity .4s ease !important; will-change: transform, opacity; }
             header.is-hidden { transform: translateY(-110%) !important; opacity: 0 !important; pointer-events: none !important; }
 
             /* ---------- Reduced motion ---------- */
-            .reduce-motion .hero-track, .reduce-motion .logos-track, .reduce-motion .feat-track { height:auto !important; }
-            .reduce-motion .hero-sticky, .reduce-motion .logos-sticky, .reduce-motion .feat-sticky { position:static !important; height:auto !important; padding-block:3.5rem; }
-            .reduce-motion .hero-intro { position:static; padding-top:0; }
+            .reduce-motion .story-track, .reduce-motion .phone-track, .reduce-motion .logos-track, .reduce-motion .feat-track { height:auto !important; }
+            .reduce-motion .story-sticky, .reduce-motion .phone-sticky, .reduce-motion .logos-sticky, .reduce-motion .feat-sticky { position:static !important; height:auto !important; padding-block:3.5rem; }
+            .reduce-motion .story-layer { position:relative; opacity:1 !important; margin-block:2rem; transform:none !important; }
+            .reduce-motion .story-q, .reduce-motion .story-a { opacity:1 !important; transform:none !important; }
             .reduce-motion .hero-stage { position:static; margin-top:2rem; opacity:1 !important; }
             .reduce-motion .logos-marq { position:static; opacity:.55 !important; }
             .reduce-motion .logos-veil { display:none; }
@@ -243,13 +261,10 @@
             .space-fx .sdfr-lines { z-index:0; }
         </style>
     @endpush
-
     <div id="home-root" dir="rtl" class="relative">
-
         <div class="space-fx" aria-hidden="true">
             <x-cosmic-lines color="#7dd3fc" />
         </div>
-
         @php
             $features = [
                 ['id'=>'dashboard','t'=>'داشبورد هوشمند','d'=>'نمای لحظه‌ای از ساعت مطالعه، برنامه‌ی امروز و وضعیت کلی دانش‌آموز در یک نگاه؛ همه‌چیز زنده و به‌روز.',
@@ -263,8 +278,7 @@
                 ['id'=>'report','t'=>'کارنامه و تحلیل','d'=>'کارنامه‌ی هوشمند و نمودارهای پیشرفت که نقاط ضعف و قوت را شفاف نشان می‌دهد تا برنامه‌ریزی هدفمندتر شود.',
                  'icon'=>'<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>'],
             ];
-            // تصویر هر ویژگی. فعلاً تصویر فیک (placeholder)؛ بعداً با اسکرین‌شات واقعی جایگزین کن:
-            //   مثلاً: '/client/assets/images/features/dashboard.png'
+            // تصویر هر ویژگی (فعلاً فیک). بعداً با اسکرین‌شات واقعی جایگزین کن. خالی بگذاری -> ماک‌آپ HTML برمی‌گردد.
             $featImgs = [
                 'dashboard' => 'https://placehold.co/900x680/0b1e4a/38bdf8?text=Dashboard',
                 'planning'  => 'https://placehold.co/900x680/0b1e4a/38bdf8?text=Weekly+Program',
@@ -275,40 +289,85 @@
             $logos = ['دبیرستان فرزانگان','مجتمع علامه حلی','دبیرستان شهید بهشتی','آموزشگاه نمونه','ماندگار البرز','دبیرستان دکتر حسابی','مجتمع نیکان','دبیرستان مفید','آموزشگاه اندیشه','مدرسه‌ی سلام','دبیرستان رشد','مجتمع آفرینش'];
             $longLogos = array_merge($logos, $logos, $logos);
         @endphp
+        {{-- ============================= SECTION 1 : INTRO ============================= --}}
+        <section id="hero" class="hero-screen relative z-10">
+            <div class="hero-blue"></div>
+            <div class="absolute inset-0 grid-bg pointer-events-none" style="z-index:1;"></div>
 
-        {{-- ============================= HERO (Section 1 + 2) ============================= --}}
-        <section id="hero" class="relative z-10" wire:ignore>
-            <div id="hero-track" class="hero-track">
-                <div class="hero-sticky">
-                    <div class="hero-blue"></div>
-                    <div class="absolute inset-0 grid-bg pointer-events-none" style="z-index:1;"></div>
+            <div class="hero-intro">
+                <div class="inline-flex items-center gap-2 glass-home rounded-full px-4 py-2 mb-5">
+                    <span class="relative flex w-2 h-2">
+                        <span class="absolute inline-flex w-full h-full bg-brand rounded-full opacity-75 animate-ping"></span>
+                        <span class="relative inline-flex w-2 h-2 bg-brand rounded-full"></span>
+                    </span>
+                    <span class="font-semibold text-[11px] sm:text-xs text-foreground">پلتفرم هوشمند پایش و مشاوره‌ی تحصیلی</span>
+                </div>
+                <h1 class="font-black text-4xl sm:text-5xl md:text-6xl text-foreground" style="line-height:1.35">
+                    مسیر موفقیت تحصیلی‌ات،<br>
+                    <span class="shimmer-text">هوشمند</span> و بی‌وقفه
+                </h1>
+                <p class="font-medium text-sm sm:text-base text-muted leading-8 max-w-xl mx-auto mt-5">
+                    با <span class="font-black text-foreground">SDFR</span> ساعت مطالعه ثبت می‌شود، برنامه‌ی اختصاصی می‌گیری و هوش مصنوعی هر روز عملکردت را تحلیل می‌کند.
+                </p>
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
+                    <a href="{{ route('client.auth.login') }}" class="btn-brand group w-60 sm:w-auto">
+                        <span>شروع رایگان</span>
+                        <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
+                    </a>
+                    <a href="#features" class="btn-ghost glass-home w-60 sm:w-auto">مشاهده ویژگی‌ها</a>
+                </div>
+            </div>
+        </section>
 
-                    {{-- Section 1: intro --}}
-                    <div id="hero-intro" class="hero-intro">
-                        <div class="inline-flex items-center gap-2 glass-home rounded-full px-4 py-2 mb-5">
-                            <span class="relative flex w-2 h-2">
-                                <span class="absolute inline-flex w-full h-full bg-brand rounded-full opacity-75 animate-ping"></span>
-                                <span class="relative inline-flex w-2 h-2 bg-brand rounded-full"></span>
-                            </span>
-                            <span class="font-semibold text-[11px] sm:text-xs text-foreground">پلتفرم هوشمند پایش و مشاوره‌ی تحصیلی</span>
-                        </div>
-                        <h1 class="font-black text-4xl sm:text-5xl md:text-6xl text-foreground" style="line-height:1.35">
-                            مسیر موفقیت تحصیلی‌ات،<br>
-                            <span class="shimmer-text">هوشمند</span> و بی‌وقفه
-                        </h1>
-                        <p class="font-medium text-sm sm:text-base text-muted leading-8 max-w-xl mx-auto mt-5">
-                            با <span class="font-black text-foreground">SDFR</span> ساعت مطالعه ثبت می‌شود، برنامه‌ی اختصاصی می‌گیری و هوش مصنوعی هر روز عملکردت را تحلیل می‌کند.
-                        </p>
-                        <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-7">
-                            <a href="{{ route('client.auth.login') }}" class="btn-brand group w-60 sm:w-auto">
-                                <span>شروع رایگان</span>
-                                <svg class="w-4 h-4 transition-transform group-hover:-translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-                            </a>
-                            <a href="#features" class="btn-ghost glass-home w-60 sm:w-auto">مشاهده ویژگی‌ها</a>
+        {{-- ============================= SECTION 1.5 : STORY (black) ============================= --}}
+        <section id="story" class="relative z-10" wire:ignore>
+            <div id="story-track" class="story-track">
+                <div class="story-sticky">
+
+                    {{-- Q&A pairs (each scroll reveals a line) --}}
+                    <div class="story-layer story-pair" data-pair="0">
+                        <div class="story-q">بنظرت شب درس خوندن بهتره یا روز؟</div>
+                        <div class="story-a">نمی‌دانم!</div>
+                    </div>
+                    <div class="story-layer story-pair" data-pair="1">
+                        <div class="story-q">موقع یادگیری، راه‌رفتن بهتره یا دراز کشیدن؟</div>
+                        <div class="story-a">نمی‌دانم!</div>
+                    </div>
+                    <div class="story-layer story-pair" data-pair="2">
+                        <div class="story-q">بحث و چالش با پدر و مادرم چقدر روی درس‌خوندنم اثر می‌ذاره؟</div>
+                        <div class="story-a">نمی‌دانم…</div>
+                    </div>
+
+                    {{-- message 1 : SDFR is here --}}
+                    <div class="story-layer story-msg" id="story-help">
+                        <h2>اینجاست که <span class="story-brand">SDFR</span><br>کنارت می‌ایستد</h2>
+                        <p>تا جوابِ همین سؤال‌ها را، دقیق و مخصوصِ خودت، پیدا کنی.</p>
+                    </div>
+
+                    {{-- message 2 : Mindset Test --}}
+                    <div class="story-layer story-msg" id="story-mindset">
+                        <span class="story-badge">⚡ Mindset Test</span>
+                        <h2>آنالیزِ دقیقِ ذهن و سبکِ یادگیریِ تو</h2>
+                        <p>با یک آزمونِ کوتاهِ علمی، نقطه‌ی شروعت مشخص می‌شود: بهترین ساعاتِ مطالعه، الگوی تمرکز، سبکِ یادگیری و موانعِ ذهنی‌ات سنجیده می‌شود؛ بعد برنامه و مشاوره دقیقاً براساسِ همین تحلیل برایت چیده می‌شود.</p>
+                        <div class="story-chips">
+                            <span class="story-chip">الگوی تمرکز</span>
+                            <span class="story-chip">ساعاتِ طلاییِ مطالعه</span>
+                            <span class="story-chip">سبکِ یادگیری</span>
+                            <span class="story-chip">موانعِ ذهنی</span>
                         </div>
                     </div>
 
-                    {{-- Section 2: phone + labels --}}
+                </div>
+            </div>
+        </section>
+
+        {{-- ============================= SECTION 2 : PHONE ============================= --}}
+        <section id="phone" class="relative z-10" wire:ignore>
+            <div id="phone-track" class="phone-track">
+                <div class="phone-sticky">
+                    <div class="hero-blue"></div>
+                    <div class="absolute inset-0 grid-bg pointer-events-none" style="z-index:1;"></div>
+
                     <div id="hero-stage" class="hero-stage">
                         <span class="hero-label hl-1">تحلیل هوشمند</span>
                         <span class="hero-label hl-2">برنامه‌ی شخصی</span>
@@ -393,7 +452,7 @@
                                 <div class="grid grid-cols-12 gap-10 items-center">
                                     <div class="col-span-5 space-y-2.5">
                                         @foreach($features as $i => $f)
-                                            <div class="acc-item glass" data-i="{{ $i }}">
+                                            <div class="acc-item" data-i="{{ $i }}">
                                                 <div class="acc-head">
                                                     <span class="acc-ico">
                                                         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $f['icon'] !!}</svg>
@@ -482,7 +541,7 @@
                                     <span class="flex items-center justify-center w-5 h-5 bg-brand-soft text-brand border border-brand-soft rounded-md shrink-0">
                                         <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
                                     </span>
-                                    <span class="font-semibold text-xs text-foreground glass">{{ $it }}</span>
+                                    <span class="font-semibold text-xs text-foreground">{{ $it }}</span>
                                 </li>
                             @endforeach
                         </ul>
@@ -667,20 +726,33 @@
                     var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
                     function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
 
-                    var header    = document.querySelector('header.header-main') || document.querySelector('header');
-                    var heroTrack = document.getElementById('hero-track');
-                    var heroIntro = document.getElementById('hero-intro');
-                    var heroStage = document.getElementById('hero-stage');
-                    var phone     = document.getElementById('hero-phone');
-                    var labels    = root.querySelectorAll('.hero-label');
-                    var bubbles   = root.querySelectorAll('#hero-chat .chat-bubble');
+                    var header  = document.querySelector('header.header-main') || document.querySelector('header');
 
+                    // STORY
+                    var storyTrack = document.getElementById('story-track');
+                    var storyHelp  = document.getElementById('story-help');
+                    var storyMindset = document.getElementById('story-mindset');
+                    var storyPairs = [];
+                    root.querySelectorAll('#story .story-pair').forEach(function (wrap) {
+                        storyPairs.push({ wrap: wrap, q: wrap.querySelector('.story-q'), a: wrap.querySelector('.story-a') });
+                    });
+                    // reveal windows for the 3 pairs: [Q-threshold, A-threshold, fade-out]
+                    var pairTh = [ [0.03,0.10,0.17], [0.19,0.26,0.33], [0.35,0.42,0.50] ];
+
+                    // PHONE
+                    var phoneTrack = document.getElementById('phone-track');
+                    var phone      = document.getElementById('hero-phone');
+                    var labels     = root.querySelectorAll('#phone .hero-label');
+                    var bubbles    = root.querySelectorAll('#hero-chat .chat-bubble');
+
+                    // TRUST
                     var logosTrack = document.getElementById('logos-track');
                     var logosText  = document.getElementById('logos-text');
                     var logosMarq  = document.getElementById('logos-marq');
                     var marqTop    = document.getElementById('marq-top');
                     var marqBottom = document.getElementById('marq-bottom');
 
+                    // FEATURES
                     var featTrack = document.getElementById('feat-track');
                     var accItems  = root.querySelectorAll('.feat-desktop .acc-item');
                     var previews  = root.querySelectorAll('.feat-desktop .feat-preview');
@@ -702,6 +774,27 @@
                         return clamp((-r.top) / total, 0, 1);
                     }
 
+                    /* ===== STORY : Q&A one-by-one -> "SDFR" -> "Mindset Test" ===== */
+                    function setStory(p) {
+                        for (var i = 0; i < storyPairs.length; i++) {
+                            var pr = storyPairs[i], th = pairTh[i];
+                            var op = clamp((p - th[0]) / 0.03, 0, 1) * (1 - clamp((p - th[2]) / 0.05, 0, 1));
+                            pr.wrap.style.opacity = op.toFixed(3);
+                            pr.q.classList.toggle('on', p >= th[0]);
+                            pr.a.classList.toggle('on', p >= th[1]);
+                        }
+                        if (storyHelp) {
+                            var hi = clamp((p - 0.56) / 0.06, 0, 1), ho = clamp((p - 0.72) / 0.06, 0, 1);
+                            storyHelp.style.opacity = (hi * (1 - ho)).toFixed(3);
+                            storyHelp.style.transform = 'translateY(' + (18 * (1 - hi)).toFixed(1) + 'px)';
+                        }
+                        if (storyMindset) {
+                            var mi = clamp((p - 0.78) / 0.10, 0, 1);
+                            storyMindset.style.opacity = mi.toFixed(3);
+                            storyMindset.style.transform = 'translateY(' + (22 * (1 - mi)).toFixed(1) + 'px)';
+                        }
+                    }
+
                     function setLabelStyle(el, op, blur, y) {
                         if (!el) return;
                         el.style.transition = 'none';
@@ -712,26 +805,20 @@
                     }
                     function setLabels(cP) {
                         if (window.innerWidth < 768) {
-                            // MOBILE: ترانزیشن متوالی در قسمت بالای گوشی (ناچ)
                             labels.forEach(function (l) { l.classList.remove('on'); });
-
-                            // لیبل اول: ظاهر می‌شود، سپس به سمت بالا می‌رود و محو می‌شود
                             var o0 = clamp(cP / 0.15, 0, 1);
                             var up0 = clamp((cP - 0.28) / 0.15, 0, 1);
                             setLabelStyle(labels[0], o0 * (1 - up0), 0, -40 * up0);
 
-                            // لیبل دوم: با یک پرش کوتاه می‌آید جای اولی و سپس آن هم بالا می‌رود
                             var o1 = clamp((cP - 0.35) / 0.15, 0, 1);
                             var rise1 = 1 - clamp((cP - 0.35) / 0.15, 0, 1);
                             var up1 = clamp((cP - 0.65) / 0.15, 0, 1);
                             setLabelStyle(labels[1], o1 * (1 - up1), rise1 * 4, (rise1 * 30) - (40 * up1));
 
-                            // لیبل سوم: از فاصله‌ی بسیار کم (۷۰ پیکسل) می‌آید جای دومی می‌نشیند
                             var o2 = clamp((cP - 0.70) / 0.15, 0, 1);
                             var rise2 = 1 - clamp((cP - 0.70) / 0.20, 0, 1);
                             setLabelStyle(labels[2], o2, rise2 * 4, rise2 * 70);
                         } else {
-                            // DESKTOP: (بدون تغییر)
                             var st = [0.04, 0.30, 0.56], en = [0.58, 0.84, 1.06];
                             labels.forEach(function (l, i) {
                                 l.style.opacity = ''; l.style.filter = ''; l.style.transform = ''; l.style.textShadow = ''; l.style.transition = '';
@@ -740,33 +827,21 @@
                         }
                     }
 
-                    /* ===== Section 1+2 : intro -> phone rises (header hides) -> bubbles -> rolling labels -> fade ===== */
-                    function setHero(p) {
-                        var introO = 1 - clamp((p - 0.06) / 0.16, 0, 1);
-                        if (heroIntro) {
-                            heroIntro.style.opacity = introO;
-                            heroIntro.style.transform = 'translateY(' + (-50 * (1 - introO)) + 'px)';
-                            heroIntro.style.pointerEvents = introO < 0.05 ? 'none' : 'auto';
-                        }
-
-                        var riseT = clamp((p - 0.08) / 0.26, 0, 1);
+                    /* ===== PHONE : rises from bottom -> bubbles one-by-one -> labels (phone stays visible) ===== */
+                    function setPhone(p) {
+                        var riseT = clamp((p - 0.05) / 0.30, 0, 1);
                         if (phone) {
                             var startOff = window.innerHeight * 0.5 + phone.offsetHeight * 0.20;
                             var off = startOff * (1 - riseT);
                             var s = 0.9 + 0.1 * riseT;
                             phone.style.transform = 'translateY(' + off.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
                         }
-
-                        var bP = clamp((p - 0.18) / 0.50, 0, 1);
+                        var bP = clamp((p - 0.12) / 0.50, 0, 1);
                         var n = bubbles.length;
                         var show = Math.max(1, Math.min(n, Math.ceil((bP / 0.8) * n)));
                         bubbles.forEach(function (b, i) { b.classList.toggle('shown', i < show); });
 
-                        var cP = clamp((p - 0.40) / 0.60, 0, 1);
-                        setLabels(cP);
-
-                        // 👇 این خط را کامنت یا حذف کن تا گوشی غیب نشود
-                        // if (heroStage) heroStage.style.opacity = 1 - clamp((p - 0.86) / 0.14, 0, 1);
+                        setLabels(clamp((p - 0.42) / 0.58, 0, 1));
                     }
 
                     function setLogos(p) {
@@ -786,34 +861,33 @@
                     }
 
                     function updateHeader() {
-                        if (!header || !heroTrack) return;
-                        var r = heroTrack.getBoundingClientRect();
-
-                        // شرط برگشتن هدر رو حذف کردیم. حالا فقط چک می‌کنه که از صفحه اول پایین‌تر رفته باشی.
-                        var hide = (r.top < -window.innerHeight * 0.18);
-
-                        header.classList.toggle('is-hidden', !reduce && hide);
+                        if (!header) return;
+                        header.classList.toggle('is-hidden', !reduce && window.scrollY > window.innerHeight * 0.6);
                     }
+
                     /* ---- heavy, consistent, reversible scroll (lerp) ---- */
-                    var hT=0,hS=0, lT=0,lS=0, fT=0,fS=0, raf=null;
+                    var sT=0,sS=0, hT=0,hS=0, lT=0,lS=0, fT=0,fS=0, raf=null;
                     function loop() {
                         var k = 0.06; // smaller = heavier
-                        hS += (hT-hS)*k; lS += (lT-lS)*k; fS += (fT-fS)*k;
-                        if (heroTrack) setHero(hS);
+                        sS += (sT-sS)*k; hS += (hT-hS)*k; lS += (lT-lS)*k; fS += (fT-fS)*k;
+                        if (storyTrack) setStory(sS);
+                        if (phoneTrack) setPhone(hS);
                         if (logosTrack) setLogos(lS);
                         if (featTrack && window.innerWidth >= 768) setFeatures(fS);
-                        if (Math.abs(hT-hS)>0.0004 || Math.abs(lT-lS)>0.0004 || Math.abs(fT-fS)>0.0004) {
+                        if (Math.abs(sT-sS)>0.0004 || Math.abs(hT-hS)>0.0004 || Math.abs(lT-lS)>0.0004 || Math.abs(fT-fS)>0.0004) {
                             raf = requestAnimationFrame(loop);
                         } else {
-                            hS=hT; lS=lT; fS=fT;
-                            if (heroTrack) setHero(hS);
+                            sS=sT; hS=hT; lS=lT; fS=fT;
+                            if (storyTrack) setStory(sS);
+                            if (phoneTrack) setPhone(hS);
                             if (logosTrack) setLogos(lS);
                             if (featTrack && window.innerWidth >= 768) setFeatures(fS);
                             raf = null;
                         }
                     }
                     function onScroll() {
-                        if (heroTrack) hT = progress(heroTrack);
+                        if (storyTrack) sT = progress(storyTrack);
+                        if (phoneTrack) hT = progress(phoneTrack);
                         if (logosTrack) lT = progress(logosTrack);
                         fT = (featTrack && window.innerWidth >= 768) ? progress(featTrack) : 0;
                         updateHeader();
@@ -844,7 +918,9 @@
                     if (reduce) {
                         root.classList.add('reduce-motion');
                         if (header) header.classList.remove('is-hidden');
-                        if (heroIntro) heroIntro.style.opacity = 1;
+                        storyPairs.forEach(function (pr) { pr.wrap.style.opacity = 1; pr.q.classList.add('on'); pr.a.classList.add('on'); });
+                        if (storyHelp) storyHelp.style.opacity = 1;
+                        if (storyMindset) storyMindset.style.opacity = 1;
                         if (phone) phone.style.transform = 'none';
                         labels.forEach(function (l) { l.classList.add('on'); });
                         bubbles.forEach(function (b) { b.classList.add('shown'); });
