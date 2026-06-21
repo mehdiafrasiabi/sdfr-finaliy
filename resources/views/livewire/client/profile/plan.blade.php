@@ -49,26 +49,7 @@
                                                                 تا {{ jdate($program->end_date)->format('d %B Y') }}
                                                             </p>
 
-                                                            <div class="flex flex-wrap items-center gap-2">
-                                                                <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded-full">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                                    </svg>
-                                                                    {{ $program->total_hours }} ساعت
-                                                                </span>
-                                                                <span class="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs rounded-full">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                                                                    </svg>
-                                                                    {{ $program->total_parts }} پارت
-                                                                </span>
-                                                                <span class="inline-flex items-center gap-1 px-2 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-xs rounded-full">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                                    </svg>
-                                                                    {{ $program->total_tests }} تست
-                                                                </span>
-                                                            </div>
+
                                                         </div>
 
                                                         {{-- دکمه‌های موبایل --}}
@@ -115,26 +96,6 @@
                                                                     تا {{ jdate($program->end_date)->format('d %B Y') }}
                                                                 </p>
 
-                                                                <div class="flex flex-wrap items-center gap-1.5">
-                                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded-full">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                                        </svg>
-                                                                        {{ $program->total_hours }} ساعت
-                                                                    </span>
-                                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 text-xs rounded-full">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                                                                        </svg>
-                                                                        {{ $program->total_parts }} پارت
-                                                                    </span>
-                                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-violet-100 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400 text-xs rounded-full">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                                        </svg>
-                                                                        {{ $program->total_tests }} تست
-                                                                    </span>
-                                                                </div>
                                                             </div>
 
                                                             {{-- چپ: دکمه‌ها --}}
@@ -192,7 +153,7 @@
                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                                                 </svg>
-                                                                <span class="text-xs text-muted">ساعت کل</span>
+                                                                <span class="text-xs text-muted">ساعت کل برنامه</span>
                                                                 <span class="font-bold text-foreground text-sm mt-1">{{ $program->total_hours }} ساعت</span>
                                                             </div>
 
@@ -204,20 +165,6 @@
                                                                 <span class="font-bold text-foreground text-sm mt-1">{{ $program->total_tests }} تست</span>
                                                             </div>
                                                         </div>
-
-                                                        @if($program->advisingSession)
-                                                            <div class="mt-4 pt-4 border-border">
-                                                                <div class="flex items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-xl">
-                                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-5 h-5 text-amber-500 flex-shrink-0">
-                                                                        <path fill-rule="evenodd" d="M8 1.75a.75.75 0 0 1 .692.462l1.41 3.393 3.664.293a.75.75 0 0 1 .428 1.317l-2.791 2.39.853 3.575a.75.75 0 0 1-1.12.814L8 12.177l-3.136 1.817a.75.75 0 0 1-1.12-.814l.852-3.574-2.79-2.39a.75.75 0 0 1 .427-1.318l3.663-.293 1.41-3.393A.75.75 0 0 1 8 1.75Z" clip-rule="evenodd"/>
-                                                                    </svg>
-                                                                    <div class="flex-1">
-                                                                        <p class="font-semibold text-foreground text-sm">{{ $program->advisingSession->title }}</p>
-                                                                        <p class="text-xs text-muted mt-0.5">{{ jalali($program->advisingSession->activation_date)->format('%d %B %Y') }}</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @endif
                                                     </div>
                                                 </div>
                                             @endforeach

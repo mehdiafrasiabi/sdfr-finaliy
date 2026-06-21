@@ -119,6 +119,29 @@ class SuddenEventModal extends Component
         return $program ? Carbon::parse($program->start_date)->startOfDay() : null;
     }
 
+    /**
+     * وضعیت دسترسی دانش‌آموز به ثبت اتفاق یهویی:
+     *  - none     : هیچ برنامه‌ای ندارد
+     *  - expired  : برنامه دارد ولی از تاریخ پایان آن گذشته است
+     *  - ok       : برنامهٔ فعال و در بازهٔ معتبر دارد
+     */
+    public function getAccessStateProperty(): string
+    {
+        $program = $this->activeProgram();
+        if (!$program) {
+            return 'none';
+        }
+
+        $start = Carbon::parse($program->start_date)->startOfDay();
+        $end = Carbon::parse($program->end_date ?? $start->copy()->addDays(7))->endOfDay();
+
+        if (Carbon::now()->gt($end)) {
+            return 'expired';
+        }
+
+        return 'ok';
+    }
+
     protected function maxOffset(): int
     {
         $program = $this->activeProgram();
@@ -438,6 +461,7 @@ class SuddenEventModal extends Component
             'targetDayParts' => $this->getTargetDayPartsProperty(),
             'targetLoad' => $this->getTargetLoadProperty(),
             'targetDayLabel' => $this->getTargetDayLabelProperty(),
+            'accessState' => $this->getAccessStateProperty(),
         ]);
     }
 }
