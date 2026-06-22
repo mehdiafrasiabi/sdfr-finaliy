@@ -1,10 +1,8 @@
 <?php
-use App\Http\Controllers\FileDownloadController;
 use App\Livewire\Client\AboutUs\Index as AboutUs;
 use App\Livewire\Client\Auth\ForgotPassword as ForgotPassword;
 use App\Livewire\Client\Auth\Login as authLogin;
 use App\Livewire\Client\Onboarding\TrialWeekOnboarding;
-use App\Livewire\Client\Blog\Weblog\Index as WeblogIndex;
 use App\Livewire\Client\ContactUs\Index as ContactUs;
 use App\Livewire\Client\Home\Index as HomeIndex;
 use App\Livewire\Client\Download\Index as DownloadIndex;
@@ -24,7 +22,6 @@ use App\Livewire\Client\Profile\Financial as ProfileFinancial;
 use App\Livewire\Client\Profile\Notification as ProfileNotification;
 use App\Livewire\Client\Profile\Report as ProfileReport;
 use App\Livewire\Client\Profile\ReportStudentStudy as ProfileReportStudentStudy;
-use App\Livewire\Client\Profile\Star;
 use App\Livewire\Client\Profile\Ticket\Create as ProfileTicketCreate;
 use App\Livewire\Client\Profile\Ticket\Index as ProfileTicketIndex;
 use App\Livewire\Client\Profile\Ticket\Show as ProfileTicketShow;
@@ -39,7 +36,6 @@ use App\Livewire\Client\Profile\TypedExam\TypedExamTest;
 use App\Livewire\Client\ExamCountdown\Index as ExamCountdownIndex;
 use App\Livewire\Client\Terms\Index as RuleIndex;
 use Illuminate\Support\Facades\Route;
-use App\Livewire\Client\Profile\Wallet as ProfileWallet;
 use App\Livewire\Client\PercentCalculator\Index as PercentCalculatorIndex;
 use App\Livewire\Client\Profile\SmartReportCardShow as ProfileSmartReportCardShow;
 
@@ -47,20 +43,17 @@ use App\Livewire\Client\Schools\Index as SchoolsIndex;
 
 
 Route::name('client.')->group(function () {
-    Route::get('/download/{token}', [FileDownloadController::class, 'download'])
-        ->name('secure.download');
+
 
     Route::get('/', HomeIndex::class)->name('home');
-    Route::get('/home-preview', \App\Livewire\Client\Home\Perview::class)->name('home.preview');
-    Route::get('/application', DownloadIndex::class)->name('download');
+    Route::get('/app', DownloadIndex::class)->name('download');
     Route::redirect('/shop', '/')->name('shop');
     Route::redirect('/product/{p_code}/{slug?}', '/')->name('product');
-    Route::get('/schools2', SchoolsIndex::class)->name('schools');
+    Route::get('/school', SchoolsIndex::class)->name('schools');
     Route::get('/terms',RuleIndex::class)->name('terms');
     Route::get('/about-us',AboutUs::class)->name('about-us');
     Route::get('/contact-us',ContactUs::class)->name('contact-us');
 
-    Route::get('/blog',WeblogIndex::class)->name('blog');
     Route::get('/konkur', ExamCountdownIndex::class)->name('exam-countdown');
     Route::get('/percentCalculator', PercentCalculatorIndex::class)->name('percent-calculator');
 
@@ -113,7 +106,6 @@ Route::name('client.')->group(function () {
         Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'trial.step', 'block.during.study'])->group(function () {
             //Profile
             Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
-            Route::get('/star',Star::class)->name('star');
             Route::get('/reportStudentStudy',ProfileReportStudentStudy::class)->name('reportStudentStudy');
             Route::get('/edit',ProfileEdit::class)->name('edit');
             Route::get('/financial',ProfileFinancial::class)->name('financial');
@@ -126,17 +118,15 @@ Route::name('client.')->group(function () {
             Route::get('/ticket/{ticket}/show',ProfileTicketShow::class)->name('ticket.show');
             Route::get('/ticket-create',ProfileTicketCreate::class)->name('ticket.create');
 
-            //کیف پوال
-            Route::get('/wadslle23569414t',ProfileWallet::class)->name('wallet');
             // نوتیفیکیشن
             Route::get('/notification',ProfileNotification::class)->name('notification');
 
-            // Typed Exam Routes (آزمون‌های تایپی)
+            // Typed Exam Routes (آزمون‌های  test )
             Route::get('/exams', TypedExamList::class)->name('typed-exam.list');
             Route::get('/exam/{assignmentId}/test', TypedExamTest::class)->name('typed-exam.test');
             Route::get('/exam/result/{attemptId}', TypedExamResult::class)->name('typed-exam.result');
 
-            // Essay Exam Routes (آزمون‌های تشریحی مبحثی)
+            // Essay Exam Routes (آزمون‌های تشریحی)
             Route::get('/essay-exam/{assignmentId}/test', \App\Livewire\Client\Profile\EssayExam\EssayExamTest::class)
                 ->name('essay-exam.test');
             Route::get('/essay-exam/result/{attemptId}', \App\Livewire\Client\Profile\EssayExam\EssayExamResult::class)
@@ -164,7 +154,6 @@ Route::name('client.')->group(function () {
                 Route::get('/weekly-program/{program}', ConsultationWeeklyProgramView::class)->name('weekly-program');
                 Route::get('/class-schedule', ConsultationClassScheduleUpload::class)->name('class-schedule');
             });
-
         });
 
 

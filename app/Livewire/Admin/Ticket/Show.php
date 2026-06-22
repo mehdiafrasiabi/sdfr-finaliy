@@ -19,7 +19,9 @@ class Show extends Component
 
     public function mount($ticket)
     {
-        $this->ticket = Ticket::with(['messages.user', 'messages.admin', 'department', 'user', 'assignedAdmin'])->findOrFail($ticket);
+        $this->ticket = Ticket::with(['messages.user', 'messages.admin', 'department', 'user', 'assignedAdmin'])
+            ->where('ticket_number', $ticket)
+            ->firstOrFail();
 
         // assign admin if not assigned
         if (!$this->ticket->assigned_admin_id) {

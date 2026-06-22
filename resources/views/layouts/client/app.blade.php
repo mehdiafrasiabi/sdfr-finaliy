@@ -175,7 +175,7 @@
     <link rel="shortcut icon" href="/client/assets/images/favicon.svg">
 </head>
 
-<body class="dark">
+<body>
 <!-- container -->
 <div class="flex flex-col min-h-screen bg-background">
 

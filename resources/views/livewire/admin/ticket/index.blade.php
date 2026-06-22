@@ -186,7 +186,7 @@
                                         <small>{{ jalali($ticket->updated_at)->format('%d %B %Y') }}</small>
                                     </td>
                                     <td class="text-center">
-                                        <a href="{{ route('admin.ticket.show', $ticket->id) }}"
+                                        <a href="{{ route('admin.ticket.show', $ticket->ticket_number) }}"
                                            class="action-btn btn-edit bs-tooltip"
                                            data-bs-toggle="tooltip" data-bs-placement="top" title="مشاهده">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"

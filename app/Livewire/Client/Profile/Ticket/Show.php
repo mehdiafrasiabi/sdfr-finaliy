@@ -20,9 +20,14 @@ class Show extends Component
 
     public function mount($ticket)
     {
-        $user_id= Auth::id();
-        $this->ticket = Ticket::with(['messages.user', 'messages.admin', 'department'])->findOrFail($ticket);
-        abort_if($this->ticket->user_id !== $user_id, 403);
+        $user_id = Auth::id();
+        $this->ticket = Ticket::with(['messages.user', 'messages.admin', 'department'])
+            ->where('ticket_number', $ticket)
+            ->firstOrFail();
+        // بررسی مالکیت تیکت برای کاربر فعلی
+        // نکته: مقایسه با == انجام می‌شود تا روی هاست‌هایی که user_id را به صورت رشته برمی‌گردانند
+        // (مثلاً MySQL با PDO::ATTR_EMULATE_PREPARES) خطای 403 رخ ندهد.
+        abort_if((int) $this->ticket->user_id !== (int) $user_id, 403);
         // mark admin messages as read
         $this->ticket->messages()
             ->whereNotNull('admin_id')

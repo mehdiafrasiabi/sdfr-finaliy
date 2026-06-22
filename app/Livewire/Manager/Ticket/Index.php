@@ -38,7 +38,7 @@ class Index extends Component
     public function render()
     {
         $ticketsQuery = Ticket::query()
-            ->with(['user', 'department', 'assignedTo'])
+            ->with(['user', 'department', 'assignedAdmin'])
             ->when($this->search, function ($q) {
                 $q->where('title', 'like', "%{$this->search}%")
                     ->orWhereHas('user', fn($query) => $query->where('name', 'like', "%{$this->search}%"));

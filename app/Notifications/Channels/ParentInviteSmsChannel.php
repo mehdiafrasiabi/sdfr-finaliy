@@ -26,7 +26,7 @@ class ParentInviteSmsChannel
             // فرمت template: "نام دانش‌آموز;لینک"
             'text'     => ($data['studentName'] ?? '') . ';' . ($data['link'] ?? ''),
             'to'       => $data['mobile'],
-            'bodyId'   => config('services.melipayamak.parent_invite_body_id', 397165),
+            'bodyId'   => config('services.melipayamak.parent_invite_body_id', 479744),
         ];
 
         $post_data = http_build_query($postData);

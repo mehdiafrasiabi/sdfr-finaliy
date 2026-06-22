@@ -235,7 +235,7 @@
                                         @endif
                                     </td>
                                     <td>
-                                        <a href="{{route('manager.ticket.show',$ticket->id)}}">
+                                        <a href="{{route('manager.ticket.show',$ticket->ticket_number)}}">
                                             <i class="ri-eye-fill align-bottom me-2 text-muted"></i>مشاهده
                                             کنید
                                         </a>

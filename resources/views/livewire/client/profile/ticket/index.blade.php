@@ -98,7 +98,7 @@
                                     <div class="relative w-full h-36 flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200 dark:from-blue-950 dark:to-blue-900">
                                         <img src="/client/icons/ticket1.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
 
-                                    @if($unread > 0)
+                                        @if($unread > 0)
                                             <span class="absolute top-3 left-3 inline-flex items-center justify-center min-w-[22px] h-[22px] px-1.5 bg-red-500 rounded-full text-white text-[11px] font-bold shadow-lg">
                                                 {{ $unread }}
                                             </span>
@@ -127,7 +127,7 @@
                                     </div>
 
                                     <div class="px-4 pb-4">
-                                        <a wire:navigate href="{{ route('client.profile.ticket.show', $ticket->id) }}"
+                                        <a wire:navigate href="{{ route('client.profile.ticket.show', $ticket->ticket_number) }}"
                                            class="w-full inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
                                             مشاهده تیکت
                                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
@@ -142,7 +142,7 @@
                                     <div class="relative flex-shrink-0 w-[120px] flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-[#1e3a5f] dark:to-[#1e40af]">
                                         <img src="/client/icons/ticket1.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
 
-                                    @if($unread > 0)
+                                        @if($unread > 0)
                                             <span class="absolute top-2 left-2 inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-red-500 rounded-full text-white text-[10px] font-bold shadow-lg">
                                                 {{ $unread }}
                                             </span>
@@ -172,7 +172,7 @@
                                         </div>
 
                                         <div class="flex items-center gap-2 flex-shrink-0" dir="ltr">
-                                            <a wire:navigate href="{{ route('client.profile.ticket.show', $ticket->id) }}"
+                                            <a wire:navigate href="{{ route('client.profile.ticket.show', $ticket->ticket_number) }}"
                                                class="inline-flex items-center justify-center gap-2 px-5 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-semibold text-sm transition-colors">
                                                 مشاهده
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">

@@ -55,60 +55,70 @@
                     <!-- Desktop Menu -->
                     <div class="flex items-center gap-5">
                         <div class="relative group/categories">
-                            <a href="{{route('client.home')}}"
-                               class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground">
+                            <a href="{{route('client.home')}}" wire:navigate
+                               class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground @if(request()->routeIs('client.home')) text-primary @endif">
                                 <span class="font-semibold">صفحه اصلی</span>
+                            </a>
+                        </div>
+                        <div class="relative group/categories">
+                            <a href="{{route('client.about-us')}}" wire:navigate
+                               class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground @if(request()->routeIs('client.about-us')) text-primary @endif ">
+                                <span class="font-semibold">درباره ما</span>
+                            </a>
+                        </div>
+                        <div class="relative group/categories">
+                            <a href="{{route('client.contact-us')}}" wire:navigate
+                               class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground @if(request()->routeIs('client.contact-us')) text-primary @endif">
+                                <span class="font-semibold">ارتباط با ما</span>
+                            </a>
+                        </div>
+                        <div class="relative group/categories">
+                            <a href="{{route('client.download')}}" wire:navigate
+                               class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground @if(request()->routeIs('client.download')) text-primary @endif">
+                                <span class="font-semibold">نصب اپلیکیشن</span>
+                            </a>
+                        </div>
+                        <div class="relative group/categories">
+                            <a href="{{route('client.terms')}}" wire:navigate
+                               class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground @if(request()->routeIs('client.terms')) text-primary @endif">
+                                <span class="font-semibold">قوانین و مقررات</span>
                             </a>
                         </div>
                         <ul class="flex items-center gap-5">
 
                             <div class="relative group/categories">
-                                <a href="#"
-                                   class="inline-flex items-center gap-1 text-muted transition-colors hover:text-foreground">
-                                    <span class="font-semibold text-sm">لینک های مفید</span>
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                         stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                              d="m19.5 8.25-7.5 7.5-7.5-7.5"/>
-                                    </svg>
-                                </a>
+
                                 <div
                                     class="absolute right-0 top-full opacity-0 invisible transition-all group-hover/categories:opacity-100 group-hover/categories:visible pt-5 z-10">
                                     <ul class="flex flex-col relative w-56 min-h-[100px] bg-background border border-border shadow-2xl shadow-black/5 rounded-xl">
 
                                         <li class="group">
-                                            <a href="{{route('client.about-us')}}" wire:navigate
+                                            <a
                                                class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
                                                 <span class="font-semibold text-sm">درباره ما</span>
                                             </a>
                                         </li>
                                         <li class="group">
-                                            <a href="{{route('client.contact-us')}}" wire:navigate
+                                            <a
                                                class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
-                                                <span class="font-semibold text-sm">ارتباط با ما</span>
+                                                <span class="font-semibold text-sm"></span>
                                             </a>
                                         </li>
                                         <li class="group">
-                                            <a href="{{route('client.download')}}" wire:navigate
+                                            <a
                                                class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
-                                                <span class="font-semibold text-sm">نصب اپلیکیشن</span>
+                                                <span class="font-semibold text-sm"></span>
                                             </a>
                                         </li>
                                         <li class="group">
-                                            <a href="{{route('client.terms')}}" wire:navigate
+                                            <a
                                                class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
-                                                <span class="font-semibold text-sm">قوانین و مقررات</span>
+                                                <span class="font-semibold text-sm"></span>
                                             </a>
                                         </li>
                                     </ul>
                                 </div>
                             </div>
-                            <li>
-                                <a target="_blank" href="https://survey.porsline.ir/s/stlcBHD8"
-                                   class="inline-flex text-muted transition-colors hover:text-foreground">
-                                    <span class="font-semibold">همکاری با مجموعه</span>
-                                </a>
-                            </li>
                         </ul>
                     </div>
 
@@ -397,30 +407,6 @@
                                 </svg>
                             </a>
 
-                            <a href="{{route('client.shop')}}" wire:navigate @click="closeMenu()"
-                               class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-11 h-11 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                             stroke-linecap="round" stroke-linejoin="round"
-                                             class="w-5 h-5 text-blue-600 dark:text-blue-400">
-                                            <polyline points="21 8 21 21 3 21 3 8"></polyline>
-                                            <rect x="1" y="3" width="22" height="5"></rect>
-                                            <line x1="10" y1="12" x2="14" y2="12"></line>
-                                        </svg>
-                                    </div>
-                                    <span
-                                        class="text-sm font-semibold text-foreground">فروشگاه سال تحصیلی ۱۴۰۴-۱۴۰۵</span>
-                                </div>
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                     stroke-width="2" stroke="currentColor"
-                                     class="w-5 h-5 text-muted group-hover:text-foreground transition-colors">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                          d="M15.75 19.5L8.25 12l7.5-7.5"/>
-                                </svg>
-                            </a>
 
 
                             <a href="{{route('client.about-us')}}" wire:navigate @click="closeMenu()"

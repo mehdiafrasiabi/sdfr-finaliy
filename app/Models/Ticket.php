@@ -14,6 +14,36 @@ class Ticket extends Model
     protected $casts = [
         'closed_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Ticket $ticket) {
+            if (empty($ticket->ticket_number)) {
+                $ticket->ticket_number = self::generateTicketNumber();
+            }
+        });
+    }
+
+    /**
+     * تولید شناسه یکتا برای تیکت با فرمت SDFR-T-XXXXXXXXXX
+     */
+    public static function generateTicketNumber(): string
+    {
+        do {
+            $number = 'SDFR-T-' . random_int(1000000000, 9999999999);
+        } while (self::where('ticket_number', $number)->exists());
+
+        return $number;
+    }
+
+    /**
+     * استفاده از شناسه تیکت (SDFR-T-...) به جای id در آدرس‌ها
+     */
+    public function getRouteKeyName(): string
+    {
+        return 'ticket_number';
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class);

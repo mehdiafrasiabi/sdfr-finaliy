@@ -59,7 +59,6 @@ class Create extends Component
         }
 
         $ticket = Ticket::create([
-            'ticket_number' => random_int(100000, 999999999),
             'user_id' => auth()->id(),
             'title' => $this->title,
             'department_id' => $this->department_id,
@@ -74,7 +73,7 @@ class Create extends Component
         ]);
 
         session()->flash('success', 'تیکت شما با موفقیت افزوده شد.');
-        return redirect()->route('client.profile.ticket.show', $ticket->id);
+        return redirect()->route('client.profile.ticket.show', $ticket->ticket_number);
     }
 
     public function render()
