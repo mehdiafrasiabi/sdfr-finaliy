@@ -1,7 +1,4 @@
 <div class="min-h-screen text-white" dir="rtl" style="font-family: inherit;" x-data="{ openAdvisorModal: false }">
-    <livewire:client.profile.update-notification />
-
-
     {{-- ════════ تور راهنمای داشبورد (اولین ورود + آیکون راهنما) ════════ --}}
     <x-client.page-tour storage-key="dashboard_tour_done" :steps="[
         ['el' => '[data-tour=nav-consultation]', 'title' => 'اتاق مشاوره',       'text' => 'از اینجا می‌تونی وارد اتاق مشاوره بشی و با مشاورت ارتباط بگیری.',                                                                                        'forced' => true],

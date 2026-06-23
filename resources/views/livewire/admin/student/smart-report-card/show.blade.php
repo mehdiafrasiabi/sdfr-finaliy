@@ -124,6 +124,14 @@
                                     در حال انجام...
                                 </span>
                             </button>
+
+                            <a href="{{ route('admin.student.smartReportCard.view', ['student' => $userId, 'year' => $selectedYear, 'month' => $month['number']]) }}"
+                               target="_blank" rel="noopener"
+                               class="btn btn-sm btn-outline-primary w-100 mt-2">
+                                <i class="fi fi-rr-eye ms-1"></i>
+                                مشاهده کارنامه
+                            </a>
+
                         </div>
                     </div>
                 @endforeach

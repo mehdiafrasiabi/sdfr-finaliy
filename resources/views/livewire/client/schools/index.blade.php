@@ -438,23 +438,6 @@
                             عملکرد دانش‌آموزان و ارتقای پیشرفت تحصیلی همراهی می‌کند.
                         </p>
 
-                        <div class="flex flex-wrap gap-3 pt-2">
-                            <a href="#features"
-                               class="inline-flex items-center justify-center h-12 glass hover:border-primary/60 transition-all rounded-full text-foreground font-bold text-sm px-8">
-                                مشاهده‌ی امکانات
-                            </a>
-                            <a href="#contract-form"
-                               class="group relative inline-flex items-center justify-center h-12 bg-primary hover:bg-primary/90 transition-all rounded-full text-white font-bold text-sm px-8 shadow-lg shadow-primary/30 hover:shadow-primary/50 hover:scale-[1.02]">
-                                <span>ثبت درخواست همکاری</span>
-                                <svg class="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1"
-                                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                     stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                                     stroke-linejoin="round">
-                                    <path d="M19 12H5"/>
-                                    <path d="m12 19-7-7 7-7"/>
-                                </svg>
-                            </a>
-                        </div>
 
                         <div class="flex flex-wrap items-center gap-5 pt-4">
                             <div class="flex -space-x-2 space-x-reverse">

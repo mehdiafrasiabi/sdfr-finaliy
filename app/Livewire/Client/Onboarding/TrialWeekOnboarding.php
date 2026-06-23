@@ -20,7 +20,7 @@ class TrialWeekOnboarding extends Component
 {
     use NormalizesDigits;
 
-    public int $currentStep = 1;
+    public int $currentStep = 2;
     public int $totalSteps  = 6;
 
     public string $firstName    = '';
@@ -87,7 +87,7 @@ class TrialWeekOnboarding extends Component
 
     public function previous(): void
     {
-        $this->currentStep = max(1, $this->currentStep - 1);
+        $this->currentStep = max(2, $this->currentStep - 1);
         $this->resetValidation();
         $this->generalError = '';
     }

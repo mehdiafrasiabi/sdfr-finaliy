@@ -158,7 +158,7 @@
             <header class="px-4 pt-5 pb-3" x-show="$wire.currentStep < {{ $totalSteps }}">
                 <div class="flex items-center gap-3">
                     <div class="flex-1 flex items-center justify-center gap-2">
-                        @for ($i = 1; $i <= $totalSteps; $i++)
+                        @for ($i = 2; $i <= $totalSteps; $i++)
                             <span class="progress-dot" :class="{ 'active': $wire.currentStep === {{ $i }}, 'completed': $wire.currentStep > {{ $i }} }"></span>
                         @endfor
                     </div>
@@ -183,34 +183,6 @@
 
                     <div class="step-fade" :class="busy ? 'opacity-0 pointer-events-none' : 'opacity-100'">
 
-                        {{-- STEP 1 --}}
-                        <section x-show="$wire.currentStep === 1">
-                            <div class="train-border">
-                                <div class="glass-card rounded-3xl p-6 text-center">
-                                    <div class="mb-4">{!! $svgWelcome !!}</div>
-                                    <p class="text-muted text-sm leading-7 mb-6">پلتفرم هوشمند پایش مطالعه و مشاوره‌ی تخصصی. در کمتر از ۲ دقیقه حساب‌تون ساخته می‌شه.</p>
-
-                                    <div class="space-y-2 mb-6 text-right">
-                                        @foreach(array_slice($features, 0, 4) as $f)
-                                            <div class="flex items-center gap-3 p-3 rounded-xl bg-secondary/50 border border-border">
-                                                <span class="flex items-center justify-center w-9 h-9 rounded-lg bg-primary/10 text-primary border border-primary/20 shrink-0">
-                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">{!! $f['icon'] !!}</svg>
-                                                </span>
-                                                <div class="text-right">
-                                                    <div class="font-bold text-sm">{{ $f['t'] }}</div>
-                                                    <div class="text-[11px] text-muted leading-5">{{ $f['d'] }}</div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-
-                                    <button type="button" @click="goNext()" @mousedown="pressBtn($el)" class="btn-press w-full h-14 rounded-2xl font-bold text-base flex items-center justify-center gap-2">
-                                        بزن بریم
-                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </section>
 
                         {{-- STEP 2 --}}
                         <section x-show="$wire.currentStep === 2">
@@ -417,7 +389,7 @@
 
             <footer class="sticky bottom-0 px-4 pb-4 pt-2 bg-gradient-to-t from-background via-background/95 to-transparent" x-show="$wire.currentStep >= 2 && $wire.currentStep <= 4">
                 <div class="flex items-center gap-3">
-                    <button type="button" @click="goPrev()" @mousedown="pressBtn($el)" x-show="$wire.currentStep > 1" :disabled="busy" class="btn-press-secondary h-12 px-5 rounded-xl text-sm font-semibold flex items-center gap-2">
+                    <button type="button" @click="goPrev()" @mousedown="pressBtn($el)" x-show="$wire.currentStep > 2" :disabled="busy" class="btn-press-secondary h-12 px-5 rounded-xl text-sm font-semibold flex items-center gap-2">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         قبلی
                     </button>
@@ -788,23 +760,13 @@
 
                     goNext() {
                         if (this.busy) return;
-                        if (this.$wire.currentStep === 1) {
-                            this.setBusy();
-                            this.$wire.set('currentStep', 2).then(() => this.endTransition());
-                            return;
-                        }
                         this.setBusy();
                         this.$wire.next();
                     },
 
                     goPrev() {
                         if (this.busy) return;
-                        if (this.$wire.currentStep <= 1) return;
-                        if (this.$wire.currentStep === 2) {
-                            this.setBusy();
-                            this.$wire.set('currentStep', 1).then(() => this.endTransition());
-                            return;
-                        }
+                        if (this.$wire.currentStep <= 2) return;
                         this.setBusy();
                         this.$wire.previous().then(() => this.endTransition());
                     },
@@ -821,7 +783,7 @@
                         const diff = this.touchEndX - this.touchStartX;
                         if (Math.abs(diff) < 60) return;
                         if (['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName)) return;
-                        if (diff > 0 && this.$wire.currentStep > 1 && this.$wire.currentStep <= 4) {
+                        if (diff > 0 && this.$wire.currentStep > 2 && this.$wire.currentStep <= 4) {
                             this.goPrev();
                         }
                     },

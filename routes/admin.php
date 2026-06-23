@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\FileDownloadController;
 use App\Livewire\Admin\Auth\Index as AuthIndex;
 use App\Livewire\Admin\Dashboard\Index as DashboardIndex;
 use App\Livewire\Admin\Notification\Create as NotificationCreate;
@@ -22,7 +21,7 @@ use App\Livewire\Admin\ContactDocumentation\Index as ContactDocumentationIndex;
 use App\Livewire\Admin\Student\SmartReportCard\Index as SmartReportCardIndex;
 use App\Livewire\Admin\Student\SmartReportCard\Show as SmartReportCardShow;
 use Illuminate\Support\Facades\Route;
-
+use App\Livewire\Admin\Student\SmartReportCard\View as SmartReportCardView;
 
 Route::name('admin.')->group(function () {
 
@@ -30,9 +29,6 @@ Route::name('admin.')->group(function () {
     Route::get('/logout', [AuthIndex::class, 'logout'])->name('logout')->middleware('auth:admin');
 
     Route::middleware('auth:admin')->group(function () {
-
-        Route::get('/download/{token}', [FileDownloadController::class, 'download'])
-            ->name('secure.download');
 
         // داشبورد - نیاز به دسترسی مشاهده داشبورد
 
@@ -191,6 +187,9 @@ Route::name('admin.')->group(function () {
         Route::get('/smart-report-card/{student}', SmartReportCardShow::class)
             ->name('student.smartReportCard.detail');
         // اتاق مشاوره
+
+        Route::get('/smart-report-card/{student}/view/{year}/{month}', SmartReportCardView::class)
+            ->name('student.smartReportCard.view');
 
         Route::get('/advising-sessions', StudentConsultation::class)->name('advising-sessions')
             ->middleware('admin.permission:admin.advising-session.view');

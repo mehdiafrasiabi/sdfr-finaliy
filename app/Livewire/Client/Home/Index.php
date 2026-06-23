@@ -18,9 +18,8 @@ class Index extends Component
     public $monthlyPrice = null;
 
     public $contact_name;
-    public $contact_email;
     public $contact_phone;
-    public $contact_subject;
+
     public $contact_message;
 
     public function mount()
@@ -40,26 +39,17 @@ class Index extends Component
         $data = $this->validate([
             'contact_name'    => 'required|string|max:150',
             'contact_phone'   => ['required', 'regex:/^09\d{9}$/'],
-            'contact_email'   => 'nullable|email|max:150',
-            'contact_subject' => 'nullable|string|max:150',
             'contact_message' => 'required|string|max:1000',
         ], [
             'contact_name.required'    => 'وارد کردن نام الزامی است.',
             'contact_phone.required'   => 'وارد کردن شماره تماس الزامی است.',
             'contact_phone.regex'      => 'شماره موبایل را به‌درستی وارد کن (مثل ۰۹۱۲۳۴۵۶۷۸۹).',
-            'contact_email.email'      => 'ایمیل واردشده معتبر نیست.',
             'contact_message.required' => 'نوشتن پیام الزامی است.',
             '*.max'                    => 'متن واردشده بیش از حد مجاز است.',
             '*.string'                 => 'فرمت نوشتاری اشتباه است.',
         ]);
 
         $text = '';
-        if (! empty($data['contact_subject'])) {
-            $text .= 'موضوع: ' . $data['contact_subject'] . "\n";
-        }
-        if (! empty($data['contact_email'])) {
-            $text .= 'ایمیل: ' . $data['contact_email'] . "\n";
-        }
         $text .= "\n" . $data['contact_message'];
 
         ContactUs::query()->create([
@@ -68,7 +58,7 @@ class Index extends Component
             'text'   => trim($text),
         ]);
 
-        $this->reset(['contact_name', 'contact_email', 'contact_phone', 'contact_subject', 'contact_message']);
+        $this->reset(['contact_name', 'contact_phone', 'contact_message']);
 
         session()->flash('contact_sent', true);
         $this->dispatch('success', 'پیامت با موفقیت ارسال شد. به‌زودی با تو تماس می‌گیریم.');
