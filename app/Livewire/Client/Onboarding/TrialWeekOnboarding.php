@@ -114,6 +114,8 @@ class TrialWeekOnboarding extends Component
 
     private function validatePersonalInfo(): void
     {
+        $this->codeMell = $this->convertToEnglishDigits($this->codeMell);
+
         $v = Validator::make([
             'firstName' => $this->firstName,
             'lastName'  => $this->lastName,
@@ -142,6 +144,9 @@ class TrialWeekOnboarding extends Component
 
     private function validateParentsGrade(): void
     {
+        $this->fatherMobile = $this->convertToEnglishDigits($this->fatherMobile);
+        $this->motherMobile = $this->convertToEnglishDigits($this->motherMobile);
+
         $rules = [
             'fatherMobile' => ['required', 'regex:/^09[0-9]{9}$/'],
             'motherMobile' => ['required', 'regex:/^09[0-9]{9}$/', 'different:fatherMobile'],
@@ -179,6 +184,10 @@ class TrialWeekOnboarding extends Component
 
     private function validateLocationPassword(): void
     {
+        $this->mobile       = $this->convertToEnglishDigits($this->mobile);
+        $this->fatherMobile = $this->convertToEnglishDigits($this->fatherMobile);
+        $this->motherMobile = $this->convertToEnglishDigits($this->motherMobile);
+
         $v = Validator::make([
             'stateId'      => $this->stateId,
             'cityId'       => $this->cityId,
@@ -239,9 +248,11 @@ class TrialWeekOnboarding extends Component
         $this->citiesLoading = false;
     }
 
-    public function updatedMobile(string $value): void       { $this->mobile = $this->convertToEnglishDigits($value); }
-    public function updatedFatherMobile(string $value): void { $this->fatherMobile = $this->convertToEnglishDigits($value); }
-    public function updatedMotherMobile(string $value): void { $this->motherMobile = $this->convertToEnglishDigits($value); }
+    public function updatedMobile($value): void       { $this->mobile = $this->convertToEnglishDigits($value); }
+    public function updatedFatherMobile($value): void { $this->fatherMobile = $this->convertToEnglishDigits($value); }
+    public function updatedMotherMobile($value): void { $this->motherMobile = $this->convertToEnglishDigits($value); }
+    public function updatedCodeMell($value): void     { $this->codeMell = $this->convertToEnglishDigits($value); }
+    public function updatedOtpInput($value): void     { $this->otpInput = $this->convertToEnglishDigits($value); }
 
     public function updatedPassword(string $value): void
     {
@@ -289,6 +300,8 @@ class TrialWeekOnboarding extends Component
     {
         $this->isLoading = true;
         $this->otpError  = '';
+        $this->mobile    = $this->convertToEnglishDigits($this->mobile);
+        $this->otpInput  = $this->convertToEnglishDigits($this->otpInput);
 
         $otp = Otp::where('mobile', $this->mobile)
             ->where('code', $this->otpInput)
