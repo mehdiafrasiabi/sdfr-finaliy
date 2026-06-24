@@ -6,14 +6,23 @@ use App\Models\Assessment;
 use App\Models\StudentAssessmentAttempt;
 use App\Models\User;
 
+/**
+ * تفسیر آزمون‌ها — کاملاً داینامیک و مبتنی بر ستون JSON «interpretation» هر تست.
+ *
+ * منبع تفسیر به‌ترتیب اولویت:
+ *   ۱) ستون interpretation روی همان ردیف assessment (DB)  ← منبع اصلی و قابل ویرایش در پنل
+ *   ۲) فایل config/assessment_interpretations.php          ← fallback برای تست‌های قدیمی
+ *   ۳) ساخت برچسب از کلید facet/flag                        ← تا هیچ‌وقت کرش نشود
+ *
+ * اصل طراحی: اگر تستی اضافه/حذف/غیرفعال شد یا تفسیرش نبود، چیزی نباید بشکند.
+ */
 class AssessmentInterpretationService
 {
     /**
      * کارنامهٔ تحلیلی کامل دانش‌آموز از آزمون‌های تکمیل‌شده.
-     * فقط آزمون‌هایی که هنوز «فعال» هستند لحاظ می‌شوند؛ اگر مدیر آزمونی
-     * (مثلاً MBTI) را غیرفعال کند، تحلیل آن نمایش داده نمی‌شود.
+     * فقط آزمون‌هایی که هنوز «فعال» هستند لحاظ می‌شوند.
      *
-     * خروجی: ['mbti', 'vark', 'custom' => [name => facets], 'flags'] یا null.
+     * خروجی (سازگار با نسخهٔ قبلی): ['mbti', 'vark', 'custom' => [name => facets], 'flags'].
      */
     public function summaryForUser(User $user): ?array
     {
@@ -30,21 +39,24 @@ class AssessmentInterpretationService
         $summary = ['mbti' => null, 'vark' => null, 'custom' => [], 'flags' => []];
 
         foreach ($attempts as $attempt) {
-            $kind = $attempt->assessment?->kind;
-            $cr   = $attempt->computed_result;
+            $assessment = $attempt->assessment;
+            if (! $assessment) {
+                continue;
+            }
+            $cr = $attempt->computed_result;
 
-            if ($kind === Assessment::KIND_MBTI) {
-                $summary['mbti'] = $this->interpretMbti($cr);
-            } elseif ($kind === Assessment::KIND_VARK) {
-                $summary['vark'] = $this->interpretVark($cr);
-            } else {
-                $custom = $this->interpretCustom($cr, $attempt->assessment);
-                if (!empty($custom['facets'])) {
-                    $summary['custom'][$attempt->assessment->name_fa] = $custom['facets'];
-                }
-                foreach ($custom['flags'] ?? [] as $flag) {
-                    $summary['flags'][] = $flag;
-                }
+            // انتخاب نوع تفسیر بر اساس موتور تست — بدون وابستگی به kindهای هاردکد.
+            if ($assessment->interpretationEngine() === 'modality') {
+                $summary['vark'] = $this->interpretVark($cr, $assessment);
+                continue;
+            }
+
+            $custom = $this->interpretCustom($cr, $assessment);
+            if (! empty($custom['facets'])) {
+                $summary['custom'][$assessment->name_fa] = $custom['facets'];
+            }
+            foreach ($custom['flags'] ?? [] as $flagKey => $flag) {
+                $summary['flags'][$flagKey] = $flag;
             }
         }
 
@@ -52,62 +64,48 @@ class AssessmentInterpretationService
     }
 
     /**
-     * تفسیر MBTI — ورودی computed_result از StudentAssessmentAttempt.
-     * خروجی: ['type', 'title', 'description', 'study_tip', 'axes'].
+     * تفسیر تست چندبُعدی (VARK و مشابه) — متن مودالیتی‌ها از JSON تست خوانده می‌شود.
+     * خروجی: ['profile', 'is_multimodal', 'modalities', 'multimodal_text'].
      */
-    public function interpretMbti(?array $computed): array
-    {
-        if (! $computed || empty($computed['type'])) {
-            return ['type' => null];
-        }
-        $type = $computed['type'];
-        $meta = config('assessment_interpretations.mbti_types.' . $type, []);
-        return [
-            'type'        => $type,
-            'title'       => $meta['title']     ?? '—',
-            'description' => $meta['short']     ?? '—',
-            'study_tip'   => $meta['study_tip'] ?? '—',
-            'axes'        => $computed['axes']  ?? [],
-        ];
-    }
-
-    /**
-     * تفسیر VARK — خروجی شامل profile، دومینانت‌ها و تفسیر هر مودالیتی.
-     */
-    public function interpretVark(?array $computed): array
+    public function interpretVark(?array $computed, ?Assessment $assessment = null): array
     {
         if (! $computed || empty($computed['scores'])) {
             return ['profile' => null];
         }
 
-        $scores = $computed['scores'];
+        $scores  = $computed['scores'];
         $profile = $computed['profile'] ?? '';
-        $total = array_sum($scores);
+        $total   = array_sum($scores);
+
+        $jsonModalities = $assessment?->interpretation['modalities'] ?? null;
 
         $modalities = [];
-        foreach (['V', 'A', 'R', 'K'] as $key) {
+        foreach (array_keys($scores) as $key) {
             $score = (int) ($scores[$key] ?? 0);
-            $meta = config('assessment_interpretations.vark_modalities.' . $key, []);
+            $meta  = $jsonModalities[$key]
+                ?? config('assessment_interpretations.vark_modalities.' . $key, []);
             $modalities[] = [
                 'letter'   => $key,
                 'title'    => $meta['title'] ?? $key,
                 'tip'      => $meta['tip']   ?? '',
+                'text'     => $meta['text']  ?? ($meta['tip'] ?? ''),
                 'score'    => $score,
                 'percent'  => $total > 0 ? (int) round(($score / $total) * 100) : 0,
-                'dominant' => $profile !== '' && str_contains($profile, $key),
+                'dominant' => $profile !== '' && str_contains($profile, (string) $key),
             ];
         }
 
         return [
-            'profile'    => $profile,
-            'is_multimodal' => strlen($profile) > 1,
-            'modalities' => $modalities,
+            'profile'         => $profile,
+            'is_multimodal'   => strlen($profile) > 1,
+            'modalities'      => $modalities,
+            'multimodal_text' => $assessment?->interpretation['multimodal_text'] ?? null,
         ];
     }
 
     /**
-     * تفسیر تست اختصاصی — ورودی computed_result و خود assessment.
-     * خروجی: ['facets' => [...], 'flags' => [...], 'overall_level', 'overall_percent'].
+     * تفسیر تست facet-based — متن سطوح و پرچم‌ها از JSON تست خوانده می‌شود.
+     * خروجی: ['facets', 'flags', 'overall_percent', 'overall_level', 'overall_text'].
      */
     public function interpretCustom(?array $computed, ?Assessment $assessment = null): array
     {
@@ -115,16 +113,19 @@ class AssessmentInterpretationService
             return ['facets' => [], 'flags' => []];
         }
 
+        $json = $assessment?->interpretation ?? [];
+
         $facets = [];
         foreach ($computed['facets'] ?? [] as $facet => $data) {
-            $meta = config('assessment_interpretations.facets.' . $facet, []);
+            $meta  = $json['facets'][$facet]
+                ?? config('assessment_interpretations.facets.' . $facet, []);
             $level = $data['level'] ?? 'medium';
             $facets[$facet] = [
                 'key'     => $facet,
-                'label'   => $meta['label']     ?? $facet,
+                'label'   => $meta['label'] ?? $this->humanize($facet),
                 'percent' => (int) ($data['percent'] ?? 0),
                 'level'   => $level,
-                'text'    => $meta[$level]      ?? '—',
+                'text'    => $meta[$level] ?? '—',
             ];
         }
 
@@ -133,19 +134,44 @@ class AssessmentInterpretationService
             if (! $triggered) {
                 continue;
             }
-            $flags[$flag] = $this->flagLabel($flag);
+            $flags[$flag] = $this->flagLabel($flag, $assessment);
         }
+
+        $overallLevel = $computed['overall_level'] ?? 'medium';
+        $overallText  = $json['overall'][$overallLevel] ?? null;
 
         return [
             'facets'          => $facets,
             'flags'           => $flags,
             'overall_percent' => (int) ($computed['overall_percent'] ?? 0),
-            'overall_level'   => $computed['overall_level'] ?? 'medium',
+            'overall_level'   => $overallLevel,
+            'overall_text'    => $overallText,
         ];
     }
 
-    private function flagLabel(string $flag): array
+    /**
+     * نگه‌داشته‌شده برای سازگاری عقب‌رو. MBTI از سیستم حذف شده، پس عملاً هرگز
+     * با دادهٔ واقعی فراخوانی نمی‌شود؛ اما حذف نمی‌کنیم تا کدهای مصرف‌کننده نشکنند.
+     */
+    public function interpretMbti(?array $computed): array
     {
+        return ['type' => null];
+    }
+
+    /**
+     * برچسب پرچم — اول از JSON تست، سپس متن‌های پیش‌فرض.
+     */
+    private function flagLabel(string $flag, ?Assessment $assessment = null): array
+    {
+        $fromJson = $assessment?->interpretation['flags'][$flag] ?? null;
+        if (is_array($fromJson)) {
+            return [
+                'severity' => $fromJson['severity'] ?? 'info',
+                'title'    => $fromJson['title']    ?? $this->humanize($flag),
+                'text'     => $fromJson['text']     ?? '',
+            ];
+        }
+
         return match ($flag) {
             'flag_safety' => [
                 'severity' => 'critical',
@@ -159,9 +185,17 @@ class AssessmentInterpretationService
             ],
             default => [
                 'severity' => 'info',
-                'title'    => $flag,
+                'title'    => $this->humanize($flag),
                 'text'     => '',
             ],
         };
+    }
+
+    /**
+     * ساخت برچسب خوانا از کلید facet/flag وقتی تفسیری تعریف نشده.
+     */
+    private function humanize(string $key): string
+    {
+        return ucfirst(str_replace(['_', '-'], ' ', $key));
     }
 }

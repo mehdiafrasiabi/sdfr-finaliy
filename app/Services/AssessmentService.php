@@ -29,24 +29,21 @@ class AssessmentService
      */
     public function studentAssessmentsInStageOrder(): \Illuminate\Support\Collection
     {
-        $assessments = Assessment::active()->forStudent()->ordered()->get();
-
-        // MBTI همیشه ابتدا (مرحله ۱)، بقیه با همان ترتیب display_order (مرحله ۲).
-        return $assessments
-            ->sortBy(fn (Assessment $a) => $a->kind === Assessment::KIND_MBTI ? 0 : 1)
-            ->values();
+        // ترتیب کاملاً داینامیک بر اساس display_order — بدون هیچ تست هاردکدی.
+        return Assessment::active()->forStudent()->ordered()->get()->values();
     }
 
     /**
-     * شماره مرحله یک آزمون: ۱ برای MBTI، ۲ برای مایندست.
+     * نگه‌داشته‌شده برای سازگاری — دیگر مرحله‌بندی هاردکد نداریم.
      */
     public function stageNumberFor(Assessment $assessment): int
     {
-        return $assessment->kind === Assessment::KIND_MBTI ? 1 : 2;
+        return 1;
     }
 
     /**
-     * اولین آزمون دانش‌آموزی که هنوز توسط این کاربر تکمیل نشده — با رعایت ترتیب مرحله‌ای.
+     * اولین آزمون دانش‌آموزیِ فعال که هنوز تکمیل نشده و حداقل یک سوال فعال دارد.
+     * تست‌های بی‌سوال/غیرفعال‌شده نادیده گرفته می‌شوند تا کاربر هیچ‌وقت گیر نکند.
      * اگر همه تکمیل شده‌اند null برمی‌گرداند.
      */
     public function nextStudentAssessment(User $user): ?Assessment
@@ -58,7 +55,7 @@ class AssessmentService
 
         return $this->studentAssessmentsInStageOrder()
             ->reject(fn (Assessment $a) => in_array($a->id, $completedIds, true))
-            ->first();
+            ->first(fn (Assessment $a) => $a->questions()->where('is_active', true)->exists());
     }
 
     /**
@@ -99,8 +96,12 @@ class AssessmentService
         array $payload
     ): StudentAssessmentAnswer {
         if ($attempt->isCompleted()) {
-            // attempt قبلاً تکمیل شده — ویرایش پاسخ مجاز نیست
-            throw new \LogicException('این آزمون قبلاً تکمیل شده است.');
+            // attempt قبلاً تکمیل شده (مثلاً کلیک دوبار/ریس) — به‌جای پرتاب خطا،
+            // بی‌سروصدا پاسخ موجود را برمی‌گردانیم تا UI به مرحله بعد هدایت شود.
+            return StudentAssessmentAnswer::firstOrNew([
+                'attempt_id'  => $attempt->id,
+                'question_id' => $question->id,
+            ]);
         }
 
         if ($question->assessment_id !== $attempt->assessment_id) {

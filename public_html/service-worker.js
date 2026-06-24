@@ -1,10 +1,15 @@
 // public/service-worker.js
 
-const CACHE_NAME = 'sdfrApp-v4'; // نسخه رو عوض کن تا کلاینت‌ها SW جدید بگیرن
+// نسخه را بالا بردیم (v5 -> v6) تا کش قدیمیِ «مسموم» پاک شود.
+// قبلا سرویس‌ورکر هر پاسخی (حتی صفحه‌ی 404/خطای HTML یا 504) را برای .js/.css کش می‌کرد؛
+// برای همین swiper-bundle.min.js به‌جای JS، HTML برمی‌گرداند و خطای
+// «Unexpected token '<'» و سپس «Swiper is not defined» ایجاد می‌شد.
+const CACHE_NAME = 'sdfrApp-v6';
 const STATIC_CACHE = CACHE_NAME + ':static';
 
+// فقط فایل‌های واقعا استاتیک پیش‌کش می‌شوند (هیچ HTML داینامیکی اینجا نباشد)
 const urlsToCache = [
-    '/',
+    '/offline.html',
     '/manifest.json',
     '/client/load.png',
     '/client/load.svg',
@@ -27,22 +32,31 @@ const urlsToCache = [
     '/client/assets/js/dependencies/swiper-bundle.min.js',
     '/client/assets/js/story-player/story-player.js',
     '/client/assets/js/story-player/styles.css',
+    '/client/sounds/Alarmclock.ogg',
+    '/client/sounds/Funny.mp3',
+    '/client/sounds/Modern.mp3',
+    '/client/sounds/alarm.wav',
 ];
 
-// نصب
+// فقط پاسخ سالم کش شود: همان origin، وضعیت 200، نوع basic (نه opaque/خطا)
+function isCacheableResponse(res) {
+    return res && res.ok && res.status === 200 && res.type === 'basic';
+}
+
+// نصب — پیش‌کش فایل‌های استاتیک (هرکدام جداگانه تا یک فایل ناموجود کل نصب را خراب نکند)
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(STATIC_CACHE).then(async (cache) => {
             await Promise.all(
                 urlsToCache.map((url) =>
-                    cache.add(url).catch((err) => console.warn('⚠️ Failed to cache:', url, err))
+                    cache.add(url).catch((err) => console.warn('Failed to cache:', url, err))
                 )
             );
         }).then(() => self.skipWaiting())
     );
 });
 
-// فعال‌سازی
+// فعال‌سازی — همه‌ی کش‌های نسخه‌های قبلی (از جمله کش مسموم) پاک می‌شوند
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((keys) =>
@@ -53,65 +67,68 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
     const req = event.request;
-    const url = new URL(req.url);
 
-    // فقط همون origin خودمون
-    if (url.origin !== self.location.origin) return;
-
-    // ✅ 1) هرچی غیر GET هست اصلاً دست نزن (POST/PUT/...)
     if (req.method !== 'GET') return;
 
-    // ✅ 2) Livewire endpoints رو کامل exclude کن
-    if (url.pathname.startsWith('/livewire')) return;
+    const url = new URL(req.url);
+    if (url.origin !== self.location.origin) return;
 
-    // ✅ 3) مسیرهای حساس سشن/لاگین/لاگ‌اوت رو هم exclude کن (اینا رو طبق پروژه‌ت تنظیم کن)
-    const bypassPrefixes = [
-        '/logout',
-        '/sign-in',
+    // مسیرهای داینامیک/حساس اصلا دست نمی‌خورند (network مستقیم مرورگر).
+    const DYNAMIC_PREFIXES = [
+        '/livewire',
+        '/profile',
         '/admin',
         '/manager',
-        '/profile', // چون start_url و scope شما اینجاست
+        '/school-manager',
+        '/sign-in',
+        '/signup',
+        '/login',
+        '/logout',
+        '/cart',
+        '/checkout',
     ];
-    // اگر client شما زیر /profile هست و صفحاتش داینامیکه، بهتره HTML ها network-first باشن (پایین‌تر)
-    // اینجا صرفاً مثال بود. می‌تونی این قسمت رو حذف کنی.
+    if (DYNAMIC_PREFIXES.some((p) => url.pathname === p || url.pathname.startsWith(p + '/'))) {
+        return;
+    }
 
-    // ✅ 4) برای فایل‌های استاتیک Cache First
+    const STATIC_EXT = /\.(css|js|mjs|png|jpe?g|gif|svg|webp|ico|woff2?|ttf|otf|mp3|ogg|wav)$/i;
     const isStaticAsset =
         url.pathname.startsWith('/client/assets/') ||
+        url.pathname.startsWith('/client/sounds/') ||
         url.pathname === '/manifest.json' ||
-        url.pathname.endsWith('.css') ||
-        url.pathname.endsWith('.js') ||
-        url.pathname.endsWith('.png') ||
-        url.pathname.endsWith('.jpg') ||
-        url.pathname.endsWith('.jpeg') ||
-        url.pathname.endsWith('.svg') ||
-        url.pathname.endsWith('.woff') ||
-        url.pathname.endsWith('.woff2');
+        STATIC_EXT.test(url.pathname);
 
+    // فایل‌های استاتیک: Cache First، اما فقط پاسخ سالم ذخیره می‌شود
     if (isStaticAsset) {
         event.respondWith(
             caches.match(req).then((cached) => {
                 if (cached) return cached;
-                return fetch(req).then((res) => {
-                    const copy = res.clone();
-                    caches.open(STATIC_CACHE).then((cache) => cache.put(req, copy));
-                    return res;
-                });
+                return fetch(req)
+                    .then((res) => {
+                        if (isCacheableResponse(res)) {
+                            const copy = res.clone();
+                            caches.open(STATIC_CACHE).then((cache) => cache.put(req, copy));
+                        }
+                        return res;
+                    })
+                    .catch(async () => (await caches.match(req)) || Response.error());
             })
         );
         return;
     }
 
-    // ✅ 5) برای HTML / صفحات: Network First (تا session/CSRF/Livewire قاطی نکنه)
+    // صفحات HTML (ناوبری): Network First
     if (req.mode === 'navigate' || req.destination === 'document') {
         event.respondWith(
-            fetch(req)
-                .then((res) => res)
-                .catch(() => caches.match('/offline.html'))
+            fetch(req).catch(async () => {
+                const offline = await caches.match('/offline.html');
+                if (offline) return offline;
+                const body = '<!doctype html><meta charset="utf-8"><h1 style="font-family:sans-serif;text-align:center;margin-top:3rem">No internet connection</h1>';
+                return new Response(body, { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+            })
         );
         return;
     }
 
-    // ✅ fallback
-    event.respondWith(fetch(req).catch(() => caches.match(req)));
+    // بقیه‌ی درخواست‌ها: مستقیم شبکه
 });

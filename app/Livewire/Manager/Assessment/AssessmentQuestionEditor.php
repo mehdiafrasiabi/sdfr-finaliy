@@ -32,9 +32,56 @@ class AssessmentQuestionEditor extends Component
     // Options editor — array of {label, value, weight_v, weight_a, weight_r, weight_k}
     public array $options = [];
 
+    // ویرایش تفسیر داینامیک (ستون JSON «interpretation»)
+    public bool $showInterpretation = false;
+    public string $interpretationJson = '';
+
     public function mount(int $assessment): void
     {
         $this->assessment = Assessment::with('questions')->findOrFail($assessment);
+        $this->loadInterpretationJson();
+    }
+
+    private function loadInterpretationJson(): void
+    {
+        $data = $this->assessment->interpretation;
+        $this->interpretationJson = $data
+            ? json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            : '';
+    }
+
+    public function toggleInterpretation(): void
+    {
+        $this->showInterpretation = ! $this->showInterpretation;
+        if ($this->showInterpretation) {
+            $this->loadInterpretationJson();
+        }
+    }
+
+    /**
+     * ذخیرهٔ JSON تفسیر — اگر JSON نامعتبر باشد ذخیره نمی‌شود و خطا می‌دهد.
+     * مقدار خالی یعنی حذف تفسیر (null) که سیستم آن را با کارنامهٔ خام مدیریت می‌کند.
+     */
+    public function saveInterpretation(): void
+    {
+        $raw = trim($this->interpretationJson);
+
+        if ($raw === '') {
+            $this->assessment->update(['interpretation' => null]);
+            session()->flash('success', 'تفسیر حذف شد (خالی).');
+            return;
+        }
+
+        $decoded = json_decode($raw, true);
+        if (json_last_error() !== JSON_ERROR_NONE || ! is_array($decoded)) {
+            $this->addError('interpretationJson', 'JSON نامعتبر است: ' . json_last_error_msg());
+            return;
+        }
+
+        $this->resetErrorBag('interpretationJson');
+        $this->assessment->update(['interpretation' => $decoded]);
+        $this->loadInterpretationJson();
+        session()->flash('success', 'تفسیر آزمون با موفقیت ذخیره شد.');
     }
 
     public function openCreate(): void

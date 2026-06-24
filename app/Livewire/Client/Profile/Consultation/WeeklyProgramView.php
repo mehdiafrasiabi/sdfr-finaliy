@@ -258,7 +258,14 @@ class WeeklyProgramView extends Component
 
             // اگه تایمر تموم شده بود ولی ثبت نشده، مودال رو نشون بده
             $nowTs = now()->timestamp;
-            if ($this->isInExtraPhase) {
+
+            // 🛡️ محافظت: اگر وضعیت تایمر خیلی قدیمی است (بیش از ۲۴ ساعت از پایانش گذشته)،
+            // این یک نشستِ رهاشده‌ی قدیمی است (لایف‌تایم سشن یک‌ساله است) — پاکش کن تا
+            // مودال «پایان» به‌خودیِ‌خود و بی‌دلیل باز نشود.
+            $effectiveEnd = $this->isInExtraPhase ? ($this->extraEndsAtTs ?? $this->endsAtTs) : $this->endsAtTs;
+            if ($effectiveEnd && ($nowTs - (int)$effectiveEnd) > 86400) {
+                $this->resetTimer();
+            } elseif ($this->isInExtraPhase) {
                 if ($this->extraEndsAtTs && $nowTs >= $this->extraEndsAtTs && !$this->showFinishModal) {
                     $this->extraRemainingSeconds = 0;
                     $this->extraLiveSeconds = $this->extraTargetSeconds;
@@ -293,7 +300,10 @@ class WeeklyProgramView extends Component
             }
 
             $nowTs = now()->timestamp;
-            if ($this->makeupEndsAtTs && $nowTs >= $this->makeupEndsAtTs && !$this->showMakeupFinishModal) {
+            // 🛡️ وضعیت جبرانیِ خیلی قدیمی (بیش از ۲۴ ساعت) را پاک کن
+            if ($this->makeupEndsAtTs && ($nowTs - (int)$this->makeupEndsAtTs) > 86400) {
+                $this->resetMakeupTimer();
+            } elseif ($this->makeupEndsAtTs && $nowTs >= $this->makeupEndsAtTs && !$this->showMakeupFinishModal) {
                 $this->makeupRemainingSeconds = 0;
                 $this->makeupLiveSeconds = $this->makeupTargetSeconds;
                 $this->makeupTimerRunning = false;

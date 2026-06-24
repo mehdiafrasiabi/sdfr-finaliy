@@ -14,9 +14,30 @@ class Assessment extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'is_active'   => 'boolean',
-        'is_required' => 'boolean',
+        'is_active'      => 'boolean',
+        'is_required'    => 'boolean',
+        'interpretation' => 'array',
     ];
+
+    /**
+     * موتور نمره‌دهی/تفسیر این تست را برمی‌گرداند.
+     * اولویت با مقدار صریح در JSON تفسیر؛ سپس استنتاج از نوع سوال‌ها.
+     * 'modality' = تست‌های چندبُعدی مثل VARK، 'facet' = بقیه‌ی تست‌ها.
+     */
+    public function interpretationEngine(): string
+    {
+        $explicit = $this->interpretation['engine'] ?? null;
+        if (in_array($explicit, ['facet', 'modality'], true)) {
+            return $explicit;
+        }
+
+        // استنتاج: اگر تست از نوع چندانتخابیِ وزن‌دار (VARK) باشد → modality، در غیر این صورت facet.
+        if ($this->kind === self::KIND_VARK || $this->question_type === 'vark_multi') {
+            return 'modality';
+        }
+
+        return 'facet';
+    }
 
     const KIND_MBTI   = 'mbti';
     const KIND_VARK   = 'vark';

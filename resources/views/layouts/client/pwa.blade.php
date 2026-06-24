@@ -56,10 +56,26 @@
 {{-- توی pwa.blade.php اضافه کن --}}
 <script>
     if ('serviceWorker' in navigator) {
+        // آیا از قبل یک SW کنترل‌کننده داریم؟ (برای جلوگیری از رفرشِ بیخودِ بازدید اول)
+        var hadController = !!navigator.serviceWorker.controller;
+
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(reg => console.log('SW registered'))
+            navigator.serviceWorker.register('/service-worker.js', { updateViaCache: 'none' })
+                .then(reg => {
+                    // هر بار بارگذاری، وجودِ نسخه‌ی جدیدِ SW را چک کن
+                    reg.update();
+                    // هر ۶۰ دقیقه هم چک کن (برای تب‌هایی که باز می‌مانند)
+                    setInterval(() => reg.update(), 60 * 60 * 1000);
+                })
                 .catch(err => console.log('SW failed:', err));
+        });
+
+        // وقتی SW جدید فعال و کنترلر شد، یک‌بار صفحه را تازه کن تا کدِ جدید بیاید
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (!hadController) return;            // نصبِ اولیه: رفرش لازم نیست
+            if (window.__swReloaded) return;
+            window.__swReloaded = true;
+            window.location.reload();
         });
     }
 </script>

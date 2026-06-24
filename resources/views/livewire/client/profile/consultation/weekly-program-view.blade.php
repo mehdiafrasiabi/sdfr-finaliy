@@ -50,16 +50,30 @@
             <div class="fixed inset-0 z-[90] overflow-y-auto"
                  style="background:rgba(5,5,7,.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);"
                  x-data="{
-                     wakeLock: null, keepOn: false,
-                     async toggleWake() {
+                     wakeLock: null, keepOn: false, wantOn: false,
+                     async acquire() {
+                         if (!('wakeLock' in navigator)) return;
                          try {
-                             if (this.keepOn) { await this.wakeLock?.release(); this.wakeLock = null; this.keepOn = false; }
-                             else if ('wakeLock' in navigator) {
-                                 this.wakeLock = await navigator.wakeLock.request('screen');
-                                 this.keepOn = true;
-                                 this.wakeLock.addEventListener('release', () => { this.keepOn = false; });
-                             }
+                             this.wakeLock = await navigator.wakeLock.request('screen');
+                             this.keepOn = true;
+                             this.wakeLock.addEventListener('release', () => { this.keepOn = false; });
                          } catch(e) { console.warn(e); }
+                     },
+                     async toggleWake() {
+                         if (this.wantOn) {
+                             this.wantOn = false;
+                             try { await this.wakeLock?.release(); } catch(e) {}
+                             this.wakeLock = null; this.keepOn = false;
+                         } else {
+                             this.wantOn = true;
+                             await this.acquire();
+                         }
+                     },
+                     init() {
+                         // وقتی صفحه قفل/مخفی می‌شود WakeLock آزاد می‌شود؛ موقع برگشت دوباره می‌گیریم
+                         document.addEventListener('visibilitychange', () => {
+                             if (this.wantOn && document.visibilityState === 'visible' && !this.keepOn) this.acquire();
+                         });
                      }
                  }">
                 <div class="min-h-full flex flex-col items-center justify-center px-4 py-10 text-white">
@@ -159,11 +173,11 @@
                             @endif
                             <button type="button" @click="toggleWake()"
                                     class="mt-4 px-4 py-1.5 rounded-full text-xs flex items-center gap-1.5 border"
-                                    :class="keepOn ? 'bg-blue-500/20 text-blue-400 border-blue-500/40' : 'bg-white/5 text-gray-400 border-white/10'">
+                                    :class="wantOn ? 'bg-blue-500/20 text-blue-400 border-blue-500/40' : 'bg-white/5 text-gray-400 border-white/10'">
                                 <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-3.5 h-3.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
                                 </svg>
-                                <span x-text="keepOn ? 'صفحه روشن می‌ماند' : 'روشن نگه‌داشتن صفحه'"></span>
+                                <span x-text="wantOn ? 'صفحه روشن می‌ماند' : 'روشن نگه‌داشتن صفحه'"></span>
                             </button>
                         </div>
                     </div>
@@ -757,8 +771,8 @@
         {{-- ════════════════════════════════════════════════════════════ مودال‌ها ════════════════════════════════════════════════════════════ --}}
 
         {{-- مودال دسترسی --}}
-        <div x-cloak x-show="permissionModal" class="fixed inset-0 z-[150] flex flex-col justify-end sm:items-center sm:justify-center" @keydown.escape.window="permissionModal=false">
-            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="permissionModal=false"></div>
+        <div x-cloak x-show="permissionModal" class="fixed inset-0 z-[150] flex flex-col justify-end sm:items-center sm:justify-center">
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="relative z-10 w-full sm:max-w-md glass border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
                  x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
@@ -776,7 +790,8 @@
                     </div>
                 </div>
                 <div class="flex justify-end px-6 py-4 border-t border-border">
-                    <button wire:click="permissionUnderstood" wire:loading.attr="disabled" wire:target="permissionUnderstood"
+                    <button wire:click="permissionUnderstood" x-on:click="window.unlockStudyPermissions && window.unlockStudyPermissions()"
+                            wire:loading.attr="disabled" wire:target="permissionUnderstood"
                             class="px-6 h-11 rounded-xl font-semibold bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
                         <span wire:loading.remove wire:target="permissionUnderstood">متوجه شدم</span>
                         <span wire:loading wire:target="permissionUnderstood" class="spinner-circle"></span>
@@ -819,7 +834,7 @@
 
         {{-- مودال تایید لغو --}}
         <div x-cloak x-show="cancelModal" class="fixed inset-0 z-[135] flex flex-col justify-end sm:items-center sm:justify-center">
-            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="cancelModal=false"></div>
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 border-red-500 rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
                  x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
@@ -841,7 +856,7 @@
 
         {{-- مودال زودتر تمام کردم --}}
         <div x-cloak x-show="earlyModal" class="fixed inset-0 z-[135] flex flex-col justify-end sm:items-center sm:justify-center">
-            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="earlyModal=false"></div>
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 border-emerald-500 rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
                  x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
@@ -866,7 +881,7 @@
 
         {{-- مودال مطالعه بیشتر --}}
         <div x-cloak x-show="studyMoreModal" class="fixed inset-0 z-[135] flex flex-col justify-end sm:items-center sm:justify-center">
-            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="studyMoreModal=false"></div>
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="relative z-10 w-full sm:max-w-md glass border-t-2 sm:border-2 border-blue-500 rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
                  x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
@@ -991,7 +1006,7 @@
 
         {{-- مودال جبرانی --}}
         <div x-cloak x-show="makeupModal" class="fixed inset-0 z-[145] flex flex-col justify-end sm:items-center sm:justify-center">
-            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="makeupModal=false"></div>
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="relative z-10 w-full sm:max-w-lg glass border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
                  x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
@@ -1108,7 +1123,7 @@
 
         {{-- مودال آلارم --}}
         <div x-cloak x-show="alarmModal" class="fixed inset-0 z-[200] flex flex-col justify-end sm:items-center sm:justify-center">
-            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="alarmModal=false"></div>
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
             <div class="relative z-10 w-full sm:max-w-md glass border-t sm:border border-border rounded-t-3xl sm:rounded-2xl shadow-2xl pb-[env(safe-area-inset-bottom,0px)] sm:pb-0"
                  x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
@@ -1119,7 +1134,7 @@
                     </button>
                 </div>
                 <div class="px-6 py-4 space-y-2">
-                    @php $alarms = [['id'=>'Alarmclock','label'=>'زنگ کلاسیک','desc'=>'صدای زنگ سنتی'],['id'=>'Bells','label'=>'زنگ ملایم','desc'=>'صدای ملایم زنگوله'],['id'=>'Digital','label'=>'دیجیتال','desc'=>'صدای الکترونیکی'],['id'=>'Beep','label'=>'بیپ','desc'=>'صدای کوتاه بیپ']]; @endphp
+                    @php $alarms = [['id'=>'Alarmclock','label'=>'زنگ کلاسیک','desc'=>'صدای زنگ سنتی'],['id'=>'Funny','label'=>'زنگ بامزه','desc'=>'آلارم شاد و بامزه'],['id'=>'Modern','label'=>'آلارم مدرن','desc'=>'صدای آلارم امروزی'],['id'=>'Loud','label'=>'آلارم بلند','desc'=>'صدای بلند و کشیده']]; @endphp
                     @foreach($alarms as $alarm)
                         <div class="flex items-center justify-between px-4 py-3 rounded-2xl cursor-pointer transition border {{ $selectedAlarm === $alarm['id'] ? 'bg-blue-500/10 border-blue-500/40' : 'bg-secondary border-border' }}"
                              wire:click="setAlarm('{{ $alarm['id'] }}')">
@@ -1153,23 +1168,33 @@
     <script>
         const ALARMS = [
             { id: 'Alarmclock', src: '/client/sounds/Alarmclock.ogg' },
-            { id: 'Bells',      src: '/client/sounds/Bells.ogg' },
-            { id: 'Digital',    src: '/client/sounds/Digital.ogg' },
-            { id: 'Beep',       src: '/client/sounds/Beep.ogg' },
+            { id: 'Funny',      src: '/client/sounds/Funny.mp3' },
+            { id: 'Modern',     src: '/client/sounds/Modern.mp3' },
+            { id: 'Loud',       src: '/client/sounds/alarm.wav' },
         ];
         const RING_CIRCUMFERENCE = 816.81;
+        const FALLBACK_ALARM_SRC = '/client/sounds/Alarmclock.ogg'; // تنها فایلی که قطعاً موجود است
         const audioCache = {};
 
         function preloadAlarms() {
-            ALARMS.forEach(a => { const audio = new Audio(a.src); audio.preload = 'auto'; audio.load(); audioCache[a.id] = audio; });
+            ALARMS.forEach(a => {
+                const audio = new Audio(a.src);
+                audio.preload = 'auto';
+                // اگر فایل صدا موجود نبود (مثل Bells/Digital/Beep)، به صدای کلاسیک برگرد
+                audio.addEventListener('error', () => { audio.src = FALLBACK_ALARM_SRC; audio.load(); });
+                audio.load();
+                audioCache[a.id] = audio;
+            });
         }
         function getSelectedAlarm() { return localStorage.getItem('selected_alarm') || 'Alarmclock'; }
         function playAlarm() {
             const id = getSelectedAlarm();
             try {
-                const src = (audioCache[id] || audioCache['Alarmclock']).src;
+                const entry = audioCache[id] || audioCache['Alarmclock'];
+                const src = entry ? entry.src : FALLBACK_ALARM_SRC;
                 const a = new Audio(src); a.volume = 1;
-                a.play().catch(e => console.warn('alarm play failed:', e));
+                // اگر پخش با خطا خورد (فایل ناموجود)، یک‌بار با صدای کلاسیک دوباره تلاش کن
+                a.play().catch(() => { const b = new Audio(FALLBACK_ALARM_SRC); b.volume = 1; b.play().catch(e => console.warn('alarm play failed:', e)); });
                 if ('Notification' in window && Notification.permission === 'granted') {
                     new Notification('⏰ زمان مطالعه به پایان رسید!', { body: 'پارت مطالعاتی شما تکمیل شد.', icon: '/favicon.ico' });
                 }
@@ -1185,28 +1210,28 @@
             alarmFired = false; makeupAlarmFired = false; extraAlarmFired = false;
             clientTimerInterval = setInterval(() => {
                 const now = Math.floor(Date.now() / 1000);
-                const endsAt = @this.endsAtTs, isRunning = @this.isRunning, isInExtra = @this.isInExtraPhase;
+                const endsAt = $wire.endsAtTs, isRunning = $wire.isRunning, isInExtra = $wire.isInExtraPhase;
                 if (!isInExtra && endsAt && isRunning) {
-                    const rem = Math.max(endsAt - now, 0), tgt = @this.targetSeconds;
+                    const rem = Math.max(endsAt - now, 0), tgt = $wire.targetSeconds;
                     updateClockDOM('main-clock', rem); updateRingDOM('main-ring', rem, tgt);
-                    if (rem === 0 && !alarmFired) { alarmFired = true; playAlarm(); @this.call('syncTimers'); }
+                    if (rem === 0 && !alarmFired) { alarmFired = true; playAlarm(); $wire.call('syncTimers'); }
                 }
-                const extraEndsAt = @this.extraEndsAtTs;
+                const extraEndsAt = $wire.extraEndsAtTs;
                 if (isInExtra && extraEndsAt && isRunning) {
-                    const rem = Math.max(extraEndsAt - now, 0), tgt = @this.extraTargetSeconds;
+                    const rem = Math.max(extraEndsAt - now, 0), tgt = $wire.extraTargetSeconds;
                     updateClockDOM('extra-clock', rem); updateRingDOM('extra-ring', rem, tgt);
-                    if (rem === 0 && !extraAlarmFired) { extraAlarmFired = true; playAlarm(); @this.call('syncTimers'); }
+                    if (rem === 0 && !extraAlarmFired) { extraAlarmFired = true; playAlarm(); $wire.call('syncTimers'); }
                 }
-                const makeupEndsAt = @this.makeupEndsAtTs, makeupRunning = @this.makeupTimerRunning;
+                const makeupEndsAt = $wire.makeupEndsAtTs, makeupRunning = $wire.makeupTimerRunning;
                 if (makeupEndsAt && makeupRunning) {
-                    const rem = Math.max(makeupEndsAt - now, 0), tgt = @this.makeupTargetSeconds;
+                    const rem = Math.max(makeupEndsAt - now, 0), tgt = $wire.makeupTargetSeconds;
                     updateClockDOM('makeup-clock', rem); updateRingDOM('makeup-ring', rem, tgt);
-                    if (rem === 0 && !makeupAlarmFired) { makeupAlarmFired = true; playAlarm(); @this.call('syncTimers'); }
+                    if (rem === 0 && !makeupAlarmFired) { makeupAlarmFired = true; playAlarm(); $wire.call('syncTimers'); }
                 }
             }, 1000);
         }
 
-        setInterval(() => { if (@this.isRunning || @this.makeupTimerRunning) { @this.call('syncTimers'); } }, 5000);
+        setInterval(() => { if ($wire.isRunning || $wire.makeupTimerRunning) { $wire.call('syncTimers'); } }, 5000);
 
         function formatClock(s) {
             s = Math.max(0, s);
@@ -1220,17 +1245,33 @@
             el.style.strokeDashoffset = (RING_CIRCUMFERENCE * (1 - ratio)).toFixed(2);
         }
 
+        // باز کردن قفل صدا + درخواست نوتیفیکیشن — حتماً داخلِ user-gesture (سافاری iOS این را لازم دارد)
+        window.unlockStudyPermissions = function() {
+            try {
+                const a = new Audio(FALLBACK_ALARM_SRC); a.volume = 0.01;
+                a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
+                if ('Notification' in window && Notification.permission === 'default') {
+                    // داخل همین کلیک کاربر فراخوانی می‌شود تا سافاری اجازه دهد
+                    Notification.requestPermission().catch(() => {});
+                }
+            } catch (e) { console.warn(e); }
+        };
+
         window.addEventListener('alarm-selected', e => localStorage.setItem('selected_alarm', e.detail.alarm));
         window.previewAlarm = function(id) {
-            const a = new Audio((audioCache[id] || audioCache['Alarmclock']).src); a.volume = 0.7;
+            // اگر کش هنوز پر نشده یا فایل موجود نیست، به صدای کلاسیک برمی‌گردیم
+            const entry = audioCache[id] || audioCache['Alarmclock'];
+            const src = entry ? entry.src : '/client/sounds/Alarmclock.ogg';
+            const a = new Audio(src); a.volume = 0.7;
             a.play().catch(e => console.warn(e));
         };
-        window.addEventListener('livewire:initialized', () => {
-            preloadAlarms(); startClientTimer();
-            if ('Notification' in window && Notification.permission === 'granted') { @this.call('onPermissionsGranted'); }
-        });
+
+
+        preloadAlarms();
+        startClientTimer();
+        if ('Notification' in window && Notification.permission === 'granted') { $wire.call('onPermissionsGranted'); }
         Livewire.hook('morph.updated', () => {
-            const endsAt = @this.endsAtTs, makeupEndsAt = @this.makeupEndsAtTs, extraEndsAt = @this.extraEndsAtTs;
+            const endsAt = $wire.endsAtTs, makeupEndsAt = $wire.makeupEndsAtTs, extraEndsAt = $wire.extraEndsAtTs;
             if (endsAt !== lastSyncedEndsAt) { alarmFired = false; lastSyncedEndsAt = endsAt; }
             if (makeupEndsAt !== lastMakeupEndsAt) { makeupAlarmFired = false; lastMakeupEndsAt = makeupEndsAt; }
             if (extraEndsAt !== lastExtraEndsAt) { extraAlarmFired = false; lastExtraEndsAt = extraEndsAt; }
@@ -1239,13 +1280,17 @@
             try {
                 if ('Notification' in window && Notification.permission !== 'granted') { await Notification.requestPermission(); }
                 const a = new Audio(ALARMS[0].src); a.volume = 0.01; await a.play(); a.pause();
-            } catch(e) { console.warn(e); } finally { @this.call('onPermissionsGranted'); }
+            } catch(e) { console.warn(e); } finally { $wire.call('onPermissionsGranted'); }
         });
         window.addEventListener('play-alarm', () => playAlarm());
+        // برگشت به صفحه: فقط همگام‌سازی کن. پرچم‌های alarmFired را اینجا صفر نمی‌کنیم
+        // (وگرنه برای تایمری که قبلاً تمام شده دوباره آلارم پخش می‌شد). صفرشدن آن‌ها فقط
+        // وقتی endsAt عوض شود در morph.updated انجام می‌شود.
         document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) { @this.call('syncTimers'); alarmFired = false; makeupAlarmFired = false; extraAlarmFired = false; }
+            if (!document.hidden) { $wire.call('syncTimers'); }
         });
-        window.addEventListener('focus', () => @this.call('syncTimers'));
+        window.addEventListener('focus', () => $wire.call('syncTimers'));
     </script>
     @endscript
+
 </div>

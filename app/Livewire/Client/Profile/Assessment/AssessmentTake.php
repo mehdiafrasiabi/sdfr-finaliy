@@ -32,6 +32,13 @@ class AssessmentTake extends Component
             return;
         }
 
+        // محافظ: تستِ بدونِ سوالِ فعال نباید کاربر را گیر بیندازد — برگرد به لیست تا
+        // به تست بعدی هدایت شود.
+        if (! $assessment->questions()->where('is_active', true)->exists()) {
+            $this->redirect(route('client.profile.assessment.list'), navigate: true);
+            return;
+        }
+
         $this->preloadExistingAnswer();
     }
 
@@ -98,6 +105,20 @@ class AssessmentTake extends Component
     public function submitAnswer(AssessmentService $service): void
     {
         $attempt = $this->getAttempt();
+
+        // اگر این تلاش قبلاً تکمیل شده (کلیک دوبار/ریس) — بدون خطا و بی‌سروصدا
+        // به تست بعدی یا لیست هدایت می‌کنیم.
+        if ($attempt->isCompleted()) {
+            $next = $service->nextStudentAssessment(Auth::user());
+            $this->redirect(
+                $next
+                    ? route('client.profile.assessment.take', ['slug' => $next->slug])
+                    : route('client.profile.assessment.list'),
+                navigate: true
+            );
+            return;
+        }
+
         $question = $this->getCurrentQuestion();
 
         if (!$question) {
@@ -222,17 +243,18 @@ class AssessmentTake extends Component
         $question = $this->getCurrentQuestion();
 
         $totalActive = $attempt->assessment->questions()->where('is_active', true)->count();
-        $currentIndex = $attempt->answered_count + 1;
-        if ($currentIndex > $totalActive) {
-            $currentIndex = $totalActive;
-        }
+        $answered = min((int) $attempt->answered_count, $totalActive);   // تعداد پاسخ‌داده‌شده (پایهٔ progress)
+        $currentIndex = min($answered + 1, max($totalActive, 1));         // شمارهٔ سوال جاری
+        $percent = $totalActive > 0 ? (int) round(($answered / $totalActive) * 100) : 0;
 
         return view('livewire.client.profile.assessment.assessment-take', [
             'attempt'      => $attempt,
             'assessment'   => $attempt->assessment,
             'question'     => $question,
             'totalActive'  => $totalActive,
+            'answered'     => $answered,
             'currentIndex' => $currentIndex,
+            'percent'      => $percent,
         ])->layout('layouts.client.app');
     }
 }

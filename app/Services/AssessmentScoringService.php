@@ -21,11 +21,10 @@ class AssessmentScoringService
     {
         $attempt->loadMissing('assessment', 'answers.option', 'assessment.questions.options');
 
-        return match ($attempt->assessment->kind) {
-            Assessment::KIND_MBTI   => $this->scoreMbti($attempt),
-            Assessment::KIND_VARK   => $this->scoreVark($attempt),
-            Assessment::KIND_CUSTOM => $this->scoreCustom($attempt),
-            default                 => null,
+        // dispatch بر اساس موتورِ داینامیک تست (نه kind هاردکد).
+        return match ($attempt->assessment->interpretationEngine()) {
+            'modality' => $this->scoreVark($attempt),
+            default    => $this->scoreCustom($attempt),
         };
     }
 
@@ -41,6 +40,11 @@ class AssessmentScoringService
         $facetMax  = [];   // [facet => max possible]
         $facetMin  = [];   // [facet => min possible]
         $flags     = [];
+
+        // آستانه‌های سطح‌بندی per-test (پیش‌فرض ۴۰/۷۰) — قابل override در JSON تفسیر.
+        $th       = $attempt->assessment->interpretation['thresholds'] ?? [];
+        $lowMax   = (int) ($th['low_max']    ?? 39);
+        $medMax   = (int) ($th['medium_max'] ?? 70);
 
         $questionsById = $attempt->assessment->questions->keyBy('id');
         $answersByQ = $attempt->answers->keyBy('question_id');
@@ -90,7 +94,7 @@ class AssessmentScoringService
                 'min'     => $min,
                 'max'     => $max,
                 'percent' => $percent,
-                'level'   => $this->percentToLevel($percent),
+                'level'   => $this->percentToLevel($percent, $lowMax, $medMax),
             ];
             $sumPercent += $percent;
         }
@@ -101,7 +105,7 @@ class AssessmentScoringService
             'facets'          => $facets,
             'flags'           => $flags,
             'overall_percent' => $overallPercent,
-            'overall_level'   => $this->percentToLevel($overallPercent),
+            'overall_level'   => $this->percentToLevel($overallPercent, $lowMax, $medMax),
         ];
     }
 
@@ -127,59 +131,13 @@ class AssessmentScoringService
         return [0, 0, 0];
     }
 
-    private function percentToLevel(int $percent): string
+    private function percentToLevel(int $percent, int $lowMax = 39, int $mediumMax = 70): string
     {
         return match (true) {
-            $percent < 40  => self::LEVEL_LOW,
-            $percent <= 70 => self::LEVEL_MEDIUM,
-            default        => self::LEVEL_HIGH,
+            $percent <= $lowMax    => self::LEVEL_LOW,
+            $percent <= $mediumMax => self::LEVEL_MEDIUM,
+            default                => self::LEVEL_HIGH,
         };
-    }
-
-    /**
-     * MBTI: ۴ محور EI/SN/TF/JP. هر سوال scoring_meta = {axis, a_pole, b_pole}.
-     * گزینه‌های A/B هر سوال value='A' یا value='B' دارند.
-     * تایپ = ترکیب ۴ قطب برنده. در تساوی → I, N, F, P (default ثابت).
-     */
-    private function scoreMbti(StudentAssessmentAttempt $attempt): array
-    {
-        $axes = [
-            'E' => 0, 'I' => 0,
-            'S' => 0, 'N' => 0,
-            'T' => 0, 'F' => 0,
-            'J' => 0, 'P' => 0,
-        ];
-
-        $questionsById = $attempt->assessment->questions->keyBy('id');
-
-        foreach ($attempt->answers as $answer) {
-            $question = $questionsById->get($answer->question_id);
-            if (!$question || !$answer->option) {
-                continue;
-            }
-            $meta = $question->scoring_meta ?? [];
-            $aPole = $meta['a_pole'] ?? null;
-            $bPole = $meta['b_pole'] ?? null;
-            if (!$aPole || !$bPole) {
-                continue;
-            }
-            $value = $answer->option->value;
-            if ($value === 'A' && isset($axes[$aPole])) {
-                $axes[$aPole]++;
-            } elseif ($value === 'B' && isset($axes[$bPole])) {
-                $axes[$bPole]++;
-            }
-        }
-
-        $type = $this->pickPole($axes['E'], $axes['I'], 'E', 'I')
-              . $this->pickPole($axes['S'], $axes['N'], 'S', 'N')
-              . $this->pickPole($axes['T'], $axes['F'], 'T', 'F')
-              . $this->pickPole($axes['J'], $axes['P'], 'J', 'P');
-
-        return [
-            'type' => $type,
-            'axes' => $axes,
-        ];
     }
 
     /**
@@ -230,13 +188,5 @@ class AssessmentScoringService
             'profile' => $profile,
             'scores'  => $scores,
         ];
-    }
-
-    /**
-     * در تساوی، قطب پیش‌فرض (پارامتر دوم) برنده است (I, N, F, P).
-     */
-    private function pickPole(int $aScore, int $bScore, string $a, string $b): string
-    {
-        return $aScore > $bScore ? $a : $b;
     }
 }

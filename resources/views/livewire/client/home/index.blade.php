@@ -69,6 +69,16 @@
                 100% { opacity: 1; transform: rotate(-7deg) scale(1); filter: blur(0) drop-shadow(0 8px 22px rgba(40, 102, 200, .35)); }
             }
 
+            /* (6) آیکونِ موبایل با حرکتِ کشیدن به بالا */
+            .swipe-hint { position: relative; width: 38px; height: 62px; border-radius: 11px; border: 2px solid hsl(var(--primary) / .75);
+                box-shadow: 0 0 0 4px hsl(var(--primary) / .08); }
+            .swipe-hint::before { content: ''; position: absolute; left: 50%; bottom: 9px; width: 7px; height: 7px; border-radius: 50%;
+                background: hsl(var(--primary)); transform: translateX(-50%); animation: swipeUp 1.9s cubic-bezier(.45, 0, .25, 1) infinite; }
+            .swipe-hint::after { content: ''; position: absolute; left: 50%; bottom: 11px; width: 11px; height: 11px; border: 2px solid hsl(var(--primary) / .55);
+                border-radius: 50%; transform: translateX(-50%); animation: swipeRing 1.9s ease-out infinite; }
+            @keyframes swipeUp { 0% { transform: translate(-50%, 0); opacity: 0; } 18% { opacity: 1; } 78% { opacity: 1; } 100% { transform: translate(-50%, -38px); opacity: 0; } }
+            @keyframes swipeRing { 0%, 12% { transform: translate(-50%, 0) scale(.4); opacity: .9; } 60%, 100% { transform: translate(-50%, -38px) scale(1); opacity: 0; } }
+
             /* (4) Scroll cue */
             .scroll-cue { display: flex; flex-direction: column; align-items: center; gap: .55rem; margin-top: 2.6rem; }
             .scroll-cue span { font-weight: 800; font-size: .82rem; color: hsl(var(--muted)); letter-spacing: .04em; }
@@ -81,7 +91,7 @@
 
             /* ================== SECTION 1.5 : STORY (black) ================== */
             /* (1) اسکرولِ سفت‌تر و طولانی‌تر برای سؤال‌ها → ارتفاعِ بیشتر */
-            .story-track { height: 640vh; position: relative; }
+            .story-track { height: 560vh; position: relative; }
             .story-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; }
             .story-layer { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 0 1.5rem; }
 
@@ -99,6 +109,11 @@
             .story-badge { display: inline-flex; align-items: center; gap: .45rem; font-weight: 900; letter-spacing: .6px; color: #38bdf8;
                 background: rgba(56, 189, 248, .12); border: 1px solid rgba(56, 189, 248, .32); padding: .45rem 1.1rem; border-radius: 999px; font-size: 13px; margin-bottom: 1.3rem; }
 
+            /* (3) متنِ «حالا چرا SDFR؟» داخلِ بخشِ موبایل — اول نمایش، با بالا آمدنِ موبایل محو می‌شود */
+            .phone-why { position: absolute; left: 0; right: 0; top: 16%; z-index: 6; text-align: center; padding: 0 1.5rem;
+                pointer-events: none; will-change: transform, opacity; }
+            .phone-why h2 { font-weight: 900; font-size: clamp(27px, 7vw, 54px); color: #fff; line-height: 1.4; }
+
             /* (6) SDFR sparkle */
             .sdfr-spark { background: linear-gradient(110deg, #38bdf8 0%, #e0f2fe 18%, #38bdf8 36%, #38bdf8 100%); background-size: 220% 100%;
                 -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
@@ -107,7 +122,7 @@
 
             /* ================== SECTION 2 : PHONE ================== */
             /* (5) کمی کوتاه‌تر تا فاصله‌ی پایانِ موبایل تا ستاره‌ها کم شود */
-            .phone-track { height: 360vh; position: relative; }
+            .phone-track { height: 460vh; position: relative; }
             .phone-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; }
             .hero-stage { position: absolute; inset: 0; z-index: 5; display: flex; align-items: center; justify-content: center; will-change: opacity; }
 
@@ -136,7 +151,7 @@
 
             /* (4) (11) feature messages inside phone — عنوان بالاتر، باکس گیف بزرگ‌تر */
             .feat-feed { position: absolute; inset: 0; display: flex; align-items: flex-start; justify-content: center; padding: 14px 14px; direction: rtl; }
-            .feat-msg { position: absolute; top: 5%; left: 0; right: 0; margin-inline: auto; width: 100%; max-width: 320px;
+            .feat-msg { position: absolute; top: 3%; left: 0; right: 0; margin-inline: auto; width: 100%; max-width: 320px;
                 display: flex; flex-direction: column; align-items: center; text-align: center;
                 opacity: 0; filter: brightness(.2); transform: translateY(22px) scale(.96);
                 transition: opacity .6s cubic-bezier(.16, 1, .3, 1), filter .6s ease, transform .6s cubic-bezier(.16, 1, .3, 1); }
@@ -144,17 +159,17 @@
             .feat-type b { font-weight: 900; font-size: clamp(46px, 13vw, 72px); }
             .feat-type span { font-weight: 300; font-size: clamp(22px, 7vw, 32px); color: #c3d3f0; }
             .feat-fa { margin-top: .4rem; font-weight: 900; font-size: clamp(17px, 5vw, 24px); color: #38bdf8; }
-            /* باکسِ گیف بزرگ‌تر */
-            .feat-portal { margin-top: .8rem; width: 100%; aspect-ratio: 4/3; border-radius: 18px; overflow: hidden;
+            /* باکسِ گیف بزرگ‌تر — درازتر */
+            .feat-portal { margin-top: .7rem; width: 100%; aspect-ratio: 3/4; border-radius: 18px; overflow: hidden;
                 background: radial-gradient(circle at 50% 45%, rgba(56, 189, 248, .18), rgba(8, 20, 46, .6) 70%);
                 border: 1px solid rgba(56, 189, 248, .30); display: flex; align-items: center; justify-content: center; position: relative; }
             .feat-portal::after { content: 'گیف اینجا قرار می‌گیرد'; font-weight: 800; font-size: 11px; color: rgba(195, 211, 240, .7); }
             .feat-portal img { width: 100%; height: 100%; object-fit: cover; }
-            .feat-desc { margin-top: .8rem; font-weight: 600; font-size: 12.5px; line-height: 1.9; color: #aebbd6; max-width: 34ch; }
+            .feat-desc { margin-top: .55rem; font-weight: 600; font-size: 12px; line-height: 1.8; color: #aebbd6; max-width: 34ch; }
 
             /* ================== STARS / STUDENTS ================== */
             /* (6) کمی طولانی‌تر تا زود تمام نشود */
-            .logos-track { height: 210vh; position: relative; }
+            .logos-track { height: 360vh; position: relative; }
             .logos-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
             .logos-marq { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; justify-content: space-between; padding: 18vh 0; opacity: 0; will-change: opacity; }
             .marq-mask { overflow: hidden; width: 100%;
@@ -165,9 +180,14 @@
                 background: radial-gradient(ellipse 60% 50% at 50% 50%, hsl(var(--background)) 0%, hsl(var(--background) / .7) 45%, transparent 75%); }
             .logos-text { position: absolute; z-index: 4; text-align: center; padding: 0 1rem; pointer-events: none; will-change: opacity, transform; }
 
-            .stars-deco { display: flex; align-items: center; justify-content: center; gap: .7rem; margin-bottom: 1rem; }
-            .stars-deco img { width: clamp(34px, 9vw, 52px); height: auto; filter: drop-shadow(0 6px 16px rgba(56, 189, 248, .35)); }
-            .stars-deco img:nth-child(odd) { transform: translateY(-6px); }
+            .stars-deco { display: flex; align-items: center; justify-content: center; gap: .9rem; margin-bottom: 1rem; }
+            @keyframes starFloat { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-15px) rotate(3deg); } }
+            .stars-deco img { width: clamp(34px, 9vw, 52px); height: auto; filter: drop-shadow(0 6px 16px rgba(56, 189, 248, .35));
+                animation: starFloat 3.6s ease-in-out infinite; will-change: transform; }
+            .stars-deco img:nth-child(1) { animation-delay: 0s;   animation-duration: 3.2s; margin-top: 16px; }
+            .stars-deco img:nth-child(2) { animation-delay: .5s;  animation-duration: 4.2s; margin-top: -8px; }
+            .stars-deco img:nth-child(3) { animation-delay: 1.1s; animation-duration: 3.6s; margin-top: 12px; }
+            .stars-deco img:nth-child(4) { animation-delay: 1.5s; animation-duration: 4.8s; margin-top: -4px; }
 
             /* (6) کارت‌ها کمی کوچک‌تر */
             .student-card { display: flex; flex-direction: column; align-items: center; gap: .5rem; flex-shrink: 0;
@@ -175,7 +195,7 @@
             /* (6) آواتار داخلِ زمینه‌ی primary جا بشود و از کادر بیرون نزند */
             .student-ava-wrap { width: 66px; height: 66px; border-radius: 50%; background: hsl(var(--primary)); overflow: hidden;
                 display: flex; align-items: flex-end; justify-content: center; box-shadow: 0 12px 28px -10px hsl(var(--primary)/.7); }
-            .student-ava-wrap img { width: 100%; height: 100%; object-fit: contain; object-position: bottom; margin: 0; }
+            .student-ava-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center; margin: 0; }
             .student-name { font-weight: 900; font-size: .88rem; color: hsl(var(--foreground)); }
             .student-meta { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; justify-content: center; }
             .student-rank { font-weight: 900; font-size: .72rem; color: hsl(var(--primary)); background: hsl(var(--primary)/.12);
@@ -187,7 +207,7 @@
             .feat-mobile { display: block; }
             @media (min-width: 768px) { .feat-desktop { display: block; } .feat-mobile { display: none; } }
 
-            .feat-track { height: 560vh; position: relative; }
+            .feat-track { height: 600vh; position: relative; }
             .feat-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
             .acc-item { position: relative; padding: 14px 16px; border-radius: 18px; cursor: default; transition: background .4s, border-color .4s, transform .4s;
@@ -257,7 +277,7 @@
             .fp-note { margin-top: 11px; font-size: 10px; font-weight: 700; color: #475569; background: #fff; border: 1px dashed #cbd5e1; border-radius: 11px; padding: 9px 11px; }
 
             /* ================== (3) PRICING INTRO (black hero) ================== */
-            .price-intro-track { height: 150vh; position: relative; }
+            .price-intro-track { height: 170vh; position: relative; }
             .price-intro-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 1.5rem; }
             .price-intro-title { font-weight: 900; font-size: clamp(28px, 7vw, 56px); line-height: 1.4; max-width: 18ch;
                 opacity: 0; filter: brightness(.2); transform: translateY(22px); }
@@ -371,10 +391,35 @@
                 ['name'=>'حسین رستمی',    'rank'=>'رتبه ۴۵۰ تجربی', 'uni'=>'پزشکی تبریز','gender'=>'boy'],
                 ['name'=>'الهام نوری',    'rank'=>'رتبه ۶۲۰ تجربی', 'uni'=>'پرستاری ایران','gender'=>'girl'],
                 ['name'=>'مهدی شریفی',    'rank'=>'رتبه ۱۱۰ ریاضی', 'uni'=>'کامپیوتر امیرکبیر','gender'=>'boy'],
+                ['name'=>'کیمیا جعفری',   'rank'=>'رتبه ۲۵ تجربی',  'uni'=>'پزشکی تهران','gender'=>'girl'],
+                ['name'=>'آرین بهرامی',   'rank'=>'رتبه ۱۹۸ ریاضی', 'uni'=>'برق شریف','gender'=>'boy'],
+                ['name'=>'ملیکا احمدی',   'rank'=>'رتبه ۳۴۰ تجربی', 'uni'=>'داروسازی تهران','gender'=>'girl'],
+                ['name'=>'سینا کریمی',    'rank'=>'رتبه ۶۷ ریاضی',  'uni'=>'مکانیک امیرکبیر','gender'=>'boy'],
+                ['name'=>'رومینا فلاحی',  'rank'=>'رتبه ۸۸۰ انسانی','uni'=>'علوم‌سیاسی تهران','gender'=>'girl'],
+                ['name'=>'پویا اسدی',     'rank'=>'رتبه ۴۱۲ تجربی', 'uni'=>'پزشکی شیراز','gender'=>'boy'],
+                ['name'=>'هستی موسوی',    'rank'=>'رتبه ۱۵۶ تجربی', 'uni'=>'دندان‌پزشکی تهران','gender'=>'girl'],
+                ['name'=>'کیان عباسی',    'rank'=>'رتبه ۲۹۰ ریاضی', 'uni'=>'عمران شریف','gender'=>'boy'],
+                ['name'=>'دیانا رحیمی',   'rank'=>'رتبه ۷۲۰ تجربی', 'uni'=>'پرستاری شهیدبهشتی','gender'=>'girl'],
+                ['name'=>'بردیا نجفی',    'rank'=>'رتبه ۱۴۵ ریاضی', 'uni'=>'هوافضا شریف','gender'=>'boy'],
             ];
-            $avatarGirl = '/client/assets/images/avatars/student-girl.png';
-            $avatarBoy  = '/client/assets/images/avatars/student-boy.png';
-            $longStudents = array_merge($students, $students); // تکرار برای مارکی پُرتر
+            // آواتارهای سه‌بعدیِ جدید (بخش ستارگان)
+            $boyAvatars = [
+                '/client/assets/images/avatars/star-boy-1.webp',
+                '/client/assets/images/avatars/star-boy-2.webp',
+                '/client/assets/images/avatars/star-boy-3.png',
+            ];
+            $girlAvatars = [
+                '/client/assets/images/avatars/star-girl-1.webp',
+                '/client/assets/images/avatars/star-girl-2.webp',
+                '/client/assets/images/avatars/star-girl-3.png',
+            ];
+            $bi = 0; $gi = 0;
+            foreach ($students as &$st) {
+                if ($st['gender'] === 'girl') { $st['avatar'] = $girlAvatars[$gi % count($girlAvatars)]; $gi++; }
+                else { $st['avatar'] = $boyAvatars[$bi % count($boyAvatars)]; $bi++; }
+            }
+            unset($st);
+            $longStudents = array_merge($students, $students, $students); // تکرار برای مارکی پُرتر و طولانی‌تر
 
             $starImgs = [
                 '/client/assets/images/stars/star-1.png',
@@ -409,7 +454,8 @@
                 </p>
 
                 <div class="scroll-cue">
-                    <span>اسکرول کنید</span>
+                    <div class="swipe-hint" aria-hidden="true"></div>
+                    <span>برای دیدن ادامه، آرام به بالا بکشید</span>
                     <div class="scroll-arrows">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -459,11 +505,6 @@
                         <p>اینجا مشاور تحصیلیِ خودت رو متناسب با ویژگی‌های آنالیزشده‌ی خودت انتخاب می‌کنی.</p>
                     </div>
 
-                    {{-- (10) «حالا چرا SDFR ؟» --}}
-                    <div class="story-layer story-msg" id="story-why" style="opacity:0;">
-                        <h2>حالا چرا <span class="sdfr-spark">SDFR</span>؟</h2>
-                    </div>
-
                 </div>
             </div>
             <div class="seam seam-top" style="--seam-color:#000; z-index:11;"></div>
@@ -476,6 +517,11 @@
                     <div class="hero-blue"></div>
                     <div class="absolute inset-0 grid-bg pointer-events-none" style="z-index:1;"></div>
                     <div class="seam seam-top" style="--seam-color:#000;"></div>
+
+                    {{-- (3) متنِ «حالا چرا SDFR؟» — اول نمایش، با بالا آمدنِ موبایل به بالا می‌رود و محو می‌شود --}}
+                    <div id="phone-why" class="phone-why" aria-hidden="true">
+                        <h2>حالا چرا <span class="sdfr-spark">SDFR</span>؟</h2>
+                    </div>
 
                     <div id="hero-stage" class="hero-stage">
                         <div id="hero-phone" class="device">
@@ -531,7 +577,7 @@
                                 @foreach($longStudents as $st)
                                     <div class="student-card glass-home">
                                         <div class="student-ava-wrap">
-                                            <img src="{{ $st['gender'] === 'girl' ? $avatarGirl : $avatarBoy }}" alt="{{ $st['name'] }}" loading="lazy">
+                                            <img src="{{ $st['avatar'] }}" alt="{{ $st['name'] }}" loading="lazy">
                                         </div>
                                         <div class="student-name">{{ $st['name'] }}</div>
                                         <div class="student-meta"><span class="student-rank">{{ $st['rank'] }}</span></div>
@@ -545,7 +591,7 @@
                                 @foreach(array_reverse($longStudents) as $st)
                                     <div class="student-card glass-home">
                                         <div class="student-ava-wrap">
-                                            <img src="{{ $st['gender'] === 'girl' ? $avatarGirl : $avatarBoy }}" alt="{{ $st['name'] }}" loading="lazy">
+                                            <img src="{{ $st['avatar'] }}" alt="{{ $st['name'] }}" loading="lazy">
                                         </div>
                                         <div class="student-name">{{ $st['name'] }}</div>
                                         <div class="student-meta"><span class="student-rank">{{ $st['rank'] }}</span></div>
@@ -555,8 +601,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="logos-veil"></div>
 
                     <div id="logos-text" class="logos-text">
                         <div class="stars-deco">
@@ -849,7 +893,6 @@
                     var storyHelp = document.getElementById('story-help');
                     var storyMindset = document.getElementById('story-mindset');
                     var storyAdvisor = document.getElementById('story-advisor');
-                    var storyWhy = document.getElementById('story-why');
                     var qaRows = [];
                     root.querySelectorAll('#story-qa .story-row').forEach(function (r) {
                         qaRows.push({q: r.querySelector('.qa-q'), a: r.querySelector('.qa-a')});
@@ -858,6 +901,7 @@
                     // PHONE
                     var phoneTrack = document.getElementById('phone-track');
                     var phone = document.getElementById('hero-phone');
+                    var phoneWhy = document.getElementById('phone-why');
                     var heroChat = document.getElementById('hero-chat');
                     var bubbles = root.querySelectorAll('#hero-chat .chat-bubble');
                     var featMsgs = root.querySelectorAll('#phone-feed .feat-msg');
@@ -929,12 +973,10 @@
                         showLayer(storyMindset, mi * (1 - mo), 18 * (1 - mi));
 
                         if (storyAdvisor) {
-                            var ai = clamp((p - 0.73) / 0.05, 0, 1), ao = clamp((p - 0.83) / 0.03, 0, 1);
-                            showLayer(storyAdvisor, ai * (1 - ao), 18 * (1 - ai));
+                            // آخرین پیامِ story — تا انتها روشن می‌ماند تا دمِ خالی نباشد
+                            var ai = clamp((p - 0.74) / 0.07, 0, 1);
+                            showLayer(storyAdvisor, ai, 18 * (1 - ai));
                         }
-
-                        var wi = clamp((p - 0.85) / 0.11, 0, 1);     // تا ~0.96 آرام‌آرام روشن → دمِ خالی کم
-                        showLayer(storyWhy, wi, 18 * (1 - wi));
                     }
 
                     /* ===================== PHONE ===================== */
@@ -946,9 +988,16 @@
                             var s = 0.9 + 0.1 * riseT;
                             phone.style.transform = 'translateY(' + off.toFixed(1) + 'px) scale(' + s.toFixed(3) + ')';
                         }
-                        var bP = clamp((p - 0.14) / 0.24, 0, 1);
+                        // (3) متنِ «حالا چرا SDFR؟» اولش پیداست و با بالا آمدنِ موبایل به بالا می‌رود و محو می‌شود
+                        if (phoneWhy) {
+                            var tFade = clamp(p / 0.16, 0, 1);
+                            phoneWhy.style.opacity = (1 - tFade).toFixed(3);
+                            phoneWhy.style.transform = 'translateY(' + (-80 * tFade).toFixed(1) + 'px)';
+                        }
+                        var bP = clamp((p - 0.06) / 0.30, 0, 1);
                         var n = bubbles.length;
-                        var show = Math.max(0, Math.min(n, Math.ceil(bP * n)));
+                        // پیامِ اول از همان ابتدا (نصفِ موبایل + پیام اول) نمایش داده می‌شود
+                        var show = Math.max(1, Math.min(n, Math.ceil(bP * n)));
                         bubbles.forEach(function (b, i) { b.classList.toggle('shown', i < show); });
                         if (heroChat) heroChat.style.opacity = (1 - clamp((p - 0.40) / 0.04, 0, 1)).toFixed(3);
 
@@ -970,8 +1019,8 @@
                         if (logosText) logosText.style.opacity = clamp(p / 0.06, 0, 1);
                         if (logosMarq) logosMarq.style.opacity = clamp((p - 0.05) / 0.10, 0, 1) * 0.95;
                         var moveP = clamp((p - 0.12) / 0.88, 0, 1);
-                        if (marqTop) marqTop.style.transform = 'translateX(' + (moveP * -32) + '%)';
-                        if (marqBottom) marqBottom.style.transform = 'translateX(' + (moveP * 32) + '%)';
+                        if (marqTop) marqTop.style.transform = 'translateX(' + (moveP * -55) + '%)';
+                        if (marqBottom) marqBottom.style.transform = 'translateX(' + (moveP * 55) + '%)';
                     }
 
                     /* (3) عنوانِ صفحه‌ی سیاهِ قیمت — X-تور */
@@ -999,7 +1048,7 @@
                     /* ---- heavy lerp ---- */
                     var sT=0,sS=0, hT=0,hS=0, lT=0,lS=0, fT=0,fS=0, prT=0,prS=0, raf=null;
                     function loop() {
-                        var k = 0.055; // کوچک‌تر = اسکرولِ سفت‌تر/سنگین‌تر
+                        var k = 0.06; // کوچک‌تر = اسکرولِ سفت‌تر/سنگین‌تر
                         sS += (sT-sS)*k; hS += (hT-hS)*k; lS += (lT-lS)*k; fS += (fT-fS)*k; prS += (prT-prS)*k;
                         if (storyTrack) setStory(sS);
                         if (phoneTrack) setPhone(hS);
@@ -1056,9 +1105,10 @@
                             r.q.style.opacity = 1; r.q.style.filter = 'none'; r.q.style.transform = 'none';
                             r.a.style.opacity = 1; r.a.style.filter = 'none'; r.a.style.transform = 'none';
                         });
-                        [storyHelp, storyMindset, storyAdvisor, storyWhy].forEach(function (el) {
+                        [storyHelp, storyMindset, storyAdvisor].forEach(function (el) {
                             if (el) { el.style.opacity = 1; el.style.position = 'relative'; el.style.marginBlock = '2rem'; }
                         });
+                        if (phoneWhy) { phoneWhy.style.opacity = 1; phoneWhy.style.position = 'relative'; phoneWhy.style.top = 'auto'; phoneWhy.style.transform = 'none'; phoneWhy.style.marginBottom = '1.5rem'; }
                         if (phone) phone.style.transform = 'none';
                         bubbles.forEach(function (b) { b.classList.add('shown'); });
                         featMsgs.forEach(function (m) { m.style.opacity = 1; m.style.filter = 'none'; m.style.transform = 'none'; m.style.position = 'relative'; });

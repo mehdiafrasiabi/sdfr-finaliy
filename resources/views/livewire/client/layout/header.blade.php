@@ -647,7 +647,7 @@
                                         'label' => 'پرتال',
                                         'items' => [
                                             ['label' => 'داشبورد',    'route' => route('client.profile.dashboard'),  'icon' => 'home'],
-                                            ['label' => 'پیشخوان',   'route' => route('client.profile.notification'), 'icon' => 'bell'],
+                                            ['label' => 'اطلاع رسانی',   'route' => route('client.profile.notification'), 'icon' => 'bell'],
                                         ],
                                     ],
                                     [

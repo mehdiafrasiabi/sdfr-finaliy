@@ -381,7 +381,7 @@
                                         <span class="text-[10px] font-bold text-blue-400 bg-blue-500/10 rounded-full px-2 py-0.5">اکنون</span>
                                     @endif
                                 </div>
-                                <h3 class="font-black text-foreground">طبقه‌بندی مباحث</h3>
+                                <h3 class="font-black text-foreground">طبقه‌بندی دروس</h3>
                             </div>
                         </div>
 
@@ -421,7 +421,7 @@
                                             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                                 <path d="M15 3h6v6M10 14L21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
                                             </svg>
-                                            رفتن به طبقه‌بندی
+                                           شروع
                                         </a>
                                     </div>
                                 @else

@@ -56,6 +56,38 @@
         </table>
     </div>
 
+    {{-- ویرایش تفسیر داینامیک (JSON) --}}
+    <div class="bg-base-100 rounded-xl border border-base-300 mt-6 p-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-bold">تفسیر تحلیلی این آزمون (JSON)</h2>
+                <p class="text-xs text-base-content/60 mt-1">
+                    متن سطوح هر شاخص (low/medium/high)، پرچم‌ها و خلاصهٔ کلی. اگر خالی باشد، کارنامهٔ خام نمایش داده می‌شود.
+                </p>
+            </div>
+            <button wire:click="toggleInterpretation" class="btn btn-sm btn-outline">
+                {{ $showInterpretation ? 'بستن' : 'ویرایش تفسیر' }}
+            </button>
+        </div>
+
+        @if ($showInterpretation)
+            <div class="mt-4">
+                <textarea wire:model="interpretationJson"
+                          dir="ltr"
+                          rows="18"
+                          class="textarea textarea-bordered w-full font-mono text-xs leading-5"
+                          placeholder='{"version":1,"engine":"facet","facets":{"sample":{"label":"...","low":"...","medium":"...","high":"..."}},"overall":{"low":"...","medium":"...","high":"..."}}'></textarea>
+                @error('interpretationJson')
+                    <div class="text-error text-xs mt-1">{{ $message }}</div>
+                @enderror
+                <div class="flex items-center gap-2 mt-3">
+                    <button wire:click="saveInterpretation" class="btn btn-primary btn-sm">ذخیرهٔ تفسیر</button>
+                    <span class="text-xs text-base-content/50">engine: «facet» برای تست‌های امتیازی، «modality» برای VARK</span>
+                </div>
+            </div>
+        @endif
+    </div>
+
     {{-- Modal --}}
     @if ($showForm)
         <div class="fixed inset-0 bg-black/50 z-40 flex items-center justify-center p-4" wire:click.self="closeForm">

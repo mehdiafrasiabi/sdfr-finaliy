@@ -82,23 +82,6 @@
                     </div>
 
                     @if($summary)
-                        {{-- MBTI --}}
-                        @if(!empty($summary['mbti']['type']))
-                            <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
-                                <div class="flex items-center gap-2.5 mb-2 flex-wrap">
-                                    <span class="text-base font-black text-blue-400 tracking-widest">{{ $summary['mbti']['type'] }}</span>
-                                    <span class="text-sm font-bold text-white">{{ $summary['mbti']['title'] }}</span>
-                                    <span class="text-[10px] text-white/40 rounded-full px-2 py-0.5" style="background:rgba(255,255,255,0.06);">تیپ شخصیتی</span>
-                                </div>
-                                <p class="text-xs text-white/55 leading-6">{{ $summary['mbti']['description'] }}</p>
-                                @if(!empty($summary['mbti']['study_tip']) && $summary['mbti']['study_tip'] !== '—')
-                                    <div class="mt-2.5 text-[11px] text-emerald-300 rounded-lg px-3 py-2 leading-5" style="background:rgba(34,197,94,0.08);">
-                                        💡 {{ $summary['mbti']['study_tip'] }}
-                                    </div>
-                                @endif
-                            </div>
-                        @endif
-
                         {{-- VARK --}}
                         @if(!empty($summary['vark']['profile']))
                             <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
@@ -115,31 +98,31 @@
                             </div>
                         @endif
 
-                        {{-- تست‌های اختصاصی: نقاط قوت / نیازمند تقویت --}}
+                        {{-- تست‌های اختصاصی: تحلیل دقیق هر شاخص --}}
                         @foreach($summary['custom'] as $testName => $facets)
-                            @php
-                                $strengths  = collect($facets)->filter(fn($f) => $f['level'] === 'high');
-                                $weaknesses = collect($facets)->filter(fn($f) => $f['level'] === 'low');
-                            @endphp
                             <div class="rounded-xl p-4" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);">
                                 <div class="text-sm font-bold text-white mb-3">{{ $testName }}</div>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <div class="text-[11px] font-bold text-emerald-400 mb-2">نقاط قوت</div>
-                                        @forelse($strengths as $f)
-                                            <div class="text-xs text-white/80 mb-1.5">✅ {{ $f['label'] }} <span class="text-white/35">({{ $f['percent'] }}%)</span></div>
-                                        @empty
-                                            <div class="text-[11px] text-white/30">—</div>
-                                        @endforelse
-                                    </div>
-                                    <div>
-                                        <div class="text-[11px] font-bold text-amber-400 mb-2">نیازمند تقویت</div>
-                                        @forelse($weaknesses as $f)
-                                            <div class="text-xs text-white/80 mb-1.5">⚠️ {{ $f['label'] }} <span class="text-white/35">({{ $f['percent'] }}%)</span></div>
-                                        @empty
-                                            <div class="text-[11px] text-white/30">—</div>
-                                        @endforelse
-                                    </div>
+                                <div class="space-y-3">
+                                    @foreach($facets as $f)
+                                        @php
+                                            $lvl = $f['level'] ?? 'medium';
+                                            $lvlColor = $lvl === 'high' ? '#22c55e' : ($lvl === 'low' ? '#f59e0b' : '#60a5fa');
+                                            $lvlText  = $lvl === 'high' ? 'بالا' : ($lvl === 'low' ? 'پایین' : 'متوسط');
+                                        @endphp
+                                        <div>
+                                            <div class="flex items-center justify-between mb-1">
+                                                <span class="text-xs font-bold text-white/85">{{ $f['label'] }}</span>
+                                                <span class="text-[10px] font-bold rounded-full px-2 py-0.5"
+                                                      style="color:{{ $lvlColor }};background:{{ $lvlColor }}1a;">{{ $lvlText }} · {{ $f['percent'] }}%</span>
+                                            </div>
+                                            <div class="h-1.5 rounded-full overflow-hidden mb-1" style="background:rgba(255,255,255,0.06);">
+                                                <div class="h-full rounded-full" style="width:{{ $f['percent'] }}%;background:{{ $lvlColor }};"></div>
+                                            </div>
+                                            @if(!empty($f['text']) && $f['text'] !== '—')
+                                                <p class="text-[11px] text-white/55 leading-5">{{ $f['text'] }}</p>
+                                            @endif
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
                         @endforeach

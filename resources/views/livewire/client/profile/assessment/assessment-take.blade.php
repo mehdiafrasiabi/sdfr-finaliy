@@ -95,10 +95,10 @@
             <div class="rounded-2xl p-4 mb-5" style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
                 <div class="flex items-center justify-between mb-2">
                     <span class="text-xs text-white/40">سوال <span class="text-white font-bold">{{ $currentIndex }}</span> از <span class="text-white font-bold">{{ $totalActive }}</span></span>
-                    <span class="text-xs font-black text-blue-400">{{ $totalActive > 0 ? round(($currentIndex / $totalActive) * 100) : 0 }}%</span>
+                    <span class="text-xs font-black text-blue-400">{{ $percent }}%</span>
                 </div>
                 <div class="h-2 rounded-full overflow-hidden" style="background:rgba(255,255,255,0.06);">
-                    <div class="h-full rounded-full transition-all duration-500" style="background:linear-gradient(to left,#3b82f6,#0ea5e9);width:{{ $totalActive > 0 ? round(($currentIndex / $totalActive) * 100) : 0 }}%;"></div>
+                    <div class="h-full rounded-full transition-all duration-500" style="background:linear-gradient(to left,#3b82f6,#0ea5e9);width:{{ $percent }}%;"></div>
                 </div>
             </div>
 
@@ -116,12 +116,11 @@
                         <div class="q-turn rounded-2xl overflow-hidden"
                              style="background:rgba(255,255,255,0.025);border:1px solid rgba(255,255,255,0.07);"
                              :style="flash ? 'border-color:rgba(59,130,246,0.5);background:rgba(59,130,246,0.06);' : ''"
+                             x-init="picked = {{ $pickedJs }}; flash = false"
                              wire:key="q-{{ $question->id }}">
 
                             <div class="px-5 py-4" style="border-bottom:1px solid rgba(255,255,255,0.05);">
                                 <div class="flex items-start gap-3">
-                                <span class="flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black mt-0.5"
-                                      style="background:rgba(59,130,246,0.2);border:1px solid rgba(59,130,246,0.35);color:#60a5fa;">{{ $currentIndex }}</span>
                                     <p class="text-sm leading-7 text-white/85 font-medium flex-1">{{ $question->question_text_fa }}</p>
                                 </div>
                             </div>
