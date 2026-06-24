@@ -291,6 +291,20 @@
             .price-feat { animation: priceRing 3.2s ease-out infinite; }
             .price-feat:hover { animation-play-state: paused; }
 
+            /* ---------- (A3) دکمه‌ی هفته‌ی آزمایشی با نورِ آبیِ چرخان دورِ آن ---------- */
+            @keyframes trialSpin { to { transform: rotate(1turn); } }
+            .btn-trial-glow { position: relative; display: block; border-radius: 999px; padding: 2px; overflow: hidden; isolation: isolate; }
+            .btn-trial-glow::before { content: ''; position: absolute; z-index: 0; left: 50%; top: 50%; width: 230%; height: 230%;
+                transform: translate(-50%, -50%); transform-origin: center;
+                background: conic-gradient(from 0deg, transparent 0deg, transparent 210deg, #22d3ee 280deg, #38bdf8 320deg, #7dd3fc 345deg, transparent 360deg);
+                animation: trialSpin 2.8s linear infinite; }
+            .btn-trial-glow::after { content: ''; position: absolute; z-index: 1; inset: 2px; border-radius: 999px;
+                background: hsl(var(--background)); }
+            .btn-trial-glow > a { position: relative; z-index: 2; width: 100%; background: transparent !important; border: 0 !important;
+                color: hsl(var(--foreground)); }
+            .btn-trial-glow > a:hover { transform: none; }
+            .btn-trial-glow:hover { transform: translateY(-2px); transition: transform .25s; }
+
             /* ---------- Inputs ---------- */
             .field { width: 100%; height: 2.85rem; background: hsl(var(--secondary) / .6); color: hsl(var(--foreground)); border: 1px solid hsl(var(--border));
                 border-radius: .85rem; padding: 0 1rem; font-size: .85rem; transition: border-color .2s, box-shadow .2s, background .2s; }
@@ -420,6 +434,12 @@
             }
             unset($st);
             $longStudents = array_merge($students, $students, $students); // تکرار برای مارکی پُرتر و طولانی‌تر
+
+            // (A2) دقیقاً ۱۰ دانش‌آموز در هر ردیف. هر ردیف دو بار تکرار می‌شود تا حین حرکت هیچ‌وقت خالی نشود
+            // (پیوسته/seamless) و هر دو ردیف هم‌زمان تمام شوند.
+            $marqueeStudents = array_slice($students, 0, 10);
+            $marqTopList     = array_merge($marqueeStudents, $marqueeStudents);
+            $marqBottomList  = array_merge(array_reverse($marqueeStudents), array_reverse($marqueeStudents));
 
             $starImgs = [
                 '/client/assets/images/stars/star-1.png',
@@ -574,7 +594,7 @@
                     <div id="logos-marq" class="logos-marq">
                         <div class="marq-mask">
                             <div class="marq-row" id="marq-top">
-                                @foreach($longStudents as $st)
+                                @foreach($marqTopList as $st)
                                     <div class="student-card glass-home">
                                         <div class="student-ava-wrap">
                                             <img src="{{ $st['avatar'] }}" alt="{{ $st['name'] }}" loading="lazy">
@@ -588,7 +608,7 @@
                         </div>
                         <div class="marq-mask">
                             <div class="marq-row" id="marq-bottom">
-                                @foreach(array_reverse($longStudents) as $st)
+                                @foreach($marqBottomList as $st)
                                     <div class="student-card glass-home">
                                         <div class="student-ava-wrap">
                                             <img src="{{ $st['avatar'] }}" alt="{{ $st['name'] }}" loading="lazy">
@@ -733,7 +753,9 @@
                                 </li>
                             @endforeach
                         </ul>
-                        <a href="{{ route('client.onboarding') }}" class="btn-ghost glass-home w-full">شروع هفته‌ی آزمایشی</a>
+                        <div class="btn-trial-glow w-full">
+                            <a href="{{ route('client.onboarding', ['plan' => 'trial']) }}" class="btn-ghost w-full">شروع هفته‌ی آزمایشی</a>
+                        </div>
                     </div>
 
                     <div class="price-card price-feat glass relative rounded-3xl p-6 flex flex-col space-y-5 bg-brand-soft border-2 border-brand md:-translate-y-3 mt-3 md:mt-0 reveal-up rv-d1" style="box-shadow:0 30px 60px -25px hsl(var(--primary)/.5);">
@@ -765,7 +787,7 @@
                             <svg class="w-4 h-4 text-brand shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
                             <span class="font-bold text-[11px] text-foreground">امکان پرداخت اقساطی با ۳۰٪ پیش‌پرداخت</span>
                         </div>
-                        <a href="{{ route('client.onboarding') }}" class="btn-brand w-full">شروع ثبت‌نام</a>
+                        <a href="{{ route('client.onboarding', ['plan' => 'cash']) }}" class="btn-brand w-full">شروع ثبت‌نام</a>
                     </div>
 
                     <div class="price-card glass rounded-3xl p-6 flex flex-col space-y-5 reveal-up rv-d2">
@@ -789,7 +811,7 @@
                                 </li>
                             @endforeach
                         </ul>
-                        <a href="{{ route('client.schools') }}" class="btn-ghost glass-home w-full">مشاهده قرارداد مدارس</a>
+                        <a href="#contact" class="btn-ghost glass-home w-full">درخواست همکاری مدارس</a>
                     </div>
                 </div>
             </div>
@@ -958,10 +980,10 @@
                             var ba = clamp((p - (startQ + 0.025)) / 0.05, 0, 1) * listFade;
                             var rq = qaRows[i].q, ra = qaRows[i].a;
                             rq.style.opacity = bq.toFixed(3);
-                            rq.style.filter = 'brightness(' + (0.18 + 0.82 * bq).toFixed(3) + ')';
+                            rq.style.filter = 'brightness(' + (0.55 + 0.82 * bq).toFixed(3) + ')';
                             rq.style.transform = 'translateY(' + (10 * (1 - bq)).toFixed(1) + 'px)';
                             ra.style.opacity = ba.toFixed(3);
-                            ra.style.filter = 'brightness(' + (0.18 + 0.82 * ba).toFixed(3) + ')';
+                            ra.style.filter = 'brightness(' + (0.55 + 0.82 * ba).toFixed(3) + ')';
                             ra.style.transform = 'translateY(' + (8 * (1 - ba)).toFixed(1) + 'px)';
                         }
                         if (storyQA) storyQA.style.opacity = listFade.toFixed(3);
@@ -1019,8 +1041,11 @@
                         if (logosText) logosText.style.opacity = clamp(p / 0.06, 0, 1);
                         if (logosMarq) logosMarq.style.opacity = clamp((p - 0.05) / 0.10, 0, 1) * 0.95;
                         var moveP = clamp((p - 0.12) / 0.88, 0, 1);
-                        if (marqTop) marqTop.style.transform = 'translateX(' + (moveP * -55) + '%)';
-                        if (marqBottom) marqBottom.style.transform = 'translateX(' + (moveP * 55) + '%)';
+                        // (A2) هر دو ردیف هم‌اندازه و هم‌زمان تمام می‌شوند: بالا 0→-55٪ (چپ)، پایین -55٪→0 (راست).
+                        // هر ردیف دو نسخه‌ی یکسان دارد؛ پس ۵۰٪ = دقیقاً یک دور. بالا 0→-۵۰٪ (چپ) و پایین -۵۰٪→۰ (راست).
+                        // هر دو همیشه پُر می‌مانند و در moveP=1 دقیقاً با هم تمام می‌شوند، بعد به بخش بعد می‌رسد.
+                        if (marqTop) marqTop.style.transform = 'translateX(' + (moveP * -50) + '%)';
+                        if (marqBottom) marqBottom.style.transform = 'translateX(' + (-50 + moveP * 50) + '%)';
                     }
 
                     /* (3) عنوانِ صفحه‌ی سیاهِ قیمت — X-تور */
@@ -1124,6 +1149,7 @@
 
                     window.addEventListener('scroll', onScroll, {passive: true});
                     window.addEventListener('resize', onScroll, {passive: true});
+
                     onScroll();
                 }
 

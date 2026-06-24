@@ -1,6 +1,19 @@
 <div class="min-h-screen text-white" dir="rtl" style="font-family: inherit;" x-data="{ openAdvisorModal: false }">
     {{-- ════════ تور راهنمای داشبورد (اولین ورود + آیکون راهنما) ════════ --}}
-    <x-client.page-tour storage-key="dashboard_tour_done" :steps="[
+    <x-client.page-tour storage-key="dashboard_tour_done"
+        :auto="(bool) session()->pull('start_dashboard_tour', false)"
+        :steps="[
+        /* ── موبایل: اشاره به منوی هدر ── */
+        ['el' => '[data-tour=m-menu]',           'title' => 'منوها اینجاست',     'text' => 'با زدن این آیکون در بالای صفحه، به همه‌ی منوها و بخش‌های حساب کاربری‌ات دسترسی داری.',                                                                  'forced' => true],
+        /* ── دسکتاپ: آیتم‌های سایدبار یکی‌یکی ── */
+        ['el' => '[data-tour=sb-dashboard]',     'title' => 'داشبورد',           'text' => 'نمای کلی وضعیت و خلاصه‌ی امروزت اینجاست؛ هر وقت خواستی به اینجا برگرد.',                                                                                 'forced' => true],
+        ['el' => '[data-tour=sb-consultation]',  'title' => 'اتاق مشاوره',       'text' => 'گفتگو و جلسات با مشاورت را از اینجا دنبال کن.',                                                                                                            'forced' => true],
+        ['el' => '[data-tour=sb-plan]',          'title' => 'برنامه‌های مطالعاتی','text' => 'برنامه‌ی درسی اختصاصی‌ات را اینجا می‌بینی و اجرا می‌کنی.',                                                                                                'forced' => true],
+        ['el' => '[data-tour=sb-report]',        'title' => 'گزارش‌های درسی',     'text' => 'گزارش مطالعه‌ی روزانه‌ات را از این بخش ثبت و مرور کن.',                                                                                                     'forced' => true],
+        ['el' => '[data-tour=sb-exam]',          'title' => 'آزمون‌ها',          'text' => 'آزمون‌های تستی و تشریحی‌ات را از اینجا شروع کن.',                                                                                                          'forced' => true],
+        ['el' => '[data-tour=sb-smart-report]',  'title' => 'کارنامه هوشمند',     'text' => 'تحلیل و نمودار پیشرفت تحصیلی‌ات را اینجا می‌بینی.',                                                                                                        'forced' => true],
+        ['el' => '[data-tour=sb-classification]','title' => 'طبقه‌بندی دروس',     'text' => 'سطح تسلطت روی هر درس را اینجا مشخص می‌کنی تا برنامه دقیق‌تر شود.',                                                                                          'forced' => true],
+        /* ── موبایل: ناوبریِ پایین ── */
         ['el' => '[data-tour=nav-consultation]', 'title' => 'اتاق مشاوره',       'text' => 'از اینجا می‌تونی وارد اتاق مشاوره بشی و با مشاورت ارتباط بگیری.',                                                                                        'forced' => true],
         ['el' => '[data-tour=nav-plan]',         'title' => 'برنامه درسی',       'text' => 'برنامه مطالعه درسیت رو اینجا می‌بینی و اجرا می‌کنی.',                                                                                                       'forced' => true],
         ['el' => '[data-tour=nav-logo]',         'title' => 'داشبورد',           'text' => 'با لمس لوگو وسط، هر جا باشی سریع به داشبورد اصلی برمی‌گردی.',                                                                                               'forced' => true],

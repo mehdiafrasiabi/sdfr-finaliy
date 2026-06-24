@@ -4,19 +4,27 @@ namespace App\Livewire\Client\Profile\Assessment;
 
 use App\Models\Assessment;
 use App\Models\AssessmentQuestion;
-use App\Models\StudentAssessmentAnswer;
 use App\Models\StudentAssessmentAttempt;
 use App\Services\AssessmentService;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
+/**
+ * صفحهٔ پاسخ‌دهی به آزمون — همهٔ سوالاتِ یک دسته (assessment) یک‌جا نمایش داده می‌شوند.
+ * پاسخ‌ها در $answers (کلید = question_id) نگه‌داری و در پایان به‌صورت دسته‌ای ذخیره می‌شوند.
+ *   - لیکرت:        '1'..'5'
+ *   - تک‌انتخابی:    option_id (به‌صورت رشته)
+ *   - چندانتخابی:   آرایه‌ای از option_id
+ */
 class AssessmentTake extends Component
 {
     public string $slug = '';
-    public int $currentIndex = 1;
-    public ?int $selectedOptionId = null;     // single-select
-    public array $selectedOptionIds = [];     // multi-select (VARK)
-    public ?string $likertValue = null;       // '1'..'5'
+
+    /** پاسخ‌ها به تفکیک question_id */
+    public array $answers = [];
+
+    /** مودالِ معرفیِ تست در اولین ورود */
+    public bool $showIntro = true;
 
     public function mount(string $slug, AssessmentService $service): void
     {
@@ -32,14 +40,16 @@ class AssessmentTake extends Component
             return;
         }
 
-        // محافظ: تستِ بدونِ سوالِ فعال نباید کاربر را گیر بیندازد — برگرد به لیست تا
-        // به تست بعدی هدایت شود.
+        // محافظ: تستِ بدونِ سوالِ فعال نباید کاربر را گیر بیندازد.
         if (! $assessment->questions()->where('is_active', true)->exists()) {
             $this->redirect(route('client.profile.assessment.list'), navigate: true);
             return;
         }
 
-        $this->preloadExistingAnswer();
+        $this->preloadAnswers($attempt, $assessment);
+
+        // مودالِ معرفی فقط وقتی هنوز هیچ پاسخی ثبت نشده باشد.
+        $this->showIntro = (int) $attempt->answered_count === 0;
     }
 
     private function getAttempt(): StudentAssessmentAttempt
@@ -49,212 +59,137 @@ class AssessmentTake extends Component
             ->firstOrFail();
     }
 
-    private function getCurrentQuestion(): ?AssessmentQuestion
+    private function preloadAnswers(StudentAssessmentAttempt $attempt, Assessment $assessment): void
     {
-        $attempt = $this->getAttempt();
-        // اولین سوال فعال بی‌پاسخ. اگر همه پاسخ خورده باشند، آخرین فعال را برمی‌گردانیم تا UI درست رندر شود.
-        $answeredIds = $attempt->answers()->pluck('question_id')->all();
+        $questions = $assessment->questions()->where('is_active', true)->with('options')->get();
+        $existing  = $attempt->answers()->get()->keyBy('question_id');
 
-        $next = AssessmentQuestion::where('assessment_id', $attempt->assessment_id)
-            ->where('is_active', true)
-            ->when(!empty($answeredIds), fn ($q) => $q->whereNotIn('id', $answeredIds))
-            ->orderBy('order')
-            ->with('options')
-            ->first();
-
-        if ($next) {
-            return $next;
-        }
-
-        return AssessmentQuestion::where('assessment_id', $attempt->assessment_id)
-            ->where('is_active', true)
-            ->orderBy('order', 'desc')
-            ->with('options')
-            ->first();
-    }
-
-    private function preloadExistingAnswer(): void
-    {
-        $this->selectedOptionId = null;
-        $this->selectedOptionIds = [];
-        $this->likertValue = null;
-
-        $question = $this->getCurrentQuestion();
-        if (!$question) {
-            return;
-        }
-
-        $existing = StudentAssessmentAnswer::where('attempt_id', $this->getAttempt()->id)
-            ->where('question_id', $question->id)
-            ->first();
-
-        if (!$existing) {
-            return;
-        }
-
-        if ($question->isMultiSelect()) {
-            $this->selectedOptionIds = $existing->selected_options ?? [];
-        } elseif ($question->type === AssessmentQuestion::TYPE_LIKERT5) {
-            $this->likertValue = $existing->free_value;
-            $this->selectedOptionId = $existing->selected_option_id;
-        } else {
-            $this->selectedOptionId = $existing->selected_option_id;
-        }
-    }
-
-    public function submitAnswer(AssessmentService $service): void
-    {
-        $attempt = $this->getAttempt();
-
-        // اگر این تلاش قبلاً تکمیل شده (کلیک دوبار/ریس) — بدون خطا و بی‌سروصدا
-        // به تست بعدی یا لیست هدایت می‌کنیم.
-        if ($attempt->isCompleted()) {
-            $next = $service->nextStudentAssessment(Auth::user());
-            $this->redirect(
-                $next
-                    ? route('client.profile.assessment.take', ['slug' => $next->slug])
-                    : route('client.profile.assessment.list'),
-                navigate: true
-            );
-            return;
-        }
-
-        $question = $this->getCurrentQuestion();
-
-        if (!$question) {
-            $this->redirect(route('client.profile.assessment.list'), navigate: true);
-            return;
-        }
-
-        $payload = $this->buildPayload($question);
-        if ($payload === null) {
-            $this->addError('answer', 'لطفاً پاسخ خود را انتخاب کنید.');
-            return;
-        }
-
-        $service->saveAnswer($attempt, $question, $payload);
-
-        // بررسی تکمیل
-        $attempt->refresh();
-        $totalActive = $question->assessment->questions()->where('is_active', true)->count();
-        if ($attempt->answered_count >= $totalActive) {
-            $service->complete($attempt);
-
-            // مرحله بعد: اگر آزمون دیگری باقی مانده، بدون توقف مستقیم به آن می‌رویم
-            // (زنجیرهٔ MBTI ← مایندست). در غیر این صورت پایان و صفحهٔ تشکر.
-            $next = $service->nextStudentAssessment(Auth::user());
-            if ($next) {
-                $this->redirect(
-                    route('client.profile.assessment.take', ['slug' => $next->slug]),
-                    navigate: true
-                );
-                return;
+        foreach ($questions as $q) {
+            $ans = $existing->get($q->id);
+            if (! $ans) {
+                continue;
             }
 
-            $service->checkAllCompleted(Auth::user());
-            session()->flash('success', 'تمام آزمون‌ها با موفقیت تکمیل شد.');
-            $this->redirect(route('client.profile.assessment.list'), navigate: true);
-            return;
+            if ($q->isMultiSelect()) {
+                $this->answers[$q->id] = array_map('strval', $ans->selected_options ?? []);
+            } elseif ($q->type === AssessmentQuestion::TYPE_LIKERT5) {
+                $this->answers[$q->id] = $ans->free_value;
+            } else {
+                $this->answers[$q->id] = $ans->selected_option_id ? (string) $ans->selected_option_id : null;
+            }
         }
-
-        // فقط در همین صفحه سوال بعدی را بار می‌کنیم
-        $this->preloadExistingAnswer();
     }
 
     private function buildPayload(AssessmentQuestion $question): ?array
     {
+        $val = $this->answers[$question->id] ?? null;
+
         if ($question->isMultiSelect()) {
-            $ids = array_values(array_filter(array_map('intval', $this->selectedOptionIds)));
-            if (empty($ids)) {
-                return null;
-            }
+            $ids = array_values(array_filter(array_map('intval', (array) $val)));
             $validIds = $question->options->pluck('id')->all();
             $ids = array_values(array_intersect($ids, $validIds));
             if (empty($ids)) {
                 return null;
             }
-            return [
-                'selected_options'   => $ids,
-                'selected_option_id' => null,
-                'free_value'         => null,
-            ];
+            return ['selected_options' => $ids, 'selected_option_id' => null, 'free_value' => null];
         }
 
         if ($question->type === AssessmentQuestion::TYPE_LIKERT5) {
-            if (!in_array($this->likertValue, ['1','2','3','4','5'], true)) {
+            if (! in_array((string) $val, ['1', '2', '3', '4', '5'], true)) {
                 return null;
             }
-            $option = $question->options->firstWhere('value', $this->likertValue);
-            return [
-                'selected_option_id' => $option?->id,
-                'selected_options'   => null,
-                'free_value'         => $this->likertValue,
-            ];
+            $option = $question->options->firstWhere('value', (string) $val);
+            return ['selected_option_id' => $option?->id, 'selected_options' => null, 'free_value' => (string) $val];
         }
 
-        // mbti_binary, yes_no
-        $optionId = (int) $this->selectedOptionId;
-        if ($optionId <= 0) {
+        // mbti_binary, yes_no و سایر تک‌انتخابی‌ها
+        $optionId = (int) $val;
+        if ($optionId <= 0 || ! $question->options->pluck('id')->contains($optionId)) {
             return null;
         }
-        if (!$question->options->pluck('id')->contains($optionId)) {
-            return null;
-        }
-        return [
-            'selected_option_id' => $optionId,
-            'selected_options'   => null,
-            'free_value'         => null,
-        ];
+        return ['selected_option_id' => $optionId, 'selected_options' => null, 'free_value' => null];
     }
-    public function goToPrevious(): void
+
+    public function submitAll(AssessmentService $service): void
     {
         $attempt = $this->getAttempt();
-        $totalActive = $attempt->assessment->questions()->where('is_active', true)->count();
 
-        // به‌روزرسانی کانتر سراسری کلاس
-        $this->currentIndex = $attempt->answered_count + 1;
-        if ($this->currentIndex > $totalActive) {
-            $this->currentIndex = $totalActive;
+        // اگر قبلاً تکمیل شده (دوبار کلیک) — بی‌سروصدا به مرحله بعد می‌رویم.
+        if ($attempt->isCompleted()) {
+            $this->goNext($service);
+            return;
         }
 
-        if ($this->currentIndex > 1) {
-            $lastAnswer = \App\Models\StudentAssessmentAnswer::where('attempt_id', $attempt->id)
-                ->latest('id')
-                ->first();
+        $assessment = $attempt->assessment;
+        $questions  = $assessment->questions()->where('is_active', true)->with('options')->orderBy('order')->get();
 
-            if ($lastAnswer) {
-                $lastAnswer->delete();
-
-                // اعمال فیزیکی تغییرات روی آبجکت دیتابیس
-                $attempt->decrement('answered_count');
-                $attempt->refresh();
+        // اعتبارسنجی: همهٔ سوالات باید پاسخ داشته باشند.
+        $missing = 0;
+        foreach ($questions as $q) {
+            if ($this->buildPayload($q) === null) {
+                $missing++;
             }
-
-            $this->resetValidation();
-            $this->preloadExistingAnswer();
-
-            // همگام‌سازی نهایی ایندکس برای لایه نمایش بعد از حذف رکورد
-            $this->currentIndex = $attempt->answered_count + 1;
         }
-    }
-    public function render(): \Illuminate\Contracts\View\View
-    {
-        $attempt = $this->getAttempt();
-        $question = $this->getCurrentQuestion();
+        if ($missing > 0) {
+            $this->addError('answers', "لطفاً به همهٔ سوالات پاسخ دهید. {$missing} سوال بی‌پاسخ مانده است.");
+            return;
+        }
 
-        $totalActive = $attempt->assessment->questions()->where('is_active', true)->count();
-        $answered = min((int) $attempt->answered_count, $totalActive);   // تعداد پاسخ‌داده‌شده (پایهٔ progress)
-        $currentIndex = min($answered + 1, max($totalActive, 1));         // شمارهٔ سوال جاری
-        $percent = $totalActive > 0 ? (int) round(($answered / $totalActive) * 100) : 0;
+        foreach ($questions as $q) {
+            $service->saveAnswer($attempt, $q, $this->buildPayload($q));
+        }
+
+        $attempt->refresh();
+        $service->complete($attempt);
+
+        $this->goNext($service);
+    }
+
+    private function goNext(AssessmentService $service): void
+    {
+        $next = $service->nextStudentAssessment(Auth::user());
+
+        if ($next) {
+            $this->redirect(route('client.profile.assessment.take', ['slug' => $next->slug]), navigate: true);
+            return;
+        }
+
+        $service->checkAllCompleted(Auth::user());
+        session()->flash('success', 'تمام آزمون‌ها با موفقیت تکمیل شد.');
+        $this->redirect(route('client.profile.assessment.list'), navigate: true);
+    }
+
+    public function render(AssessmentService $service): \Illuminate\Contracts\View\View
+    {
+        $attempt    = $this->getAttempt();
+        $assessment = $attempt->assessment;
+        $questions  = $assessment->questions()->where('is_active', true)->with('options')->orderBy('order')->get();
+
+        // ───── پیشرفتِ کلی روی همهٔ آزمون‌ها (C5) ─────
+        $stageAssessments = $service->studentAssessmentsInStageOrder();
+        $allAttempts = StudentAssessmentAttempt::where('user_id', Auth::id())
+            ->whereIn('assessment_id', $stageAssessments->pluck('id'))
+            ->get()->keyBy('assessment_id');
+
+        $globalTotal   = 0;
+        $otherAnswered = 0;  // پاسخ‌های ثبت‌شده در سایرِ آزمون‌ها (به‌جز آزمون جاری)
+        foreach ($stageAssessments as $a) {
+            $globalTotal += $a->questions()->where('is_active', true)->count();
+            if ($a->id !== $assessment->id) {
+                $otherAnswered += (int) ($allAttempts->get($a->id)?->answered_count ?? 0);
+            }
+        }
+
+        $isMulti = $assessment->question_type === AssessmentQuestion::TYPE_VARK_MULTI
+            || $assessment->kind === Assessment::KIND_VARK;
 
         return view('livewire.client.profile.assessment.assessment-take', [
-            'attempt'      => $attempt,
-            'assessment'   => $attempt->assessment,
-            'question'     => $question,
-            'totalActive'  => $totalActive,
-            'answered'     => $answered,
-            'currentIndex' => $currentIndex,
-            'percent'      => $percent,
+            'assessment'    => $assessment,
+            'questions'     => $questions,
+            'questionIds'   => $questions->pluck('id')->values()->all(),
+            'globalTotal'   => $globalTotal,
+            'otherAnswered' => $otherAnswered,
+            'isMulti'       => $isMulti,
         ])->layout('layouts.client.app');
     }
 }

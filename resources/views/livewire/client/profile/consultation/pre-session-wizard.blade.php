@@ -22,6 +22,14 @@
             position: relative;
         }
 
+        /* باکسِ «خلاصه و ثبت نهایی» — متمایز از بقیه تا کاربر متوجهِ قدمِ آخر شود */
+        @keyframes summaryGlow {
+            0%, 100% { box-shadow: 0 0 0 0 rgb(236 72 153 / .35); }
+            50%      { box-shadow: 0 0 0 8px rgb(236 72 153 / 0); }
+        }
+        .summary-card { animation: summaryGlow 2.4s ease-out infinite; }
+        .summary-cta  { animation: summaryGlow 2.4s ease-out infinite; }
+
         .btn-primary-fancy { position:relative;overflow:hidden;background:linear-gradient(135deg,rgb(37 99 235),rgb(59 130 246));color:white;transition:box-shadow .15s ease;box-shadow:0 4px 14px rgb(59 130 246/.35); }
         .btn-primary-fancy:hover:not(:disabled){box-shadow:0 6px 20px rgb(59 130 246/.5)}
 
@@ -111,9 +119,18 @@
                         </p>
                     </div>
                     <div class="flex flex-col items-stretch gap-2 sm:items-end">
-                        <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
+                        @php
+                            // (E2) در حالتِ هفتهٔ آزمایشی، بازگشت به صفحهٔ راهنما (guide) — نه لیستِ جلسات.
+                            $u = auth()->user();
+                            $inTrial = $u && $u->trialWeek && ! $u->isSchoolStudent()
+                                && ! ($u->student && $u->student->hasActivePaidAccess());
+                            $backRoute = $inTrial
+                                ? route('client.profile.trial.guide')
+                                : route('client.profile.consultation.sessions');
+                        @endphp
+                        <a wire:navigate href="{{ $backRoute }}"
                            class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-white/15 hover:bg-white/25 backdrop-blur px-4 py-2 text-xs sm:text-sm font-medium text-white transition-colors">
-                            <span>بازگشت به لیست</span>
+                            <span>بازگشت{{ $inTrial ? ' به راهنما' : ' به لیست' }}</span>
                             <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="size-4"><path stroke-linecap="round" stroke-linejoin="round" d="m15 15 6-6m0 0-6-6m6 6H9a6 6 0 0 0 0 12h3"/></svg>
                         </a>
                     </div>
@@ -139,7 +156,7 @@
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($cards as $key => $card)
                 @php $isLockedCard = $schoolLocked && in_array($key, ['exams', 'qas', 'assignments'], true); @endphp
-                <div class="pre-card group rounded-2xl glass border-2 border-border bg-card p-5 {{ $isLockedCard ? 'opacity-55' : '' }}"
+                <div class="pre-card group rounded-2xl glass border-2 p-5 {{ $isLockedCard ? 'opacity-55' : '' }} {{ $key === 'summary' ? 'summary-card col-span-2 lg:col-span-3 border-pink-500/60 bg-pink-500/[0.06] ring-2 ring-pink-500/30' : 'border-border bg-card' }}"
                      style="--accent: rgb({{ $card['hex'] }});">
                     <div class="flex items-start justify-between mb-4">
                         <div class="flex items-center justify-center w-12 h-12 rounded-xl border"
@@ -151,6 +168,10 @@
                                 <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                                 قفل
                             </span>
+                        @elseif($key === 'summary')
+                            <span class="inline-flex items-center gap-1 rounded-full border border-pink-500/40 bg-pink-500/10 px-2.5 py-1 text-[11px] font-black text-pink-500">
+                                <span class="w-1.5 h-1.5 bg-pink-500 rounded-full animate-pulse"></span> قدم آخر
+                            </span>
                         @elseif($card['count'] > 0)
                             <span class="inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-black"
                                   style="background:rgb({{ $card['hex'] }}/.1);color:rgb({{ $card['hex'] }});border-color:rgb({{ $card['hex'] }}/.3);">
@@ -159,15 +180,15 @@
                         @endif
                     </div>
                     <h3 class="font-black text-base text-foreground mb-1">{{ $card['title'] }}</h3>
-                    <p class="text-xs text-muted-foreground leading-6 mb-5">{{ $card['desc'] }}</p>
+                    <p class="text-xs text-muted-foreground leading-6 mb-5">{{ $key === 'summary' ? 'وقتی همه‌ی موارد بالا را ثبت کردی، این دکمه را بزن تا پیش‌جلسه‌ات نهایی و ارسال شود.' : $card['desc'] }}</p>
 
                     @if($isLockedCard)
                         <div class="text-center py-2.5 text-xs text-muted-foreground italic">چون مدرسه نمی‌روی، نیازی به این بخش نداری</div>
                     @elseif($key === 'summary')
                         <button wire:click="openModal('summary')"
-                                class="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition-colors"
+                                class="summary-cta w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-base font-black text-white transition-transform hover:scale-[1.01]"
                                 style="background:linear-gradient(135deg,rgb({{ $card['hex'] }}),rgb({{ $card['hex'] }}/.85));box-shadow:0 4px 14px rgb({{ $card['hex'] }}/.4);">
-                            ثبت نهایی
+                            مشاهده خلاصه و ثبت نهایی
                             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
                         </button>
                     @elseif($canEdit)
@@ -176,7 +197,7 @@
                                 style="background:linear-gradient(135deg,rgb({{ $card['hex'] }}),rgb({{ $card['hex'] }}/.85));box-shadow:0 4px 14px rgb({{ $card['hex'] }}/.4);">
                             @if($card['count'] > 0)
                                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-                                مدیریت
+                                ویرایش
                             @else
                                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                                 افزودن
@@ -276,7 +297,9 @@
                                         </div>
                                         <div>
                                             <label class="block text-xs font-semibold mb-1.5">فصل</label>
-                                            <x-ui.select wire:model="examForm.cc_chapter_id" :options="$availableChapters" value-key="id" label-key="name" placeholder="ابتدا درس را انتخاب کنید" :disabled="count($availableChapters)===0"/>
+                                            <div wire:key="exam-chapter-{{ $examForm['cc_subject_id'] }}">
+                                                <x-ui.select wire:model="examForm.cc_chapter_id" :options="$availableChapters" value-key="id" label-key="name" placeholder="ابتدا درس را انتخاب کنید" :disabled="count($availableChapters)===0"/>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -404,7 +427,9 @@
                                         </div>
                                         <div>
                                             <label class="block text-xs font-semibold mb-1.5">فصل</label>
-                                            <x-ui.select wire:model="qaForm.cc_chapter_id" :options="$availableChapters" value-key="id" label-key="name" placeholder="ابتدا درس را انتخاب کنید" :disabled="count($availableChapters)===0"/>
+                                            <div wire:key="qa-chapter-{{ $qaForm['cc_subject_id'] }}">
+                                                <x-ui.select wire:model="qaForm.cc_chapter_id" :options="$availableChapters" value-key="id" label-key="name" placeholder="ابتدا درس را انتخاب کنید" :disabled="count($availableChapters)===0"/>
+                                            </div>
                                         </div>
                                     </div>
                                     <div>
@@ -628,7 +653,10 @@
                                         </div>
                                         <div>
                                             <label class="block text-xs font-semibold mb-1.5">فصل <span class="text-muted-foreground font-normal">(اختیاری)</span></label>
-                                            <x-ui.select wire:model="requestedPartForm.cc_chapter_id" :options="$requestedPartChapters" value-key="id" label-key="name" placeholder="ابتدا درس را انتخاب کنید" :disabled="count($requestedPartChapters)===0"/>
+                                            {{-- wire:key وابسته به درس: با تغییر درس، select فصل بازسازی و فصل‌های جدید نمایش داده می‌شوند --}}
+                                            <div wire:key="rp-chapter-{{ $requestedPartForm['cc_subject_id'] }}">
+                                                <x-ui.select wire:model="requestedPartForm.cc_chapter_id" :options="$requestedPartChapters" value-key="id" label-key="name" placeholder="ابتدا درس را انتخاب کنید" :disabled="count($requestedPartChapters)===0"/>
+                                            </div>
                                         </div>
                                     </div>
                                     <div>

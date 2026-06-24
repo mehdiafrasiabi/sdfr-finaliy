@@ -34,7 +34,7 @@ class WaitingForSupporter extends Component
 
     public function mount(TrialWeekService $service): void
     {
-        $this->seo()->setTitle('انتخاب مشاور جذب');
+        $this->seo()->setTitle('انتخاب مشاور');
         $this->trialWeek = TrialWeek::where('user_id', Auth::id())->latest()->first();
 
         if (!$this->trialWeek) {

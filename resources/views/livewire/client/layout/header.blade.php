@@ -1,4 +1,8 @@
 <div>
+    @php
+        // (B1) رنگِ زمینه‌ی آواتار بر اساسِ جنسیت: پسر = primary، دختر = صورتی.
+        $avatarBg = ($gender ?? null) === 'female' ? '#ec4899' : 'hsl(var(--primary))';
+    @endphp
     @assets
     <style>
 
@@ -131,7 +135,8 @@
                                 <button class="flex items-center sm:gap-3 gap-1 group"
                                         @click="desktopProfileOpen = !desktopProfileOpen">
                   <span
-                      class="inline-flex items-center justify-center w-9 h-9 bg-secondary rounded-full text-foreground ring-2 ring-transparent group-hover:ring-primary/20 transition-all overflow-hidden">
+                      style="background: {{ $avatarBg }}"
+                      class="inline-flex items-center justify-center w-9 h-9 rounded-full text-white ring-2 ring-transparent group-hover:ring-primary/20 transition-all overflow-hidden">
                 @if($profilePictureUrl)
                           <img src="{{ $profilePictureUrl }}" class="rounded-full w-full h-full object-cover"
                                alt="avatar">
@@ -179,7 +184,8 @@
                                         <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-700">
                                             <div class="flex items-center gap-3 mb-0">
                                                 <div
-                                                    class="w-12 h-12 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                                    style="background: {{ $avatarBg }}"
+                                                    class="w-12 h-12 rounded-full text-white flex items-center justify-center overflow-hidden flex-shrink-0">
                                                     @if($profilePictureUrl)
                                                         <img src="{{ $profilePictureUrl }}"
                                                              class="rounded-full w-full h-full object-cover"
@@ -323,8 +329,9 @@
 
                     <!-- دکمه پروفایل/ورود - سمت راست -->
                     @if(\Illuminate\Support\Facades\Auth::check())
-                        <button @click="openProfileModal()"
-                                class="inline-flex items-center justify-center w-10 h-10 bg-secondary rounded-full text-foreground hover:bg-secondary/80 transition-colors overflow-hidden">
+                        <button @click="openProfileModal()" data-tour="m-menu"
+                                style="background: {{ $avatarBg }}"
+                                class="inline-flex items-center justify-center w-10 h-10 rounded-full text-white hover:opacity-90 transition-opacity overflow-hidden">
                             @if($profilePictureUrl)
                                 <img src="{{ $profilePictureUrl }}" class="w-full h-full object-cover rounded-full"
                                      alt="avatar">
@@ -582,7 +589,8 @@
                             <div class="flex items-center gap-4">
                                 {{-- آواتار --}}
                                 <div
-                                    class="w-16 h-16 rounded-full bg-[#2b2b31] ring-2 ring-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                                    style="background: {{ $avatarBg }}"
+                                    class="w-16 h-16 rounded-full ring-2 ring-white/10 text-white flex items-center justify-center overflow-hidden flex-shrink-0">
                                     @if($profilePictureUrl)
                                         <img src="{{ $profilePictureUrl }}"
                                              class="w-full h-full object-cover rounded-full" alt="avatar">

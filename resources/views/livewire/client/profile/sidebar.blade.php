@@ -4,7 +4,7 @@
     <ul class="flex flex-col space-y-3 glass rounded-2xl p-5">
         <li>
 
-            <a wire:navigate href="{{route('client.profile.dashboard')}}"
+            <a wire:navigate data-tour="sb-dashboard" href="{{route('client.profile.dashboard')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full  {{ request()->routeIs('client.profile.dashboard') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }} ">
 
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
@@ -55,7 +55,7 @@
             </a>
         </li>
         <li>
-            <a wire:navigate href="{{route('client.profile.consultation.sessions')}}"
+            <a wire:navigate data-tour="sb-consultation" href="{{route('client.profile.consultation.sessions')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.consultation.sessions') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                      class="w-5 h-5">
@@ -72,7 +72,7 @@
         </li>
 
         <li>
-            <a wire:navigate href="{{route('client.profile.plan')}}"
+            <a wire:navigate data-tour="sb-plan" href="{{route('client.profile.plan')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.plan') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -85,7 +85,7 @@
         </li>
 
         <li>
-            <a wire:navigate href="{{route('client.profile.report')}}"
+            <a wire:navigate data-tour="sb-report" href="{{route('client.profile.report')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.report') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                      class="w-5 h-5">
@@ -100,7 +100,7 @@
             </a>
         </li>
         <li>
-            <a wire:navigate href="{{route('client.profile.typed-exam.list')}}"
+            <a wire:navigate data-tour="sb-exam" href="{{route('client.profile.typed-exam.list')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.typed-exam.list') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
                      class="w-5 h-5">
@@ -112,7 +112,7 @@
             </a>
         </li>
         <li>
-            <a wire:navigate href="{{route('client.profile.reportStudentStudy')}}"
+            <a wire:navigate data-tour="sb-smart-report" href="{{route('client.profile.reportStudentStudy')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.reportStudentStudy') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -127,7 +127,7 @@
             </a>
         </li>
         <li>
-            <a wire:navigate href="{{route('client.profile.classification.projects')}}"
+            <a wire:navigate data-tour="sb-classification" href="{{route('client.profile.classification.projects')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.classification') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                      stroke-width="1.5" stroke="currentColor" class="w-5 h-5">

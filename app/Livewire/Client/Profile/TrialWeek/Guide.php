@@ -165,7 +165,9 @@ class Guide extends Component
         $this->trialWeek->refresh();
         $this->showHoursModal = false;
 
-        $this->dispatch('success', 'برنامه مطالعاتی شما با موفقیت ساخته شد!');
+        // (F/G) بعد از ساخت برنامه مستقیم به داشبورد می‌رویم و تورِ راهنمای داشبورد را فعال می‌کنیم.
+        session()->put('start_dashboard_tour', true);
+        $this->redirect(route('client.profile.dashboard'), navigate: true);
     }
 
     public function render(): \Illuminate\Contracts\View\View

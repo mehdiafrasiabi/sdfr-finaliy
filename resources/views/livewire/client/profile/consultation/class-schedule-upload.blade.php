@@ -1,12 +1,20 @@
 <div>
     <div>
         <div class="max-w-7xl space-y-14 px-4 mx-auto">
+            @php
+                // (I) در حالتِ هفتهٔ آزمایشی سایدبار نمایش داده نمی‌شود.
+                $u = auth()->user();
+                $inTrialCs = $u && $u->trialWeek && ! $u->isSchoolStudent()
+                    && ! ($u->student && $u->student->hasActivePaidAccess());
+            @endphp
             <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
-                <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
-                    <livewire:client.profile.sidebar/>
-                </div>
+                @unless($inTrialCs)
+                    <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
+                        <livewire:client.profile.sidebar/>
+                    </div>
+                @endunless
 
-                <div class="lg:col-span-9 md:col-span-8">
+                <div class="{{ $inTrialCs ? 'col-span-1 md:col-span-12' : 'lg:col-span-9 md:col-span-8' }}">
                     <div class="space-y-6">
 
                         {{-- Section Title --}}
@@ -16,9 +24,9 @@
                                 <div class="w-2 h-2 bg-foreground rounded-full"></div>
                             </div>
                             <div class="font-black text-foreground">افزودن برنامه کلاسی</div>
-                            <a wire:navigate href="{{ route('client.profile.consultation.sessions') }}"
+                            <a wire:navigate href="{{ $inTrialCs ? route('client.profile.trial.guide') : route('client.profile.consultation.sessions') }}"
                                class="inline-flex items-center justify-center gap-x-1.5 h-10 bg-secondary border border-border rounded-full text-muted transition-colors hover:text-foreground px-6 ms-auto">
-                                <span class="font-semibold text-xs">بازگشت</span>
+                                <span class="font-semibold text-xs">بازگشت{{ $inTrialCs ? ' به راهنما' : '' }}</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      stroke-width="1.5" stroke="currentColor" class="size-5">
                                     <path stroke-linecap="round" stroke-linejoin="round"

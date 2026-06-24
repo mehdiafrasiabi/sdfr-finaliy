@@ -1,11 +1,12 @@
 <div>
 
-    @props(['steps' => [], 'storageKey' => 'page_tour_done'])
+    @props(['steps' => [], 'storageKey' => 'page_tour_done', 'auto' => false])
 
     <div dir="rtl"
          x-data="{
         steps: {{ \Illuminate\Support\Js::from($steps) }},
         storageKey: @js($storageKey),
+        auto: @js((bool) $auto),
         active: false,
         transitioning: false,
         tipVisible: false,
@@ -37,8 +38,11 @@
             if (this._booted) return;
             this._booted = true;
             window.addEventListener('resize', () => { if (this.active) this.calcPosition(false); });
-            // فقط در موبایل auto-start؛ در دسکتاپ کاربر باید دکمه راهنما رو بزنه
-            if (!localStorage.getItem(this.storageKey) && window.innerWidth < 768) {
+            // حالت auto: در موبایل و دسکتاپ حتماً خودکار شروع می‌شود (مثلاً بعد از ساخت برنامه).
+            if (this.auto) {
+                setTimeout(() => this.start(), 700);
+            } else if (!localStorage.getItem(this.storageKey) && window.innerWidth < 768) {
+                // پیش‌فرض: فقط در موبایل auto-start؛ در دسکتاپ کاربر باید دکمه راهنما رو بزنه.
                 setTimeout(() => this.start(), 800);
             }
         },
@@ -119,9 +123,9 @@
                     setTimeout(() => {
                         this.transitioning = false;
                         this.tipVisible = true;
-                    }, 500);
+                    }, 280);
                 });
-            }, 350);
+            }, 190);
         },
 
         /* بستن اجباری - فقط در steps غیر-اجباری از طریق دکمه X صدا زده میشه */
@@ -207,7 +211,7 @@
                         ${spotLeft + spotWidth}px ${spotTop}px,
                         0% ${spotTop}px
                     );
-                    transition: clip-path .45s cubic-bezier(.4,0,.2,1);
+                    transition: clip-path .26s cubic-bezier(.4,0,.2,1);
                  `">
                 </div>
 
@@ -222,10 +226,10 @@
                         0 0 0 2px rgba(56,189,248,.9),
                         0 0 0 5px rgba(56,189,248,.20),
                         0 0 28px 4px rgba(56,189,248,.30);
-                    transition: top .45s cubic-bezier(.4,0,.2,1),
-                                left .45s cubic-bezier(.4,0,.2,1),
-                                width .45s cubic-bezier(.4,0,.2,1),
-                                height .45s cubic-bezier(.4,0,.2,1);
+                    transition: top .26s cubic-bezier(.4,0,.2,1),
+                                left .26s cubic-bezier(.4,0,.2,1),
+                                width .26s cubic-bezier(.4,0,.2,1),
+                                height .26s cubic-bezier(.4,0,.2,1);
                  `">
                 </div>
 
@@ -263,11 +267,6 @@
                         {{-- ─── Footer: نقاط پیشرفت + دکمه‌های قبلی/بعدی ─── --}}
                         <div class="flex items-center justify-between gap-3">
                             <div class="flex items-center gap-1.5">
-                                <template x-for="(s, i) in steps" :key="i">
-                                    <span class="rounded-full transition-all duration-300"
-                                          :class="i === index ? 'w-4 h-1.5 bg-sky-400' : (i < index ? 'w-1.5 h-1.5 bg-sky-700' : 'w-1.5 h-1.5 bg-white/15')">
-                                    </span>
-                                </template>
                             </div>
 
                             <div class="flex items-center gap-1.5">

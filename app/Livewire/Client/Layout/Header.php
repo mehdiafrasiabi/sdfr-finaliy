@@ -110,11 +110,14 @@ class Header extends Component
 
     protected function resolveUserPictureUrl($user): ?string
     {
-        if (! $user?->picture) {
+        // اولویت: عکسِ کاربر؛ سپس آواتارِ انتخابیِ پروفایل (B1).
+        $raw = $user?->picture ?: $user?->profile?->picture;
+
+        if (! $raw) {
             return null;
         }
 
-        $picture = ltrim($user->picture, '/');
+        $picture = ltrim($raw, '/');
         if (file_exists(public_path($picture))) {
             return asset($picture);
         }

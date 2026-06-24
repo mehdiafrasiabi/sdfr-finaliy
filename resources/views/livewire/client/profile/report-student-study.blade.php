@@ -23,7 +23,25 @@
 
                         <div class="space-y-5">
                             <div>
-                                @if($smartCards->isNotEmpty())
+                                @if($isTrial && ! $reportUnlocked)
+                                    {{-- کارنامه‌ی هفته آزمایشی تا روز ششم قفل است --}}
+                                    <div class="flex flex-col items-center justify-center text-center space-y-5 py-14">
+                                        <div class="w-16 h-16 rounded-2xl bg-secondary border border-border flex items-center justify-center">
+                                            <svg class="w-8 h-8 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                                                <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                                            </svg>
+                                        </div>
+                                        <div class="space-y-2">
+                                            <h2 class="font-bold text-xl text-foreground">کارنامه‌ی هفته آزمایشی هنوز فعال نشده</h2>
+                                            <p class="text-sm text-muted leading-7 max-w-md">
+                                                کارنامه‌ی تحلیلی تو از <span class="font-bold text-foreground">روز ششم</span> هفته‌ی آزمایشی فعال می‌شود.
+                                                @if($trialDay)
+                                                    <br>الان روز <span class="font-bold text-foreground">{{ $trialDay }}</span>م هستی.
+                                                @endif
+                                            </p>
+                                        </div>
+                                    </div>
+                                @elseif($smartCards->isNotEmpty())
                                     <div class="space-y-4">
                                         @foreach($smartCards as $card)
                                             <div class="glass border border-border rounded-2xl overflow-hidden flex flex-col">
@@ -42,14 +60,14 @@
                                                     {{-- اطلاعات --}}
                                                     <div class="p-4 space-y-3" dir="rtl">
                                                         <h3 class="font-bold text-foreground text-base flex items-center gap-2 flex-wrap">
-                                                            {{ $card->month_name }}
+                                                            {{ $isTrial ? 'یک هفته آزمایشی' : $card->month_name }}
                                                             <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-green-500/15 text-green-600 dark:text-green-400 text-xs rounded-full">
                                                                 <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
                                                                 فعال
                                                             </span>
                                                         </h3>
 
-                                                        <p class="text-sm text-muted">سال {{ $card->jalali_year }}</p>
+                                                        @unless($isTrial)<p class="text-sm text-muted">سال {{ $card->jalali_year }}</p>@endunless
 
                                                         <p class="text-xs text-muted">
                                                             <span class="inline-flex items-center gap-1">
@@ -90,8 +108,8 @@
                                                         {{-- راست: عنوان + سال + تاریخ + بج --}}
                                                         <div class="space-y-2 flex-1 min-w-0">
                                                             <h3 class="font-bold text-foreground text-base flex items-center gap-2 flex-wrap">
-                                                                {{ $card->month_name }}
-                                                                <span class="text-sm text-muted font-normal">سال {{ $card->jalali_year }}</span>
+                                                                {{ $isTrial ? 'یک هفته آزمایشی' : $card->month_name }}
+                                                                @unless($isTrial)<span class="text-sm text-muted font-normal">سال {{ $card->jalali_year }}</span>@endunless
                                                             </h3>
 
                                                             <p class="text-sm text-muted">

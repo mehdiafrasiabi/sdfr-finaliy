@@ -109,24 +109,24 @@
             {{-- عنوان و توضیح --}}
             <template x-if="!revealed">
                 <div>
-                    <h1 class="font-black text-2xl text-foreground mb-2">در حال انتخاب مشاور جذب</h1>
+                    <h1 class="font-black text-2xl text-foreground mb-2">در حال انتخاب مشاور</h1>
                     <p class="text-sm text-muted leading-7 max-w-md mb-6">
                         <span class="font-bold text-primary">ثبت‌ درخواست با موفقیت انجام شد.</span>
                         <br>
-                        سیستم هوشمند SDFR در حال آنالیز نتیجه‌ی آزمون‌هایت و انتخاب بهترین مشاور جذب برای توست.
+                        سیستم هوشمند SDFR در حال آنالیز نتیجه‌ی آزمون‌هایت و انتخاب بهترین مشاور برای توست.
                     </p>
                 </div>
             </template>
             <template x-if="revealed">
                 <div>
-                    <h1 class="font-black text-2xl text-foreground mb-2">مشاور جذب تو انتخاب شد 🎉</h1>
+                    <h1 class="font-black text-2xl text-foreground mb-2">مشاور تو انتخاب شد 🎉</h1>
                     <p class="text-sm text-muted leading-7 max-w-md mb-6">
                         این مشاور در طول هفته‌ی آزمایشی همراهت است و فرایند را قدم‌به‌قدم جلو می‌برد.
                     </p>
                 </div>
             </template>
 
-            {{-- ─── کارت مشاور جذب (از ثانیهٔ ۱۲ به بعد) ─── --}}
+            {{-- ─── کارت مشاور (از ثانیهٔ ۱۲ به بعد) ─── --}}
             <div x-show="revealed" x-cloak class="card-pop w-full max-w-sm mb-6">
                 <div class="rounded-2xl border border-primary/30 bg-background p-5 flex items-center gap-4 text-right">
                     {{-- عکس پروفایل --}}
@@ -142,8 +142,8 @@
                     @endif
 
                     <div class="min-w-0">
-                        <div class="text-[10px] font-bold text-primary bg-primary/10 rounded-full px-2 py-0.5 inline-block mb-1.5">مشاور جذب شما</div>
-                        <div class="font-black text-foreground truncate">{{ $consultantName ?? 'مشاور جذب SDFR' }}</div>
+                        <div class="text-[10px] font-bold text-primary bg-primary/10 rounded-full px-2 py-0.5 inline-block mb-1.5">مشاور شما</div>
+                        <div class="font-black text-foreground truncate">{{ $consultantName ?? 'مشاور SDFR' }}</div>
                         @if($consultantMobile)
                             <a href="tel:{{ $consultantMobile }}" dir="ltr"
                                class="inline-flex items-center gap-1.5 text-xs text-muted font-mono mt-1 hover:text-primary transition-colors">
@@ -161,7 +161,7 @@
             <div class="w-full max-w-sm">
                 <div class="flex items-center justify-between text-[11px] mb-2">
                     <span class="font-bold text-emerald-600 dark:text-emerald-400">آزمون‌ها</span>
-                    <span class="font-bold text-primary">انتخاب مشاور جذب</span>
+                    <span class="font-bold text-primary">انتخاب مشاور</span>
                     <span class="font-medium text-muted">شروع</span>
                 </div>
                 <div class="relative h-1.5 rounded-full bg-background overflow-hidden">

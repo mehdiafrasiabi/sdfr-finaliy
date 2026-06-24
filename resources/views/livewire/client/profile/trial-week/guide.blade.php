@@ -204,7 +204,9 @@
     @if($trialWeek)
         {{-- ═══════════ کارت پیشرفت کلی ═══════════ --}}
         @php
-            $progressPct = ($trialWeek->step / 4) * 100;
+            // (E1) نوار تا «وسطِ» فاصله‌ی بینِ آخرین پله‌ی تکمیل‌شده و پله‌ی در‌حال‌انجام پر می‌شود
+            // (روی نشانگرِ پله‌ی بعدی نمی‌رود). در پایان (همه تکمیل) = ۱۰۰٪.
+            $progressPct = $trialWeek->step >= 4 ? 100 : (($trialWeek->step + 0.5) / 4) * 100;
             $stepTitles = [
                 0 => 'در حال تخصیص مشاور تخصصی',
                 1 => 'نوبت طبقه‌بندی دروس',
@@ -272,7 +274,7 @@
             <div class="absolute top-6 bottom-6 right-[13px] sm:right-[13px] w-0.5 bg-border"></div>
             {{-- خط پیشرفت عمودی به رنگ آبی --}}
             <div class="absolute top-6 right-[13px] sm:right-[13px] w-0.5 bg-gradient-to-b from-sky-400 to-blue-600 transition-all duration-700"
-                 style="height: calc({{ min(100, ($trialWeek->step / 4) * 100) }}% - 1.5rem);"></div>
+                 style="height: calc({{ min(100, $progressPct) }}% - 1.5rem);"></div>
 
             <div class="space-y-4">
 
@@ -572,20 +574,20 @@
                                         <span class="text-[10px] font-bold text-blue-400 bg-blue-500/10 rounded-full px-2 py-0.5">اکنون</span>
                                     @endif
                                 </div>
-                                <h3 class="font-black text-foreground">ورود به جلسه و ساخت برنامه</h3>
+                                <h3 class="font-black text-foreground">ساخت برنامه‌ی مطالعاتی</h3>
                             </div>
                         </div>
                         <p class="text-sm text-muted leading-7 mt-2">
-                            وضعیت تو تحلیل می‌شود و یک برنامه‌ی مطالعاتی شخصی برایت ساخته می‌شود.
+                            فقط کافیست ساعت مطالعه‌ی روزانه‌ات را انتخاب کنی تا برنامه‌ی اختصاصی‌ات ساخته شود.
                         </p>
                         @if($s4active)
-                            <a wire:navigate href="{{ route('client.profile.trial.session-analysis') }}"
+                            <button type="button" wire:click="openHoursModal"
                                class="press btn-primary inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold">
-                                ورود به جلسه
+                                ساخت برنامه‌ی من
                                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M19 12H5M12 19l-7-7 7-7"/>
                                 </svg>
-                            </a>
+                            </button>
                         @endif
                     </div>
                 </div>
@@ -693,6 +695,54 @@
         </div>
     @endif
 
+    {{-- ════════════════ (F) مودال انتخاب ساعت مطالعه — داخلِ همین صفحه ════════════════ --}}
+    @if($showHoursModal)
+        <div x-data x-init="document.body.style.overflow='hidden'"
+             @keydown.escape.window="$wire.closeHoursModal()">
+            <div class="m-overlay" wire:click="closeHoursModal"></div>
+            <div class="m-sheet" @click.stop>
+                <div class="m-handle"></div>
+                <div class="p-6 text-center overflow-y-auto">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-500/15 border border-blue-500/30 mb-4">
+                        <svg class="w-8 h-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </div>
+
+                    <h2 class="text-lg font-black text-foreground mb-2">تعیین ساعت مطالعه روزانه</h2>
+                    <p class="text-sm text-muted leading-7 mb-5">
+                        میانگین ساعتی که می‌توانی در روز مطالعه کنی را انتخاب کن تا برنامه‌ات بر اساس آن ساخته شود.
+                    </p>
+
+                    <div class="mb-6 max-w-xs mx-auto text-right" wire:key="hours-select">
+                        <x-ui.select
+                            wire:model="dailyStudyHours"
+                            :options="collect(range(1,12))->map(fn($i) => ['id' => $i, 'name' => $i . ' ساعت در روز'])->all()"
+                            value-key="id" label-key="name" placeholder="انتخاب ساعت..." />
+                        @error('dailyStudyHours')<p class="text-xs text-red-500 mt-2">{{ $message }}</p>@enderror
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button type="button" wire:click="buildProgram"
+                                wire:loading.attr="disabled" wire:target="buildProgram"
+                                class="press btn-primary flex-1 inline-flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-sm">
+                            <svg wire:loading wire:target="buildProgram" class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.4 0 0 5.4 0 12h4z"/>
+                            </svg>
+                            <span wire:loading.remove wire:target="buildProgram">تأیید و ساخت برنامه</span>
+                            <span wire:loading wire:target="buildProgram">در حال ایجاد…</span>
+                        </button>
+                        <button type="button" wire:click="closeHoursModal"
+                                class="press btn-soft flex-1 py-3 rounded-xl font-bold text-sm">
+                            انصراف
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
 
     {{-- ════════════════ تور راهنمای صفحه ════════════════ --}}
     <x-client.page-tour storage-key="trial_guide_tour_done" :steps="[
@@ -700,7 +750,7 @@
         ['el' => '[data-tour=step1]',    'title' => 'مشاور متخصص تو', 'text' => 'مشخصات مشاور متخصصت اینجاست؛ در طول هفته‌ی آزمایشی همراهت است و می‌توانی باهاش تماس بگیری.'],
         ['el' => '[data-tour=step2]',    'title' => 'طبقه‌بندی مباحث', 'text' => 'وضعیت تسلطت روی هر درس را مشخص می‌کنی تا برنامه دقیقاً بر اساس نقاط ضعف و قوتت ساخته شود.'],
         ['el' => '[data-tour=step3]',    'title' => 'نیازمندی‌های برنامه', 'text' => 'پیش‌جلسه (امتحان‌ها، پارت درخواستی و…) و در صورت نیاز برنامه کلاسی مدرسه را اینجا تکمیل می‌کنی.'],
-        ['el' => '[data-tour=step4]',    'title' => 'ساخت برنامه', 'text' => 'بعد از تکمیل مراحل، وارد جلسه می‌شوی، کارنامه‌ی تحلیلی‌ات را می‌بینی و برنامه‌ی اختصاصی‌ات ساخته می‌شود.'],
+        ['el' => '[data-tour=step4]',    'title' => 'ساخت برنامه', 'text' => 'بعد از تکمیل مراحل، فقط ساعت مطالعه‌ی روزانه‌ات را انتخاب می‌کنی و برنامه‌ی اختصاصی‌ات همین‌جا ساخته می‌شود.'],
     ]" />
 
 

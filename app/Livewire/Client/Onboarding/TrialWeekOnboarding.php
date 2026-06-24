@@ -26,6 +26,8 @@ class TrialWeekOnboarding extends Component
     public string $firstName    = '';
     public string $lastName     = '';
     public string $codeMell     = '';
+    public string $gender       = '';   // (B1) جنسیت: male | female
+    public string $avatar       = '';   // (B1) مسیرِ آواتارِ انتخابی
     public string $fatherMobile = '';
     public string $motherMobile = '';
     public string $grade        = '10';
@@ -57,6 +59,13 @@ class TrialWeekOnboarding extends Component
     public function mount(): void
     {
         $this->states = State::orderBy('name')->get();
+
+        // (A4) ذخیره‌ی پلنِ انتخابی از صفحه‌ی اصلی در session تا در مرحله‌ی نتیجه‌ی آزمون
+        // (C8) دیگر صفحه‌ی انتخابِ «نقدی یا آزمایشی» به کاربر نمایش داده نشود.
+        $plan = request('plan');
+        if (in_array($plan, ['trial', 'cash'], true)) {
+            session(['intended_plan' => $plan]);
+        }
     }
 
     public function next(): void
@@ -120,10 +129,14 @@ class TrialWeekOnboarding extends Component
             'firstName' => $this->firstName,
             'lastName'  => $this->lastName,
             'codeMell'  => $this->codeMell,
+            'gender'    => $this->gender,
+            'avatar'    => $this->avatar,
         ], [
             'firstName' => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{Arabic}\s]+$/u'],
             'lastName'  => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{Arabic}\s]+$/u'],
             'codeMell'  => ['required', 'digits:10'],
+            'gender'    => ['required', 'in:male,female'],
+            'avatar'    => ['required', 'string'],
         ], [
             'firstName.required' => 'نام الزامی است.',
             'firstName.regex'    => 'نام باید فارسی باشد.',
@@ -131,6 +144,9 @@ class TrialWeekOnboarding extends Component
             'lastName.regex'     => 'نام خانوادگی باید فارسی باشد.',
             'codeMell.required'  => 'کد ملی الزامی است.',
             'codeMell.digits'    => 'کد ملی باید ۱۰ رقم باشد.',
+            'gender.required'    => 'انتخاب جنسیت الزامی است.',
+            'gender.in'          => 'جنسیت انتخاب‌شده معتبر نیست.',
+            'avatar.required'    => 'انتخاب آواتار الزامی است.',
         ]);
 
         if ($v->fails()) {
@@ -229,6 +245,12 @@ class TrialWeekOnboarding extends Component
         if ($value === 'graduate') {
             $this->attendsSchool = false;
         }
+    }
+
+    // (B1) با تغییرِ جنسیت، آواتارِ انتخابی پاک می‌شود تا آواتارِ هم‌جنسِ درست انتخاب شود.
+    public function updatedGender(): void
+    {
+        $this->avatar = '';
     }
 
     // FIX: nullable int to handle null/empty from Livewire
@@ -333,7 +355,8 @@ class TrialWeekOnboarding extends Component
             'full_name' => trim($this->firstName . ' ' . $this->lastName),
             'state_id'  => $this->stateId,
             'city_id'   => $this->cityId,
-            'gender'    => 'male',
+            'gender'    => in_array($this->gender, ['male', 'female'], true) ? $this->gender : 'male',
+            'picture'   => $this->avatar ?: null,
         ]);
 
         PersonalInformation::create([

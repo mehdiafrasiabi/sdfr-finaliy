@@ -22,7 +22,23 @@ class ReportStudentStudy extends Component
 
     public function render()
     {
-        $studentId = Auth::user()->student->id ?? null;
+        $user = Auth::user();
+        $studentId = $user->student->id ?? null;
+
+        // ── حالتِ یک هفته آزمایشی + قفلِ کارنامه تا روز ششم ──
+        $trial = $user->trialWeek;
+        $isTrial = $trial && ! $user->isSchoolStudent()
+            && ! ($user->student && $user->student->hasActivePaidAccess());
+
+        $reportUnlocked = true;
+        $trialDay = null;
+        if ($isTrial) {
+            $anchor = $trial->program_built_at ?? $trial->created_at;
+            // روزِ ساختِ برنامه = روز ۱؛ کارنامه از روز ۶ فعال می‌شود.
+            $trialDay = (int) \Carbon\Carbon::parse($anchor)->startOfDay()
+                ->diffInDays(\Carbon\Carbon::now()->startOfDay()) + 1;
+            $reportUnlocked = $trialDay >= 6;
+        }
 
         $reportMonthly = ReportMonthly::query()
             ->where('student_id', $studentId)
@@ -37,8 +53,11 @@ class ReportStudentStudy extends Component
             ->get();
 
         return view('livewire.client.profile.report-student-study', [
-            'reportMonthly' => $reportMonthly,
-            'smartCards' => $smartCards,
+            'reportMonthly'  => $reportMonthly,
+            'smartCards'     => $smartCards,
+            'isTrial'        => $isTrial,
+            'reportUnlocked' => $reportUnlocked,
+            'trialDay'       => $trialDay,
         ])->layout('layouts.client.app');
     }
 }

@@ -43,7 +43,7 @@ class AssessmentList extends Component
     /**
      * «ادامه» بعد از خواندن کارنامهٔ تحلیلی — نمایش انتخاب مسیر.
      */
-    public function continueToChoice(): void
+    public function continueToChoice(TrialWeekService $service): void
     {
         $user = Auth::user();
 
@@ -57,6 +57,20 @@ class AssessmentList extends Component
         // آزمایشی/خرید ندارد و مستقیم به داشبورد می‌رود.
         if ($user->isSchoolStudent() || ($user->student && $user->student->hasActivePaidAccess())) {
             $this->redirect(route('client.profile.dashboard'), navigate: true);
+            return;
+        }
+
+        // (C8) اگر کاربر از صفحهٔ اصلی با دکمهٔ مشخص (آزمایشی/نقدی) آمده باشد،
+        // صفحهٔ انتخابِ مسیر نمایش داده نمی‌شود و همان مسیر مستقیم دنبال می‌شود.
+        $intended = session('intended_plan');
+        if ($intended === 'trial') {
+            session()->forget('intended_plan');
+            $this->confirmTrial($service);
+            return;
+        }
+        if ($intended === 'cash') {
+            session()->forget('intended_plan');
+            $this->goToPurchase();
             return;
         }
 

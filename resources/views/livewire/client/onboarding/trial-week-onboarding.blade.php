@@ -3,6 +3,33 @@
         <style>
             [x-cloak] { display: none !important; }
 
+            /* ============ (B1) جنسیت + آواتار ============ */
+            .gender-opt { display: flex; flex-direction: column; align-items: center; gap: .55rem; padding: .9rem .75rem;
+                border-radius: 1rem; border: 1px solid hsl(var(--border)); background: hsl(var(--secondary) / .5);
+                transition: border-color .2s, background .2s, transform .2s; cursor: pointer; }
+            .gender-opt:hover { border-color: hsl(var(--primary) / .5); transform: translateY(-2px); }
+            .gender-opt--boy { border-color: hsl(var(--primary)); background: hsl(var(--primary) / .10); }
+            .gender-opt--girl { border-color: #ec4899; background: rgba(236, 72, 153, .10); }
+            .gender-ava { width: 56px; height: 56px; border-radius: 50%; overflow: hidden; flex: none;
+                display: flex; align-items: flex-end; justify-content: center; }
+            .gender-ava--boy { background: hsl(var(--primary)); }
+            .gender-ava--girl { background: #ec4899; }
+            .gender-ava img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+
+            .avatar-bubble { width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex: none; color: #fff;
+                display: flex; align-items: flex-end; justify-content: center; }
+            .avatar-bubble--boy { background: hsl(var(--primary)); }
+            .avatar-bubble--girl { background: #ec4899; }
+            .avatar-bubble img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+
+            .avatar-pick { aspect-ratio: 1; border-radius: 50%; overflow: hidden; border: 3px solid transparent;
+                display: flex; align-items: flex-end; justify-content: center; transition: transform .2s, border-color .2s; cursor: pointer; }
+            .avatar-pick--boy { background: hsl(var(--primary)); }
+            .avatar-pick--girl { background: #ec4899; }
+            .avatar-pick:hover { transform: scale(1.05); }
+            .avatar-pick--on { border-color: hsl(var(--foreground)); transform: scale(1.05); box-shadow: 0 8px 22px -8px rgba(0,0,0,.4); }
+            .avatar-pick img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+
             .grid-figma {
                 background-image:
                     linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
@@ -144,6 +171,18 @@
         $svgWelcome = '<img src="/client/assets/images/theme/intro/header.png" alt="SDFR" class="brand-logo anim-float" />';
         $svgOtp     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-primary anim-float"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></svg>';
         $svgSuccess = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-emerald-500 anim-pop"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>';
+
+        // (B1) آواتارهای قابلِ انتخاب — همان تصاویرِ بخشِ «ستارگانِ SDFR»، تفکیک‌شده بر اساسِ جنسیت.
+        $boyAvatars = [
+            '/client/assets/images/avatars/star-boy-1.webp',
+            '/client/assets/images/avatars/star-boy-2.webp',
+            '/client/assets/images/avatars/star-boy-3.png',
+        ];
+        $girlAvatars = [
+            '/client/assets/images/avatars/star-girl-1.webp',
+            '/client/assets/images/avatars/star-girl-2.webp',
+            '/client/assets/images/avatars/star-girl-3.png',
+        ];
     @endphp
 
     <div class="relative min-h-screen overflow-hidden bg-background text-foreground" dir="rtl" x-data="onboardingFlow()">
@@ -151,6 +190,34 @@
         <div class="absolute inset-0 grid-figma pointer-events-none"></div>
         <div class="absolute top-20 -right-20 w-72 h-72 bg-primary/15 rounded-full blur-3xl float-orb pointer-events-none"></div>
         <div class="absolute bottom-20 -left-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl float-orb pointer-events-none" style="animation-delay: -3s"></div>
+
+        {{-- ═══════════════ 🧑‍🚀 مودالِ انتخابِ آواتار (B1) ═══════════════ --}}
+        <div x-data="{ openAv: false }"
+             x-on:open-avatar.window="openAv = true"
+             x-show="openAv" x-cloak
+             class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="openAv = false"></div>
+            <div class="relative w-full max-w-md glass-card rounded-3xl p-6"
+                 x-show="openAv" x-transition>
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-black text-lg">انتخاب آواتار</h3>
+                    <button type="button" @click="openAv = false" class="w-8 h-8 rounded-lg bg-secondary/60 flex items-center justify-center hover:bg-secondary">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <p class="text-xs text-muted mb-5">یکی از آواتارها را برای پروفایلت انتخاب کن.</p>
+                @php $avList = $gender === 'female' ? $girlAvatars : $boyAvatars; @endphp
+                <div class="grid grid-cols-3 gap-4">
+                    @foreach($avList as $a)
+                        <button type="button"
+                            wire:click="$set('avatar', '{{ $a }}')" @click="openAv = false"
+                            class="avatar-pick avatar-pick--{{ $gender === 'female' ? 'girl' : 'boy' }} @if($avatar === $a) avatar-pick--on @endif">
+                            <img src="{{ $a }}" alt="آواتار" loading="lazy">
+                        </button>
+                    @endforeach
+                </div>
+            </div>
+        </div>
 
         {{-- ═══════════════ 📱 MOBILE ═══════════════ --}}
         <div class="md:hidden relative z-10 min-h-[100dvh] flex flex-col">
@@ -211,6 +278,9 @@
                                             <input wire:model.blur="codeMell" type="tel" maxlength="10" placeholder="۱۰ رقم" inputmode="numeric" dir="ltr" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono tracking-wider @error('codeMell') border-rose-500/60 shake @enderror">
                                             @error('codeMell')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                         </div>
+
+                                        @include('livewire.client.onboarding.partials._gender-avatar')
+
                                         <button type="submit" class="hidden" tabindex="-1">submit</button>
                                     </form>
                                 </div>
@@ -367,17 +437,21 @@
                         </section>
 
                         {{-- STEP 6 --}}
-                        <section x-show="$wire.currentStep === 6">
+                        <section x-show="$wire.currentStep === 6"
+                                 x-data="{ done: false, secs: 5 }"
+                                 x-effect="if ($wire.currentStep === 6 && !done) { done = true; const t = setInterval(() => { if (--secs <= 0) clearInterval(t); }, 1000); setTimeout(() => $wire.startAssessments(), 5000); }">
                             <div class="train-border">
-                                <div class="glass-card rounded-3xl p-6">
-                                    <div class="text-center mb-6">
-                                        <div class="inline-block w-28 h-28 mb-2">{!! $svgSuccess !!}</div>
-                                        <h2 class="font-black text-2xl mb-2">حساب شما ساخته شد</h2>
-                                        <p class="text-sm text-muted leading-6">قدم بعدی: آزمون شخصیت‌شناسی<br>تا بهترین برنامه واست طراحی بشه.</p>
+                                <div class="glass-card rounded-3xl p-6 text-center">
+                                    <div class="inline-block w-28 h-28 mb-2">{!! $svgSuccess !!}</div>
+                                    <h2 class="font-black text-2xl mb-2">🎉 تبریک! حساب شما ساخته شد</h2>
+                                    <p class="text-sm text-muted leading-7">به جمعِ ستارگانِ SDFR خوش اومدی.<br>الان خودکار به آزمون شخصیت‌شناسی می‌ری.</p>
+                                    <div class="mt-5 flex items-center justify-center gap-2 text-primary">
+                                        <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="48" stroke-linecap="round" opacity="0.35"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="14 60" stroke-linecap="round"/></svg>
+                                        <span class="text-sm font-semibold">انتقال در <span x-text="secs">۵</span> ثانیه…</span>
                                     </div>
-                                    <button type="button" wire:click="startAssessments" wire:loading.attr="disabled" wire:target="startAssessments" class="accent-card accent-emerald w-full rounded-2xl p-5 text-right hover:-translate-y-0.5 transition-transform">
-                                        <h3 class="font-black text-lg mb-1">شروع آزمون‌های روانشناختی SDFR</h3>
-                                        <p class="text-xs text-muted leading-6">بعد از آزمون‌ها، کارنامه‌ی تحلیلی‌ات را می‌بینی و مسیرت را انتخاب می‌کنی</p>
+                                    <button type="button" wire:click="startAssessments" class="btn-press mt-5 h-11 px-6 rounded-xl text-sm font-bold inline-flex items-center gap-2">
+                                        همین حالا شروع کن
+                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
                                     </button>
                                 </div>
                             </div>
@@ -444,20 +518,21 @@
                     </div>
                 </section>
 
-                <section x-show="$wire.currentStep === 6">
+                <section x-show="$wire.currentStep === 6"
+                         x-data="{ done: false, secs: 5 }"
+                         x-effect="if ($wire.currentStep === 6 && !done) { done = true; const t = setInterval(() => { if (--secs <= 0) clearInterval(t); }, 1000); setTimeout(() => $wire.startAssessments(), 5000); }">
                     <div class="train-border">
-                        <div class="glass-card rounded-3xl p-10">
-                            <div class="text-center mb-8">
-                                <div class="inline-block w-32 h-32 mb-2">{!! $svgSuccess !!}</div>
-                                <h2 class="font-black text-3xl mb-2">حساب شما ساخته شد</h2>
-                                <p class="text-muted">قدم بعدی: آزمون شخصیت‌شناسی<br>تا بهترین برنامه واست طراحی بشه.</p>
+                        <div class="glass-card rounded-3xl p-10 text-center">
+                            <div class="inline-block w-32 h-32 mb-2">{!! $svgSuccess !!}</div>
+                            <h2 class="font-black text-3xl mb-2">🎉 تبریک! حساب شما ساخته شد</h2>
+                            <p class="text-muted leading-8">به جمعِ ستارگانِ SDFR خوش اومدی.<br>همین الان خودکار به آزمون شخصیت‌شناسی منتقل می‌شی.</p>
+                            <div class="mt-6 flex items-center justify-center gap-2 text-primary">
+                                <svg class="w-6 h-6 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="48" stroke-linecap="round" opacity="0.35"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="14 60" stroke-linecap="round"/></svg>
+                                <span class="font-semibold">انتقال در <span x-text="secs">۵</span> ثانیه…</span>
                             </div>
-                            <button type="button" wire:click="startAssessments" wire:loading.attr="disabled" wire:target="startAssessments" class="accent-card accent-emerald w-full rounded-2xl p-6 text-right hover:-translate-y-1 transition-transform">
-                                <div class="inline-flex items-center gap-1.5 text-xs font-bold accent-icon accent-emerald rounded-full px-2.5 py-1 mb-4">
-                                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> قدم اول
-                                </div>
-                                <h3 class="font-black text-xl mb-1">شروع آزمون‌های شخصیت‌شناسی</h3>
-                                <p class="text-sm text-muted leading-6">بعد از آزمون‌ها، کارنامه‌ی تحلیلی‌ات را می‌بینی و مسیرت (هفته آزمایشی یا خرید) را انتخاب می‌کنی</p>
+                            <button type="button" wire:click="startAssessments" class="btn-press mt-6 h-12 px-8 rounded-xl text-sm font-bold inline-flex items-center gap-2">
+                                همین حالا شروع کن
+                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
                             </button>
                         </div>
                     </div>
@@ -527,6 +602,8 @@
                                         <input wire:model.blur="codeMell" type="text" maxlength="10" placeholder="۱۰ رقم" inputmode="numeric" dir="ltr" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono tracking-wider @error('codeMell') border-rose-500/60 shake @enderror">
                                         @error('codeMell')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                     </div>
+
+                                    @include('livewire.client.onboarding.partials._gender-avatar')
                                 </fieldset>
 
                                 <fieldset class="space-y-4 pt-5 border-border">
