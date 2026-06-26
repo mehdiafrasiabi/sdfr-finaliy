@@ -381,7 +381,7 @@ class AssessmentSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'top-student', 'name' => 'دانش‌آموز کوشا (خرخون)', 'order' => 6,
+                'slug' => 'top-student', 'name' => 'دانش‌آموز کوشا', 'order' => 6,
                 'description' => 'این آزمون مشخص می‌کند چقدر روحیه و عادت‌های یک دانش‌آموز کوشا (همیشه نفر اول کلاس) را دارید.',
                 'questions' => [
                     ['t' => 'تا وقتی همه‌ی درس‌هایم را تا فردا تمام نکنم، احساس راحتی نمی‌کنم.', 'type' => 'likert5', 'facet' => 'discipline'],
@@ -395,7 +395,7 @@ class AssessmentSeeder extends Seeder
                 ],
             ],
             [
-                'slug' => 'fear-of-parents', 'name' => 'ترس از والدین درباره‌ی درس', 'order' => 7,
+                'slug' => 'fear-of-parents', 'name' => 'چالش با والدین درباره‌ی درس', 'order' => 7,
                 'description' => 'این آزمون می‌سنجد چقدر فشار و ترس از والدین در ارتباط با درس‌هایتان دارید.',
                 'questions' => [
                     ['t' => 'وقتی نمره‌ی پایینی می‌گیرم، اول به این فکر می‌کنم که چطور به والدینم بگویم.', 'type' => 'likert5', 'facet' => 'fear_of_disclosure'],

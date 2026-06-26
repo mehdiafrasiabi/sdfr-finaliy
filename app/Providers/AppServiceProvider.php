@@ -26,6 +26,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Schema::defaultStringLength(191);
+
         Carbon::setLocale('fa');
 
         // بعد از بوت‌شدنِ همه‌ی پرووایدرها (از جمله Livewire) اجرا می‌شود

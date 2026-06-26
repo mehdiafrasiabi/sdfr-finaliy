@@ -270,10 +270,7 @@
                                     <img src="/client/assets/images/favicon.svg" class="w-10 h-10" alt="لوگو">
                                 </div>
                                 <div>
-                                    <h1 class="mb-1 text-lg sm:text-xl font-bold text-white">برنامه هفتگی تحصیلی</h1>
-                                    <div class="mt-3 text-[11px] sm:text-xs text-blue-100/90">
-                                        {{ jdate($program->start_date)->format('Y/m/d') }} تا {{ jdate($program->end_date)->format('Y/m/d') }}
-                                    </div>
+                                    <h1 class=" text-lg sm:text-xl font-bold text-white">برنامه هفتگی تحصیلی</h1>
                                 </div>
                             </div>
 
@@ -354,7 +351,7 @@
                                     <svg fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                                     </svg>
-                                    ثبت ساعت مطالعه اضافه بر سازمان
+                               ثبت مطالعه مازاد بر برنامه مشاور
                                 </span>
                                 <span wire:loading wire:target="openMakeupModal" class="spinner-circle"></span>
                             </button>
@@ -362,9 +359,9 @@
 
                         <div class="glass border border-border rounded-2xl p-3">
                             <div class="flex items-center gap-2 mb-3 px-1">
-                                <span class="text-xs font-bold text-primary">{{ jdate($program->start_date)->format('d') }} تا {{ jdate($program->end_date)->format('d F') }}</span>
+                                <span class="text-[18px] font-bold  text-primary">{{ jdate($program->start_date)->format('d') }} تا {{ jdate($program->end_date)->format('d F') }} ماه</span>
                                 <span class="text-muted text-xs">|</span>
-                                <span class="text-xs text-muted">برنامه هفتگی</span>
+                                <span class="text-xs text-muted">برنامه هفتگی </span>
                             </div>
                             <div class="flex items-center gap-2 ss-scroll overflow-x-auto pb-1">
                                 @foreach($weekDays as $day)
@@ -1011,7 +1008,7 @@
                  x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-8" x-transition:enter-end="opacity-100 translate-y-0">
                 <div class="sm:hidden flex justify-center pt-3 pb-1"><div class="w-10 h-1 rounded-full bg-foreground/20"></div></div>
                 <div class="flex items-center justify-between px-6 py-4 sticky top-0 glass border-b border-border z-[1]">
-                    <h3 class="font-bold text-foreground text-sm">ثبت ساعت مطالعه اضافه بر سازمان</h3>
+                    <h3 class="font-bold text-foreground text-sm">ثبت مطالعه مازاد بر برنامه مشاور</h3>
                     <button wire:click="closeMakeupModal" class="text-muted hover:text-foreground">
                         <svg fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                     </button>

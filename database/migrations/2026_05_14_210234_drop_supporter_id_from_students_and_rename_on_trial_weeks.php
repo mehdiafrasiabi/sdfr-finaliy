@@ -15,6 +15,26 @@ return new class extends Migration
      *   - تغییر نام `trial_weeks.supporter_id` به `acquisition_supporter_id`
      *     (نقش «پشتیبان جذب»).
      */
+    /**
+     * نام واقعی FK روی یک ستون را از information_schema می‌خواند.
+     * اگر FKی روی آن ستون نباشد null برمی‌گرداند.
+     */
+    private function foreignKeyName(string $table, string $column): ?string
+    {
+        $row = DB::selectOne(
+            'SELECT CONSTRAINT_NAME
+               FROM information_schema.KEY_COLUMN_USAGE
+              WHERE TABLE_SCHEMA = DATABASE()
+                AND TABLE_NAME = ?
+                AND COLUMN_NAME = ?
+                AND REFERENCED_TABLE_NAME IS NOT NULL
+              LIMIT 1',
+            [$table, $column]
+        );
+
+        return $row->CONSTRAINT_NAME ?? null;
+    }
+
     public function up(): void
     {
         // ── 1) Students: انتقال داده و حذف ستون ──────────────────────────────
@@ -27,13 +47,12 @@ return new class extends Migration
                   AND supporter_id IS NOT NULL
             ');
 
+            // FK را فقط در صورت وجود drop می‌کنیم (با نام واقعی‌اش)
+            if ($fk = $this->foreignKeyName('students', 'supporter_id')) {
+                DB::statement("ALTER TABLE `students` DROP FOREIGN KEY `{$fk}`");
+            }
+
             Schema::table('students', function (Blueprint $table) {
-                // حذف FK ابتدا (نام پیش‌فرض Laravel)
-                try {
-                    $table->dropForeign(['supporter_id']);
-                } catch (\Throwable $e) {
-                    // اگر FK از قبل با نام دیگری drop شده باشد، عبور می‌کنیم.
-                }
                 $table->dropColumn('supporter_id');
             });
         }
@@ -42,13 +61,9 @@ return new class extends Migration
         if (Schema::hasColumn('trial_weeks', 'supporter_id')
             && ! Schema::hasColumn('trial_weeks', 'acquisition_supporter_id')) {
 
-            Schema::table('trial_weeks', function (Blueprint $table) {
-                try {
-                    $table->dropForeign(['supporter_id']);
-                } catch (\Throwable $e) {
-                    // اگر FK وجود ندارد، عبور می‌کنیم.
-                }
-            });
+            if ($fk = $this->foreignKeyName('trial_weeks', 'supporter_id')) {
+                DB::statement("ALTER TABLE `trial_weeks` DROP FOREIGN KEY `{$fk}`");
+            }
 
             Schema::table('trial_weeks', function (Blueprint $table) {
                 $table->renameColumn('supporter_id', 'acquisition_supporter_id');
@@ -68,13 +83,9 @@ return new class extends Migration
         if (Schema::hasColumn('trial_weeks', 'acquisition_supporter_id')
             && ! Schema::hasColumn('trial_weeks', 'supporter_id')) {
 
-            Schema::table('trial_weeks', function (Blueprint $table) {
-                try {
-                    $table->dropForeign(['acquisition_supporter_id']);
-                } catch (\Throwable $e) {
-                    // عبور
-                }
-            });
+            if ($fk = $this->foreignKeyName('trial_weeks', 'acquisition_supporter_id')) {
+                DB::statement("ALTER TABLE `trial_weeks` DROP FOREIGN KEY `{$fk}`");
+            }
 
             Schema::table('trial_weeks', function (Blueprint $table) {
                 $table->renameColumn('acquisition_supporter_id', 'supporter_id');

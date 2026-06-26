@@ -29,12 +29,12 @@ class EnsureTrialStepUnlocked
     protected const STEP_ALLOWED_ROUTES = [
         TrialWeek::STATUS_SUPPORTER_ASSIGNED => [
             'client.profile.trial.guide',
-            'client.profile.classification.projects',
+            // در هفتهٔ آزمایشی، صفحهٔ لیست پروژه‌ها بسته است؛ دانش‌آموز مستقیماً از راهنما وارد طبقه‌بندی می‌شود.
             'client.profile.classification.classify',
         ],
         TrialWeek::STATUS_CLASSIFICATION_DONE => [
             'client.profile.trial.guide',
-            'client.profile.consultation.sessions',
+            // در هفتهٔ آزمایشی، صفحهٔ لیست جلسات بسته است؛ دانش‌آموز مستقیماً از راهنما وارد پیش‌جلسه می‌شود.
             'client.profile.consultation.pre-session',
             'client.profile.consultation.class-schedule',
         ],

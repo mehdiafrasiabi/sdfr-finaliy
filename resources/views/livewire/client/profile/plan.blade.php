@@ -19,14 +19,15 @@
                         </div>
 
                         <!-- tabs container -->
-                        <div class="space-y-5" x-data="{ activeTab: 'tabOne'}" wire:poll.visible>
+                        <div class="space-y-5" wire:poll.visible>
 
                             <div>
-                                <div x-show="activeTab === 'tabOne'">
+                                <div>
                                     @if($weeklyPrograms->count() > 0)
                                         <div class="mt-6 space-y-4">
                                             @foreach($weeklyPrograms as $program)
-                                                <div x-data="{ expanded: false }"
+                                                <div wire:key="program-card-{{ $program->id }}"
+                                                     x-data="{ expanded: false }"
                                                      class="glass border border-border rounded-2xl overflow-hidden flex flex-col">
 
                                                     {{-- ═══════════════════════════════════

@@ -64,7 +64,7 @@
 
         @elseif($isAllDone)
             {{-- ─── کارنامه تحلیلی وضعیت (واکنش‌گرا: یک‌ستونه موبایل، شبکه‌ای دسکتاپ) ─── --}}
-            <div class="rounded-2xl overflow-hidden border border-border bg-secondary/30">
+            <div class="rounded-2xl overflow-hidden border border-border glass" x-data="{ showDetails: false }">
                 <div class="h-1 bg-primary"></div>
                 <div class="p-6 sm:p-8">
                     <div class="text-center mb-7">
@@ -105,7 +105,7 @@
                                     }
                                     $polyStr = implode(' ', $poly);
                                 @endphp
-                                <div class="rounded-xl p-4 bg-background/40 border border-border md:col-span-2">
+                                <div class="rounded-xl p-4 bg-background border border-border md:col-span-2">
                                     <div class="text-sm font-bold mb-3">سبک یادگیری (VARK): <span class="text-primary">{{ $summary['vark']['profile'] }}</span></div>
                                     <div class="grid gap-4 sm:grid-cols-2 items-center">
                                         {{-- نمودار رادار (SVG خالص) --}}
@@ -148,44 +148,60 @@
                                 </div>
                             @endif
 
-                            {{-- ───── تست‌های اختصاصی: تحلیل دقیق هر شاخص ───── --}}
-                            @foreach($summary['custom'] as $testName => $facets)
-                                <div class="rounded-xl p-4 bg-background/40 border border-border">
-                                    <div class="text-sm font-bold mb-3">{{ $testName }}</div>
-                                    <div class="space-y-3">
-                                        @foreach($facets as $f)
-                                            @php
-                                                $lvl = $f['level'] ?? 'medium';
-                                                $lvlColor = $lvl === 'high' ? '#22c55e' : ($lvl === 'low' ? '#f59e0b' : '#3b82f6');
-                                                $lvlText  = $lvl === 'high' ? 'بالا' : ($lvl === 'low' ? 'پایین' : 'متوسط');
-                                            @endphp
-                                            <div>
-                                                <div class="flex items-center justify-between mb-1">
-                                                    <span class="text-xs font-bold">{{ $f['label'] }}</span>
-                                                    <span class="text-[10px] font-bold rounded-full px-2 py-0.5"
-                                                          style="color:{{ $lvlColor }};background:{{ $lvlColor }}1a;">{{ $lvlText }} · {{ $f['percent'] }}%</span>
-                                                </div>
-                                                <div class="h-1.5 rounded-full overflow-hidden mb-1 bg-border/60">
-                                                    <div class="h-full rounded-full" style="width:{{ $f['percent'] }}%;background:{{ $lvlColor }};"></div>
-                                                </div>
-                                                @if(!empty($f['text']) && $f['text'] !== '—')
-                                                    <p class="text-[11px] text-muted leading-5">{{ $f['text'] }}</p>
-                                                @endif
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            @endforeach
-
                             {{-- ───── پرچم‌ها ───── --}}
                             @foreach($summary['flags'] as $flag)
-                                <div class="rounded-xl p-3.5 border md:col-span-2 {{ ($flag['severity'] ?? '') === 'critical' ? 'border-rose-500/40 bg-rose-500/8' : 'border-amber-500/40 bg-amber-500/8' }}">
+                                <div class="rounded-xl p-3.5 bg-background border md:col-span-2 {{ ($flag['severity'] ?? '') === 'critical' ? 'border-rose-500/40 bg-rose-500/8' : 'border-amber-500/40 bg-amber-500/8' }}">
                                     <div class="text-xs font-bold">{{ $flag['title'] ?? '' }}</div>
                                     @if(!empty($flag['text']))
                                         <p class="text-[11px] text-muted leading-5 mt-1">{{ $flag['text'] }}</p>
                                     @endif
                                 </div>
                             @endforeach
+
+                            {{-- ───── انتخاب: نمایش جزییات یا ادامه ───── --}}
+                            <div x-show="!showDetails" class="md:col-span-2 flex flex-col sm:flex-row gap-3 pt-1">
+                                <button type="button" @click="showDetails = true"
+                                        class="flex-1 h-12 rounded-xl font-bold text-sm text-foreground bg-secondary border border-border transition-all duration-200 hover:bg-background active:scale-[0.98] inline-flex items-center justify-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    نمایش جزییات
+                                </button>
+                                <button wire:click="continueToChoice" wire:loading.attr="disabled" wire:target="continueToChoice"
+                                        class="flex-1 h-12 rounded-xl font-bold text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] inline-flex items-center justify-center gap-2">
+                                    ادامه میدهم
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+                                </button>
+                            </div>
+
+                            {{-- ───── تست‌های اختصاصی: تحلیل دقیق هر شاخص (فقط با «نمایش جزییات») ───── --}}
+                            <div x-show="showDetails" x-cloak class="contents">
+                                @foreach($summary['custom'] as $testName => $facets)
+                                    <div class="rounded-xl p-4 bg-background border border-border">
+                                        <div class="text-sm font-bold mb-3">{{ $testName }}</div>
+                                        <div class="space-y-3">
+                                            @foreach($facets as $f)
+                                                @php
+                                                    $lvl = $f['level'] ?? 'medium';
+                                                    $lvlColor = $lvl === 'high' ? '#22c55e' : ($lvl === 'low' ? '#f59e0b' : '#3b82f6');
+                                                    $lvlText  = $lvl === 'high' ? 'بالا' : ($lvl === 'low' ? 'پایین' : 'متوسط');
+                                                @endphp
+                                                <div>
+                                                    <div class="flex items-center justify-between mb-1">
+                                                        <span class="text-xs font-bold">{{ $f['label'] }}</span>
+                                                        <span class="text-[10px] font-bold rounded-full px-2 py-0.5"
+                                                              style="color:{{ $lvlColor }};background:{{ $lvlColor }}1a;">{{ $lvlText }} · {{ $f['percent'] }}%</span>
+                                                    </div>
+                                                    <div class="h-1.5 rounded-full overflow-hidden mb-1 bg-border/60">
+                                                        <div class="h-full rounded-full" style="width:{{ $f['percent'] }}%;background:{{ $lvlColor }};"></div>
+                                                    </div>
+                                                    @if(!empty($f['text']) && $f['text'] !== '—')
+                                                        <p class="text-[11px] text-muted leading-5">{{ $f['text'] }}</p>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     @else
                         <div class="rounded-xl p-4 text-center text-xs text-muted leading-6 bg-background/40 border border-border">
@@ -193,16 +209,16 @@
                         </div>
                     @endif
 
-                    <button wire:click="continueToChoice" wire:loading.attr="disabled" wire:target="continueToChoice"
+                    <button x-show="showDetails" x-cloak wire:click="continueToChoice" wire:loading.attr="disabled" wire:target="continueToChoice"
                             class="w-full md:w-auto md:min-w-[260px] md:mx-auto md:flex h-12 mt-6 rounded-xl font-bold text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] items-center justify-center">
-                        ادامه می‌دهیم
+                        ادامه میدهم
                     </button>
                 </div>
             </div>
 
         @else
             {{-- ─── خوش آمدی / شروع ─── --}}
-            <div class="rounded-2xl overflow-hidden border border-border bg-secondary/30">
+            <div class="rounded-2xl overflow-hidden border border-border bg-secondary">
                 <div class="h-1 bg-primary"></div>
                 <div class="p-6 sm:p-7 space-y-6">
 
@@ -211,7 +227,7 @@
                             <h1 class="text-2xl font-black mb-2">خوش برگشتی! 👋</h1>
                             <p class="text-sm text-muted leading-7">از همان‌جایی که رها کردی ادامه می‌دهیم.</p>
                         @else
-                            <h1 class="text-2xl font-black mb-2">شروع آزمون‌های شخصیت‌شناسی</h1>
+                            <h1 class="text-2xl font-black mb-2">آنالیز تحصیلی-روانشناسی</h1>
                             <p class="text-sm text-muted leading-7">این پلتفرم هوشمند، خدمات آموزشی را متناسب با نیازهای تحصیلی - روان‌شناختی تو ارائه می‌دهد.</p>
                         @endif
                     </div>

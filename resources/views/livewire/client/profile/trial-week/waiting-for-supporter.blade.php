@@ -113,13 +113,13 @@
                     <p class="text-sm text-muted leading-7 max-w-md mb-6">
                         <span class="font-bold text-primary">ثبت‌ درخواست با موفقیت انجام شد.</span>
                         <br>
-                        سیستم هوشمند SDFR در حال آنالیز نتیجه‌ی آزمون‌هایت و انتخاب بهترین مشاور برای توست.
+                        سیستم هوشمند SDFR در حال آنالیز نتیجه‌ی آزمون‌ Mindet و انتخاب بهترین مشاور برای توست.
                     </p>
                 </div>
             </template>
             <template x-if="revealed">
                 <div>
-                    <h1 class="font-black text-2xl text-foreground mb-2">مشاور تو انتخاب شد 🎉</h1>
+                    <h1 class="font-black text-2xl text-foreground mb-2 ">مشاور تو انتخاب شد</h1>
                     <p class="text-sm text-muted leading-7 max-w-md mb-6">
                         این مشاور در طول هفته‌ی آزمایشی همراهت است و فرایند را قدم‌به‌قدم جلو می‌برد.
                     </p>

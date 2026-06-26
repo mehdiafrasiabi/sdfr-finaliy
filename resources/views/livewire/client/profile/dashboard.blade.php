@@ -1,4 +1,31 @@
 <div class="min-h-screen text-white" dir="rtl" style="font-family: inherit;" x-data="{ openAdvisorModal: false }">
+
+    {{-- ════════ انیمیشن ورود (ویدیو) — یکبار در هر ورود به پرتال ════════ --}}
+    <div x-data="sdfrDashIntro()" x-init="init()" x-show="show" x-cloak wire:ignore
+         @keydown.escape.window="skip()"
+         class="fixed inset-0 z-[120] flex items-center justify-center bg-black"
+         x-transition:leave="transition ease-in duration-500"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+
+        <video x-ref="introVideo"
+               class="h-full w-full object-cover sm:object-contain"
+               muted playsinline autoplay preload="auto"
+               @ended="finish()"
+               poster="/client/assets/logoPwa/logo512.png">
+            <source src="/client/videos/sdfr-intro.mp4" type="video/mp4">
+        </video>
+
+        {{-- دکمه رد کردن --}}
+        <button @click="skip()"
+                class="absolute top-[calc(env(safe-area-inset-top)+16px)] left-4 z-10 flex items-center gap-1.5
+                       rounded-full bg-white/10 px-4 py-2 text-[13px] font-medium text-white/80 backdrop-blur-md
+                       ring-1 ring-white/15 transition hover:bg-white/20 hover:text-white">
+            رد کردن
+            <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4"><path d="M13 5l7 7-7 7M4 12h15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+    </div>
+
     {{-- ════════ تور راهنمای داشبورد (اولین ورود + آیکون راهنما) ════════ --}}
     <x-client.page-tour storage-key="dashboard_tour_done"
         :auto="(bool) session()->pull('start_dashboard_tour', false)"
@@ -420,16 +447,9 @@
                             </div>
                         </div>
                     @elseif($trialWeek)
-                        <a wire:navigate href="{{ route('client.profile.trial.guide') }}" data-tour="trial"
+                        <div data-tour="trial"
                            class="glass rise flex items-center justify-between p-4 rounded-2xl"
                            style="animation-delay:0s">
-                            <div class="flex items-center gap-2">
-                                @php $sp = ($trialWeek->step / 4) * 100; @endphp
-                                <div class="w-14 h-1 rounded-full overflow-hidden bg-green-900/50">
-                                    <div class="h-full rounded-full bg-green-400" style="width:{{ $sp }}%;"></div>
-                                </div>
-                                <span class="text-xs text-green-400">{{ (int)$sp }}%</span>
-                            </div>
                             <div class="text-right">
                                 <div class="font-semibold text-white text-sm">
                                     هفته آزمایشی -
@@ -444,7 +464,16 @@
 
                                 </div>
                             </div>
-                        </a>
+                            <div class="flex items-center gap-2">
+                                @php $sp = ($trialWeek->step / 4) * 100; @endphp
+                                <span class="text-xs text-green-400">{{ (int)$sp }}%</span>
+                                <div class="w-14 h-1 rounded-full overflow-hidden bg-green-900/50">
+                                    <div class="h-full rounded-full bg-green-400" style="width:{{ $sp }}%;"></div>
+                                </div>
+
+                            </div>
+
+                        </div>
                     @endif
 
                     @if($student && !$isTrialStudent && $unreadNotificationsCount > 0)
@@ -842,29 +871,17 @@
                                                 <span
                                                     class="font-bold text-white text-[14px] leading-tight">{{ $lessonName }}
                                                   <span
-                                                      class="text-[11px] font-semibold px-2 py-0.5 rounded-full {{ $meta['bg'] }} {{ $meta['color'] }} ring-1 {{ $meta['ring'] }}">
+                                                      class="text-[11px] font-semibold px-2 py-0.5 rounded-full  {{ $meta['color'] }} ring-1 {{ $meta['ring'] }}">
                                                 {{ $meta['label'] }}
                                             </span>
                                                 </span>
-                                                @if($dayName)
-                                                    <span class="text-[11px] text-neutral-500">{{ $dayName }}</span>
-                                                @endif
 
                                             </div>
                                             <div class="flex items-center gap-2 flex-shrink-0">
-                                                @if($minutes > 0)
                                                     <div class="flex flex-col items-center leading-tight">
                                                         <span
-                                                            class="font-black text-white text-sm">{{ $minutes }}</span>
-                                                        <span class="text-[10px] text-neutral-400">دقیقه</span>
+                                                            class="font-black  text-sm  {{ $meta['color'] }}">{{ $dayName }}</span>
                                                     </div>
-                                                @endif
-                                                @if($tests > 0)
-                                                    <div class="flex flex-col items-center leading-tight">
-                                                        <span class="font-black text-white text-sm">{{ $tests }}</span>
-                                                        <span class="text-[10px] text-neutral-400">تست</span>
-                                                    </div>
-                                                @endif
 
                                             </div>
                                         </div>
@@ -1076,6 +1093,40 @@
 
     {{-- ════════════════ CHART INITIALIZATION ════════════════ --}}
     @push('script')
+        <script data-navigate-once>
+            // ── انیمیشن ورود (ویدیو) — یکبار در هر ورود به پرتال (session) ──
+            function sdfrDashIntro() {
+                return {
+                    show: false,
+                    KEY: 'sdfr_intro_played',
+                    init() {
+                        let played = false;
+                        try { played = sessionStorage.getItem(this.KEY) === '1'; } catch (e) {}
+                        // فقط در ورودِ تازه به پرتال نمایش بده، نه در ناوبری داخلی به داشبورد
+                        if (played) return;
+                        this.show = true;
+                        document.body.style.overflow = 'hidden';
+                        this.$nextTick(() => {
+                            const v = this.$refs.introVideo;
+                            if (v) {
+                                const p = v.play();
+                                if (p && p.catch) p.catch(() => {}); // اگر مرورگر autoplay را بلاک کرد
+                            }
+                        });
+                    },
+                    finish() {
+                        try { sessionStorage.setItem(this.KEY, '1'); } catch (e) {}
+                        this.show = false;
+                        document.body.style.overflow = '';
+                    },
+                    skip() {
+                        const v = this.$refs.introVideo;
+                        if (v) { try { v.pause(); } catch (e) {} }
+                        this.finish();
+                    },
+                }
+            }
+        </script>
         <script>
             (function () {
                 // پالت بدون بنفش (هماهنگ با تم emerald/sky)

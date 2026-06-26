@@ -152,6 +152,27 @@
             </div>
         @endif
 
+        {{-- راهنما --}}
+        <div dir="rtl" class="mb-6 rounded-2xl border border-border bg-secondary p-4">
+            <div class="flex items-start gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="w-5 h-5 text-primary mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div class="text-sm text-muted leading-relaxed space-y-1">
+                    <p>- هر کارت یک بخش از پیش‌جلسه است؛ روی هر کدام بزن و موارد هفته‌ی پیش رو را ثبت کن.</p>
+                    <p>- <strong class="text-foreground">امتحانات:</strong> امتحان‌هایی که در پیش داری، همراه با تاریخ و زمان موردنیاز.</p>
+                    <p>- <strong class="text-foreground">پرسش و پاسخ کلاسی:</strong> پرسش‌و‌پاسخ‌هایی که باید برایشان آماده شوی.</p>
+                    <p>- <strong class="text-foreground">تکالیف:</strong> تکالیفی که باید تا تاریخ مشخص انجام دهی.</p>
+                    <p>- <strong class="text-foreground">پارت درخواستی:</strong> درس‌هایی که می‌خواهی حتماً در برنامه‌ات باشند.</p>
+                    <p>- <strong class="text-foreground">متفرقه:</strong> هر نکته‌ی دیگری که مشاورت بهتر است بداند.</p>
+                    <p>- بعد از تکمیل بخش‌ها، از کارت <strong class="text-foreground">«خلاصه و ثبت نهایی»</strong> پیش‌جلسه را نهایی کن.</p>
+                </div>
+            </div>
+        </div>
+
         {{-- CARDS GRID --}}
         <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach($cards as $key => $card)
@@ -267,9 +288,11 @@
                                                     <span class="font-bold mr-1">{{ $exam['subject'] }}</span>
                                                     <span class="text-muted-foreground">({{ $exam['part_count'] }} پارت | {{ $exam['time_per_part'] }} دقیقه)</span>
                                                 </div>
-                                                <button wire:click="deleteExam({{ $exam['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0">
-                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg>
-                                                </button>
+                                                @if($canEdit)
+                                                    <button wire:click="deleteExam({{ $exam['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0">
+                                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg>
+                                                    </button>
+                                                @endif
                                             </div>
                                         @endforeach
                                     </div>
@@ -339,12 +362,7 @@
                                             </div>
                                         </div>
                                         @php $examTotal = ($examForm['hours']*60)+$examForm['minutes']; @endphp
-                                        @if($examTotal > 0)
-                                            <p class="mt-2 text-[11px] text-blue-600 font-semibold">
-                                                مجموع: {{ $examTotal < 60 ? $examTotal.' دقیقه' : floor($examTotal/60).' ساعت'.($examTotal%60 > 0 ? ' و '.($examTotal%60).' دقیقه' : '') }}
-                                                @if($examTotal < 15) <span class="text-red-500 mr-2">⚠ حداقل ۱۵ دقیقه</span> @endif
-                                            </p>
-                                        @endif
+
                                     </div>
 
                                     <div>
@@ -407,7 +425,9 @@
                                                     <span class="font-bold mr-1">{{ $qa['subject'] }}</span>
                                                     <span class="text-muted-foreground">({{ $qa['part_count'] }} پارت | {{ $qa['time_per_part'] }} دقیقه)</span>
                                                 </div>
-                                                <button wire:click="deleteQa({{ $qa['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
+                                                @if($canEdit)
+                                                    <button wire:click="deleteQa({{ $qa['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
+                                                @endif
                                             </div>
                                         @endforeach
                                     </div>
@@ -467,7 +487,6 @@
                                             </div>
                                         </div>
                                         @php $qaTotal = ($qaForm['hours']*60)+$qaForm['minutes']; @endphp
-                                        @if($qaTotal > 0)<p class="mt-2 text-[11px] text-emerald-600 font-semibold">مجموع: {{ $qaTotal < 60 ? $qaTotal.' دقیقه' : floor($qaTotal/60).' ساعت'.($qaTotal%60>0?' و '.($qaTotal%60).' دقیقه':'') }}@if($qaTotal < 15)<span class="text-red-500 mr-2">⚠ حداقل ۱۵ دقیقه</span>@endif</p>@endif
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold mb-1">این زمان به چند پارت تقسیم بشه؟</label>
@@ -524,7 +543,9 @@
                                                     <span class="font-bold mr-1">{{ $assignment['subject'] }}</span>
                                                     <span class="text-muted-foreground">({{ $assignment['part_count'] }} پارت | {{ $assignment['time_per_part'] }} دقیقه)</span>
                                                 </div>
-                                                <button wire:click="deleteAssignment({{ $assignment['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
+                                                @if($canEdit)
+                                                    <button wire:click="deleteAssignment({{ $assignment['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
+                                                @endif
                                             </div>
                                         @endforeach
                                     </div>
@@ -576,7 +597,6 @@
                                             </div>
                                         </div>
                                         @php $assignTotal = ($assignmentForm['hours']*60)+$assignmentForm['minutes']; @endphp
-                                        @if($assignTotal > 0)<p class="mt-2 text-[11px] text-violet-600 font-semibold">مجموع: {{ $assignTotal < 60 ? $assignTotal.' دقیقه' : floor($assignTotal/60).' ساعت'.($assignTotal%60>0?' و '.($assignTotal%60).' دقیقه':'') }}@if($assignTotal < 15)<span class="text-red-500 mr-2">⚠ حداقل ۱۵ دقیقه</span>@endif</p>@endif
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold mb-1">این زمان به چند پارت تقسیم بشه؟</label>
@@ -633,7 +653,9 @@
                                                     <span class="text-muted-foreground mr-1">({{ $rp['part_count'] }} پارت | {{ $rp['time_per_part'] }} دقیقه)</span>
                                                     @if(!empty($rp['description']))<p class="mt-1 text-muted-foreground text-[11px] leading-5">{{ $rp['description'] }}</p>@endif
                                                 </div>
-                                                <button wire:click="deleteRequestedPart({{ $rp['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
+                                                @if($canEdit)
+                                                    <button wire:click="deleteRequestedPart({{ $rp['id'] }})" class="text-red-500 hover:bg-red-500/10 rounded-lg w-8 h-8 flex items-center justify-center transition-colors mr-2 shrink-0"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 16h10l1-16"/></svg></button>
+                                                @endif
                                             </div>
                                         @endforeach
                                     </div>
@@ -646,7 +668,10 @@
                                         <div>
                                             <label class="block text-xs font-semibold mb-1.5">درس را انتخاب کنید</label>
                                             @if(count($availableGradeSubjects) > 0)
-                                                <x-ui.select-grouped wire:model.live="requestedPartForm.cc_subject_id" :groups="$availableGradeSubjects" group-label-key="grade_label" group-items-key="subjects" value-key="id" label-key="name" placeholder="انتخاب درس..." :searchable="true" search-placeholder="جستجوی درس..."/>
+                                                {{-- wire:ignore: گزینه‌ها ثابت‌اند؛ جلوگیری از morph لایوویر روی x-for های تو‌درتو که باعث پریدن/خراب‌شدن select فصل می‌شد --}}
+                                                <div wire:ignore>
+                                                    <x-ui.select-grouped wire:model.live="requestedPartForm.cc_subject_id" :groups="$availableGradeSubjects" group-label-key="grade_label" group-items-key="subjects" value-key="id" label-key="name" placeholder="انتخاب درس..." :searchable="true" search-placeholder="جستجوی درس..."/>
+                                                </div>
                                             @else
                                                 <input type="text" wire:model="requestedPartForm.subject" placeholder="مثال: ریاضی" class="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm">
                                             @endif
@@ -685,7 +710,6 @@
                                             </div>
                                         </div>
                                         @php $rpTotal = ($requestedPartForm['hours']*60)+$requestedPartForm['minutes']; @endphp
-                                        @if($rpTotal > 0)<p class="mt-2 text-[11px] text-orange-600 font-semibold">مجموع: {{ $rpTotal < 60 ? $rpTotal.' دقیقه' : floor($rpTotal/60).' ساعت'.($rpTotal%60>0?' و '.($rpTotal%60).' دقیقه':'') }}@if($rpTotal < 15)<span class="text-red-500 mr-2">⚠ حداقل ۱۵ دقیقه</span>@endif</p>@endif
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold mb-1">این زمان به چند پارت تقسیم بشه؟</label>
@@ -811,7 +835,7 @@
                                         @forelse($qas as $qa)
                                             <tr class="border-b border-dashed border-border last:border-b-0">
                                                 <td class="py-2 px-2 font-medium">{{ $qa['subject'] }}</td>
-                                                <td class="py-2 px-2 text-center text-muted-foreground whitespace-nowrap">{{ $qa['part_count'] }}|{{ $qa['time_per_part'] }}د</td>
+                                                <td class="py-2 px-2 text-center text-muted-foreground whitespace-nowrap">{{ $qa['part_count'] }} پارت |  {{ $qa['time_per_part'] }}دقیقه </td>
                                                 <td class="py-2 px-2 text-center text-muted-foreground whitespace-nowrap">{{ \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($qa['qa_date'],'UTC')->setTimezone('Asia/Tehran'))->format('Y/m/d') }}</td>
                                             </tr>
                                         @empty
@@ -837,7 +861,7 @@
                                         @forelse($assignments as $assignment)
                                             <tr class="border-b border-dashed border-border last:border-b-0">
                                                 <td class="py-2 px-2 font-medium">{{ $assignment['subject'] }}</td>
-                                                <td class="py-2 px-2 text-center text-muted-foreground whitespace-nowrap">{{ $assignment['part_count'] }}|{{ $assignment['time_per_part'] }}د</td>
+                                                <td class="py-2 px-2 text-center text-muted-foreground whitespace-nowrap">{{ $assignment['part_count'] }} پارت | {{ $assignment['time_per_part'] }}دقیقه</td>
                                                 <td class="py-2 px-2 text-center text-muted-foreground whitespace-nowrap">{{ \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($assignment['due_date'],'UTC')->setTimezone('Asia/Tehran'))->format('Y/m/d') }}</td>
                                             </tr>
                                         @empty
@@ -862,7 +886,7 @@
                                         @forelse($requestedParts as $rp)
                                             <tr class="border-b border-dashed border-border last:border-b-0">
                                                 <td class="py-2 px-2 font-medium">{{ $rp['subject'] }}</td>
-                                                <td class="py-2 px-2 text-center text-muted-foreground whitespace-nowrap">{{ $rp['part_count'] }}|{{ $rp['time_per_part'] }}د</td>
+                                                <td class="py-2 px-2 text-center text-muted-foreground whitespace-nowrap">{{ $rp['part_count'] }} پارت | {{ $rp['time_per_part'] }}دقیقه </td>
                                                 <td class="py-2 px-2 text-muted-foreground">{{ $rp['description'] ?? '—' }}</td>
                                             </tr>
                                         @empty

@@ -55,7 +55,8 @@
                                 @foreach($assignments as $assignment)
                                     @php $exam = $assignment->typedExam; @endphp
 
-                                    <div x-data="{ expanded: false }"
+                                    <div wire:key="exam-card-{{ $assignment->id }}"
+                                         x-data="{ expanded: false }"
                                          class="glass border border-border rounded-2xl overflow-hidden flex flex-col">
 
                                         {{-- ═══ موبایل ═══ --}}

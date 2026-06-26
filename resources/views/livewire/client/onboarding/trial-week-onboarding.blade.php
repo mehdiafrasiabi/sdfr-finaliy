@@ -443,8 +443,8 @@
                             <div class="train-border">
                                 <div class="glass-card rounded-3xl p-6 text-center">
                                     <div class="inline-block w-28 h-28 mb-2">{!! $svgSuccess !!}</div>
-                                    <h2 class="font-black text-2xl mb-2">🎉 تبریک! حساب شما ساخته شد</h2>
-                                    <p class="text-sm text-muted leading-7">به جمعِ ستارگانِ SDFR خوش اومدی.<br>الان خودکار به آزمون شخصیت‌شناسی می‌ری.</p>
+                                    <h2 class="font-black text-2xl mb-2">🎉  حساب شما با موفقیت ساخته شد</h2>
+                                    <p class="text-sm text-muted leading-7">شرط ورود به خانواده SDFR آنالیز فردی هست!<br>الان خودکار به آزمون Mindet منتقل میشی.</p>
                                     <div class="mt-5 flex items-center justify-center gap-2 text-primary">
                                         <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="48" stroke-linecap="round" opacity="0.35"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="14 60" stroke-linecap="round"/></svg>
                                         <span class="text-sm font-semibold">انتقال در <span x-text="secs">۵</span> ثانیه…</span>

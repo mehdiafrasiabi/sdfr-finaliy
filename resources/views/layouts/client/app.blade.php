@@ -218,7 +218,9 @@
     </main>
 
     <!-- footer -->
-    <livewire:client.layout.footer/>
+    @unless(request()->routeIs('client.profile.assessment.*'))
+        <livewire:client.layout.footer/>
+    @endunless
     <!-- end footer -->
 
     <!-- Mobile Bottom Navigation - Fixed at bottom -->
@@ -231,6 +233,10 @@
     @endif
 
 </div>
+
+{{-- مودال نصب PWA (فقط موبایل اندروید/iOS) --}}
+@include('layouts.client.pwa-install-modal')
+
 @include('layouts.client.script')
 <script data-navigate-once>
     //remove wire:snapshot form tags in client

@@ -50,6 +50,7 @@
                                     @endphp
 
                                     <div
+                                        wire:key="session-card-{{ $session->id }}"
                                         x-data="{ expanded: false }"
                                         class="glass border border-border rounded-2xl overflow-hidden flex flex-col {{ $isLocked ? 'opacity-75' : '' }}"
                                     >

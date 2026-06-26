@@ -241,7 +241,7 @@
                 }, 1000);
             },
          }"
-         x-init="start()"
+         x-init="start()">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-md"></div>
 
         <div class="relative z-10 w-full max-w-md bg-background border border-border rounded-3xl shadow-2xl p-8 text-center">

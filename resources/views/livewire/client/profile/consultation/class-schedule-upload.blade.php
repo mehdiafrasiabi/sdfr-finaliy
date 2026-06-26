@@ -24,7 +24,7 @@
                                 <div class="w-2 h-2 bg-foreground rounded-full"></div>
                             </div>
                             <div class="font-black text-foreground">افزودن برنامه کلاسی</div>
-                            <a wire:navigate href="{{ $inTrialCs ? route('client.profile.trial.guide') : route('client.profile.consultation.sessions') }}"
+                            <a wire:navigate href="{{ $inTrialCs ? route('client.profile.trial.guide') : route('client.profile.dashboard') }}"
                                class="inline-flex items-center justify-center gap-x-1.5 h-10 bg-secondary border border-border rounded-full text-muted transition-colors hover:text-foreground px-6 ms-auto">
                                 <span class="font-semibold text-xs">بازگشت{{ $inTrialCs ? ' به راهنما' : '' }}</span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"

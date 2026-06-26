@@ -16,7 +16,7 @@ return new class extends Migration {
         $exists = DB::table('classification_projects')->where('is_trial', true)->exists();
         if (!$exists) {
             DB::table('classification_projects')->insert([
-                'name'        => 'طبقه‌بندی آزمایشی (دوره ۱ هفته)',
+                'name'        => 'طبقه‌بندی آزمایشی',
                 'description' => 'طبقه‌بندی ویژه‌ی کاربران دوره‌ی ۱ هفته آزمایشی — همیشه فعال و بدون محدودیت زمانی.',
                 'start_at'    => now()->subYear(),
                 'end_at'      => now()->addYears(10),

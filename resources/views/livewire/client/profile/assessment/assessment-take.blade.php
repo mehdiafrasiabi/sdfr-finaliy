@@ -9,7 +9,7 @@
             [x-cloak] { display: none !important; }
 
             /* ───────── کارت سوال ───────── */
-            .q-card { border: 1px solid hsl(var(--border)); background: hsl(var(--secondary) / .35);
+            .q-card { border: 1px solid hsl(var(--border));
                 border-radius: 1.25rem; padding: 1.1rem 1.1rem 1.25rem; transition: border-color .2s; }
             .q-card.q-unanswered { border-color: hsl(var(--primary) / .45); }
             .q-num { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem;
@@ -70,7 +70,7 @@
         {{-- ───────── (C3) مودالِ معرفیِ آزمون ───────── --}}
         <div x-show="intro" x-cloak class="fixed inset-0 z-[65] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/55 backdrop-blur-sm"></div>
-            <div class="relative w-full max-w-lg rounded-3xl border border-border bg-background p-6 shadow-2xl" x-transition>
+            <div class="relative w-full max-w-lg rounded-3xl border border-border bg-secondary p-6 shadow-2xl" x-transition>
                 <div class="flex items-center gap-3 mb-4">
                     <span class="flex items-center justify-center w-12 h-12 rounded-2xl bg-primary/10 text-primary border border-primary/20">
                         <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
@@ -134,23 +134,25 @@
                 </div>
             </div>
 
-            {{-- (C5) پیشرفتِ کلی روی همهٔ آزمون‌ها --}}
-            <div class="rounded-2xl p-4 mb-6 bg-secondary/40 border border-border">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs text-muted">
-                        پاسخ‌داده‌شده: <span class="text-foreground font-bold" x-text="done">{{ $otherAnswered }}</span>
-                        از <span class="text-foreground font-bold">{{ $globalTotal }}</span> سوال
-                    </span>
-                    <span class="text-xs font-black text-primary"><span x-text="percent">0</span>٪</span>
-                </div>
-                <div class="h-2.5 rounded-full overflow-hidden bg-border/60">
-                    <div class="h-full rounded-full bg-primary transition-all duration-300" :style="`width: ${percent}%`"></div>
+            {{-- (C5) پیشرفتِ کلی روی همهٔ آزمون‌ها — هنگام اسکرول به زیر هدر می‌چسبد --}}
+            <div class="sticky top-[64px] md:top-[88px] z-40 -mx-4 px-4 mb-6">
+                <div class="rounded-2xl p-4 bg-secondary/95 backdrop-blur-xl border border-border shadow-md shadow-black/5">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs text-muted">
+                            پاسخ‌داده‌شده: <span class="text-foreground font-bold" x-text="done">{{ $otherAnswered }}</span>
+                            از <span class="text-foreground font-bold">{{ $globalTotal }}</span> سوال
+                        </span>
+                        <span class="text-xs font-black text-primary"><span x-text="percent">0</span>٪</span>
+                    </div>
+                    <div class="h-2.5 rounded-full overflow-hidden bg-border/60">
+                        <div class="h-full rounded-full bg-primary transition-all duration-300" :style="`width: ${percent}%`"></div>
+                    </div>
                 </div>
             </div>
 
             {{-- (C6) راهنمای چند/تک انتخابی --}}
             @if($isMulti)
-                <div class="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-xl bg-primary/5 border border-primary/20 text-xs font-semibold text-primary">
+                <div class="flex items-center gap-2 mb-4 px-4 py-2.5 rounded-xl bg-primary border border-primary text-xs font-semibold text-white">
                     <svg class="w-4 h-4 flex-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 11 3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     در این آزمون می‌توانید برای هر سوال چند گزینه انتخاب کنید.
                 </div>
@@ -171,7 +173,7 @@
             {{-- ───────── (C2) همهٔ سوالاتِ این دسته ───────── --}}
             <div class="space-y-4">
                 @foreach($questions as $index => $question)
-                    <div class="q-card" wire:key="q-{{ $question->id }}"
+                    <div class="q-card glass" wire:key="q-{{ $question->id }}"
                          :class="!isAnswered({{ $question->id }}) ? 'q-unanswered' : ''">
                         <div class="flex items-start gap-3 mb-4">
                             <span class="q-num">{{ $index + 1 }}</span>

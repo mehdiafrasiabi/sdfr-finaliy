@@ -83,6 +83,26 @@
             </a>
         </div>
 
+        {{-- ═══ راهنما ═══ --}}
+        <div dir="rtl" class="rounded-2xl border border-border bg-secondary p-4 mb-5">
+            <div class="flex items-start gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="w-5 h-5 text-primary mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                     stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                <div class="text-sm text-muted leading-relaxed space-y-1">
+                    <p>- در این صفحه دروس خود را بر اساس میزان <strong class="text-foreground">آمادگی</strong> طبقه‌بندی می‌کنی.</p>
+                    <p>- ابتدا از بخش بالا <strong class="text-foreground">پایه</strong> و نوع درس (عمومی / تخصصی) را انتخاب کن.</p>
+                    <p>- در دروس تخصصی، هر <strong class="text-foreground">فصل</strong> را جداگانه با یکی از سطح‌های <strong class="text-foreground">A تا D</strong> ارزیابی کن (A یعنی عالی و D یعنی ضعیف).</p>
+                    <p>- دروس عمومی به‌صورت کلی و در یک ردیف طبقه‌بندی می‌شوند.</p>
+                    <p>- برای پاک‌کردن یک امتیاز، روی همان نقطه‌ی انتخاب‌شده دوباره بزن.</p>
+                    <p>- بعد از تکمیل همه‌ی دروس، طبقه‌بندی را ثبت نهایی کن.</p>
+                </div>
+            </div>
+        </div>
+
         {{-- ═══ راهنمای امتیاز ═══ --}}
         <div class=" glass flex items-center gap-3 bg-secondary/60 border border-border rounded-2xl px-4 py-3 mb-5 flex-wrap">
             <span class="text-xs text-muted-foreground font-semibold">راهنمای امتیاز:</span>

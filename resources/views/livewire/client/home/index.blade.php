@@ -115,9 +115,16 @@
             .phone-why h2 { font-weight: 900; font-size: clamp(27px, 7vw, 54px); color: #fff; line-height: 1.4; }
 
             /* (6) SDFR sparkle */
-            .sdfr-spark { background: linear-gradient(110deg, #38bdf8 0%, #e0f2fe 18%, #38bdf8 36%, #38bdf8 100%); background-size: 220% 100%;
-                -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
-                filter: drop-shadow(0 0 20px rgba(56, 189, 248, .65)); animation: sdfrSpark 2.6s ease-in-out infinite; }
+            .sdfr-spark {
+                background: linear-gradient(110deg, #38bdf8 0%, #e0f2fe 18%, #38bdf8 36%, #38bdf8 100%);
+                background-size: 220% 100%;
+                -webkit-background-clip: text;
+                background-clip: text;
+                -webkit-text-fill-color: transparent;
+                color: transparent;
+                filter: drop-shadow(0 0 20px rgba(56, 189, 248, .65));
+                animation: sdfrSpark 2.6s ease-in-out infinite;
+            }
             @keyframes sdfrSpark { 0% { background-position: 140% 0; } 55% { background-position: -30% 0; } 100% { background-position: -140% 0; } }
 
             /* ================== SECTION 2 : PHONE ================== */
@@ -281,6 +288,10 @@
             .price-intro-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #000; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 1.5rem; }
             .price-intro-title { font-weight: 900; font-size: clamp(28px, 7vw, 56px); line-height: 1.4; max-width: 18ch;
                 opacity: 0; filter: brightness(.2); transform: translateY(22px); }
+            /* دسکتاپ: لوگو وسط، یک جمله بالا و یک جمله پایین (عمودی) */
+            .price-intro-line { display: flex; flex-direction: column; align-items: center; gap: .1em; }
+            .price-intro-line .pi-pre, .price-intro-line .pi-post { font-size: .6em; font-weight: 800; }
+            .price-intro-line .pi-logo { font-size: 2.45em; font-weight: 900; line-height: 1; letter-spacing: .02em; }
 
             /* ================== PRICING cards ================== */
             .price-card { position: relative; transition: transform .4s cubic-bezier(.2, .8, .2, 1), box-shadow .4s, border-color .4s; }
@@ -339,6 +350,30 @@
                 radial-gradient(46vw 46vw at 95% 16%, rgba(56, 189, 248, .08), transparent 72%),
                 radial-gradient(54vw 54vw at 78% 52%, rgba(56, 189, 248, .07), transparent 72%),
                 radial-gradient(40vw 40vw at 12% 84%, rgba(56, 189, 248, .07), transparent 72%); }
+
+            /* ============================================================ */
+            /* MOBILE RESPONSIVE FIXES (فقط رفعِ ایراد — ساختار بدون تغییر)  */
+            /* ============================================================ */
+            @media (max-width: 640px) {
+                /* بخشِ ستارگان: روی آیفون ۱۳ واحدِ vh پشتِ نوار آدرس می‌رفت و ردیفِ پایینِ کارت‌ها «ته‌ته» می‌افتاد.
+                   با svh (ارتفاعِ واقعیِ دیده) و paddingِ کمتر، هر دو ردیف داخلِ کادر می‌مانند. */
+                .logos-sticky { height: 100svh; }
+                .logos-marq { padding: 11svh 0; }
+                .student-card { width: clamp(132px, 42vw, 152px); padding: .75rem .65rem .85rem; }
+                .student-ava-wrap { width: 58px; height: 58px; }
+                .stars-deco { margin-bottom: .6rem; }
+                .stars-deco img { width: clamp(28px, 8vw, 42px); }
+
+                /* استوریِ «SDFR منجیِ تو» — جلوگیری از سرریزِ افقی روی موبایل */
+                #story-help .sdfr-spark { font-size: clamp(62px, 23vw, 96px) !important; line-height: 1; }
+                #story-help > span.font-medium { font-size: clamp(26px, 8vw, 40px) !important; }
+
+                /* قیمت‌گذاری: روی موبایل همه در یک خط، فقط SDFR بزرگ‌تر */
+                .price-intro-title { font-size: clamp(17px, 4.8vw, 24px); max-width: none; }
+                .price-intro-line { display: block; white-space: nowrap; }
+                .price-intro-line .pi-pre, .price-intro-line .pi-post { display: inline; font-size: 1em; }
+                .price-intro-line .pi-logo { display: inline; font-size: 1.45em; margin: 0 .22em; }
+            }
         </style>
     @endpush
 
@@ -375,10 +410,11 @@
             $storyQuestions = [
                 ['q'=>'بنظرت شب درس خوندن بهتره یا روز؟',                         'a'=>'نمی‌دانم!'],
                 ['q'=>'موقع یادگیری، راه‌رفتن بهتره یا دراز کشیدن؟',              'a'=>'نمی‌دانم!'],
-                ['q'=>'بحث با پدر و مادرم چقدر روی درس‌خوندنم اثر می‌ذاره؟','a'=>'نمی‌دانم…'],
+
                 ['q'=>'چجوری میشه با کمترین ساعت مطالعه بیشترین بازدهی رو داشت؟', 'a'=>'نمی‌دانم!'],
+                   ['q'=>'راهکار مدیریت استفاده از گوشی چیه؟',                       'a'=>'نمی‌دانم…'],
                 ['q'=>'چجوری میشه هم درس بخونیم و به کارای متفرقه برسیم؟',         'a'=>'نمی‌دانم!'],
-                ['q'=>'راهکار مدیریت استفاده از گوشی چیه؟',                       'a'=>'نمی‌دانم…'],
+
             ];
 
             // ====== (11) چهار ویژگیِ داخل موبایل ======
@@ -506,7 +542,13 @@
 
                     {{-- (6) «منجی تو» --}}
                     <div class="story-layer story-msg" id="story-help" style="opacity:0;">
-                        <h2>و حالا <span class="sdfr-spark"><br>SDFR</span><br>منجیِ تو می‌شود!</h2>
+                          <span class="sdfr-spark  font-bold " style="font-size: 130px">
+                                SDFR
+                            </span>
+                        <span class="font-medium text-[50px]">
+
+                            منجیِ تو می‌شود!
+                        </span>
                         <p>پاسخِ دقیقِ همه‌ی این سؤال‌ها رو براساسِ ویژگی‌های فردیِ خودت، بهت برنامه می‌ده.</p>
                     </div>
 
@@ -540,7 +582,8 @@
 
                     {{-- (3) متنِ «حالا چرا SDFR؟» — اول نمایش، با بالا آمدنِ موبایل به بالا می‌رود و محو می‌شود --}}
                     <div id="phone-why" class="phone-why" aria-hidden="true">
-                        <h2>حالا چرا <span class="sdfr-spark">SDFR</span>؟</h2>
+                        <h2><span class="sdfr-spark">SDFR</span>  به چه معناست؟</h2>
+
                     </div>
 
                     <div id="hero-stage" class="hero-stage">
@@ -726,7 +769,14 @@
             <div id="price-intro-track" class="price-intro-track">
                 <div class="price-intro-sticky">
                     <div class="seam seam-top" style="--seam-color:#000;"></div>
-                    <h2 id="price-intro-title" class="price-intro-title"><span class="shimmer-text">در منظومه‌ی SDFR سرمایه‌گذاری کن!</span></h2>
+                    <div id="price-intro-title" class="price-intro-title">
+                        <span class="shimmer-text price-intro-line">
+                            <span class="pi-pre">در منظومه‌ی</span>
+                            <span class="pi-logo">SDFR</span>
+                            <span class="pi-post">سرمایه‌گذاری کن!</span>
+                        </span>
+                    </div>
+
                     <div class="seam seam-bottom" style="--seam-color:hsl(var(--background));"></div>
                 </div>
             </div>
