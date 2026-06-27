@@ -22,7 +22,7 @@ class Index extends Component
     public ?int $editingId = null;
 
     public int    $grade             = 12;
-    public int    $monthlyRate       = 1650000;
+    public int    $basePrice         = 19800000; // قیمت خام سالانه (قبل از تخفیف)
     public int    $initialPercentage = 30;
     public int    $serviceYear       = 0;   // سال شمسیِ تیر، مثل ۱۴۰۵
     public bool   $isActive          = true;
@@ -41,7 +41,7 @@ class Index extends Component
                 'required', 'integer', 'in:9,10,11,12',
                 Rule::unique('grade_prices', 'grade')->ignore($this->editingId),
             ],
-            'monthlyRate'       => ['required', 'integer', 'min:1'],
+            'basePrice'         => ['required', 'integer', 'min:1'],
             'initialPercentage' => ['required', 'integer', 'min:0', 'max:100'],
             'serviceYear'       => ['required', 'integer', 'min:1390', 'max:1450'],
             'isActive'          => ['boolean'],
@@ -50,8 +50,8 @@ class Index extends Component
 
     protected array $messages = [
         'grade.unique'              => 'برای این پایه قبلاً قیمت تعریف شده است.',
-        'monthlyRate.required'      => 'نرخ ماهانه الزامی است.',
-        'monthlyRate.min'           => 'نرخ ماهانه باید بیشتر از صفر باشد.',
+        'basePrice.required'        => 'قیمت خام سالانه الزامی است.',
+        'basePrice.min'             => 'قیمت خام باید بیشتر از صفر باشد.',
         'initialPercentage.required'=> 'درصد پیش‌پرداخت الزامی است.',
         'serviceYear.required'      => 'سال خدمت الزامی است.',
     ];
@@ -68,7 +68,7 @@ class Index extends Component
         $price = GradePrice::findOrFail($id);
         $this->editingId         = $id;
         $this->grade             = (int) $price->grade;
-        $this->monthlyRate       = (int) $price->monthly_rate;
+        $this->basePrice         = $price->basePrice();
         $this->initialPercentage = (int) ($price->initial_percentage ?? 30);
         $this->serviceYear       = $price->serviceYear() ?? $this->serviceYear;
         $this->isActive          = (bool) $price->is_active;
@@ -85,9 +85,10 @@ class Index extends Component
 
         $payload = [
             'grade'              => $this->grade,
-            'monthly_rate'       => $this->monthlyRate,
+            'base_price'         => $this->basePrice,
+            'monthly_rate'       => (int) round($this->basePrice / GradePrice::SERVICE_MONTH_COUNT),
             'initial_percentage' => $this->initialPercentage,
-            'total_amount'       => $this->monthlyRate, // ستون قدیمی NOT NULL — مقدار بی‌اثر
+            'total_amount'       => $this->basePrice, // ستون قدیمی NOT NULL — قیمت خام
             'start_at'           => $startAt->toDateString(),
             'end_at'             => $endAt->toDateString(),
             'is_active'          => $this->isActive,
@@ -130,7 +131,7 @@ class Index extends Component
     private function resetForm(): void
     {
         $this->grade             = 12;
-        $this->monthlyRate       = 1650000;
+        $this->basePrice         = 19800000;
         $this->initialPercentage = 30;
         $this->isActive          = true;
         $this->resetErrorBag();

@@ -17,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Morilog\Jalali\Jalalian;
 
@@ -38,6 +39,27 @@ class Index extends Component
     public ?string $couponNotice   = null;
     public int     $couponDiscount = 0; // درصد تخفیف کوپن (فقط روی پرداخت کامل)
 
+    // ─────────────── جریان چندمرحله‌ای ───────────────
+    public int  $step          = 1;     // ۱=معرفی+قیمت، ۲=بازبینی اطلاعات، ۳=روش پرداخت
+    public bool $agreedToTerms = false; // چک‌باکس قوانین (مرحلهٔ ۳)
+
+    // بازبینی/ویرایش درجای اطلاعات (مرحلهٔ ۲)
+    public bool   $editingInfo     = false;
+    public string $infoName         = '';
+    public string $infoNameFull     = '';
+    public string $infoFatherName   = '';
+    public string $infoCodeMell     = '';
+    public string $infoGrade        = '';
+    public string $infoField        = '';
+    public string $infoBirthDate    = '';
+    public string $infoFatherMobile = '';
+    public string $infoMotherMobile = '';
+    public string $infoPlaceOfBirth = '';
+    public string $infoAddress      = '';
+
+    public const GRADE_OPTIONS = ['10' => 'دهم', '11' => 'یازدهم', '12' => 'دوازدهم'];
+    public const FIELD_OPTIONS = ['math' => 'ریاضی و فیزیک', 'experimental' => 'علوم تجربی', 'human' => 'علوم انسانی'];
+
     public function mount(): void
     {
         $this->seo()->setTitle('پرداخت دوره');
@@ -51,7 +73,118 @@ class Index extends Component
         // (تا کاربرِ منقضی‌شده بتواند تمدید کند).
         if ($user->student && $user->student->hasActivePaidAccess()) {
             $this->redirect(route('client.profile.dashboard'), navigate: true);
+            return;
         }
+
+        $this->loadInfo();
+    }
+
+    // ─────────────── ناوبری مراحل ───────────────
+
+    public function nextStep(): void
+    {
+        if ($this->step === 1 && ! $this->gradePrice()) {
+            session()->flash('error', 'قیمتی برای پایهٔ شما تعریف نشده است.');
+            return;
+        }
+        if ($this->editingInfo) {
+            $this->dispatch('warning', 'ابتدا ویرایش اطلاعات را ذخیره یا لغو کنید.');
+            return;
+        }
+        if ($this->step < 3) {
+            $this->step++;
+        }
+    }
+
+    public function prevStep(): void
+    {
+        if ($this->step > 1) {
+            $this->step--;
+        }
+        $this->editingInfo = false;
+    }
+
+    // ─────────────── بازبینی/ویرایش اطلاعات ───────────────
+
+    protected function loadInfo(): void
+    {
+        $pi = PersonalInformation::where('user_id', Auth::id())->first();
+        if (! $pi) {
+            return;
+        }
+        $this->infoName         = (string) $pi->name;
+        $this->infoNameFull     = (string) ($pi->name_full ?? '');
+        $this->infoFatherName   = (string) $pi->father_name;
+        $this->infoCodeMell     = (string) $pi->code_mell;
+        $this->infoGrade        = (string) $pi->grade;
+        $this->infoField        = (string) $pi->field;
+        $this->infoBirthDate    = (string) $pi->birth_date;
+        $this->infoFatherMobile = (string) $pi->father_mobile;
+        $this->infoMotherMobile = (string) $pi->mother_mobile;
+        $this->infoPlaceOfBirth = (string) $pi->place_of_birth;
+        $this->infoAddress      = (string) $pi->address;
+    }
+
+    public function startEditInfo(): void
+    {
+        $this->editingInfo = true;
+        $this->resetErrorBag();
+    }
+
+    public function cancelEditInfo(): void
+    {
+        $this->editingInfo = false;
+        $this->loadInfo();
+        $this->resetErrorBag();
+    }
+
+    public function saveInfo(): void
+    {
+        $pi = PersonalInformation::where('user_id', Auth::id())->first();
+        if (! $pi) {
+            session()->flash('error', 'اطلاعات شخصی یافت نشد.');
+            return;
+        }
+
+        $this->validate([
+            'infoName'         => ['required', 'string', 'max:255'],
+            'infoNameFull'     => ['nullable', 'string', 'max:255'],
+            'infoFatherName'   => ['required', 'string', 'max:255'],
+            'infoCodeMell'     => ['required', 'string', 'max:20', Rule::unique('personal_information', 'code_mell')->ignore($pi->id)],
+            'infoGrade'        => ['required', Rule::in(array_keys(self::GRADE_OPTIONS))],
+            'infoField'        => ['required', Rule::in(array_keys(self::FIELD_OPTIONS))],
+            'infoBirthDate'    => ['nullable', 'string', 'max:30'],
+            'infoFatherMobile' => ['required', 'string', 'max:20'],
+            'infoMotherMobile' => ['required', 'string', 'max:20'],
+            'infoPlaceOfBirth' => ['nullable', 'string', 'max:255'],
+            'infoAddress'      => ['required', 'string', 'max:500'],
+        ], [], [
+            'infoName'         => 'نام',
+            'infoFatherName'   => 'نام پدر',
+            'infoCodeMell'     => 'کد ملی',
+            'infoGrade'        => 'پایه',
+            'infoField'        => 'رشته',
+            'infoFatherMobile' => 'موبایل پدر',
+            'infoMotherMobile' => 'موبایل مادر',
+            'infoAddress'      => 'آدرس',
+        ]);
+
+        $pi->update([
+            'name'           => $this->infoName,
+            'name_full'      => $this->infoNameFull ?: null,
+            'father_name'    => $this->infoFatherName,
+            'code_mell'      => $this->infoCodeMell,
+            'grade'          => $this->infoGrade,
+            'field'          => $this->infoField,
+            'birth_date'     => $this->infoBirthDate,
+            'father_mobile'  => $this->infoFatherMobile,
+            'mother_mobile'  => $this->infoMotherMobile,
+            'place_of_birth' => $this->infoPlaceOfBirth,
+            'address'        => $this->infoAddress,
+        ]);
+
+        $this->editingInfo = false;
+        $this->dispatch('success', 'اطلاعات با موفقیت به‌روزرسانی شد.');
     }
 
     protected function gradePrice(): ?GradePrice
@@ -117,6 +250,11 @@ class Index extends Component
             return $this->redirect(route('client.auth.login'), navigate: true);
         }
 
+        if (! $this->agreedToTerms) {
+            session()->flash('error', 'برای پرداخت باید قوانین و شرایط را بپذیرید.');
+            return;
+        }
+
         $price = $this->gradePrice();
         $pi    = PersonalInformation::where('user_id', $user->id)->first();
         if (! $price || ! $pi) {
@@ -146,9 +284,8 @@ class Index extends Component
                 ]);
 
                 OrderItem::query()->create([
-                    'price'      => $amount,
-                    'order_id'   => $order->id,
-                    'product_id' => (int) config('sdfr.course_product_id'),
+                    'price'    => $amount,
+                    'order_id' => $order->id,
                 ]);
 
                 Payment::query()->create([
@@ -178,6 +315,11 @@ class Index extends Component
         $user = Auth::user();
         if (! $user) {
             return $this->redirect(route('client.auth.login'), navigate: true);
+        }
+
+        if (! $this->agreedToTerms) {
+            session()->flash('error', 'برای پرداخت باید قوانین و شرایط را بپذیرید.');
+            return;
         }
 
         $price = $this->gradePrice();
@@ -245,9 +387,8 @@ class Index extends Component
                 ]);
 
                 OrderItem::query()->create([
-                    'price'      => $initial,
-                    'order_id'   => $order->id,
-                    'product_id' => (int) config('sdfr.course_product_id'),
+                    'price'    => $initial,
+                    'order_id' => $order->id,
                 ]);
 
                 Payment::query()->create([
@@ -305,7 +446,9 @@ class Index extends Component
                 'discount'          => $price->discountFor($i),
                 'effective_rate'    => $price->effectiveRate($i),
                 'remaining_months'  => $price->remainingMonths($i),
+                'original_total'    => $price->originalTotalFor($i),
                 'total'             => $price->totalFor($i),
+                'savings'           => max(0, $price->originalTotalFor($i) - $price->totalFor($i)),
                 'full_with_coupon'  => $this->finalFullPrice($price, $i),
                 'initial'           => $price->initialPayment($i),
                 'installment_count' => $price->installmentCount($i),
@@ -316,9 +459,16 @@ class Index extends Component
             ];
         }
 
+        $pi = PersonalInformation::with(['state', 'city'])
+            ->where('user_id', Auth::id())
+            ->first();
+
         return view('livewire.client.purchase.index', [
-            'price' => $price,
-            'data'  => $data,
+            'price'        => $price,
+            'data'         => $data,
+            'pi'           => $pi,
+            'gradeOptions' => self::GRADE_OPTIONS,
+            'fieldOptions' => self::FIELD_OPTIONS,
         ])->layout('layouts.client.app');
     }
 }

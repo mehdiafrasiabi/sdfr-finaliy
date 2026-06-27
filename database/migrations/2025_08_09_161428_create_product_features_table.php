@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_items', function (Blueprint $table) {
+        Schema::create('product_features', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('price');
-            $table->foreignId('order_id')->constrained();
-            $table->softDeletes();
+            $table->foreignId('product_id')->constrained()->cascadeOnDelete();
+            $table->string('name'); // عنوان ویژگی (جلسه مشاوره، کارگاه، آزمون و...)
+            $table->text('description')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_items');
+        Schema::dropIfExists('product_features');
     }
 };

@@ -35,8 +35,15 @@ class Financial extends Component
 
     public function render()
     {
-        $payments = Auth::user()->payments()->with('order.orderItems.product')->latest()->paginate(10);
+        $payments = Auth::user()->payments()->with('order.orderItems')->latest()->paginate(10);
 
-        return view('livewire.client.profile.financial',['payments'=>$payments])->layout('layouts.client.app');
+        $plan    = Auth::user()->student?->activeInstallmentPlan();
+        $current = $plan?->currentDue();
+
+        return view('livewire.client.profile.financial', [
+            'payments' => $payments,
+            'plan'     => $plan,
+            'current'  => $current,
+        ])->layout('layouts.client.app');
     }
 }

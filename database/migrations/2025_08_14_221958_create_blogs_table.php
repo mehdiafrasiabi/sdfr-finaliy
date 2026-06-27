@@ -11,10 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('order_items', function (Blueprint $table) {
+        Schema::create('blogs', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('price');
-            $table->foreignId('order_id')->constrained();
+            $table->string('title');
+            $table->text('description');
+            $table->string('study_time');
+            $table->foreignId('category_id')->constrained();
+            $table->string('blog_code')->nullable()->unique();
+            $table->enum('status', ['pending', 'rejected','completed'])->default('pending');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('order_items');
+        Schema::dropIfExists('blogs');
     }
 };

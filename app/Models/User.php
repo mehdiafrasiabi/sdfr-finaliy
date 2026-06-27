@@ -22,6 +22,8 @@ class User extends Authenticatable
         'mobile',
         'picture',
         'password',
+        'panel_closed',
+        'panel_closed_message',
     ];
 
     /**
@@ -44,6 +46,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'panel_closed' => 'boolean',
         ];
     }
 

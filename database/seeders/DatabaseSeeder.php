@@ -15,39 +15,20 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            UsersTableSeeder::class,
             AdminsTableSeeder::class,
             CountrySeeder::class,
             StateSeeder::class,
             CitySeeder::class,
-            CategoriesTableSeeder::class,
-            CategoryFeaturesTableSeeder::class,
-            ProductsTableSeeder::class,
-            ProductImagesTableSeeder::class,
-            SeoItemsTableSeeder::class,
-            ContactUsTableSeeder::class,
             PaymentMethodsTableSeeder::class,
             RolePermissionSeeder::class,
             DepartmentsTableSeeder::class,
-            BlogsTableSeeder::class,
-            BlogImagesTableSeeder::class,
-            BlogSeoItemsTableSeeder::class,
             SdfrSchoolsTableSeeder::class,
             SdfrStudentsTableSeeder::class,
-            StoriesTableSeeder::class,
-            OrdersTableSeeder::class,
-            OrderItemsTableSeeder::class,
-            PersonalInformationTableSeeder::class,
-            PaymentsTableSeeder::class,
-            StudentsTableSeeder::class,
-            ReportsTableSeeder::class,
             CcFieldSeeder::class,
             ExamPeriodSeeder::class,
             AcademicAdvisorPermissionSeeder::class,
             SiteAcquisitionRoleSeeder::class,
             PhoneAcquisitionRoleSeeder::class,
-            // SchoolSupporterRoleSeeder removed — نقش «پشتیبان مدرسه» در بازطراحی حذف شد.
-            // TrialSupporterRoleSeeder removed — نقش «پشتیبان تحصیلی آزمایشی» در بازطراحی حذف شد.
             GeneralSettingsTableSeeder::class,
             EducationLevelsTableSeeder::class,
             CcFieldsTableSeeder::class,
@@ -60,6 +41,7 @@ class DatabaseSeeder extends Seeder
             ExamCountdownEventsTableSeeder::class,
             TrialClassificationProjectSeeder::class,
             AssessmentSeeder::class,
+            GradePriceSeeder::class,
         ]);
     }
 }

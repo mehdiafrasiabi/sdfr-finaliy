@@ -42,8 +42,63 @@
                 <!--end card-body-->
             </div>
             <!--end card-->
+
+            {{-- ═══ کنترل دسترسی پنل دانش‌آموز ═══ --}}
+            <div class="card">
+                <div class="card-header d-flex align-items-center">
+                    <h6 class="card-title mb-0 flex-grow-1">دسترسی پنل دانش‌آموز</h6>
+                    @if($user->panel_closed)
+                        <span class="badge bg-danger-subtle text-danger">بسته</span>
+                    @else
+                        <span class="badge bg-success-subtle text-success">باز</span>
+                    @endif
+                </div>
+                <div class="card-body">
+                    @if($user->panel_closed)
+                        <p class="text-muted small mb-2">این کاربر در حال حاضر به هیچ‌یک از صفحات پروفایل دسترسی ندارد.</p>
+                        @if($user->panel_closed_message)
+                            <div class="alert alert-warning py-2 px-3 small mb-3">{{ $user->panel_closed_message }}</div>
+                        @endif
+                        <button wire:click="openPanel" wire:loading.attr="disabled" class="btn btn-success w-100">
+                            <i class="ri-lock-unlock-line align-bottom me-1"></i> بازکردن پنل
+                        </button>
+                    @else
+                        <p class="text-muted small mb-3">با بستن پنل، این کاربر به هیچ‌یک از صفحات پروفایل دسترسی نخواهد داشت و پیام شما به او نمایش داده می‌شود.</p>
+                        <button wire:click="openPanelModal" class="btn btn-danger w-100">
+                            <i class="ri-lock-line align-bottom me-1"></i> بستن پنل کاربر
+                        </button>
+                    @endif
+                </div>
+            </div>
+            <!--end card-->
         </div>
         <!--end col-->
+
+        {{-- مودال بستن پنل --}}
+        @if($showPanelModal)
+            <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,.5);" wire:key="panel-modal">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">بستن پنل «{{ $user->name }}»</h5>
+                            <button type="button" class="btn-close" wire:click="closePanelModal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <label class="form-label">پیام برای کاربر (اختیاری)</label>
+                            <textarea wire:model="panelMessage" rows="3" class="form-control"
+                                      placeholder="مثلاً: حساب شما موقتاً بسته شده است؛ با پشتیبانی تماس بگیرید."></textarea>
+                            <small class="text-muted">اگر خالی بگذارید، پیام پیش‌فرض نمایش داده می‌شود.</small>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" wire:click="closePanelModal">انصراف</button>
+                            <button type="button" class="btn btn-danger" wire:click="closePanel" wire:loading.attr="disabled">
+                                بستن پنل
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         <div class="col-xxl-9">
             <div class="card">

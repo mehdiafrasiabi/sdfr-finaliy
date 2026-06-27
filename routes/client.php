@@ -103,12 +103,14 @@ Route::name('client.')->group(function () {
         Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
 
 
-        Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'trial.step', 'block.during.study'])->group(function () {
+        Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'installments.current', 'trial.step', 'block.during.study'])->group(function () {
             //Profile
             Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
             Route::get('/reportStudentStudy',ProfileReportStudentStudy::class)->name('reportStudentStudy');
             Route::get('/edit',ProfileEdit::class)->name('edit');
             Route::get('/financial',ProfileFinancial::class)->name('financial');
+            // اقساط من (لیست و پرداختِ به‌ترتیب)
+            Route::get('/installment',\App\Livewire\Client\Profile\Installment\Index::class)->name('installment');
             Route::get('/smartReportCard/{smartReportCard}',ProfileSmartReportCardShow::class)->name('smartReportCard.show');
             Route::get('/plan',ProfilePlan::class)->name('plan');
             Route::get('/report',ProfileReport::class)->name('report');

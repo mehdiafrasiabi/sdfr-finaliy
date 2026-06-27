@@ -9,82 +9,112 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
 
+/**
+ * «سفارشات و تراکنش‌ها» (یکپارچه) — لیست همهٔ پرداخت‌ها با همهٔ وضعیت‌ها،
+ * فیلتر وضعیت/نوع، جست‌وجو، و مودالِ جزئیاتِ سفارش (Order + اقلام + طرح اقساطی)
+ * داخل همان صفحه. (به‌جای صفحهٔ جداگانهٔ جزئیات.)
+ */
 class Index extends Component
 {
-    use WithPagination,SEOTools;
-    public $search = '';
-    public $status =[];
+    use WithPagination, SEOTools;
 
-    public function mount()
+    public string $search  = '';
+    public string $status  = 'all';   // all|pending|completed|cancelled|failed
+    public string $purpose = 'all';   // all|course_full|installment_initial|installment
+    public ?int   $selectedId = null;
+
+    public const STATUS_LABELS = [
+        'pending'   => 'در انتظار',
+        'completed' => 'پرداخت‌شده',
+        'cancelled' => 'لغو شده',
+        'failed'    => 'ناموفق',
+    ];
+
+    public const PURPOSE_LABELS = [
+        Payment::PURPOSE_COURSE_FULL         => 'خرید نقدی دوره',
+        Payment::PURPOSE_INSTALLMENT_INITIAL => 'پیش‌پرداخت اقساط',
+        Payment::PURPOSE_INSTALLMENT         => 'قسط',
+    ];
+
+    public function mount(): void
     {
-        $this->seoConfig();
-    }
-    public function seoConfig()
-    {
-        $this->seo()
-            ->setTitle('تراکنش ها');
-    }
-    public function getTransactionWithFilters($search = null, $status = null)
-    {
-        $query = Payment::query()
-            ->with('order')
-            ->latest();
-
-        if ($search) {
-            $query->where('order_number', 'like', '%' . $search . '%')
-                ->orWhere('refNumber', 'like', '%' . $search . '%')
-                ->orWhere('cardNumber', 'like', '%' . $search . '%');
-        }
-
-
-        if ($status && $status != 'all') {
-            $query->where('status', '=', $status);
-        }
-
-        return $query->latest();
-
+        $this->seo()->setTitle('سفارشات و تراکنش‌ها');
     }
 
-    public function transformQuery($transactions)
+    public function updatingSearch(): void { $this->resetPage(); }
+    public function updatedPurpose(): void { $this->resetPage(); }
+
+    public function setStatus(string $status): void
     {
-        return $transactions->getCollection()->transform(function ($item) {
-
-            $item->statusPaymentColor = $this->getStatusColor($item->status);
-
-            return $item;
-        });
-
+        $this->status = $status;
+        $this->resetPage();
     }
 
-    public function getStatusColor($status)
+    public function setPurpose(string $purpose): void
     {
-        switch ($status) {
-            case 'pending':
-                return 'primary';
-            case 'processing':
-                return 'info';
-            case 'completed':
-                return 'success';
-            case 'cancelled':
-                return 'danger';
-        }
+        $this->purpose = $purpose;
+        $this->resetPage();
     }
+
+    public function showDetail(int $id): void { $this->selectedId = $id; }
+    public function closeDetail(): void { $this->selectedId = null; }
+
+    public function statusColor(?string $status): string
+    {
+        return match ($status) {
+            'completed' => 'success',
+            'pending'   => 'warning',
+            'cancelled' => 'danger',
+            'failed'    => 'dark',
+            default     => 'secondary',
+        };
+    }
+
+    public function purposeColor(?string $purpose): string
+    {
+        return match ($purpose) {
+            Payment::PURPOSE_COURSE_FULL         => 'success',
+            Payment::PURPOSE_INSTALLMENT_INITIAL => 'info',
+            Payment::PURPOSE_INSTALLMENT         => 'primary',
+            default                              => 'secondary',
+        };
+    }
+
     public function export()
     {
-        $status = $_GET['status'] ?? 'all';
-        return Excel::download(new TransActionExport($status), 'transactions.xlsx');
+        return Excel::download(new TransActionExport($this->status), 'transactions.xlsx');
     }
+
+    protected function baseQuery()
+    {
+        return Payment::query()
+            ->with(['order.user', 'user'])
+            ->when($this->search !== '', function ($q) {
+                $term = '%' . $this->search . '%';
+                $q->where(function ($qq) use ($term) {
+                    $qq->where('order_number', 'like', $term)
+                        ->orWhere('refNumber', 'like', $term)
+                        ->orWhere('cardNumber', 'like', $term)
+                        ->orWhereHas('user', fn ($u) => $u->where('name', 'like', $term)->orWhere('mobile', 'like', $term));
+                });
+            })
+            ->when($this->status !== 'all', fn ($q) => $q->where('status', $this->status))
+            ->when($this->purpose !== 'all', fn ($q) => $q->where('purpose', $this->purpose))
+            ->latest();
+    }
+
     public function render()
     {
+        $transactions = $this->baseQuery()->paginate(12);
 
-        $ordersQuery = $this->getTransactionWithFilters($this->search, $_GET['status'] ?? 'all');
-        $transactions = $ordersQuery->paginate(10);
-        $transactions->getCollection()->transform(function ($item) {
-            $parts = explode('-', $item->order_number);
-            $item->order_number = $parts[5] ?? null;
-            return $item;
-        });
-        $this->transformQuery($transactions);
-        return view('livewire.manager.transaction.index',['transactions'=>$transactions])->layout('layouts.manager.app');
+        $selected = $this->selectedId
+            ? Payment::with(['order.orderItems', 'order.user', 'user', 'personalInformation', 'installmentPlan.installments'])
+                ->find($this->selectedId)
+            : null;
+
+        return view('livewire.manager.transaction.index', [
+            'transactions' => $transactions,
+            'selected'     => $selected,
+        ])->layout('layouts.manager.app');
     }
 }

@@ -39,6 +39,7 @@ class GradePrice extends Model
         'start_at'           => 'date',
         'end_at'             => 'date',
         'is_active'          => 'boolean',
+        'base_price'         => 'integer',
         'monthly_rate'       => 'integer',
         'initial_percentage' => 'integer',
     ];
@@ -81,9 +82,35 @@ class GradePrice extends Model
 
     // ────────────────── کمک‌متدهای ماهِ ورود ──────────────────
 
+    /**
+     * نرخ ماهانهٔ مؤثرِ مبنا (قبل از تخفیف).
+     * منبعِ حقیقت: «قیمت خام سالانه» (base_price) ÷ ۱۲. اگر base_price تهی بود
+     * (داده‌های قدیمی)، به ستون monthly_rate برمی‌گردیم.
+     */
     public function monthlyRate(): int
     {
+        if (! empty($this->base_price)) {
+            return (int) round($this->base_price / self::SERVICE_MONTH_COUNT);
+        }
         return (int) $this->monthly_rate;
+    }
+
+    /** قیمت خامِ سالانه (قبل از تخفیف) — برای نمایش و فرمِ مدیر. */
+    public function basePrice(): int
+    {
+        if (! empty($this->base_price)) {
+            return (int) $this->base_price;
+        }
+        return (int) $this->monthly_rate * self::SERVICE_MONTH_COUNT;
+    }
+
+    /**
+     * قیمتِ بدونِ تخفیفِ همان ماهِ ورود (= نرخ ماهانه × ماه‌های باقی‌مانده).
+     * برای نمایشِ «قیمتِ خط‌خورده» در صفحهٔ خرید.
+     */
+    public function originalTotalFor(int $i): int
+    {
+        return $this->monthlyRate() * $this->remainingMonths($i);
     }
 
     public function initialPercentage(): int
@@ -199,6 +226,8 @@ class GradePrice extends Model
         $rows = [];
         for ($i = 0; $i < self::SERVICE_MONTH_COUNT; $i++) {
             $pct = $this->discountFor($i);
+            $total = $this->totalFor($i, $pct);
+            $original = $this->originalTotalFor($i);
             $rows[] = [
                 'index'             => $i,
                 'persian_month'     => self::persianMonthForIndex($i),
@@ -206,7 +235,9 @@ class GradePrice extends Model
                 'discount'          => $pct,
                 'effective_rate'    => $this->effectiveRate($i, $pct),
                 'remaining_months'  => $this->remainingMonths($i),
-                'total'             => $this->totalFor($i, $pct),
+                'original_total'    => $original,
+                'total'             => $total,
+                'savings'           => max(0, $original - $total),
                 'initial'           => $this->initialPayment($i, $pct),
                 'installment_count' => $this->installmentCount($i),
                 'installment'       => $this->installmentAmount($i, $pct),

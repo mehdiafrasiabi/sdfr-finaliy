@@ -19,8 +19,8 @@
             <div>
                 <h4 class="m-0 text-slate-800 dark:text-slate-100 font-bold">قیمت‌گذاری «ماه ورود و تخفیف»</h4>
                 <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">
-                    برای هر پایه «نرخ ماهانه»، «درصد پیش‌پرداخت» و «سال خدمت» را تعیین کنید.
-                    سال خدمت از تیر تا پایان خرداد سال بعد است. پس از ذخیره، تخفیف هر ماه را در صفحهٔ جزئیات تنظیم کنید.
+                    برای هر پایه «قیمت خام سالانه (قبل از تخفیف)»، «درصد پیش‌پرداخت» و «سال خدمت» را تعیین کنید.
+                    نرخ ماهانه = قیمت خام ÷ ۱۲. سال خدمت از تیر تا پایان خرداد سال بعد است. پس از ذخیره، تخفیف هر ماه را در صفحهٔ جزئیات تنظیم کنید.
                 </p>
             </div>
             <button wire:click="openCreate"
@@ -34,7 +34,8 @@
                 <thead class="bg-slate-50 dark:bg-slate-800/60 text-slate-600 dark:text-slate-300">
                     <tr>
                         <th class="text-start px-4 py-3">پایه</th>
-                        <th class="text-start px-4 py-3">نرخ ماهانه (تومان)</th>
+                        <th class="text-start px-4 py-3">قیمت خام سالانه (تومان)</th>
+                        <th class="text-start px-4 py-3">نرخ ماهانه</th>
                         <th class="text-start px-4 py-3">پیش‌پرداخت</th>
                         <th class="text-start px-4 py-3">سال خدمت</th>
                         <th class="text-start px-4 py-3">پایان دسترسی</th>
@@ -46,7 +47,8 @@
                     @forelse ($prices as $price)
                         <tr class="border-t border-slate-100 dark:border-slate-800">
                             <td class="px-4 py-3 font-semibold">{{ $price->grade_label }}</td>
-                            <td class="px-4 py-3">{{ number_format($price->monthly_rate) }}</td>
+                            <td class="px-4 py-3 font-semibold">{{ number_format($price->basePrice()) }}</td>
+                            <td class="px-4 py-3 text-slate-500">{{ number_format($price->monthlyRate()) }}</td>
                             <td class="px-4 py-3">{{ (int) ($price->initial_percentage ?? 30) }}٪</td>
                             <td class="px-4 py-3">{{ $price->serviceYear() ? 'تیر ' . $price->serviceYear() : '—' }}</td>
                             <td class="px-4 py-3">{{ $price->end_at ? \Morilog\Jalali\Jalalian::fromCarbon($price->end_at)->format('Y/m/d') : '—' }}</td>
@@ -80,7 +82,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-slate-500 dark:text-slate-400 py-8">
+                            <td colspan="8" class="text-center text-slate-500 dark:text-slate-400 py-8">
                                 هنوز قیمتی برای هیچ پایه‌ای تعریف نشده است.
                             </td>
                         </tr>
@@ -114,13 +116,16 @@
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-200">نرخ ماهانه (تومان)</label>
-                        <input type="number" min="1" wire:model.live="monthlyRate"
+                        <label class="block text-sm font-semibold mb-1 text-slate-700 dark:text-slate-200">قیمت خام سالانه (قبل از تخفیف) — تومان</label>
+                        <input type="number" min="1" wire:model.live="basePrice"
                                class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-2 text-sm" dir="ltr">
-                        @if($monthlyRate > 0)
-                            <p class="text-xs text-slate-400 mt-1">{{ number_format($monthlyRate) }} تومان</p>
+                        @if($basePrice > 0)
+                            <p class="text-xs text-slate-400 mt-1">
+                                {{ number_format($basePrice) }} تومان &nbsp;•&nbsp;
+                                نرخ ماهانه: {{ number_format((int) round($basePrice / 12)) }} تومان
+                            </p>
                         @endif
-                        @error('monthlyRate')<div class="text-rose-600 dark:text-rose-400 text-xs mt-1">{{ $message }}</div>@enderror
+                        @error('basePrice')<div class="text-rose-600 dark:text-rose-400 text-xs mt-1">{{ $message }}</div>@enderror
                     </div>
 
                     <div class="grid grid-cols-2 gap-3">

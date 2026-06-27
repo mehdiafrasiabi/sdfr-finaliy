@@ -11,6 +11,65 @@
 
         <div class="lg:col-span-9 md:col-span-8">
             <div class="space-y-10">
+
+                {{-- ═══════ خلاصهٔ اقساط (در صورت داشتن طرح اقساطی) ═══════ --}}
+                @if ($plan)
+                    @php
+                        $count   = (int) $plan->installment_count;
+                        $paidCnt = $plan->paidCount();
+                    @endphp
+                    <div class="space-y-5">
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-1">
+                                <div class="w-1 h-1 bg-foreground rounded-full"></div>
+                                <div class="w-2 h-2 bg-foreground rounded-full"></div>
+                            </div>
+                            <div class="font-black text-foreground">اقساط من</div>
+                        </div>
+
+                        <div class="glass border border-border rounded-2xl p-5 space-y-4">
+                            <div class="flex items-center justify-between flex-wrap gap-2">
+                                <h3 class="font-bold text-foreground">طرح اقساطی — {{ $plan->gradePrice?->grade_label ?? ('پایه ' . $plan->grade) }}</h3>
+                                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold
+                                    @if($plan->status === \App\Models\InstallmentPlan::STATUS_COMPLETED) bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300
+                                    @elseif($plan->status === \App\Models\InstallmentPlan::STATUS_ACTIVE) bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300
+                                    @else bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 @endif">
+                                    @switch($plan->status)
+                                        @case(\App\Models\InstallmentPlan::STATUS_COMPLETED) تسویه‌شده @break
+                                        @case(\App\Models\InstallmentPlan::STATUS_ACTIVE) فعال @break
+                                        @default در انتظار پیش‌پرداخت
+                                    @endswitch
+                                </span>
+                            </div>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
+                                <div class="rounded-xl bg-secondary p-3 text-center">
+                                    <div class="text-xs text-muted">اقساط پرداخت‌شده</div>
+                                    <div class="font-bold text-foreground mt-1">{{ $paidCnt }} از {{ $count }}</div>
+                                </div>
+                                <div class="rounded-xl bg-secondary p-3 text-center">
+                                    <div class="text-xs text-muted">مبلغ هر قسط</div>
+                                    <div class="font-bold text-foreground mt-1">{{ number_format($plan->monthly_amount) }} ت</div>
+                                </div>
+                                <div class="rounded-xl bg-secondary p-3 text-center">
+                                    <div class="text-xs text-muted">سررسید بعدی</div>
+                                    <div class="font-bold text-foreground mt-1">
+                                        {{ $current ? jalali($current->due_date)->format('%Y/%m/%d') : '—' }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="{{ route('client.profile.installment') }}" wire:navigate
+                               class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-bold text-sm transition-colors">
+                                مشاهدهٔ اقساط
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="space-y-5">
                     <!-- section:title -->
                     <div class="flex items-center gap-3">
@@ -134,11 +193,9 @@
                                                 </div>
 
                                                 <div class="flex flex-col items-center p-3 bg-secondary rounded-xl">
-                                                    <span class="text-xs text-muted">محصولات</span>
-                                                    <div class="font-bold text-foreground text-sm mt-1 text-center space-y-1">
-                                                        @foreach($payment->order->orderItems as $item)
-                                                            <div>{{ $item->product->name ?? 'محصول حذف شده' }}</div>
-                                                        @endforeach
+                                                    <span class="text-xs text-muted">مبلغ</span>
+                                                    <div class="font-bold text-foreground text-sm mt-1 text-center">
+                                                        {{ number_format($payment->amount) }} تومان
                                                     </div>
                                                 </div>
 
