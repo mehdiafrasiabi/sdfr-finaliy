@@ -113,272 +113,273 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
             ];
         }
     @endphp
-    @push('link')
-        <style>
-            [x-cloak] {
-                display: none !important;
-            }
 
-            /* ════ Score ring ════ */
-            @keyframes ring-draw {
-                from {
-                    stroke-dashoffset: 339.292;
-                }
-            }
 
-            .score-ring-progress {
-                animation: ring-draw 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            }
+    @assets
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
 
-            /* ════ Fade-up entrance for sections ════ */
-            @keyframes section-up {
-                from {
-                    opacity: 0;
-                    transform: translateY(16px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+        /* ════ Score ring ════ */
+        @keyframes ring-draw {
+            from {
+                stroke-dashoffset: 339.292;
             }
+        }
 
-            .section-up {
-                animation: section-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-            }
+        .score-ring-progress {
+            animation: ring-draw 1.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
 
-            .section-up:nth-child(1) {
-                animation-delay: 0.04s;
-            }
-
-            .section-up:nth-child(2) {
-                animation-delay: 0.08s;
-            }
-
-            .section-up:nth-child(3) {
-                animation-delay: 0.12s;
-            }
-
-            .section-up:nth-child(4) {
-                animation-delay: 0.16s;
-            }
-
-            .section-up:nth-child(5) {
-                animation-delay: 0.20s;
-            }
-
-            .section-up:nth-child(6) {
-                animation-delay: 0.24s;
-            }
-
-            .section-up:nth-child(7) {
-                animation-delay: 0.28s;
-            }
-
-            .section-up:nth-child(8) {
-                animation-delay: 0.32s;
-            }
-
-            .section-up:nth-child(9) {
-                animation-delay: 0.36s;
-            }
-
-            /* ════ Stat card ════ */
-            .stat-card {
-                position: relative;
-                overflow: hidden;
-                transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 0.2s ease;
-            }
-
-            .stat-card::before {
-                content: '';
-                position: absolute;
-                inset: 0;
-                background: linear-gradient(135deg, var(--accent, transparent) 0%, transparent 55%);
+        /* ════ Fade-up entrance for sections ════ */
+        @keyframes section-up {
+            from {
                 opacity: 0;
-                transition: opacity 0.3s ease;
-                pointer-events: none;
+                transform: translateY(16px);
             }
-
-            .stat-card:hover {
-                transform: translateY(-3px);
-                border-color: var(--accent-border, hsl(var(--border)));
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
+        }
 
-            .stat-card:hover::before {
-                opacity: 0.1;
+        .section-up {
+            animation: section-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        }
+
+        .section-up:nth-child(1) {
+            animation-delay: 0.04s;
+        }
+
+        .section-up:nth-child(2) {
+            animation-delay: 0.08s;
+        }
+
+        .section-up:nth-child(3) {
+            animation-delay: 0.12s;
+        }
+
+        .section-up:nth-child(4) {
+            animation-delay: 0.16s;
+        }
+
+        .section-up:nth-child(5) {
+            animation-delay: 0.20s;
+        }
+
+        .section-up:nth-child(6) {
+            animation-delay: 0.24s;
+        }
+
+        .section-up:nth-child(7) {
+            animation-delay: 0.28s;
+        }
+
+        .section-up:nth-child(8) {
+            animation-delay: 0.32s;
+        }
+
+        .section-up:nth-child(9) {
+            animation-delay: 0.36s;
+        }
+
+        /* ════ Stat card ════ */
+        .stat-card {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+            border-color 0.2s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--accent, transparent) 0%, transparent 55%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent-border, hsl(var(--border)));
+        }
+
+        .stat-card:hover::before {
+            opacity: 0.1;
+        }
+
+        .stat-card .stat-icon {
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .stat-card:hover .stat-icon {
+            transform: scale(1.15) rotate(-6deg);
+        }
+
+        /* ════ Subject card ════ */
+        .subject-card {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+            border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .subject-card:hover {
+            transform: translateY(-3px);
+            border-color: hsl(var(--primary) / 0.4);
+            box-shadow: 0 8px 20px -8px hsl(var(--primary) / 0.2);
+        }
+
+        .subject-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
+            transition: left 0.7s ease;
+            pointer-events: none;
+        }
+
+        .subject-card:hover::after {
+            left: 160%;
+        }
+
+        /* ════ Progress bar fill ════ */
+        @keyframes bar-fill {
+            from {
+                width: 0 !important;
             }
+        }
 
-            .stat-card .stat-icon {
-                transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        .progress-fill {
+            animation: bar-fill 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        /* ════ Compare button (minimal press) ════ */
+        .compare-btn {
+            transition: transform 0.12s ease, box-shadow 0.18s ease, background 0.2s ease;
+        }
+
+        .compare-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px -6px hsl(var(--primary) / 0.4);
+        }
+
+        .compare-btn:active {
+            transform: translateY(1px) scale(0.98);
+        }
+
+        .compare-btn-arrow {
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .compare-btn:hover .compare-btn-arrow {
+            transform: translateY(3px);
+        }
+
+        /* ════ Compare reveal ════ */
+        @keyframes compare-in {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
             }
-
-            .stat-card:hover .stat-icon {
-                transform: scale(1.15) rotate(-6deg);
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
+        }
 
-            /* ════ Subject card ════ */
-            .subject-card {
-                position: relative;
-                overflow: hidden;
-                transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
-                border-color 0.2s ease, box-shadow 0.2s ease;
+        .compare-content-in {
+            animation: compare-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+        }
+
+        /* ════ Floating SVG ════ */
+        @keyframes float-up {
+            0%, 100% {
+                transform: translateY(0);
             }
-
-            .subject-card:hover {
-                transform: translateY(-3px);
-                border-color: hsl(var(--primary) / 0.4);
-                box-shadow: 0 8px 20px -8px hsl(var(--primary) / 0.2);
+            50% {
+                transform: translateY(-7px);
             }
+        }
 
-            .subject-card::after {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: -100%;
-                width: 60%;
-                height: 100%;
-                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.06), transparent);
-                transition: left 0.7s ease;
-                pointer-events: none;
+        .float-up {
+            animation: float-up 4s ease-in-out infinite;
+        }
+
+        /* ════ Animated trend line draw ════ */
+        @keyframes draw-line {
+            from {
+                stroke-dashoffset: 240;
             }
-
-            .subject-card:hover::after {
-                left: 160%;
+            to {
+                stroke-dashoffset: 0;
             }
+        }
 
-            /* ════ Progress bar fill ════ */
-            @keyframes bar-fill {
-                from {
-                    width: 0 !important;
-                }
+        .trend-line {
+            stroke-dasharray: 240;
+            animation: draw-line 2s ease forwards 0.3s;
+        }
+
+        /* ════ Pulse dot ════ */
+        @keyframes soft-ping {
+            0% {
+                transform: scale(1);
+                opacity: 0.5;
             }
-
-            .progress-fill {
-                animation: bar-fill 1.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            100% {
+                transform: scale(2.4);
+                opacity: 0;
             }
+        }
 
-            /* ════ Compare button (minimal press) ════ */
-            .compare-btn {
-                transition: transform 0.12s ease, box-shadow 0.18s ease, background 0.2s ease;
+        .ping-dot {
+            position: relative;
+        }
+
+        .ping-dot::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: currentColor;
+            animation: soft-ping 2s ease infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation: none !important;
+                transition: none !important;
             }
+        }
 
-            .compare-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 20px -6px hsl(var(--primary) / 0.4);
+        /* ════ Rotating border (train effect) ════ */
+        @keyframes rotate-fast {
+            0% {
+                transform: rotate(0deg);
             }
-
-            .compare-btn:active {
-                transform: translateY(1px) scale(0.98);
+            100% {
+                transform: rotate(360deg);
             }
+        }
 
-            .compare-btn-arrow {
-                transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            }
+        .analysis-train-ring {
+            position: absolute;
+            inset: -3px;
+            border-radius: inherit;
+            border: 2px dashed transparent;
+            pointer-events: none;
+            animation: rotate-fast 4s linear infinite;
+        }
 
-            .compare-btn:hover .compare-btn-arrow {
-                transform: translateY(3px);
-            }
-
-            /* ════ Compare reveal ════ */
-            @keyframes compare-in {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            .compare-content-in {
-                animation: compare-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) backwards;
-            }
-
-            /* ════ Floating SVG ════ */
-            @keyframes float-up {
-                0%, 100% {
-                    transform: translateY(0);
-                }
-                50% {
-                    transform: translateY(-7px);
-                }
-            }
-
-            .float-up {
-                animation: float-up 4s ease-in-out infinite;
-            }
-
-            /* ════ Animated trend line draw ════ */
-            @keyframes draw-line {
-                from {
-                    stroke-dashoffset: 240;
-                }
-                to {
-                    stroke-dashoffset: 0;
-                }
-            }
-
-            .trend-line {
-                stroke-dasharray: 240;
-                animation: draw-line 2s ease forwards 0.3s;
-            }
-
-            /* ════ Pulse dot ════ */
-            @keyframes soft-ping {
-                0% {
-                    transform: scale(1);
-                    opacity: 0.5;
-                }
-                100% {
-                    transform: scale(2.4);
-                    opacity: 0;
-                }
-            }
-
-            .ping-dot {
-                position: relative;
-            }
-
-            .ping-dot::after {
-                content: '';
-                position: absolute;
-                inset: 0;
-                border-radius: 50%;
-                background: currentColor;
-                animation: soft-ping 2s ease infinite;
-            }
-
-            @media (prefers-reduced-motion: reduce) {
-                *, *::before, *::after {
-                    animation: none !important;
-                    transition: none !important;
-                }
-            }
-
-            /* ════ Rotating border (train effect) ════ */
-            @keyframes rotate-fast {
-                0% {
-                    transform: rotate(0deg);
-                }
-                100% {
-                    transform: rotate(360deg);
-                }
-            }
-
-            .analysis-train-ring {
-                position: absolute;
-                inset: -3px;
-                border-radius: inherit;
-                border: 2px dashed transparent;
-                pointer-events: none;
-                animation: rotate-fast 4s linear infinite;
-            }
-
-        </style>
-    @endpush
-
+    </style>
+    @endassets
     <div class="max-w-7xl space-y-10 px-4 mx-auto">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
             <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
@@ -1065,7 +1066,7 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
          CHART INITIALIZATION
          ════════════════════════════════════════════════════════════════ --}}
     @if($hasAnyData)
-        @push('script')
+        @script
             <script>
                 (function () {
                     const palette = [
@@ -1301,29 +1302,28 @@ $compareSessionsLabels[] = 'جلسه فعلی ' . ($i + 1);
                     });
                 })();
             </script>
-        @endpush
+        @endscript
     @endif
-
-    @push('script')
-        <script>
-            document.addEventListener('alpine:init', () => {
-                // شمارنده‌ی انیمیشنی
-                Alpine.data('counter', (target) => ({
-                    display: 0,
-                    init() {
-                        const duration = 850;
-                        const start = performance.now();
-                        const tick = (now) => {
-                            const t = Math.min(1, (now - start) / duration);
-                            const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
-                            this.display = Math.floor(target * eased);
-                            if (t < 1) requestAnimationFrame(tick);
-                            else this.display = target;
-                        };
-                        requestAnimationFrame(tick);
-                    },
-                }));
-            });
-        </script>
-    @endpush
+    @script
+    <script>
+        document.addEventListener('alpine:init', () => {
+            // شمارنده‌ی انیمیشنی
+            Alpine.data('counter', (target) => ({
+                display: 0,
+                init() {
+                    const duration = 850;
+                    const start = performance.now();
+                    const tick = (now) => {
+                        const t = Math.min(1, (now - start) / duration);
+                        const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+                        this.display = Math.floor(target * eased);
+                        if (t < 1) requestAnimationFrame(tick);
+                        else this.display = target;
+                    };
+                    requestAnimationFrame(tick);
+                },
+            }));
+        });
+    </script>
+    @endscript
 </div>

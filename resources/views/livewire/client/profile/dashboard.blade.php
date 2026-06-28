@@ -175,7 +175,9 @@
         .cosmic-bg {
             position: fixed;
             inset: 0;
-            z-index: -1;
+            /* z-0 تا پشتِ پس‌زمینهٔ تیرهٔ لِی‌اوت (bg-background) پنهان نشود.
+               محتوای داشبورد z-10 و هدر/نویگیشن z-50 هستند، پس روی این بک‌گراند می‌مانند. */
+            z-index: 0;
             overflow: hidden;
             pointer-events: none;
             background: radial-gradient(1200px 600px at 80% -10%, rgba(56, 189, 248, .10), transparent 60%),
@@ -255,7 +257,7 @@
             position: fixed;
             left: 16px;
             bottom: 20px;
-            z-index: -1;
+            z-index: 0;
             width: 78px;
             pointer-events: none;
             animation: ship-float 7s ease-in-out infinite;
@@ -465,7 +467,23 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                @php $sp = ($trialWeek->step / 4) * 100; @endphp
+                                @php
+                                    // درصد بر اساس روزهای سپری‌شده از هفتهٔ آزمایشی محاسبه می‌شود؛
+                                    // هرچه روز کمتری باقی بماند، نوار بیشتر پُر می‌شود.
+                                    if ($trialWeek->expires_at) {
+                                        $tw_total = $trialWeek->program_built_at
+                                            ? max(1, (int) \Carbon\Carbon::parse($trialWeek->program_built_at)->startOfDay()
+                                                    ->diffInDays(\Carbon\Carbon::parse($trialWeek->expires_at)->startOfDay()))
+                                            : 8;
+                                        $tw_remaining = max(0, (int) $trialWeek->daysRemaining);
+                                        $tw_elapsed   = max(0, $tw_total - $tw_remaining);
+                                        $sp = $trialWeek->isExpired()
+                                            ? 100
+                                            : min(100, (int) round($tw_elapsed / $tw_total * 100));
+                                    } else {
+                                        $sp = ($trialWeek->step / 4) * 100;
+                                    }
+                                @endphp
                                 <span class="text-xs text-green-400">{{ (int)$sp }}%</span>
                                 <div class="w-14 h-1 rounded-full overflow-hidden bg-green-900/50">
                                     <div class="h-full rounded-full bg-green-400" style="width:{{ $sp }}%;"></div>
@@ -1092,161 +1110,166 @@
     <livewire:client.profile.sudden-event-modal/>
 
     {{-- ════════════════ CHART INITIALIZATION ════════════════ --}}
-    @push('script')
-        <script data-navigate-once>
-            // ── انیمیشن ورود (ویدیو) — یکبار در هر ورود به پرتال (session) ──
-            function sdfrDashIntro() {
-                return {
-                    show: false,
-                    KEY: 'sdfr_intro_played',
-                    init() {
-                        let played = false;
-                        try { played = sessionStorage.getItem(this.KEY) === '1'; } catch (e) {}
-                        // فقط در ورودِ تازه به پرتال نمایش بده، نه در ناوبری داخلی به داشبورد
-                        if (played) return;
-                        this.show = true;
-                        document.body.style.overflow = 'hidden';
-                        this.$nextTick(() => {
-                            const v = this.$refs.introVideo;
-                            if (v) {
-                                const p = v.play();
-                                if (p && p.catch) p.catch(() => {}); // اگر مرورگر autoplay را بلاک کرد
-                            }
-                        });
-                    },
-                    finish() {
-                        try { sessionStorage.setItem(this.KEY, '1'); } catch (e) {}
-                        this.show = false;
-                        document.body.style.overflow = '';
-                    },
-                    skip() {
+    {{-- انیمیشن ورود (ویدیو): تعریفِ گلوبال تا Alpine بتواند x-data را بسازد.
+         قبلاً داخلِ @script بود و گلوبال نمی‌شد؛ به همین دلیل ویدیو اصلاً نمایش داده نمی‌شد. --}}
+    <script data-navigate-once>
+        // یکبار در هر «ورود تازه به پرتال» (هر تب/سشن) پخش می‌شود؛ با بستن و باز
+        // کردنِ دوبارهٔ پرتال، sessionStorage پاک شده و دوباره پخش می‌شود.
+        window.sdfrDashIntro = function () {
+            return {
+                show: false,
+                KEY: 'sdfr_intro_played',
+                init() {
+                    let played = false;
+                    try { played = sessionStorage.getItem(this.KEY) === '1'; } catch (e) {}
+                    // فقط در ورودِ تازه به پرتال نمایش بده، نه در ناوبری داخلی به داشبورد
+                    if (played) return;
+                    this.show = true;
+                    document.body.style.overflow = 'hidden';
+                    this.$nextTick(() => {
                         const v = this.$refs.introVideo;
-                        if (v) { try { v.pause(); } catch (e) {} }
-                        this.finish();
-                    },
+                        if (v) {
+                            const p = v.play();
+                            if (p && p.catch) p.catch(() => {}); // اگر مرورگر autoplay را بلاک کرد
+                        }
+                    });
+                },
+                finish() {
+                    try { sessionStorage.setItem(this.KEY, '1'); } catch (e) {}
+                    this.show = false;
+                    document.body.style.overflow = '';
+                },
+                skip() {
+                    const v = this.$refs.introVideo;
+                    if (v) { try { v.pause(); } catch (e) {} }
+                    this.finish();
+                },
+            }
+        }
+    </script>
+
+ @script
+    <script>
+        (function () {
+            // پالت بدون بنفش (هماهنگ با تم emerald/sky)
+            const palette = ['#3b82f6', '#10b981', '#f59e0b', '#0ea5e9', '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#22d3ee', '#84cc16'];
+
+            window.__dashChartData = {
+                daily: @json($weeklyInsights['daily'] ?? []),
+                partType: @json($weeklyInsights['part_type_distribution'] ?? (object)[]),
+                monthly: @json($monthlyInsights['weeks'] ?? []),
+            };
+            window.__dashCharts = window.__dashCharts || {};
+
+            function destroy(id) {
+                if (window.__dashCharts[id]) {
+                    try { window.__dashCharts[id].destroy(); } catch (e) {}
+                    delete window.__dashCharts[id];
                 }
             }
-        </script>
-        <script>
-            (function () {
-                // پالت بدون بنفش (هماهنگ با تم emerald/sky)
-                const palette = ['#3b82f6', '#10b981', '#f59e0b', '#0ea5e9', '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#22d3ee', '#84cc16'];
 
-                window.__dashChartData = {
-                    daily: @json($weeklyInsights['daily'] ?? []),
-                    partType: @json($weeklyInsights['part_type_distribution'] ?? (object)[]),
-                    monthly: @json($monthlyInsights['weeks'] ?? []),
+            function gridOpts() {
+                return {
+                    x: { ticks: { color: '#a3a3a3', font: { size: 10, family: 'inherit' } }, grid: { display: false } },
+                    y: { beginAtZero: true, ticks: { color: '#a3a3a3', font: { size: 10 } }, grid: { color: 'rgba(148,163,184,.12)' } }
                 };
-                window.__dashCharts = window.__dashCharts || {};
+            }
 
-                function destroy(id) {
-                    if (window.__dashCharts[id]) {
-                        try { window.__dashCharts[id].destroy(); } catch (e) {}
-                        delete window.__dashCharts[id];
+            function initDaily() {
+                const el = document.getElementById('dash-chart-daily');
+                if (!el || typeof Chart === 'undefined') return;
+                destroy('daily');
+                const d = window.__dashChartData.daily || [];
+                if (!d.length) return;
+                window.__dashCharts['daily'] = new Chart(el, {
+                    type: 'bar',
+                    data: {
+                        labels: d.map(x => x.label),
+                        datasets: [
+                            { label: 'برنامه', data: d.map(x => x.planned_hours), backgroundColor: '#3b82f6', borderRadius: 5, maxBarThickness: 18 },
+                            { label: 'مطالعه', data: d.map(x => x.studied_hours), backgroundColor: '#10b981', borderRadius: 5, maxBarThickness: 18 },
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.parsed.y + ' ساعت' } } },
+                        scales: gridOpts()
                     }
-                }
-
-                function gridOpts() {
-                    return {
-                        x: { ticks: { color: '#a3a3a3', font: { size: 10, family: 'inherit' } }, grid: { display: false } },
-                        y: { beginAtZero: true, ticks: { color: '#a3a3a3', font: { size: 10 } }, grid: { color: 'rgba(148,163,184,.12)' } }
-                    };
-                }
-
-                function initDaily() {
-                    const el = document.getElementById('dash-chart-daily');
-                    if (!el || typeof Chart === 'undefined') return;
-                    destroy('daily');
-                    const d = window.__dashChartData.daily || [];
-                    if (!d.length) return;
-                    window.__dashCharts['daily'] = new Chart(el, {
-                        type: 'bar',
-                        data: {
-                            labels: d.map(x => x.label),
-                            datasets: [
-                                { label: 'برنامه', data: d.map(x => x.planned_hours), backgroundColor: '#3b82f6', borderRadius: 5, maxBarThickness: 18 },
-                                { label: 'مطالعه', data: d.map(x => x.studied_hours), backgroundColor: '#10b981', borderRadius: 5, maxBarThickness: 18 },
-                            ]
-                        },
-                        options: {
-                            responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.parsed.y + ' ساعت' } } },
-                            scales: gridOpts()
-                        }
-                    });
-                }
-
-                function initPartType() {
-                    const el = document.getElementById('dash-chart-parttype');
-                    if (!el || typeof Chart === 'undefined') return;
-                    destroy('parttype');
-                    const obj = window.__dashChartData.partType || {};
-                    const labels = Object.keys(obj);
-                    const values = Object.values(obj);
-                    if (!labels.length) return;
-                    window.__dashCharts['parttype'] = new Chart(el, {
-                        type: 'doughnut',
-                        data: { labels: labels, datasets: [{ data: values, backgroundColor: labels.map((_, i) => palette[i % palette.length]), borderWidth: 2, borderColor: '#0a0f1a' }] },
-                        options: {
-                            responsive: true, maintainAspectRatio: false, cutout: '60%',
-                            plugins: { legend: { position: 'bottom', labels: { color: '#d4d4d4', font: { size: 10 }, boxWidth: 10, padding: 8 } } }
-                        }
-                    });
-                }
-
-                function initMonthly() {
-                    const el = document.getElementById('dash-chart-monthly');
-                    if (!el || typeof Chart === 'undefined') return;
-                    destroy('monthly');
-                    const d = window.__dashChartData.monthly || [];
-                    if (!d.length) return;
-                    window.__dashCharts['monthly'] = new Chart(el, {
-                        type: 'bar',
-                        data: {
-                            labels: d.map(x => x.label + ' (' + x.date + ')'),
-                            datasets: [
-                                { label: 'برنامه', data: d.map(x => x.planned_hours), backgroundColor: '#0ea5e9', borderRadius: 6, maxBarThickness: 34 },
-                                { label: 'مطالعه', data: d.map(x => x.done_hours), backgroundColor: '#f59e0b', borderRadius: 6, maxBarThickness: 34 },
-                            ]
-                        },
-                        options: {
-                            responsive: true, maintainAspectRatio: false,
-                            plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.parsed.y + ' ساعت' } } },
-                            scales: gridOpts()
-                        }
-                    });
-                }
-
-                function initAll() {
-                    if (!document.getElementById('dash-chart-daily') &&
-                        !document.getElementById('dash-chart-parttype') &&
-                        !document.getElementById('dash-chart-monthly')) return;
-                    initDaily();
-                    initPartType();
-                    initMonthly();
-                }
-
-                window.__dashInitCharts = initAll;
-
-                function boot() {
-                    if (typeof Chart === 'undefined') { setTimeout(boot, 60); return; }
-                    initAll();
-                }
-
-                if (document.readyState === 'loading') {
-                    document.addEventListener('DOMContentLoaded', boot);
-                } else {
-                    boot();
-                }
-
-                document.addEventListener('livewire:navigated', () => {
-                    requestAnimationFrame(() => requestAnimationFrame(() => window.__dashInitCharts && window.__dashInitCharts()));
                 });
+            }
 
-                document.addEventListener('livewire:update', () => {
-                    requestAnimationFrame(() => window.__dashInitCharts && window.__dashInitCharts());
+            function initPartType() {
+                const el = document.getElementById('dash-chart-parttype');
+                if (!el || typeof Chart === 'undefined') return;
+                destroy('parttype');
+                const obj = window.__dashChartData.partType || {};
+                const labels = Object.keys(obj);
+                const values = Object.values(obj);
+                if (!labels.length) return;
+                window.__dashCharts['parttype'] = new Chart(el, {
+                    type: 'doughnut',
+                    data: { labels: labels, datasets: [{ data: values, backgroundColor: labels.map((_, i) => palette[i % palette.length]), borderWidth: 2, borderColor: '#0a0f1a' }] },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, cutout: '60%',
+                        plugins: { legend: { position: 'bottom', labels: { color: '#d4d4d4', font: { size: 10 }, boxWidth: 10, padding: 8 } } }
+                    }
                 });
-            })();
-        </script>
-    @endpush
+            }
+
+            function initMonthly() {
+                const el = document.getElementById('dash-chart-monthly');
+                if (!el || typeof Chart === 'undefined') return;
+                destroy('monthly');
+                const d = window.__dashChartData.monthly || [];
+                if (!d.length) return;
+                window.__dashCharts['monthly'] = new Chart(el, {
+                    type: 'bar',
+                    data: {
+                        labels: d.map(x => x.label + ' (' + x.date + ')'),
+                        datasets: [
+                            { label: 'برنامه', data: d.map(x => x.planned_hours), backgroundColor: '#0ea5e9', borderRadius: 6, maxBarThickness: 34 },
+                            { label: 'مطالعه', data: d.map(x => x.done_hours), backgroundColor: '#f59e0b', borderRadius: 6, maxBarThickness: 34 },
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { display: false }, tooltip: { callbacks: { label: (c) => c.dataset.label + ': ' + c.parsed.y + ' ساعت' } } },
+                        scales: gridOpts()
+                    }
+                });
+            }
+
+            function initAll() {
+                if (!document.getElementById('dash-chart-daily') &&
+                    !document.getElementById('dash-chart-parttype') &&
+                    !document.getElementById('dash-chart-monthly')) return;
+                initDaily();
+                initPartType();
+                initMonthly();
+            }
+
+            window.__dashInitCharts = initAll;
+
+            function boot() {
+                if (typeof Chart === 'undefined') { setTimeout(boot, 60); return; }
+                initAll();
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', boot);
+            } else {
+                boot();
+            }
+
+            document.addEventListener('livewire:navigated', () => {
+                requestAnimationFrame(() => requestAnimationFrame(() => window.__dashInitCharts && window.__dashInitCharts()));
+            });
+
+            document.addEventListener('livewire:update', () => {
+                requestAnimationFrame(() => window.__dashInitCharts && window.__dashInitCharts());
+            });
+        })();
+    </script>
+ @endscript
+
 </div>

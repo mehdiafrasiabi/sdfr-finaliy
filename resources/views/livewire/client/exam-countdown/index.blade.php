@@ -534,32 +534,35 @@
         </div>
     @endif
 
-    <script>
-        function examCountdown(endTimestamp) {
-            return {
-                days: 0, hours: 0, minutes: 0, seconds: 0,
-                timer: null,
-                start() {
-                    this.tick();
-                    this.timer = setInterval(() => this.tick(), 1000);
-                },
-                tick() {
-                    var now = Math.floor(Date.now() / 1000);
-                    var diff = endTimestamp - now;
-                    if (diff <= 0) {
-                        this.days = this.hours = this.minutes = this.seconds = 0;
-                        clearInterval(this.timer);
-                        return;
+    @script
+        <script>
+            function examCountdown(endTimestamp) {
+                return {
+                    days: 0, hours: 0, minutes: 0, seconds: 0,
+                    timer: null,
+                    start() {
+                        this.tick();
+                        this.timer = setInterval(() => this.tick(), 1000);
+                    },
+                    tick() {
+                        var now = Math.floor(Date.now() / 1000);
+                        var diff = endTimestamp - now;
+                        if (diff <= 0) {
+                            this.days = this.hours = this.minutes = this.seconds = 0;
+                            clearInterval(this.timer);
+                            return;
+                        }
+                        this.days = Math.floor(diff / 86400);
+                        this.hours = Math.floor((diff % 86400) / 3600);
+                        this.minutes = Math.floor((diff % 3600) / 60);
+                        this.seconds = diff % 60;
+                    },
+                    pad(n) {
+                        return String(n).padStart(2, '0');
                     }
-                    this.days = Math.floor(diff / 86400);
-                    this.hours = Math.floor((diff % 86400) / 3600);
-                    this.minutes = Math.floor((diff % 3600) / 60);
-                    this.seconds = diff % 60;
-                },
-                pad(n) {
-                    return String(n).padStart(2, '0');
-                }
-            };
-        }
-    </script>
+                };
+            }
+        </script>
+    @endscript
+
 </div>

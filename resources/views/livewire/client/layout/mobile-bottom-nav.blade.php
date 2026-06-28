@@ -1,5 +1,6 @@
 <div>
-    @push('link')
+
+    @assets
         <style>
             /* notch دایره‌ای زیر لوگو وسط — با mask برش می‌خوره */
             .bottom-nav-notch {
@@ -11,8 +12,7 @@
                 mask-size: 100% 100%;
             }
         </style>
-
-    @endpush
+    @endassets
     @if(\Illuminate\Support\Facades\Auth::check() && (request()->is('profile*') || request()->routeIs('client.profile.*') ))
         {{-- جدید --}}
         @if(!request()->routeIs(['client.profile.classification.classify','client.profile.assessment.*','client.profile.trial.*','client.profile.essay-exam.test','client.profile.essay-exam.test','client.profile.typed-exam.test']))

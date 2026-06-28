@@ -415,35 +415,31 @@
         </div>
     </div>
 
-    {{-- ════════════════════════════════════════
-         استایل‌ها
-       ════════════════════════════════════════ --}}
-    @push('link')
-        <style>
-            [x-cloak] { display: none !important; }
-            .no-screenshot {
-                -webkit-user-select: none;
-                -moz-user-select: none;
-                user-select: none;
-                -webkit-touch-callout: none;
-            }
-            .timer-blur-glass {
-                filter: blur(6px);
-                -webkit-backdrop-filter: blur(8px);
-                backdrop-filter: blur(8px);
-                background-color: rgba(15, 23, 42, 0.35);
-                border-radius: 1rem;
-                pointer-events: none;
-                user-select: none;
-                transition: all 0.2s ease-in-out;
-            }
-            @media print { body { display: none !important; } }
-        </style>
-    @endpush
 
-    {{-- ════════════════════════════════════════
-         اسکریپت Alpine
-       ════════════════════════════════════════ --}}
+@assets
+    <style>
+        [x-cloak] { display: none !important; }
+        .no-screenshot {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+        }
+        .timer-blur-glass {
+            filter: blur(6px);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            background-color: rgba(15, 23, 42, 0.35);
+            border-radius: 1rem;
+            pointer-events: none;
+            user-select: none;
+            transition: all 0.2s ease-in-out;
+        }
+        @media print { body { display: none !important; } }
+    </style>
+@endassets
+
+    @script
     <script>
         function essayExamApp(config) {
             return {
@@ -592,4 +588,6 @@
             };
         }
     </script>
+    @endscript
+
 </div>

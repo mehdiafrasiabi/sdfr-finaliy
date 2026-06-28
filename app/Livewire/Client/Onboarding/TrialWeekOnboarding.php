@@ -378,6 +378,26 @@ class TrialWeekOnboarding extends Component
             'name_full'      => trim($this->firstName . ' ' . $this->lastName),
         ]);
 
+        // ردیابی تبدیل: اگر کاربر از طریق لینک یکتای مشاور جذب تلفنی آمده باشد،
+        // ثبت‌نام را به آن لینک (و در نتیجه به مشاور) نسبت می‌دهیم.
+        if ($refToken = session('phone_ref_token')) {
+            $link = \App\Models\PhoneRegistrationLink::where('token', $refToken)
+                ->whereNull('registered_user_id')
+                ->first();
+
+            if ($link) {
+                $link->update(['registered_user_id' => $user->id, 'used_at' => now()]);
+
+                \App\Models\PhoneLead::whereKey($link->phone_lead_id)->update([
+                    'status'       => \App\Models\PhoneLead::STATUS_CLOSED,
+                    'last_outcome' => \App\Models\PhoneCall::RESULT_REGISTERED,
+                    'next_call_at' => null,
+                ]);
+            }
+
+            session()->forget('phone_ref_token');
+        }
+
         Auth::login($user, true);
         $this->registered  = true;
         $this->currentStep = 6;

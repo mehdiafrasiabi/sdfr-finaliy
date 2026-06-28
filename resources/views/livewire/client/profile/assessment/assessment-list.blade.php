@@ -159,14 +159,14 @@
                             @endforeach
 
                             {{-- ───── انتخاب: نمایش جزییات یا ادامه ───── --}}
-                            <div x-show="!showDetails" class="md:col-span-2 flex flex-col sm:flex-row gap-3 pt-1">
+                            <div x-show="!showDetails" class="md:col-span-2 flex flex-col md:flex-row gap-3 pt-1">
                                 <button type="button" @click="showDetails = true"
-                                        class="flex-1 h-12 rounded-xl font-bold text-sm text-foreground bg-secondary border border-border transition-all duration-200 hover:bg-background active:scale-[0.98] inline-flex items-center justify-center gap-2">
+                                        class="flex-1 w-full h-12 rounded-xl font-bold text-sm text-foreground bg-secondary border border-border transition-all duration-200 hover:bg-background active:scale-[0.98] inline-flex items-center justify-center gap-2">
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                     نمایش جزییات
                                 </button>
                                 <button wire:click="continueToChoice" wire:loading.attr="disabled" wire:target="continueToChoice"
-                                        class="flex-1 h-12 rounded-xl font-bold text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] inline-flex items-center justify-center gap-2">
+                                        class="flex-1 w-full h-12 rounded-xl font-bold text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] inline-flex items-center justify-center gap-2">
                                     ادامه میدهم
                                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
                                 </button>

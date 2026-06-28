@@ -70,7 +70,6 @@
                 <span class="font-semibold text-xs">اتاق مشاوره</span>
             </a>
         </li>
-
         <li>
             <a wire:navigate data-tour="sb-plan" href="{{route('client.profile.plan')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.plan') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
@@ -83,7 +82,6 @@
                 <span class="font-semibold text-xs">برنامه های مطالعاتی </span>
             </a>
         </li>
-
         <li>
             <a wire:navigate data-tour="sb-report" href="{{route('client.profile.report')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.report') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
@@ -138,38 +136,6 @@
                 <span class="font-semibold text-xs">طبقه‌بندی دروس</span>
             </a>
         </li>
-{{--        <li>--}}
-
-{{--            <a wire:navigate href="{{route('client.profile.wallet')}}"--}}
-
-{{--               class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.wallet') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">--}}
-
-{{--                <svg xmlns="http://www.w3.org/2000/svg"--}}
-{{--                     class="w-5 h-5"--}}
-{{--                     viewBox="0 0 24 24"--}}
-{{--                     fill="none"--}}
-{{--                     stroke="currentColor"--}}
-{{--                     stroke-width="1.5">--}}
-
-{{--                    <path d="M3 7C3 4.79086 4.79086 3 7 3H17C19.2091 3 21 4.79086 21 7V17C21 19.2091 19.2091 21 17 21H7C4.79086 21 3 19.2091 3 17V7Z"--}}
-{{--                          stroke-linecap="round"--}}
-{{--                          stroke-linejoin="round"/>--}}
-
-{{--                    <path d="M12 12C12 10.3431 13.3431 9 15 9H20C20.5523 9 21 9.44772 21 10V14C21 14.5523 20.5523 15 20 15H15C13.3431 15 12 13.6569 12 12Z"--}}
-{{--                          stroke-linecap="round"--}}
-{{--                          stroke-linejoin="round"/>--}}
-
-{{--                    <path d="M15 12L15.1 12"--}}
-{{--                          stroke-linecap="round"--}}
-{{--                          stroke-linejoin="round"/>--}}
-{{--                </svg>--}}
-
-
-{{--                <span class="font-semibold text-xs">کیف پول</span>--}}
-
-{{--            </a>--}}
-
-{{--        </li>--}}
         <li>
             <a wire:navigate href="{{route('client.profile.financial')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.financial') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
@@ -193,8 +159,6 @@
                 <span class="font-semibold text-xs">امور مالی </span>
             </a>
         </li>
-
-
         <li>
             <a wire:navigate href="{{route('client.profile.ticket')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3  rounded-full {{ request()->routeIs('client.profile.ticket') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
@@ -219,7 +183,6 @@
                 <span class="font-semibold text-xs">تیکت و پشتیبانی</span>
             </a>
         </li>
-
         <li>
             <a wire:navigate href="{{route('client.profile.edit')}}"
                class="w-full h-11 inline-flex items-center text-right gap-3 rounded-full {{ request()->routeIs('client.profile.edit') ? 'bg-primary text-primary-foreground px-4' : ' bg-background text-muted transition-colors hover:bg-primary hover:text-primary-foreground px-4' }}">
@@ -245,5 +208,4 @@
             </a>
         </li>
     </ul>
-
 </div>

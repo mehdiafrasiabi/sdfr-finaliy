@@ -1,7 +1,7 @@
 <div class="max-w-2xl mx-auto px-4 py-6 sm:py-10" dir="rtl"
      x-data="consultantTimer()">
 
-    @push('link')
+@assets
         <style>
             [x-cloak] { display: none !important; }
 
@@ -50,8 +50,7 @@
                 *, *::before, *::after { animation: none !important; transition: none !important; }
             }
         </style>
-    @endpush
-
+@endassets
     {{-- ═══════════ سرتیتر ═══════════ --}}
     <div class="rise r1 flex items-center gap-2.5 mb-5">
         <div class="flex items-center gap-1">
@@ -181,13 +180,18 @@
         </div>
     @endif
 
+    @php
+        $total = \App\Livewire\Client\Profile\TrialWeek\WaitingForSupporter::TIMER_SECONDS;
+        $revealAt= \App\Livewire\Client\Profile\TrialWeek\WaitingForSupporter::REVEAL_AT_SECOND;
+        $remaining= \App\Livewire\Client\Profile\TrialWeek\WaitingForSupporter::TIMER_SECONDS;
+    @endphp
     @push('script')
         <script>
             function consultantTimer() {
                 return {
-                    total: {{ \App\Livewire\Client\Profile\TrialWeek\WaitingForSupporter::TIMER_SECONDS }},
-                    revealAt: {{ \App\Livewire\Client\Profile\TrialWeek\WaitingForSupporter::REVEAL_AT_SECOND }},
-                    remaining: {{ \App\Livewire\Client\Profile\TrialWeek\WaitingForSupporter::TIMER_SECONDS }},
+                    total: {{$total}},
+                    revealAt: {{$revealAt}},
+                    remaining: {{$remaining}},
                     revealed: false,
                     finished: false,
                     get elapsed() { return this.total - this.remaining; },

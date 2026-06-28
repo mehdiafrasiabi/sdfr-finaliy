@@ -4,49 +4,49 @@
         $minutes  = max(2, (int) ceil($qCount * 15 / 60)); // برآوردِ زمان ~۱۵ ثانیه برای هر سوال
     @endphp
 
-    @push('link')
-        <style>
-            [x-cloak] { display: none !important; }
 
-            /* ───────── کارت سوال ───────── */
-            .q-card { border: 1px solid hsl(var(--border));
-                border-radius: 1.25rem; padding: 1.1rem 1.1rem 1.25rem; transition: border-color .2s; }
-            .q-card.q-unanswered { border-color: hsl(var(--primary) / .45); }
-            .q-num { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem;
-                border-radius: .6rem; font-weight: 800; font-size: .8rem; background: hsl(var(--primary) / .12);
-                color: hsl(var(--primary)); border: 1px solid hsl(var(--primary) / .25); flex: none; }
+@assets
+    <style>
+        [x-cloak] { display: none !important; }
 
-            /* ───────── (C1) مقیاسِ لیکرت دایره‌ای ───────── */
-            .likert { display: flex; align-items: center; justify-content: center; gap: .5rem; flex-wrap: nowrap; }
-            .likert-pole { font-size: clamp(.62rem, 2.6vw, .72rem); font-weight: 800; white-space: nowrap; }
-            .likert-pole--agree { color: hsl(var(--primary)); }
-            .likert-pole--disagree { color: #ec4899; }
-            .likert-circles { display: flex; align-items: center; gap: clamp(.35rem, 2vw, .6rem); }
-            .likert-dot { border-radius: 9999px; border: 2px solid; background: transparent; cursor: pointer; flex: none;
-                transition: transform .15s ease, background .15s ease, box-shadow .15s ease; }
-            .likert-dot:hover { transform: scale(1.12); }
-            .likert-dot--agree { border-color: hsl(var(--primary) / .65); }
-            .likert-dot--disagree { border-color: #ec4899; opacity: .85; }
-            .likert-dot--neutral { border-color: hsl(var(--border)); }
-            .likert-dot--agree.likert-dot--on { background: hsl(var(--primary)); border-color: hsl(var(--primary)); box-shadow: 0 0 0 4px hsl(var(--primary) / .2); }
-            .likert-dot--disagree.likert-dot--on { background: #ec4899; border-color: #ec4899; opacity: 1; box-shadow: 0 0 0 4px rgba(236, 72, 153, .2); }
-            .likert-dot--neutral.likert-dot--on { background: hsl(var(--muted-foreground, var(--foreground)) / .5); box-shadow: 0 0 0 4px hsl(var(--border) / .6); }
+        /* ───────── کارت سوال ───────── */
+        .q-card { border: 1px solid hsl(var(--border));
+            border-radius: 1.25rem; padding: 1.1rem 1.1rem 1.25rem; transition: border-color .2s; }
+        .q-card.q-unanswered { border-color: hsl(var(--primary) / .45); }
+        .q-num { display: inline-flex; align-items: center; justify-content: center; width: 1.75rem; height: 1.75rem;
+            border-radius: .6rem; font-weight: 800; font-size: .8rem; background: hsl(var(--primary) / .12);
+            color: hsl(var(--primary)); border: 1px solid hsl(var(--primary) / .25); flex: none; }
 
-            /* ───────── کارت گزینه (تک/چندانتخابی) ───────── */
-            .opt-card { display: flex; align-items: center; gap: .75rem; width: 100%; padding: .8rem 1rem; border-radius: 1rem;
-                border: 1px solid hsl(var(--border)); background: hsl(var(--secondary) / .4); cursor: pointer; text-align: right;
-                transition: border-color .15s ease, background .15s ease, transform .1s ease; }
-            .opt-card:hover { border-color: hsl(var(--primary) / .5); }
-            .opt-card:active { transform: scale(.99); }
-            .opt-card--on { border-color: hsl(var(--primary)); background: hsl(var(--primary) / .10); }
-            .opt-mark { width: 22px; height: 22px; flex: none; display: flex; align-items: center; justify-content: center;
-                border: 2px solid hsl(var(--border)); color: #fff; transition: .15s; }
-            .opt-mark--radio { border-radius: 9999px; }
-            .opt-mark--check { border-radius: .45rem; }
-            .opt-card--on .opt-mark { background: hsl(var(--primary)); border-color: hsl(var(--primary)); }
-        </style>
-    @endpush
+        /* ───────── (C1) مقیاسِ لیکرت دایره‌ای ───────── */
+        .likert { display: flex; align-items: center; justify-content: center; gap: .5rem; flex-wrap: nowrap; }
+        .likert-pole { font-size: clamp(.62rem, 2.6vw, .72rem); font-weight: 800; white-space: nowrap; }
+        .likert-pole--agree { color: hsl(var(--primary)); }
+        .likert-pole--disagree { color: #ec4899; }
+        .likert-circles { display: flex; align-items: center; gap: clamp(.35rem, 2vw, .6rem); }
+        .likert-dot { border-radius: 9999px; border: 2px solid; background: transparent; cursor: pointer; flex: none;
+            transition: transform .15s ease, background .15s ease, box-shadow .15s ease; }
+        .likert-dot:hover { transform: scale(1.12); }
+        .likert-dot--agree { border-color: hsl(var(--primary) / .65); }
+        .likert-dot--disagree { border-color: #ec4899; opacity: .85; }
+        .likert-dot--neutral { border-color: hsl(var(--border)); }
+        .likert-dot--agree.likert-dot--on { background: hsl(var(--primary)); border-color: hsl(var(--primary)); box-shadow: 0 0 0 4px hsl(var(--primary) / .2); }
+        .likert-dot--disagree.likert-dot--on { background: #ec4899; border-color: #ec4899; opacity: 1; box-shadow: 0 0 0 4px rgba(236, 72, 153, .2); }
+        .likert-dot--neutral.likert-dot--on { background: hsl(var(--muted-foreground, var(--foreground)) / .5); box-shadow: 0 0 0 4px hsl(var(--border) / .6); }
 
+        /* ───────── کارت گزینه (تک/چندانتخابی) ───────── */
+        .opt-card { display: flex; align-items: center; gap: .75rem; width: 100%; padding: .8rem 1rem; border-radius: 1rem;
+            border: 1px solid hsl(var(--border)); background: hsl(var(--secondary) / .4); cursor: pointer; text-align: right;
+            transition: border-color .15s ease, background .15s ease, transform .1s ease; }
+        .opt-card:hover { border-color: hsl(var(--primary) / .5); }
+        .opt-card:active { transform: scale(.99); }
+        .opt-card--on { border-color: hsl(var(--primary)); background: hsl(var(--primary) / .10); }
+        .opt-mark { width: 22px; height: 22px; flex: none; display: flex; align-items: center; justify-content: center;
+            border: 2px solid hsl(var(--border)); color: #fff; transition: .15s; }
+        .opt-mark--radio { border-radius: 9999px; }
+        .opt-mark--check { border-radius: .45rem; }
+        .opt-card--on .opt-mark { background: hsl(var(--primary)); border-color: hsl(var(--primary)); }
+    </style>
+@endassets
     <div
         x-data="assessmentTake({
             picks: @js($answers),
@@ -262,67 +262,68 @@
         </div>
     </div>
 
-    @push('script')
-        <script>
-            window.assessmentTake = function (cfg) {
-                return {
-                    // تضمینِ object بودن (PHP آرایهٔ خالی را [] می‌فرستد).
-                    picks: Object.assign({}, cfg.picks || {}),
-                    qids: cfg.qids || [],
-                    other: cfg.other || 0,
-                    total: cfg.total || 0,
-                    intro: !!cfg.intro,
-                    loading: false,
-                    showError: false,
+    @script
+    <script>
+        window.assessmentTake = function (cfg) {
+            return {
+                // تضمینِ object بودن (PHP آرایهٔ خالی را [] می‌فرستد).
+                picks: Object.assign({}, cfg.picks || {}),
+                qids: cfg.qids || [],
+                other: cfg.other || 0,
+                total: cfg.total || 0,
+                intro: !!cfg.intro,
+                loading: false,
+                showError: false,
 
-                    isAnswered(qid) {
-                        const v = this.picks[qid];
-                        if (Array.isArray(v)) return v.length > 0;
-                        return v !== undefined && v !== null && v !== '';
-                    },
-                    isSel(qid, val) {
-                        const v = this.picks[qid];
-                        if (Array.isArray(v)) return v.includes(String(val));
-                        return String(v ?? '') === String(val);
-                    },
-                    choose(qid, val) {
-                        this.picks[qid] = String(val);
-                        this.showError = false;
-                    },
-                    toggle(qid, val) {
-                        val = String(val);
-                        let arr = Array.isArray(this.picks[qid]) ? [...this.picks[qid]] : [];
-                        const i = arr.indexOf(val);
-                        if (i >= 0) arr.splice(i, 1); else arr.push(val);
-                        this.picks[qid] = arr;
-                        this.showError = false;
-                    },
-                    get answered() {
-                        return this.qids.filter(q => this.isAnswered(q)).length;
-                    },
-                    get remaining() {
-                        return Math.max(0, this.qids.length - this.answered);
-                    },
-                    get done() {
-                        return this.other + this.answered;
-                    },
-                    get percent() {
-                        return this.total ? Math.min(100, Math.round((this.done / this.total) * 100)) : 0;
-                    },
-                    async submit() {
-                        if (this.remaining > 0) {
-                            this.showError = true;
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                            return;
-                        }
-                        this.loading = true;
-                        // ارسالِ کپیِ ساده (نه پراکسیِ ری‌اکتیو) به Livewire
-                        const plain = JSON.parse(JSON.stringify(this.picks));
-                        await this.$wire.set('answers', plain);
-                        this.$wire.submitAll();
-                    },
-                };
+                isAnswered(qid) {
+                    const v = this.picks[qid];
+                    if (Array.isArray(v)) return v.length > 0;
+                    return v !== undefined && v !== null && v !== '';
+                },
+                isSel(qid, val) {
+                    const v = this.picks[qid];
+                    if (Array.isArray(v)) return v.includes(String(val));
+                    return String(v ?? '') === String(val);
+                },
+                choose(qid, val) {
+                    this.picks[qid] = String(val);
+                    this.showError = false;
+                },
+                toggle(qid, val) {
+                    val = String(val);
+                    let arr = Array.isArray(this.picks[qid]) ? [...this.picks[qid]] : [];
+                    const i = arr.indexOf(val);
+                    if (i >= 0) arr.splice(i, 1); else arr.push(val);
+                    this.picks[qid] = arr;
+                    this.showError = false;
+                },
+                get answered() {
+                    return this.qids.filter(q => this.isAnswered(q)).length;
+                },
+                get remaining() {
+                    return Math.max(0, this.qids.length - this.answered);
+                },
+                get done() {
+                    return this.other + this.answered;
+                },
+                get percent() {
+                    return this.total ? Math.min(100, Math.round((this.done / this.total) * 100)) : 0;
+                },
+                async submit() {
+                    if (this.remaining > 0) {
+                        this.showError = true;
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        return;
+                    }
+                    this.loading = true;
+                    // ارسالِ کپیِ ساده (نه پراکسیِ ری‌اکتیو) به Livewire
+                    const plain = JSON.parse(JSON.stringify(this.picks));
+                    await this.$wire.set('answers', plain);
+                    this.$wire.submitAll();
+                },
             };
-        </script>
-    @endpush
+        };
+    </script>
+    @endscript
+
 </div>

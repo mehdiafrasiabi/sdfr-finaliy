@@ -42,6 +42,11 @@ class Index extends Component
                 $q->whereNull('last_outcome')
                     ->orWhere('last_outcome', '!=', \App\Models\PhoneCall::RESULT_FOLLOW_UP);
             })
+            // تماس‌های ناموفقِ موکول‌شده به فردا، تا فرارسیدن موعد در صف نمایش داده نمی‌شوند
+            ->where(function ($q) {
+                $q->whereNull('next_call_at')
+                    ->orWhere('next_call_at', '<=', now());
+            })
             ->when($this->search, fn ($q) => $q->where(function ($s) {
                 $s->where('full_name', 'like', "%{$this->search}%")
                     ->orWhere('mobile', 'like', "%{$this->search}%");

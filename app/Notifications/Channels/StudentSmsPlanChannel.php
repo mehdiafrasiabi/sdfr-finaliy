@@ -16,7 +16,7 @@ class StudentSmsPlanChannel
             'password' => 'b1b0fdb-dddd-4c93-b02d-a069edf44693',
             'text' => "$studentName;$link",
             'to' => $data['mobile'],
-            'bodyId' => 479744,
+            'bodyId' => 480452,
         ];
 
         $post_data = http_build_query($postData);

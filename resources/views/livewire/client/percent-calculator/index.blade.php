@@ -1,4 +1,29 @@
 <div>
+    @assets
+    <style>
+        /* حس فشار دادن دکمه */
+        .press-btn {
+            transition: transform 0.08s ease, box-shadow 0.08s ease;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .press-btn:hover {
+            background-color: #35353c !important;
+        }
+        .press-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #1a1a1f !important;
+        }
+        /* حذف اسپینر از input number */
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type=number] { -moz-appearance: textfield; }
+    </style>
+    @endassets
     <div dir="rtl">
 
         {{-- ==================== بنر بالای صفحه ==================== --}}
@@ -276,69 +301,43 @@
 
     </div>
 
-    @push('style')
-        <style>
-            /* حس فشار دادن دکمه */
-            .press-btn {
-                transition: transform 0.08s ease, box-shadow 0.08s ease;
-                cursor: pointer;
-                user-select: none;
-                -webkit-tap-highlight-color: transparent;
-            }
-            .press-btn:hover {
-                background-color: #35353c !important;
-            }
-            .press-btn:active {
-                transform: translateY(3px);
-                box-shadow: 0 1px 0 #1a1a1f !important;
-            }
-            /* حذف اسپینر از input number */
-            input[type=number]::-webkit-inner-spin-button,
-            input[type=number]::-webkit-outer-spin-button {
-                -webkit-appearance: none;
-                margin: 0;
-            }
-            input[type=number] { -moz-appearance: textfield; }
-        </style>
-    @endpush
+    @script
+    <script>
+        function percentCalculator() {
+            return {
+                total: '',
+                correct: '',
+                wrong: '',
+                resultWithNeg: null,
+                resultWithout: null,
+                error: '',
 
-    @push('script')
-        <script>
-            function percentCalculator() {
-                return {
-                    total: '',
-                    correct: '',
-                    wrong: '',
-                    resultWithNeg: null,
-                    resultWithout: null,
-                    error: '',
+                calculate() {
+                    this.error = '';
+                    this.resultWithNeg = null;
+                    this.resultWithout = null;
 
-                    calculate() {
-                        this.error = '';
-                        this.resultWithNeg = null;
-                        this.resultWithout = null;
+                    const total   = parseFloat(this.total);
+                    const correct = parseFloat(this.correct);
+                    const wrong   = parseFloat(this.wrong) || 0;
 
-                        const total   = parseFloat(this.total);
-                        const correct = parseFloat(this.correct);
-                        const wrong   = parseFloat(this.wrong) || 0;
+                    if (!this.total || isNaN(total) || total <= 0) return;
+                    if (this.correct === '' || isNaN(correct) || correct < 0) return;
 
-                        if (!this.total || isNaN(total) || total <= 0) return;
-                        if (this.correct === '' || isNaN(correct) || correct < 0) return;
-
-                        if (correct > total) {
-                            this.error = 'تعداد پاسخ درست نمی‌تواند بیشتر از کل سوالات باشد.';
-                            return;
-                        }
-                        if ((correct + wrong) > total) {
-                            this.error = 'مجموع پاسخ درست و نادرست نمی‌تواند بیشتر از کل سوالات باشد.';
-                            return;
-                        }
-
-                        this.resultWithout = (correct / total) * 100;
-                        this.resultWithNeg = ((correct * 3 - wrong) / (total * 3)) * 100;
+                    if (correct > total) {
+                        this.error = 'تعداد پاسخ درست نمی‌تواند بیشتر از کل سوالات باشد.';
+                        return;
                     }
+                    if ((correct + wrong) > total) {
+                        this.error = 'مجموع پاسخ درست و نادرست نمی‌تواند بیشتر از کل سوالات باشد.';
+                        return;
+                    }
+
+                    this.resultWithout = (correct / total) * 100;
+                    this.resultWithNeg = ((correct * 3 - wrong) / (total * 3)) * 100;
                 }
             }
-        </script>
-    @endpush
+        }
+    </script>
+    @endscript
 </div>

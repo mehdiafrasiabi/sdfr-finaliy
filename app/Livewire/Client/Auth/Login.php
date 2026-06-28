@@ -300,13 +300,14 @@ class Login extends Component
     }
     private function invalidateOtherSessions(int $currentUserId): void
     {
+        // فقط نشست‌های دیگرِ «همین کاربر» را پاک می‌کنیم.
+        // قبلاً این کوئری نشستِ همه‌ی کاربران و remember_token همه را پاک می‌کرد
+        // و باعث می‌شد با هر ورودِ یک کاربر، بقیه‌ی کاربران (به‌خصوص روی iOS که
+        // کوکی نشست را زود پاک می‌کند) برای همیشه logout شوند.
         DB::table('sessions')
+            ->where('user_id', $currentUserId)
             ->where('id', '!=', session()->getId())
             ->delete();
-
-        User::where('id', '!=', $currentUserId)
-            ->whereNotNull('remember_token')
-            ->update(['remember_token' => null]);
     }
 
 

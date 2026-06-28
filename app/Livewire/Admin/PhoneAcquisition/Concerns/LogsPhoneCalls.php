@@ -5,6 +5,8 @@ namespace App\Livewire\Admin\PhoneAcquisition\Concerns;
 use App\Models\PhoneCall;
 use App\Models\PhoneLead;
 use App\Models\PhoneLeadAssignment;
+use App\Services\PhoneLeadScheduler;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -15,6 +17,12 @@ trait LogsPhoneCalls
 {
     /** شماره‌ای که در حال ثبت تماس برای آن هستیم. */
     public ?int $activeLeadId = null;
+
+    /** رکورد تماسِ «پاسخ‌داده‌شده» که در حال تکمیل آن هستیم (شاخهٔ موفق). */
+    public ?int $activeCallId = null;
+
+    /** مدت مکالمه (ثانیه) که از سمت کلاینت می‌آید. */
+    public ?int $talkSeconds = null;
 
     /** حالت فرم: success (تماس برقرار شد) یا fail (ناموفق در برقراری تماس). */
     public string $callMode = 'success';
@@ -52,6 +60,8 @@ trait LogsPhoneCalls
     protected function resetCallForm(): void
     {
         $this->activeLeadId        = null;
+        $this->activeCallId        = null;
+        $this->talkSeconds         = null;
         $this->callMode            = 'success';
         $this->spokeWith           = '';
         $this->willingness         = null;
@@ -63,8 +73,16 @@ trait LogsPhoneCalls
         $this->resetErrorBag();
     }
 
-    public function logCall(): void
+    /**
+     * «پاسخ کاربر» — تماس برقرار شد. رکورد تماس همین‌جا ذخیره می‌شود تا
+     * حتی اگر فرم تکمیل نشود، گم نشود. سپس تایمر مکالمه در کلاینت شروع می‌شود.
+     */
+    public function markCallAnswered(): void
     {
+        if ($this->activeCallId) {
+            return; // قبلاً ثبت شده — جلوگیری از ثبت دوباره با کلیک مکرر
+        }
+
         $lead = $this->loadLeadForConsultant($this->activeLeadId);
         if (! $lead) {
             $this->dispatch('warning', 'شماره یافت نشد یا به شما اختصاص ندارد.');
@@ -78,7 +96,69 @@ trait LogsPhoneCalls
             return;
         }
 
+        $this->callMode = 'success';
+
+        $call = DB::transaction(function () use ($lead) {
+            $attempt = $lead->attempts_count + 1;
+
+            $call = PhoneCall::create([
+                'phone_lead_id'  => $lead->id,
+                'admin_id'       => Auth::guard('admin')->id(),
+                'attempt_number' => $attempt,
+                'connected'      => true,
+                'answered_at'    => now(),
+                'called_at'      => now(),
+            ]);
+
+            $lead->attempts_count = $attempt;
+            $lead->save();
+
+            return $call;
+        });
+
+        $this->activeCallId = $call->id;
+    }
+
+    /**
+     * «اتمام مکالمه» — مدت مکالمه (ثانیه) از کلاینت ذخیره می‌شود.
+     */
+    public function endConversation(int $seconds): void
+    {
+        $this->talkSeconds = max(0, $seconds);
+
+        if ($this->activeCallId) {
+            PhoneCall::where('id', $this->activeCallId)
+                ->update(['talk_duration_seconds' => $this->talkSeconds]);
+        }
+    }
+
+    /**
+     * «عدم پاسخ» — به فرم عدم‌پاسخ می‌رویم؛ ثبت نهایی هنگام logCall انجام می‌شود.
+     */
+    public function markNoAnswer(): void
+    {
+        $this->callMode   = 'fail';
+        $this->failReason = PhoneCall::FAIL_NO_ANSWER;
+        $this->resetErrorBag();
+    }
+
+    public function logCall(): void
+    {
+        $lead = $this->loadLeadForConsultant($this->activeLeadId);
+        if (! $lead) {
+            $this->dispatch('warning', 'شماره یافت نشد یا به شما اختصاص ندارد.');
+            $this->closeCallForm();
+            return;
+        }
+
         if ($this->callMode === 'fail') {
+            // در شاخهٔ ناموفق رکورد جدید ساخته می‌شود؛ شمارهٔ خاکستری نباید تماس بخورد.
+            if ($lead->isExhausted()) {
+                $this->dispatch('warning', 'این شماره دیگر قابل تماس نیست (خاکستری).');
+                $this->closeCallForm();
+                return;
+            }
+
             $this->validate([
                 'failReason' => ['required', 'in:no_answer,off,rejected,wrong'],
             ], [
@@ -109,40 +189,83 @@ trait LogsPhoneCalls
 
         $this->applyOutcome($lead);
 
-        $this->dispatch('success', 'تماس با موفقیت ثبت شد.');
+        // نتیجهٔ «ثبت‌نام» → ساخت و ارسال لینک یکتای ثبت‌نام برای ردیابی تبدیل/پاداش.
+        if ($this->callMode === 'success' && $this->result === PhoneCall::RESULT_REGISTERED) {
+            $link = app(\App\Services\PhoneRegistrationService::class)
+                ->createAndSend($lead, Auth::guard('admin')->id());
+
+            $this->dispatch('success', 'ثبت‌نام ثبت شد و لینک یکتای ثبت‌نام ساخته شد.');
+            $this->dispatch('registration-link-created', url: $link->url);
+        } else {
+            $this->dispatch('success', 'تماس با موفقیت ثبت شد.');
+        }
+
         $this->closeCallForm();
     }
 
     protected function applyOutcome(PhoneLead $lead): void
     {
         DB::transaction(function () use ($lead) {
-            $attempt = $lead->attempts_count + 1;
+            if ($this->callMode === 'success') {
+                // تکمیلِ رکوردِ تماسِ پاسخ‌داده‌شده که در markCallAnswered ساخته شده است.
+                $willingness = (int) $this->willingness;
 
-            PhoneCall::create([
-                'phone_lead_id'          => $lead->id,
-                'admin_id'               => Auth::guard('admin')->id(),
-                'attempt_number'         => $attempt,
-                'connected'              => $this->callMode === 'success',
-                'fail_reason'            => $this->callMode === 'fail' ? $this->failReason : null,
-                'spoke_with'             => $this->callMode === 'success' ? $this->spokeWith : null,
-                'willingness'            => $this->callMode === 'success' ? (int) $this->willingness : null,
-                'low_willingness_reason' => $this->callMode === 'success' && (int) $this->willingness < 50
-                    ? ($this->lowWillingnessReason ?: null) : null,
-                'result'                 => $this->callMode === 'success' ? $this->result : null,
-                'follow_up_at'           => $this->callMode === 'success' && $this->result === PhoneCall::RESULT_FOLLOW_UP
-                    ? $this->followUpAt : null,
-                'summary'                => $this->callMode === 'success' ? ($this->summary ?: null) : null,
-                'called_at'              => now(),
-            ]);
+                $call = $this->activeCallId ? PhoneCall::find($this->activeCallId) : null;
 
-            $lead->attempts_count = $attempt;
-            $lead->last_outcome = $this->callMode === 'fail' ? $this->failReason : $this->result;
-            $lead->status = PhoneLead::statusAfterOutcome(
-                $attempt,
-                $this->callMode === 'success',
-                $this->callMode === 'fail' ? $this->failReason : null,
-                $this->callMode === 'success' ? $this->result : null,
-            );
+                $payload = [
+                    'connected'              => true,
+                    'spoke_with'             => $this->spokeWith,
+                    'willingness'            => $willingness,
+                    'low_willingness_reason' => $willingness < 50 ? ($this->lowWillingnessReason ?: null) : null,
+                    'result'                 => $this->result,
+                    'follow_up_at'           => $this->result === PhoneCall::RESULT_FOLLOW_UP ? $this->followUpAt : null,
+                    'summary'                => $this->summary ?: null,
+                ];
+
+                if ($call) {
+                    $call->update($payload);
+                } else {
+                    // حالت پشتیبان (اگر رکورد پاسخ‌گویی به هر دلیل وجود نداشت).
+                    $attempt = $lead->attempts_count + 1;
+                    PhoneCall::create($payload + [
+                        'phone_lead_id'  => $lead->id,
+                        'admin_id'       => Auth::guard('admin')->id(),
+                        'attempt_number' => $attempt,
+                        'answered_at'    => now(),
+                        'called_at'      => now(),
+                    ]);
+                    $lead->attempts_count = $attempt;
+                }
+
+                $lead->last_outcome = $this->result;
+                $lead->grey_reason  = null;
+                $lead->status       = PhoneLead::statusAfterOutcome($lead->attempts_count, true, null, $this->result);
+                // پیگیری مجدد موفق → زمان تماس بعدی؛ ثبت‌نام/عدم‌تمایل → بدون تماس بعدی.
+                $lead->next_call_at = $this->result === PhoneCall::RESULT_FOLLOW_UP && $this->followUpAt
+                    ? Carbon::parse($this->followUpAt)
+                    : null;
+            } else {
+                // شاخهٔ ناموفق — رکورد تماس جدید.
+                $attempt = $lead->attempts_count + 1;
+
+                PhoneCall::create([
+                    'phone_lead_id'  => $lead->id,
+                    'admin_id'       => Auth::guard('admin')->id(),
+                    'attempt_number' => $attempt,
+                    'connected'      => false,
+                    'fail_reason'    => $this->failReason,
+                    'called_at'      => now(),
+                ]);
+
+                // منطق چرخهٔ حیات (same-day / next-day / خاکستری) بر اساس علت و تاریخچه.
+                $schedule = app(PhoneLeadScheduler::class)->afterFail($lead, $this->failReason);
+
+                $lead->attempts_count = $attempt;
+                $lead->last_outcome   = $this->failReason;
+                $lead->status         = $schedule['status'];
+                $lead->grey_reason    = $schedule['grey_reason'];
+                $lead->next_call_at   = $schedule['next_call_at'];
+            }
 
             $lead->save();
 

@@ -5,7 +5,8 @@
                 <!-- Payment Success Card -->
                 <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-xl overflow-hidden">
                     <!-- Header with Icon -->
-                    <div class="bg-gradient-to-br from-green-600 to-green-700 dark:from-green-900 dark:to-green-950 p-8 text-center relative">
+                    <div
+                        class="bg-gradient-to-br from-green-600 to-green-700 dark:from-green-900 dark:to-green-950 p-8 text-center relative">
                         <!-- Success Icon -->
                         <div
                             class="mx-auto w-20 h-20 bg-green-800/30 dark:bg-green-950/50 rounded-full flex items-center justify-center mb-4">
@@ -20,13 +21,17 @@
                     <!-- Payment Details -->
                     <div class="p-6">
                         @if($paymentData)
-                            <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-zinc-700">
+                            <div
+                                class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-zinc-700">
                                 <span class="text-gray-600 dark:text-gray-400">شماره سفارش:</span>
-                                <span class="font-medium text-gray-900 dark:text-white">{{ $paymentData['order_number'] }}</span>
+                                <span
+                                    class="font-medium text-gray-900 dark:text-white">{{ $paymentData['order_number'] }}</span>
                             </div>
-                            <div class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-zinc-700">
+                            <div
+                                class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-zinc-700">
                                 <span class="text-gray-600 dark:text-gray-400">تاریخ پرداخت:</span>
-                                <span class="font-medium text-gray-900 dark:text-white">{{ \Morilog\Jalali\Jalalian::fromDateTime($paymentData['updated_at'])->format('Y/m/d - H:i') }}</span>
+                                <span
+                                    class="font-medium text-gray-900 dark:text-white">{{ \Morilog\Jalali\Jalalian::fromDateTime($paymentData['updated_at'])->format('Y/m/d - H:i') }}</span>
                             </div>
                             <div
                                 class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-zinc-700">
@@ -98,115 +103,64 @@
         </div>
     @elseif((session('paymentError')))
         <div class="min-h-screen flex items-center justify-center p-4">
-
             <div class="w-full max-w-md">
-
                 <!-- Payment Error Card -->
-
                 <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-xl overflow-hidden">
-
                     <!-- Header with Icon -->
-
                     <div
                         class="bg-gradient-to-br from-red-600 to-red-700 dark:from-red-900 dark:to-red-950 p-8 text-center relative">
-
                         <!-- Close Icon -->
-
                         <div
                             class="mx-auto w-20 h-20 bg-red-800/30 dark:bg-red-950/50 rounded-full flex items-center justify-center mb-4">
-
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
                                  stroke="currentColor" class="w-10 h-10 text-white">
-
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-
                             </svg>
-
                         </div>
-
                         <h1 class="text-2xl font-bold text-white mb-2">پرداخت ناموفق</h1>
-
                         <p class="text-red-100 dark:text-red-200">متاسفانه پرداخت شما تکمیل نشد</p>
-
                     </div>
-
-
                     <!-- Payment Details -->
-
                     <div class="p-6">
-
                         @if($paymentData)
-
                             <div
                                 class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-zinc-700">
-
                                 <span class="text-gray-600 dark:text-gray-400">شماره سفارش:</span>
-
                                 <span
                                     class="font-medium text-gray-900 dark:text-white">{{ $paymentData['order_number'] }}</span>
-
                             </div>
-
                             <div
                                 class="flex justify-between items-center py-3 border-b border-gray-200 dark:border-zinc-700">
-
                                 <span class="text-gray-600 dark:text-gray-400">زمان تلاش:</span>
-
                                 <span
                                     class="font-medium text-gray-900 dark:text-white">{{ \Morilog\Jalali\Jalalian::fromDateTime($paymentData['created_at'])->format('Y/m/d - H:i') }}</span>
-
                             </div>
-
                             <div class="flex justify-between items-center py-3">
-
                                 <span class="text-gray-600 dark:text-gray-400">مبلغ پرداخت:</span>
-
                                 <span class="font-medium text-gray-900 dark:text-white">{{ number_format($paymentData['amount']) }} <span
                                         class="text-sm">تومان</span></span>
-
                             </div>
-
                         @endif
-
-
-
                         <!-- Error Reasons -->
-
                         <div
                             class="mt-6 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/50 rounded-lg p-4">
-
                             <div class="flex items-start">
-
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      stroke-width="1.5" stroke="currentColor"
                                      class="w-5 h-5 text-red-600 dark:text-red-500 mt-1 flex-shrink-0">
-
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                           d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"/>
-
                                 </svg>
-
                                 <div class="mr-3">
-
                                     <h3 class="font-bold text-red-800 dark:text-red-400 mb-2">علت احتمالی:</h3>
-
                                     <ul class="list-disc pr-5 text-red-700 dark:text-red-500 text-sm space-y-1">
-
                                         <li>عدم موجودی کافی در حساب</li>
-
                                         <li>اطلاعات کارت نامعتبر</li>
-
                                         <li>مشکل موقت در درگاه پرداخت</li>
-
                                     </ul>
-
                                 </div>
-
                             </div>
-
                         </div>
-
-
                         <!-- Info Message -->
 
                         <div
@@ -254,16 +208,10 @@
 
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                           d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
-
                                 </svg>
-
                                 بازگشت به سبد خرید
-
                             </a>
-
                         </div>
-
-
                         <!-- Support Contact -->
 
                         <div class="mt-6 text-center">

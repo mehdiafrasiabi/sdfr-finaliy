@@ -1,5 +1,6 @@
 <div>
-    @push('link')
+
+    @assets
         <style>
             [x-cloak] { display: none !important; }
 
@@ -147,7 +148,7 @@
 
             @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
         </style>
-    @endpush
+    @endassets
 
     @php
         $gradeLabels = ['9'=>'نهم','10'=>'دهم','11'=>'یازدهم','12'=>'دوازدهم','graduate'=>'فارغ‌التحصیل'];
@@ -723,149 +724,148 @@
         </div>
 
     </div>
+    @script
+    <script>
+        window.onboardingFlow = function () {
+            return {
+                busy: false,
+                countdownTimer: null,
+                busyWatchdog: null,
+                touchStartX: 0,
+                touchEndX: 0,
+                tourShown: false,
+                livewireHookHandle: null,
+                boundNavigated: null,
 
-    @push('script')
-        <script>
-            window.onboardingFlow = function () {
-                return {
-                    busy: false,
-                    countdownTimer: null,
-                    busyWatchdog: null,
-                    touchStartX: 0,
-                    touchEndX: 0,
-                    tourShown: false,
-                    livewireHookHandle: null,
-                    boundNavigated: null,
+                init() {
+                    this.busy = false;
 
-                    init() {
-                        this.busy = false;
+                    this.startCountdownIfNeeded();
 
-                        this.startCountdownIfNeeded();
+                    if (window.Livewire) {
+                        try {
+                            Livewire.on('start-countdown', () => this.startCountdownIfNeeded());
+                            Livewire.on('step-validation-failed', () => { this.clearBusy(); });
+                            Livewire.on('step-changed', () => {
+                                this.endTransition();
+                                this.$nextTick(() => this.maybeShowTour());
+                            });
 
-                        if (window.Livewire) {
-                            try {
-                                Livewire.on('start-countdown', () => this.startCountdownIfNeeded());
-                                Livewire.on('step-validation-failed', () => { this.clearBusy(); });
-                                Livewire.on('step-changed', () => {
-                                    this.endTransition();
-                                    this.$nextTick(() => this.maybeShowTour());
+                            if (Livewire.hook) {
+                                this.livewireHookHandle = Livewire.hook('commit', ({ succeed, fail }) => {
+                                    succeed(() => { setTimeout(() => this.clearBusy(), 250); });
+                                    fail(() => { this.clearBusy(); });
                                 });
-
-                                if (Livewire.hook) {
-                                    this.livewireHookHandle = Livewire.hook('commit', ({ succeed, fail }) => {
-                                        succeed(() => { setTimeout(() => this.clearBusy(), 250); });
-                                        fail(() => { this.clearBusy(); });
-                                    });
-                                }
-                            } catch (e) { console.warn('[onboarding] Livewire hook setup failed', e); }
-                        }
-
-                        this.boundNavigated = () => { this.clearBusy(); };
-                        document.addEventListener('livewire:navigated', this.boundNavigated);
-
-                        this.$nextTick(() => this.maybeShowTour());
-                    },
-
-                    destroy() {
-                        if (this.countdownTimer) clearInterval(this.countdownTimer);
-                        if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
-                        if (this.boundNavigated) document.removeEventListener('livewire:navigated', this.boundNavigated);
-                    },
-
-                    clearBusy() {
-                        this.busy = false;
-                        if (this.busyWatchdog) { clearTimeout(this.busyWatchdog); this.busyWatchdog = null; }
-                    },
-
-                    setBusy() {
-                        this.busy = true;
-                        if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
-                        this.busyWatchdog = setTimeout(() => {
-                            console.warn('[onboarding] watchdog reset busy after 8s');
-                            this.clearBusy();
-                        }, 8000);
-                    },
-
-                    endTransition() {
-                        setTimeout(() => { this.clearBusy(); }, 280);
-                    },
-
-                    pressBtn(el) {
-                        if (!el) return;
-                        el.classList.add('pressed');
-                        setTimeout(() => el.classList.remove('pressed'), 120);
-                        if (navigator.vibrate) navigator.vibrate(10);
-                    },
-
-                    maybeShowTour() {
-                        if (this.tourShown) return;
-                        if (localStorage.getItem('sdfr_onboarding_tour_done')) return;
-                        if (typeof window.driver === 'undefined') return;
-
-                        const isDesktop = window.matchMedia('(min-width: 768px)').matches;
-                        if (!isDesktop && this.$wire.currentStep !== 2) return;
-                        if (isDesktop && this.$wire.currentStep > 4) return;
-                        if (!document.querySelector('[data-tour="firstName"]')) return;
-
-                        this.tourShown = true;
-                        const driver = window.driver.js.driver;
-                        const tour = driver({
-                            showProgress: true, allowClose: true,
-                            nextBtnText: 'بعدی', prevBtnText: 'قبلی', doneBtnText: 'فهمیدم',
-                            steps: [
-                                { element: '[data-tour="firstName"]', popover: { title: 'اطلاعات اولیه', description: 'این اطلاعات روی کارنامه و گزارش‌ها درج می‌شه. حتماً فارسی و کامل وارد کنید.', side: isDesktop ? 'right' : 'bottom' } },
-                                { element: '[data-tour="codeMell"]', popover: { title: 'کد ملی', description: 'کد ملی برای احراز هویت در سامانه استفاده می‌شه.', side: 'bottom' } },
-                            ],
-                            onDestroyed: () => { localStorage.setItem('sdfr_onboarding_tour_done', '1'); }
-                        });
-                        setTimeout(() => tour.drive(), 500);
-                    },
-
-                    startCountdownIfNeeded() {
-                        if (this.countdownTimer) clearInterval(this.countdownTimer);
-                        if (this.$wire.currentStep !== 5) return;
-                        if (this.$wire.countdown <= 0) return;
-                        this.countdownTimer = setInterval(() => {
-                            if (this.$wire.countdown > 0) {
-                                this.$wire.set('countdown', this.$wire.countdown - 1, false);
-                            } else {
-                                clearInterval(this.countdownTimer);
-                                this.$wire.countdownFinished();
                             }
-                        }, 1000);
-                    },
+                        } catch (e) { console.warn('[onboarding] Livewire hook setup failed', e); }
+                    }
 
-                    goNext() {
-                        if (this.busy) return;
-                        this.setBusy();
-                        this.$wire.next();
-                    },
+                    this.boundNavigated = () => { this.clearBusy(); };
+                    document.addEventListener('livewire:navigated', this.boundNavigated);
 
-                    goPrev() {
-                        if (this.busy) return;
-                        if (this.$wire.currentStep <= 2) return;
-                        this.setBusy();
-                        this.$wire.previous().then(() => this.endTransition());
-                    },
+                    this.$nextTick(() => this.maybeShowTour());
+                },
 
-                    submitDesktopForm() {
-                        if (this.busy) return;
-                        this.setBusy();
-                        this.$wire.submitAll();
-                    },
+                destroy() {
+                    if (this.countdownTimer) clearInterval(this.countdownTimer);
+                    if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
+                    if (this.boundNavigated) document.removeEventListener('livewire:navigated', this.boundNavigated);
+                },
 
-                    handleTouchStart(e) { this.touchStartX = e.changedTouches[0].screenX; },
-                    handleTouchEnd(e) {
-                        this.touchEndX = e.changedTouches[0].screenX;
-                        const diff = this.touchEndX - this.touchStartX;
-                        if (Math.abs(diff) < 60) return;
-                        if (['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName)) return;
-                        if (diff > 0 && this.$wire.currentStep > 2 && this.$wire.currentStep <= 4) {
-                            this.goPrev();
+                clearBusy() {
+                    this.busy = false;
+                    if (this.busyWatchdog) { clearTimeout(this.busyWatchdog); this.busyWatchdog = null; }
+                },
+
+                setBusy() {
+                    this.busy = true;
+                    if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
+                    this.busyWatchdog = setTimeout(() => {
+                        console.warn('[onboarding] watchdog reset busy after 8s');
+                        this.clearBusy();
+                    }, 8000);
+                },
+
+                endTransition() {
+                    setTimeout(() => { this.clearBusy(); }, 280);
+                },
+
+                pressBtn(el) {
+                    if (!el) return;
+                    el.classList.add('pressed');
+                    setTimeout(() => el.classList.remove('pressed'), 120);
+                    if (navigator.vibrate) navigator.vibrate(10);
+                },
+
+                maybeShowTour() {
+                    if (this.tourShown) return;
+                    if (localStorage.getItem('sdfr_onboarding_tour_done')) return;
+                    if (typeof window.driver === 'undefined') return;
+
+                    const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+                    if (!isDesktop && this.$wire.currentStep !== 2) return;
+                    if (isDesktop && this.$wire.currentStep > 4) return;
+                    if (!document.querySelector('[data-tour="firstName"]')) return;
+
+                    this.tourShown = true;
+                    const driver = window.driver.js.driver;
+                    const tour = driver({
+                        showProgress: true, allowClose: true,
+                        nextBtnText: 'بعدی', prevBtnText: 'قبلی', doneBtnText: 'فهمیدم',
+                        steps: [
+                            { element: '[data-tour="firstName"]', popover: { title: 'اطلاعات اولیه', description: 'این اطلاعات روی کارنامه و گزارش‌ها درج می‌شه. حتماً فارسی و کامل وارد کنید.', side: isDesktop ? 'right' : 'bottom' } },
+                            { element: '[data-tour="codeMell"]', popover: { title: 'کد ملی', description: 'کد ملی برای احراز هویت در سامانه استفاده می‌شه.', side: 'bottom' } },
+                        ],
+                        onDestroyed: () => { localStorage.setItem('sdfr_onboarding_tour_done', '1'); }
+                    });
+                    setTimeout(() => tour.drive(), 500);
+                },
+
+                startCountdownIfNeeded() {
+                    if (this.countdownTimer) clearInterval(this.countdownTimer);
+                    if (this.$wire.currentStep !== 5) return;
+                    if (this.$wire.countdown <= 0) return;
+                    this.countdownTimer = setInterval(() => {
+                        if (this.$wire.countdown > 0) {
+                            this.$wire.set('countdown', this.$wire.countdown - 1, false);
+                        } else {
+                            clearInterval(this.countdownTimer);
+                            this.$wire.countdownFinished();
                         }
-                    },
-                };
+                    }, 1000);
+                },
+
+                goNext() {
+                    if (this.busy) return;
+                    this.setBusy();
+                    this.$wire.next();
+                },
+
+                goPrev() {
+                    if (this.busy) return;
+                    if (this.$wire.currentStep <= 2) return;
+                    this.setBusy();
+                    this.$wire.previous().then(() => this.endTransition());
+                },
+
+                submitDesktopForm() {
+                    if (this.busy) return;
+                    this.setBusy();
+                    this.$wire.submitAll();
+                },
+
+                handleTouchStart(e) { this.touchStartX = e.changedTouches[0].screenX; },
+                handleTouchEnd(e) {
+                    this.touchEndX = e.changedTouches[0].screenX;
+                    const diff = this.touchEndX - this.touchStartX;
+                    if (Math.abs(diff) < 60) return;
+                    if (['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target.tagName)) return;
+                    if (diff > 0 && this.$wire.currentStep > 2 && this.$wire.currentStep <= 4) {
+                        this.goPrev();
+                    }
+                },
             };
-        </script>
-    @endpush
+        };
+    </script>
+    @endscript
 </div>

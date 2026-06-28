@@ -57,7 +57,33 @@
     }
 }" x-init="init()" class="min-h-screen bg-background">
 
-
+    @assets
+    <style>
+        [x-cloak] { display: none !important; }
+        .timer-blur-glass {
+            filter: blur(6px);
+            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(8px);
+            background-color: rgba(15, 23, 42, 0.35);
+            border-radius: 1rem;
+            pointer-events: none;
+            user-select: none;
+            transition: all 0.2s ease-in-out;
+        }
+        .prose img { max-width: 100%; height: auto; border-radius: 0.5rem; }
+        .prose table { width: 100%; border-collapse: collapse; }
+        .prose table th, .prose table td { border: 1px solid #e5e7eb; padding: 0.5rem; }
+        .exam-question-img {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-width: 100%;
+            object-fit: contain;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+    </style>
+    @endassets
     <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
 
         <!-- Top Info Card -->
@@ -579,31 +605,5 @@
         </div>
     </div>
 
-    @push('link')
-        <style>
-            [x-cloak] { display: none !important; }
-            .timer-blur-glass {
-                filter: blur(6px);
-                -webkit-backdrop-filter: blur(8px);
-                backdrop-filter: blur(8px);
-                background-color: rgba(15, 23, 42, 0.35);
-                border-radius: 1rem;
-                pointer-events: none;
-                user-select: none;
-                transition: all 0.2s ease-in-out;
-            }
-            .prose img { max-width: 100%; height: auto; border-radius: 0.5rem; }
-            .prose table { width: 100%; border-collapse: collapse; }
-            .prose table th, .prose table td { border: 1px solid #e5e7eb; padding: 0.5rem; }
-            .exam-question-img {
-                display: block;
-                width: 100%;
-                height: auto;
-                max-width: 100%;
-                object-fit: contain;
-                image-rendering: -webkit-optimize-contrast;
-                image-rendering: crisp-edges;
-            }
-        </style>
-    @endpush
+
 </div>

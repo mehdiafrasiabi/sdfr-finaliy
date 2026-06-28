@@ -356,6 +356,7 @@
 
     </div>
 
+    @script
     <script>
         function rankEstimate() {
             return {
@@ -518,4 +519,6 @@
             };
         }
     </script>
+    @endscript
+
 </div>

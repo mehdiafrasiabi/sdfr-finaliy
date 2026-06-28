@@ -5,7 +5,8 @@
         activeTab: 'submit',
      }">
 
-    @push('link')
+
+@assets
         <style>
             [x-cloak] { display: none !important; }
             .spinner-circle {
@@ -18,9 +19,8 @@
             }
             .spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
             @keyframes spin { to { transform: rotate(360deg); } }
-        </style>
-    @endpush
-
+        </style>v
+@endassets
     <div class="max-w-7xl space-y-6 px-4 mx-auto">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 

@@ -61,6 +61,16 @@ Route::name('client.')->group(function () {
     Route::get('/start', TrialWeekOnboarding::class)->name('onboarding')->middleware('guest');
     Route::redirect('/sign-up', '/start')->name('auth.signup');
 
+    // لینک یکتای ثبت‌نام مشاور جذب تلفنی — توکن را در session می‌گذارد و به آنبوردینگ می‌فرستد.
+    Route::get('/r/{token}', function (string $token) {
+        $link = \App\Models\PhoneRegistrationLink::where('token', $token)->first();
+        if (! $link) {
+            return redirect()->route('client.home')->with('message', 'لینک ثبت‌نام نامعتبر یا منقضی است.');
+        }
+        session(['phone_ref_token' => $token]);
+        return redirect()->route('client.onboarding');
+    })->name('phone-ref');
+
     Route::middleware('guest')->group(function () {
         Route::get('/login', authLogin::class)->name('auth.login');
         Route::get('/forgot-password',ForgotPassword::class)->name('auth.forgotPassword');

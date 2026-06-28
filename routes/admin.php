@@ -134,12 +134,21 @@ Route::name('admin.')->group(function () {
         Route::prefix('phone-acquisition')
             ->name('phone-acquisition.')
             ->group(function () {
+                Route::get('/dashboard',
+                    \App\Livewire\Admin\PhoneAcquisition\Dashboard\Index::class)
+                    ->name('dashboard');
                 Route::get('/queue',
                     \App\Livewire\Admin\PhoneAcquisition\Queue\Index::class)
                     ->name('queue');
                 Route::get('/follow-ups',
                     \App\Livewire\Admin\PhoneAcquisition\FollowUps\Index::class)
                     ->name('follow-ups');
+                Route::get('/my-leads',
+                    \App\Livewire\Admin\PhoneAcquisition\MyLeads\Index::class)
+                    ->name('my-leads');
+                Route::get('/my-calls',
+                    \App\Livewire\Admin\PhoneAcquisition\MyCalls\Index::class)
+                    ->name('my-calls');
                 Route::get('/receipts',
                     \App\Livewire\Admin\PhoneAcquisition\Receipts\Index::class)
                     ->name('receipts');

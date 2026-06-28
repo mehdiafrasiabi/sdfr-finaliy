@@ -21,6 +21,7 @@ class PhoneLead extends Model
     protected $casts = [
         'grade'          => 'integer',
         'attempts_count' => 'integer',
+        'next_call_at'   => 'datetime',
     ];
 
     const STATUS_ACTIVE = 'active';
@@ -74,15 +75,28 @@ class PhoneLead extends Model
     }
 
     /**
-     * رنگ نمایش لید (کلاس رنگ بوت‌استرپ). مردهٔ خاکستری اگر مرده باشد یا ۵ بار تماس گرفته شده باشد.
+     * رنگ نمایش لید (کلاس رنگ بوت‌استرپ). خاکستری اگر شماره مرده/خاکستری باشد،
+     * در غیر این صورت بر اساس تعداد تماس (سقف رنگِ قرمز برای ۴ به بالا).
      */
     public function getColorAttribute(): string
     {
-        if ($this->status === self::STATUS_DEAD || $this->attempts_count >= self::MAX_ATTEMPTS) {
+        if ($this->status === self::STATUS_DEAD) {
             return 'secondary';
         }
 
-        return self::COLOR_BY_ATTEMPT[max($this->attempts_count, 1)] ?? 'secondary';
+        $n = max(1, min((int) $this->attempts_count, 4));
+
+        return self::COLOR_BY_ATTEMPT[$n] ?? 'primary';
+    }
+
+    /** برچسب فارسی علت خاکستری‌شدن. */
+    public function getGreyReasonLabelAttribute(): ?string
+    {
+        if (! $this->grey_reason) {
+            return null;
+        }
+
+        return PhoneCall::FAIL_LABELS[$this->grey_reason] ?? $this->grey_reason;
     }
 
     public function getGradeLabelAttribute(): string
@@ -113,7 +127,17 @@ class PhoneLead extends Model
 
     public function isExhausted(): bool
     {
-        return $this->status === self::STATUS_DEAD || $this->attempts_count >= self::MAX_ATTEMPTS;
+        return $this->status === self::STATUS_DEAD;
+    }
+
+    /**
+     * شماره‌هایی که موعد تماس بعدی‌شان رسیده (سررسیدهٔ پیگیری/تماس مجدد).
+     */
+    public function scopeDueForCall($query)
+    {
+        return $query->where('status', self::STATUS_ACTIVE)
+            ->whereNotNull('next_call_at')
+            ->where('next_call_at', '<=', now());
     }
 
     /**

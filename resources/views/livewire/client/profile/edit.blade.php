@@ -465,26 +465,26 @@
         </div>
     </div>
 
-    @push('script')
-        <script>
-            // ═══ JalaliDatePicker init — runs on initial load AND wire:navigate
-            function initJalaliDatePicker() {
-                if (typeof jalaliDatepicker !== 'undefined') {
-                    try {
-                        jalaliDatepicker.startWatch({
-                            persianDigits: true,
-                            showTodayBtn: true,
-                            showEmptyBtn: true,
-                            time: false,
-                            autoHide: true,
-                            zIndex: 100,
-                        });
-                    } catch(e) { console.warn('[jdp] init failed', e); }
-                }
+    @script
+    <script>
+        // ═══ JalaliDatePicker init — runs on initial load AND wire:navigate
+        function initJalaliDatePicker() {
+            if (typeof jalaliDatepicker !== 'undefined') {
+                try {
+                    jalaliDatepicker.startWatch({
+                        persianDigits: true,
+                        showTodayBtn: true,
+                        showEmptyBtn: true,
+                        time: false,
+                        autoHide: true,
+                        zIndex: 100,
+                    });
+                } catch(e) { console.warn('[jdp] init failed', e); }
             }
-            document.addEventListener('DOMContentLoaded', initJalaliDatePicker);
-            document.addEventListener('livewire:navigated', initJalaliDatePicker);
-            document.addEventListener('livewire:initialized', initJalaliDatePicker);
-        </script>
-    @endpush
+        }
+        document.addEventListener('DOMContentLoaded', initJalaliDatePicker);
+        document.addEventListener('livewire:navigated', initJalaliDatePicker);
+        document.addEventListener('livewire:initialized', initJalaliDatePicker);
+    </script>
+    @endscript
 </div>

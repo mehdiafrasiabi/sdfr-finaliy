@@ -16,11 +16,13 @@ class PhoneCall extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'connected'      => 'boolean',
-        'attempt_number' => 'integer',
-        'willingness'    => 'integer',
-        'called_at'      => 'datetime',
-        'follow_up_at'   => 'datetime',
+        'connected'             => 'boolean',
+        'attempt_number'        => 'integer',
+        'willingness'           => 'integer',
+        'talk_duration_seconds' => 'integer',
+        'called_at'             => 'datetime',
+        'answered_at'           => 'datetime',
+        'follow_up_at'          => 'datetime',
     ];
 
     // دلایل ناموفق بودن تماس
@@ -83,5 +85,27 @@ class PhoneCall extends Model
             return '—';
         }
         return AcquisitionContact::FOLLOW_UP_LABELS[$this->spoke_with] ?? $this->spoke_with;
+    }
+
+    /**
+     * رنگ تماس بر اساس شمارهٔ تلاش (هم‌راستا با رنگ‌بندی لید).
+     */
+    public function getColorAttribute(): string
+    {
+        $n = max(1, min((int) $this->attempt_number, 5));
+
+        return PhoneLead::COLOR_BY_ATTEMPT[$n] ?? 'secondary';
+    }
+
+    /**
+     * مدت مکالمه به‌صورت mm:ss (برای نمایش در لیست‌ها/جزئیات).
+     */
+    public function getTalkDurationLabelAttribute(): string
+    {
+        $s = (int) $this->talk_duration_seconds;
+        if ($s <= 0) {
+            return '—';
+        }
+        return sprintf('%02d:%02d', intdiv($s, 60), $s % 60);
     }
 }

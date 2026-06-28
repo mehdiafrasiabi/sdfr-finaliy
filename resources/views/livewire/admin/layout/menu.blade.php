@@ -322,6 +322,13 @@
                                         <span class="menu-label">پنل مشاور جذب تلفنی</span>
                                     </li>
                                     <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.dashboard') ? 'active' : '' }}"
+                                           href="{{ route('admin.phone-acquisition.dashboard') }}">
+                                            <i class="fi fi-rr-dashboard"></i>
+                                            <span class="menu-label">داشبورد</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
                                         <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.queue') ? 'active' : '' }}"
                                            href="{{ route('admin.phone-acquisition.queue') }}">
                                             <i class="fi fi-rr-phone-call"></i>
@@ -333,6 +340,20 @@
                                            href="{{ route('admin.phone-acquisition.follow-ups') }}">
                                             <i class="fi fi-rr-calendar-clock"></i>
                                             <span class="menu-label">پیگیری‌های من</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.my-leads') ? 'active' : '' }}"
+                                           href="{{ route('admin.phone-acquisition.my-leads') }}">
+                                            <i class="fi fi-rr-users-alt"></i>
+                                            <span class="menu-label">دانش‌آموزان من</span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.phone-acquisition.my-calls') ? 'active' : '' }}"
+                                           href="{{ route('admin.phone-acquisition.my-calls') }}">
+                                            <i class="fi fi-rr-list-check"></i>
+                                            <span class="menu-label">تماس‌های من</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">

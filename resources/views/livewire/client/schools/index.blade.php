@@ -1,6 +1,7 @@
 <div>
 
-    @push('link')
+
+    @assets
         <style>
             /* ---------- Smooth scroll ---------- */
             html {
@@ -369,8 +370,7 @@
                 }
             }
         </style>
-    @endpush
-
+    @endassets
 
     {{-- ===== Side floating decorations (fixed, RTL aware) ===== --}}
     <svg class="side-deco side-deco-right w-12 h-12 text-primary" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
@@ -1372,70 +1372,72 @@
                 </div>
             </div>
         </section>
-        @push('script')
-            <script>
-                (function () {
-                    const SEL = '.reveal, .reveal-right, .reveal-left';
-                    const revealed = new WeakSet();
-                    let observer = null;
 
-                    function makeVisible(el, animate) {
-                        if (!animate) {
-                            const prev = el.style.transition;
-                            el.style.transition = 'none';
-                            el.classList.add('is-visible');
-                            void el.offsetWidth;          // reflow تا فلش نزنه
-                            el.style.transition = prev;
-                        } else {
-                            el.classList.add('is-visible');
-                        }
-                        revealed.add(el);
+
+        @script
+        <script>
+            (function () {
+                const SEL = '.reveal, .reveal-right, .reveal-left';
+                const revealed = new WeakSet();
+                let observer = null;
+
+                function makeVisible(el, animate) {
+                    if (!animate) {
+                        const prev = el.style.transition;
+                        el.style.transition = 'none';
+                        el.classList.add('is-visible');
+                        void el.offsetWidth;          // reflow تا فلش نزنه
+                        el.style.transition = prev;
+                    } else {
+                        el.classList.add('is-visible');
                     }
+                    revealed.add(el);
+                }
 
-                    function initObserver() {
-                        if (observer) observer.disconnect();
-                        observer = new IntersectionObserver((entries) => {
-                            entries.forEach(entry => {
-                                if (entry.isIntersecting) {
-                                    makeVisible(entry.target, true);
-                                    observer.unobserve(entry.target);
-                                }
-                            });
-                        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
-
-                        document.querySelectorAll(SEL).forEach(el => {
-                            if (revealed.has(el) || el.classList.contains('is-visible')) {
-                                makeVisible(el, false);
-                            } else {
-                                observer.observe(el);
+                function initObserver() {
+                    if (observer) observer.disconnect();
+                    observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                makeVisible(entry.target, true);
+                                observer.unobserve(entry.target);
                             }
                         });
-                    }
+                    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
 
-                    // بعد از هر بار morph شدن Livewire، وضعیت reveal رو برگردون
-                    let raf = null;
-                    function reapply() {
-                        document.querySelectorAll(SEL).forEach(el => {
-                            if (revealed.has(el)) makeVisible(el, false);
-                            else if (observer && !el.classList.contains('is-visible')) observer.observe(el);
-                        });
-                    }
-                    function scheduleReapply() {
-                        cancelAnimationFrame(raf);
-                        raf = requestAnimationFrame(reapply);
-                    }
-
-                    document.addEventListener('DOMContentLoaded', initObserver);
-                    document.addEventListener('livewire:navigated', initObserver);
-                    document.addEventListener('livewire:init', () => {
-                        if (window.Livewire && Livewire.hook) {
-                            Livewire.hook('morph.updated', scheduleReapply);
-                            Livewire.hook('morphed', scheduleReapply);
+                    document.querySelectorAll(SEL).forEach(el => {
+                        if (revealed.has(el) || el.classList.contains('is-visible')) {
+                            makeVisible(el, false);
+                        } else {
+                            observer.observe(el);
                         }
                     });
-                })();
-            </script>
-        @endpush
+                }
+
+                // بعد از هر بار morph شدن Livewire، وضعیت reveal رو برگردون
+                let raf = null;
+                function reapply() {
+                    document.querySelectorAll(SEL).forEach(el => {
+                        if (revealed.has(el)) makeVisible(el, false);
+                        else if (observer && !el.classList.contains('is-visible')) observer.observe(el);
+                    });
+                }
+                function scheduleReapply() {
+                    cancelAnimationFrame(raf);
+                    raf = requestAnimationFrame(reapply);
+                }
+
+                document.addEventListener('DOMContentLoaded', initObserver);
+                document.addEventListener('livewire:navigated', initObserver);
+                document.addEventListener('livewire:init', () => {
+                    if (window.Livewire && Livewire.hook) {
+                        Livewire.hook('morph.updated', scheduleReapply);
+                        Livewire.hook('morphed', scheduleReapply);
+                    }
+                });
+            })();
+        </script>
+        @endscript
     </div>
 </div>
 

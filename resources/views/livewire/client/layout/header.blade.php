@@ -363,10 +363,6 @@
             </div>
         </header>
 
-        <!-- Spacer for fixed header -->
-        {{-- وقتی هدر fixed می‌شود (isScrolled یا باز بودن منو) باید ارتفاعش رزرو شود تا
-             ارتفاع سند تغییر نکند؛ در غیر این صورت در صفحات کوتاه، حذف هدر از flow باعث
-             پرش موقعیت اسکرول و قفل/لرزش هدر بین حالت fixed و relative می‌شود. --}}
         <div class="pt-16 lg:pt-20" x-show="isScrolled || offcanvasOpen || profileModalOpen" x-cloak></div>
         <!-- Mobile Menu Offcanvas -->
         <div x-cloak class="lg:hidden">

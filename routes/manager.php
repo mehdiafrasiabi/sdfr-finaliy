@@ -103,10 +103,6 @@ Route::name('manager.')->group(function () {
 // Comment Management (مدیریت دیدگاه‌ها)
 
 
-// یک مسیر برای هر دو حالت ایجاد و ویرایش
-
-        // Notification Routes (اطلاع‌رسانی)
-
         Route::get('/notification', NotificationIndex::class)->name('notification');
 
 

@@ -1,7 +1,7 @@
 <div class="max-w-5xl mx-auto px-4 py-6 sm:py-10" dir="rtl"
      x-data="guidePage()" x-init="init()">
 
-    @push('link')
+@assets
         <style>
             [x-cloak] { display: none !important; }
 
@@ -163,8 +163,7 @@
                 *, *::before, *::after { animation: none !important; transition: none !important; }
             }
         </style>
-    @endpush
-
+@endassets
     {{-- ═══════════ سرتیتر + تایمر انقضا ═══════════ --}}
     <div class="rise r1 flex items-center justify-between gap-3 mb-5 flex-wrap">
         <div class="flex items-center gap-2.5">
@@ -754,32 +753,34 @@
     ]" />
 
 
-    @push('script')
-        <script>
-            function guidePage() {
-                return {
-                    init() {},
-                };
+
+
+    @script
+    <script>
+        function guidePage() {
+            return {
+                init() {},
+            };
+        }
+        document.addEventListener('alpine:init', () => {
+            if (Alpine.data && !Alpine.__guideCounter) {
+                Alpine.__guideCounter = true;
+                Alpine.data('counter', (target) => ({
+                    display: 0,
+                    init() {
+                        const dur = 900, start = performance.now();
+                        const tick = (now) => {
+                            const t = Math.min(1, (now - start) / dur);
+                            const eased = 1 - Math.pow(1 - t, 3);
+                            this.display = Math.floor(target * eased);
+                            if (t < 1) requestAnimationFrame(tick);
+                            else this.display = target;
+                        };
+                        requestAnimationFrame(tick);
+                    },
+                }));
             }
-            document.addEventListener('alpine:init', () => {
-                if (Alpine.data && !Alpine.__guideCounter) {
-                    Alpine.__guideCounter = true;
-                    Alpine.data('counter', (target) => ({
-                        display: 0,
-                        init() {
-                            const dur = 900, start = performance.now();
-                            const tick = (now) => {
-                                const t = Math.min(1, (now - start) / dur);
-                                const eased = 1 - Math.pow(1 - t, 3);
-                                this.display = Math.floor(target * eased);
-                                if (t < 1) requestAnimationFrame(tick);
-                                else this.display = target;
-                            };
-                            requestAnimationFrame(tick);
-                        },
-                    }));
-                }
-            });
-        </script>
-    @endpush
+        });
+    </script>
+    @endscript
 </div>

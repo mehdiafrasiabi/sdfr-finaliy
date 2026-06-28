@@ -919,53 +919,53 @@
 
     </div>
 
-    @push('script')
-        <script>
-            function preSessionWizard() {
-                return {
-                    init() {
-                        Livewire.on('success', () => {
-                            if (navigator.vibrate) navigator.vibrate(20);
-                        });
+    @script
+    <script>
+        function preSessionWizard() {
+            return {
+                init() {
+                    Livewire.on('success', () => {
+                        if (navigator.vibrate) navigator.vibrate(20);
+                    });
 
-                        // قفل کردن اسکرول صفحه پشت مودال
-                        const lockScroll = (locked) => {
-                            if (locked) {
-                                document.body.dataset.scrollY = window.scrollY;
-                                document.body.style.position = 'fixed';
-                                document.body.style.top = `-${window.scrollY}px`;
-                                document.body.style.left = '0';
-                                document.body.style.right = '0';
-                                document.body.style.width = '100%';
-                            } else {
-                                const y = parseInt(document.body.dataset.scrollY || '0', 10);
-                                document.body.style.position = '';
-                                document.body.style.top = '';
-                                document.body.style.left = '';
-                                document.body.style.right = '';
-                                document.body.style.width = '';
-                                window.scrollTo(0, y);
-                            }
-                        };
-
-                        // وضعیت اولیه + watcher روی openCard
-                        if (this.$wire.openCard) lockScroll(true);
-                        this.$wire.$watch('openCard', (value) => {
-                            lockScroll(!!value);
-                        });
-                    },
-                    scrollModalTop() {
-                        const ids = ['exam-scroll','qa-scroll','assignment-scroll','requested-scroll'];
-                        for (const id of ids) {
-                            const el = document.getElementById(id);
-                            if (el) {
-                                el.scrollTo({ top: 0, behavior: 'smooth' });
-                                break;
-                            }
+                    // قفل کردن اسکرول صفحه پشت مودال
+                    const lockScroll = (locked) => {
+                        if (locked) {
+                            document.body.dataset.scrollY = window.scrollY;
+                            document.body.style.position = 'fixed';
+                            document.body.style.top = `-${window.scrollY}px`;
+                            document.body.style.left = '0';
+                            document.body.style.right = '0';
+                            document.body.style.width = '100%';
+                        } else {
+                            const y = parseInt(document.body.dataset.scrollY || '0', 10);
+                            document.body.style.position = '';
+                            document.body.style.top = '';
+                            document.body.style.left = '';
+                            document.body.style.right = '';
+                            document.body.style.width = '';
+                            window.scrollTo(0, y);
                         }
-                    },
-                };
-            }
-        </script>
-    @endpush
+                    };
+
+                    // وضعیت اولیه + watcher روی openCard
+                    if (this.$wire.openCard) lockScroll(true);
+                    this.$wire.$watch('openCard', (value) => {
+                        lockScroll(!!value);
+                    });
+                },
+                scrollModalTop() {
+                    const ids = ['exam-scroll','qa-scroll','assignment-scroll','requested-scroll'];
+                    for (const id of ids) {
+                        const el = document.getElementById(id);
+                        if (el) {
+                            el.scrollTo({ top: 0, behavior: 'smooth' });
+                            break;
+                        }
+                    }
+                },
+            };
+        }
+    </script>
+    @endscript
 </div>
