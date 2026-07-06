@@ -34,6 +34,7 @@ class Index extends Component
         Payment::PURPOSE_COURSE_FULL         => 'خرید نقدی دوره',
         Payment::PURPOSE_INSTALLMENT_INITIAL => 'پیش‌پرداخت اقساط',
         Payment::PURPOSE_INSTALLMENT         => 'قسط',
+        Payment::PURPOSE_INSTALLMENT_BULK    => 'پرداخت گروهی اقساط',
     ];
 
     public function mount(): void
@@ -76,6 +77,7 @@ class Index extends Component
             Payment::PURPOSE_COURSE_FULL         => 'success',
             Payment::PURPOSE_INSTALLMENT_INITIAL => 'info',
             Payment::PURPOSE_INSTALLMENT         => 'primary',
+            Payment::PURPOSE_INSTALLMENT_BULK    => 'purple',
             default                              => 'secondary',
         };
     }

@@ -22,6 +22,7 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'block.during.study' => \App\Http\Middleware\BlockProfileDuringActiveStudy::class,
             'installments.current' => \App\Http\Middleware\EnsureInstallmentsCurrent::class,
             'student.panel.open' => \App\Http\Middleware\EnsureStudentPanelOpen::class,
+            'advisor.selected' => \App\Http\Middleware\EnsureAdvisorSelected::class,
         ]);
 
         $middleware->redirectGuestsTo(function () {

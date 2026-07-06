@@ -1,6 +1,7 @@
 <div class="hidden md:block"
      x-data="{ unreadCount: {{ $unreadCount }} }"
      x-on:notification-read.window="if (unreadCount > 0) { unreadCount--; }">
+
     <ul class="flex flex-col space-y-3 glass rounded-2xl p-5">
         <li>
 

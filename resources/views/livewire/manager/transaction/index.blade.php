@@ -70,7 +70,12 @@
                                     <td>{{ $item->order->user->mobile ?? $item->user->mobile ?? '—' }}</td>
                                     <td>
                                         <span class="badge bg-{{ $this->purposeColor($item->purpose) }}-subtle text-{{ $this->purposeColor($item->purpose) }}">
-                                            {{ \App\Livewire\Manager\Transaction\Index::PURPOSE_LABELS[$item->purpose] ?? 'خرید دوره' }}
+                                            @if($item->purpose === \App\Models\Payment::PURPOSE_INSTALLMENT_BULK && !empty($item->installment_ids))
+                                                پرداخت گروهی (اقساط
+                                                #{{ \App\Models\Installment::whereIn('id', $item->installment_ids)->pluck('sequence')->join(', #') }})
+                                            @else
+                                                {{ \App\Livewire\Manager\Transaction\Index::PURPOSE_LABELS[$item->purpose] ?? 'خرید دوره' }}
+                                            @endif
                                         </span>
                                     </td>
                                     <td>
@@ -128,7 +133,12 @@
                             </div>
                             <div class="col-md-6"><small class="text-muted">نوع:</small>
                                 <span class="badge bg-{{ $this->purposeColor($selected->purpose) }}-subtle text-{{ $this->purposeColor($selected->purpose) }}">
-                                    {{ \App\Livewire\Manager\Transaction\Index::PURPOSE_LABELS[$selected->purpose] ?? 'خرید دوره' }}
+                                    @if($selected->purpose === \App\Models\Payment::PURPOSE_INSTALLMENT_BULK && !empty($selected->installment_ids))
+                                        پرداخت گروهی (اقساط
+                                        #{{ \App\Models\Installment::whereIn('id', $selected->installment_ids)->pluck('sequence')->join(', #') }})
+                                    @else
+                                        {{ \App\Livewire\Manager\Transaction\Index::PURPOSE_LABELS[$selected->purpose] ?? 'خرید دوره' }}
+                                    @endif
                                 </span>
                             </div>
                             <div class="col-md-6"><small class="text-muted">مرجع درگاه:</small> {{ $selected->refNumber ?? '—' }}</div>

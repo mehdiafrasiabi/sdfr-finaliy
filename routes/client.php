@@ -121,7 +121,7 @@ Route::name('client.')->group(function () {
             ->name('profile.advisor-chat');
 
 
-        Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'installments.current', 'trial.step', 'block.during.study'])->group(function () {
+        Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'advisor.selected', 'installments.current', 'trial.step', 'block.during.study'])->group(function () {
             //Profile
             Route::get('/dashboard',ProfileDashboard::class)->name('dashboard');
             Route::get('/reportStudentStudy',ProfileReportStudentStudy::class)->name('reportStudentStudy');

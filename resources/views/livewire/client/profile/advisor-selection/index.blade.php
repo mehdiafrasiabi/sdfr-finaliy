@@ -7,13 +7,8 @@
     <div class="max-w-7xl space-y-14 px-4 mx-auto">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
-            {{-- سایدبار داشبورد (ثابت در دسکتاپ) --}}
-            <div class="lg:col-span-3 md:col-span-4 md:sticky md:top-24">
-                <livewire:client.profile.sidebar/>
-            </div>
-
             {{-- محتوای اصلی انتخاب مشاور --}}
-            <div class="lg:col-span-9 md:col-span-8">
+            <div class="lg:col-span-12 md:col-span-12">
                 <div class="space-y-8">
 
                     <div class="flex items-center gap-3">
@@ -89,33 +84,29 @@
 
                             {{-- فرمِ انتخابِ مشاور --}}
                         @elseif ($student && $student->advisor_id === null)
-                            <div class="glass rounded-2xl p-5 md:p-6 border border-border shadow-sm">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                            <div class="glass rounded-2xl p-5 md:p-6 border border-border shadow-sm relative z-20">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                                     <div>
                                         <label class="block text-xs font-semibold text-muted mb-2">روز هفته</label>
-                                        <select wire:model.live="filterDay"
-                                                class="w-full h-11 rounded-xl bg-background border border-border px-3 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition">
-                                            <option value="">انتخاب روز…</option>
-                                            @foreach ($days as $d => $name)
-                                                <option value="{{ $d }}">{{ $name }}</option>
-                                            @endforeach
-                                        </select>
+                                        <x-ui.select
+                                            wire:model="filterDay"
+                                            placeholder="انتخاب روز..."
+                                            :options="collect($days)->map(fn($name, $id) => ['id' => $id, 'name' => $name])->values()->all()"
+                                        />
                                     </div>
                                     <div>
                                         <label class="block text-xs font-semibold text-muted mb-2">ساعت</label>
-                                        <select wire:model.live="filterHour"
-                                                class="w-full h-11 rounded-xl bg-background border border-border px-3 text-sm focus:ring-2 focus:ring-primary/50 outline-none transition">
-                                            <option value="">انتخاب ساعت…</option>
-                                            @foreach ($hours as $h)
-                                                <option value="{{ $h }}">{{ sprintf('%02d:00', $h) }}</option>
-                                            @endforeach
-                                        </select>
+                                         <x-ui.select
+                                            wire:model="filterHour"
+                                            placeholder="انتخاب ساعت..."
+                                            :options="collect($hours)->map(fn($h) => ['id' => $h, 'name' => sprintf('%02d:00', $h)])->values()->all()"
+                                        />
                                     </div>
-                                    <div class="sm:col-span-2 lg:col-span-2">
-                                        <button wire:click="selectRandom"
+                                    <div class="sm:col-span-2 lg:col-span-1">
+                                        <button wire:click="$refresh"
                                                 class="w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:opacity-90 hover:shadow-lg hover:shadow-primary/30 transition-all flex items-center justify-center gap-2">
-                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 3.75 21 8.25m0 0L16.5 12.75M21 8.25H3M7.5 20.25 3 15.75m0 0L7.5 11.25M3 15.75h18"/></svg>
-                                            انتخاب تصادفی توسط سیستم
+                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.85-5.15a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" /></svg>
+                                            جستجو
                                         </button>
                                     </div>
                                 </div>

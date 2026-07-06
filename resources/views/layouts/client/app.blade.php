@@ -177,6 +177,11 @@
 
 <body>
 <!-- container -->
+@php
+    $student = auth()->user()?->student;
+    $needsAdvisorSelection = $student && $student->needsAdvisorSelection();
+@endphp
+
 <div class="flex flex-col min-h-screen bg-background">
 
     <!-- Loading Overlay برای نصب -->
@@ -204,7 +209,6 @@
         </div>
     </div>
 
-
     <livewire:client.layout.header/>
 
     <!-- end header -->
@@ -218,7 +222,7 @@
     </main>
 
     <!-- footer -->
-    @unless(request()->routeIs('client.profile.assessment.*'))
+    @unless(request()->routeIs('client.profile.assessment.*') || $needsAdvisorSelection)
         <livewire:client.layout.footer/>
     @endunless
     <!-- end footer -->
@@ -228,7 +232,7 @@
     @php
         $bottomNavTrial = auth()->user()?->trialWeek;
     @endphp
-    @if((!$bottomNavTrial || $bottomNavTrial->status === \App\Models\TrialWeek::STATUS_PROGRAM_BUILT) && !request()->routeIs('client.profile.advisor-chat'))
+    @if((!$bottomNavTrial || $bottomNavTrial->status === \App\Models\TrialWeek::STATUS_PROGRAM_BUILT) && !request()->routeIs('client.profile.advisor-chat') && !$needsAdvisorSelection)
         <livewire:client.layout.mobile-bottom-nav/>
     @endif
 

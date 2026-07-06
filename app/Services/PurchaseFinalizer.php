@@ -33,6 +33,7 @@ class PurchaseFinalizer
         match ($purpose) {
             Payment::PURPOSE_INSTALLMENT_INITIAL => $this->finalizeInstallmentInitial($payment),
             Payment::PURPOSE_INSTALLMENT         => $this->finalizeInstallment($payment),
+            Payment::PURPOSE_INSTALLMENT_BULK    => $this->finalizeInstallmentBulk($payment),
             default                              => $this->finalizeCourseFull($payment),
         };
     }
@@ -109,6 +110,33 @@ class PurchaseFinalizer
 
             $installment->plan?->refreshCompletion();
         });
+    }
+
+    protected function finalizeInstallmentBulk(Payment $payment): void
+    {
+        $installmentIds = $payment->installment_ids ?? [];
+        if (empty($installmentIds)) {
+            return;
+        }
+
+        $installments = Installment::whereIn('id', $installmentIds)->where('status', 'pending')->get();
+        $plan = null;
+
+        DB::transaction(function () use ($payment, $installments, &$plan) {
+            foreach ($installments as $installment) {
+                $installment->update([
+                    'status'     => Installment::STATUS_PAID,
+                    'payment_id' => $payment->id,
+                    'paid_at'    => Carbon::now(),
+                ]);
+                if (!$plan) {
+                    $plan = $installment->plan;
+                }
+            }
+        });
+
+        // After the transaction, refresh the plan's completion status once.
+        $plan?->refreshCompletion();
     }
 
     /**

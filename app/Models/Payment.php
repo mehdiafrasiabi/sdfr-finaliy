@@ -10,6 +10,10 @@ class Payment extends Model
     use HasFactory;
     protected $guarded = [];
 
+    protected $casts = [
+        'installment_ids' => 'array',
+    ];
+
     public function order()
     {
         return $this->belongsTo(Order::class);
@@ -34,7 +38,8 @@ class Payment extends Model
         return $this->belongsTo(Installment::class, 'installment_id');
     }
 
-    public const PURPOSE_COURSE_FULL        = 'course_full';
+    public const PURPOSE_COURSE_FULL         = 'course_full';
     public const PURPOSE_INSTALLMENT_INITIAL = 'installment_initial';
-    public const PURPOSE_INSTALLMENT        = 'installment';
+    public const PURPOSE_INSTALLMENT         = 'installment';
+    public const PURPOSE_INSTALLMENT_BULK    = 'installment_bulk';
 }
