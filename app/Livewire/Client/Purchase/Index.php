@@ -21,15 +21,6 @@ use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Morilog\Jalali\Jalalian;
 
-/**
- * صفحهٔ پرداخت دوره با مدل «ماه ورود و تخفیف».
- *
- *   - قیمت بر اساس ماهِ خرید (امروز) محاسبه می‌شود: کل پرداختی سال، پیش‌پرداخت، اقساط.
- *   - دو حالت پرداخت:
- *       • پرداخت کامل: کل مبلغ سال یک‌جا (با امکان کوپن تخفیف).
- *       • اقساطی: پیش‌پرداخت ۳۰٪ همین حالا + اقساط ماهانه تا پایان خرداد.
- *   - پس از پرداخت موفق، دسترسی تا پایان خرداد فعال می‌شود (PurchaseFinalizer در callback).
- */
 class Index extends Component
 {
     use SEOTools;
@@ -37,13 +28,11 @@ class Index extends Component
     public string  $couponCode     = '';
     public ?string $couponError    = null;
     public ?string $couponNotice   = null;
-    public int     $couponDiscount = 0; // درصد تخفیف کوپن (فقط روی پرداخت کامل)
+    public int     $couponDiscount = 0;
 
-    // ─────────────── جریان چندمرحله‌ای ───────────────
-    public int  $step          = 1;     // ۱=معرفی+قیمت، ۲=بازبینی اطلاعات، ۳=روش پرداخت
-    public bool $agreedToTerms = false; // چک‌باکس قوانین (مرحلهٔ ۳)
+    public int  $step          = 1;
+    public bool $agreedToTerms = false;
 
-    // بازبینی/ویرایش درجای اطلاعات (مرحلهٔ ۲)
     public bool   $editingInfo     = false;
     public string $infoName         = '';
     public string $infoNameFull     = '';
@@ -65,12 +54,8 @@ class Index extends Component
         $this->seo()->setTitle('پرداخت دوره');
 
         $user = Auth::user();
-        if (! $user) {
-            return;
-        }
+        if (! $user) return;
 
-        // فقط اگر دسترسیِ پرداختیِ فعال و منقضی‌نشده دارد به داشبورد برود
-        // (تا کاربرِ منقضی‌شده بتواند تمدید کند).
         if ($user->student && $user->student->hasActivePaidAccess()) {
             $this->redirect(route('client.profile.dashboard'), navigate: true);
             return;
@@ -79,18 +64,26 @@ class Index extends Component
         $this->loadInfo();
     }
 
-    // ─────────────── ناوبری مراحل ───────────────
-
     public function nextStep(): void
     {
         if ($this->step === 1 && ! $this->gradePrice()) {
             session()->flash('error', 'قیمتی برای پایهٔ شما تعریف نشده است.');
             return;
         }
-        if ($this->editingInfo) {
-            $this->dispatch('warning', 'ابتدا ویرایش اطلاعات را ذخیره یا لغو کنید.');
-            return;
+
+        // بررسی اجباری بودن آدرس و محل تولد در مرحله دوم
+        if ($this->step === 2) {
+            if ($this->editingInfo) {
+                $this->dispatch('warning', 'ابتدا ویرایش اطلاعات را ذخیره یا لغو کنید.');
+                return;
+            }
+
+            if (empty(trim($this->infoAddress)) || empty(trim($this->infoPlaceOfBirth))) {
+                $this->dispatch('warning', 'برای ورود به مرحله بعد، تکمیل «آدرس» و «محل تولد» الزامی است. لطفاً روی "ویرایش" کلیک کنید.');
+                return;
+            }
         }
+
         if ($this->step < 3) {
             $this->step++;
         }
@@ -104,14 +97,11 @@ class Index extends Component
         $this->editingInfo = false;
     }
 
-    // ─────────────── بازبینی/ویرایش اطلاعات ───────────────
-
     protected function loadInfo(): void
     {
         $pi = PersonalInformation::where('user_id', Auth::id())->first();
-        if (! $pi) {
-            return;
-        }
+        if (! $pi) return;
+
         $this->infoName         = (string) $pi->name;
         $this->infoNameFull     = (string) ($pi->name_full ?? '');
         $this->infoFatherName   = (string) $pi->father_name;
@@ -156,8 +146,8 @@ class Index extends Component
             'infoBirthDate'    => ['nullable', 'string', 'max:30'],
             'infoFatherMobile' => ['required', 'string', 'max:20'],
             'infoMotherMobile' => ['required', 'string', 'max:20'],
-            'infoPlaceOfBirth' => ['nullable', 'string', 'max:255'],
-            'infoAddress'      => ['required', 'string', 'max:500'],
+            'infoPlaceOfBirth' => ['required', 'string', 'max:255'], // محل تولد اجباری شد
+            'infoAddress'      => ['required', 'string', 'max:500'], // آدرس اجباری شد
         ], [], [
             'infoName'         => 'نام',
             'infoFatherName'   => 'نام پدر',
@@ -166,6 +156,7 @@ class Index extends Component
             'infoField'        => 'رشته',
             'infoFatherMobile' => 'موبایل پدر',
             'infoMotherMobile' => 'موبایل مادر',
+            'infoPlaceOfBirth' => 'محل تولد',
             'infoAddress'      => 'آدرس',
         ]);
 
@@ -190,17 +181,13 @@ class Index extends Component
     protected function gradePrice(): ?GradePrice
     {
         $user = Auth::user();
-        if (! $user) {
-            return null;
-        }
+        if (! $user) return null;
+
         $pi = PersonalInformation::where('user_id', $user->id)->first();
-        if (! $pi || ! $pi->grade) {
-            return null;
-        }
+        if (! $pi || ! $pi->grade) return null;
+
         return GradePrice::activeFor((int) $pi->grade);
     }
-
-    // ─────────────── کوپن (فقط روی پرداخت کامل) ───────────────
 
     public function applyCoupon(): void
     {
@@ -230,7 +217,7 @@ class Index extends Component
 
         $percent = (int) ($coupon->discount_percentage ?? $coupon->percentage ?? 0);
         $this->couponDiscount = max(0, min(100, $percent));
-        $this->couponNotice = "تخفیف {$this->couponDiscount} درصدی روی پرداخت کامل اعمال شد.";
+        $this->couponNotice = "تخفیف {$this->couponDiscount} درصدی روی پرداخت نقدی اعمال شد.";
     }
 
     public function removeCoupon(): void
@@ -241,31 +228,27 @@ class Index extends Component
         $this->couponNotice   = null;
     }
 
-    // ─────────────── پرداخت کامل ───────────────
-
     public function pay(PaymentGateWayInterface $paymentGateway)
     {
         $user = Auth::user();
-        if (! $user) {
-            return $this->redirect(route('client.auth.login'), navigate: true);
-        }
+        if (! $user) return $this->redirect(route('client.auth.login'), navigate: true);
 
         if (! $this->agreedToTerms) {
-            session()->flash('error', 'برای پرداخت باید قوانین و شرایط را بپذیرید.');
+            $this->dispatch('error', 'برای پرداخت باید قوانین و شرایط را بپذیرید.');
             return;
         }
 
         $price = $this->gradePrice();
         $pi    = PersonalInformation::where('user_id', $user->id)->first();
         if (! $price || ! $pi) {
-            session()->flash('error', 'قیمتی برای پایهٔ شما تعریف نشده یا اطلاعات شخصی کامل نیست.');
+            $this->dispatch('error', 'قیمتی برای پایهٔ شما تعریف نشده یا اطلاعات شخصی کامل نیست.');
             return;
         }
 
         $i      = $price->entryMonthIndex();
         $amount = $this->finalFullPrice($price, $i);
         if ($amount <= 0) {
-            session()->flash('error', 'مبلغ نهایی نامعتبر است.');
+            $this->dispatch('error', 'مبلغ نهایی نامعتبر است.');
             return;
         }
 
@@ -283,10 +266,7 @@ class Index extends Component
                     'status'            => 'pending',
                 ]);
 
-                OrderItem::query()->create([
-                    'price'    => $amount,
-                    'order_id' => $order->id,
-                ]);
+                OrderItem::query()->create(['price' => $amount, 'order_id' => $order->id]);
 
                 Payment::query()->create([
                     'order_id'                => $order->id,
@@ -301,38 +281,34 @@ class Index extends Component
                 $this->logCouponUsage($user->id);
             });
         } catch (\Throwable $e) {
-            session()->flash('error', 'خطا در ثبت سفارش: ' . $e->getMessage());
+            $this->dispatch('error', 'خطا در ثبت سفارش.');
             return;
         }
 
         return $paymentGateway->request($amount, $orderNumber);
     }
 
-    // ─────────────── پرداخت اقساطی ───────────────
-
     public function payInstallment(PaymentGateWayInterface $paymentGateway)
     {
         $user = Auth::user();
-        if (! $user) {
-            return $this->redirect(route('client.auth.login'), navigate: true);
-        }
+        if (! $user) return $this->redirect(route('client.auth.login'), navigate: true);
 
         if (! $this->agreedToTerms) {
-            session()->flash('error', 'برای پرداخت باید قوانین و شرایط را بپذیرید.');
+            $this->dispatch('error', 'برای پرداخت باید قوانین و شرایط را بپذیرید.');
             return;
         }
 
         $price = $this->gradePrice();
         $pi    = PersonalInformation::where('user_id', $user->id)->first();
         if (! $price || ! $pi) {
-            session()->flash('error', 'قیمتی برای پایهٔ شما تعریف نشده یا اطلاعات شخصی کامل نیست.');
+            $this->dispatch('error', 'قیمتی برای پایهٔ شما تعریف نشده یا اطلاعات شخصی کامل نیست.');
             return;
         }
 
         $i     = $price->entryMonthIndex();
         $count = $price->installmentCount($i);
         if ($count < 1) {
-            session()->flash('error', 'برای این ماه امکان پرداخت اقساطی وجود ندارد؛ لطفاً پرداخت کامل را انتخاب کنید.');
+            $this->dispatch('error', 'برای این ماه امکان پرداخت اقساطی وجود ندارد؛ لطفاً پرداخت نقدی را انتخاب کنید.');
             return;
         }
 
@@ -359,12 +335,9 @@ class Index extends Component
                     'status'            => InstallmentPlan::STATUS_PENDING,
                 ]);
 
-                // اقساط: قسط k در همان روزِ خرید، k ماه بعد (شمسی). آخرین قسط مابقیِ رُند را جذب می‌کند.
                 $accumulated = 0;
                 for ($k = 1; $k <= $count; $k++) {
-                    $amount = ($k === $count)
-                        ? ($total - $initial - $accumulated)
-                        : $monthly;
+                    $amount = ($k === $count) ? ($total - $initial - $accumulated) : $monthly;
                     $accumulated += $amount;
 
                     Installment::create([
@@ -386,10 +359,7 @@ class Index extends Component
                     'status'            => 'pending',
                 ]);
 
-                OrderItem::query()->create([
-                    'price'    => $initial,
-                    'order_id' => $order->id,
-                ]);
+                OrderItem::query()->create(['price' => $initial, 'order_id' => $order->id]);
 
                 Payment::query()->create([
                     'order_id'                => $order->id,
@@ -405,7 +375,7 @@ class Index extends Component
                 return $paymentGateway->request($initial, $orderNumber);
             });
         } catch (\Throwable $e) {
-            session()->flash('error', 'خطا در ثبت طرح اقساطی: ' . $e->getMessage());
+            $this->dispatch('error', 'خطا در ثبت طرح اقساطی.');
             return;
         }
     }
@@ -459,9 +429,7 @@ class Index extends Component
             ];
         }
 
-        $pi = PersonalInformation::with(['state', 'city'])
-            ->where('user_id', Auth::id())
-            ->first();
+        $pi = PersonalInformation::with(['state', 'city'])->where('user_id', Auth::id())->first();
 
         return view('livewire.client.purchase.index', [
             'price'        => $price,

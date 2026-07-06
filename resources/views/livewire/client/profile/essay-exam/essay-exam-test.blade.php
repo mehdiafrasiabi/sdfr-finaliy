@@ -36,7 +36,7 @@
         </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 py-6 space-y-6">
+    <div class="max-w-7xl mx-auto px-4 space-y-6">
 
         {{-- ════════════════════════════════════════
              تایمر بالا (sticky + توگل مشاهده)

@@ -35,7 +35,15 @@ class AdvisingSession extends Model
 
         'is_active' => 'boolean',
 
+        'finalized' => 'boolean',
+
+        'is_makeup' => 'boolean',
+
     ];
+
+    // علتِ جلسه‌ی جبرانی
+    const MAKEUP_STUDENT_RESCHEDULE = 'student_reschedule';
+    const MAKEUP_ADVISOR_LEAVE      = 'advisor_leave';
 
 
     // وضعیت‌های جلسه
@@ -91,6 +99,10 @@ class AdvisingSession extends Model
     // محاسبه فعال بودن خودکار
     public function shouldBeActive(): bool
     {
+        // جلسه‌ی جبرانیِ بدونِ تاریخ (در انتظارِ تعیینِ روز توسط مشاور) هرگز فعال نمی‌شود.
+        if (! $this->activation_date) {
+            return false;
+        }
         // session_time is cast to datetime, so we need to format it properly
         $timeString = $this->session_time ? $this->session_time->format('H:i:s') : '00:00:00';
         $sessionDateTime = Carbon::parse($this->activation_date)->setTimeFromTimeString($timeString);
@@ -152,9 +164,27 @@ class AdvisingSession extends Model
         };
     }
 
+    /** جلسه‌ی منبعِ این جلسه‌ی جبرانی (جلسه‌ای که جابجا/لغو شده). */
+    public function sourceSession()
+    {
+        return $this->belongsTo(AdvisingSession::class, 'source_session_id');
+    }
+
+    public function getMakeupReasonLabelAttribute(): string
+    {
+        return match ($this->makeup_reason) {
+            self::MAKEUP_STUDENT_RESCHEDULE => 'جابجایی توسط دانش‌آموز',
+            self::MAKEUP_ADVISOR_LEAVE      => 'مرخصی مشاور',
+            default                          => '',
+        };
+    }
+
     // بررسی امکان پر کردن پیش‌جلسه
     public function canFillPreSession(): bool
     {
+        if (! $this->activation_date) {
+            return false;
+        }
         $timeString = $this->session_time ? $this->session_time->format('H:i:s') : '00:00:00';
 
         $sessionDateTime = Carbon::parse($this->activation_date)->setTimeFromTimeString($timeString);

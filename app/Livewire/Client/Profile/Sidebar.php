@@ -12,11 +12,35 @@ class Sidebar extends Component
     public ?string $profilePictureUrl = null;
     public ?string $gender = null;
     public $unreadCount = 0;
+    public int $advisorUnread = 0;
+    public bool $advisorChatLocked = false;
 
     public function mount()
     {
         $this->loadUnreadCount();
+        $this->loadAdvisorChatState();
         $this->loadUserProfileData();
+    }
+
+    /**
+     * وضعیت چت با مشاور: قفلِ هفته‌ی آزمایشی + تعداد پیام نخوانده‌ی مشاور.
+     */
+    public function loadAdvisorChatState(): void
+    {
+        $user = Auth::user();
+        $student = $user?->student;
+
+        if (! $student) {
+            $this->advisorChatLocked = false;
+            $this->advisorUnread = 0;
+            return;
+        }
+
+        $trial = $student->trialWeek;
+        $this->advisorChatLocked = $trial && ! $trial->hasFullAccess();
+
+        $conversation = $student->conversation;
+        $this->advisorUnread = $conversation ? $conversation->unreadCountFor('student') : 0;
     }
     public function loadUnreadCount()
     {

@@ -104,6 +104,37 @@ class Student extends Model
         return $this->belongsTo(Admin::class, 'advisor_id');
     }
 
+    /** انتخاب‌های مشاور توسط این دانش‌آموز (تاریخچه: pending/approved/rejected). */
+    public function advisorSelections(): HasMany
+    {
+        return $this->hasMany(AdvisorSelection::class);
+    }
+
+    /** انتخابِ معلقِ جاری (رزروِ در انتظارِ تاییدِ مدیر آموزشی). */
+    public function pendingAdvisorSelection()
+    {
+        return $this->hasOne(AdvisorSelection::class)
+            ->where('status', AdvisorSelection::STATUS_PENDING)
+            ->latest('id');
+    }
+
+    /**
+     * آیا این دانش‌آموز باید مشاور انتخاب کند؟
+     * فقط دانش‌آموزِ خریدکرده‌ی غیرآزمایشی که هنوز مشاورِ تاییدشده ندارد.
+     */
+    public function needsAdvisorSelection(): bool
+    {
+        return $this->advisor_id === null
+            && ! $this->is_trial
+            && $this->hasActivePaidAccess();
+    }
+
+    /** مکالمه‌ی مستقیم این دانش‌آموز با مشاورش. */
+    public function conversation()
+    {
+        return $this->hasOne(Conversation::class);
+    }
+
     public function advisingSessions()
     {
         return $this->hasMany(AdvisingSession::class);
@@ -137,37 +168,6 @@ class Student extends Model
     public function classSchedules()
     {
         return $this->hasMany(ClassSchedule::class);
-    }
-
-    public function schedulePreferences(): HasMany
-    {
-        return $this->hasMany(StudentSchedulePreference::class);
-    }
-
-    /**
-     * ترجیح برنامه‌ی فعالِ جاری دانش‌آموز (تاییدشده توسط مدیر آموزشی).
-     */
-    public function activeSchedulePreference()
-    {
-        return $this->hasOne(StudentSchedulePreference::class)
-            ->where('status', StudentSchedulePreference::STATUS_APPROVED)
-            ->latest('approved_at');
-    }
-
-    public function rescheduleRequests(): HasMany
-    {
-        return $this->hasMany(SessionRescheduleRequest::class);
-    }
-
-    /**
-     * تعداد تغییرات برنامه‌ی هفتگی در سال میلادی جاری.
-     */
-    public function scheduleChangesThisYear(): int
-    {
-        return $this->schedulePreferences()
-            ->where('year_period', (int) now()->year)
-            ->where('change_index', '>', 0)
-            ->count();
     }
 
     public function trialWeek()

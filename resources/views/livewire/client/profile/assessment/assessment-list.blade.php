@@ -14,7 +14,7 @@
 
         @if($isAllDone && $showChoice)
             {{-- ─── انتخاب مسیر: هفته آزمایشی یا خرید ─── --}}
-            <div class="rounded-2xl overflow-hidden border border-border bg-secondary/30">
+            <div class="rounded-2xl overflow-hidden border border-border glass">
                 <div class="h-1 bg-primary"></div>
                 <div class="p-6 sm:p-7 space-y-5">
                     <div class="text-center">
@@ -29,15 +29,16 @@
                     @endif
 
                     <button wire:click="confirmTrial" wire:loading.attr="disabled" wire:target="confirmTrial"
-                            class="w-full rounded-2xl p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99] disabled:opacity-60 bg-emerald-500/8 border border-emerald-500/30">
+                            class="w-full rounded-2xl p-5 text-right transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.99]
+                            disabled:opacity-60 bg-success border border-emerald-500">
                         <div class="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-500 rounded-full px-2.5 py-1 mb-3 bg-emerald-500/12">
-                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span> رایگان
+                            <span class="w-1.5 h-1.5 bg-emberlen  rounded-full"></span> رایگان
                         </div>
                         <h3 class="font-black text-lg mb-1">شروع ۱ هفته آزمایشی</h3>
                         <p class="text-xs text-muted leading-6">
                             <span wire:loading.remove wire:target="confirmTrial">تجربه‌ی کامل امکانات بدون پرداخت، با نظارت مشاور اختصاصی</span>
                             <span wire:loading wire:target="confirmTrial" class="inline-flex items-center gap-2">
-                                <span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-current/30 border-t-current animate-spin"></span>
+                                <span class="inline-block w-3.5 h-3.5 rounded-full border-2 border-current bg-secondary border-t-current animate-spin"></span>
                                 در حال آماده‌سازی…
                             </span>
                         </p>
@@ -159,16 +160,16 @@
                             @endforeach
 
                             {{-- ───── انتخاب: نمایش جزییات یا ادامه ───── --}}
-                            <div x-show="!showDetails" class="md:col-span-2 flex flex-col md:flex-row gap-3 pt-1">
+                            <div x-show="!showDetails" class="md:col-span-2 flex gap-3 pt-1">
                                 <button type="button" @click="showDetails = true"
-                                        class="flex-1 w-full h-12 rounded-xl font-bold text-sm text-foreground bg-secondary border border-border transition-all duration-200 hover:bg-background active:scale-[0.98] inline-flex items-center justify-center gap-2">
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                                    نمایش جزییات
+                                        class="flex-1 h-12 px-2 rounded-xl font-bold text-xs sm:text-sm text-foreground bg-secondary border border-border transition-all duration-200 hover:bg-background active:scale-[0.98] inline-flex items-center justify-center gap-1.5 sm:gap-2">
+                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <span class="whitespace-nowrap">نمایش جزییات</span>
                                 </button>
                                 <button wire:click="continueToChoice" wire:loading.attr="disabled" wire:target="continueToChoice"
-                                        class="flex-1 w-full h-12 rounded-xl font-bold text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] inline-flex items-center justify-center gap-2">
-                                    ادامه میدهم
-                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
+                                        class="flex-1 h-12 px-2 rounded-xl font-bold text-xs sm:text-sm text-primary-foreground bg-primary transition-all duration-200 hover:opacity-90 active:scale-[0.98] inline-flex items-center justify-center gap-1.5 sm:gap-2">
+                                    <span class="whitespace-nowrap">ادامه میدهم</span>
+                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5"/></svg>
                                 </button>
                             </div>
 

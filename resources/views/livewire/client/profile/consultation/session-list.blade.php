@@ -47,6 +47,9 @@
                                 @foreach($sessions as $session)
                                     @php
                                         $isLocked = in_array($session->id, $lockedSessionIds ?? []);
+                                        $canReschedule = ! $isLocked
+                                            && $session->result_status === null
+                                            && $session->canFillPreSession();
                                     @endphp
 
                                     <div
@@ -296,6 +299,17 @@
                                                     </div>
                                                 @endif
                                             </div>
+
+                                            @if($canReschedule)
+                                                <div class="mt-4 pt-4 border-t border-border">
+                                                    <button wire:click="openReschedule({{ $session->id }})"
+                                                            class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-amber-500/10 text-amber-600 hover:bg-amber-500 hover:text-white rounded-xl font-semibold text-sm transition-colors">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 3h5v5M21 3l-7 7M8 21H3v-5M3 21l7-7"/></svg>
+                                                        درخواست جابجایی این جلسه
+                                                    </button>
+                                                    <p class="text-xs text-muted mt-2">با جابجایی، این جلسه غیبت خورده و یک «جلسه‌ی جبرانی» در روزِ جدید ساخته می‌شود.</p>
+                                                </div>
+                                            @endif
                                         </div>
 
                                     </div>
@@ -377,6 +391,32 @@
                 </div>
             </div>
         </div>
+
+        {{-- Modal جابجایی جلسه --}}
+        @if($showRescheduleModal)
+            <div class="fixed inset-0 z-[100] flex items-end sm:items-center justify-center" wire:key="reschedule-modal">
+                <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" wire:click="closeReschedule"></div>
+                <div class="relative z-10 w-full sm:max-w-md bg-secondary rounded-t-3xl sm:rounded-2xl border border-border shadow-2xl p-6" dir="rtl">
+                    <h3 class="font-bold text-lg text-foreground mb-2">جابجایی جلسه</h3>
+                    <p class="text-sm text-muted mb-4 leading-6">
+                        روزِ جدیدِ جلسه را انتخاب کنید. جلسه‌ی فعلی «غیبت» ثبت می‌شود و یک «جلسه‌ی جبرانی» در روزِ انتخابی ساخته می‌شود. مشاور یک روز قبل ساعتِ آن را اعلام می‌کند.
+                    </p>
+                    <label class="block text-xs font-semibold mb-1.5">روز جدید</label>
+                    <select wire:model="rescheduleNewDay" class="w-full h-11 rounded-xl bg-background border border-border px-3 text-sm mb-4">
+                        <option value="">انتخاب روز…</option>
+                        @foreach($weekDays as $d => $name)
+                            <option value="{{ $d }}">{{ $name }}</option>
+                        @endforeach
+                    </select>
+                    <div class="flex gap-3">
+                        <button wire:click="closeReschedule"
+                                class="flex-1 h-11 rounded-xl bg-background border border-border text-foreground text-sm font-bold">لغو</button>
+                        <button wire:click="submitReschedule"
+                                class="flex-1 h-11 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:opacity-90">ثبت جابجایی</button>
+                    </div>
+                </div>
+            </div>
+        @endif
 
     </div>
 </div>

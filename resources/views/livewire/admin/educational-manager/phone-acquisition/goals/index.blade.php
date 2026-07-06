@@ -43,6 +43,13 @@
                     </div>
 
                     <div class="mb-3">
+                        <label class="form-label">توضیحات (برای نمایش به مشاوران)</label>
+                        <textarea wire:model="description" rows="3" class="form-control"
+                                  placeholder="مثلاً: تمرکز این هفته روی پایه دوازدهم تجربی…"></textarea>
+                        @error('description')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                    </div>
+
+                    <div class="mb-3">
                         <label class="form-label">تاریخ مهلت <span class="text-danger">*</span></label>
                         <div wire:ignore>
                             <input type="text" id="jdp-goal" data-jdp
@@ -78,7 +85,12 @@
                             @forelse ($goals as $goal)
                                 @php $pct = $goal->target_count > 0 ? min(100, round($goal->achieved / $goal->target_count * 100)) : 0; @endphp
                                 <tr>
-                                    <td>{{ $goal->isTeamGoal() ? 'کل تیم' : ($goal->admin?->name ?? '—') }}</td>
+                                    <td>
+                                        {{ $goal->isTeamGoal() ? 'کل تیم' : ($goal->admin?->name ?? '—') }}
+                                        @if ($goal->description)
+                                            <div class="text-muted small mt-1">{{ $goal->description }}</div>
+                                        @endif
+                                    </td>
                                     <td>{{ number_format($goal->target_count) }}</td>
                                     <td>{{ number_format($goal->achieved) }}</td>
                                     <td style="min-width:140px">

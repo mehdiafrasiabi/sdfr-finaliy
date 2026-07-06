@@ -181,6 +181,11 @@
                                                 <a href="{{route('manager.adminManage')}}" class="nav-link"
                                                    data-key="t-basic">ادمین ها</a>
                                             </li>
+                                            <li class="nav-item">
+                                                <a href="{{ route('manager.supporters') }}"
+                                                   class="nav-link {{ request()->routeIs('manager.supporters') || request()->routeIs('manager.supporter.*') ? 'active' : '' }}"
+                                                   data-key="t-basic">لیست پشتیبانان</a>
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>
@@ -210,6 +215,32 @@
                                                     <i class="ri-flashlight-line me-1 text-warning"></i>
                                                     هفته‌های آزمایشی
                                                 </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link {{ request()->routeIs('manager.advisors*') || request()->routeIs('manager.advisor-approval') ? 'active' : '' }}"
+                               href="#advisors" data-bs-toggle="collapse" role="button"
+                               aria-expanded="false" aria-controls="advisors">
+                                <i class="ri-user-star-line"></i>
+                                <span data-key="t-base-ui">مشاوران</span>
+                            </a>
+                            <div class="collapse menu-dropdown mega-dropdown-menu" id="advisors">
+                                <div class="row">
+                                    <div class="col-lg-4">
+                                        <ul class="nav nav-sm flex-column">
+                                            <li class="nav-item">
+                                                <a href="{{ route('manager.advisors') }}"
+                                                   class="nav-link {{ request()->routeIs('manager.advisors*') ? 'active' : '' }}"
+                                                   data-key="t-basic">لیست مشاوران</a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="{{ route('manager.advisor-approval') }}"
+                                                   class="nav-link {{ request()->routeIs('manager.advisor-approval') ? 'active' : '' }}"
+                                                   data-key="t-basic">تایید انتخاب مشاور</a>
                                             </li>
                                         </ul>
                                     </div>

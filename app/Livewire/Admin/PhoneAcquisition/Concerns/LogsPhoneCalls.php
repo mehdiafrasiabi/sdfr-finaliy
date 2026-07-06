@@ -38,10 +38,18 @@ trait LogsPhoneCalls
     // شاخهٔ ناموفق
     public string $failReason = '';
 
+    /** فاز مودال تماس (سمت سرور، قطعی): ringing | talking | answerForm | noAnswerForm */
+    public string $callPhase = 'ringing';
+
+    /** آیا لینک ثبت‌نام برای این تماس ارسال شده است؟ (جلوگیری از ارسال دوباره) */
+    public bool $linkSent = false;
+    public ?string $sentLinkUrl = null;
+
     public function openCallForm(int $leadId): void
     {
         $this->resetCallForm();
         $this->activeLeadId = $leadId;
+        $this->callPhase    = 'ringing';
         // راه‌اندازی مجدد تقویم شمسی پس از باز شدن مودال
         $this->dispatch('phone-call-form-opened');
     }
@@ -70,6 +78,9 @@ trait LogsPhoneCalls
         $this->followUpAt          = '';
         $this->summary             = '';
         $this->failReason          = '';
+        $this->callPhase           = 'ringing';
+        $this->linkSent            = false;
+        $this->sentLinkUrl         = null;
         $this->resetErrorBag();
     }
 
@@ -117,10 +128,11 @@ trait LogsPhoneCalls
         });
 
         $this->activeCallId = $call->id;
+        $this->callPhase    = 'talking';
     }
 
     /**
-     * «اتمام مکالمه» — مدت مکالمه (ثانیه) از کلاینت ذخیره می‌شود.
+     * «اتمام مکالمه» — مدت مکالمه (ثانیه) از کلاینت ذخیره می‌شود و به فرم پاسخ می‌رویم.
      */
     public function endConversation(int $seconds): void
     {
@@ -130,6 +142,10 @@ trait LogsPhoneCalls
             PhoneCall::where('id', $this->activeCallId)
                 ->update(['talk_duration_seconds' => $this->talkSeconds]);
         }
+
+        $this->callPhase = 'answerForm';
+        // فرم پاسخ تازه رندر می‌شود؛ تقویم شمسی باید دوباره مقداردهی شود.
+        $this->dispatch('phone-call-form-opened');
     }
 
     /**
@@ -139,7 +155,37 @@ trait LogsPhoneCalls
     {
         $this->callMode   = 'fail';
         $this->failReason = PhoneCall::FAIL_NO_ANSWER;
+        $this->callPhase  = 'noAnswerForm';
         $this->resetErrorBag();
+    }
+
+    /**
+     * لغو تماس — فقط در فاز زنگ‌خوردن (قبل از پاسخ/عدم‌پاسخ) مجاز است.
+     */
+    public function cancelCall(): void
+    {
+        if ($this->callPhase === 'ringing') {
+            $this->closeCallForm();
+        }
+    }
+
+    /**
+     * ارسال دستی «لینک یکتای ثبت‌نام» در حین تماس.
+     */
+    public function sendRegistrationLink(): void
+    {
+        $lead = $this->loadLeadForConsultant($this->activeLeadId);
+        if (! $lead) {
+            $this->dispatch('warning', 'شماره یافت نشد یا به شما اختصاص ندارد.');
+            return;
+        }
+
+        $link = app(\App\Services\PhoneRegistrationService::class)
+            ->createAndSend($lead, Auth::guard('admin')->id());
+
+        $this->linkSent    = true;
+        $this->sentLinkUrl = $link->url;
+        $this->dispatch('success', 'لینک ثبت‌نام برای دانش‌آموز ارسال شد.');
     }
 
     public function logCall(): void
@@ -190,12 +236,12 @@ trait LogsPhoneCalls
         $this->applyOutcome($lead);
 
         // نتیجهٔ «ثبت‌نام» → ساخت و ارسال لینک یکتای ثبت‌نام برای ردیابی تبدیل/پاداش.
-        if ($this->callMode === 'success' && $this->result === PhoneCall::RESULT_REGISTERED) {
+        if ($this->callMode === 'success' && $this->result === PhoneCall::RESULT_REGISTERED && ! $this->linkSent) {
+            // اگر در حین تماس لینک ارسال نشده بود، حالا ارسال کن.
             $link = app(\App\Services\PhoneRegistrationService::class)
                 ->createAndSend($lead, Auth::guard('admin')->id());
 
-            $this->dispatch('success', 'ثبت‌نام ثبت شد و لینک یکتای ثبت‌نام ساخته شد.');
-            $this->dispatch('registration-link-created', url: $link->url);
+            $this->dispatch('success', 'ثبت‌نام ثبت شد و لینک یکتای ثبت‌نام ارسال شد.');
         } else {
             $this->dispatch('success', 'تماس با موفقیت ثبت شد.');
         }

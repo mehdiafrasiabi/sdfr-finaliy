@@ -112,6 +112,14 @@ Route::name('client.')->group(function () {
         Route::get('/logout', [authLogin::class,'clientLogout'])->name('logout');
         Route::get('/payment/callback',PaymentCallback::class)->name('payment.callback');
 
+        // ارتباط مستقیم با مشاور — عمداً خارج از گِیتینگ مرحله‌ایِ trial.step و assessments.required
+        // تا دانش‌آموزِ هفته‌ی آزمایشیِ فعال به‌جای ریدایرکت، صفحه‌ی «عدم دسترسی/قفل» را ببیند.
+        // client.active نگه داشته می‌شود تا دانش‌آموزِ منقضی/بدون‌دسترسی به خرید هدایت شود
+        // (و دانش‌آموزِ آزمایشیِ فعال همچنان عبور کرده و قفل را می‌بیند).
+        Route::get('/profile/advisor-chat', \App\Livewire\Client\Profile\AdvisorChat::class)
+            ->middleware(['student.panel.open', 'client.active'])
+            ->name('profile.advisor-chat');
+
 
         Route::prefix('profile')->name('profile.')->middleware(['student.panel.open', 'assessments.required', 'client.active', 'installments.current', 'trial.step', 'block.during.study'])->group(function () {
             //Profile
@@ -149,8 +157,8 @@ Route::name('client.')->group(function () {
             // Classification Routes
             Route::get('/classification', ProjectList::class)->name('classification.projects');
             Route::get('/{project}/classify/{grade}', Classify::class)->name('classification.classify');
-            // تعیین وقت و جابجایی جلسات
-            Route::get('/appointment', \App\Livewire\Client\Profile\Appointment\Index::class)
+            // انتخاب مشاور تحصیلی (جایگزین صفحه‌ی قدیمیِ تعیین وقت)
+            Route::get('/appointment', \App\Livewire\Client\Profile\AdvisorSelection\Index::class)
                 ->name('appointment');
             // Trial Week Routes (هفته آزمایشی)
             Route::prefix('trial')->name('trial.')->group(function () {

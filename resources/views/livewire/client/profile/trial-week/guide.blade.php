@@ -716,7 +716,7 @@
                     <div class="mb-6 max-w-xs mx-auto text-right" wire:key="hours-select">
                         <x-ui.select
                             wire:model="dailyStudyHours"
-                            :options="collect(range(1,12))->map(fn($i) => ['id' => $i, 'name' => $i . ' ساعت در روز'])->all()"
+                            :options="collect(range(2,12))->map(fn($i) => ['id' => $i, 'name' => $i . ' ساعت در روز'])->all()"
                             value-key="id" label-key="name" placeholder="انتخاب ساعت..." />
                         @error('dailyStudyHours')<p class="text-xs text-red-500 mt-2">{{ $message }}</p>@enderror
                     </div>

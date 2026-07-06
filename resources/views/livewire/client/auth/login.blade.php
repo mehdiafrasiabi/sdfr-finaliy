@@ -1,6 +1,7 @@
 <div class="relative min-h-screen overflow-hidden bg-background text-foreground" dir="rtl" x-data="loginForm()">
 
-@assets
+
+    @push('link')
         <style>
 
             /* ═══ Gray grid background ═══ */
@@ -128,7 +129,7 @@
                 * { animation: none !important; transition: none !important; }
             }
         </style>
-@endassets
+    @endpush
     {{-- ═══ Background layers ═══ --}}
     <div class="absolute inset-0 grid-figma pointer-events-none"></div>
     <div class="absolute top-20 -right-20 w-72 h-72 bg-primary/15 rounded-full blur-3xl float-orb pointer-events-none"></div>
@@ -323,35 +324,34 @@
             </div>
         </div>
     </div>
+    @push('script')
+            <script>
+                function loginForm() {
+                    return {
+                        showPassword: false,
+                        countdown: 0,
+                        timer: null,
 
-    @script
-    <script>
-        function loginForm() {
-            return {
-                showPassword: false,
-                countdown: 0,
-                timer: null,
+                        init() {
+                            Livewire.on('start-countdown', () => {
+                                this.startCountdown(90);
+                            });
+                        },
 
-                init() {
-                    Livewire.on('start-countdown', () => {
-                        this.startCountdown(90);
-                    });
-                },
-
-                startCountdown(seconds) {
-                    if (this.timer) clearInterval(this.timer);
-                    this.countdown = seconds;
-                    this.timer = setInterval(() => {
-                        if (this.countdown > 0) {
-                            this.countdown--;
-                        } else {
-                            clearInterval(this.timer);
-                            @this.call('countdownFinished');
+                        startCountdown(seconds) {
+                            if (this.timer) clearInterval(this.timer);
+                            this.countdown = seconds;
+                            this.timer = setInterval(() => {
+                                if (this.countdown > 0) {
+                                    this.countdown--;
+                                } else {
+                                    clearInterval(this.timer);
+                                    @this.call('countdownFinished');
+                                }
+                            }, 1000);
                         }
-                    }, 1000);
+                    }
                 }
-            }
-        }
-    </script>
-    @endscript
+            </script>
+    @endpush
 </div>

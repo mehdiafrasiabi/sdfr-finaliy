@@ -28,7 +28,7 @@
         $appTz = config('app.timezone');
     @endphp
 
-    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6"
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 "
          x-data="{
              tab: @js($isActiveProgram ? 'study' : 'grid'),
              selectedDay: @js(\Carbon\Carbon::today()->toDateString()),
@@ -203,25 +203,32 @@
                             </button>
                         </div>
                     @endif
-
                     <div class="flex items-center justify-center gap-14 mt-10">
+                        <!-- دکمه لغو کامل -->
                         <button wire:click="openCancelConfirm"
                                 class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10" title="لغو">
                             <span class="block w-5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                         </button>
 
                         @if($isMakeupMode)
+                            <!-- ================= حالت تایمر جبرانی ================= -->
                             @if($makeupTimerRunning)
-                                <button wire:click="pauseMakeup" wire:loading.attr="disabled" wire:target="pauseMakeup"
+                                <!-- دکمه توقف جبرانی (سریع) -->
+                                <button wire:click="pauseMakeup"
+                                        wire:loading.attr="disabled"
+                                        wire:target="pauseMakeup"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="توقف">
-                                    <span wire:loading.remove wire:target="pauseMakeup" class="flex gap-1.5">
-                                        <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
-                                        <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
-                                    </span>
+                <span wire:loading.remove wire:target="pauseMakeup" class="flex gap-1.5">
+                    <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
+                    <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
+                </span>
                                     <span wire:loading wire:target="pauseMakeup" class="spinner-circle" style="color:{{ $ovColor }};"></span>
                                 </button>
                             @else
-                                <button wire:click="resumeMakeup" wire:loading.attr="disabled" wire:target="resumeMakeup"
+                                <!-- دکمه ادامه جبرانی -->
+                                <button wire:click="resumeMakeup"
+                                        wire:loading.attr="disabled"
+                                        wire:target="resumeMakeup"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="ادامه">
                                     <svg wire:loading.remove wire:target="resumeMakeup" viewBox="0 0 24 24" fill="{{ $ovColor }}" class="w-6 h-6" style="margin-right:-2px;">
                                         <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
@@ -230,17 +237,24 @@
                                 </button>
                             @endif
                         @else
+                            <!-- ================= حالت تایمر برنامه‌ای (عادی) ================= -->
                             @if($isRunning)
-                                <button wire:click="pausePart" wire:loading.attr="disabled" wire:target="pausePart"
+                                <!-- دکمه توقف عادی (سریع) -->
+                                <button wire:click="pausePart"
+                                        wire:loading.attr="disabled"
+                                        wire:target="pausePart"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="توقف">
-                                    <span wire:loading.remove wire:target="pausePart" class="flex gap-1.5">
-                                        <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
-                                        <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
-                                    </span>
+                <span wire:loading.remove wire:target="pausePart" class="flex gap-1.5">
+                    <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
+                    <span class="block w-1.5 h-5 rounded" style="background:{{ $ovColor }};"></span>
+                </span>
                                     <span wire:loading wire:target="pausePart" class="spinner-circle" style="color:{{ $ovColor }};"></span>
                                 </button>
                             @elseif($pausedAtTs)
-                                <button wire:click="resumePart" wire:loading.attr="disabled" wire:target="resumePart"
+                                <!-- دکمه ادامه عادی -->
+                                <button wire:click="resumePart"
+                                        wire:loading.attr="disabled"
+                                        wire:target="resumePart"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="ادامه">
                                     <svg wire:loading.remove wire:target="resumePart" viewBox="0 0 24 24" fill="{{ $ovColor }}" class="w-6 h-6" style="margin-right:-2px;">
                                         <path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/>
@@ -1199,6 +1213,8 @@
         }
 
         let clientTimerInterval = null;
+        let syncInterval = null;
+        let componentAlive = true;
         let lastSyncedEndsAt = null, lastMakeupEndsAt = null, lastExtraEndsAt = null;
         let alarmFired = false, makeupAlarmFired = false, extraAlarmFired = false;
 
@@ -1206,6 +1222,7 @@
             if (clientTimerInterval) clearInterval(clientTimerInterval);
             alarmFired = false; makeupAlarmFired = false; extraAlarmFired = false;
             clientTimerInterval = setInterval(() => {
+                if (!componentAlive) { clearInterval(clientTimerInterval); return; }
                 const now = Math.floor(Date.now() / 1000);
                 const endsAt = $wire.endsAtTs, isRunning = $wire.isRunning, isInExtra = $wire.isInExtraPhase;
                 if (!isInExtra && endsAt && isRunning) {
@@ -1228,7 +1245,8 @@
             }, 1000);
         }
 
-        setInterval(() => { if ($wire.isRunning || $wire.makeupTimerRunning) { $wire.call('syncTimers'); } }, 5000);
+        if (syncInterval) clearInterval(syncInterval);
+        syncInterval = setInterval(() => { if (componentAlive && ($wire.isRunning || $wire.makeupTimerRunning)) { $wire.call('syncTimers'); } }, 5000);
 
         function formatClock(s) {
             s = Math.max(0, s);
@@ -1267,7 +1285,16 @@
         preloadAlarms();
         startClientTimer();
         if ('Notification' in window && Notification.permission === 'granted') { $wire.call('onPermissionsGranted'); }
+
+        // پاکسازی interval هنگام تخریب کامپوننت (جلوگیری از Snapshot missing با wire:navigate)
+        Livewire.hook('destroy', () => {
+            componentAlive = false;
+            if (clientTimerInterval) { clearInterval(clientTimerInterval); clientTimerInterval = null; }
+            if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
+        });
+
         Livewire.hook('morph.updated', () => {
+            if (!componentAlive) return;
             const endsAt = $wire.endsAtTs, makeupEndsAt = $wire.makeupEndsAtTs, extraEndsAt = $wire.extraEndsAtTs;
             if (endsAt !== lastSyncedEndsAt) { alarmFired = false; lastSyncedEndsAt = endsAt; }
             if (makeupEndsAt !== lastMakeupEndsAt) { makeupAlarmFired = false; lastMakeupEndsAt = makeupEndsAt; }
@@ -1284,9 +1311,9 @@
         // (وگرنه برای تایمری که قبلاً تمام شده دوباره آلارم پخش می‌شد). صفرشدن آن‌ها فقط
         // وقتی endsAt عوض شود در morph.updated انجام می‌شود.
         document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) { $wire.call('syncTimers'); }
+            if (componentAlive && !document.hidden) { $wire.call('syncTimers'); }
         });
-        window.addEventListener('focus', () => $wire.call('syncTimers'));
+        window.addEventListener('focus', () => { if (componentAlive) $wire.call('syncTimers'); });
     </script>
     @endscript
 

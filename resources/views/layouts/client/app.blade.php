@@ -228,7 +228,7 @@
     @php
         $bottomNavTrial = auth()->user()?->trialWeek;
     @endphp
-    @if(!$bottomNavTrial || $bottomNavTrial->status === \App\Models\TrialWeek::STATUS_PROGRAM_BUILT)
+    @if((!$bottomNavTrial || $bottomNavTrial->status === \App\Models\TrialWeek::STATUS_PROGRAM_BUILT) && !request()->routeIs('client.profile.advisor-chat'))
         <livewire:client.layout.mobile-bottom-nav/>
     @endif
 

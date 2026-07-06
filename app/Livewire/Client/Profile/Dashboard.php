@@ -200,6 +200,24 @@ class Dashboard extends Component
         return 'بی‌کیفیت';
     }
 
+    public function formatHoursAndMinutes(float $hours): string
+    {
+        if ($hours < 0) {
+            $hours = 0;
+        }
+        $totalMinutes = floor($hours * 60);
+        $h = floor($totalMinutes / 60);
+        $m = $totalMinutes % 60;
+
+        if ($h > 0 && $m > 0) {
+            return sprintf('%d ساعت و %d دقیقه', $h, $m);
+        }
+        if ($h > 0) {
+            return sprintf('%d ساعت', $h);
+        }
+        return sprintf('%d دقیقه', $m);
+    }
+
     // ====================================================================
     // ====================== Weekly insights =============================
     // ====================================================================
@@ -232,6 +250,7 @@ class Dashboard extends Component
 
         $start = Carbon::parse($program->start_date)->startOfDay();
         $end = Carbon::parse($program->end_date)->endOfDay();
+        $dayCount = $start->diffInDays($end) + 1; // Correct day count for the loop
 
         $parts = $program->parts()->with(['ccSubject'])->get();
         if ($parts->isEmpty()) {
@@ -245,10 +264,11 @@ class Dashboard extends Component
 
         $restIdx = $program->restDays->pluck('day_index')->map(fn($v) => (int) $v)->all();
 
-        // ---- شکست روزانه ----
+        // ---- شکست روزانه (Dynamic Days) ----
         $daily = [];
-        for ($i = 0; $i < 7; $i++) {
+        for ($i = 0; $i < $dayCount; $i++) {
             $date = $start->copy()->addDays($i);
+            $dayOfWeek = jdate($date)->getDayOfWeek(); // Get Jalali day of week
             $dayParts = $parts->where('day_of_week', $i);
             $plannedMin = (int) $dayParts->sum('duration_minutes');
             $studiedSec = 0;
@@ -257,7 +277,7 @@ class Dashboard extends Component
             }
             $isRest = in_array($i, $restIdx, true) || ($plannedMin === 0 && $dayParts->isEmpty());
             $daily[] = [
-                'label' => $this->weekDayNames[$i],
+                'label' => $this->weekDayNames[$dayOfWeek],
                 'date' => jdate($date)->format('j'),
                 'planned_hours' => round($plannedMin / 60, 2),
                 'studied_hours' => round($studiedSec / 3600, 2),
@@ -360,8 +380,8 @@ class Dashboard extends Component
             'has_data' => false,
             'month_label' => '',
             'weeks' => [],
-            'total_study_hours' => 0,
-            'total_planned_hours' => 0,
+            'total_study_hours' => '0 دقیقه',
+            'total_planned_hours' => '0 دقیقه',
             'total_parts_studied' => 0,
             'reports_sent' => 0,
             'completion_percent' => 0,
@@ -423,8 +443,8 @@ class Dashboard extends Component
             'has_data' => !empty($weeks),
             'month_label' => (SmartReportCard::MONTH_NAMES[$curMonth] ?? '') . ' ' . $curYear,
             'weeks' => $weeks,
-            'total_study_hours' => round($totalDoneSec / 3600, 1),
-            'total_planned_hours' => round($totalPlannedMin / 60, 1),
+            'total_study_hours' => $this->formatHoursAndMinutes($totalDoneSec / 3600),
+            'total_planned_hours' => $this->formatHoursAndMinutes($totalPlannedMin / 60),
             'total_parts_studied' => $totalPartsStudied,
             'reports_sent' => $reportsSent,
             'completion_percent' => $totalPlannedMin > 0
@@ -534,6 +554,132 @@ class Dashboard extends Component
     }
 
     /**
+     * تحلیل متنیِ زندهٔ برنامهٔ امروز (۲ تا ۳ خط).
+     * بر اساس حجم تستی/تشریحی، عمومی/اختصاصی، آمادگیِ امتحان، تکالیف و دستهٔ ABCD
+     * یک جمع‌بندیِ کوتاه و راهبردی از روزِ پیشِ‌رو می‌سازد.
+     */
+    public function getTodayAnalysis($parts = null): ?array
+    {
+        $parts = $parts ?? $this->getTodayProgram();
+
+        if (!$parts || count($parts) === 0) {
+            return null;
+        }
+
+        $min = fn ($p) => (int) ($p->duration_minutes ?? round(($p->duration_hours ?? 0) * 60));
+
+        $totalMin   = 0;
+        $testMin    = 0;
+        $descMin    = 0;
+        $generalMin = 0;
+        $specMin    = 0;
+        $examMin    = 0;
+        $qaMin      = 0;
+        $hwMin      = 0;
+        $readingMin = 0;
+        $studyMin   = 0;
+        $testCount  = 0;
+        $lessons    = [];
+
+        foreach ($parts as $p) {
+            $m = $min($p);
+            $totalMin += $m;
+
+            if (($p->part_type ?? null) === 'test') {
+                $testMin   += $m;
+                $testCount += (int) ($p->test_count ?? 0);
+            } else {
+                $descMin += $m;
+            }
+
+            if (($p->lesson_type ?? null) === 'general') {
+                $generalMin += $m;
+            } else {
+                $specMin += $m;
+            }
+
+            switch ($p->source_type ?? null) {
+                case 'exam':
+                case 'comprehensive_exam':
+                    $examMin += $m;
+                    break;
+                case 'class_qa':
+                    $qaMin += $m;
+                    break;
+                case 'homework':
+                    $hwMin += $m;
+                    break;
+                case 'daily_reading':
+                case 'pre_reading':
+                    $readingMin += $m;
+                    break;
+                case 'classification':
+                    $studyMin += $m;
+                    break;
+            }
+
+            $name = $p->lesson_name ?? ($p->lesson->name ?? null);
+            if ($name) {
+                $lessons[$name] = true;
+            }
+        }
+
+        if ($totalMin <= 0) {
+            return null;
+        }
+
+        $fmt = function (int $m): string {
+            $h = intdiv($m, 60);
+            $r = $m % 60;
+            if ($h > 0 && $r > 0) return "{$h} ساعت و {$r} دقیقه";
+            if ($h > 0)          return "{$h} ساعت";
+            return "{$r} دقیقه";
+        };
+        $share = fn (int $m): float => $totalMin > 0 ? $m / $totalMin : 0;
+
+        $lessonNames = array_slice(array_keys($lessons), 0, 3);
+        $examFocused = ($examMin + $qaMin) > 0;
+
+        $line1 = 'برنامهٔ امروز ' . $fmt($totalMin) . ' مطالعه در ' . count($parts) . ' بخش'
+            . (count($lessonNames) ? ' روی ' . implode('، ', $lessonNames) : '') . ' است.';
+
+        $bits = [];
+        if ($testMin > 0) {
+            $bits[] = 'تستی ' . round($share($testMin) * 100) . '٪'
+                . ($testCount > 0 ? " (حدود {$testCount} تست)" : '');
+        }
+        if ($descMin > 0) {
+            $bits[] = 'تشریحی/مطالعه ' . round($share($descMin) * 100) . '٪';
+        }
+        $axis  = $specMin >= $generalMin ? 'بیشتر روی دروس اختصاصی' : 'بیشتر روی دروس عمومی';
+        $line2 = 'ترکیب امروز: ' . implode(' و ', $bits) . ($bits ? '، ' : '') . $axis . ' متمرکز است.';
+
+        if ($examFocused && $share($examMin + $qaMin) >= 0.35) {
+            $verdict = 'امروز روزِ آمادگیِ امتحان است؛ تمرکز و انرژیِ بیشتری می‌طلبد.';
+        } elseif ($share($testMin) >= 0.4) {
+            $verdict = 'امروز روزِ تست‌زنی و پویاست؛ بیشترِ وقت صرف تثبیتِ مباحثِ مسلط (دستهٔ A) می‌شود.';
+        } elseif ($share($readingMin + $studyMin) >= 0.5 && $testMin === 0) {
+            $verdict = 'امروز روزی آرام و مطالعه‌محور است؛ بیشتر برای یادگیریِ مباحثِ تازه و فصل‌های دستهٔ C/D.';
+        } else {
+            $verdict = 'امروز روزی متعادل میان مطالعه و تست‌زنی است؛ با تمرکز پیش برو.';
+        }
+        if ($hwMin > 0) {
+            $verdict .= ' انجامِ تکالیف هم در برنامهٔ امروز گنجانده شده.';
+        }
+
+        return [
+            'lines'  => [$line1, $line2, $verdict],
+            'totals' => [
+                'total_min' => $totalMin,
+                'test_min'  => $testMin,
+                'desc_min'  => $descMin,
+                'exam_min'  => $examMin + $qaMin,
+                'hw_min'    => $hwMin,
+            ],
+        ];
+    }
+
+    /**
      * محاسبه پیشرفت ساعت مطالعه
      */
     public function getStudyHoursProgress()
@@ -542,19 +688,15 @@ class Dashboard extends Component
 
         if (!$activeProgram) {
             return [
-                'total_hours' => 0,
-                'completed_hours' => 0,
+                'total_hours' => '0 دقیقه',
+                'completed_hours' => '0 دقیقه',
                 'percentage' => 0,
-                'total_minutes' => 0,
-                'completed_minutes' => 0,
             ];
         }
 
-        // کل ساعاتی که مشاور در نظر گرفته (پارت‌های غیرِ افزوده توسط دانش‌آموز)
         $totalMinutes = (int) $activeProgram->parts()->where('is_student_added', false)->sum('duration_minutes');
-        $totalHours = round($totalMinutes / 60, 1);
+        $totalHours = $totalMinutes / 60;
 
-        // ساعات انجام شده در این هفته
         $startDate = Carbon::parse($activeProgram->start_date);
         $endDate = Carbon::parse($activeProgram->end_date);
 
@@ -570,20 +712,15 @@ class Dashboard extends Component
                 return 0;
             });
 
-        $completedHours = round($completedMinutes / 60, 1);
+        $completedHours = $completedMinutes / 60;
 
-        // محاسبه درصد
         $percentage = $totalHours > 0 ? min(($completedHours / $totalHours) * 100, 100) : 0;
-
-        // دقیقهٔ نمایش‌دادنی محدود به سقف برنامه
-        $completedMinutesCapped = min($completedMinutes, $totalMinutes);
+        $completedCapped = min($completedHours, $totalHours);
 
         return [
-            'total_hours' => $totalHours,
-            'completed_hours' => min($completedHours, $totalHours),
+            'total_hours' => $this->formatHoursAndMinutes($totalHours),
+            'completed_hours' => $this->formatHoursAndMinutes($completedCapped),
             'percentage' => round($percentage, 1),
-            'total_minutes' => $totalMinutes,
-            'completed_minutes' => $completedMinutesCapped,
         ];
     }
 
@@ -595,7 +732,7 @@ class Dashboard extends Component
         $activeProgram = $this->getActiveWeeklyProgram();
 
         if (!$activeProgram || !$this->student) {
-            return ['has_extra' => false, 'total_seconds' => 0, 'hours' => 0];
+            return ['has_extra' => false, 'total_seconds' => 0, 'hours' => '0 دقیقه'];
         }
 
         $startDate = Carbon::parse($activeProgram->start_date);
@@ -609,7 +746,7 @@ class Dashboard extends Component
         return [
             'has_extra' => $extraSeconds > 0,
             'total_seconds' => $extraSeconds,
-            'hours' => round($extraSeconds / 3600, 1),
+            'hours' => $this->formatHoursAndMinutes($extraSeconds / 3600),
         ];
     }
 
@@ -620,7 +757,6 @@ class Dashboard extends Component
     {
         $activeProgram = $this->getActiveWeeklyProgram();
 
-        // تا زمانی که دانش‌آموز برنامه‌ای نداشته باشد، چیزی نمایش داده نمی‌شود
         if (!$activeProgram) {
             return [
                 'has_program' => false,
@@ -631,22 +767,28 @@ class Dashboard extends Component
             ];
         }
 
-        // بازهٔ هفته بر اساس جلسهٔ مشاورهٔ برگزارشده
-        $session = $this->getActiveAdvisingSession();
-        $startDate = $session && $session->activation_date
-            ? Carbon::parse($session->activation_date)->startOfDay()
-            : Carbon::parse($activeProgram->start_date)->startOfDay();
-        $endDate = $startDate->copy()->addDays(7);
+        $startDate = Carbon::parse($activeProgram->start_date)->startOfDay();
+        $endDate = Carbon::parse($activeProgram->end_date)->endOfDay();
+        
+        $totalDays = $startDate->diffInDays($endDate) + 1;
+
+        // Rule: Only trial students can have an 8-day week view.
+        if (!($this->student && $this->student->is_trial)) {
+            $totalDays = min($totalDays, 7);
+        }
 
         $submittedReports = DailyReport::where('student_id', $this->student->id)
             ->where('weekly_program_id', $activeProgram->id)
             ->where('is_compensatory', false)
             ->whereBetween('report_date', [$startDate, $endDate])
+            ->distinct('report_date')
             ->count();
 
-        // تعداد روزهایی که برنامه دارند (روزهای غیرِ استراحت)
-        $totalDays = (int) $activeProgram->parts()->distinct('day_of_week')->count('day_of_week');
-        $percentage = $totalDays > 0 ? ($submittedReports / $totalDays) * 100 : 0;
+        // Count non-rest days for percentage calculation
+        $restDayIndices = $activeProgram->restDays()->pluck('day_index')->all();
+        $programmableDays = $totalDays - count($restDayIndices);
+
+        $percentage = $programmableDays > 0 ? ($submittedReports / $programmableDays) * 100 : 0;
 
         return [
             'has_program' => true,
@@ -667,6 +809,7 @@ class Dashboard extends Component
 
         $unreadNotificationsCount = $this->getUnreadNotificationsCount();
         $todayProgram = $this->getTodayProgram();
+        $todayAnalysis = $this->getTodayAnalysis($todayProgram);
 
         $studyHoursProgress = $this->getStudyHoursProgress();
 
@@ -707,6 +850,7 @@ class Dashboard extends Component
             'advisorStudent' => $advisorStudent,
             'unreadNotificationsCount' => $unreadNotificationsCount,
             'todayProgram' => $todayProgram,
+            'todayAnalysis' => $todayAnalysis,
             'studyHoursProgress' => $studyHoursProgress,
             'reportProgress' => $reportProgress,
             'extraOrgProgress' => $extraOrgProgress,

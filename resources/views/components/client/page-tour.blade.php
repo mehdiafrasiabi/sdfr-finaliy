@@ -34,10 +34,19 @@
             return !this.isForced(this.index);
         },
 
-        init() {
+init() {
             if (this._booted) return;
             this._booted = true;
+
             window.addEventListener('resize', () => { if (this.active) this.calcPosition(false); });
+
+            // ✨ اضافه شدن Listener اسکرول با requestAnimationFrame برای پرفورمنس بالا
+            window.addEventListener('scroll', () => {
+                if (this.active && !this.transitioning) {
+                    window.requestAnimationFrame(() => this.calcPosition(false));
+                }
+            }, { passive: true });
+
             // حالت auto: در موبایل و دسکتاپ حتماً خودکار شروع می‌شود (مثلاً بعد از ساخت برنامه).
             if (this.auto) {
                 setTimeout(() => this.start(), 700);
@@ -135,7 +144,7 @@
             localStorage.setItem(this.storageKey, '1');
         },
 
-        calcPosition(scroll) {
+      calcPosition(scroll) {
             const el = document.querySelector(this.steps[this.index].el);
             if (!el || !this.isElVisible(el)) { this.next(); return; }
 
@@ -172,7 +181,9 @@
             };
 
             if (scroll) {
-                setTimeout(doCalc, 380);
+                // ✨ افزایش تایم‌اوت از 380 به 600 برای جبران کندی اسکرول گوشی‌ها
+                // بعلاوه با وجود scroll event (که بالاتر اضافه کردیم) کادر در حین حرکت هم آپدیت می‌شود
+                setTimeout(doCalc, 600);
             } else {
                 doCalc();
             }

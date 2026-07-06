@@ -54,24 +54,6 @@
                         </a>
                     </li>
 
-                    <li class="nav-item" data-bs-placement="right" data-bs-title="گزارش جامع" data-bs-toggle="tooltip">
-                        <a aria-controls="pagesTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
-                           href="#pagesTab" role="tab">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                 class="icon icon-tabler icons-tabler-outline icon-tabler-report-search menu-icon">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M8 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h5.697"></path>
-                                <path d="M18 12v-5a2 2 0 0 0 -2 -2h-2"></path>
-                                <path
-                                    d="M8 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"></path>
-                                <path d="M8 11h4"></path>
-                                <path d="M8 15h3"></path>
-                                <path d="M16.5 17.5m-2.5 0a2.5 2.5 0 1 0 5 0a2.5 2.5 0 1 0 -5 0"></path>
-                                <path d="M18.5 19.5l2.5 2.5"></path>
-                            </svg>
-                        </a>
-                    </li>
                         @if($admin?->hasRole('site acquisition') || $admin?->hasRole('super admin'))
                             <li class="nav-item" data-bs-placement="right" data-bs-title="جذب یک هفته آزمایشی" data-bs-toggle="tooltip">
                                 <a aria-controls="acquisitionTab" aria-selected="false"
@@ -103,74 +85,9 @@
                                 </a>
                             </li>
                         @endif
-                    <li class="nav-item-hr">
-                    </li>
-                    <li class="nav-item" data-bs-placement="right" data-bs-title="آزمون" data-bs-toggle="tooltip">
-                        <a aria-controls="authenticationTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
-                           href="#authenticationTab" role="tab">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                 viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                 class="icon icon-tabler icons-tabler-outline icon-tabler-test-pencil menu-icon">
-
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-
-                                <!-- Paper -->
-                                <path d="M8 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h8"></path>
-                                <path d="M18 12v-5a2 2 0 0 0 -2 -2h-2"></path>
-
-                                <!-- Header clip -->
-                                <path
-                                    d="M8 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"></path>
-
-                                <!-- Lines -->
-                                <path d="M8 11h4"></path>
-                                <path d="M8 15h3"></path>
-
-                                <!-- Pencil -->
-                                <path d="M14 16l4 -4a2 2 0 0 1 3 3l-4 4l-4 1l1 -4z"></path>
-                                <path d="M18 12l3 3"></path>
-
-                            </svg>
 
 
-                        </a>
-                    </li>
-                    <li class="nav-item" data-bs-placement="right" data-bs-title="طبقه بندی" data-bs-toggle="tooltip">
-                        <a aria-controls="componentsTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
-                           href="#componentsTab" role="tab">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                 viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                 class="icon icon-tabler icons-tabler-outline icon-tabler-category-folder menu-icon">
 
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-
-                                <!-- Folder -->
-                                <path
-                                    d="M4 6a2 2 0 0 1 2 -2h4l2 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-16a2 2 0 0 1 -2 -2z"></path>
-
-                                <!-- List inside folder -->
-                                <path d="M8 12h8"></path>
-                                <path d="M8 15h6"></path>
-                                <path d="M8 18h4"></path>
-
-                            </svg>
-
-                        </a>
-                    </li>
-                    <li class="nav-item-hr">
-                    <li class="nav-item" data-bs-placement="right" data-bs-title="تیکت‌ها" data-bs-toggle="tooltip">
-                        <a aria-controls="ticketsTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
-                           href="#ticketsTab" role="tab">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                 class="icon icon-tabler icons-tabler-outline icon-tabler-message-circle menu-icon">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path d="M3 20l1.3 -3.9c-2.324 -3.437 -1.426 -7.872 2.1 -10.374c3.526 -2.501 8.59 -2.296 11.845 .48c3.255 2.777 3.695 7.266 1.029 10.501c-2.666 3.235 -7.615 4.215 -11.574 2.293l-4.7 1"></path>
-                            </svg>
-                        </a>
-                    </li>
                     <li class="nav-item" data-bs-placement="right" data-bs-title="مدیریت ادمین‌ها"
                         data-bs-toggle="tooltip">
                         <a aria-controls="adminUsersTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
@@ -184,28 +101,6 @@
                                 <path d="M22 16c0 4 -2.5 6 -3.5 6s-3.5 -2 -3.5 -6c1 0 2.5 -.5 3.5 -1.5c1 1 2.5 1.5 3.5 1.5z"></path>
                             </svg>
                         </a>
-                    </li>
-                    </li>
-                    <li class="nav-item" data-bs-placement="right" data-bs-title="اعلانات"
-                        data-bs-toggle="tooltip">
-                        <a aria-controls="extendedTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
-                           href="#extendedTab" role="tab">
-                            <svg fill="none" height="25" viewBox="0 0 24 25" width="24" xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M18.7491 10.2096V9.50497C18.7491 5.63623 15.7274 2.5 12 2.5C8.27256 2.5 5.25087 5.63623 5.25087 9.50497V10.2096C5.25087 11.0552 5.00972 11.8818 4.5578 12.5854L3.45036 14.3095C2.43882 15.8843 3.21105 18.0249 4.97036 18.5229C9.57274 19.8257 14.4273 19.8257 19.0296 18.5229C20.789 18.0249 21.5612 15.8843 20.5496 14.3095L19.4422 12.5854C18.9903 11.8818 18.7491 11.0552 18.7491 10.2096Z"
-                                    stroke="var(--bs-heading-color)" stroke-width="2">
-                                </path>
-                                <path
-                                    d="M7.5 19.5C8.15503 21.2478 9.92246 22.5 12 22.5C14.0775 22.5 15.845 21.2478 16.5 19.5"
-                                    opacity="0.5" stroke="var(--bs-heading-color)" stroke-linecap="round" stroke-width="2">
-                                </path>
-                                <path d="M12 6.5V10.5" opacity="0.5" stroke="var(--bs-heading-color)" stroke-linecap="round"
-                                      stroke-width="2">
-                                </path>
-                            </svg>
-                        </a>
-                    </li>
-                    <li class="nav-item-hr">
                     </li>
                 @endif
             </ul>
@@ -409,14 +304,10 @@
                                         </span>
                                         </a>
                                     </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{route('admin.student.studySession.index')}}">
-                                            <i class="fi fi-rr-calendar">
-                                            </i>
-                                            <span class="menu-label">
-                                            ساعت مطالعه دانش آموزان
-                                        </span>
-                                        </a>
+                                    <li class="menu-heading">
+                                   <span class="menu-label">
+                                  اتاق مشاوره
+                                   </span>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link" href="{{route('admin.advising-sessions')}}">
@@ -427,42 +318,8 @@
                                         </span>
                                         </a>
                                     </li>
-                                    @if($admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('super admin'))
-                                    <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.consultant.grades') ? 'active' : '' }}" href="{{route('admin.consultant.grades')}}">
-                                            <i class="fi fi-rr-edit">
-                                            </i>
-                                            <span class="menu-label">
-                                            ثبت نمرات کارنامه
-                                        </span>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.consultant.emergency-calls') ? 'active' : '' }}" href="{{route('admin.consultant.emergency-calls')}}">
-                                            <i class="fi fi-rr-siren-on">
-                                            </i>
-                                            <span class="menu-label">
-                                            تماس اورژانسی
-                                        </span>
-                                        </a>
-                                    </li>
-                                    @endif
-                                    <li>
-                                        <div class="menu-divider">
-                                        </div>
-                                    </li>
 
-                                </ul>
-                            </nav>
-                        </div>
-                        <div class="tab-pane fade" id="pagesTab" role="tabpanel" tabindex="0">
-                            <nav class="app-navbar" data-simplebar="">
-                                <ul class="side-menubar">
-                                    <li class="menu-heading">
-                                       <span class="menu-label">
-                                        گزارش جامع
-                                       </span>
-                                    </li>
+
                                     <li class="menu-item">
                                         <a class="menu-link" href="{{route('admin.student.reportDailyActivities.index')}}">
                                             <i class="fi fi-rs-usd-circle">
@@ -471,6 +328,30 @@
                                              گزارش جامع
                                         </span>
                                         </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link" href="{{route('admin.student.studySession.index')}}">
+                                            <i class="fi fi-rr-calendar">
+                                            </i>
+                                            <span class="menu-label">
+                                            ساعت مطالعه دانش آموزان
+                                        </span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link" href="{{route('admin.student.smartReportCard.index')}}">
+                                            <i class="fi fi-rr-file-medical-alt">
+                                            </i>
+                                            <span class="menu-label">
+                                             کارنامه هوشمند
+                                        </span>
+                                        </a>
+                                    </li>
+
+                                    <li class="menu-heading">
+                                   <span class="menu-label">
+                                بررسی
+                                   </span>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link"
@@ -491,40 +372,18 @@
                                         </span>
                                         </a>
                                     </li>
-                                    <li>
-                                        <div class="menu-divider"></div>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{route('admin.student.smartReportCard.index')}}">
-                                            <i class="fi fi-rr-file-medical-alt">
-                                            </i>
-                                            <span class="menu-label">
-                                             کارنامه هوشمند
-                                        </span>
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <div class="menu-divider"></div>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{route('admin.contact-documentation.index')}}">
-                                            <i class="fi fi-rr-phone-call">
-                                            </i>
-                                            <span class="menu-label">
-                                            مستندات تماس
-                                        </span>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                        <div class="tab-pane fade" id="authenticationTab" role="tabpanel" tabindex="0">
-                            <nav class="app-navbar" data-simplebar="">
-                                <ul class="side-menubar">
                                     <li class="menu-heading">
-                                       <span class="menu-label">
-                                        آزمون ها
-                                       </span>
+                                   <span class="menu-label">
+                                  ابزار
+                                   </span>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link" href="{{route('admin.classification.dashboard')}}">
+                                            <i class="fi fi-rr-flux-capacitor"></i>
+                                            <span class="menu-label">
+                                           طبقه بندی
+                                        </span>
+                                        </a>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link" href="{{route('admin.typed-exams.index')}}">
@@ -535,40 +394,15 @@
                                         </span>
                                         </a>
                                     </li>
-                                    <li>
-                                        <div class="menu-divider">
-                                        </div>
-                                    </li>
-
-
-                                </ul>
-                            </nav>
-                        </div>
-                        <div class="tab-pane fade" id="componentsTab" role="tabpanel" tabindex="0">
-                            <nav class="app-navbar" data-simplebar="">
-                                <ul class="side-menubar">
-                                    <li class="menu-heading">
-                                   <span class="menu-label">
-                                    طبقه بندی
-                                   </span>
-                                    </li>
 
                                     <li class="menu-item">
-                                        <a class="menu-link" href="{{route('admin.classification.dashboard')}}">
-                                            <i class="fi fi-rr-flux-capacitor"></i>
+                                        <a class="menu-link" href="{{route('admin.contact-documentation.index')}}">
+                                            <i class="fi fi-rr-phone-call">
+                                            </i>
                                             <span class="menu-label">
-                                             داشبورد
+                                            مستندات تماس
                                         </span>
                                         </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        </div>
-                        <div class="tab-pane fade" id="ticketsTab" role="tabpanel" tabindex="0">
-                            <nav class="app-navbar" data-simplebar="">
-                                <ul class="side-menubar">
-                                    <li class="menu-heading">
-                                        <span class="menu-label">تیکت‌ها و پشتیبانی</span>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link" href="{{ route('admin.ticket.index') }}">
@@ -576,35 +410,43 @@
                                             <span class="menu-label">لیست تیکت‌ها</span>
                                         </a>
                                     </li>
+                                    @if($admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('super admin'))
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.consultant.chat*') ? 'active' : '' }}" href="{{route('admin.consultant.chats')}}">
+                                            <i class="fi fi-rr-comment-alt">
+                                            </i>
+                                            <span class="menu-label">
+                                            گفتگو با دانش‌آموزان
+                                        </span>
+                                            <livewire:admin.consultant.chat.unread-badge />
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.consultant.grades') ? 'active' : '' }}" href="{{route('admin.consultant.grades')}}">
+                                            <i class="fi fi-rr-edit">
+                                            </i>
+                                            <span class="menu-label">
+                                            ثبت نمرات کارنامه
+                                        </span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link {{ request()->routeIs('admin.consultant.emergency-calls') ? 'active' : '' }}" href="{{route('admin.consultant.emergency-calls')}}">
+                                            <i class="fi fi-rr-siren-on">
+                                            </i>
+                                            <span class="menu-label">
+                                            تماس اورژانسی
+                                        </span>
+                                        </a>
+                                    </li>
+                                    @endif
                                 </ul>
                             </nav>
                         </div>
                         <div class="tab-pane fade" id="adminUsersTab" role="tabpanel" tabindex="0">
                             <nav class="app-navbar" data-simplebar="">
                                 <ul class="side-menubar">
-                                    <li class="menu-heading">
-                                        <span class="menu-label">مدیریت ادمین‌ها</span>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{ route('admin.admin-user.index') }}">
-                                            <i class="fi fi-rr-users-alt"></i>
-                                            <span class="menu-label">
-                                            ادمین‌ها و برنامه کاری
-                                        </span>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{ route('admin.consultants.index') }}">
-                                            <i class="fi fi-rr-user-headset"></i>
-                                            <span class="menu-label">لیست مشاوران</span>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{ route('admin.supporters.index') }}">
-                                            <i class="fi fi-rr-user-shield"></i>
-                                            <span class="menu-label">لیست پشتیبانان</span>
-                                        </a>
-                                    </li>
+                                    {{-- مدیریت کارکنان فقط برای سوپرادمین؛ برای مدیر آموزشیِ خالص پنهان است --}}
                                     @if(auth('admin')->user()?->hasRole('trial-supporter') || auth('admin')->user()?->hasRole('super admin'))
                                         <li class="menu-item">
                                             <a class="menu-link {{ request()->routeIs('admin.trial-week.*') ? 'active' : '' }}"
@@ -614,26 +456,23 @@
                                             </a>
                                         </li>
                                     @endif
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{ route('admin.student.index') }}">
-                                            <i class="fi fi-rr-graduation-cap"></i>
-                                            <span class="menu-label">لیست دانش‌آموزان</span>
-                                        </a>
-                                    </li>
                                     <li><div class="menu-divider"></div></li>
+                                    @if($admin?->hasRole('educational-manager') || $admin?->hasRole('super admin'))
                                     <li class="menu-heading">
                                         <span class="menu-label">مدیر آموزشی</span>
                                     </li>
                                     <li class="menu-item">
-                                        <a class="menu-link" href="{{ route('admin.educational-manager.appointments') }}">
-                                            <i class="fi fi-rr-calendar-check"></i>
-                                            <span class="menu-label">درخواست‌های تعیین وقت</span>
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.incomplete-registrations') ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.incomplete-registrations') }}">
+                                            <i class="fi fi-rr-user-time"></i>
+                                            <span class="menu-label">ثبت‌نام‌های ناقص</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
-                                        <a class="menu-link" href="{{ route('admin.educational-manager.reschedule') }}">
+                                        <a class="menu-link {{ request()->routeIs('admin.educational-manager.leave') ? 'active' : '' }}"
+                                           href="{{ route('admin.educational-manager.leave') }}">
                                             <i class="fi fi-rr-calendar-clock"></i>
-                                            <span class="menu-label">درخواست‌های جابجایی</span>
+                                            <span class="menu-label">تایید مرخصی مشاوران</span>
                                         </a>
                                     </li>
                                     <li class="menu-item">
@@ -678,34 +517,28 @@
                                             <span class="menu-label">رسیدهای شارژ</span>
                                         </a>
                                     </li>
-                                    <li><div class="menu-divider"></div></li>
+                                    @endif
+                                    @if($admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('super admin'))
                                     <li class="menu-heading">
                                         <span class="menu-label">مشاور</span>
                                     </li>
                                     <li class="menu-item">
-                                        <a class="menu-link" href="{{ route('admin.consultant.reschedule') }}">
+                                        <a class="menu-link {{ request()->routeIs('admin.consultant.leave') ? 'active' : '' }}"
+                                           href="{{ route('admin.consultant.leave') }}">
                                             <i class="fi fi-rr-calendar-clock"></i>
-                                            <span class="menu-label">درخواست‌های جابجایی من</span>
+                                            <span class="menu-label">مرخصی من</span>
                                         </a>
                                     </li>
-                                </ul>
-                            </nav>
-                        </div>
-                        <div class="tab-pane fade" id="extendedTab" role="tabpanel" tabindex="0">
-                            <nav class="app-navbar" data-simplebar="">
-                                <ul class="side-menubar">
-                                    <li class="menu-heading">
-                                        <span class="menu-label">اعلانات</span>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{route('admin.student.notification')}}">
-                                            <i class="fi fi-rr-circle-user">
-                                            </i>
-                                            <span class="menu-label">
+                                        <li class="menu-item">
+                                            <a class="menu-link" href="{{route('admin.student.notification')}}">
+                                                <i class="fi fi-rr-circle-user">
+                                                </i>
+                                                <span class="menu-label">
                                              ارسال اعلان
                                         </span>
-                                        </a>
-                                    </li>
+                                            </a>
+                                        </li>
+                                    @endif
                                 </ul>
                             </nav>
                         </div>

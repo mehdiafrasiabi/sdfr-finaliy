@@ -45,12 +45,6 @@
                                                             <h3 class="font-bold text-foreground text-base">
                                                                 برنامه هفته {{ jdate($program->start_date)->format('d %B') }}
                                                             </h3>
-
-                                                            <p class="text-sm text-muted">
-                                                                تا {{ jdate($program->end_date)->format('d %B Y') }}
-                                                            </p>
-
-
                                                         </div>
 
                                                         {{-- دکمه‌های موبایل --}}
@@ -92,10 +86,6 @@
                                                                 <h3 class="font-bold text-foreground text-base">
                                                                     برنامه هفته {{ jdate($program->start_date)->format('d %B') }}
                                                                 </h3>
-
-                                                                <p class="text-sm text-muted">
-                                                                    تا {{ jdate($program->end_date)->format('d %B Y') }}
-                                                                </p>
 
                                                             </div>
 

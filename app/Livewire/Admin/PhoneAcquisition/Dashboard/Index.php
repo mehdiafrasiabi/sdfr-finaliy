@@ -3,8 +3,10 @@
 namespace App\Livewire\Admin\PhoneAcquisition\Dashboard;
 
 use App\Livewire\Admin\PhoneAcquisition\Concerns\LogsPhoneCalls;
+use App\Models\PhoneCall;
 use App\Models\PhoneLead;
 use App\Models\PhoneLeadAssignment;
+use App\Models\RegistrationGoal;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -36,9 +38,23 @@ class Index extends Component
 
         $activeLead = $this->activeLeadId ? PhoneLead::find($this->activeLeadId) : null;
 
+        // اهداف فعال (تیمی + شخصیِ این مشاور) که مهلتشان نگذشته است + پیشرفت.
+        $goals = RegistrationGoal::query()
+            ->where(fn ($q) => $q->whereNull('admin_id')->orWhere('admin_id', $adminId))
+            ->whereDate('goal_date', '>=', now()->toDateString())
+            ->orderBy('goal_date')
+            ->get()
+            ->map(function (RegistrationGoal $goal) use ($adminId) {
+                $q = PhoneCall::where('result', PhoneCall::RESULT_REGISTERED);
+                // هدف تیمی → کل تیم؛ هدف شخصی → فقط همین مشاور.
+                $goal->achieved = $goal->admin_id ? $q->where('admin_id', $goal->admin_id)->count() : $q->count();
+                return $goal;
+            });
+
         return view('livewire.admin.phone-acquisition.dashboard.index', [
             'leads'      => $leads,
             'dueCount'   => $base()->count(),
+            'goals'      => $goals,
             'activeLead' => $activeLead,
             'now'        => now(),
         ])->layout('layouts.admin.app');

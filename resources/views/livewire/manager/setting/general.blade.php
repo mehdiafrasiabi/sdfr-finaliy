@@ -63,6 +63,18 @@
 
                         <li class="nav-item">
 
+                            <a class="nav-link {{ $activeTab === 'advisor' ? 'active' : '' }}"
+
+                               wire:click.prevent="setTab('advisor')" href="#">
+
+                                <i class="ri-user-star-line me-1"></i> مشاوران
+
+                            </a>
+
+                        </li>
+
+                        <li class="nav-item">
+
                             <a class="nav-link text-muted disabled" href="#">
 
                                 <i class="ri-image-line me-1"></i> مدیا
@@ -937,6 +949,92 @@
                                                             </span>
 
                                                             <span wire:loading wire:target="savePanelStatus">
+
+                                                                <i class="ri-loader-4-line ri-spin me-1"></i> در حال ذخیره...
+
+                                                            </span>
+
+                                                        </button>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </form>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    @endif
+
+                    @if($activeTab === 'advisor')
+
+                        <div class="row">
+
+                            <div class="col-lg-12 mb-4">
+
+                                <div class="card border card-border-primary">
+
+                                    <div class="card-header bg-primary-subtle">
+
+                                        <div class="d-flex align-items-center">
+
+                                            <i class="ri-user-star-line fs-18 text-primary me-2"></i>
+
+                                            <h5 class="card-title mb-0 text-primary">ظرفیت پیش‌فرض مشاوران</h5>
+
+                                        </div>
+
+                                        <p class="text-muted mb-0 mt-2">
+
+                                            <small>حداکثر تعداد دانش‌آموزی که هر مشاور تحصیلی می‌تواند بپذیرد. وقتی تعداد دانش‌آموزانِ یک مشاور به این عدد برسد، ظرفیتش تکمیل شده و در فهرستِ انتخابِ مشاور (دستی و تصادفی) نمایش داده نمی‌شود. برای هر مشاور می‌توان ظرفیتِ اختصاصی هم تعریف کرد که بر این مقدار اولویت دارد.</small>
+
+                                        </p>
+
+                                    </div>
+
+                                    <div class="card-body">
+
+                                        <form wire:submit.prevent="saveAdvisorCapacity">
+
+                                            <div class="row g-3">
+
+                                                <div class="col-md-4">
+
+                                                    <label class="form-label">ظرفیت پیش‌فرض هر مشاور</label>
+
+                                                    <input type="number" min="1" max="1000" class="form-control"
+
+                                                           wire:model="advisor_default_capacity" placeholder="مثال: 50">
+
+                                                    @error('advisor_default_capacity')
+
+                                                    <span class="text-danger small">{{ $message }}</span>
+
+                                                    @enderror
+
+                                                </div>
+
+                                                <div class="col-12">
+
+                                                    <div class="text-end">
+
+                                                        <button type="submit" class="btn btn-primary">
+
+                                                            <span wire:loading.remove wire:target="saveAdvisorCapacity">
+
+                                                                <i class="ri-save-line me-1"></i> ذخیره ظرفیت
+
+                                                            </span>
+
+                                                            <span wire:loading wire:target="saveAdvisorCapacity">
 
                                                                 <i class="ri-loader-4-line ri-spin me-1"></i> در حال ذخیره...
 

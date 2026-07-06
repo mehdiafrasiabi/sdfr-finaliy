@@ -431,17 +431,19 @@ class WeeklyProgramView extends Component
 
     public function pausePart()
     {
-        if (!$this->isRunning) return;
-
         if ($this->isInExtraPhase) {
-            if (!$this->extraEndsAtTs) return;
+            // بررسی می‌کنیم که زمان پایان وجود داشته باشد و قبلاً متوقف نشده باشد
+            if (!$this->extraEndsAtTs || $this->pausedAtTs) return;
+
             $this->isRunning = false;
             $this->pausedAt = now();
             $this->pausedAtTs = now()->timestamp;
             $this->extraRemainingSeconds = max($this->extraEndsAtTs - $this->pausedAtTs, 0);
             $this->extraLiveSeconds = max($this->extraTargetSeconds - $this->extraRemainingSeconds, 0);
         } else {
-            if (!$this->endsAtTs) return;
+            // بررسی می‌کنیم که زمان پایان وجود داشته باشد و قبلاً متوقف نشده باشد
+            if (!$this->endsAtTs || $this->pausedAtTs) return;
+
             $this->isRunning = false;
             $this->pausedAt = now();
             $this->pausedAtTs = now()->timestamp;
@@ -949,7 +951,8 @@ class WeeklyProgramView extends Component
 
     public function pauseMakeup()
     {
-        if (!$this->makeupTimerRunning || !$this->makeupEndsAtTs) return;
+        // بررسی می‌کنیم که زمان پایان وجود داشته باشد و قبلاً متوقف نشده باشد
+        if (!$this->makeupEndsAtTs || $this->makeupPausedAtTs) return;
 
         $this->makeupTimerRunning = false;
         $this->makeupPausedAt = now();

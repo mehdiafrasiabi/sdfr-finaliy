@@ -12,6 +12,36 @@
         $colorFa = ['primary'=>'آبی','success'=>'سبز','warning'=>'زرد','danger'=>'قرمز','secondary'=>'خاکستری'];
     @endphp
 
+    {{-- ───── اهداف ثبت‌نام (تعیین‌شده توسط مدیر آموزشی) ───── --}}
+    @if ($goals->isNotEmpty())
+        <div class="row g-3 mb-3">
+            @foreach ($goals as $goal)
+                @php $pct = $goal->target_count > 0 ? min(100, round($goal->achieved / $goal->target_count * 100)) : 0; @endphp
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <h6 class="mb-0">
+                                    <i class="fi fi-rr-target text-primary"></i>
+                                    هدف {{ $goal->isTeamGoal() ? 'تیمی' : 'شما' }}: {{ number_format($goal->target_count) }} ثبت‌نام
+                                </h6>
+                                <span class="badge bg-light text-dark border">تا {{ jalali($goal->goal_date)->format('%d %B') }}</span>
+                            </div>
+                            @if ($goal->description)
+                                <p class="text-muted small mb-2">{{ $goal->description }}</p>
+                            @endif
+                            <div class="progress" style="height:18px">
+                                <div class="progress-bar {{ $pct >= 100 ? 'bg-success' : 'bg-primary' }}" style="width: {{ $pct }}%">
+                                    {{ number_format($goal->achieved) }} / {{ number_format($goal->target_count) }} ({{ $pct }}٪)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
+
     <div class="statbox widget box box-shadow">
         <div class="widget-header">
             <div class="row align-items-center">

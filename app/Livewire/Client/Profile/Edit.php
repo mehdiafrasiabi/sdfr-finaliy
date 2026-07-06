@@ -21,8 +21,13 @@ class Edit extends Component
     use SEOTools, WithFileUploads, UploadFile;
 
 
-    public $name, $email, $mobile, $photo, $new_photo;
+    public $name, $email, $mobile, $photo;
     public $full_name, $gender, $state_id, $city_id, $birth_date;
+
+    // اطلاعات تکمیلی ثبت‌نام (فقط نمایشی)
+    public $code_mell, $father_mobile, $mother_mobile;
+    public $grade, $field, $is_graduate = false, $attends_school = true;
+    public $place_of_birth, $address;
 
     public $states = [];
     public $cities = [];
@@ -67,7 +72,19 @@ class Edit extends Component
         $this->gender = $profile?->gender;
         $this->state_id = $profile?->state_id;
         $this->city_id = $profile?->city_id;
-        $this->birth_date = $profile?->birth_date;
+
+        // اطلاعات تکمیلی از جدول personal_information
+        $pi = $user->personalInformation;
+        $this->code_mell      = $pi?->code_mell;
+        $this->father_mobile  = $pi?->father_mobile;
+        $this->mother_mobile  = $pi?->mother_mobile;
+        $this->grade          = $pi?->grade;
+        $this->field          = $pi?->field;
+        $this->is_graduate    = (bool) ($pi?->is_graduate);
+        $this->attends_school = (bool) ($pi?->attends_school);
+        $this->birth_date     = $pi?->birth_date;
+        $this->place_of_birth = $pi?->place_of_birth;
+        $this->address        = $pi?->address;
 
         $this->states = State::query()->select('id', 'name')->get();
         $this->cities = $this->state_id
@@ -92,72 +109,54 @@ class Edit extends Component
             ->setTitle('ویرایش پروفایل');
     }
 
-    public function save()
+    /**
+     * فهرست آواتارهای آماده بر اساس جنسیت (همان آواتارهای صفحه ثبت‌نام)
+     */
+    public function avatarOptions(): array
     {
-        $this->validate([
-            'name' => ['required', 'string', 'min:3', 'max:150'],
-            'email' => ['nullable', 'email'],
-            'full_name' => ['required', 'string', 'min:3', 'max:150'],
-            'gender' => ['required', 'in:male,female'],
-            'state_id' => ['nullable', 'exists:states,id'],
-            'city_id' => ['nullable', 'exists:cities,id'],
-            'birth_date' => ['nullable', 'string', 'max:20'],
-            'new_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:1024'],
-        ], [
-            'name.required' => 'وارد کردن نام الزامی است.',
-            'name.string' => 'فرمت نام معتبر نیست.',
-            'name.min' => 'نام باید حداقل ۳ کاراکتر داشته باشد.',
-            'name.max' => 'نام نمی‌تواند بیشتر از ۱۵۰ کاراکتر باشد.',
+        $boy = [
+            '/client/assets/images/avatars/star-boy-1.webp',
+            '/client/assets/images/avatars/star-boy-2.webp',
+            '/client/assets/images/avatars/star-boy-3.png',
+        ];
+        $girl = [
+            '/client/assets/images/avatars/star-girl-1.webp',
+            '/client/assets/images/avatars/star-girl-2.webp',
+            '/client/assets/images/avatars/star-girl-3.png',
+        ];
 
-            'email.required' => 'وارد کردن ایمیل الزامی است.',
-            'email.email' => 'فرمت ایمیل معتبر نیست.',
+        return $this->gender === 'female' ? $girl : $boy;
+    }
 
-            'full_name.required' => 'وارد کردن نام و نام خانوادگی الزامی است.',
-            'full_name.min' => 'نام و نام خانوادگی باید حداقل ۳ کاراکتر داشته باشد.',
-            'full_name.max' => 'نام و نام خانوادگی نمی‌تواند بیشتر از ۱۵۰ کاراکتر باشد.',
-
-            'gender.required' => 'انتخاب جنسیت الزامی است.',
-            'gender.in' => 'جنسیت انتخاب‌شده معتبر نیست.',
-
-            'state_id.exists' => 'استان انتخاب‌شده معتبر نیست.',
-            'city_id.exists' => 'شهر انتخاب‌شده معتبر نیست.',
-
-            'new_photo.required' => 'انتخاب تصویر الزامی است.',
-            'new_photo.image' => 'فایل انتخابی باید یک تصویر باشد.',
-            'new_photo.mimes' => 'فرمت‌های مجاز: jpg, jpeg, png, webp',
-            'new_photo.max' => 'حجم تصویر نباید بیشتر از ۱ مگابایت باشد.',
-        ]);
-
+    /**
+     * انتخاب آواتار آماده — فقط آواتارِ هم‌جنسِ کاربر مجاز است.
+     */
+    public function selectAvatar(string $path): void
+    {
+        if (! in_array($path, $this->avatarOptions(), true)) {
+            $this->dispatch('warning', 'آواتار انتخابی معتبر نیست.');
+            return;
+        }
 
         $user = Auth::user();
-        $user->name = $this->name;
-        $user->email = $this->email;
+
+        // اگر عکس قبلی یک فایلِ آپلودشده بوده (نه آواتارِ آماده)، آن را حذف کن.
+        if ($user->picture && ! str_starts_with($user->picture, '/')) {
+            $oldPath = public_path("user/img/{$user->id}/" . $user->picture);
+            if (file_exists($oldPath)) {
+                @unlink($oldPath);
+            }
+        }
+
+        $user->picture = $path;
+        $user->save();
 
         $profile = $user->profile()->firstOrNew();
-        $profile->full_name = $this->full_name;
-        $profile->gender = $this->gender;
-        $profile->state_id = $this->state_id;
-        $profile->city_id = $this->city_id;
-        $profile->birth_date = $this->birth_date;
-
-        if ($this->new_photo) {
-            // حذف عکس قبلی
-            if ($user->picture) {
-                $oldPath = public_path("user/img/{$user->id}/" . $user->picture);
-                if (file_exists($oldPath)) {
-                    unlink($oldPath);
-                }
-            }
-            // تولید نام و ذخیره
-            $filename = $this->uploadImageInWebpFormatProfile($this->new_photo, $user->id, 150, 150, 'img');
-            $user->picture = $filename; // فقط نام فایل
-            $profile->picture = $filename;
-        }
-        $user->save();
+        $profile->picture = $path;
         $user->profile()->save($profile);
-        $this->photo = $user->picture;
-        $this->dispatch('success','پروفایل با موفقیت به‌روزرسانی شد.');
-        $this->redirectRoute('client.profile.edit');
+
+        $this->photo = $path;
+        $this->dispatch('success', 'آواتار شما با موفقیت به‌روزرسانی شد.');
     }
     /**
      * تغییر رمز عبور با رمز فعلی
@@ -235,6 +234,22 @@ class Edit extends Component
         $this->dispatch('success',"کد تایید به شماره موبایل شما ارسال شد.");
 
     }
+    /**
+     * تایید خودکار کد به محض وارد شدن ۶ رقم
+     */
+    public function updatedOtpCode($value): void
+    {
+        // فقط ارقام را نگه می‌داریم
+        $clean = preg_replace('/\D/', '', (string) $value);
+        if ($clean !== $value) {
+            $this->otp_code = $clean;
+        }
+        // به محض کامل شدن ۶ رقم، خودکار اعتبارسنجی شود
+        if (strlen($clean) === 6 && !$this->otp_verified) {
+            $this->verifyOtp();
+        }
+    }
+
     /**
      * اعتبارسنجی کد OTP
      */

@@ -9,14 +9,16 @@ use App\Models\TrialWeek;
 use App\Traits\NormalizesDigits;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Livewire\WithPagination;
+use Maatwebsite\Excel\Facades\Excel;
 
 /**
- * مدیر آموزشی — افزودن و فهرست شماره‌های جذب تلفنی.
+ * مدیر آموزشی — افزودن (دستی و گروهی با اکسل) و فهرست شماره‌های جذب تلفنی.
  */
 class Index extends Component
 {
-    use WithPagination, NormalizesDigits;
+    use WithPagination, WithFileUploads, NormalizesDigits;
 
     public string $search = '';
     public string $statusFilter = '';
@@ -29,6 +31,10 @@ class Index extends Component
     public string $field = '';
     public $stateId = '';
     public $cityId = '';
+
+    // ایمپورت اکسل
+    public bool $showImport = false;
+    public $excelFile = null;
 
     public $states = [];
     public $cities = [];
@@ -107,6 +113,91 @@ class Index extends Component
         } else {
             $this->dispatch('success', 'شماره با موفقیت اضافه شد.');
         }
+    }
+
+    public function toggleImport(): void
+    {
+        $this->showImport = ! $this->showImport;
+        $this->excelFile  = null;
+        $this->resetErrorBag();
+    }
+
+    /**
+     * ایمپورت گروهی شماره‌ها از فایل اکسل.
+     * ستون‌ها (با یا بدون سطر عنوان): نام | موبایل | پایه | رشته
+     */
+    public function importExcel(): void
+    {
+        $this->validate([
+            'excelFile' => ['required', 'file', 'mimes:xlsx,xls,csv,txt', 'max:5120'],
+        ], [
+            'excelFile.required' => 'فایل اکسل را انتخاب کنید.',
+            'excelFile.mimes'    => 'فقط فایل xlsx، xls یا csv مجاز است.',
+        ]);
+
+        $rows = Excel::toCollection(null, $this->excelFile->getRealPath())->first() ?? collect();
+
+        $gradeMap = array_flip(TrialWeek::GRADE_LABELS); // 'نهم' => 9 ...
+        $fieldMap = array_flip(TrialWeek::FIELD_LABELS); // 'ریاضی' => 'math' ...
+
+        $created = 0;
+        $duplicate = 0;
+        $skipped = 0;
+        $adminId = Auth::guard('admin')->id();
+
+        foreach ($rows as $i => $row) {
+            $cells = $row->values()->all();
+
+            $name   = isset($cells[0]) ? trim((string) $cells[0]) : '';
+            $mobile = isset($cells[1]) ? $this->convertToEnglishDigits((string) $cells[1]) : '';
+            $mobile = preg_replace('/\D+/', '', $mobile);
+
+            // سطر عنوان یا خالی را رد کن
+            if ($mobile === '' || ! preg_match('/^09\d{9}$/', $mobile)) {
+                // اگر اولین سطر عنوان بود، آن را «نادیده» می‌گیریم نه «ردشده»
+                if ($i === 0 && ! ctype_digit($mobile)) {
+                    continue;
+                }
+                $skipped++;
+                continue;
+            }
+
+            $gradeRaw = isset($cells[2]) ? trim((string) $cells[2]) : '';
+            $grade = match (true) {
+                ctype_digit($gradeRaw) && in_array((int) $gradeRaw, [9, 10, 11, 12, 13], true) => (int) $gradeRaw,
+                isset($gradeMap[$gradeRaw]) => $gradeMap[$gradeRaw],
+                default => null,
+            };
+
+            $fieldRaw = isset($cells[3]) ? trim((string) $cells[3]) : '';
+            $field = match (true) {
+                in_array($fieldRaw, ['math', 'experimental', 'human'], true) => $fieldRaw,
+                isset($fieldMap[$fieldRaw]) => $fieldMap[$fieldRaw],
+                default => null,
+            };
+
+            if (PhoneLead::where('mobile', $mobile)->exists()) {
+                $duplicate++;
+            }
+
+            PhoneLead::create([
+                'full_name'  => $name ?: null,
+                'mobile'     => $mobile,
+                'grade'      => $grade,
+                'field'      => $field,
+                'created_by' => $adminId,
+            ]);
+
+            $created++;
+        }
+
+        $this->excelFile  = null;
+        $this->showImport = false;
+        $this->resetPage();
+
+        $this->dispatch('success', "ایمپورت انجام شد: {$created} مورد ثبت شد"
+            . ($duplicate ? "، {$duplicate} تکراری" : '')
+            . ($skipped ? "، {$skipped} نامعتبر رد شد" : '') . '.');
     }
 
     public function render()

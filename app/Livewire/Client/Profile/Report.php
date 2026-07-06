@@ -267,32 +267,22 @@ class Report extends Component
         $student = Auth::user()->student;
 
         foreach ($this->weekDays as $dayIndex => $day) {
-            // Skip rest days
-            if ($day['is_rest_day']) {
-                continue;
-            }
-
-            // ✅ فقط اگر پنجره جبرانی باز شده باشد (بعد از 6 صبح روز بعد)
-            if (!$this->isCompensatoryWindowOpen($day['date'])) {
-                continue;
-            }
+            if ($day['is_rest_day']) continue;
+            if (!$this->isCompensatoryWindowOpen($day['date'])) continue;
 
             if ($day['is_locked'] && !$day['is_submitted']) {
-                // همه پارت‌ها از دست رفته
                 foreach ($day['parts'] as $part) {
-                    if (in_array($part->id, $this->alreadyCompensatedPartIds)) {
-                        continue;
-                    }
+                    if (in_array($part->id, $this->alreadyCompensatedPartIds)) continue;
 
                     $this->missedParts[] = [
-                        'part' => $part,
+                        'part'      => $part,
                         'day_index' => $dayIndex,
-                        'day_name' => $day['name'],
+                        'day_name'  => $day['name'],
                         'jalali_date' => $day['jalali_short'],
+                        'has_study' => in_array($part->id, $this->completedStudyParts), // ✅ اضافه شد
                     ];
                 }
             } elseif ($day['is_submitted'] && $day['report']) {
-                // پارت‌های خوانده نشده در گزارش ثبت شده
                 $unreadPartIds = DailyReportPart::where('daily_report_id', $day['report']->id)
                     ->where('is_read', false)
                     ->where('is_compensatory', false)
@@ -302,10 +292,11 @@ class Report extends Component
                 foreach ($day['parts'] as $part) {
                     if (in_array($part->id, $unreadPartIds) && !in_array($part->id, $this->alreadyCompensatedPartIds)) {
                         $this->missedParts[] = [
-                            'part' => $part,
+                            'part'      => $part,
                             'day_index' => $dayIndex,
-                            'day_name' => $day['name'],
+                            'day_name'  => $day['name'],
                             'jalali_date' => $day['jalali_short'],
+                            'has_study' => in_array($part->id, $this->completedStudyParts), // ✅ اضافه شد
                         ];
                     }
                 }
@@ -315,35 +306,41 @@ class Report extends Component
 
     public function openReportModal(int $dayIndex)
     {
-        if (!isset($this->weekDays[$dayIndex])) return;
+        try {
+            if (!isset($this->weekDays[$dayIndex])) return;
 
-        $day = $this->weekDays[$dayIndex];
+            $day = $this->weekDays[$dayIndex];
 
-        if (!$day['can_submit']) {
-            if ($day['is_submitted']) {
-                $this->dispatch('warning', 'گزارش این روز قبلاً ثبت شده است.');
-            } elseif ($day['is_locked']) {
-                $this->dispatch('warning', 'مهلت ارسال گزارش این روز تمام شده است.');
-            } elseif ($day['is_future']) {
-                $this->dispatch('warning', 'هنوز امکان ارسال گزارش برای این روز وجود ندارد.');
+            if (!$day['can_submit']) {
+                if ($day['is_submitted']) {
+                    $this->dispatch('warning', 'گزارش این روز قبلاً ثبت شده است.');
+                } elseif ($day['is_locked']) {
+                    $this->dispatch('warning', 'مهلت ارسال گزارش این روز تمام شده است.');
+                } elseif ($day['is_future']) {
+                    $this->dispatch('warning', 'هنوز امکان ارسال گزارش برای این روز وجود ندارد.');
+                }
+                return;
             }
-            return;
-        }
 
-        $this->selectedDayIndex = $dayIndex;
-        $this->selectedParts = [];
-        // ✅ انتخاب خودکار پارت‌هایی که ساعت مطالعه برایشان ثبت شده
-        $this->selectedParts = collect($day['parts'])
-            ->filter(fn($part) => in_array($part->id, $this->completedStudyParts))
-            ->pluck('id')
-            ->values()
-            ->toArray();
-        $this->testsDone = [];
-        $this->description = '';
-        $this->missedPartsReason = '';
-        // ✅ بارگذاری پارت‌های اضافه بر سازمان برای این روز
-        $this->loadCurrentDayMakeupSessions($day['date']);
-        $this->showReportModal = true;
+            $this->selectedDayIndex = $dayIndex;
+            $this->selectedParts = [];
+            // ✅ انتخاب خودکار پارت‌هایی که ساعت مطالعه برایشان ثبت شده
+            $this->selectedParts = collect($day['parts'])
+                ->filter(fn($part) => in_array($part->id, $this->completedStudyParts))
+                ->pluck('id')
+                ->values()
+                ->toArray();
+            $this->testsDone = [];
+            $this->description = '';
+            $this->missedPartsReason = '';
+            // ✅ بارگذاری پارت‌های اضافه بر سازمان برای این روز
+            $this->loadCurrentDayMakeupSessions($day['date']);
+            $this->showReportModal = true;
+        } catch (\Throwable $e) {
+            \Log::error('Error in openReportModal: ' . $e->getMessage());
+            $this->dispatch('error', 'خطایی در بارگذاری اطلاعات رخ داد. لطفا صفحه را رفرش کنید.');
+            $this->closeReportModal();
+        }
     }
 
     public function closeReportModal()
@@ -461,83 +458,88 @@ class Report extends Component
 
     public function submitReport()
     {
-        $student = Auth::user()->student;
-        $day = $this->weekDays[$this->selectedDayIndex];
+        try {
+            $student = Auth::user()->student;
+            $day = $this->weekDays[$this->selectedDayIndex];
 
-        $unreadCount = count($day['parts']) - count($this->selectedParts);
+            $unreadCount = count($day['parts']) - count($this->selectedParts);
 
-        // Validate test counts for selected parts that have tests
-        foreach ($day['parts'] as $part) {
-            if (in_array($part->id, $this->selectedParts) && ($part->test_count ?? 0) > 0) {
-                $val = $this->testsDone[$part->id] ?? null;
-                if ($val === null || $val === '') {
-                    $this->addError('testsDone.' . $part->id, 'تعداد تست «' . $part->lesson_name . '» را وارد کنید (حداقل ۰).');
-                    return;
+            // Validate test counts for selected parts that have tests
+            foreach ($day['parts'] as $part) {
+                if (in_array($part->id, $this->selectedParts) && ($part->test_count ?? 0) > 0) {
+                    $val = $this->testsDone[$part->id] ?? null;
+                    if ($val === null || $val === '') {
+                        $this->addError('testsDone.' . $part->id, 'تعداد تست «' . $part->lesson_name . '» را وارد کنید (حداقل ۰).');
+                        return;
+                    }
                 }
             }
-        }
 
-        $rules = ['description' => 'nullable|string|max:350'];
-        $messages = ['description.max' => 'توضیحات نمی‌تواند بیشتر از 350 کاراکتر باشد.'];
+            $rules = ['description' => 'nullable|string|max:350'];
+            $messages = ['description.max' => 'توضیحات نمی‌تواند بیشتر از 350 کاراکتر باشد.'];
 
-        // missedPartsReason is required when 2+ parts are unread
-        if ($unreadCount >= 2) {
-            $rules['missedPartsReason'] = 'required|string|min:20|max:500';
-            $messages['missedPartsReason.required'] = 'چون بیشتر از یک پارت انجام نشده، وارد کردن علت عدم انجام پارت‌ها الزامی است.';
-            $messages['missedPartsReason.min'] = 'علت عدم انجام پارت باید حداقل ۲۰ کاراکتر باشد.';
-            $messages['missedPartsReason.max'] = 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.';
-        } else {
-            $rules['missedPartsReason'] = 'nullable|string|max:500';
-            $messages['missedPartsReason.max'] = 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.';
-        }
+            // missedPartsReason is required when 2+ parts are unread
+            if ($unreadCount >= 2) {
+                $rules['missedPartsReason'] = 'required|string|min:20|max:500';
+                $messages['missedPartsReason.required'] = 'چون بیشتر از یک پارت انجام نشده، وارد کردن علت عدم انجام پارت‌ها الزامی است.';
+                $messages['missedPartsReason.min'] = 'علت عدم انجام پارت باید حداقل ۲۰ کاراکتر باشد.';
+                $messages['missedPartsReason.max'] = 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.';
+            } else {
+                $rules['missedPartsReason'] = 'nullable|string|max:500';
+                $messages['missedPartsReason.max'] = 'علت عدم انجام پارت نمی‌تواند بیشتر از 500 کاراکتر باشد.';
+            }
 
-        $this->validate($rules, $messages);
+            $this->validate($rules, $messages);
 
-        if (!$this->canSubmitForDate($day['date'])) {
-            $this->dispatch('warning', 'مهلت ارسال گزارش این روز تمام شده است.');
-            $this->closeReportModal();
-            return;
-        }
-        // ✅ محاسبه امتیاز از session_feedbacks (1-10)
-        $avgRating = $this->computedRating;
+            if (!$this->canSubmitForDate($day['date'])) {
+                $this->dispatch('warning', 'مهلت ارسال گزارش این روز تمام شده است.');
+                $this->closeReportModal();
+                return;
+            }
+            // ✅ محاسبه امتیاز از session_feedbacks (1-10)
+            $avgRating = $this->computedRating;
 
-        $dailyReport = DailyReport::create([
-            'student_id' => $student->id,
-            'admin_id' => $student->advisor_id,
-            'session_id' => $this->currentSession->id,
-            'weekly_program_id' => $this->currentProgram->id,
-            'report_date' => $day['date'],
-            'day_of_week' => $day['day_of_week'],
-            'is_compensatory' => false,
-        ]);
-
-        DailyReportDetail::create([
-            'daily_report_id' => $dailyReport->id,
-            'phone_hours' => 0,
-            'description' => $this->description ?: null,
-            'missed_parts_reason' => $this->missedPartsReason ?: null,
-            'rating' => $avgRating,
-            'status' => 'pending',
-        ]);
-
-        DailyReportFeedback::create([
-            'daily_report_id' => $dailyReport->id,
-        ]);
-
-        foreach ($day['parts'] as $part) {
-            DailyReportPart::create([
-                'daily_report_id' => $dailyReport->id,
-                'program_part_id' => $part->id,
-                'is_read' => in_array($part->id, $this->selectedParts),
-                'tests_done' => $this->testsDone[$part->id] ?? 0,
-                'part_rating' => null,
+            $dailyReport = DailyReport::create([
+                'student_id' => $student->id,
+                'admin_id' => $student->advisor_id,
+                'session_id' => $this->currentSession->id,
+                'weekly_program_id' => $this->currentProgram->id,
+                'report_date' => $day['date'],
+                'day_of_week' => $day['day_of_week'],
                 'is_compensatory' => false,
             ]);
-        }
 
-        $this->dispatch('success', 'گزارش با موفقیت ثبت شد.');
-        $this->closeReportModal();
-        $this->loadWeekDays();
+            DailyReportDetail::create([
+                'daily_report_id' => $dailyReport->id,
+                'phone_hours' => 0,
+                'description' => $this->description ?: null,
+                'missed_parts_reason' => $this->missedPartsReason ?: null,
+                'rating' => $avgRating,
+                'status' => 'pending',
+            ]);
+
+            DailyReportFeedback::create([
+                'daily_report_id' => $dailyReport->id,
+            ]);
+
+            foreach ($day['parts'] as $part) {
+                DailyReportPart::create([
+                    'daily_report_id' => $dailyReport->id,
+                    'program_part_id' => $part->id,
+                    'is_read' => in_array($part->id, $this->selectedParts),
+                    'tests_done' => $this->testsDone[$part->id] ?? 0,
+                    'part_rating' => null,
+                    'is_compensatory' => false,
+                ]);
+            }
+
+            $this->dispatch('success', 'گزارش با موفقیت ثبت شد.');
+            $this->closeReportModal();
+            $this->loadWeekDays();
+        } catch (\Throwable $e) {
+            \Log::error('Error in submitReport: ' . $e->getMessage());
+            $this->dispatch('error', 'خطایی در ثبت گزارش رخ داد. لطفا دوباره تلاش کنید.');
+        }
     }
 
     public function openCompensatoryModal()
@@ -547,6 +549,10 @@ class Report extends Component
             return;
         }
 
+        // ✅ به‌روزرسانی داده‌ها قبل از نمایش مودال
+        $this->loadCompletedStudyParts();
+        $this->loadMissedParts();
+
         $this->selectedCompensatoryParts = [];
         $this->compensatoryTestsDone = [];
         $this->compensatoryStep = 1;
@@ -555,6 +561,7 @@ class Report extends Component
 
         $this->showCompensatoryModal = true;
     }
+
 
     public function closeCompensatoryModal()
     {
@@ -598,71 +605,76 @@ class Report extends Component
 
     public function submitCompensatory()
     {
-        if (empty($this->selectedCompensatoryParts)) {
-            $this->dispatch('warning', 'لطفاً حداقل یک پارت را انتخاب کنید.');
-            return;
-        }
+        try {
+            if (empty($this->selectedCompensatoryParts)) {
+                $this->dispatch('warning', 'لطفاً حداقل یک پارت را انتخاب کنید.');
+                return;
+            }
 
-        $this->validate([
-            'compensatoryMissedPartsReason' => 'nullable|string|max:2000',
-        ], [
-            'compensatoryMissedPartsReason.max' => 'علت عدم انجام پارت نمی‌تواند بیشتر از 2000 کاراکتر باشد.',
-        ]);
+            $this->validate([
+                'compensatoryMissedPartsReason' => 'nullable|string|max:2000',
+            ], [
+                'compensatoryMissedPartsReason.max' => 'علت عدم انجام پارت نمی‌تواند بیشتر از 2000 کاراکتر باشد.',
+            ]);
 
 
-        $student = Auth::user()->student;
-        // ✅ استفاده از تاریخ مؤثر (با احتساب بازه ۶ صبح) بجای تاریخ تقویمی
-        $effectiveDate = $this->getEffectiveDate();
+            $student = Auth::user()->student;
+            // ✅ استفاده از تاریخ مؤثر (با احتساب بازه ۶ صبح) بجای تاریخ تقویمی
+            $effectiveDate = $this->getEffectiveDate();
 
-        // ✅ محاسبه امتیاز از session_feedbacks برای پارت‌های جبرانی انتخاب شده (1-10)
-        $spsList = StudyPartSession::where('student_id', $student->id)
-            ->whereIn('program_part_id', $this->selectedCompensatoryParts)
-            ->where('is_completed', true)
-            ->with('feedback')
-            ->get();
+            // ✅ محاسبه امتیاز از session_feedbacks برای پارت‌های جبرانی انتخاب شده (1-10)
+            $spsList = StudyPartSession::where('student_id', $student->id)
+                ->whereIn('program_part_id', $this->selectedCompensatoryParts)
+                ->where('is_completed', true)
+                ->with('feedback')
+                ->get();
 
-        $ratings = $spsList->filter(fn($sps) => $sps->feedback && $sps->feedback->rating > 0)
-            ->map(fn($sps) => $sps->feedback->rating);
+            $ratings = $spsList->filter(fn($sps) => $sps->feedback && $sps->feedback->rating > 0)
+                ->map(fn($sps) => $sps->feedback->rating);
 
-        $avgRating = $ratings->isNotEmpty() ? round($ratings->avg(), 1) : 0;
+            $avgRating = $ratings->isNotEmpty() ? round($ratings->avg(), 1) : 0;
 
-        $dailyReport = DailyReport::create([
-            'student_id' => $student->id,
-            'admin_id' => $student->advisor_id,
-            'session_id' => $this->currentSession->id,
-            'weekly_program_id' => $this->currentProgram->id,
-            'report_date' => $effectiveDate,
-            'day_of_week' => jdate($effectiveDate)->getDayOfWeek(),
-            'is_compensatory' => true,
-        ]);
-
-        DailyReportDetail::create([
-            'daily_report_id' => $dailyReport->id,
-            'phone_hours' => 0,
-            'description' => null,
-            'missed_parts_reason' => $this->compensatoryMissedPartsReason ?: null,
-            'rating' => $avgRating,
-            'status' => 'pending',
-        ]);
-
-        DailyReportFeedback::create([
-            'daily_report_id' => $dailyReport->id,
-        ]);
-
-        foreach ($this->selectedCompensatoryParts as $partId) {
-            DailyReportPart::create([
-                'daily_report_id' => $dailyReport->id,
-                'program_part_id' => $partId,
-                'is_read' => true,
-                'tests_done' => $this->compensatoryTestsDone[$partId] ?? 0,
-                'part_rating' => null,
+            $dailyReport = DailyReport::create([
+                'student_id' => $student->id,
+                'admin_id' => $student->advisor_id,
+                'session_id' => $this->currentSession->id,
+                'weekly_program_id' => $this->currentProgram->id,
+                'report_date' => $effectiveDate,
+                'day_of_week' => jdate($effectiveDate)->getDayOfWeek(),
                 'is_compensatory' => true,
             ]);
-        }
 
-        $this->dispatch('success', 'گزارش جبرانی با موفقیت ثبت شد.');
-        $this->closeCompensatoryModal();
-        $this->loadWeekDays();
+            DailyReportDetail::create([
+                'daily_report_id' => $dailyReport->id,
+                'phone_hours' => 0,
+                'description' => null,
+                'missed_parts_reason' => $this->compensatoryMissedPartsReason ?: null,
+                'rating' => $avgRating,
+                'status' => 'pending',
+            ]);
+
+            DailyReportFeedback::create([
+                'daily_report_id' => $dailyReport->id,
+            ]);
+
+            foreach ($this->selectedCompensatoryParts as $partId) {
+                DailyReportPart::create([
+                    'daily_report_id' => $dailyReport->id,
+                    'program_part_id' => $partId,
+                    'is_read' => true,
+                    'tests_done' => $this->compensatoryTestsDone[$partId] ?? 0,
+                    'part_rating' => null,
+                    'is_compensatory' => true,
+                ]);
+            }
+
+            $this->dispatch('success', 'گزارش جبرانی با موفقیت ثبت شد.');
+            $this->closeCompensatoryModal();
+            $this->loadWeekDays();
+        } catch (\Throwable $e) {
+            \Log::error('Error in submitCompensatory: ' . $e->getMessage());
+            $this->dispatch('error', 'خطایی در ثبت گزارش جبرانی رخ داد. لطفا دوباره تلاش کنید.');
+        }
     }
 
     public function openReplyModal(int $reportId)

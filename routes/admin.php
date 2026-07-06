@@ -87,21 +87,20 @@ Route::name('admin.')->group(function () {
                 ->name('student.progress')->middleware('admin.permission:admin.school-manager.student.progress.view');
         });
 
-        // مدیر آموزشی — درخواست‌های تعیین وقت و جابجایی
-        Route::get('/educational-manager/appointments',
-            \App\Livewire\Admin\EducationalManager\Appointment\Index::class)
-            ->name('educational-manager.appointments');
-        Route::get('/educational-manager/reschedule',
-            \App\Livewire\Admin\EducationalManager\Reschedule\Index::class)
-            ->name('educational-manager.reschedule');
+        // مدیر آموزشی — تایید مرخصی مشاوران
+        Route::get('/educational-manager/leave',
+            \App\Livewire\Admin\EducationalManager\Leave\Index::class)
+            ->name('educational-manager.leave');
 
         // مدیر آموزشی — دانش‌آموزان جدید (آزمایشی و خرید کرده)
         Route::get('/educational-manager/new-trial-students',
             \App\Livewire\Admin\EducationalManager\NewTrialStudents\Index::class)
             ->name('educational-manager.new-trial-students');
-        Route::get('/educational-manager/new-purchased-students',
-            \App\Livewire\Admin\EducationalManager\NewPurchasedStudents\Index::class)
-            ->name('educational-manager.new-purchased-students');
+
+        // مدیر آموزشی — ثبت‌نام‌های ناقص (آزمون شروع‌نشده/نیمه‌رها/منتظر پیش‌جلسه)
+        Route::get('/educational-manager/incomplete-registrations',
+            \App\Livewire\Admin\EducationalManager\IncompleteRegistrations\Index::class)
+            ->name('educational-manager.incomplete-registrations');
 
         // مدیر آموزشی — جذب تلفنی
         Route::prefix('educational-manager/phone-acquisition')
@@ -154,10 +153,10 @@ Route::name('admin.')->group(function () {
                     ->name('receipts');
             });
 
-        // پنل مشاور — درخواست‌های جابجایی مربوط به خودش
-        Route::get('/consultant/reschedule',
-            \App\Livewire\Admin\Consultant\Reschedule\Index::class)
-            ->name('consultant.reschedule');
+        // پنل مشاور — مرخصی
+        Route::get('/consultant/leave',
+            \App\Livewire\Admin\Consultant\Leave\Index::class)
+            ->name('consultant.leave');
 
         // پنل مشاور — ثبت نمرات کارنامهٔ ماهانه برای دانش‌آموزان تحت مشاوره
         Route::get('/consultant/grades',
@@ -168,6 +167,14 @@ Route::name('admin.')->group(function () {
         Route::get('/consultant/emergency-calls',
             \App\Livewire\Admin\Consultant\EmergencyCalls::class)
             ->name('consultant.emergency-calls');
+
+        // پنل مشاور — گفتگوی مستقیم با دانش‌آموزان تحت مشاوره
+        Route::get('/consultant/chats',
+            \App\Livewire\Admin\Consultant\Chat\Index::class)
+            ->name('consultant.chats');
+        Route::get('/consultant/chats/{student}',
+            \App\Livewire\Admin\Consultant\Chat\Show::class)
+            ->name('consultant.chat.show');
         // اعلان‌ها
 
         Route::get('/notification', NotificationCreate::class)->name('student.notification')

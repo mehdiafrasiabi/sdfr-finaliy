@@ -77,6 +77,11 @@ Route::name('manager.')->group(function () {
         Route::get('/transaction', TransactionIndex::class)->name('transaction');
         Route::get('/admin', AdminManage::class)->name('adminManage');
         Route::get('/studentManager', AssignStudents::class)->name('studentAssign');
+
+        // مدیریت مشاوران (منتقل‌شده از پنل admin)
+        Route::get('/advisors', \App\Livewire\Manager\Advisors\Index::class)->name('advisors');
+        Route::get('/advisors/{admin}/work-schedule', \App\Livewire\Manager\Advisors\WorkSchedule::class)->name('advisors.work-schedule');
+        Route::get('/advisor-approval', \App\Livewire\Manager\AdvisorApproval\Index::class)->name('advisor-approval');
         Route::get('/student', StudentIndex::class)->name('student');
         Route::get('/supporter', SupportIndex::class)->name('supporters');
         Route::get('/{supporter}/students', SupporterStudent::class)->name('supporter.student');

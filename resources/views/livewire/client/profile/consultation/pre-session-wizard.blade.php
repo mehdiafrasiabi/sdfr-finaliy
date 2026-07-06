@@ -1,4 +1,4 @@
-<div class="min-h-screen bg-background py-6 sm:py-10 relative" dir="rtl"
+<div class="min-h-screen bg-background sm:py-10 relative" dir="rtl"
      x-data="preSessionWizard()"
      x-init="init()"
      @keydown.escape.window="$wire.closeModal()"

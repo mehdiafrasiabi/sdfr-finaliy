@@ -1446,7 +1446,8 @@
 
         .price-intro-title {
             font-weight: 900;
-            font-size: clamp(28px, 7vw, 56px);
+            /* دسکتاپ کوچیک‌تر شد (موبایل override جدا دارد و دست‌نخورده می‌ماند) */
+            font-size: clamp(24px, 3.6vw, 38px);
             line-height: 1.4;
             max-width: 18ch;
             opacity: 0;
@@ -1463,17 +1464,17 @@
         }
 
         .price-intro-line .pi-pre, .price-intro-line .pi-post {
-            font-size: 2.6em;
+            font-size: 1.6em;
             font-weight: 800;
         }
 
+
         .price-intro-line .pi-logo {
-            font-size: 2.45em;
+            font-size: 3.15em;
             font-weight: 900;
             line-height: 1;
-            letter-spacing: .02em;
+            letter-spacing: 0.02em;
         }
-
         /* ================== PRICING cards ================== */
         .price-card {
             position: relative;
@@ -1766,13 +1767,13 @@
 
             .price-intro-line .pi-pre, .price-intro-line .pi-post {
                 display: block;
-                font-size: .62em;
+                font-size: 2.62em;
             }
 
             .price-intro-line .pi-logo {
                 display: block;
-                font-size: 2.2em;
-                margin: .06em 0;
+                font-size: 5.2em;
+                margin: 0.3em 0;
             }
         }
 
@@ -2025,7 +2026,7 @@
                     {{-- (8) بخشِ تحلیل --}}
                     <div class="story-layer story-msg" id="story-mindset" style="opacity:0;">
                         <h2>چجوری این سیستم هر شخص رو تحلیل می‌کنه؟</h2>
-                        <h2 class="sdfr-spark ">Mindet Test</h2>
+                        <h2 class="sdfr-spark mt-8">Mindet Test</h2>
                         <p>
                             با یک آزمونِ کوتاهِ علمی، نقطه‌ی شروعت مشخص می‌شود: بهترین ساعاتِ مطالعه، الگوی تمرکز، سبکِ
                             یادگیری و موانعِ ذهنی‌ات سنجیده می‌شود؛ بعد برنامه و مشاوره دقیقاً براساسِ همین تحلیل برایت
@@ -2247,8 +2248,8 @@
                     </div>
                     <div class="mt-6 space-y-7">
                         @foreach($features as $f)
-                            <div class="reveal-up glass rounded-3xl p-2.5">
-                                <div class="rounded-2xl overflow-hidden" style="height:250px;">
+                            <div class="reveal-up glass rounded-3xl p-2.5 mb-3" >
+                                <div class="rounded-2xl overflow-hidden border-brand" style="height:250px;">
                                     @if(!empty($featImgs[$f['id']]))
                                         <img src="{{ $featImgs[$f['id']] }}" alt="{{ $f['t'] }}" loading="lazy"
                                              class="w-full h-full object-cover">
@@ -2283,10 +2284,12 @@
                 <div class="price-intro-sticky">
                     <div class="seam seam-top" style="--seam-color:#000;"></div>
                     <div id="price-intro-title" class="price-intro-title">
-                        <span class="shimmer-text price-intro-line">
-                            <span class="pi-pre">در منظومه‌ی</span>
-                            <span class="pi-logo">SDFR</span>
-                            <span class="pi-post">سرمایه‌گذاری کن!</span>
+                        <span class=" price-intro-line">
+                            <span class="pi-pre" style="font-size: 1.5rem;margin-bottom: 1.5rem">
+                                در منظومه‌ی
+                                SDFR
+                            </span>
+                            <span class="pi-post shimmer-text">سرمایه‌گذاری کن!</span>
                         </span>
                     </div>
 

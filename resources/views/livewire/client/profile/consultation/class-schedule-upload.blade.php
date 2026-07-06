@@ -298,18 +298,22 @@
         {{-- ======================================================= --}}
         <div
             x-data="{
-                show: false,
-                day: null,
-                part: null,
-                name: '',
-                open(e) {
-                    this.day  = e.detail.day;
-                    this.part = e.detail.part;
-                    this.name = e.detail.name;
-                    this.show = true;
-                },
-                close() { this.show = false; }
-            }"
+        show: false,
+        day: null,
+        part: null,
+        name: '',
+        open(e) {
+            this.day  = e.detail.day;
+            this.part = e.detail.part;
+            this.name = e.detail.name;
+            this.show = true;
+            document.body.classList.add('overflow-hidden'); // جلوگیری از اسکرول
+        },
+        close() {
+            this.show = false;
+            document.body.classList.remove('overflow-hidden'); // بازگرداندن اسکرول
+        }
+    }"
             @open-delete-part-modal.window="open($event)"
             x-show="show"
             x-cloak
@@ -389,16 +393,20 @@
         {{-- ======================================================= --}}
         <div
             x-data="{
-                show: false,
-                day: null,
-                name: '',
-                open(e) {
-                    this.day  = e.detail.day;
-                    this.name = e.detail.name;
-                    this.show = true;
-                },
-                close() { this.show = false; }
-            }"
+        show: false,
+        day: null,
+        name: '',
+        open(e) {
+            this.day  = e.detail.day;
+            this.name = e.detail.name;
+            this.show = true;
+            document.body.classList.add('overflow-hidden'); // جلوگیری از اسکرول
+        },
+        close() {
+            this.show = false;
+            document.body.classList.remove('overflow-hidden'); // بازگرداندن اسکرول
+        }
+    }"
             @open-delete-day-modal.window="open($event)"
             x-show="show"
             x-cloak
@@ -479,6 +487,13 @@
 
         {{-- مودال ثبت نهایی (Alpine - instant open) --}}
         <div x-data="{ finalizeOpen: @entangle('showFinalizeModal') }"
+             x-init="$watch('finalizeOpen', value => {
+         if (value) {
+             document.body.classList.add('overflow-hidden');
+         } else {
+             document.body.classList.remove('overflow-hidden');
+         }
+     })"
              x-show="finalizeOpen" x-cloak
              class="fixed inset-0 z-[72] flex flex-col justify-end sm:items-center sm:justify-center"
              @keydown.escape.window="finalizeOpen = false">
@@ -548,10 +563,12 @@
     partModalOpen: false,
     openPart(day, part) {
         this.partModalOpen = true;
+        document.body.classList.add('overflow-hidden'); // جلوگیری از اسکرول
         $wire.openPartModal(day, part);
     },
     closePart() {
         this.partModalOpen = false;
+        document.body.classList.remove('overflow-hidden'); // بازگرداندن اسکرول
         $wire.closeModal();
     }
 }"

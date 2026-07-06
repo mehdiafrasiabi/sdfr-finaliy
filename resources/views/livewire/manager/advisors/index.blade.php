@@ -49,10 +49,10 @@
                                         <td class="phone">{{ $advisor->email }}</td>
                                         <td class="phone">{{ $advisor->mobile }}</td>
                                         <td class="status">
-                                            <a href="{{ route('manager.advisors.students', $advisor->id) }}"
-                                               class="bg-primary text-white px-3 py-1 rounded-lg hover:bg-primary/90">
-                                                تعداد :
-                                                ( {{ $advisor->advised_students_count }} )
+                                            <span class="badge bg-info-subtle text-info">دانش‌آموز: {{ $advisor->advised_students_count }}</span>
+                                            <a href="{{ route('manager.advisors.work-schedule', $advisor->id) }}"
+                                               class="btn btn-sm btn-soft-primary ms-2">
+                                                <i class="ri-calendar-2-line"></i> ساعت کاری / پروفایل
                                             </a>
                                         </td>
                                     </tr>

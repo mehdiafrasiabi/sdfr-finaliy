@@ -85,6 +85,11 @@ class General extends Component
     public $student_panel_closed_message;
 
 
+    // ظرفیتِ سراسریِ پیش‌فرضِ هر مشاور تحصیلی
+
+    public $advisor_default_capacity = 50;
+
+
     public function mount()
 
     {
@@ -164,7 +169,49 @@ class General extends Component
 
             $this->student_panel_closed_message = $settings->student_panel_closed_message;
 
+            $this->advisor_default_capacity = (int) ($settings->advisor_default_capacity ?? 50);
+
         }
+
+    }
+
+
+    public function saveAdvisorCapacity()
+
+    {
+
+        $validator = Validator::make([
+
+            'advisor_default_capacity' => $this->advisor_default_capacity,
+
+        ], [
+
+            'advisor_default_capacity' => 'required|integer|min:1|max:1000',
+
+        ], [
+
+            'advisor_default_capacity.required' => 'تعیین ظرفیت پیش‌فرض الزامی است.',
+
+            'advisor_default_capacity.integer'  => 'ظرفیت باید عدد باشد.',
+
+            'advisor_default_capacity.min'      => 'ظرفیت باید حداقل ۱ باشد.',
+
+            'advisor_default_capacity.max'      => 'ظرفیت بیش از حد مجاز است.',
+
+        ]);
+
+
+        $validator->validate();
+
+
+        $this->updateOrCreateSettings([
+
+            'advisor_default_capacity' => (int) $this->advisor_default_capacity,
+
+        ]);
+
+
+        $this->dispatch('success', 'ظرفیت پیش‌فرض مشاوران با موفقیت ذخیره شد.');
 
     }
 

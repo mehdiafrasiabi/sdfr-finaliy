@@ -1,8 +1,5 @@
 <div>
     @assets
-    <link rel="stylesheet" href="/client/assets/date/jalalidatepicker.min.css">
-    <script src="/client/assets/date/persian-datepicker.min.js"></script>
-
     <style>
         .remove-image-btn {
             position: absolute; top: -0.5rem; right: -0.5rem;
@@ -25,9 +22,6 @@
         }
         .spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
         @keyframes jdp-spin { to { transform: rotate(360deg); } }
-
-        input[data-jdp] { direction: ltr; text-align: center; letter-spacing: 0.05em; }
-        .jdp-container { font-family: inherit !important; z-index: 60 !important; }
     </style>
     @endassets
 
@@ -42,21 +36,7 @@
                 <div class="space-y-6"
                      x-data="{
                          activeTab: 'account',
-                         previewUrl: null,
                          photoError: false,
-                         handleFileChange(event) {
-                             const file = event.target.files[0];
-                             if (file) {
-                                 this.previewUrl = URL.createObjectURL(file);
-                                 this.photoError = false;
-                             }
-                         },
-                         removePreview() {
-                             this.previewUrl = null;
-                             const el = document.getElementById('customFile');
-                             if (el) el.value = '';
-                             @this.set('new_photo', null);
-                         }
                      }">
 
                     <div class="flex items-center gap-3">
@@ -89,84 +69,73 @@
 
                     {{-- ═══════════════ TAB: Account ═══════════════ --}}
                     <div x-show="activeTab === 'account'">
-                        <form wire:submit.prevent="save" class="space-y-5">
+                        <div class="space-y-5">
 
-                            {{-- ═══ Photo card (glass) ═══ --}}
-                            <div class="glass border border-border rounded-2xl p-6">
-                                <div class="flex flex-col md:flex-row items-center gap-6">
+                            @php
+                                $avList = $gender === 'female'
+                                    ? ['/client/assets/images/avatars/star-girl-1.webp', '/client/assets/images/avatars/star-girl-2.webp', '/client/assets/images/avatars/star-girl-3.png']
+                                    : ['/client/assets/images/avatars/star-boy-1.webp', '/client/assets/images/avatars/star-boy-2.webp', '/client/assets/images/avatars/star-boy-3.png'];
+                                $currentSrc = $photo
+                                    ? ((str_starts_with($photo, '/') || str_starts_with($photo, 'http')) ? $photo : asset('user/img/' . auth()->id() . '/' . $photo))
+                                    : null;
+                            @endphp
+
+                            {{-- ═══ Avatar card (glass) ═══ --}}
+                            <div class="glass border border-border rounded-2xl p-6 space-y-6" wire:key="avatar-card">
+                                <div class="flex flex-col sm:flex-row items-center gap-6">
                                     <div class="flex-shrink-0">
-                                        <div class="relative">
-                                            <div class="w-32 h-32 rounded-full overflow-hidden ring-4 ring-white/40 dark:ring-white/10 shadow-xl bg-gradient-to-br from-blue-100 to-sky-100 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">
-
-                                                <template x-if="previewUrl">
-                                                    <img :src="previewUrl" class="w-full h-full object-cover" alt="پیش‌نمایش">
-                                                </template>
-
-                                                @if($photo)
-                                                    <img x-show="!previewUrl && !photoError"
-                                                         src="{{ asset('user/img/' . auth()->id() . '/' . $photo) }}"
-                                                         x-on:error="photoError = true"
-                                                         class="w-full h-full object-cover" alt="تصویر پروفایل">
-                                                @endif
-
-                                                <div x-show="!previewUrl @if($photo) && photoError @endif"
-                                                     class="flex flex-col items-center justify-center px-2">
-                                                    @if($gender === 'female')
-                                                        <svg class="w-12 h-12 text-pink-400 dark:text-pink-500/70" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                                                        </svg>
-                                                    @elseif($gender === 'male')
-                                                        <svg class="w-12 h-12 text-blue-400 dark:text-blue-500/70" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                                                        </svg>
-                                                    @else
-                                                        <svg class="w-12 h-12 text-muted" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
-                                                        </svg>
-                                                    @endif
-                                                </div>
-                                            </div>
-
-                                            <template x-if="previewUrl">
-                                                <button type="button" @click="removePreview()" class="remove-image-btn" title="حذف">
-                                                    <svg fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-                                                    </svg>
-                                                </button>
-                                            </template>
-                                        </div>
-
-                                        {{-- Empty/error notice --}}
-                                        <div x-show="!previewUrl @if($photo) && photoError @endif" class="mt-3 text-center">
-                                            <div class="inline-flex items-center gap-1.5 text-[11px] text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/20 rounded-full px-2.5 py-1">
-                                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd"/>
+                                        <div class="w-28 h-28 rounded-full overflow-hidden ring-4 ring-white/40 dark:ring-white/10 shadow-xl bg-gradient-to-br from-blue-100 to-sky-100 dark:from-slate-700 dark:to-slate-600 flex items-center justify-center">
+                                            @if($currentSrc)
+                                                <img src="{{ $currentSrc }}" class="w-full h-full object-cover object-top" alt="آواتار پروفایل">
+                                            @else
+                                                <svg class="w-12 h-12 {{ $gender === 'female' ? 'text-pink-400 dark:text-pink-500/70' : 'text-blue-400 dark:text-blue-500/70' }}" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
                                                 </svg>
-                                                <span>تصویری ثبت نشده</span>
-                                            </div>
+                                            @endif
                                         </div>
                                     </div>
 
-                                    <div class="flex-1 text-center md:text-right">
-                                        <h3 class="font-bold text-lg text-foreground mb-2 flex items-center justify-center md:justify-start gap-2">
+                                    <div class="flex-1 text-center sm:text-right">
+                                        <h3 class="font-bold text-lg text-foreground mb-1 flex items-center justify-center sm:justify-start gap-2">
                                             <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
                                             </svg>
-                                            تصویر پروفایل
+                                            آواتار پروفایل
                                         </h3>
-                                        <p class="text-sm text-muted mb-4">فرمت‌های مجاز: JPG, PNG, WEBP — حداکثر ۱ مگابایت</p>
-                                        <label for="customFile" class="inline-flex items-center gap-2 bg-background hover:bg-secondary border border-border rounded-xl px-5 py-2.5 cursor-pointer transition-all shadow-sm">
-                                            <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5m-13.5-9L12 3m0 0 4.5 4.5M12 3v13.5"/>
-                                            </svg>
-                                            <span class="font-semibold text-sm text-foreground">انتخاب تصویر</span>
-                                            <input type="file" class="hidden" id="customFile" wire:model="new_photo" accept="image/*" @change="handleFileChange($event)">
-                                        </label>
-                                        <div wire:loading wire:target="new_photo" class="mt-2 inline-flex items-center gap-2 text-xs text-muted">
-                                            <span class="spinner-circle spinner-sm text-primary"></span>
-                                            <span>در حال بارگذاری...</span>
-                                        </div>
-                                        @error('new_photo')<div class="font-medium text-xs text-red-500 mt-2">{{ $message }}</div>@enderror
+                                        <p class="text-sm text-muted">یکی از آواتارهای زیر را انتخاب کن؛ تغییر بلافاصله ذخیره می‌شود.</p>
+                                    </div>
+                                </div>
+
+                                {{-- گرید آواتارها بر اساس جنسیت --}}
+                                <div class="grid grid-cols-3 gap-4 max-w-sm mx-auto sm:mx-0">
+                                    @foreach($avList as $a)
+                                        <button type="button" wire:click="selectAvatar('{{ $a }}')" wire:loading.attr="disabled" wire:target="selectAvatar"
+                                                class="relative aspect-square rounded-2xl overflow-hidden border-2 bg-secondary transition-all {{ $photo === $a ? 'border-primary ring-2 ring-primary/40' : 'border-border hover:border-primary/50' }}">
+                                            <img src="{{ $a }}" class="w-full h-full object-cover object-top" alt="آواتار" loading="lazy">
+                                            @if($photo === $a)
+                                                <span class="absolute top-1.5 left-1.5 w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center shadow">
+                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                                                </span>
+                                            @endif
+                                        </button>
+                                    @endforeach
+                                </div>
+
+                                {{-- هشدار: برای تغییر اطلاعات، تیکت ثبت کنید --}}
+                                <div class="flex items-start gap-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 px-4 py-4">
+                                    <span class="flex h-9 w-9 items-center justify-center rounded-lg bg-amber-500/15 shrink-0">
+                                        <svg class="w-5 h-5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </span>
+                                    <div class="flex-1">
+                                        <div class="font-bold text-sm text-amber-600 dark:text-amber-300 mb-1">تغییر سایر اطلاعات</div>
+                                        <p class="text-xs text-amber-600/90 dark:text-amber-400 leading-6">برای تغییر نام، کد ملی، تاریخ تولد یا هر یک از اطلاعات حساب، لطفاً یک تیکت پشتیبانی ثبت کنید.</p>
+                                        <a href="{{ route('client.profile.ticket') }}" wire:navigate
+                                           class="inline-flex items-center gap-1.5 mt-2.5 h-9 px-4 rounded-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition-colors">
+                                            ثبت تیکت پشتیبانی
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
@@ -180,6 +149,16 @@
                                     <h3 class="font-bold text-foreground">اطلاعات حساب</h3>
                                 </div>
 
+                                @php
+                                    $roBox      = 'w-full h-12 px-4 flex items-center bg-secondary border border-border rounded-xl text-sm text-foreground cursor-not-allowed';
+                                    $pi_grade   = ['10' => 'دهم', '11' => 'یازدهم', '12' => 'دوازدهم'];
+                                    $pi_field   = ['math' => 'ریاضی', 'experimental' => 'تجربی', 'human' => 'انسانی'];
+                                    $genderText = $gender === 'female' ? 'زن' : ($gender === 'male' ? 'مرد' : 'ثبت نشده');
+                                    $gradeText  = $is_graduate ? 'فارغ‌التحصیل' : ($pi_grade[$grade] ?? 'ثبت نشده');
+                                    $fieldText  = $pi_field[$field] ?? 'ثبت نشده';
+                                    $schoolText = $is_graduate ? '—' : ($attends_school ? 'بله، مدرسه می‌رود' : 'خیر، نمی‌رود');
+                                @endphp
+
                                 <div class="grid sm:grid-cols-2 gap-5">
 
                                     <div class="space-y-2">
@@ -187,8 +166,8 @@
                                             <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
                                             نام
                                         </label>
-                                        <input type="text" wire:model="name" placeholder="نام خود را وارد کنید"
-                                               class="w-full h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 transition-all outline-none">
+                                        <input type="text" wire:model="name" readonly tabindex="-1"
+                                               class="w-full h-12 !ring-0 bg-secondary border border-border rounded-xl text-sm text-foreground px-4 cursor-not-allowed">
                                         @error('name')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
                                     </div>
 
@@ -197,9 +176,17 @@
                                             <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
                                             نام و نام خانوادگی
                                         </label>
-                                        <input type="text" wire:model="full_name" placeholder="نام و نام خانوادگی"
-                                               class="w-full h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 transition-all outline-none">
+                                        <input type="text" wire:model="full_name" readonly tabindex="-1"
+                                               class="w-full h-12 !ring-0 bg-secondary border border-border rounded-xl text-sm text-foreground px-4 cursor-not-allowed">
                                         @error('full_name')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="flex items-center gap-2 font-semibold text-xs text-foreground">
+                                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.5h16.5a1.5 1.5 0 0 1 1.5 1.5v12a1.5 1.5 0 0 1-1.5 1.5H3.75a1.5 1.5 0 0 1-1.5-1.5V6a1.5 1.5 0 0 1 1.5-1.5Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75a3 3 0 0 1 6 0M15 9h3.75M15 12h3.75M9.75 10.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z"/></svg>
+                                            کد ملی
+                                        </label>
+                                        <div class="{{ $roBox }} font-mono justify-start" dir="ltr">{{ $code_mell ?: 'ثبت نشده' }}</div>
                                     </div>
 
                                     <div class="space-y-2">
@@ -207,8 +194,8 @@
                                             <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"/></svg>
                                             ایمیل
                                         </label>
-                                        <input type="email" dir="ltr" wire:model="email" placeholder="example@email.com"
-                                               class="w-full h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 transition-all outline-none">
+                                        <input type="email" dir="ltr" wire:model="email" readonly tabindex="-1"
+                                               class="w-full h-12 !ring-0 bg-secondary border border-border rounded-xl text-sm text-foreground px-4 cursor-not-allowed">
                                         @error('email')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
                                     </div>
 
@@ -219,7 +206,23 @@
                                             <span class="text-[10px] bg-muted/20 text-muted rounded px-1.5 py-0.5">غیرقابل ویرایش</span>
                                         </label>
                                         <input type="text" dir="ltr" wire:model="mobile" readonly
-                                               class="w-full h-12 !ring-0 bg-secondary/60 border border-dashed border-border rounded-xl text-sm text-muted px-4 cursor-not-allowed">
+                                               class="w-full h-12 !ring-0 bg-secondary border border-border rounded-xl text-sm text-foreground px-4 cursor-not-allowed">
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="flex items-center gap-2 font-semibold text-xs text-foreground">
+                                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"/></svg>
+                                            شماره پدر
+                                        </label>
+                                        <div class="{{ $roBox }} font-mono justify-start" dir="ltr">{{ $father_mobile ?: 'ثبت نشده' }}</div>
+                                    </div>
+
+                                    <div class="space-y-2">
+                                        <label class="flex items-center gap-2 font-semibold text-xs text-foreground">
+                                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z"/></svg>
+                                            شماره مادر
+                                        </label>
+                                        <div class="{{ $roBox }} font-mono justify-start" dir="ltr">{{ $mother_mobile ?: 'ثبت نشده' }}</div>
                                     </div>
 
                                     {{-- Gender --}}
@@ -227,24 +230,52 @@
                                         <label class="flex items-center gap-2 font-semibold text-xs text-foreground">
                                             <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z"/></svg>
                                             جنسیت
+                                            <span class="text-[10px] bg-muted/20 text-muted rounded px-1.5 py-0.5">غیرقابل ویرایش</span>
                                         </label>
                                         <div class="grid grid-cols-2 gap-3">
-                                            <label class="relative cursor-pointer">
-                                                <input type="radio" wire:model="gender" value="male" class="peer sr-only">
-                                                <div class="flex items-center justify-center gap-2 h-12 bg-secondary border-2 border-border peer-checked:border-blue-500 peer-checked:bg-blue-500/10 rounded-xl transition-all">
+                                            <label class="relative cursor-not-allowed">
+                                                <input type="radio" wire:model="gender" value="male" class="peer sr-only" disabled tabindex="-1">
+                                                <div class="flex items-center justify-center gap-2 h-12 bg-secondary border-2 border-border peer-checked:border-blue-500 peer-checked:bg-blue-500/10 rounded-xl opacity-80">
                                                     <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
                                                     <span class="font-semibold text-sm text-foreground">مرد</span>
                                                 </div>
                                             </label>
-                                            <label class="relative cursor-pointer">
-                                                <input type="radio" wire:model="gender" value="female" class="peer sr-only">
-                                                <div class="flex items-center justify-center gap-2 h-12 bg-secondary border-2 border-border peer-checked:border-pink-500 peer-checked:bg-pink-500/10 rounded-xl transition-all">
+                                            <label class="relative cursor-not-allowed">
+                                                <input type="radio" wire:model="gender" value="female" class="peer sr-only" disabled tabindex="-1">
+                                                <div class="flex items-center justify-center gap-2 h-12 bg-secondary border-2 border-border peer-checked:border-pink-500 peer-checked:bg-pink-500/10 rounded-xl opacity-80">
                                                     <svg class="w-5 h-5 text-pink-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/></svg>
                                                     <span class="font-semibold text-sm text-foreground">زن</span>
                                                 </div>
                                             </label>
                                         </div>
                                         @error('gender')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
+                                    </div>
+
+                                    {{-- پایه --}}
+                                    <div class="space-y-2">
+                                        <label class="flex items-center gap-2 font-semibold text-xs text-foreground">
+                                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.62 48.62 0 0 1 12 20.904a48.62 48.62 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.636 50.636 0 0 0-2.658-.813A59.906 59.906 0 0 1 12 3.493a59.903 59.903 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.717 50.717 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342M6.75 15a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Zm0 0v-3.675A55.378 55.378 0 0 1 12 8.443m-7.007 11.55A5.981 5.981 0 0 0 6.75 15.75v-1.5"/></svg>
+                                            پایه
+                                        </label>
+                                        <div class="{{ $roBox }}">{{ $gradeText }}</div>
+                                    </div>
+
+                                    {{-- رشته --}}
+                                    <div class="space-y-2">
+                                        <label class="flex items-center gap-2 font-semibold text-xs text-foreground">
+                                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"/></svg>
+                                            رشته
+                                        </label>
+                                        <div class="{{ $roBox }}">{{ $fieldText }}</div>
+                                    </div>
+
+                                    {{-- وضعیت مدرسه --}}
+                                    <div class="space-y-2 sm:col-span-2">
+                                        <label class="flex items-center gap-2 font-semibold text-xs text-foreground">
+                                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg>
+                                            وضعیت مدرسه
+                                        </label>
+                                        <div class="{{ $roBox }}">{{ $schoolText }}</div>
                                     </div>
 
                                     {{-- State with search --}}
@@ -255,15 +286,11 @@
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/>
                                             </svg>
                                             استان
+                                            <span class="text-[10px] bg-muted/20 text-muted rounded px-1.5 py-0.5">غیرقابل ویرایش</span>
                                         </label>
-                                        <x-ui.select wire:model.live="state_id"
-                                                     wire:key="select-state"
-                                                     :options="$states->map(fn($s) => ['id' => $s->id, 'name' => $s->name])->values()->toArray()"
-                                                     value-key="id" label-key="name"
-                                                     :searchable="true"
-                                                     placeholder="انتخاب استان..."
-                                                     search-placeholder="جستجوی استان..."/>
-                                        @error('state_id')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
+                                        <div class="w-full h-12 px-4 flex items-center rounded-xl border border-border bg-secondary text-foreground text-sm cursor-not-allowed">
+                                            {{ optional($states->firstWhere('id', $state_id))->name ?? 'ثبت نشده' }}
+                                        </div>
                                     </div>
 
                                     {{-- City with search --}}
@@ -271,60 +298,47 @@
                                         <label class="flex items-center gap-2 font-semibold text-xs text-foreground">
                                             <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Zm0 3h.008v.008h-.008v-.008Z"/></svg>
                                             شهر
+                                            <span class="text-[10px] bg-muted/20 text-muted rounded px-1.5 py-0.5">غیرقابل ویرایش</span>
                                         </label>
-
-                                        @if(!$state_id)
-                                            <div class="w-full h-12 px-4 flex items-center rounded-xl border border-dashed border-border bg-secondary/40 text-muted text-sm">
-                                                ابتدا استان را انتخاب کنید
-                                            </div>
-                                        @else
-                                            <div wire:loading.flex wire:target="state_id"
-                                                 class="w-full h-12 px-4 items-center rounded-xl border border-border bg-secondary text-muted gap-2">
-                                                <span class="spinner-circle spinner-sm text-primary"></span>
-                                                <span class="text-xs">در حال بارگذاری شهرها...</span>
-                                            </div>
-                                            <div wire:loading.remove wire:target="state_id">
-                                                <x-ui.select wire:model.live="city_id"
-                                                             wire:key="select-city-{{ $state_id }}"
-                                                             :options="$cities->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values()->toArray()"
-                                                             value-key="id" label-key="name"
-                                                             :searchable="true"
-                                                             placeholder="انتخاب شهر..."
-                                                             search-placeholder="جستجوی شهر..."/>
-                                            </div>
-                                        @endif
-                                        @error('city_id')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
+                                        <div class="w-full h-12 px-4 flex items-center rounded-xl border border-border bg-secondary text-foreground text-sm cursor-not-allowed">
+                                            {{ optional($cities->firstWhere('id', $city_id))->name ?? 'ثبت نشده' }}
+                                        </div>
                                     </div>
 
-                                    {{-- Birth date with JalaliDatePicker --}}
-                                    <div class="space-y-2 sm:col-span-2">
+                                    {{-- تاریخ تولد --}}
+                                    <div class="space-y-2">
                                         <label class="flex items-center gap-2 font-semibold text-xs text-foreground">
                                             <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/></svg>
                                             تاریخ تولد
                                         </label>
-                                        <div class="relative">
-                                            <input type="text" wire:model="birth_date"
-                                                   data-jdp data-jdp-max-date="today"
-                                                   placeholder="۱۳۸۰/۰۱/۰۱"
-                                                   class="w-full h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 cursor-pointer transition-all outline-none">
-                                            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted pointer-events-none" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5"/>
-                                            </svg>
-                                        </div>
-                                        <p class="text-[11px] text-muted">روی فیلد کلیک کنید تا تقویم باز شود</p>
-                                        @error('birth_date')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
+                                        <div class="{{ $roBox }} justify-center font-mono tracking-wide" dir="ltr">{{ $birth_date ?: 'ثبت نشده' }}</div>
+                                    </div>
+
+                                    {{-- محل تولد --}}
+                                    <div class="space-y-2">
+                                        <label class="flex items-center gap-2 font-semibold text-xs text-foreground">
+                                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z"/></svg>
+                                            محل تولد
+                                        </label>
+                                        <div class="{{ $roBox }}">{{ $place_of_birth ?: 'ثبت نشده' }}</div>
+                                    </div>
+
+                                    {{-- آدرس --}}
+                                    <div class="space-y-2 sm:col-span-2">
+                                        <label class="flex items-center gap-2 font-semibold text-xs text-foreground">
+                                            <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+                                            آدرس
+                                        </label>
+                                        <div class="w-full min-h-[3rem] px-4 py-3 flex items-start bg-secondary border border-border rounded-xl text-sm text-foreground cursor-not-allowed leading-7">{{ $address ?: 'ثبت نشده' }}</div>
                                     </div>
                                 </div>
 
-                                <div class="flex justify-end pt-3 border-t border-border">
-                                    <button type="submit" wire:loading.attr="disabled" wire:target="save"
-                                            class="h-11 inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 rounded-full text-white px-8 transition-all disabled:opacity-60 min-w-[140px]">
-                                        <span wire:loading.remove wire:target="save" class="font-semibold text-sm">بروزرسانی</span>
-                                        <span wire:loading wire:target="save" class="spinner-circle text-white"></span>
-                                    </button>
+                                <div class="flex items-center gap-2 pt-3 border-t border-border">
+                                    <svg class="w-4 h-4 text-muted shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+                                    <p class="text-[11px] text-muted">این اطلاعات فقط قابل مشاهده است. برای تغییر آن‌ها از طریق تیکت پشتیبانی اقدام کنید.</p>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
 
                     {{-- ═══════════════ TAB: Password ═══════════════ --}}
@@ -400,7 +414,7 @@
                             <div class="space-y-2">
                                 <label class="font-semibold text-xs text-foreground">کد تایید</label>
                                 <div class="flex gap-2 flex-wrap sm:flex-nowrap">
-                                    <input type="text" dir="ltr" wire:model="otp_code" placeholder="کد ۶ رقمی" maxlength="6"
+                                    <input type="text" inputmode="numeric" dir="ltr" wire:model.live="otp_code" placeholder="کد ۶ رقمی" maxlength="6"
                                            :disabled="$wire.otp_verified"
                                            class="flex-1 min-w-0 h-12 !ring-0 bg-secondary border border-border focus:border-primary rounded-xl text-sm text-foreground px-4 transition-all outline-none disabled:opacity-50 text-center tracking-widest font-mono">
 
@@ -409,13 +423,14 @@
                                         <span wire:loading.remove wire:target="sendOtp">ارسال کد</span>
                                         <span wire:loading wire:target="sendOtp" class="spinner-circle text-white"></span>
                                     </button>
-
-                                    <button type="button" wire:click="verifyOtp" wire:loading.attr="disabled" wire:target="verifyOtp" x-show="!$wire.otp_verified"
-                                            class="h-12 px-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-semibold transition-all whitespace-nowrap disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[110px]">
-                                        <span wire:loading.remove wire:target="verifyOtp">تایید کد</span>
-                                        <span wire:loading wire:target="verifyOtp" class="spinner-circle text-white"></span>
-                                    </button>
                                 </div>
+
+                                {{-- کد به محض کامل شدن ۶ رقم خودکار بررسی می‌شود --}}
+                                <div wire:loading wire:target="otp_code, verifyOtp" x-show="!$wire.otp_verified" class="inline-flex items-center gap-2 text-xs text-muted mt-1">
+                                    <span class="spinner-circle spinner-sm text-primary"></span>
+                                    <span>در حال بررسی کد...</span>
+                                </div>
+
                                 @error('otp_code')<div class="font-medium text-xs text-red-500">{{ $message }}</div>@enderror
 
                                 <div x-show="$wire.otp_verified" class="inline-flex items-center gap-2 text-xs text-emerald-500 mt-1">
@@ -465,26 +480,4 @@
         </div>
     </div>
 
-    @script
-    <script>
-        // ═══ JalaliDatePicker init — runs on initial load AND wire:navigate
-        function initJalaliDatePicker() {
-            if (typeof jalaliDatepicker !== 'undefined') {
-                try {
-                    jalaliDatepicker.startWatch({
-                        persianDigits: true,
-                        showTodayBtn: true,
-                        showEmptyBtn: true,
-                        time: false,
-                        autoHide: true,
-                        zIndex: 100,
-                    });
-                } catch(e) { console.warn('[jdp] init failed', e); }
-            }
-        }
-        document.addEventListener('DOMContentLoaded', initJalaliDatePicker);
-        document.addEventListener('livewire:navigated', initJalaliDatePicker);
-        document.addEventListener('livewire:initialized', initJalaliDatePicker);
-    </script>
-    @endscript
 </div>

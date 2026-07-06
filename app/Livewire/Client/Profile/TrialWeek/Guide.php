@@ -155,9 +155,9 @@ class Guide extends Component
     public function buildProgram(TrialWeekService $service): void
     {
         $this->validate([
-            'dailyStudyHours' => ['required', 'integer', 'min:1', 'max:12'],
+            'dailyStudyHours' => ['required', 'integer', 'min:2', 'max:12'],
         ], [
-            'dailyStudyHours.min' => 'حداقل ۱ ساعت مطالعه روزانه انتخاب کنید.',
+            'dailyStudyHours.min' => 'حداقل ۲ ساعت مطالعه روزانه انتخاب کنید.',
             'dailyStudyHours.max' => 'حداکثر ۱۲ ساعت مطالعه روزانه مجاز است.',
         ]);
 

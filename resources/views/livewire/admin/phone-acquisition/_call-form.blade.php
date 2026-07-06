@@ -12,191 +12,187 @@
     jdp-container{ z-index:3000 !important; }
 </style>
 @if ($activeLeadId && $activeLead)
+    @php
+        $leadLabel = ($activeLead->full_name ? $activeLead->full_name . ' — ' : '') . $activeLead->mobile;
+    @endphp
     <div class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,.4)">
         <div class="modal-dialog modal-lg">
-            {{-- فلوی تماس: ۲۵ ثانیه انتظار → پاسخ/عدم‌پاسخ → تایمر مکالمه → فرم نتیجه --}}
+            {{-- فاز تماس از سمت سرور کنترل می‌شود (قطعی)؛ Alpine فقط تایمرها را می‌چرخاند. --}}
             <div class="modal-content"
                  wire:key="call-modal-{{ $activeLeadId }}"
                  x-data="{
-                    phase: 'calling',          // calling | talking | form
-                    formMode: 'success',       // success | fail
-                    secondsLeft: 25,
-                    talkSeconds: 0,
-                    _cd: null,
-                    _tt: null,
-                    init() {
-                        this._cd = setInterval(() => {
-                            if (this.secondsLeft > 0) this.secondsLeft--;
-                            else clearInterval(this._cd);
-                        }, 1000);
-                    },
-                    answer() {
-                        if (this.phase !== 'calling') return;
-                        clearInterval(this._cd);
-                        this.formMode = 'success';
-                        this.phase = 'talking';
-                        $wire.markCallAnswered();
-                        this._tt = setInterval(() => this.talkSeconds++, 1000);
-                    },
-                    endCall() {
-                        clearInterval(this._tt);
-                        $wire.endConversation(this.talkSeconds);
-                        this.phase = 'form';
-                    },
-                    noAnswer() {
-                        clearInterval(this._cd);
-                        this.formMode = 'fail';
-                        this.phase = 'form';
-                        $wire.markNoAnswer();
-                    },
-                    fmt(s) {
-                        return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0');
-                    },
+                    elapsed: 0, talk: 0, _r: null, _t: null,
+                    startRing(){ this.stop(); this.elapsed = 0; this._r = setInterval(() => this.elapsed++, 1000); },
+                    startTalk(){ this.stop(); this.talk = 0; this._t = setInterval(() => this.talk++, 1000); },
+                    stop(){ if(this._r){clearInterval(this._r);this._r=null;} if(this._t){clearInterval(this._t);this._t=null;} },
+                    fmt(s){ return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); },
                  }">
                 <div class="modal-header">
                     <h5 class="modal-title">ثبت تماس — <span dir="ltr">{{ $activeLead->mobile }}</span></h5>
-                    {{-- بستن فقط در فاز فرم؛ در حین تماس/مکالمه مودال بسته نمی‌شود --}}
-                    <button type="button" class="btn-close" wire:click="closeCallForm" x-show="phase==='form'" x-cloak></button>
                 </div>
+
                 <div class="modal-body">
-                    {{-- ───── فاز «در حال تماس» (۲۵ ثانیه) ───── --}}
-                    <div x-show="phase==='calling'" class="text-center py-4">
-                        <div class="pa-call-icon mb-3"><i class="fi fi-rr-phone-call"></i></div>
-                        <h5 class="mb-1">در حال تماس…</h5>
-                        <p class="text-muted mb-3" dir="ltr">{{ $activeLead->full_name ? $activeLead->full_name . ' — ' : '' }}{{ $activeLead->mobile }}</p>
-                        <div class="display-4 fw-bold text-primary" x-text="secondsLeft"></div>
-                        <p class="text-muted small mt-2">
-                            اگر مخاطب پاسخ داد «پاسخ کاربر» را بزنید.
-                            <span x-show="secondsLeft>0">دکمهٔ «عدم پاسخ» پس از پایان شمارش فعال می‌شود.</span>
-                        </p>
-                    </div>
-
-                    {{-- ───── فاز «در حال مکالمه» (تایمر بالارونده) ───── --}}
-                    <div x-show="phase==='talking'" x-cloak class="text-center py-4">
-                        <div class="pa-call-icon pa-call-icon--talk mb-3"><i class="fi fi-rr-comment-alt"></i></div>
-                        <h5 class="mb-1">در حال مکالمه…</h5>
-                        <p class="text-muted mb-3" dir="ltr">{{ $activeLead->full_name ? $activeLead->full_name . ' — ' : '' }}{{ $activeLead->mobile }}</p>
-                        <div class="display-3 fw-bold text-success" dir="ltr" x-text="fmt(talkSeconds)"></div>
-                        <p class="text-muted small mt-2">پس از پایان مکالمه «اتمام مکالمه» را بزنید تا مدت آن ثبت شود.</p>
-                    </div>
-
-                    {{-- ───── فاز «فرم نتیجه» ───── --}}
-                    <div x-show="phase==='form'" x-cloak>
-                        {{-- نمایش مدت مکالمهٔ ثبت‌شده در شاخهٔ پاسخ --}}
-                        <div class="alert alert-success py-2 d-flex align-items-center gap-2" x-show="formMode==='success' && talkSeconds>0" x-cloak>
-                            <i class="fi fi-rr-stopwatch"></i>
-                            <span>مدت مکالمه: <strong dir="ltr" x-text="fmt(talkSeconds)"></strong></span>
+                    @if ($callPhase === 'ringing')
+                        {{-- ───── در حال زنگ‌خوردن ───── --}}
+                        <div class="text-center py-4" x-init="startRing()">
+                            <div class="pa-call-icon mb-3"><i class="fi fi-rr-phone-call"></i></div>
+                            <h5 class="mb-1">در حال تماس…</h5>
+                            <p class="text-muted mb-3" dir="ltr">{{ $leadLabel }}</p>
+                            <div class="display-4 fw-bold text-primary" dir="ltr" x-text="fmt(elapsed)"></div>
+                            <p class="text-muted small mt-2">
+                                اگر پاسخ داد «پاسخ کاربر» را بزنید. «عدم پاسخ» از ثانیهٔ ۲۰ به بعد فعال می‌شود.
+                            </p>
                         </div>
 
-                        {{-- ===== فرم پاسخ کاربر (موفق) ===== --}}
-                        <div x-show="formMode==='success'">
-                            <div class="mb-3">
-                                <label class="form-label">با چه شخصی صحبت شد؟ <span class="text-danger">*</span></label>
-                                <select wire:model="spokeWith" class="form-select">
-                                    <option value="">— انتخاب کنید —</option>
-                                    <option value="student">خود دانش‌آموز</option>
-                                    <option value="father">پدر</option>
-                                    <option value="mother">مادر</option>
-                                    <option value="other">سایر</option>
-                                </select>
-                                @error('spokeWith')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                            </div>
+                    @elseif ($callPhase === 'talking')
+                        {{-- ───── در حال مکالمه (تایمر بالارونده) ───── --}}
+                        <div class="text-center py-4" x-init="startTalk()">
+                            <div class="pa-call-icon pa-call-icon--talk mb-3"><i class="fi fi-rr-comment-alt"></i></div>
+                            <h5 class="mb-1">در حال مکالمه…</h5>
+                            <p class="text-muted mb-2" dir="ltr">{{ $leadLabel }}</p>
+                            <div class="display-3 fw-bold text-success" dir="ltr" x-text="fmt(talk)"></div>
+                            <p class="text-muted small mt-2 mb-3">پس از پایان مکالمه «اتمام مکالمه» را بزنید.</p>
 
-                            <div class="mb-3">
-                                <label class="form-label">درصد تمایل به همکاری (۰ تا ۱۰۰) <span class="text-danger">*</span></label>
-                                <input type="number" min="0" max="100" inputmode="numeric"
-                                       wire:model.live.debounce.500ms="willingness"
-                                       x-on:input="
-                                            let v = $event.target.value.replace(/[^0-9]/g,'');
-                                            if (v !== '' && +v > 100) v = '100';
-                                            $event.target.value = v;
-                                       "
-                                       class="form-control" placeholder="مثلاً ۷۰">
-                                @error('willingness')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                            </div>
-
-                            @if ($willingness !== '' && $willingness !== null && (int) $willingness < 50)
-                                <div class="mb-3">
-                                    <label class="form-label text-danger">
-                                       علت تمایل زیر 50 درصد<span class="text-danger">*</span>
-                                    </label>
-                                    <textarea wire:model="lowWillingnessReason" rows="2" class="form-control"></textarea>
-                                    @error('lowWillingnessReason')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            {{-- ارسال لینک ثبت‌نام حین مکالمه --}}
+                            @if ($sentLinkUrl)
+                                <div class="alert alert-info py-2 small mb-0">
+                                    لینک ثبت‌نام ارسال شد:
+                                    <a href="{{ $sentLinkUrl }}" target="_blank" dir="ltr">{{ $sentLinkUrl }}</a>
                                 </div>
+                            @else
+                                <button type="button" class="btn btn-outline-info btn-sm" wire:click="sendRegistrationLink">
+                                    <i class="fi fi-rr-paper-plane"></i> ارسال لینک ثبت‌نام
+                                </button>
                             @endif
+                        </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">نتیجهٔ تماس <span class="text-danger">*</span></label>
-                                <select wire:model.live="result" class="form-select">
-                                    <option value="">— انتخاب کنید —</option>
-                                    <option value="registered">ثبت‌نام</option>
-                                    <option value="follow_up">نیاز به پیگیری مجدد جذب تلفنی</option>
-                                    <option value="no_interest">عدم تمایل</option>
-                                </select>
-                                @error('result')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                    @elseif ($callPhase === 'answerForm')
+                        {{-- ───── فرم پاسخ کاربر ───── --}}
+                        @if ($talkSeconds)
+                            <div class="alert alert-success py-2 d-flex align-items-center gap-2">
+                                <i class="fi fi-rr-stopwatch"></i>
+                                <span>مدت مکالمه: <strong dir="ltr">{{ sprintf('%02d:%02d', intdiv($talkSeconds, 60), $talkSeconds % 60) }}</strong></span>
                             </div>
+                        @endif
 
-                            {{-- تاریخ و ساعت پیگیری (تقویم شمسی) — همیشه در DOM، فقط هنگام «پیگیری» نمایش --}}
-                            <div class="mb-3" @if ($result !== 'follow_up') style="display:none" @endif>
-                                <label class="form-label">تاریخ و ساعت پیگیری <span class="text-danger">*</span></label>
-                                <div wire:ignore>
-                                    <input type="text" id="jdp-followup" data-jdp
-                                           class="form-control" placeholder="انتخاب تاریخ و ساعت شمسی"
-                                           autocomplete="off" readonly>
-                                    <input type="hidden" id="followup_hidden" wire:model="followUpAt">
+                        {{-- ارسال لینک ثبت‌نام --}}
+                        <div class="mb-3">
+                            @if ($sentLinkUrl)
+                                <div class="alert alert-info py-2 small mb-0">
+                                    لینک ثبت‌نام ارسال شد:
+                                    <a href="{{ $sentLinkUrl }}" target="_blank" dir="ltr">{{ $sentLinkUrl }}</a>
                                 </div>
-                                @error('followUpAt')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">خلاصه و نتیجهٔ گفتگو</label>
-                                <textarea wire:model="summary" rows="3" class="form-control"
-                                          placeholder="خلاصهٔ گفتگو را اینجا بنویسید…"></textarea>
-                                @error('summary')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                            </div>
+                            @else
+                                <button type="button" class="btn btn-outline-info btn-sm" wire:click="sendRegistrationLink">
+                                    <i class="fi fi-rr-paper-plane"></i> ارسال لینک ثبت‌نام
+                                </button>
+                            @endif
                         </div>
 
-                        {{-- ===== فرم عدم پاسخ کاربر (ناموفق) ===== --}}
-                        <div x-show="formMode==='fail'" x-cloak>
-                            <div class="mb-3">
-                                <label class="form-label">علت عدم برقراری تماس <span class="text-danger">*</span></label>
-                                <select wire:model="failReason" class="form-select">
-                                    <option value="">— انتخاب کنید —</option>
-                                    <option value="no_answer">عدم پاسخ</option>
-                                    <option value="off">خاموش</option>
-                                    <option value="rejected">رد تماس</option>
-                                    <option value="wrong">شماره اشتباه (خاکستری)</option>
-                                </select>
-                                @error('failReason')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
-                                <p class="text-muted small mt-2">
-                                    «عدم پاسخ»، «خاموش» و «رد تماس» شماره را برای تماس مجدد در صف نگه می‌دارند.
-                                    «شماره اشتباه» شماره را خاکستری (غیرقابل تماس) می‌کند.
-                                </p>
-                            </div>
+                        <div class="mb-3">
+                            <label class="form-label">با چه شخصی صحبت شد؟ <span class="text-danger">*</span></label>
+                            <select wire:model="spokeWith" class="form-select">
+                                <option value="">— انتخاب کنید —</option>
+                                <option value="student">خود دانش‌آموز</option>
+                                <option value="father">پدر</option>
+                                <option value="mother">مادر</option>
+                                <option value="other">سایر</option>
+                            </select>
+                            @error('spokeWith')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>
-                    </div>{{-- پایان فاز فرم --}}
+
+                        <div class="mb-3">
+                            <label class="form-label">درصد تمایل به همکاری (۰ تا ۱۰۰) <span class="text-danger">*</span></label>
+                            <input type="number" min="0" max="100" inputmode="numeric"
+                                   wire:model.live.debounce.500ms="willingness"
+                                   x-data x-on:input="
+                                        let v = $event.target.value.replace(/[^0-9]/g,'');
+                                        if (v !== '' && +v > 100) v = '100';
+                                        $event.target.value = v;
+                                   "
+                                   class="form-control" placeholder="مثلاً ۷۰">
+                            @error('willingness')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                        </div>
+
+                        @if ($willingness !== '' && $willingness !== null && (int) $willingness < 50)
+                            <div class="mb-3">
+                                <label class="form-label text-danger">علت تمایل زیر ۵۰ درصد <span class="text-danger">*</span></label>
+                                <textarea wire:model="lowWillingnessReason" rows="2" class="form-control"></textarea>
+                                @error('lowWillingnessReason')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            </div>
+                        @endif
+
+                        <div class="mb-3">
+                            <label class="form-label">نتیجهٔ تماس <span class="text-danger">*</span></label>
+                            <select wire:model.live="result" class="form-select">
+                                <option value="">— انتخاب کنید —</option>
+                                <option value="registered">ثبت‌نام</option>
+                                <option value="follow_up">نیاز به پیگیری مجدد جذب تلفنی</option>
+                                <option value="no_interest">عدم تمایل</option>
+                            </select>
+                            @error('result')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="mb-3" @if ($result !== 'follow_up') style="display:none" @endif>
+                            <label class="form-label">تاریخ و ساعت پیگیری <span class="text-danger">*</span></label>
+                            <div wire:ignore>
+                                <input type="text" id="jdp-followup" data-jdp
+                                       class="form-control" placeholder="انتخاب تاریخ و ساعت شمسی"
+                                       autocomplete="off" readonly>
+                                <input type="hidden" id="followup_hidden" wire:model="followUpAt">
+                            </div>
+                            @error('followUpAt')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">خلاصه و نتیجهٔ گفتگو</label>
+                            <textarea wire:model="summary" rows="3" class="form-control"
+                                      placeholder="خلاصهٔ گفتگو را اینجا بنویسید…"></textarea>
+                            @error('summary')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                        </div>
+
+                    @elseif ($callPhase === 'noAnswerForm')
+                        {{-- ───── فرم عدم پاسخ ───── --}}
+                        <div class="mb-3">
+                            <label class="form-label">علت عدم برقراری تماس <span class="text-danger">*</span></label>
+                            <select wire:model="failReason" class="form-select">
+                                <option value="no_answer">عدم پاسخ</option>
+                                <option value="off">خاموش</option>
+                                <option value="rejected">رد تماس</option>
+                                <option value="wrong">شماره اشتباه (خاکستری)</option>
+                            </select>
+                            @error('failReason')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            <p class="text-muted small mt-2">
+                                «عدم پاسخ»، «خاموش» و «رد تماس» شماره را برای تماس مجدد نگه می‌دارند.
+                                «شماره اشتباه» شماره را خاکستری (غیرقابل تماس) می‌کند.
+                            </p>
+                        </div>
+                    @endif
                 </div>
+
                 <div class="modal-footer">
-                    {{-- فاز تماس: «پاسخ کاربر» همیشه، «عدم پاسخ» پس از ۲۵ ثانیه --}}
-                    <div class="d-flex gap-2 w-100 justify-content-center" x-show="phase==='calling'">
-                        <button type="button" class="btn btn-success btn-lg" @click="answer()">
+                    @if ($callPhase === 'ringing')
+                        {{-- لغو فقط قبل از ثانیهٔ ۲۵ و قبل از انتخاب پاسخ/عدم‌پاسخ --}}
+                        <button type="button" class="btn btn-light" x-show="elapsed < 25" x-cloak
+                                @click="stop(); $wire.cancelCall()">لغو</button>
+                        <button type="button" class="btn btn-success btn-lg" wire:click="markCallAnswered">
                             <i class="fi fi-rr-phone-call"></i> پاسخ کاربر
                         </button>
-                        <button type="button" class="btn btn-outline-danger btn-lg" x-show="secondsLeft<=0" x-cloak @click="noAnswer()">
+                        <button type="button" class="btn btn-outline-danger btn-lg" x-show="elapsed >= 20" x-cloak
+                                @click="stop(); $wire.markNoAnswer()">
                             <i class="fi fi-rr-phone-slash"></i> عدم پاسخ
                         </button>
-                    </div>
-
-                    {{-- فاز مکالمه: «اتمام مکالمه» --}}
-                    <button type="button" class="btn btn-danger btn-lg w-100" x-show="phase==='talking'" x-cloak @click="endCall()">
-                        <i class="fi fi-rr-phone-slash"></i> اتمام مکالمه
-                    </button>
-
-                    {{-- فاز فرم: انصراف / ثبت --}}
-                    <div class="d-flex gap-2 justify-content-end w-100" x-show="phase==='form'" x-cloak>
-                        <button class="btn btn-secondary" wire:click="closeCallForm">انصراف</button>
-                        <button class="btn btn-primary" wire:click="logCall">ثبت تماس</button>
-                    </div>
+                    @elseif ($callPhase === 'talking')
+                        <button type="button" class="btn btn-danger btn-lg w-100"
+                                @click="stop(); $wire.endConversation(talk)">
+                            <i class="fi fi-rr-phone-slash"></i> اتمام مکالمه
+                        </button>
+                    @else
+                        {{-- فرم پاسخ/عدم‌پاسخ: حتماً باید ثبت شود (بدون لغو) --}}
+                        <button type="button" class="btn btn-primary btn-lg w-100" wire:click="logCall">
+                            <i class="fi fi-rr-disk"></i> ثبت تماس
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>

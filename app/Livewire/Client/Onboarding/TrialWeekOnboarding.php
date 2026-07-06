@@ -26,6 +26,8 @@ class TrialWeekOnboarding extends Component
     public string $firstName    = '';
     public string $lastName     = '';
     public string $codeMell     = '';
+    public string $birthDate    = '';   // تاریخ تولد (جلالی)
+
     public string $gender       = '';   // (B1) جنسیت: male | female
     public string $avatar       = '';   // (B1) مسیرِ آواتارِ انتخابی
     public string $fatherMobile = '';
@@ -123,30 +125,36 @@ class TrialWeekOnboarding extends Component
 
     private function validatePersonalInfo(): void
     {
-        $this->codeMell = $this->convertToEnglishDigits($this->codeMell);
+        $this->codeMell  = $this->convertToEnglishDigits($this->codeMell);
+        $this->birthDate = $this->convertToEnglishDigits($this->birthDate);
 
         $v = Validator::make([
-            'firstName' => $this->firstName,
-            'lastName'  => $this->lastName,
-            'codeMell'  => $this->codeMell,
-            'gender'    => $this->gender,
-            'avatar'    => $this->avatar,
+            'firstName'    => $this->firstName,
+            'lastName'     => $this->lastName,
+            'codeMell'     => $this->codeMell,
+            'birthDate'    => $this->birthDate,
+            'gender'       => $this->gender,
+            'avatar'       => $this->avatar,
         ], [
-            'firstName' => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{Arabic}\s]+$/u'],
-            'lastName'  => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{Arabic}\s]+$/u'],
-            'codeMell'  => ['required', 'digits:10'],
-            'gender'    => ['required', 'in:male,female'],
-            'avatar'    => ['required', 'string'],
+            'firstName'    => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{Arabic}\s]+$/u'],
+            'lastName'     => ['required', 'string', 'min:2', 'max:50', 'regex:/^[\p{Arabic}\s]+$/u'],
+            'codeMell'     => ['required', 'digits:10'],
+            'birthDate'    => ['required', 'regex:/^\d{4}\/\d{2}\/\d{2}$/'],
+            'gender'       => ['required', 'in:male,female'],
+            'avatar'       => ['required', 'string'],
         ], [
-            'firstName.required' => 'نام الزامی است.',
-            'firstName.regex'    => 'نام باید فارسی باشد.',
-            'lastName.required'  => 'نام خانوادگی الزامی است.',
-            'lastName.regex'     => 'نام خانوادگی باید فارسی باشد.',
-            'codeMell.required'  => 'کد ملی الزامی است.',
-            'codeMell.digits'    => 'کد ملی باید ۱۰ رقم باشد.',
-            'gender.required'    => 'انتخاب جنسیت الزامی است.',
-            'gender.in'          => 'جنسیت انتخاب‌شده معتبر نیست.',
-            'avatar.required'    => 'انتخاب آواتار الزامی است.',
+            'firstName.required'    => 'نام الزامی است.',
+            'firstName.regex'       => 'نام باید فارسی باشد.',
+            'lastName.required'     => 'نام خانوادگی الزامی است.',
+            'lastName.regex'        => 'نام خانوادگی باید فارسی باشد.',
+            'codeMell.required'     => 'کد ملی الزامی است.',
+            'codeMell.digits'       => 'کد ملی باید ۱۰ رقم باشد.',
+            'birthDate.required'    => 'تاریخ تولد الزامی است.',
+            'birthDate.regex'       => 'فرمت تاریخ تولد صحیح نیست (مثال: ۱۳۸۰/۰۱/۰۱).',
+
+            'gender.required'       => 'انتخاب جنسیت الزامی است.',
+            'gender.in'             => 'جنسیت انتخاب‌شده معتبر نیست.',
+            'avatar.required'       => 'انتخاب آواتار الزامی است.',
         ]);
 
         if ($v->fails()) {
@@ -251,6 +259,8 @@ class TrialWeekOnboarding extends Component
     public function updatedGender(): void
     {
         $this->avatar = '';
+        // فراخوانی ایونت برای باز شدن خودکار مودال در Alpine.js
+        $this->dispatch('open-avatar');
     }
 
     // FIX: nullable int to handle null/empty from Livewire
@@ -274,6 +284,7 @@ class TrialWeekOnboarding extends Component
     public function updatedFatherMobile($value): void { $this->fatherMobile = $this->convertToEnglishDigits($value); }
     public function updatedMotherMobile($value): void { $this->motherMobile = $this->convertToEnglishDigits($value); }
     public function updatedCodeMell($value): void     { $this->codeMell = $this->convertToEnglishDigits($value); }
+    public function updatedBirthDate($value): void    { $this->birthDate = $this->convertToEnglishDigits($value); }
     public function updatedOtpInput($value): void     { $this->otpInput = $this->convertToEnglishDigits($value); }
 
     public function updatedPassword(string $value): void
@@ -352,7 +363,7 @@ class TrialWeekOnboarding extends Component
 
         UserProfile::create([
             'user_id'   => $user->id,
-            'full_name' => trim($this->firstName . ' ' . $this->lastName),
+            'full_name' => trim( $this->lastName),
             'state_id'  => $this->stateId,
             'city_id'   => $this->cityId,
             'gender'    => in_array($this->gender, ['male', 'female'], true) ? $this->gender : 'male',
@@ -362,7 +373,7 @@ class TrialWeekOnboarding extends Component
         PersonalInformation::create([
             'user_id'        => $user->id,
             'name'           => $this->firstName,
-            'father_name'    => $this->lastName,
+            'father_name'    => '',
             'code_mell'      => $this->codeMell,
             'father_mobile'  => $this->fatherMobile,
             'mother_mobile'  => $this->motherMobile,
@@ -370,12 +381,12 @@ class TrialWeekOnboarding extends Component
             'is_graduate'    => $this->grade === 'graduate',
             'attends_school' => $this->grade === 'graduate' ? false : $this->attendsSchool,
             'field'          => $this->grade !== '9' ? $this->field : 'math',
-            'birth_date'     => '',
-            'place_of_birth' => '',
+            'birth_date'     => $this->convertToEnglishDigits($this->birthDate),
             'address'        => '',
             'state_id'       => $this->stateId,
             'city_id'        => $this->cityId,
-            'name_full'      => trim($this->firstName . ' ' . $this->lastName),
+            'name_full'      => trim($this->lastName),
+            'place_of_birth' => ''
         ]);
 
         // ردیابی تبدیل: اگر کاربر از طریق لینک یکتای مشاور جذب تلفنی آمده باشد،

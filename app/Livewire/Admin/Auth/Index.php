@@ -55,15 +55,26 @@ class Index extends Component
 
             session()->flash('messageSuccess','مدیر عزیز، خوش اومدی');
 
-            // مدیر مدرسه به داشبورد اختصاصی پنل مدیر مدرسه هدایت می‌شود.
-            if ($adminUser->hasRole('school-manager')) {
-                return redirect()->route('admin.school-manager.dashboard');
-            }
-
-            return redirect()->route('admin.dashboard.index');
+            // هدایتِ هر نقش به داشبوردِ اختصاصیِ خودش (از خاص به عام).
+            return redirect()->route($this->dashboardRouteFor($adminUser));
         } else {
             session()->flash('message','نام کاربری یا رمز عبور نامعتبر است .');
         }
+    }
+
+    /**
+     * نگاشتِ نقشِ ادمین به داشبوردِ اختصاصی‌اش (از خاص به عام بررسی می‌شود).
+     */
+    protected function dashboardRouteFor(Admin $admin): string
+    {
+        return match (true) {
+            $admin->hasRole('school-manager')      => 'admin.school-manager.dashboard',
+            $admin->hasRole('مشاور جذب تلفنی')      => 'admin.phone-acquisition.dashboard',
+            $admin->hasRole('site acquisition')    => 'admin.trial-acquisition.dashboard',
+            $admin->hasRole('educational-manager') => 'admin.educational-manager.phone-acquisition.dashboard',
+            // مشاور تحصیلی و سایر نقش‌ها → پیشخوانِ عمومی (scope روی دانش‌آموزانِ خودِ مشاور)
+            default                                 => 'admin.dashboard.index',
+        };
     }
 
     public function logout()

@@ -1,4 +1,4 @@
-<div class="max-w-5xl mx-auto px-4 py-6 space-y-5" dir="rtl">
+<div class="max-w-5xl mx-auto px-4 space-y-5" dir="rtl">
     @php
         $exam = $attempt->assignment->essayExam;
         $scoresByQ = $attempt->questionScores->keyBy('essay_exam_question_id');

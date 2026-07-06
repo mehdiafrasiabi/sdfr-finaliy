@@ -2,499 +2,247 @@
     <div class="app-page-head">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="{{route('admin.dashboard.index')}}">
-                        <i class="fi fi-rr-home"></i>
-                        صفحه اصلی
-                    </a>
-                </li>
-                <li aria-current="page" class="breadcrumb-item active">
-                    اتاق مشاوره
-                </li>
+                <li class="breadcrumb-item"><a href="{{ route('admin.dashboard.index') }}">صفحه اصلی</a></li>
+                <li class="breadcrumb-item active">جلسات مشاوره</li>
             </ol>
         </nav>
     </div>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="card overflow-hidden">
-                <div class="card-header d-flex align-items-center justify-content-between">
-                    <div class="d-flex align-items-center gap-2">
-                        <h6 class="card-title mb-0">اتاق مشاوره</h6>
-                        <span class="badge bg-secondary rounded-pill" title="تعداد کل دانش‌آموزان">
-                            {{ $totalStudentCount }} دانش‌آموز
-                        </span>
-                    </div>
-                    <button wire:click="openStudentSelectModal"
-                            class="btn btn-primary btn-sm d-flex align-items-center gap-1">
-                        <i class="fi fi-rr-calendar-plus"></i>
-                        تعریف جلسه خودکار
+    @php
+        $renderStudentName = fn($st) => $st->user?->personalInformation?->name
+            ?? $st->user?->personalInformation?->name_full
+            ?? $st->user?->name ?? 'دانش‌آموز';
+    @endphp
+
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div>
+            <h4 class="mb-0">جلسات مشاوره</h4>
+            <p class="small text-muted mb-0">
+                دانش‌آموزانِ هر روز در باکسِ خود نمایش داده می‌شوند. فقط برای <strong>فردا</strong> می‌توانید تماس بگیرید و ساعتِ جلسه را تعیین کنید.
+            </p>
+        </div>
+        <input type="text" wire:model.live.debounce.400ms="search" class="form-control" style="max-width:260px"
+               placeholder="جستجوی دانش‌آموز…">
+    </div>
+
+    {{-- ───────────── باکسِ فردا (قابلِ عملیات) ───────────── --}}
+    <div class="statbox widget box box-shadow mb-4 border border-primary">
+        <div class="widget-header bg-primary-subtle">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="mb-0">
+                    <i class="ri-calendar-event-line"></i>
+                    فردا — {{ $days[$tomorrowDow] ?? '' }} ({{ $tomorrowTitle }})
+                    <span class="badge bg-primary">{{ $tomorrowStudents->count() }} دانش‌آموز</span>
+                </h5>
+                @if ($canFinalize)
+                    <button wire:click="finalizeAll" wire:confirm="جلساتِ فردا ثبتِ نهایی شود؟ پس از آن به دانش‌آموزان اطلاع داده می‌شود."
+                            class="btn btn-success btn-sm">
+                        <i class="ri-check-double-line"></i> ثبت نهاییِ جلساتِ فردا
                     </button>
-                </div>
+                @endif
+            </div>
+        </div>
+        <div class="widget-content widget-content-area">
+            @forelse ($tomorrowStudents as $st)
+                @php
+                    $profile = $st->user?->profile;
+                    $called  = $calledIds->has($st->id);
+                    $session = $tomorrowSessions->get($st->id);
+                    $isFinal = $session && $session->finalized;
+                @endphp
+                <div class="border rounded p-3 mb-2">
+                    <div class="row align-items-center g-2">
+                        <div class="col-md-4 d-flex align-items-center gap-2">
+                            @if ($profile && $profile->picture)
+                                <img src="{{ asset('user/img/' . $st->user->id . '/' . $profile->picture) }}"
+                                     class="rounded-circle" width="42" height="42" style="object-fit:cover" alt="">
+                            @else
+                                <div class="rounded-circle bg-secondary-subtle d-flex align-items-center justify-content-center"
+                                     style="width:42px;height:42px">{{ mb_substr($renderStudentName($st), 0, 1) }}</div>
+                            @endif
+                            <div>
+                                <div class="fw-bold">
+                                    {{ $renderStudentName($st) }}
+                                    @if ($session && $session->is_makeup)
+                                        <span class="badge bg-warning text-dark">جبرانی</span>
+                                    @endif
+                                </div>
+                                <div class="small text-muted" dir="ltr">{{ $st->user?->mobile ?? '' }}</div>
+                                <a href="{{ route('admin.student.advising-sessions.create', $st->user_id) }}"
+                                   class="small text-decoration-none">جزئیات / تاریخچه</a>
+                            </div>
+                        </div>
 
-                <div class="card-body p-0">
-
-                    {{-- ===== بخش جستجو ===== --}}
-                    <div class="p-3 border-bottom bg-light">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white"><i class="fi fi-rr-search"></i></span>
-                            <input type="text"
-                                   class="form-control"
-                                   wire:model.live.debounce.300ms="search"
-                                   placeholder="جستجو بر اساس نام، نام خانوادگی یا موبایل..." />
-                            @if($search)
-                                <button class="btn btn-outline-secondary" wire:click="$set('search', '')">
-                                    <i class="fi fi-rr-cross-small"></i>
+                        <div class="col-md-8">
+                            @if ($isFinal)
+                                <span class="badge bg-success">
+                                    <i class="ri-check-double-line"></i>
+                                    ثبتِ نهایی — ساعت {{ $session->session_time?->format('H:i') }}
+                                </span>
+                            @elseif (! $called)
+                                <button wire:click="openCall({{ $st->id }})" class="btn btn-outline-primary btn-sm">
+                                    <i class="ri-phone-line"></i> تماس و هماهنگی
                                 </button>
+                                <span class="small text-muted ms-2">برای تعیینِ ساعت، ابتدا تماسِ موفق ثبت کنید.</span>
+                            @else
+                                <div class="row g-2 align-items-end">
+                                    <div class="col-auto">
+                                        <span class="badge bg-success-subtle text-success"><i class="ri-phone-line"></i> تماس انجام شد</span>
+                                    </div>
+                                    <div class="col-auto">
+                                        <label class="form-label small mb-0">ساعت</label>
+                                        <input type="number" min="0" max="23" class="form-control form-control-sm" style="width:80px"
+                                               wire:model="schedule.{{ $st->id }}.hour" placeholder="HH">
+                                    </div>
+                                    <div class="col-auto">
+                                        <label class="form-label small mb-0">دقیقه</label>
+                                        <input type="number" min="0" max="59" class="form-control form-control-sm" style="width:80px"
+                                               wire:model="schedule.{{ $st->id }}.minute" placeholder="MM">
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label small mb-0">لینک جلسه آنلاین</label>
+                                        <input type="url" class="form-control form-control-sm" dir="ltr"
+                                               wire:model="schedule.{{ $st->id }}.link" placeholder="https://...">
+                                    </div>
+                                    <div class="col-auto">
+                                        <button wire:click="saveSchedule({{ $st->id }})" class="btn btn-primary btn-sm">
+                                            <i class="ri-save-line"></i> ذخیره
+                                        </button>
+                                    </div>
+                                    @if ($session)
+                                        <div class="col-12">
+                                            <span class="small text-success"><i class="ri-checkbox-circle-line"></i> ساعت ذخیره شد (در انتظار ثبت نهایی).</span>
+                                        </div>
+                                    @endif
+                                </div>
+                                @error("schedule.{$st->id}.hour") <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                @error("schedule.{$st->id}.minute") <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                @error("schedule.{$st->id}.link") <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             @endif
                         </div>
                     </div>
-
-                    {{-- ===== لیست دانش‌آموزان ===== --}}
-                    <div class="p-3">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <span class="text-muted small">
-                                {{ count($allStudents) }} دانش‌آموز
-                                @if($search)
-                                    یافت شد
-                                @endif
-                            </span>
-                        </div>
-
-                        @forelse($allStudents as $student)
-                            @php
-                                $profile = $student->user->profile ?? null;
-                                $info    = $student->user->personalInformation ?? null;
-                            @endphp
-                            <div class="card border mb-3 shadow-sm">
-                                <div class="card-body p-3">
-                                    <div class="d-flex align-items-start gap-3">
-
-                                        {{-- آواتار --}}
-                                        <div class="flex-shrink-0">
-                                            @if($profile && $profile->picture)
-                                                <img src="{{ asset('user/img/' . $student->user->id . '/' . $profile->picture) }}"
-                                                     class="rounded-circle"
-                                                     style="width:48px;height:48px;object-fit:cover;" />
-                                            @elseif($profile && $profile->gender === 'female')
-                                                <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center"
-                                                     style="width:48px;height:48px;font-size:1.3rem;">
-                                                    <i class="fi fi-rr-user"></i>
-                                                </div>
-                                            @else
-                                                <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
-                                                     style="width:48px;height:48px;font-size:1.3rem;">
-                                                    <i class="fi fi-rr-user"></i>
-                                                </div>
-                                            @endif
-                                        </div>
-
-                                        {{-- اطلاعات دانش‌آموز --}}
-                                        <div class="flex-grow-1">
-                                            <div class="fw-semibold text-dark">
-                                                {{ $info->name ?? '-' }} {{ $info->name_full ?? '' }}
-                                            </div>
-                                            <div class="text-muted small d-flex gap-3 mt-1 flex-wrap">
-                                                <span>
-                                                    <i class="fi fi-rr-smartphone me-1"></i>
-                                                    {{ $student->user->mobile ?? '-' }}
-                                                </span>
-                                                @if($info)
-                                                    <span>
-                                                        @if($info->grade == 12) دوازدهم
-                                                        @elseif($info->grade == 11) یازدهم
-                                                        @elseif($info->grade == 10) دهم
-                                                        @endif
-                                                        @if($info->field == 'math') - ریاضی
-                                                        @elseif($info->field == 'experimental') - تجربی
-                                                        @elseif($info->field == 'human') - انسانی
-                                                        @endif
-                                                    </span>
-                                                @endif
-                                            </div>
-
-                                            {{-- لیست جلسات --}}
-                                            @if($student->advisingSessions->isNotEmpty())
-                                                <div class="mt-2 pt-2 border-top">
-                                                    <div class="small text-muted mb-2 fw-semibold">
-                                                        <i class="fi fi-rr-list me-1"></i>
-                                                        جلسات ثبت‌شده:
-                                                    </div>
-                                                    <div class="d-flex flex-wrap gap-2">
-                                                        @foreach($student->advisingSessions as $session)
-                                                            @php
-                                                                $jalaliDate = \Morilog\Jalali\Jalalian::fromCarbon($session->activation_date)->format('Y/m/d');
-                                                                $hasResult  = !empty($session->result_status);
-                                                                $timeStr    = $session->session_time
-                                                                                ? $session->session_time->format('H:i')
-                                                                                : '';
-                                                            @endphp
-                                                            <span class="badge rounded-pill px-3 py-2 small d-flex align-items-center gap-1
-                                                                  {{ $hasResult ? 'bg-secondary' : 'bg-light text-dark border' }}"
-                                                                  style="{{ $hasResult ? 'text-decoration:line-through; opacity:0.65;' : '' }}"
-                                                                  title="{{ $hasResult ? $session->result_label : 'در انتظار برگزاری' }}">
-                                                                <i class="fi fi-rr-calendar-day" style="font-size:0.7rem;"></i>
-                                                                {{ $jalaliDate }}
-                                                                @if($timeStr)
-                                                                    <span class="opacity-75 small">{{ $timeStr }}</span>
-                                                                @endif
-                                                                @if($session->location_type === 'in_person')
-                                                                    <i class="fi fi-rr-building" style="font-size:0.65rem;" title="حضوری"></i>
-                                                                @else
-                                                                    <i class="fi fi-rr-wifi" style="font-size:0.65rem;" title="آنلاین"></i>
-                                                                @endif
-                                                            </span>
-                                                        @endforeach
-                                                    </div>
-                                                </div>
-                                            @else
-                                                <div class="mt-2 pt-2 border-top">
-                                                    <span class="badge bg-warning-subtle text-warning border border-warning-subtle small">
-                                                        <i class="fi fi-rr-calendar-xmark me-1"></i>
-                                                        بدون جلسه
-                                                    </span>
-                                                </div>
-                                            @endif
-                                        </div>
-
-                                        {{-- دکمه عملیات --}}
-                                        @if($student->payment && $student->payment->order && $student->payment->order->user)
-                                            <div class="flex-shrink-0">
-                                                <a href="{{ route('admin.student.advising-sessions.create', $student->payment->order->user->id) }}"
-                                                   class="btn btn-outline-primary btn-sm">
-                                                    <i class="fi fi-rr-plus me-1"></i>
-                                                    جلسه
-                                                </a>
-                                            </div>
-                                        @endif
-
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="text-center text-muted py-5">
-                                <i class="fi fi-rr-user-slash" style="font-size:2.5rem; opacity:0.4;"></i>
-                                <p class="mt-2 mb-1">
-                                    @if($search)
-                                        دانش‌آموزی با مشخصات «{{ $search }}» یافت نشد.
-                                    @else
-                                        هیچ دانش‌آموزی یافت نشد.
-                                    @endif
-                                </p>
-                            </div>
-                        @endforelse
-
-                    </div>
                 </div>
+            @empty
+                <div class="text-center text-muted py-4">برای فردا دانش‌آموزی ندارید.</div>
+            @endforelse
+        </div>
+    </div>
+
+    {{-- ───────────── همه‌ی دانش‌آموزانِ من ───────────── --}}
+    <div class="statbox widget box box-shadow mb-4">
+        <div class="widget-header">
+            <h5 class="mb-0">همه‌ی دانش‌آموزانِ من ({{ $allStudents->count() }})</h5>
+            <p class="small text-muted mb-0">فهرستِ کاملِ دانش‌آموزانِ تحتِ مشاوره‌ی شما به‌همراه روزِ جلسه‌ی هفتگی.</p>
+        </div>
+        <div class="widget-content widget-content-area">
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead>
+                        <tr><th style="width:50px">#</th><th>دانش‌آموز</th><th>موبایل</th><th>روزِ جلسه</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                    @forelse ($allStudents as $st)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td class="fw-bold">{{ $renderStudentName($st) }}</td>
+                            <td dir="ltr">{{ $st->user?->mobile ?? '—' }}</td>
+                            <td>
+                                @if ($st->session_day !== null)
+                                    <span class="badge bg-light text-dark border">{{ $days[$st->session_day] ?? '—' }}</span>
+                                @else
+                                    <span class="badge bg-warning text-dark">تعیین‌نشده</span>
+                                @endif
+                            </td>
+                            <td>
+                                <a href="{{ route('admin.student.advising-sessions.create', $st->user_id) }}"
+                                   class="btn btn-sm btn-outline-primary">جزئیات / تاریخچه</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="5" class="text-center text-muted py-4">دانش‌آموزی ندارید.</td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
-    {{-- ==================== Modal 1: انتخاب دانش‌آموزان ==================== --}}
-    @if($showStudentSelectModal)
-        <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.5);" wire:ignore.self>
-            <div class="modal-dialog modal-lg modal-dialog-scrollable" style="max-width:720px;">
-                <div class="modal-content">
-                    <div class="modal-header border-bottom">
-                        <h5 class="modal-title fw-bold">
-                            <i class="fi fi-rr-users me-2"></i>
-                            انتخاب دانش‌آموزان برای تعریف جلسه خودکار
-                        </h5>
-                        <button type="button" class="btn-close" wire:click="closeStudentSelectModal"></button>
-                    </div>
-
-                    <div class="modal-body p-0">
-                        {{-- جستجو --}}
-                        <div class="p-3 border-bottom bg-light">
-                            <div class="input-group mb-2">
-                                <span class="input-group-text"><i class="fi fi-rr-search"></i></span>
-                                <input type="text"
-                                       class="form-control"
-                                       wire:model.live.debounce.300ms="studentSearch"
-                                       placeholder="جستجو بر اساس نام، نام خانوادگی یا موبایل..."
-                                       autofocus />
-                            </div>
-                            <div class="alert alert-info d-flex align-items-center gap-2 mb-0 py-2 small">
-                                <i class="fi fi-rr-info"></i>
-                                فقط دانش‌آموزانی نمایش داده می‌شوند که هنوز برای هیچ روزی جلسه‌ای ثبت نشده است.
-                            </div>
+    {{-- ───────────── جلسات جبرانیِ در انتظارِ تعیینِ روز (مرخصی) ───────────── --}}
+    @if ($pendingMakeups->isNotEmpty())
+        <div class="statbox widget box box-shadow mb-4 border border-warning">
+            <div class="widget-header bg-warning-subtle">
+                <h5 class="mb-0"><i class="ri-calendar-todo-line"></i> جلسات جبرانیِ در انتظارِ تعیینِ روز ({{ $pendingMakeups->count() }})</h5>
+                <p class="small text-muted mb-0">ناشی از مرخصیِ تاییدشده — برای هر دانش‌آموز روزِ جلسه‌ی جبرانی را تعیین کنید.</p>
+            </div>
+            <div class="widget-content widget-content-area">
+                @foreach ($pendingMakeups as $mk)
+                    <div class="row align-items-center g-2 border rounded p-2 mb-2">
+                        <div class="col-md-5 fw-bold">
+                            {{ $mk->student?->user?->personalInformation?->name ?? $mk->student?->user?->name ?? 'دانش‌آموز' }}
                         </div>
-
-                        <!-- Selected count badge -->
-                        @if(count($selectedStudents) > 0)
-                            <div class="p-2 px-3 bg-primary-subtle border-bottom">
-                                <span class="badge bg-primary rounded-pill me-1">{{ count($selectedStudents) }}</span>
-                                دانش‌آموز انتخاب شده
-                            </div>
-                        @endif
-
-                        <!-- Student List -->
-                        <div style="max-height: 420px; overflow-y: auto;">
-                            @forelse($modalStudents as $mStudent)
-                                @php
-                                    $mProfile   = $mStudent->user->profile ?? null;
-                                    $mInfo      = $mStudent->user->personalInformation ?? null;
-                                    $isSelected = in_array($mStudent->id, $selectedStudents);
-                                @endphp
-                                <div wire:click="toggleStudentSelection({{ $mStudent->id }})"
-                                     class="d-flex align-items-center p-3 border-bottom
-                                        {{ $isSelected ? 'bg-primary-subtle' : '' }}"
-                                     style="cursor:pointer; transition: background 0.15s;">
-
-                                    <!-- Checkbox -->
-                                    <div class="me-3">
-                                        <div class="form-check mb-0">
-                                            <input type="checkbox"
-                                                   class="form-check-input"
-                                                   style="width:18px;height:18px;"
-                                                   @checked($isSelected)
-                                                   onclick="return false;" />
-                                        </div>
-                                    </div>
-
-                                    <!-- Avatar -->
-                                    <div class="me-3">
-                                        @if($mProfile && $mProfile->picture)
-                                            <img src="{{ asset('user/img/' . $mStudent->user->id . '/' . $mProfile->picture) }}"
-                                                 class="rounded-circle"
-                                                 style="width:42px;height:42px;object-fit:cover;" />
-                                        @elseif($mProfile && $mProfile->gender === 'female')
-                                            <div class="rounded-circle bg-danger-subtle text-danger d-flex align-items-center justify-content-center"
-                                                 style="width:42px;height:42px;font-size:1.2rem;">
-                                                <i class="fi fi-rr-user"></i>
-                                            </div>
-                                        @else
-                                            <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center"
-                                                 style="width:42px;height:42px;font-size:1.2rem;">
-                                                <i class="fi fi-rr-user"></i>
-                                            </div>
-                                        @endif
-                                    </div>
-
-                                    <!-- Info -->
-                                    <div class="flex-grow-1">
-                                        <div class="fw-semibold text-dark">
-                                            {{ $mInfo->name ?? '-' }} {{ $mInfo->name_full ?? '' }}
-                                        </div>
-                                        <div class="text-muted small d-flex gap-3 mt-1 flex-wrap">
-                                        <span>
-                                            <i class="fi fi-rr-smartphone me-1"></i>
-                                            {{ $mStudent->user->mobile ?? '-' }}
-                                        </span>
-                                            @if($mInfo)
-                                                <span>
-                                                    پایه:
-                                                    @if($mInfo->grade == 12) دوازدهم
-                                                    @elseif($mInfo->grade == 11) یازدهم
-                                                    @elseif($mInfo->grade == 10) دهم
-                                                    @else - @endif
-                                                </span>
-                                                <span>
-                                            رشته:
-                                            @if($mInfo->field == 'math') ریاضی
-                                                    @elseif($mInfo->field == 'experimental') تجربی
-                                                    @elseif($mInfo->field == 'human') انسانی
-                                                    @else -
-                                                    @endif
-                                        </span>
-                                            @endif
-                                        </div>
-
-                                    </div>
-
-                                    <!-- Selected checkmark -->
-                                    @if($isSelected)
-                                        <div class="text-primary ms-2">
-                                            <i class="fi fi-rr-check-circle" style="font-size:1.3rem;"></i>
-                                        </div>
-                                    @endif
-                                </div>
-                            @empty
-                                <div class="text-center text-muted py-5">
-                                    <i class="fi fi-rr-user-slash" style="font-size:2rem;"></i>
-                                    <p class="mt-2">
-                                        @if($studentSearch)
-                                            دانش‌آموزی با این مشخصات یافت نشد.
-                                        @else
-                                            همه دانش‌آموزان جلسه دارند یا دانش‌آموزی وجود ندارد.
-                                        @endif
-                                    </p>
-                                </div>
-                            @endforelse
+                        <div class="col-md-4">
+                            <select wire:model="makeupDay.{{ $mk->id }}" class="form-select form-select-sm">
+                                <option value="">روزِ جبرانی…</option>
+                                @foreach ($days as $d => $name)
+                                    <option value="{{ $d }}">{{ $name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button wire:click="assignMakeupDay({{ $mk->id }})" class="btn btn-warning btn-sm">تعیین روز</button>
                         </div>
                     </div>
-
-                    <div class="modal-footer border-top d-flex justify-content-between">
-                        <button type="button" class="btn btn-secondary" wire:click="closeStudentSelectModal">
-                            انصراف
-                        </button>
-                        <button type="button" class="btn btn-primary" wire:click="proceedToSchedule">
-                            <i class="fi fi-rr-arrow-left me-1"></i>
-                            ادامه ({{ count($selectedStudents) }} نفر انتخاب شده)
-                        </button>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     @endif
 
-    {{-- ==================== Modal 2: تنظیم روز و ساعت (به ازای هر دانش‌آموز) ==================== --}}
-    @if($showScheduleModal)
-        @php
-            $weekDays = [
-                6 => 'شنبه',
-                0 => 'یکشنبه',
-                1 => 'دوشنبه',
-                2 => 'سه‌شنبه',
-                3 => 'چهارشنبه',
-                4 => 'پنج‌شنبه',
-                5 => 'جمعه',
-            ];
-        @endphp
-        <div class="modal fade show d-block" tabindex="-1" style="background:rgba(0,0,0,0.5);" wire:ignore.self>
-            <div class="modal-dialog modal-xl modal-dialog-scrollable" style="max-width:960px;">
-                <div class="modal-content">
-                    <div class="modal-header border-bottom">
-                        <h5 class="modal-title fw-bold">
-                            <i class="fi fi-rr-clock me-2"></i>
-                            تنظیم ساعت و محل برگزاری جلسات
-                        </h5>
-                        <button type="button" class="btn-close" wire:click="closeScheduleModal"></button>
+    {{-- ───────────── باکس‌های سایرِ روزها (فقط نمایش) ───────────── --}}
+    <div class="row g-3">
+        @foreach ($days as $d => $dayName)
+            @if ($d === $tomorrowDow)
+                @continue
+            @endif
+            @php $dayStudents = collect($grouped->get($d, collect())); @endphp
+            <div class="col-md-6 col-lg-4">
+                <div class="statbox widget box box-shadow h-100">
+                    <div class="widget-header">
+                        <h6 class="mb-0">{{ $dayName }} <span class="badge bg-light text-dark border">{{ $dayStudents->count() }}</span></h6>
                     </div>
-
-                    <div class="modal-body" style="max-height:70vh; overflow-y:auto;">
-
-                        <!-- اطلاعیه -->
-                        <div class="alert alert-info d-flex align-items-start gap-2 mb-4" role="alert">
-                            <i class="fi fi-rr-info mt-1"></i>
-                            <div class="small">
-                                برای هر دانش‌آموز انتخاب‌شده، <strong>۴ جلسه</strong> به‌صورت خودکار در روز
-                                <strong>{{ $weekDays[$selectedDay] ?? '' }}</strong>
-                                ثبت می‌شود. هر جلسه یک هفته پس از جلسه قبلی برگزار می‌شود.
-                                ساعت، دقیقه و محل برگزاری را برای هر دانش‌آموز جداگانه تنظیم کنید.
+                    <div class="widget-content widget-content-area">
+                        @forelse ($dayStudents as $st)
+                            <div class="d-flex align-items-center justify-content-between py-1 border-bottom">
+                                <a href="{{ route('admin.student.advising-sessions.create', $st->user_id) }}"
+                                   class="small text-decoration-none">{{ $renderStudentName($st) }}</a>
+                                <span class="small text-muted" dir="ltr">{{ $st->user?->mobile ?? '' }}</span>
                             </div>
-                        </div>
-
-                        <!-- کارت هر دانش‌آموز -->
-                        @foreach($modalStudents->whereIn('id', $selectedStudents) as $selStudent)
-                            @php
-                                $selInfo  = $selStudent->user->personalInformation ?? null;
-                                $sid      = $selStudent->id;
-                                $schedule = $studentSchedules[$sid] ?? [
-                                    'day'           => '',
-                                    'hour'          => '08',
-                                    'minute'        => '00',
-                                    'location_type' => 'online',
-                                    'skyroom_link'  => '',
-                                ];
-                                $isOnline = ($schedule['location_type'] ?? 'online') === 'online';
-                            @endphp
-                            <div class="card border mb-3 shadow-sm">
-                                <div class="card-header bg-primary-subtle d-flex align-items-center gap-2 py-2">
-                                    <i class="fi fi-rr-user text-primary"></i>
-                                    <strong class="text-primary">
-                                        {{ $selInfo->name ?? '-' }} {{ $selInfo->name_full ?? '' }}
-                                    </strong>
-                                    @if($selInfo)
-                                        <small class="text-muted ms-1">({{ $selStudent->user->mobile ?? '' }})</small>
-                                    @endif
-                                    <span class="badge bg-white text-primary border border-primary ms-auto px-2 py-1">
-                                        <i class="fi fi-rr-calendar me-1"></i>
-                                        روز {{ $weekDays[$selectedDay] ?? '' }}
-                                    </span>
-                                </div>
-                                <div class="card-body">
-                                    <div class="row g-3 align-items-start">
-
-                                        <!-- ساعت -->
-                                        <div class="col-md-2 col-3">
-                                            <label class="form-label fw-semibold small">
-                                                ساعت <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="tel"
-                                                   class="form-control form-control-sm @error('studentSchedules.'.$sid.'.hour') is-invalid @enderror"
-                                                   wire:model="studentSchedules.{{ $sid }}.hour"
-                                                   min="0" max="23" placeholder="۸">
-                                            @error('studentSchedules.'.$sid.'.hour')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <!-- دقیقه -->
-                                        <div class="col-md-2 col-3">
-                                            <label class="form-label fw-semibold small">
-                                                دقیقه <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="tel"
-                                                   class="form-control form-control-sm @error('studentSchedules.'.$sid.'.minute') is-invalid @enderror"
-                                                   wire:model="studentSchedules.{{ $sid }}.minute"
-                                                   min="0" max="59" placeholder="۰۰">
-                                            @error('studentSchedules.'.$sid.'.minute')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <!-- محل برگزاری -->
-                                        <div class="col-md-3 col-6">
-                                            <label class="form-label fw-semibold small">
-                                                محل برگزاری <span class="text-danger">*</span>
-                                            </label>
-                                            <select class="form-select form-select-sm @error('studentSchedules.'.$sid.'.location_type') is-invalid @enderror"
-                                                    wire:model.live="studentSchedules.{{ $sid }}.location_type">
-                                                <option value="online">مجازی (آنلاین)</option>
-                                                <option value="in_person">حضوری</option>
-                                            </select>
-                                            @error('studentSchedules.'.$sid.'.location_type')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-
-                                        <!-- لینک آنلاین (فقط اگر مجازی انتخاب شده) -->
-                                        @if($isOnline)
-                                            <div class="col-md-10 col-12">
-                                                <label class="form-label fw-semibold small">
-                                                    لینک جلسه آنلاین <span class="text-danger">*</span>
-                                                </label>
-                                                <input type="url"
-                                                       class="form-control form-control-sm @error('studentSchedules.'.$sid.'.skyroom_link') is-invalid @enderror"
-                                                       wire:model="studentSchedules.{{ $sid }}.skyroom_link"
-                                                       placeholder="https://..." />
-                                                @error('studentSchedules.'.$sid.'.skyroom_link')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        @endif
-
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-
-                    <div class="modal-footer border-top d-flex justify-content-between">
-                        <button type="button" class="btn btn-outline-secondary" wire:click="backToStudentSelect">
-                            <i class="fi fi-rr-arrow-right me-1"></i>
-                            بازگشت
-                        </button>
-                        <div class="d-flex gap-2">
-                            <button type="button" class="btn btn-secondary" wire:click="closeScheduleModal">
-                                انصراف
-                            </button>
-                            <button type="button" class="btn btn-success" wire:click="createAutoSessions"
-                                    wire:loading.attr="disabled">
-                                <span wire:loading.remove wire:target="createAutoSessions">
-                                    <i class="fi fi-rr-check me-1"></i>
-                                    ثبت جلسات
-                                </span>
-                                <span wire:loading wire:target="createAutoSessions">
-                                    <span class="spinner-border spinner-border-sm me-1" role="status"></span>
-                                    در حال ثبت...
-                                </span>
-                            </button>
-                        </div>
+                        @empty
+                            <div class="text-center text-muted small py-3">دانش‌آموزی ندارد.</div>
+                        @endforelse
                     </div>
                 </div>
             </div>
+        @endforeach
+    </div>
+
+    {{-- دانش‌آموزانِ بدونِ روزِ مشخص (در انتظارِ تعیینِ روز توسط مدیر) --}}
+    @if ($noDayStudents->isNotEmpty())
+        <div class="statbox widget box box-shadow mt-4">
+            <div class="widget-header">
+                <h6 class="mb-0 text-warning"><i class="ri-error-warning-line"></i> بدونِ روزِ مشخص ({{ $noDayStudents->count() }})</h6>
+                <p class="small text-muted mb-0">برای این دانش‌آموزان هنوز روزِ ثابتِ هفتگی تعیین نشده است.</p>
+            </div>
+            <div class="widget-content widget-content-area">
+                @foreach ($noDayStudents as $st)
+                    <div class="d-flex align-items-center justify-content-between py-1 border-bottom">
+                        <span class="small">{{ $renderStudentName($st) }}</span>
+                        <span class="small text-muted" dir="ltr">{{ $st->user?->mobile ?? '' }}</span>
+                    </div>
+                @endforeach
+            </div>
         </div>
     @endif
+
+    {{-- ───────────── مودالِ تماس ───────────── --}}
+    @include('livewire.admin.student.consultation.partials.call-modal')
 </div>

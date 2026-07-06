@@ -24,6 +24,45 @@
                         </div>
                     @endif
 
+                    {{-- اطلاعات پروفایلِ مشاور (نمایش به دانش‌آموز هنگام انتخاب مشاور) --}}
+                    <div class="border rounded p-3 mb-4">
+                        <h5 class="mb-1">اطلاعات مشاور</h5>
+                        <p class="text-muted small mb-3">
+                            تحصیلات، رشته و توضیحاتِ مشاور هنگام «انتخاب مشاور» به دانش‌آموز نمایش داده می‌شود.
+                            «ظرفیت اختصاصی» را فقط در صورتی وارد کنید که می‌خواهید این مشاور ظرفیتی متفاوت از مقدار سراسری داشته باشد.
+                        </p>
+                        <form wire:submit.prevent="saveProfile">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">تحصیلات</label>
+                                    <input type="text" class="form-control" wire:model="education" placeholder="مثال: کارشناسی ارشد روان‌شناسی">
+                                    @error('education') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">رشته</label>
+                                    <input type="text" class="form-control" wire:model="field_of_study" placeholder="مثال: مشاوره‌ی تحصیلی">
+                                    @error('field_of_study') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">توضیحات</label>
+                                    <textarea class="form-control" rows="3" wire:model="bio" placeholder="توضیحات کوتاه درباره‌ی مشاور..."></textarea>
+                                    @error('bio') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label">ظرفیت اختصاصی (اختیاری)</label>
+                                    <input type="number" min="1" max="1000" class="form-control" wire:model="student_capacity" placeholder="خالی = مقدار سراسری">
+                                    @error('student_capacity') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary _effect--ripple waves-effect waves-light">
+                                    <span wire:loading.remove wire:target="saveProfile">ذخیره اطلاعات مشاور</span>
+                                    <span wire:loading wire:target="saveProfile">در حال ذخیره...</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                     <p class="text-muted mb-4">
                         روزهای کاری ادمین را فعال کرده و ساعت شروع و پایان هر روز را مشخص کنید.
                         برای روزهایی که ادمین کار نمی‌کند، تیک فعال‌سازی را بردارید.

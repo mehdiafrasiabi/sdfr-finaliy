@@ -98,25 +98,25 @@
 
                                         <li class="group">
                                             <a
-                                               class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
+                                                class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
                                                 <span class="font-semibold text-sm">درباره ما</span>
                                             </a>
                                         </li>
                                         <li class="group">
                                             <a
-                                               class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
+                                                class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
                                                 <span class="font-semibold text-sm"></span>
                                             </a>
                                         </li>
                                         <li class="group">
                                             <a
-                                               class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
+                                                class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
                                                 <span class="font-semibold text-sm"></span>
                                             </a>
                                         </li>
                                         <li class="group">
                                             <a
-                                               class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
+                                                class="flex items-center relative text-foreground transition-colors hover:text-primary p-3">
                                                 <span class="font-semibold text-sm"></span>
                                             </a>
                                         </li>
@@ -411,7 +411,6 @@
                             </a>
 
 
-
                             <a href="{{route('client.about-us')}}" wire:navigate @click="closeMenu()"
                                class="flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-secondary/50 transition-all group">
                                 <div class="flex items-center gap-3">
@@ -644,6 +643,7 @@
                                     'money'     => '<path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>',
                                     'chat'      => '<path d="M17.98 10.79V14.79C17.98 15.05 17.97 15.3 17.94 15.54C17.71 18.24 16.12 19.58 13.19 19.58H12.79C12.54 19.58 12.3 19.7 12.15 19.9L10.95 21.5C10.42 22.21 9.56 22.21 9.03 21.5L7.82999 19.9C7.69999 19.73 7.41 19.58 7.19 19.58H6.79001C3.60001 19.58 2 18.79 2 14.79V10.79C2 7.86001 3.35001 6.27001 6.04001 6.04001C6.28001 6.01001 6.53001 6 6.79001 6H13.19C16.38 6 17.98 7.60001 17.98 10.79Z" stroke-linecap="round" stroke-linejoin="round"/>',
                                     'settings'  => '<path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Z"/>',
+                                    'chat'  => '<path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z"></path>',
                                 ];
 
                                 $menuGroups = [
@@ -652,6 +652,8 @@
                                         'items' => [
                                             ['label' => 'داشبورد',    'route' => route('client.profile.dashboard'),  'icon' => 'home'],
                                             ['label' => 'اطلاع رسانی',   'route' => route('client.profile.notification'), 'icon' => 'bell'],
+                                        ['label' => 'ارتباط مستقیم با مشاور',      'route' => route('client.profile.advisor-chat'),                  'icon' => 'chat'],
+
                                         ],
                                     ],
                                     [

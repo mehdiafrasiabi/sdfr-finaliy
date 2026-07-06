@@ -27,9 +27,14 @@
                     </select>
                 </div>
                 <div class="col-md-2 text-md-start">
-                    <button class="btn btn-primary w-100" wire:click="openForm">
-                        <i class="fi fi-rr-plus"></i> افزودن شماره
-                    </button>
+                    <div class="d-flex gap-1">
+                        <button class="btn btn-primary flex-fill" wire:click="openForm">
+                            <i class="fi fi-rr-plus"></i> دستی
+                        </button>
+                        <button class="btn btn-success flex-fill" wire:click="toggleImport">
+                            <i class="fi fi-rr-file-excel"></i> اکسل
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -73,6 +78,41 @@
             <div class="mt-3">{{ $leads->links() }}</div>
         </div>
     </div>
+
+    {{-- مودال ایمپورت اکسل --}}
+    @if ($showImport)
+        <div class="modal d-block" tabindex="-1" style="background:rgba(0,0,0,.4)">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">افزودن گروهی با اکسل</h5>
+                        <button type="button" class="btn-close" wire:click="toggleImport"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="alert alert-info small">
+                            ستون‌های فایل به ترتیب: <strong>نام</strong> | <strong>موبایل</strong> | <strong>پایه</strong> | <strong>رشته</strong>.
+                            تنها «موبایل» اجباری است. پایه می‌تواند عدد (۹ تا ۱۳) یا متن (نهم…) و رشته می‌تواند math/experimental/human یا متن (ریاضی…) باشد.
+                            سطر عنوان اختیاری است.
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label">فایل اکسل (xlsx / xls / csv) <span class="text-danger">*</span></label>
+                            <input type="file" wire:model="excelFile" class="form-control" accept=".xlsx,.xls,.csv">
+                            @error('excelFile')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
+                            <div wire:loading wire:target="excelFile" class="text-muted small mt-1">در حال بارگذاری فایل…</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" wire:click="toggleImport">انصراف</button>
+                        <button class="btn btn-success" wire:click="importExcel" wire:loading.attr="disabled" wire:target="importExcel,excelFile">
+                            <span wire:loading.remove wire:target="importExcel"><i class="fi fi-rr-upload"></i> ایمپورت</span>
+                            <span wire:loading wire:target="importExcel">در حال ثبت…</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 
     {{-- مودال افزودن شماره --}}
     @if ($showForm)

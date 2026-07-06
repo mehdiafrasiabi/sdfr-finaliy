@@ -1,6 +1,6 @@
 <div class="min-h-screen text-white" dir="rtl" style="font-family: inherit;" x-data="{ openAdvisorModal: false }">
 
-    {{-- ════════ انیمیشن ورود (ویدیو) — یکبار در هر ورود به پرتال ════════ --}}
+    {{-- ════════ انیمیشن ورود (ویدیو) — یکبار در ورود ════════ --}}
     <div x-data="sdfrDashIntro()" x-init="init()" x-show="show" x-cloak wire:ignore
          @keydown.escape.window="skip()"
          class="fixed inset-0 z-[120] flex items-center justify-center bg-black"
@@ -8,28 +8,46 @@
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
 
+        {{-- ۱. لودینگ ساده در صورت ضعیف بودن نت --}}
+        <div x-show="isLoading && !hasError" class="absolute inset-0 flex flex-col items-center justify-center z-10">
+            <div class="w-12 h-12 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="text-white font-semibold text-sm">در حال آماده‌سازی پرتال...</p>
+        </div>
+
+        {{-- ۲. پیغام خطای اینترنت یا فیلترشکن --}}
+        <div x-show="hasError" style="display: none;" class="absolute inset-0 flex flex-col items-center justify-center z-20 bg-black/95 p-6 text-center">
+            <svg class="w-16 h-16 text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <h3 class="text-xl font-bold text-white mb-2">مشکل در ارتباط با سرور</h3>
+            <p class="text-neutral-300 mb-6 text-sm max-w-sm">
+                اینترنت شما قطع است، سرعت بسیار پایینی دارد یا فیلترشکن شما روشن است. لطفاً وضعیت شبکه را بررسی کنید.
+            </p>
+            <button @click="skip()" class="px-6 py-2.5 bg-sky-500 hover:bg-sky-600 text-white rounded-xl font-bold transition">
+                ورود به داشبورد
+            </button>
+        </div>
+
+        {{-- ۳. ویدیو اصلی --}}
         <video x-ref="introVideo"
-               class="h-full w-full object-cover sm:object-contain"
-               muted playsinline autoplay preload="auto"
-               @ended="finish()"
-               poster="/client/assets/logoPwa/logo512.png">
+               x-show="!hasError"
+               class="h-full w-full object-cover sm:object-contain relative z-0 transition-opacity duration-300"
+               :class="isLoading ? 'opacity-0' : 'opacity-100'"
+               muted playsinline preload="auto"
+               @loadstart="isLoading = true"
+               @canplay="isLoading = false"
+               @playing="isLoading = false"
+               @waiting="isLoading = true"
+               x-on:error="handleNetworkError()"
+               @ended="finish()">
             <source src="/client/videos/sdfr-intro.mp4" type="video/mp4">
         </video>
-
-        {{-- دکمه رد کردن --}}
-        <button @click="skip()"
-                class="absolute top-[calc(env(safe-area-inset-top)+16px)] left-4 z-10 flex items-center gap-1.5
-                       rounded-full bg-white/10 px-4 py-2 text-[13px] font-medium text-white/80 backdrop-blur-md
-                       ring-1 ring-white/15 transition hover:bg-white/20 hover:text-white">
-            رد کردن
-            <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4"><path d="M13 5l7 7-7 7M4 12h15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
     </div>
 
     {{-- ════════ تور راهنمای داشبورد (اولین ورود + آیکون راهنما) ════════ --}}
     <x-client.page-tour storage-key="dashboard_tour_done"
-        :auto="(bool) session()->pull('start_dashboard_tour', false)"
-        :steps="[
+                        :auto="(bool) session()->pull('start_dashboard_tour', false)"
+                        :steps="[
         /* ── موبایل: اشاره به منوی هدر ── */
         ['el' => '[data-tour=m-menu]',           'title' => 'منوها اینجاست',     'text' => 'با زدن این آیکون در بالای صفحه، به همه‌ی منوها و بخش‌های حساب کاربری‌ات دسترسی داری.',                                                                  'forced' => true],
         /* ── دسکتاپ: آیتم‌های سایدبار یکی‌یکی ── */
@@ -420,7 +438,7 @@
         }
     </style>
     @endassets
-    <div class="max-w-7xl mx-auto px-4 py-6 relative z-10">
+    <div class="max-w-7xl mx-auto px-4 relative z-10">
         <div class="flex gap-6 items-start">
 
             {{-- ===== SIDEBAR (دسکتاپ) ===== --}}
@@ -450,8 +468,8 @@
                         </div>
                     @elseif($trialWeek)
                         <div data-tour="trial"
-                           class="glass rise flex items-center justify-between p-4 rounded-2xl"
-                           style="animation-delay:0s">
+                             class="glass rise flex items-center justify-between p-4 rounded-2xl"
+                             style="animation-delay:0s">
                             <div class="text-right">
                                 <div class="font-semibold text-white text-sm">
                                     هفته آزمایشی -
@@ -468,20 +486,24 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 @php
-                                    // درصد بر اساس روزهای سپری‌شده از هفتهٔ آزمایشی محاسبه می‌شود؛
-                                    // هرچه روز کمتری باقی بماند، نوار بیشتر پُر می‌شود.
+                                    // درصد بر اساس روزهای باقی‌مانده محاسبه می‌شود (از ۱۰۰٪ شروع شده و کم می‌شود)
                                     if ($trialWeek->expires_at) {
                                         $tw_total = $trialWeek->program_built_at
                                             ? max(1, (int) \Carbon\Carbon::parse($trialWeek->program_built_at)->startOfDay()
                                                     ->diffInDays(\Carbon\Carbon::parse($trialWeek->expires_at)->startOfDay()))
                                             : 8;
                                         $tw_remaining = max(0, (int) $trialWeek->daysRemaining);
-                                        $tw_elapsed   = max(0, $tw_total - $tw_remaining);
+
+                                        // تغییر اصلی اینجاست: به جای روزهای سپری شده، روزهای باقی‌مانده را مبنای درصد قرار می‌دهیم
                                         $sp = $trialWeek->isExpired()
-                                            ? 100
-                                            : min(100, (int) round($tw_elapsed / $tw_total * 100));
+                                            ? 0
+                                            : min(100, (int) round($tw_remaining / $tw_total * 100));
                                     } else {
-                                        $sp = ($trialWeek->step / 4) * 100;
+                                        // اگر می‌خواهید درصدِ مراحلِ قبل از ساخت برنامه هم معکوس باشد (از ۱۰۰ به سمت ۰ بیاید):
+                                        $sp = 100 - (($trialWeek->step / 4) * 100);
+
+                                        // اما اگر ترجیح می‌دهید پر شدن مراحل اولیه (قبل از شروع ۸ روز) مثل قبل از ۰ تا ۱۰۰ بالا برود، خط زیر را فعال نگه دارید:
+                                        // $sp = ($trialWeek->step / 4) * 100;
                                     }
                                 @endphp
                                 <span class="text-xs text-green-400">{{ (int)$sp }}%</span>
@@ -569,6 +591,10 @@
                                 <div class="font-bold text-white text-base leading-tight">
                                     {{ $advisorStudent['name'] ?? 'تعیین نشده' }}
                                 </div>
+                                <div class="font-bold text-[11px] mt-1 text-sky-500">
+                                    مشاور شما
+                                </div>
+
                             </div>
                         </div>
                         {{-- چپ: نقطه زنده + دکمه فلش --}}
@@ -585,6 +611,11 @@
                         </div>
                     </div>
 
+                    {{-- ══════ استوری‌های SDFR (بالای گزارش روزانه و ساعت مطالعه) ══════ --}}
+                    <div class="md:col-span-2" style="margin-bottom: 12px">
+                        <livewire:client.home.story.index />
+                    </div>
+
                     {{-- ══════ 2) ارسال گزارش (زنده) ══════ --}}
                     <div class="glass rise p-4" data-tour="report" style="animation-delay:.15s">
                         {{-- هدر --}}
@@ -599,34 +630,19 @@
                             کرده‌ای</p>
 
                         @if($reportProgress['has_program'])
-                            {{-- روزهای هفته (بر اساس بازهٔ جلسهٔ مشاوره) --}}
                             @php
+                                $dayCount = $reportProgress['total_days'];
+                                $startDate = \Carbon\Carbon::parse($reportProgress['start_date']);
                                 $activeProgram = $this->getActiveWeeklyProgram();
-                                $startDate = $reportProgress['start_date']
-                                    ? \Carbon\Carbon::parse($reportProgress['start_date'])
-                                    : \Carbon\Carbon::parse($activeProgram->start_date);
-                                // تعداد روزهای برنامه بر اساس بازهٔ واقعی (شروع تا پایان، شامل هر دو سر)
-                                $programEnd = $activeProgram->end_date
-                                    ? \Carbon\Carbon::parse($activeProgram->end_date)->startOfDay()
-                                    : $startDate->copy()->addDays(7);
-                                $dayCount = max(1, $startDate->copy()->startOfDay()->diffInDays($programEnd) + 1);
-                                $endDate = $startDate->copy()->addDays($dayCount - 1);
-                                $today = \Carbon\Carbon::today();
-
                                 $submittedDates = \App\Models\DailyReport::where('student_id', $student->id)
                                     ->where('weekly_program_id', $activeProgram->id)
                                     ->where('is_compensatory', false)
-                                    ->whereBetween('report_date', [$startDate, $endDate])
+                                    ->whereBetween('report_date', [$startDate, $startDate->copy()->addDays($dayCount - 1)])
                                     ->pluck('report_date')
                                     ->map(fn($d) => \Carbon\Carbon::parse($d)->toDateString())
                                     ->toArray();
-
-                                // روزهای بدون پارت = روز استراحت
-                                $restDayIndices = [];
-                                for ($ri = 0; $ri < $dayCount; $ri++) {
-                                    $hasParts = $activeProgram->parts()->where('day_of_week', $ri)->exists();
-                                    if (!$hasParts) $restDayIndices[] = $ri;
-                                }
+                                $restDayIndices = $activeProgram->restDays->pluck('day_index')->all();
+                                $today = \Carbon\Carbon::today();
                             @endphp
 
                             <div class="flex items-center gap-1.5">
@@ -670,7 +686,7 @@
                                 <span class="font-bold text-white text-[15px]">ساعت مطالعه من</span>
                             </div>
                             <div class="text-xl font-black text-sky-400">
-                                {{ $studyHoursProgress['total_hours'] }} ساعت
+                                {{ $studyHoursProgress['total_hours'] }}
                             </div>
                         </div>
                         <p class="text-[11px] text-neutral-400 mb-4">مجموع ساعت مطالعه‌ات نسبت به هدف این هفته</p>
@@ -682,8 +698,7 @@
                         </div>
                         <div class="flex items-center justify-between text-[13px]">
                             <div class="text-neutral-400">{{ round($studyHoursProgress['percentage']) }}%</div>
-                            <div class="text-sky-400">{{ $studyHoursProgress['completed_hours'] }}
-                                از {{ $studyHoursProgress['total_hours'] }}</div>
+                            <div class="text-sky-400">{{ $studyHoursProgress['completed_hours'] }} از {{ $studyHoursProgress['total_hours'] }}</div>
                         </div>
                     </div>
 
@@ -696,19 +711,19 @@
                                     <span class="font-bold text-white text-[15px]">اضافه بر سازمان</span>
                                 </div>
                                 <div class="text-xl font-black text-emerald-400" style="direction:ltr;">
-                                    {{ $extraOrgProgress['hours'] }} ساعت
+                                    {{ $extraOrgProgress['hours'] }}
                                 </div>
                             </div>
                             <p class="text-[11px] text-neutral-400 mb-3">میزان مطالعهٔ اضافه بر سازمان که این هفته ثبت کرده‌ای</p>
                             <div
                                 class="text-xs font-semibold px-3 py-2 rounded-xl inline-flex items-center gap-1.5 bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20">
-                                ↑ {{ $extraOrgProgress['hours'] }} ساعت اضافه بر سازمان! عالی پیش می‌روی
+                                ↑ {{ $extraOrgProgress['hours'] }} اضافه بر سازمان! عالی پیش می‌روی
                             </div>
                         </div>
                     @endif
 
                     {{-- ══════ 4) برنامه امروز (زنده، full-width) ══════ --}}
-                    <div class="glass rise md:col-span-2 p-4" data-tour="today" style="animation-delay:.25s">
+                    <div class="glass card-live relative rounded-2xl rise md:col-span-2 p-4" data-tour="today" style="animation-delay:.25s">
                         <div class="flex items-center justify-between gap-2 mb-1">
 
                             <div class="flex items-center gap-2">
@@ -844,6 +859,23 @@
                             <div class="text-center py-8 text-neutral-500 text-[13px]">برنامه‌ای برای امروز تعریف نشده
                             </div>
                         @endif
+
+                        {{-- ══════ تحلیل زندهٔ برنامهٔ امروز (۲-۳ خط) ══════ --}}
+                        @if(!empty($todayAnalysis) && !empty($todayAnalysis['lines']))
+                            <div class="relative z-10 mt-4 rounded-xl bg-white/[0.03] ring-1 ring-white/10 px-4 py-3">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-4 h-4 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2a7 7 0 0 0-4 12.7V17a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2.3A7 7 0 0 0 12 2zM9 21h6"/>
+                                    </svg>
+                                    <span class="text-[13px] font-bold text-white">تحلیل امروزِ تو</span>
+                                </div>
+                                <div class="space-y-1.5">
+                                    @foreach($todayAnalysis['lines'] as $line)
+                                        <p class="text-[12px] leading-6 text-neutral-300">{{ $line }}</p>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
 
                     {{-- ══════ باکس امتحان / پرسش و پاسخ / تکلیف هفته ══════ --}}
@@ -896,10 +928,10 @@
 
                                             </div>
                                             <div class="flex items-center gap-2 flex-shrink-0">
-                                                    <div class="flex flex-col items-center leading-tight">
+                                                <div class="flex flex-col items-center leading-tight">
                                                         <span
                                                             class="font-black  text-sm  {{ $meta['color'] }}">{{ $dayName }}</span>
-                                                    </div>
+                                                </div>
 
                                             </div>
                                         </div>
@@ -1109,36 +1141,67 @@
     {{-- ════════════════ مودال اتفاقات یهویی ════════════════ --}}
     <livewire:client.profile.sudden-event-modal/>
 
-    {{-- ════════════════ CHART INITIALIZATION ════════════════ --}}
-    {{-- انیمیشن ورود (ویدیو): تعریفِ گلوبال تا Alpine بتواند x-data را بسازد.
-         قبلاً داخلِ @script بود و گلوبال نمی‌شد؛ به همین دلیل ویدیو اصلاً نمایش داده نمی‌شد. --}}
     <script data-navigate-once>
-        // یکبار در هر «ورود تازه به پرتال» (هر تب/سشن) پخش می‌شود؛ با بستن و باز
-        // کردنِ دوبارهٔ پرتال، sessionStorage پاک شده و دوباره پخش می‌شود.
         window.sdfrDashIntro = function () {
             return {
                 show: false,
+                isLoading: true,
+                hasError: false,
+                timeoutId: null,
                 KEY: 'sdfr_intro_played',
+
                 init() {
                     let played = false;
-                    try { played = sessionStorage.getItem(this.KEY) === '1'; } catch (e) {}
-                    // فقط در ورودِ تازه به پرتال نمایش بده، نه در ناوبری داخلی به داشبورد
+                    try {
+                        // تغییر به sessionStorage برای پخش مجدد پس از بستن و باز کردن برنامه
+                        played = sessionStorage.getItem(this.KEY) === '1';
+                    } catch (e) {}
+
                     if (played) return;
+
                     this.show = true;
                     document.body.style.overflow = 'hidden';
+
+                    if (!navigator.onLine) {
+                        this.handleNetworkError();
+                        return;
+                    }
+
                     this.$nextTick(() => {
                         const v = this.$refs.introVideo;
                         if (v) {
+                            this.timeoutId = setTimeout(() => {
+                                if (this.isLoading || v.readyState === 0) {
+                                    this.handleNetworkError();
+                                }
+                            }, 10000);
+
                             const p = v.play();
-                            if (p && p.catch) p.catch(() => {}); // اگر مرورگر autoplay را بلاک کرد
+                            if (p && p.catch) {
+                                p.catch((err) => {
+                                    console.warn("Video play interrupted:", err);
+                                });
+                            }
                         }
                     });
                 },
-                finish() {
-                    try { sessionStorage.setItem(this.KEY, '1'); } catch (e) {}
-                    this.show = false;
-                    document.body.style.overflow = '';
+
+                handleNetworkError() {
+                    this.isLoading = false;
+                    this.hasError = true;
+                    if (this.timeoutId) clearTimeout(this.timeoutId);
                 },
+
+                finish() {
+                    // ذخیره در sessionStorage
+                    try { sessionStorage.setItem(this.KEY, '1'); } catch (e) {}
+
+                    this.show = false;
+                    this.hasError = false;
+                    document.body.style.overflow = '';
+                    if (this.timeoutId) clearTimeout(this.timeoutId);
+                },
+
                 skip() {
                     const v = this.$refs.introVideo;
                     if (v) { try { v.pause(); } catch (e) {} }
@@ -1148,12 +1211,10 @@
         }
     </script>
 
- @script
+    @script
     <script>
         (function () {
-            // پالت بدون بنفش (هماهنگ با تم emerald/sky)
             const palette = ['#3b82f6', '#10b981', '#f59e0b', '#0ea5e9', '#ec4899', '#14b8a6', '#f97316', '#06b6d4', '#22d3ee', '#84cc16'];
-
             window.__dashChartData = {
                 daily: @json($weeklyInsights['daily'] ?? []),
                 partType: @json($weeklyInsights['part_type_distribution'] ?? (object)[]),
@@ -1270,6 +1331,6 @@
             });
         })();
     </script>
- @endscript
+    @endscript
 
 </div>

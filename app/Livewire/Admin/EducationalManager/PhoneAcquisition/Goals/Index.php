@@ -19,6 +19,7 @@ class Index extends Component
     public string $scope = 'team';        // team | consultant
     public $adminId = '';
     public $targetCount = '';
+    public string $description = '';      // توضیحات هدف (نمایش به مشاوران)
     public string $goalDate = '';         // مقدار میلادی "Y-m-d" که تقویم شمسی پر می‌کند
 
     public function saveGoal(): void
@@ -29,6 +30,7 @@ class Index extends Component
             'scope'       => ['required', 'in:team,consultant'],
             'adminId'     => ['nullable', 'required_if:scope,consultant', 'exists:admins,id'],
             'targetCount' => ['required', 'integer', 'min:1'],
+            'description' => ['nullable', 'string', 'max:2000'],
             'goalDate'    => ['required', 'date'],
         ], [
             'adminId.required_if' => 'مشاور را انتخاب کنید.',
@@ -40,11 +42,12 @@ class Index extends Component
         RegistrationGoal::create([
             'admin_id'     => $this->scope === 'consultant' ? (int) $this->adminId : null,
             'target_count' => (int) $this->targetCount,
+            'description'  => $this->description ?: null,
             'goal_date'    => $this->goalDate,
             'created_by'   => Auth::guard('admin')->id(),
         ]);
 
-        $this->reset(['adminId', 'targetCount', 'goalDate']);
+        $this->reset(['adminId', 'targetCount', 'description', 'goalDate']);
         $this->scope = 'team';
         $this->dispatch('goal-saved'); // پاک‌سازی تقویم در سمت کلاینت
         $this->dispatch('success', 'هدف با موفقیت ثبت شد.');

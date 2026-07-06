@@ -287,34 +287,40 @@ class TrialWeekService
         ];
     }
 
-    const MIN_PART_MINUTES = 15;  // حداقل ۱۵ دقیقه برای هر پارت
-    const MIN_DAILY_MINUTES = 60; // حداقل ۱ ساعت مطالعه در روز
+    const MIN_PART_MINUTES = 15;   // حداقل ۱۵ دقیقه برای هر پارت
+    const MIN_DAILY_MINUTES = 120; // حداقل ۲ ساعت مطالعه در روز
 
-    // ───────── سهم پایهٔ هر اولویت از ساعت مطالعهٔ روزانه (مجموع = ۱) ─────────
-    const SHARE_SCHEDULE = 0.50; // اولویت ۱: برنامهٔ کلاسی مدرسه
-    const SHARE_TOPIC_B  = 0.25; // اولویت ۲: مباحث B (رتبهٔ ۳)
-    const SHARE_TOPIC_A  = 0.25; // اولویت ۳: مباحث A (رتبهٔ ۴)
+    // ───────── سهم پایهٔ هر سطل از ساعت مطالعهٔ روزانه (نرمال‌سازی دینامیک) ─────────
+    const SHARE_EXAM     = 0.40; // آمادگی امتحان/پرسش‌وپاسخ (اولویت اول)
+    const SHARE_SCHEDULE = 0.25; // روزخوانی/پیش‌خوانی/تکلیف برنامهٔ کلاسی
+    const SHARE_TOPIC_A  = 0.15; // دستهٔ A → تست
+    const SHARE_TOPIC_B  = 0.12; // دستهٔ B → تشریحی (آمادگی برای تست‌زنی)
+    const SHARE_TOPIC_CD = 0.08; // دستهٔ C و D → مطالعهٔ فصل
 
-    // انواع پارت‌های «برنامهٔ کلاسی مدرسه» که برای هر درسِ آن روز ساخته می‌شوند
-    const SCHEDULE_PART_TYPES = [
-        ProgramPart::SOURCE_DAILY_READING => 'روزخوانی',
-        ProgramPart::SOURCE_PRE_READING   => 'پیش‌خوانی',
-        ProgramPart::SOURCE_HOMEWORK      => 'تکلیف',
-        ProgramPart::SOURCE_CLASS_QA      => 'پرسش و پاسخ کلاسی',
-    ];
+    // نگاشت id درس → نوع (عمومی/تخصصی) برای تعیین lesson_type هر پارت
+    private array $subjectTypeMap = [];
+    // نگاشت id فصل/درس → دستهٔ طبقه‌بندی (A/B/C/D) برای رویدادهای امتحان
+    private array $chapterCategoryMap = [];
+    private array $subjectCategoryMap = [];
 
     /**
-     * ساخت پارت‌های برنامهٔ هفتگی بر اساس الگوریتم درصدیِ اولویت‌محور:
-     *   اولویت ۱ (۵۰٪): برنامهٔ کلاسی مدرسه (روزخوانی/پیش‌خوانی/تکلیف/پرسش‌وپاسخ هر درسِ روز)
-     *   اولویت ۲ (۲۵٪): مطالعهٔ مباحث B (رتبهٔ ۳ طبقه‌بندی)
-     *   اولویت ۳ (۲۵٪): مطالعهٔ مباحث A (رتبهٔ ۴ طبقه‌بندی)
+     * ساخت پارت‌های برنامهٔ هفتگی بر اساس الگوریتمِ امتحان‌محور + دسته‌بندی ABCD:
      *
-     * بازتوزیع دینامیک: اگر یک سطل برای آن روز محتوا نداشته باشد (مثلاً فارغ‌التحصیل
-     * بدون برنامهٔ کلاسی، یا روزی بدون کلاس)، سهمش به‌نسبتِ سهمِ پایه بین سطل‌های باقی‌مانده
-     * پخش می‌شود تا مجموع همیشه ۱۰۰٪ بماند (دو ۲۵٪ به دو ۵۰٪ تبدیل می‌شوند).
+     *   • شب قبل از امتحان/پرسش‌وپاسخ کلاسی، فقط همان درس(های) امتحان چیده می‌شود.
+     *   • روزخوانی و پیش‌خوانی در «روز قبل» و «روز بعدِ» امتحان قرار نمی‌گیرد.
+     *   • اگر فصلِ امتحان دستهٔ C یا D باشد، آمادگی از ۲ روز قبلِ امتحان شروع می‌شود
+     *     (در غیر این صورت از ۱ روز قبل).
+     *   • تکالیف فقط در روزهای «آزاد» (بدون امتحان و بدون پرسش‌وپاسخِ همان روز) قرار می‌گیرد.
+     *   • مطالعهٔ دسته‌بندی در روزهای عادی: A → تست، B → تشریحی «آمادگی برای تست‌زنی»،
+     *     C/D → تشریحی «مطالعهٔ فصل …».
+     *
+     * بازتوزیع دینامیک: سهم سطل‌های بدونِ محتوای آن روز بین بقیه پخش می‌شود تا
+     * مجموع دقیقهٔ روز همیشه دقیقاً برابر ساعتِ انتخابی بماند.
      */
     private function generateProgramParts(WeeklyProgram $program, TrialWeek $trialWeek, int $dailyHours): void
     {
+        $userId = (int) $trialWeek->user_id;
+
         $grade = (int) $trialWeek->grade;
         $gradeForPart = match (true) {
             $grade >= 10 && $grade <= 12        => (string) $grade,
@@ -325,12 +331,20 @@ class TrialWeekService
             $gradeForPart = '10';
         }
 
-        // حداقل ۱ ساعت روزانه رعایت شود
+        // حداقل ۲ ساعت روزانه رعایت شود
         $dailyMinutes = max($dailyHours * 60, self::MIN_DAILY_MINUTES);
 
-        // مباحث طبقه‌بندی به تفکیک رتبه (A = ۴ ، B = ۳)
-        $topicsA = $this->classificationTopics($trialWeek->user_id, 4); // مباحث A
-        $topicsB = $this->classificationTopics($trialWeek->user_id, 3); // مباحث B
+        // نگاشت نوع درس‌ها (عمومی/تخصصی) + نگاشت دستهٔ طبقه‌بندی کاربر
+        $this->subjectTypeMap = \App\Models\CcSubject::pluck('type', 'id')->all();
+        $this->loadCategoryMaps($userId);
+
+        // مباحث طبقه‌بندی به تفکیک دسته (A=۴ ، B=۳ ، C=۲ ، D=۱)
+        $topicsA  = $this->classificationTopics($userId, 4);
+        $topicsB  = $this->classificationTopics($userId, 3);
+        $topicsCD = array_merge(
+            $this->classificationTopics($userId, 2),
+            $this->classificationTopics($userId, 1),
+        );
 
         // برنامهٔ کلاسیِ نهایی‌شدهٔ مدرسه (فقط برای کسانی که مدرسه می‌روند)
         $schedule = null;
@@ -342,12 +356,28 @@ class TrialWeekService
                 ->first();
         }
 
+        // رویدادهای امتحان و پرسش‌وپاسخ کلاسی (با تاریخ و دسته‌بندی)
+        $events = $this->collectExamEvents($trialWeek);
+
+        $startDay = Carbon::now()->startOfDay();
+
         for ($dayIdx = 0; $dayIdx < 7; $dayIdx++) {
-            $date     = Carbon::now()->addDays($dayIdx);
+            $date     = $startDay->copy()->addDays($dayIdx);
             $dateStr  = $date->toDateString();
             $jWeekday = jdate($date)->getDayOfWeek(); // 0=شنبه .. 6=جمعه
 
-            // اولویت ۱: درس‌های کلاسیِ همین روز (بدون تکرار درس)
+            $eventsToday     = $this->eventsOn($events, $date);
+            $eventsTomorrow  = $this->eventsOn($events, $date->copy()->addDay());
+            $eventsYesterday = $this->eventsOn($events, $date->copy()->subDay());
+
+            // شب قبل از امتحان/پرسش‌وپاسخ → فقط همان درس(ها)
+            $isNightBefore = !empty($eventsTomorrow);
+            // روز قبل یا بعدِ امتحان → بدون روزخوانی/پیش‌خوانی
+            $noDailyPre = !empty($eventsTomorrow) || !empty($eventsYesterday);
+            // روز آزاد → تکلیف مجاز است
+            $isFreeDay = empty($eventsToday);
+
+            // درس‌های کلاسیِ همین روز (بدون تکرار درس)
             $scheduleSubjects = [];
             if ($schedule) {
                 foreach ($schedule->parts->where('day_of_week', $jWeekday)->sortBy('part_order') as $cp) {
@@ -355,17 +385,23 @@ class TrialWeekService
                 }
             }
 
-            // فهرست «پارت‌های مطلوب» هر سطل (هنوز بدون دقیقه)
-            $bucketSchedule = $this->buildScheduleDesired($scheduleSubjects);
-            $bucketB        = $this->buildTopicDesired($topicsB, 'مباحث B');
-            $bucketA        = $this->buildTopicDesired($topicsA, 'مباحث A');
+            // ساخت سطل‌های هر روز
+            $bucketExam     = $this->buildExamDesired($events, $date);
+            $bucketReading  = (!$isNightBefore && !$noDailyPre) ? $this->buildReadingDesired($scheduleSubjects) : [];
+            $bucketHomework = (!$isNightBefore && $isFreeDay)   ? $this->buildHomeworkDesired($scheduleSubjects) : [];
+            $bucketSchedule = array_merge($bucketReading, $bucketHomework);
+            $bucketA  = $isNightBefore ? [] : $this->buildTopicDesired($topicsA,  'A');
+            $bucketB  = $isNightBefore ? [] : $this->buildTopicDesired($topicsB,  'B');
+            $bucketCD = $isNightBefore ? [] : $this->buildTopicDesired($topicsCD, 'CD');
 
             // سطل‌های دارای محتوا + سهم پایهٔ آن‌ها
             $shares  = [];
             $buckets = [];
+            if (!empty($bucketExam))     { $shares['exam']     = self::SHARE_EXAM;     $buckets['exam']     = $bucketExam; }
             if (!empty($bucketSchedule)) { $shares['schedule'] = self::SHARE_SCHEDULE; $buckets['schedule'] = $bucketSchedule; }
-            if (!empty($bucketB))        { $shares['b']        = self::SHARE_TOPIC_B;  $buckets['b']        = $bucketB; }
             if (!empty($bucketA))        { $shares['a']        = self::SHARE_TOPIC_A;  $buckets['a']        = $bucketA; }
+            if (!empty($bucketB))        { $shares['b']        = self::SHARE_TOPIC_B;  $buckets['b']        = $bucketB; }
+            if (!empty($bucketCD))       { $shares['cd']       = self::SHARE_TOPIC_CD; $buckets['cd']       = $bucketCD; }
 
             // اگر هیچ سطلی محتوا نداشت → یک پارت پیش‌فرض برای کل روز
             if (empty($shares)) {
@@ -402,6 +438,96 @@ class TrialWeekService
     }
 
     /**
+     * رویدادهای امتحان و پرسش‌وپاسخ کلاسیِ پیش‌جلسه را با تاریخ و دستهٔ طبقه‌بندیِ
+     * فصلِ مربوطه جمع می‌کند.
+     */
+    private function collectExamEvents(TrialWeek $trialWeek): array
+    {
+        $pre = $trialWeek->advisingSession?->preSession;
+        if (!$pre) {
+            return [];
+        }
+
+        $events = [];
+
+        foreach ($pre->exams as $ex) {
+            if (!$ex->exam_date) {
+                continue;
+            }
+            $events[] = [
+                'type'          => 'exam',
+                'date'          => Carbon::parse($ex->exam_date)->startOfDay(),
+                'subject'       => $ex->subject,
+                'cc_subject_id' => $ex->cc_subject_id,
+                'cc_chapter_id' => $ex->cc_chapter_id,
+                'chapter'       => $this->chapterName($ex->cc_chapter_id),
+                'category'      => $this->categoryOf($ex->cc_chapter_id, $ex->cc_subject_id),
+            ];
+        }
+
+        foreach ($pre->qas as $qa) {
+            if (!$qa->qa_date) {
+                continue;
+            }
+            $events[] = [
+                'type'          => 'qa',
+                'date'          => Carbon::parse($qa->qa_date)->startOfDay(),
+                'subject'       => $qa->subject,
+                'cc_subject_id' => $qa->cc_subject_id,
+                'cc_chapter_id' => $qa->cc_chapter_id,
+                'chapter'       => $this->chapterName($qa->cc_chapter_id),
+                'category'      => $this->categoryOf($qa->cc_chapter_id, $qa->cc_subject_id),
+            ];
+        }
+
+        return $events;
+    }
+
+    /** رویدادهای واقع در یک تاریخ مشخص. */
+    private function eventsOn(array $events, Carbon $date): array
+    {
+        return array_values(array_filter($events, fn ($e) => $e['date']->isSameDay($date)));
+    }
+
+    /**
+     * سطل آمادگیِ امتحان/پرسش‌وپاسخ برای یک تاریخ:
+     *   • اگر رویداد همین امروز است → خودِ امتحان/پرسش‌وپاسخ.
+     *   • اگر امروز داخل بازهٔ آمادگیِ رویداد است → پارت آمادگی.
+     *     بازهٔ آمادگی = [تاریخ - (۲ روز برای C/D وگرنه ۱ روز) ، تاریخ - ۱].
+     */
+    private function buildExamDesired(array $events, Carbon $date): array
+    {
+        $desired = [];
+        foreach ($events as $e) {
+            $isSameDay = $e['date']->isSameDay($date);
+            $prepDays  = in_array($e['category'], ['C', 'D'], true) ? 2 : 1;
+            $prepStart = $e['date']->copy()->subDays($prepDays);
+            $prepEnd   = $e['date']->copy()->subDay();
+            $inPrep    = $date->between($prepStart, $prepEnd);
+
+            if (!$isSameDay && !$inPrep) {
+                continue;
+            }
+
+            $source     = $e['type'] === 'exam' ? ProgramPart::SOURCE_EXAM : ProgramPart::SOURCE_CLASS_QA;
+            $base       = $e['type'] === 'exam' ? 'امتحان' : 'پرسش و پاسخ کلاسی';
+            $chapterTxt = $e['chapter'] ?: $e['subject'];
+            $desc       = $isSameDay ? ($base . ' - ' . $chapterTxt) : ('آمادگی ' . $base . ' - ' . $chapterTxt);
+
+            $desired[] = [
+                'lesson_name'   => $e['subject'],
+                'source_type'   => $source,
+                'part_type'     => ProgramPart::PART_TYPE_DESCRIPTIVE,
+                'description'   => $desc,
+                'cc_subject_id' => $e['cc_subject_id'],
+                'cc_chapter_id' => $e['cc_chapter_id'],
+            ];
+        }
+
+        return $desired;
+    }
+
+    /**
      * مباحث طبقه‌بندی با رتبهٔ مشخص → فهرست یکتای [name, chapter, cc_subject_id].
      * هر مبحث (فصل) یک‌بار می‌آید؛ name = نام درس، chapter = نام فصل.
      */
@@ -419,10 +545,12 @@ class TrialWeekService
                 $name    = $ratable->subject?->name ?? 'سایر';
                 $chapter = $ratable->name;
                 $subjId  = $ratable->cc_subject_id;
+                $chapId  = $ratable->id;
             } elseif ($ratable instanceof \App\Models\CcSubject) {
                 $name    = $ratable->name;
                 $chapter = null;
                 $subjId  = $ratable->id;
+                $chapId  = null;
             } else {
                 continue;
             }
@@ -430,28 +558,32 @@ class TrialWeekService
                 'name'          => $name,
                 'chapter'       => $chapter,
                 'cc_subject_id' => $subjId,
+                'cc_chapter_id' => $chapId,
             ];
         }
 
         return array_values($topics);
     }
 
-    /**
-     * اولویت ۱: برای هر درسِ کلاسیِ روز، چهار نوع پارت (روزخوانی/پیش‌خوانی/تکلیف/پرسش‌وپاسخ).
-     * ترتیب «نوع‌محور» است تا اگر بودجه کم بود، ابتدا روزخوانیِ همهٔ درس‌ها پوشش داده شود.
-     */
-    private function buildScheduleDesired(array $scheduleSubjects): array
+    /** روزخوانی و پیش‌خوانیِ هر درسِ کلاسیِ روز (نوع‌محور). */
+    private function buildReadingDesired(array $scheduleSubjects): array
     {
         if (empty($scheduleSubjects)) {
             return [];
         }
 
+        $types = [
+            ProgramPart::SOURCE_DAILY_READING => 'روزخوانی',
+            ProgramPart::SOURCE_PRE_READING   => 'پیش‌خوانی',
+        ];
+
         $desired = [];
-        foreach (self::SCHEDULE_PART_TYPES as $sourceType => $label) {
+        foreach ($types as $sourceType => $label) {
             foreach ($scheduleSubjects as $subjectId => $subjectName) {
                 $desired[] = [
                     'lesson_name'   => $subjectName,
                     'source_type'   => $sourceType,
+                    'part_type'     => ProgramPart::PART_TYPE_DESCRIPTIVE,
                     'description'   => $label . ' - ' . $subjectName,
                     'cc_subject_id' => $subjectId ?: null,
                 ];
@@ -461,16 +593,61 @@ class TrialWeekService
         return $desired;
     }
 
-    /** اولویت ۲/۳: یک پارت طبقه‌بندی برای هر مبحثِ رتبه‌بندی‌شده. */
-    private function buildTopicDesired(array $topics, string $label): array
+    /** تکالیفِ هر درسِ کلاسیِ روز — فقط برای روزهای آزاد فراخوانی می‌شود. */
+    private function buildHomeworkDesired(array $scheduleSubjects): array
+    {
+        if (empty($scheduleSubjects)) {
+            return [];
+        }
+
+        $desired = [];
+        foreach ($scheduleSubjects as $subjectId => $subjectName) {
+            $desired[] = [
+                'lesson_name'   => $subjectName,
+                'source_type'   => ProgramPart::SOURCE_HOMEWORK,
+                'part_type'     => ProgramPart::PART_TYPE_DESCRIPTIVE,
+                'description'   => 'تکلیف - ' . $subjectName,
+                'cc_subject_id' => $subjectId ?: null,
+            ];
+        }
+
+        return $desired;
+    }
+
+    /**
+     * یک پارت مطالعه برای هر مبحثِ دسته‌بندی‌شده، بر اساس دسته:
+     *   A  → تست (part_type=test)
+     *   B  → تشریحی با توضیح «مطالعه و آمادگی برای تست‌زنی»
+     *   CD → تشریحی با توضیح «مطالعهٔ فصل …»
+     */
+    private function buildTopicDesired(array $topics, string $category): array
     {
         $desired = [];
         foreach ($topics as $t) {
+            $chapterTxt = $t['chapter'] ?: $t['name'];
+
+            switch ($category) {
+                case 'A':
+                    $partType = ProgramPart::PART_TYPE_TEST;
+                    $desc     = 'تست‌زنی - ' . $chapterTxt;
+                    break;
+                case 'B':
+                    $partType = ProgramPart::PART_TYPE_DESCRIPTIVE;
+                    $desc     = 'مطالعه و آمادگی برای تست‌زنی - ' . $chapterTxt;
+                    break;
+                default: // C و D
+                    $partType = ProgramPart::PART_TYPE_DESCRIPTIVE;
+                    $desc     = 'مطالعهٔ فصل ' . $chapterTxt;
+                    break;
+            }
+
             $desired[] = [
                 'lesson_name'   => $t['name'],
                 'source_type'   => ProgramPart::SOURCE_CLASSIFICATION,
-                'description'   => $label . ($t['chapter'] ? ' - ' . $t['chapter'] : ''),
+                'part_type'     => $partType,
+                'description'   => $desc,
                 'cc_subject_id' => $t['cc_subject_id'],
+                'cc_chapter_id' => $t['cc_chapter_id'] ?? null,
             ];
         }
 
@@ -530,6 +707,19 @@ class TrialWeekService
 
     private function createPart(WeeklyProgram $program, array $d, int $minutes, string $dateStr, int $dayIdx, int $order, string $grade): void
     {
+        $partType = $d['part_type'] ?? ProgramPart::PART_TYPE_DESCRIPTIVE;
+
+        // نوع درس (عمومی/تخصصی) بر اساس نگاشتِ درس‌ها
+        $subjectId  = $d['cc_subject_id'] ?? null;
+        $lessonType = ($subjectId && ($this->subjectTypeMap[$subjectId] ?? null) === 'general')
+            ? ProgramPart::LESSON_TYPE_GENERAL
+            : ProgramPart::LESSON_TYPE_SPECIALIZED;
+
+        // تعداد تست برای پارت‌های تستی (تقریباً هر ۱.۵ دقیقه یک تست)
+        $testCount = $partType === ProgramPart::PART_TYPE_TEST
+            ? max(5, (int) round($minutes / 1.5))
+            : null;
+
         ProgramPart::create([
             'weekly_program_id' => $program->id,
             'lesson_name'       => $d['lesson_name'],
@@ -538,11 +728,58 @@ class TrialWeekService
             'part_order'        => $order,
             'description'       => $d['description'] ?? null,
             'duration_minutes'  => $minutes,
-            'part_type'         => ProgramPart::PART_TYPE_DESCRIPTIVE,
+            'test_count'        => $testCount,
+            'part_type'         => $partType,
             'source_type'       => $d['source_type'],
-            'lesson_type'       => ProgramPart::LESSON_TYPE_SPECIALIZED,
-            'cc_subject_id'     => $d['cc_subject_id'] ?? null,
+            'lesson_type'       => $lessonType,
+            'cc_subject_id'     => $subjectId,
+            'cc_chapter_id'     => $d['cc_chapter_id'] ?? null,
             'grade'             => $grade,
         ]);
+    }
+
+    /**
+     * نگاشتِ دستهٔ طبقه‌بندیِ کاربر برای فصل‌ها و درس‌ها (A/B/C/D).
+     * یک‌بار در ابتدای ساخت برنامه بارگذاری می‌شود.
+     */
+    private function loadCategoryMaps(int $userId): void
+    {
+        $this->chapterCategoryMap = [];
+        $this->subjectCategoryMap = [];
+
+        $rows = StudentClassification::where('user_id', $userId)->with('ratable')->get();
+        foreach ($rows as $c) {
+            $ratable = $c->ratable;
+            $label   = StudentClassification::RATINGS[(int) $c->rating] ?? null;
+            if (!$label) {
+                continue;
+            }
+            if ($ratable instanceof \App\Models\CcChapter) {
+                $this->chapterCategoryMap[$ratable->id] = $label;
+            } elseif ($ratable instanceof \App\Models\CcSubject) {
+                $this->subjectCategoryMap[$ratable->id] = $label;
+            }
+        }
+    }
+
+    /** دستهٔ طبقه‌بندی (A/B/C/D) برای یک فصل/درس؛ ابتدا فصل، سپس درس. */
+    private function categoryOf(?int $chapterId, ?int $subjectId): ?string
+    {
+        if ($chapterId && isset($this->chapterCategoryMap[$chapterId])) {
+            return $this->chapterCategoryMap[$chapterId];
+        }
+        if ($subjectId && isset($this->subjectCategoryMap[$subjectId])) {
+            return $this->subjectCategoryMap[$subjectId];
+        }
+        return null;
+    }
+
+    /** نامِ فصل از روی شناسه. */
+    private function chapterName(?int $chapterId): ?string
+    {
+        if (!$chapterId) {
+            return null;
+        }
+        return \App\Models\CcChapter::find($chapterId)?->name;
     }
 }

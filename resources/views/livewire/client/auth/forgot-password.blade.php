@@ -1,232 +1,234 @@
 <div class="relative min-h-screen overflow-hidden bg-background text-foreground" dir="rtl"
      x-data="forgotPasswordForm()">
-    @assets
-    <style>
-        .grid-figma {
-            background-image: linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
-            linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px),
-            linear-gradient(to right, hsl(var(--border) / 0.2) 1px, transparent 1px),
-            linear-gradient(to bottom, hsl(var(--border) / 0.2) 1px, transparent 1px);
-            background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
-            -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, #000 30%, transparent 90%);
-            mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, #000 30%, transparent 90%);
-        }
 
-        .glass-card {
-            background: hsl(var(--background) / 0.6);
-            backdrop-filter: blur(18px) saturate(140%);
-            -webkit-backdrop-filter: blur(18px) saturate(140%);
-            border: 1px solid hsl(var(--border) / 0.6);
-        }
 
-        .glass-input {
-            background: hsl(var(--secondary) / 0.6);
-            border: 1px solid hsl(var(--border));
-            transition: all 0.2s ease;
-            color: hsl(var(--foreground));
-        }
-
-        .glass-input:focus {
-            background: hsl(var(--secondary));
-            border-color: hsl(var(--primary));
-            box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15);
-            outline: none;
-        }
-
-        .glass-input::placeholder {
-            color: hsl(var(--muted) / 0.7);
-        }
-
-        .train-border {
-            position: relative;
-            border-radius: 1.5rem;
-            --bw: 2px;
-            --speed: 3s;
-        }
-
-        .train-border::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            border-radius: inherit;
-            padding: var(--bw);
-            background: conic-gradient(from var(--angle, 0deg),
-            transparent 0deg, transparent 200deg,
-            hsl(var(--primary) / 0.45) 270deg, #3b82f6 318deg,
-            #93c5fd 340deg, #ffffff 351deg, #93c5fd 360deg);
-            -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            animation: rotate-border var(--speed) linear infinite;
-            pointer-events: none;
-            z-index: 3;
-        }
-
-        .train-border > * {
-            position: relative;
-            z-index: 1;
-        }
-
-        @property --angle {
-            syntax: '<angle>';
-            initial-value: 0deg;
-            inherits: false;
-        }
-
-        @keyframes rotate-border {
-            to {
-                --angle: 360deg;
+    @push('link')
+        <style>
+            .grid-figma {
+                background-image: linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px),
+                linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px),
+                linear-gradient(to right, hsl(var(--border) / 0.2) 1px, transparent 1px),
+                linear-gradient(to bottom, hsl(var(--border) / 0.2) 1px, transparent 1px);
+                background-size: 80px 80px, 80px 80px, 16px 16px, 16px 16px;
+                -webkit-mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, #000 30%, transparent 90%);
+                mask-image: radial-gradient(ellipse 100% 80% at 50% 30%, #000 30%, transparent 90%);
             }
-        }
 
-        @supports not (background: conic-gradient(from 0deg, red, blue)) {
+            .glass-card {
+                background: hsl(var(--background) / 0.6);
+                backdrop-filter: blur(18px) saturate(140%);
+                -webkit-backdrop-filter: blur(18px) saturate(140%);
+                border: 1px solid hsl(var(--border) / 0.6);
+            }
+
+            .glass-input {
+                background: hsl(var(--secondary) / 0.6);
+                border: 1px solid hsl(var(--border));
+                transition: all 0.2s ease;
+                color: hsl(var(--foreground));
+            }
+
+            .glass-input:focus {
+                background: hsl(var(--secondary));
+                border-color: hsl(var(--primary));
+                box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15);
+                outline: none;
+            }
+
+            .glass-input::placeholder {
+                color: hsl(var(--muted) / 0.7);
+            }
+
+            .train-border {
+                position: relative;
+                border-radius: 1.5rem;
+                --bw: 2px;
+                --speed: 3s;
+            }
+
             .train-border::before {
-                display: none;
+                content: '';
+                position: absolute;
+                inset: 0;
+                border-radius: inherit;
+                padding: var(--bw);
+                background: conic-gradient(from var(--angle, 0deg),
+                transparent 0deg, transparent 200deg,
+                hsl(var(--primary) / 0.45) 270deg, #3b82f6 318deg,
+                #93c5fd 340deg, #ffffff 351deg, #93c5fd 360deg);
+                -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+                -webkit-mask-composite: xor;
+                mask-composite: exclude;
+                animation: rotate-border var(--speed) linear infinite;
+                pointer-events: none;
+                z-index: 3;
             }
-        }
 
-        .btn-press {
-            position: relative;
-            transform: translateY(0);
-            box-shadow: 0 4px 0 0 hsl(var(--primary) / 0.4), 0 6px 12px hsl(var(--primary) / 0.25);
-            transition: transform 0.08s ease, box-shadow 0.08s ease;
-            background: hsl(var(--primary));
-            color: white;
-            user-select: none;
-        }
-
-        .btn-press:hover:not(:disabled) {
-            transform: translateY(-1px);
-            box-shadow: 0 5px 0 0 hsl(var(--primary) / 0.4), 0 8px 16px hsl(var(--primary) / 0.35);
-        }
-
-        .btn-press:active:not(:disabled) {
-            transform: translateY(3px);
-            box-shadow: 0 1px 0 0 hsl(var(--primary) / 0.4), 0 2px 4px hsl(var(--primary) / 0.2);
-        }
-
-        .btn-press:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
-        @keyframes float-orb {
-            0%, 100% {
-                transform: translate(0, 0);
+            .train-border > * {
+                position: relative;
+                z-index: 1;
             }
-            50% {
-                transform: translate(20px, -25px);
+
+            @property --angle {
+                syntax: '<angle>';
+                initial-value: 0deg;
+                inherits: false;
             }
-        }
 
-        .float-orb {
-            animation: float-orb 9s ease-in-out infinite;
-        }
-
-        .password-wrapper {
-            position: relative;
-        }
-
-        .password-wrapper input {
-            padding-left: 2.5rem;
-        }
-
-        .eye-btn {
-            position: absolute;
-            left: 0.625rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: hsl(var(--muted));
-            background: none;
-            border: none;
-            padding: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-            transition: color 0.15s ease;
-        }
-
-        .eye-btn:hover {
-            color: hsl(var(--foreground));
-        }
-
-        .countdown-circle {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: hsl(var(--secondary) / 0.6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            font-size: 16px;
-            color: hsl(var(--primary));
-            border: 2px solid hsl(var(--primary) / 0.4);
-            font-variant-numeric: tabular-nums;
-        }
-
-        @keyframes shake {
-            0%, 100% {
-                transform: translateX(0);
+            @keyframes rotate-border {
+                to {
+                    --angle: 360deg;
+                }
             }
-            25% {
-                transform: translateX(-5px);
+
+            @supports not (background: conic-gradient(from 0deg, red, blue)) {
+                .train-border::before {
+                    display: none;
+                }
             }
-            75% {
-                transform: translateX(5px);
+
+            .btn-press {
+                position: relative;
+                transform: translateY(0);
+                box-shadow: 0 4px 0 0 hsl(var(--primary) / 0.4), 0 6px 12px hsl(var(--primary) / 0.25);
+                transition: transform 0.08s ease, box-shadow 0.08s ease;
+                background: hsl(var(--primary));
+                color: white;
+                user-select: none;
             }
-        }
 
-        .shake {
-            animation: shake 0.4s ease;
-        }
-
-        /* Stepper dots */
-        .step-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 999px;
-            background: hsl(var(--border));
-            transition: all 0.3s ease;
-        }
-
-        .step-dot.active {
-            width: 28px;
-            background: hsl(var(--primary));
-        }
-
-        .step-dot.completed {
-            background: hsl(var(--primary) / 0.5);
-        }
-
-        @keyframes pop-in {
-            0% {
-                transform: scale(0.6);
-                opacity: 0;
+            .btn-press:hover:not(:disabled) {
+                transform: translateY(-1px);
+                box-shadow: 0 5px 0 0 hsl(var(--primary) / 0.4), 0 8px 16px hsl(var(--primary) / 0.35);
             }
-            60% {
-                transform: scale(1.08);
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
 
-        .anim-pop {
-            animation: pop-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation: none !important;
-                transition: none !important;
+            .btn-press:active:not(:disabled) {
+                transform: translateY(3px);
+                box-shadow: 0 1px 0 0 hsl(var(--primary) / 0.4), 0 2px 4px hsl(var(--primary) / 0.2);
             }
-        }
-    </style>
-    @endassets
+
+            .btn-press:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+
+            @keyframes float-orb {
+                0%, 100% {
+                    transform: translate(0, 0);
+                }
+                50% {
+                    transform: translate(20px, -25px);
+                }
+            }
+
+            .float-orb {
+                animation: float-orb 9s ease-in-out infinite;
+            }
+
+            .password-wrapper {
+                position: relative;
+            }
+
+            .password-wrapper input {
+                padding-left: 2.5rem;
+            }
+
+            .eye-btn {
+                position: absolute;
+                left: 0.625rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: hsl(var(--muted));
+                background: none;
+                border: none;
+                padding: 4px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
+                transition: color 0.15s ease;
+            }
+
+            .eye-btn:hover {
+                color: hsl(var(--foreground));
+            }
+
+            .countdown-circle {
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                background: hsl(var(--secondary) / 0.6);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 900;
+                font-size: 16px;
+                color: hsl(var(--primary));
+                border: 2px solid hsl(var(--primary) / 0.4);
+                font-variant-numeric: tabular-nums;
+            }
+
+            @keyframes shake {
+                0%, 100% {
+                    transform: translateX(0);
+                }
+                25% {
+                    transform: translateX(-5px);
+                }
+                75% {
+                    transform: translateX(5px);
+                }
+            }
+
+            .shake {
+                animation: shake 0.4s ease;
+            }
+
+            /* Stepper dots */
+            .step-dot {
+                width: 8px;
+                height: 8px;
+                border-radius: 999px;
+                background: hsl(var(--border));
+                transition: all 0.3s ease;
+            }
+
+            .step-dot.active {
+                width: 28px;
+                background: hsl(var(--primary));
+            }
+
+            .step-dot.completed {
+                background: hsl(var(--primary) / 0.5);
+            }
+
+            @keyframes pop-in {
+                0% {
+                    transform: scale(0.6);
+                    opacity: 0;
+                }
+                60% {
+                    transform: scale(1.08);
+                }
+                100% {
+                    transform: scale(1);
+                    opacity: 1;
+                }
+            }
+
+            .anim-pop {
+                animation: pop-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                * {
+                    animation: none !important;
+                    transition: none !important;
+                }
+            }
+        </style>
+    @endpush
     <div class="absolute inset-0 grid-figma pointer-events-none"></div>
     <div
         class="absolute top-20 -right-20 w-72 h-72 bg-primary/15 rounded-full blur-3xl float-orb pointer-events-none"></div>
@@ -246,11 +248,13 @@
                 {{-- Step indicator --}}
                 @if($step < 4)
                     <div class="flex items-center gap-2 mt-4">
+                        <span class="text-xs text-muted font-mono mr-1">{{ $step }}/3</span>
+                        <br>
                         @for($i = 1; $i <= 3; $i++)
                             <span
                                 class="step-dot {{ $step === $i ? 'active' : ($step > $i ? 'completed' : '') }}"></span>
                         @endfor
-                        <span class="text-xs text-muted font-mono mr-1">{{ $step }}/3</span>
+
                     </div>
                 @endif
             </div>
@@ -554,36 +558,37 @@
             </div>
         </div>
     </div>
-    @script
-    <script>
-        function forgotPasswordForm() {
-            return {
-                showPassword: false,
-                showPasswordConfirmation: false,
-                countdown: 0,
-                timer: null,
 
-                init() {
-                    Livewire.on('start-countdown', () => {
-                        this.startCountdown(90);
-                    });
-                },
+    @push('script')
+            <script>
+                function forgotPasswordForm() {
+                    return {
+                        showPassword: false,
+                        showPasswordConfirmation: false,
+                        countdown: 0,
+                        timer: null,
 
-                startCountdown(seconds) {
-                    if (this.timer) clearInterval(this.timer);
-                    this.countdown = seconds;
-                    this.timer = setInterval(() => {
-                        if (this.countdown > 0) {
-                            this.countdown--;
-                        } else {
-                            clearInterval(this.timer);
-                            @this.
-                            call('countdownFinished');
+                        init() {
+                            Livewire.on('start-countdown', () => {
+                                this.startCountdown(90);
+                            });
+                        },
+
+                        startCountdown(seconds) {
+                            if (this.timer) clearInterval(this.timer);
+                            this.countdown = seconds;
+                            this.timer = setInterval(() => {
+                                if (this.countdown > 0) {
+                                    this.countdown--;
+                                } else {
+                                    clearInterval(this.timer);
+                                    @this.
+                                    call('countdownFinished');
+                                }
+                            }, 1000);
                         }
-                    }, 1000);
+                    }
                 }
-            }
-        }
-    </script>
-    @endscript
+            </script>
+    @endpush
 </div>

@@ -17,10 +17,16 @@ class ContactDocumentation extends Model
         'contact_status',
         'contact_date',
         'respondent',
+        'connected',
+        'talk_duration_seconds',
+        'answered_at',
+        'fail_reason',
     ];
 
     protected $casts = [
         'contact_date' => 'date',
+        'connected'    => 'boolean',
+        'answered_at'  => 'datetime',
     ];
 
     const CONTACT_STATUS = [
@@ -29,11 +35,35 @@ class ContactDocumentation extends Model
     ];
 
     const RESPONDENT = [
-        'father'  => 'پدر',
-        'mother'  => 'مادر',
-        'student' => 'دانش‌آموز',
-        'other'   => 'سایر',
+        'father'         => 'پدر',
+        'mother'         => 'مادر',
+        'student'        => 'دانش‌آموز',
+        'student_father' => 'دانش‌آموز + پدر',
+        'student_mother' => 'دانش‌آموز + مادر',
+        'other'          => 'سایر',
     ];
+
+    /** علتِ عدم‌پاسخ (هم‌راستا با PhoneCall). */
+    const FAIL_LABELS = [
+        'no_answer' => 'عدم پاسخ',
+        'off'       => 'خاموش',
+        'rejected'  => 'رد تماس',
+        'wrong'     => 'شماره اشتباه',
+    ];
+
+    public function getRespondentLabelAttribute(): string
+    {
+        return self::RESPONDENT[$this->respondent] ?? $this->respondent;
+    }
+
+    public function getTalkDurationLabelAttribute(): string
+    {
+        $s = (int) $this->talk_duration_seconds;
+        if ($s <= 0) {
+            return '—';
+        }
+        return sprintf('%02d:%02d', intdiv($s, 60), $s % 60);
+    }
 
     public function admin()
     {

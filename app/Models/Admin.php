@@ -44,6 +44,55 @@ class Admin extends Authenticatable
     }
 
     /**
+     * مکالمه‌های مستقیمی که این ادمین به‌عنوان مشاور در آن‌ها حضور دارد.
+     */
+    public function advisedConversations()
+    {
+        return $this->hasMany(Conversation::class, 'advisor_id');
+    }
+
+    /**
+     * انتخاب‌هایی که دانش‌آموزان این مشاور را به‌عنوان مشاورِ خود برگزیده‌اند.
+     */
+    public function advisorSelections()
+    {
+        return $this->hasMany(AdvisorSelection::class, 'advisor_id');
+    }
+
+    /**
+     * ظرفیتِ مؤثرِ پذیرشِ دانش‌آموز: ظرفیتِ اختصاصی در صورت وجود، وگرنه مقدارِ سراسری.
+     */
+    public function effectiveCapacity(): int
+    {
+        if ($this->student_capacity !== null) {
+            return (int) $this->student_capacity;
+        }
+
+        return (int) (GeneralSetting::query()->value('advisor_default_capacity') ?? 50);
+    }
+
+    /**
+     * آیا ظرفیتِ مشاور تکمیل است؟ (تعدادِ دانش‌آموزانِ تاییدشده ≥ ظرفیت)
+     * در صورت بارگذاریِ withCount('advisedStudents') از همان مقدار استفاده می‌شود.
+     */
+    public function isAtCapacity(): bool
+    {
+        $count = $this->advised_students_count ?? $this->advisedStudents()->count();
+
+        return $count >= $this->effectiveCapacity();
+    }
+
+    /**
+     * نشانیِ عکسِ مشاور (در public_html/adminsFile/{id}/...) یا null.
+     */
+    public function getPictureUrlAttribute(): ?string
+    {
+        return $this->picture
+            ? asset("adminsFile/{$this->id}/{$this->picture}")
+            : null;
+    }
+
+    /**
      * هفته‌های آزمایشی که این ادمین به عنوان «پشتیبان جذب» به آن‌ها اختصاص داده شده است.
      */
     public function acquisitionTrialWeeks()

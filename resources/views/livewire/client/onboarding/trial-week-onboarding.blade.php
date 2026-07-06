@@ -1,8 +1,12 @@
 <div>
 
     @assets
+        <link rel="stylesheet" href="/client/assets/css/jalalidatepicker.min.css">
+        <script src="/client/assets/js/jalalidatepicker.min.js" defer></script>
         <style>
             [x-cloak] { display: none !important; }
+            input[data-jdp] { direction: ltr; text-align: center; letter-spacing: 0.04em; }
+            .jdp-container { font-family: inherit !important; z-index: 70 !important; }
 
             /* ============ (B1) جنسیت + آواتار ============ */
             .gender-opt { display: flex; flex-direction: column; align-items: center; gap: .55rem; padding: .9rem .75rem;
@@ -87,6 +91,14 @@
                 transition: transform 0.08s ease, box-shadow 0.08s ease;
                 background: hsl(var(--primary)); color: white; user-select: none;
             }
+            @media (max-width: 768px) {
+                .train-border::before {
+                    display: none !important; /* خاموش کردن افکت سنگین در موبایل */
+                }
+                .train-border {
+                    border: 1px solid hsl(var(--border) / 0.5); /* یک حاشیه ساده جایگزین */
+                }
+            }
             .btn-press:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 5px 0 0 hsl(var(--primary) / 0.4), 0 8px 16px hsl(var(--primary) / 0.35); }
             .btn-press:active:not(:disabled), .btn-press.pressed { transform: translateY(3px); box-shadow: 0 1px 0 0 hsl(var(--primary) / 0.4), 0 2px 4px hsl(var(--primary) / 0.2); }
             .btn-press:disabled { opacity: 0.6; cursor: not-allowed; }
@@ -119,7 +131,10 @@
             .shake { animation: shake 0.4s ease; }
 
             @keyframes float-orb { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(20px, -25px); } }
-            .float-orb { animation: float-orb 9s ease-in-out infinite; }
+            .float-orb {
+                animation: float-orb 9s ease-in-out infinite;
+                will-change: transform; /* این خط معجزه می‌کند */
+            }
 
             /* ═══ LOGO — bigger, centered, mobile + desktop ═══ */
             .brand-logo {
@@ -193,6 +208,7 @@
         <div class="absolute bottom-20 -left-20 w-80 h-80 bg-primary/10 rounded-full blur-3xl float-orb pointer-events-none" style="animation-delay: -3s"></div>
 
         {{-- ═══════════════ 🧑‍🚀 مودالِ انتخابِ آواتار (B1) ═══════════════ --}}
+        {{-- ═══════════════ 🧑‍🚀 مودالِ انتخابِ آواتار (B1) ═══════════════ --}}
         <div x-data="{ openAv: false }"
              x-on:open-avatar.window="openAv = true"
              x-show="openAv" x-cloak
@@ -207,12 +223,26 @@
                     </button>
                 </div>
                 <p class="text-xs text-muted mb-5">یکی از آواتارها را برای پروفایلت انتخاب کن.</p>
-                @php $avList = $gender === 'female' ? $girlAvatars : $boyAvatars; @endphp
-                <div class="grid grid-cols-3 gap-4">
-                    @foreach($avList as $a)
+
+                {{-- نمایش آنی آواتارهای پسرانه --}}
+                <div class="grid grid-cols-3 gap-4" x-show="gender === 'male'">
+                    @foreach($boyAvatars as $a)
                         <button type="button"
-                            wire:click="$set('avatar', '{{ $a }}')" @click="openAv = false"
-                            class="avatar-pick avatar-pick--{{ $gender === 'female' ? 'girl' : 'boy' }} @if($avatar === $a) avatar-pick--on @endif">
+                                @click="avatar = '{{ $a }}'; openAv = false"
+                                class="avatar-pick avatar-pick--boy"
+                                :class="avatar === '{{ $a }}' ? 'avatar-pick--on' : ''">
+                            <img src="{{ $a }}" alt="آواتار" loading="lazy">
+                        </button>
+                    @endforeach
+                </div>
+
+                {{-- نمایش آنی آواتارهای دخترانه --}}
+                <div class="grid grid-cols-3 gap-4" x-show="gender === 'female'">
+                    @foreach($girlAvatars as $a)
+                        <button type="button"
+                                @click="avatar = '{{ $a }}'; openAv = false"
+                                class="avatar-pick avatar-pick--girl"
+                                :class="avatar === '{{ $a }}' ? 'avatar-pick--on' : ''">
                             <img src="{{ $a }}" alt="آواتار" loading="lazy">
                         </button>
                     @endforeach
@@ -278,6 +308,15 @@
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">کد ملی</label>
                                             <input wire:model.blur="codeMell" type="tel" maxlength="10" placeholder="۱۰ رقم" inputmode="numeric" dir="ltr" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono tracking-wider @error('codeMell') border-rose-500/60 shake @enderror">
                                             @error('codeMell')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
+                                        </div>
+
+                                        <div class="gap-3">
+                                            <div class="relative">
+                                                <label class="block text-xs font-semibold mb-1.5 text-muted">تاریخ تولد</label>
+                                                <input wire:model.blur="birthDate" type="text" re data-jdp data-jdp-max-date="today" placeholder="۱۳۸۰/۰۱/۰۱" dir="ltr" inputmode="none"
+                                                       autocomplete="off" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm cursor-pointer @error('birthDate') border-rose-500/60 shake @enderror">
+                                                @error('birthDate')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
+                                            </div>
                                         </div>
 
                                         @include('livewire.client.onboarding.partials._gender-avatar')
@@ -381,7 +420,7 @@
                                         <div class="relative" x-data="{ showPw: false }">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">رمز عبور</label>
                                             <div class="password-wrapper">
-                                                <input wire:model.live.debounce.300ms="password" :type="showPw ? 'text' : 'password'" dir="ltr" autocomplete="new-password" class="glass-input w-full rounded-xl px-4 py-3 text-sm @error('password') border-rose-500/60 shake @enderror">
+                                                <input wire:model.live.debounce.300ms="password" :type="showPw ? 'text' : 'password'" dir="rtl" autocomplete="new-password" class="glass-input w-full rounded-xl px-4 py-3 text-sm @error('password') border-rose-500/60 shake @enderror">
                                                 <button type="button" class="eye-btn" @click="showPw = !showPw" tabindex="-1">
                                                     <svg x-show="!showPw" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                                     <svg x-show="showPw" x-cloak class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -393,7 +432,7 @@
                                         <div class="relative" x-data="{ showPwc: false }">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">تکرار رمز</label>
                                             <div class="password-wrapper">
-                                                <input wire:model.blur="passwordConf" :type="showPwc ? 'text' : 'password'" dir="ltr" autocomplete="new-password" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('passwordConf') border-rose-500/60 shake @enderror">
+                                                <input wire:model.blur="passwordConf" :type="showPwc ? 'text' : 'password'" dir="rtl" autocomplete="new-password" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('passwordConf') border-rose-500/60 shake @enderror">
                                                 <button type="button" class="eye-btn" @click="showPwc = !showPwc" tabindex="-1">
                                                     <svg x-show="!showPwc" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                                     <svg x-show="showPwc" x-cloak class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -604,6 +643,14 @@
                                         @error('codeMell')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
                                     </div>
 
+                                    <div class="gap-4">
+                                        <div class="relative">
+                                            <label class="block text-xs font-semibold mb-1.5 text-muted">تاریخ تولد</label>
+                                            <input wire:model.blur="birthDate" type="text" data-jdp data-jdp-max-date="today" placeholder="۱۳۸۰/۰۱/۰۱" dir="ltr" inputmode="none" autocomplete="off" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm cursor-pointer @error('birthDate') border-rose-500/60 shake @enderror">
+                                            @error('birthDate')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
+                                        </div>
+                                    </div>
+
                                     @include('livewire.client.onboarding.partials._gender-avatar')
                                 </fieldset>
 
@@ -680,7 +727,7 @@
                                         <div class="relative" x-data="{ showPw: false }" data-tour="password">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">رمز عبور</label>
                                             <div class="password-wrapper">
-                                                <input wire:model.live.debounce.300ms="password" :type="showPw ? 'text' : 'password'" dir="ltr" autocomplete="new-password" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('password') border-rose-500/60 shake @enderror">
+                                                <input wire:model.live.debounce.300ms="password" :type="showPw ? 'text' : 'password'" dir="rtl" autocomplete="new-password" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('password') border-rose-500/60 shake @enderror">
                                                 <button type="button" class="eye-btn" @click="showPw = !showPw" tabindex="-1">
                                                     <svg x-show="!showPw" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                                     <svg x-show="showPw" x-cloak class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -692,7 +739,7 @@
                                         <div class="relative" x-data="{ showPwc: false }">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">تکرار رمز</label>
                                             <div class="password-wrapper">
-                                                <input wire:model.blur="passwordConf" :type="showPwc ? 'text' : 'password'" dir="ltr" autocomplete="new-password" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('passwordConf') border-rose-500/60 shake @enderror">
+                                                <input wire:model.blur="passwordConf" :type="showPwc ? 'text' : 'password'" dir="rtl" autocomplete="new-password" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm @error('passwordConf') border-rose-500/60 shake @enderror">
                                                 <button type="button" class="eye-btn" @click="showPwc = !showPwc" tabindex="-1">
                                                     <svg x-show="!showPwc" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                                                     <svg x-show="showPwc" x-cloak class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -737,8 +784,14 @@
                 livewireHookHandle: null,
                 boundNavigated: null,
 
+                // 🟢 این دو خط را برای اتصال آنی لایو‌وایر و آلپاین اضافه کن:
+                gender: @entangle('gender'),
+                avatar: @entangle('avatar'),
+
                 init() {
                     this.busy = false;
+
+                    this.initDatePicker();
 
                     this.startCountdownIfNeeded();
 
@@ -770,6 +823,26 @@
                     if (this.countdownTimer) clearInterval(this.countdownTimer);
                     if (this.busyWatchdog) clearTimeout(this.busyWatchdog);
                     if (this.boundNavigated) document.removeEventListener('livewire:navigated', this.boundNavigated);
+                },
+
+                initDatePicker() {
+                    const start = () => {
+                        if (typeof jalaliDatepicker !== 'undefined') {
+                            try {
+                                jalaliDatepicker.startWatch({
+                                    persianDigits: true,
+                                    showTodayBtn: false,
+                                    showEmptyBtn: true,
+                                    time: false,
+                                    autoHide: true,
+                                    zIndex: 100,
+                                });
+                            } catch (e) { console.warn('[jdp] init failed', e); }
+                        } else {
+                            setTimeout(start, 200);
+                        }
+                    };
+                    start();
                 },
 
                 clearBusy() {

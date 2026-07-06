@@ -2,270 +2,454 @@
 
 namespace App\Livewire\Admin\Student\Consultation;
 
-use App\Models\Student;
-use App\Models\AdvisingSession;
+use App\Models\AdminWorkSchedule;
 use App\Models\AdvisingPreSession;
+use App\Models\AdvisingSession;
+use App\Models\ContactDocumentation;
+use App\Models\Student;
 use App\Services\NotificationService;
 use Artesaos\SEOTools\Traits\SEOTools;
-
-use Livewire\Component;
-use Livewire\WithPagination;
 use Carbon\Carbon;
+use Livewire\Component;
 use Morilog\Jalali\Jalalian;
+
+/**
+ * صفحه‌ی جلساتِ مشاور (b) — جریانِ «یک روز قبل».
+ *
+ * هفت باکسِ روزِ هفته نمایش داده می‌شود؛ هر دانش‌آموز در باکسِ روزِ ثابتِ هفتگی‌اش
+ * (session_day) قرار می‌گیرد. فقط باکسِ «فردا» قابلِ عملیات است: مشاور با هر دانش‌آموز
+ * تماس می‌گیرد (با تایمر و ثبتِ نتیجه در مستنداتِ تماس)، سپس ساعت/دقیقه/لینکِ جلسه را
+ * تعیین و «ذخیره» می‌کند. وقتی همه‌ی دانش‌آموزانِ فردا ساعت‌دار شدند، «ثبت نهایی» جلسات
+ * را قطعی کرده، پیش‌جلسه می‌سازد و به دانش‌آموزان اطلاع می‌دهد.
+ */
 class Index extends Component
 {
-
-    use WithPagination, SEOTools;
+    use SEOTools;
 
     public $search = '';
 
-    // Modal 1: Student Selection
-    public $showStudentSelectModal = false;
-    public $studentSearch = '';
-    public $selectedStudents = [];
+    // ── مودالِ تماس ──────────────────────────────────────────────
+    public ?int $activeStudentId = null;
+    /** select | ringing | talking | answerForm | noAnswerForm */
+    public string $callPhase = 'select';
+    public string $respondent = 'student';
+    public ?int $talkSeconds = null;
+    public string $callSummary = '';
+    public string $failReason = 'no_answer';
 
-    // Modal 2: Schedule Configuration (per-student)
-    public $showScheduleModal = false;
+    // ── ورودی‌های زمان‌بندیِ هر دانش‌آموز (کلید: studentId) ──────────
+    public array $schedule = [];
 
-    public $studentSchedules = []; // keyed by student ID
+    // ── تعیینِ روزِ جلسه‌ی جبرانیِ مرخصی (کلید: sessionId) ──────────
+    public array $makeupDay = [];
 
-    public function mount()
+    public function mount(): void
     {
-        // دریافت پارامتر course_id از URL
-        $this->seoConfig();
+        $this->seo()->setTitle('جلسات مشاوره');
     }
 
-    public function seoConfig()
+    protected function adminId()
     {
-        $this->seo()->setTitle('اتاق مشاوره');
+        return auth('admin')->id();
     }
 
-    // ==================== Modal 1: Student Selection ====================
-
-    public function openStudentSelectModal()
+    protected function tomorrow(): Carbon
     {
-        $this->selectedStudents = [];
-        $this->studentSearch    = '';
-        $this->showStudentSelectModal = true;
+        return Carbon::tomorrow();
     }
 
-    public function closeStudentSelectModal()
+    /** روزِ هفته‌ی فردا به تقویم ایرانی (۰=شنبه .. ۶=جمعه). */
+    protected function tomorrowDow(): int
     {
-        $this->showStudentSelectModal = false;
-        $this->selectedStudents = [];
+        return ($this->tomorrow()->dayOfWeek + 1) % 7;
     }
 
-    public function toggleStudentSelection($studentId)
+    protected function tomorrowTitle(): string
     {
-        $studentId = (int) $studentId;
-        if (in_array($studentId, $this->selectedStudents)) {
-            $this->selectedStudents = array_values(array_diff($this->selectedStudents, [$studentId]));
-            // Remove their schedule entry too
-            unset($this->studentSchedules[$studentId]);
-        } else {
-            $this->selectedStudents[] = $studentId;
-            // Initialize schedule entry with defaults
-            $this->studentSchedules[$studentId] = [
-                'day'           => (string) $this->selectedDay,
-                'hour'          => '08',
-                'minute'        => '00',
-                'location_type' => 'online',
-                'skyroom_link'  => '',
-            ];
+        return Jalalian::fromCarbon($this->tomorrow())->format('Y/m/d');
+    }
+
+    /** نخستین تاریخِ پس از $afterDate که روزِ هفته‌ی ایرانی‌اش $persianDay باشد. */
+    protected function nextDateForPersianDay(int $persianDay, Carbon $afterDate): Carbon
+    {
+        $d = $afterDate->copy()->addDay();
+        for ($i = 0; $i < 7; $i++) {
+            if ((($d->dayOfWeek + 1) % 7) === $persianDay) {
+                return $d;
+            }
+            $d->addDay();
         }
+        return $d;
     }
 
-    public function proceedToSchedule()
+    /**
+     * دانش‌آموزانِ فردا: روزِ ثابتِ هفتگی‌شان فردا است یا جلسه‌ی جبرانیِ نهایی‌نشده‌ای برای فردا دارند.
+     */
+    protected function tomorrowStudents()
     {
-        if (empty($this->selectedStudents)) {
-            $this->dispatch('warning', 'لطفاً حداقل یک دانش‌آموز انتخاب کنید.');
+        $adminId  = $this->adminId();
+        $tomorrow = $this->tomorrow()->toDateString();
+        $dow      = $this->tomorrowDow();
+
+        $query = Student::where('advisor_id', $adminId)
+            ->where(function ($q) use ($dow, $tomorrow, $adminId) {
+                $q->where('session_day', $dow)
+                    ->orWhereHas('advisingSessions', function ($s) use ($tomorrow, $adminId) {
+                        $s->where('advisor_id', $adminId)
+                            ->where('is_makeup', true)
+                            ->where('finalized', false)
+                            ->whereDate('activation_date', $tomorrow);
+                    });
+            })
+            ->with(['user.personalInformation', 'user.profile']);
+
+        if ($this->search) {
+            $query->whereHas('user.personalInformation', function ($q) {
+                $q->where('name', 'like', "%{$this->search}%")
+                    ->orWhere('name_full', 'like', "%{$this->search}%");
+            });
+        }
+
+        return $query->get();
+    }
+
+    /** تعیینِ روزِ یک جلسه‌ی جبرانیِ بدونِ تاریخ (ناشی از مرخصیِ مشاور). */
+    public function assignMakeupDay(int $sessionId): void
+    {
+        $session = AdvisingSession::where('advisor_id', $this->adminId())
+            ->where('is_makeup', true)
+            ->whereNull('activation_date')
+            ->find($sessionId);
+
+        if (! $session) {
+            $this->dispatch('warning', 'جلسه‌ی جبرانی یافت نشد.');
             return;
         }
 
-
-        $this->showStudentSelectModal = false;
-        $this->showScheduleModal      = true;
-    }
-
-    // ==================== Modal 2: Schedule Config ====================
-
-    public function closeScheduleModal()
-    {
-        $this->showScheduleModal = false;
-    }
-
-    public function backToStudentSelect()
-    {
-        $this->showScheduleModal = false;
-        $this->showStudentSelectModal = true;
-    }
-
-    public function createAutoSessions()
-    {
-        // Build per-student validation rules
-        $rules    = [];
-        $messages = [];
-        foreach ($this->selectedStudents as $studentId) {
-            $student = Student::with('user.personalInformation')->find($studentId);
-            $name = $student?->user?->personalInformation?->name ?? "دانش‌آموز {$studentId}";
-            $rules["studentSchedules.{$studentId}.day"]           = 'required|in:0,1,2,3,4,5,6';
-            $rules["studentSchedules.{$studentId}.hour"]          = 'required|integer|min:0|max:23';
-            $rules["studentSchedules.{$studentId}.minute"]        = 'required|integer|min:0|max:59';
-            $rules["studentSchedules.{$studentId}.location_type"] = 'required|in:in_person,online';
-
-            $schedule = $this->studentSchedules[$studentId] ?? [];
-            if (($schedule['location_type'] ?? 'online') === 'online') {
-                $rules["studentSchedules.{$studentId}.skyroom_link"] = 'required|url';
-                $messages["studentSchedules.{$studentId}.skyroom_link.required"] = "لینک جلسه آنلاین برای {$name} الزامی است.";
-                $messages["studentSchedules.{$studentId}.skyroom_link.url"]      = "لینک وارد شده برای {$name} معتبر نیست.";
-            }
-            $messages["studentSchedules.{$studentId}.day.required"]          = "روز جلسه برای {$name} الزامی است.";
-            $messages["studentSchedules.{$studentId}.day.in"]                = "روز انتخابی برای {$name} معتبر نیست.";
-            $messages["studentSchedules.{$studentId}.hour.required"]         = "ساعت جلسه برای {$name} الزامی است.";
-            $messages["studentSchedules.{$studentId}.hour.min"]              = "ساعت باید بین ۰ تا ۲۳ باشد ({$name}).";
-            $messages["studentSchedules.{$studentId}.hour.max"]              = "ساعت باید بین ۰ تا ۲۳ باشد ({$name}).";
-            $messages["studentSchedules.{$studentId}.hour.integer"]          = "ساعت وارد شده برای {$name} نامعتبر است.";
-            $messages["studentSchedules.{$studentId}.minute.required"]       = "دقیقه جلسه برای {$name} الزامی است.";
-            $messages["studentSchedules.{$studentId}.minute.min"]            = "دقیقه باید بین ۰ تا ۵۹ باشد ({$name}).";
-            $messages["studentSchedules.{$studentId}.minute.max"]            = "دقیقه باید بین ۰ تا ۵۹ باشد ({$name}).";
-            $messages["studentSchedules.{$studentId}.minute.integer"]        = "دقیقه وارد شده برای {$name} نامعتبر است.";
-            $messages["studentSchedules.{$studentId}.location_type.required"] = "محل برگزاری جلسه برای {$name} الزامی است.";
-            $messages["studentSchedules.{$studentId}.location_type.in"]       = "محل برگزاری جلسه برای {$name} نامعتبر است.";
-        }
-        $this->validate($rules, $messages);
-
-        $adminId      = auth()->id();
-        $today        = Carbon::today();
-        $totalCreated = 0;
-        $studentCount = count($this->selectedStudents);
-
-        foreach ($this->selectedStudents as $studentId) {
-            $student = Student::with('user.personalInformation')->find($studentId);
-            if (!$student) continue;
-
-            $schedule     = $this->studentSchedules[$studentId];
-            $targetDay    = (int) $schedule['day'];
-            $sessionTime  = sprintf('%02d:%02d', (int)$schedule['hour'], (int)$schedule['minute']);
-            $locationType = $schedule['location_type'];
-            $skyroomLink  = $locationType === 'online' ? $schedule['skyroom_link'] : null;
-
-            $daysUntilTarget = ($targetDay - $today->dayOfWeek + 7) % 7;
-            $firstDate       = $today->copy()->addDays($daysUntilTarget);
-
-            for ($i = 0; $i < 4; $i++) {
-                $sessionDate = $firstDate->copy()->addWeeks($i);
-                $jalali      = Jalalian::fromCarbon($sessionDate);
-
-                $yearShort = substr((string) $jalali->getYear(), -2);
-                $month     = str_pad((string) $jalali->getMonth(), 2, '0', STR_PAD_LEFT);
-                $day       = str_pad((string) $jalali->getDay(), 2, '0', STR_PAD_LEFT);
-                $title     = $yearShort . $month . $day;
-
-                $session = AdvisingSession::create([
-                    'student_id'      => $student->id,
-                    'advisor_id'      => $adminId,
-                    'title'           => $title,
-                    'description'     => 'جلسه مشاوره فردی',
-                    'activation_date' => $sessionDate->format('Y-m-d'),
-                    'session_time'    => $sessionTime,
-                    'location_type'   => $locationType,
-                    'skyroom_link'    => $skyroomLink,
-                    'status'          => 'inactive',
-                    'is_active'       => false,
-                ]);
-
-                AdvisingPreSession::create([
-                    'advising_session_id' => $session->id,
-                    'student_id'          => $student->id,
-                    'title'               => $title,
-                    'status'              => 'pending',
-                ]);
-
-                $totalCreated++;
-            }
-
-            $this->sendAutoSessionNotification($student, $firstDate, $sessionTime);
+        $day = $this->makeupDay[$sessionId] ?? null;
+        if ($day === null || $day === '' || (int) $day < 0 || (int) $day > 6) {
+            $this->dispatch('warning', 'روزِ جلسه‌ی جبرانی را انتخاب کنید.');
+            return;
         }
 
-        $this->showScheduleModal = false;
-        $this->selectedStudents  = [];
-        $this->studentSchedules  = [];
-        $this->dispatch('success', "{$totalCreated} جلسه برای {$studentCount} دانش‌آموز با موفقیت ثبت شد.");
+        $date = $this->nextDateForPersianDay((int) $day, Carbon::today());
+        $session->update([
+            'activation_date' => $date->toDateString(),
+            'title'           => Jalalian::fromCarbon($date)->format('Y/m/d'),
+        ]);
+
+        unset($this->makeupDay[$sessionId]);
+        $this->dispatch('success', 'روزِ جلسه‌ی جبرانی تعیین شد. یک روز قبل با دانش‌آموز تماس بگیرید و ساعت را ثبت کنید.');
     }
 
-    protected function sendAutoSessionNotification(Student $student, Carbon $firstDate, string $sessionTime): void
+    // ==================== مودالِ تماس ====================
+
+    public function openCall(int $studentId): void
     {
-        if (!$student->user) return;
+        $this->resetCall();
+        $this->activeStudentId = $studentId;
+        $this->callPhase = 'select';
+    }
 
-        $name = $student->user->personalInformation->name ?? 'دانش آموز';
-        $lastName = $student->user->personalInformation->name_full ?? '';
-        $studentName = trim($name . ' ' . $lastName);
+    public function closeCall(): void
+    {
+        $this->resetCall();
+    }
 
-        $jalaliDate = Jalalian::fromCarbon($firstDate)->format('Y/m/d');
+    protected function resetCall(): void
+    {
+        $this->activeStudentId = null;
+        $this->callPhase   = 'select';
+        $this->respondent  = 'student';
+        $this->talkSeconds = null;
+        $this->callSummary = '';
+        $this->failReason  = 'no_answer';
+        $this->resetErrorBag();
+    }
 
-        $message = "{$studentName} عزیز\n۴ جلسه مشاوره فردی از تاریخ {$jalaliDate} در ساعت {$sessionTime} برای شما ثبت شد.\nبرای مشاهده به اتاق مشاوره مراجعه کنید.\nبا تشکر";
+    public function startRinging(): void
+    {
+        if (! in_array($this->respondent, array_keys(ContactDocumentation::RESPONDENT), true)) {
+            $this->dispatch('warning', 'ابتدا شخصِ پاسخگو را انتخاب کنید.');
+            return;
+        }
+        $this->callPhase = 'ringing';
+    }
 
-        NotificationService::sendToStudent($student->id, 'جلسات مشاوره جدید', $message);
+    public function markAnswered(): void
+    {
+        $this->callPhase = 'talking';
+    }
+
+    /** عدم‌پاسخِ خودکار پس از ۲۵ ثانیه. */
+    public function autoNoAnswer(): void
+    {
+        $this->failReason = ContactDocumentation::FAIL_NO_ANSWER ?? 'no_answer';
+        $this->recordCall(false);
+        $this->dispatch('warning', 'عدم پاسخ ثبت شد. می‌توانید دوباره تماس بگیرید.');
+        $this->closeCall();
+    }
+
+    /** عدم‌پاسخِ دستی — برای انتخابِ علت به فرم می‌رویم. */
+    public function markNoAnswer(): void
+    {
+        $this->callPhase = 'noAnswerForm';
+    }
+
+    public function endConversation(int $seconds): void
+    {
+        $this->talkSeconds = max(0, $seconds);
+        $this->callPhase = 'answerForm';
+    }
+
+    /** ثبتِ تماسِ موفق (پاسخ داده شد). */
+    public function saveAnsweredCall(): void
+    {
+        if (! $this->activeStudentId) {
+            return;
+        }
+        $this->recordCall(true);
+        $this->dispatch('success', 'تماس ثبت شد. حالا ساعتِ جلسه را تعیین کنید.');
+        $this->closeCall();
+    }
+
+    /** ثبتِ تماسِ ناموفق با علتِ انتخابی. */
+    public function saveNoAnswer(): void
+    {
+        $this->validate(
+            ['failReason' => 'required|in:no_answer,off,rejected,wrong'],
+            ['failReason.required' => 'علتِ عدم برقراری تماس را انتخاب کنید.']
+        );
+        $this->recordCall(false);
+        $this->dispatch('success', 'عدم پاسخ ثبت شد.');
+        $this->closeCall();
+    }
+
+    protected function recordCall(bool $connected): void
+    {
+        $student = Student::find($this->activeStudentId);
+        if (! $student || $student->advisor_id !== $this->adminId()) {
+            return;
+        }
+
+        ContactDocumentation::create([
+            'admin_id'              => $this->adminId(),
+            'student_id'            => $student->id,
+            'title'                 => 'تماسِ هماهنگیِ جلسه‌ی مشاوره — ' . $this->tomorrowTitle(),
+            'description'           => $this->callSummary ?: null,
+            'contact_status'        => $connected ? 'successful' : 'unsuccessful',
+            'contact_date'          => Carbon::today()->toDateString(),
+            'respondent'            => $this->respondent,
+            'connected'             => $connected,
+            'talk_duration_seconds' => $connected ? $this->talkSeconds : null,
+            'answered_at'           => $connected ? now() : null,
+            'fail_reason'           => $connected ? null : $this->failReason,
+        ]);
+    }
+
+    // ==================== زمان‌بندیِ جلسه ====================
+
+    /** آیا امروز تماسِ موفقی با این دانش‌آموز ثبت شده است؟ */
+    protected function calledSuccessfullyToday(int $studentId): bool
+    {
+        return ContactDocumentation::where('admin_id', $this->adminId())
+            ->where('student_id', $studentId)
+            ->where('connected', true)
+            ->whereDate('contact_date', Carbon::today())
+            ->exists();
+    }
+
+    public function saveSchedule(int $studentId): void
+    {
+        $student = Student::find($studentId);
+        if (! $student || $student->advisor_id !== $this->adminId()) {
+            $this->dispatch('error', 'این دانش‌آموز در فهرستِ شما نیست.');
+            return;
+        }
+
+        $isWeeklyTomorrow = (int) $student->session_day === $this->tomorrowDow();
+        $hasMakeupTomorrow = AdvisingSession::where('advisor_id', $this->adminId())
+            ->where('student_id', $studentId)
+            ->where('is_makeup', true)
+            ->whereDate('activation_date', $this->tomorrow()->toDateString())
+            ->exists();
+
+        if (! $isWeeklyTomorrow && ! $hasMakeupTomorrow) {
+            $this->dispatch('error', 'این دانش‌آموز در فهرستِ فردا نیست.');
+            return;
+        }
+
+        if (! $this->calledSuccessfullyToday($studentId)) {
+            $this->dispatch('warning', 'ابتدا باید با دانش‌آموز تماسِ موفق برقرار شود.');
+            return;
+        }
+
+        $this->validate([
+            "schedule.$studentId.hour"   => 'required|integer|min:0|max:23',
+            "schedule.$studentId.minute" => 'required|integer|min:0|max:59',
+            "schedule.$studentId.link"   => 'required|url',
+        ], [
+            "schedule.$studentId.hour.required"   => 'ساعت را وارد کنید.',
+            "schedule.$studentId.minute.required" => 'دقیقه را وارد کنید.',
+            "schedule.$studentId.link.required"   => 'لینکِ جلسه‌ی آنلاین الزامی است.',
+            "schedule.$studentId.link.url"        => 'لینکِ واردشده معتبر نیست.',
+        ]);
+
+        $data = $this->schedule[$studentId];
+        $time = sprintf('%02d:%02d', (int) $data['hour'], (int) $data['minute']);
+
+        $session = AdvisingSession::firstOrNew([
+            'advisor_id'      => $this->adminId(),
+            'student_id'      => $studentId,
+            'activation_date' => $this->tomorrow()->toDateString(),
+        ]);
+
+        $session->fill([
+            'title'         => $this->tomorrowTitle(),
+            'description'   => 'جلسه مشاوره فردی',
+            'session_time'  => $time,
+            'location_type' => AdvisingSession::LOCATION_ONLINE,
+            'skyroom_link'  => $data['link'],
+            'status'        => AdvisingSession::STATUS_INACTIVE,
+            'is_active'     => false,
+            'finalized'     => false,
+        ])->save();
+
+        $this->dispatch('success', 'ساعتِ جلسه ذخیره شد.');
+    }
+
+    public function finalizeAll(): void
+    {
+        $students = $this->tomorrowStudents();
+
+        if ($students->isEmpty()) {
+            $this->dispatch('warning', 'برای فردا دانش‌آموزی وجود ندارد.');
+            return;
+        }
+
+        $sessions = AdvisingSession::where('advisor_id', $this->adminId())
+            ->whereDate('activation_date', $this->tomorrow()->toDateString())
+            ->get()
+            ->keyBy('student_id');
+
+        // اطمینان از اینکه همه‌ی دانش‌آموزانِ فردا ساعت‌دار شده‌اند
+        foreach ($students as $st) {
+            $s = $sessions->get($st->id);
+            if (! $s || ! $s->session_time) {
+                $this->dispatch('warning', 'ابتدا ساعتِ همه‌ی دانش‌آموزانِ فردا را ثبت کنید.');
+                return;
+            }
+        }
+
+        foreach ($sessions as $session) {
+            $session->update(['finalized' => true]);
+
+            AdvisingPreSession::firstOrCreate(
+                ['advising_session_id' => $session->id],
+                [
+                    'student_id' => $session->student_id,
+                    'title'      => $session->title,
+                    'status'     => 'pending',
+                ]
+            );
+
+            $this->sendSessionNotification($session);
+        }
+
+        $this->dispatch('success', 'جلساتِ فردا ثبتِ نهایی شد و به دانش‌آموزان اطلاع داده شد.');
+    }
+
+    protected function sendSessionNotification(AdvisingSession $session): void
+    {
+        $time = $session->session_time ? $session->session_time->format('H:i') : '';
+        $date = Jalalian::fromCarbon(Carbon::parse($session->activation_date))->format('Y/m/d');
+        NotificationService::sendToStudent(
+            $session->student_id,
+            'جلسه مشاوره',
+            "جلسه‌ی مشاوره‌ی شما برای تاریخ {$date} ساعت {$time} (آنلاین) ثبت شد. لطفاً پیش‌جلسه‌ی خود را تکمیل کنید."
+        );
     }
 
     public function render()
     {
-        $adminId = auth()->id();
+        $adminId    = $this->adminId();
+        $tomorrowDow = $this->tomorrowDow();
+        $tomorrow   = $this->tomorrow();
 
-        // لیست اصلی: همه دانش‌آموزان این مشاور با قابلیت جستجو
         $studentsQuery = Student::query()
-            ->with([
-                'user.profile',
-                'user.personalInformation',
-                'payment.order.user',
-                'advisingSessions' => function ($q) {
-                    $q->orderBy('activation_date');
-                },
-            ])
-            ->where('advisor_id', $adminId);
+            ->where('advisor_id', $adminId)
+            ->with(['user.personalInformation', 'user.profile']);
 
         if ($this->search) {
-            $studentsQuery->where(function ($q) {
-                $q->whereHas('user.personalInformation', function ($q2) {
-                    $q2->where('name', 'like', '%' . $this->search . '%')
-                        ->orWhere('name_full', 'like', '%' . $this->search . '%');
-                })->orWhereHas('user', function ($q2) {
-                    $q2->where('mobile', 'like', '%' . $this->search . '%');
-                })->orWhereHas('user.profile', function ($q2) {
-                    $q2->where('full_name', 'like', '%' . $this->search . '%');
-                });
+            $studentsQuery->whereHas('user.personalInformation', function ($q) {
+                $q->where('name', 'like', "%{$this->search}%")
+                    ->orWhere('name_full', 'like', "%{$this->search}%");
             });
         }
 
         $allStudents = $studentsQuery->get();
+        $grouped     = $allStudents->groupBy('session_day');
 
-        $totalStudentCount = Student::where('advisor_id', $adminId)->count();
+        // وضعیتِ فردا (شاملِ روزِ ثابت + جلساتِ جبرانیِ فردا)
+        $tomorrowStudents = $this->tomorrowStudents();
 
-        // دانش‌آموزان مودال: فقط آنهایی که هیچ جلسه‌ای ندارند
-        $modalStudentsQuery = Student::query()
-            ->with(['user.personalInformation', 'user.profile'])
-            ->where('advisor_id', $adminId)
-            ->whereDoesntHave('advisingSessions');
+        $tomorrowSessions = AdvisingSession::where('advisor_id', $adminId)
+            ->whereDate('activation_date', $tomorrow->toDateString())
+            ->get()
+            ->keyBy('student_id');
 
-        if ($this->studentSearch) {
-            $modalStudentsQuery->where(function ($q) {
-                $q->whereHas('user.personalInformation', function ($q2) {
-                    $q2->where('name', 'like', '%' . $this->studentSearch . '%')
-                        ->orWhere('name_full', 'like', '%' . $this->studentSearch . '%');
-                })->orWhereHas('user', function ($q2) {
-                    $q2->where('mobile', 'like', '%' . $this->studentSearch . '%');
-                })->orWhereHas('user.profile', function ($q2) {
-                    $q2->where('full_name', 'like', '%' . $this->studentSearch . '%');
-                });
-            });
+        $calledIds = ContactDocumentation::where('admin_id', $adminId)
+            ->where('connected', true)
+            ->whereDate('contact_date', Carbon::today())
+            ->pluck('student_id')
+            ->unique()
+            ->flip();
+
+        // مقداردهی اولیه‌ی ورودی‌های زمان از جلساتِ ذخیره‌شده‌ی فردا
+        foreach ($tomorrowStudents as $st) {
+            if (! isset($this->schedule[$st->id])) {
+                $sess = $tomorrowSessions->get($st->id);
+                $this->schedule[$st->id] = [
+                    'hour'   => $sess && $sess->session_time ? (int) $sess->session_time->format('H') : '',
+                    'minute' => $sess && $sess->session_time ? (int) $sess->session_time->format('i') : '',
+                    'link'   => $sess->skyroom_link ?? '',
+                ];
+            }
         }
 
-        $modalStudents = $modalStudentsQuery->get();
+        // آیا «ثبت نهایی» قابلِ نمایش است؟ (همه ساعت‌دار + حداقل یکی نهایی‌نشده)
+        $allSaved = $tomorrowStudents->isNotEmpty()
+            && $tomorrowStudents->every(function ($st) use ($tomorrowSessions) {
+                $s = $tomorrowSessions->get($st->id);
+                return $s && $s->session_time;
+            });
+        $anyUnfinalized = $tomorrowSessions->contains(fn ($s) => ! $s->finalized && $s->session_time);
+        $canFinalize = $allSaved && $anyUnfinalized;
+
+        // جلساتِ جبرانیِ بدونِ تاریخ (ناشی از مرخصیِ تاییدشده) که منتظرِ تعیینِ روز هستند
+        $pendingMakeups = AdvisingSession::where('advisor_id', $adminId)
+            ->where('is_makeup', true)
+            ->whereNull('activation_date')
+            ->with('student.user.personalInformation')
+            ->get();
+
+        $activeStudent = $this->activeStudentId
+            ? Student::with('user.personalInformation')->find($this->activeStudentId)
+            : null;
 
         return view('livewire.admin.student.consultation.index', [
-            'allStudents'       => $allStudents,
-            'modalStudents'     => $modalStudents,
-            'totalStudentCount' => $totalStudentCount,
+            'days'             => AdminWorkSchedule::DAYS,
+            'grouped'          => $grouped,
+            'allStudents'      => $allStudents,
+            'noDayStudents'    => $allStudents->whereNull('session_day')->values(),
+            'tomorrowDow'      => $tomorrowDow,
+            'tomorrowStudents' => $tomorrowStudents,
+            'tomorrowSessions' => $tomorrowSessions,
+            'calledIds'        => $calledIds,
+            'tomorrowTitle'    => $this->tomorrowTitle(),
+            'canFinalize'      => $canFinalize,
+            'pendingMakeups'   => $pendingMakeups,
+            'activeStudent'    => $activeStudent,
         ])->layout('layouts.admin.app');
     }
 }

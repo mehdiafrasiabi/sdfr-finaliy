@@ -19,7 +19,7 @@
             }
             .spinner-sm { width: 1rem; height: 1rem; border-width: 2px; }
             @keyframes spin { to { transform: rotate(360deg); } }
-        </style>v
+        </style>
 @endassets
     <div class="max-w-7xl space-y-6 px-4 mx-auto">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
@@ -276,18 +276,27 @@
                                                     <div class="bg-muted/30 rounded-xl p-3 sm:p-4">
                                                         @php
                                                             $rpt = $report->calculated_rating;
-                                                            $rptColor = match(true) {
-                                                                $rpt >= 9 => 'emerald',
-                                                                $rpt >= 7 => 'blue',
-                                                                $rpt >= 5 => 'yellow',
-                                                                $rpt >= 3 => 'orange',
-                                                                $rpt > 0  => 'red',
-                                                                default   => 'gray',
-                                                            };
+                                                            $rptColorName = $this->getRatingColor($rpt);
                                                         @endphp
                                                         <div class="flex items-center gap-2 mb-2">
-                                                            <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-{{ $rptColor }}-500/20">
-                                                                <svg class="w-4 h-4 text-{{ $rptColor }}-600" fill="currentColor" viewBox="0 0 24 24">
+                                                            <div @class([
+                                                                'flex h-8 w-8 items-center justify-center rounded-lg',
+                                                                'bg-emerald-500/20' => $rptColorName === 'emerald',
+                                                                'bg-blue-500/20' => $rptColorName === 'blue',
+                                                                'bg-yellow-500/20' => $rptColorName === 'yellow',
+                                                                'bg-orange-500/20' => $rptColorName === 'orange',
+                                                                'bg-red-500/20' => $rptColorName === 'red',
+                                                                'bg-gray-500/20' => $rptColorName === 'gray',
+                                                            ])>
+                                                                <svg @class([
+                                                                    'w-4 h-4',
+                                                                    'text-emerald-600' => $rptColorName === 'emerald',
+                                                                    'text-blue-600' => $rptColorName === 'blue',
+                                                                    'text-yellow-600' => $rptColorName === 'yellow',
+                                                                    'text-orange-600' => $rptColorName === 'orange',
+                                                                    'text-red-600' => $rptColorName === 'red',
+                                                                    'text-gray-600' => $rptColorName === 'gray',
+                                                                ]) fill="currentColor" viewBox="0 0 24 24">
                                                                     <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                                                                 </svg>
                                                             </div>
@@ -295,10 +304,26 @@
                                                         </div>
                                                         @if($rpt > 0)
                                                             <div class="flex items-baseline gap-1">
-                                                                <span class="text-2xl sm:text-3xl font-black text-{{ $rptColor }}-600 dark:text-{{ $rptColor }}-400">{{ $rpt }}</span>
+                                                                <span @class([
+                                                                    'text-2xl sm:text-3xl font-black',
+                                                                    'text-emerald-600 dark:text-emerald-400' => $rptColorName === 'emerald',
+                                                                    'text-blue-600 dark:text-blue-400' => $rptColorName === 'blue',
+                                                                    'text-yellow-600 dark:text-yellow-400' => $rptColorName === 'yellow',
+                                                                    'text-orange-600 dark:text-orange-400' => $rptColorName === 'orange',
+                                                                    'text-red-600 dark:text-red-400' => $rptColorName === 'red',
+                                                                    'text-gray-600 dark:text-gray-400' => $rptColorName === 'gray',
+                                                                ])>{{ $rpt }}</span>
                                                                 <span class="text-xs text-muted font-medium">/ 10</span>
                                                             </div>
-                                                            <span class="inline-flex items-center mt-1 text-xs font-bold px-2 py-0.5 rounded-lg bg-{{ $rptColor }}-500/20 text-{{ $rptColor }}-600 dark:text-{{ $rptColor }}-400">
+                                                            <span @class([
+                                                                'inline-flex items-center mt-1 text-xs font-bold px-2 py-0.5 rounded-lg',
+                                                                'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' => $rptColorName === 'emerald',
+                                                                'bg-blue-500/20 text-blue-600 dark:text-blue-400' => $rptColorName === 'blue',
+                                                                'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' => $rptColorName === 'yellow',
+                                                                'bg-orange-500/20 text-orange-600 dark:text-orange-400' => $rptColorName === 'orange',
+                                                                'bg-red-500/20 text-red-600 dark:text-red-400' => $rptColorName === 'red',
+                                                                'bg-gray-500/20 text-gray-600 dark:text-gray-400' => $rptColorName === 'gray',
+                                                            ])>
                                                                 {{ $this->getRatingLabel($rpt) }}
                                                             </span>
                                                         @else
@@ -628,18 +653,26 @@
                             </span>
                             @if($computedRating > 0)
                                 @php
-                                    $ratingColor = match(true) {
-                                        $computedRating >= 9 => 'emerald',
-                                        $computedRating >= 7 => 'blue',
-                                        $computedRating >= 5 => 'yellow',
-                                        $computedRating >= 3 => 'orange',
-                                        default => 'red',
-                                    };
+                                    $ratingColorName = $this->getRatingColor($computedRating);
                                 @endphp
                                 <div class="flex items-center gap-2">
-                                    <span class="text-2xl font-black text-{{ $ratingColor }}-600 dark:text-{{ $ratingColor }}-400">{{ $computedRating }}</span>
+                                    <span @class([
+                                        'text-2xl font-black',
+                                        'text-emerald-600 dark:text-emerald-400' => $ratingColorName === 'emerald',
+                                        'text-blue-600 dark:text-blue-400' => $ratingColorName === 'blue',
+                                        'text-yellow-600 dark:text-yellow-400' => $ratingColorName === 'yellow',
+                                        'text-orange-600 dark:text-orange-400' => $ratingColorName === 'orange',
+                                        'text-red-600 dark:text-red-400' => $ratingColorName === 'red',
+                                    ])>{{ $computedRating }}</span>
                                     <span class="text-muted text-sm">/ 10</span>
-                                    <span class="text-xs sm:text-sm font-bold px-2 py-1 rounded-lg bg-{{ $ratingColor }}-500/20 text-{{ $ratingColor }}-600 dark:text-{{ $ratingColor }}-400">
+                                    <span @class([
+                                        'text-xs sm:text-sm font-bold px-2 py-1 rounded-lg',
+                                        'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400' => $ratingColorName === 'emerald',
+                                        'bg-blue-500/20 text-blue-600 dark:text-blue-400' => $ratingColorName === 'blue',
+                                        'bg-yellow-500/20 text-yellow-600 dark:text-yellow-400' => $ratingColorName === 'yellow',
+                                        'bg-orange-500/20 text-orange-600 dark:text-orange-400' => $ratingColorName === 'orange',
+                                        'bg-red-500/20 text-red-600 dark:text-red-400' => $ratingColorName === 'red',
+                                    ])>
                                         {{ $this->getRatingLabel($computedRating) }}
                                     </span>
                                 </div>
@@ -712,14 +745,16 @@
                 @if($compensatoryStep === 1)
                     @foreach($missedParts as $missed)
                         @php $compPartHasStudyHours = in_array($missed['part']->id, $completedStudyParts); @endphp
-                        <div wire:click="toggleCompensatoryPart({{ $missed['part']->id }})"
+
+                        <div @if($missed['has_study']) wire:click="toggleCompensatoryPart({{ $missed['part']->id }})" @endif
                              wire:key="comp-part-{{ $missed['part']->id }}"
                              class="p-4 bg-muted/30 rounded-xl transition-all duration-200
-                             {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'border-2 border-green-500 bg-green-50/50 dark:bg-green-900/10' : 'border-2 border-transparent' }}
-                             {{ !$compPartHasStudyHours ? 'border-red-300 dark:border-red-800 opacity-70 cursor-not-allowed' : 'cursor-pointer' }}">
+     {{ in_array($missed['part']->id, $selectedCompensatoryParts) ? 'border-2 border-green-500 bg-green-50/50 dark:bg-green-900/10' : 'border-2 border-transparent' }}
+     {{ !$missed['has_study'] ? 'border-red-300 dark:border-red-800 opacity-70 cursor-not-allowed' : 'cursor-pointer' }}">
 
-                            @if(!$compPartHasStudyHours)
-                                <div class="flex items-center gap-2 mb-2">
+                            @if(!$missed['has_study'])
+
+                            <div class="flex items-center gap-2 mb-2">
                                     <svg class="w-4 h-4 text-red-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
                                         <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd"/>
                                     </svg>
