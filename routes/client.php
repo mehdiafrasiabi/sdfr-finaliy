@@ -59,7 +59,6 @@ Route::name('client.')->group(function () {
 
     // ثبت‌نام فقط از طریق هفته آزمایشی
     Route::get('/start', TrialWeekOnboarding::class)->name('onboarding')->middleware('guest');
-    Route::redirect('/sign-up', '/start')->name('auth.signup');
 
     // لینک یکتای ثبت‌نام مشاور جذب تلفنی — توکن را در session می‌گذارد و به آنبوردینگ می‌فرستد.
     Route::get('/r/{token}', function (string $token) {

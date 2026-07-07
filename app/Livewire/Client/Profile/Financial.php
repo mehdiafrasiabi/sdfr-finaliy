@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Client\Profile;
 
+use App\Models\Payment;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
@@ -9,12 +10,13 @@ use Livewire\WithPagination;
 
 class Financial extends Component
 {
-    use SEOTools,WithPagination;
+    use SEOTools, WithPagination;
 
     public function mount()
     {
         $this->seoConfig();
     }
+
     public function seoConfig()
     {
         $this->seo()
@@ -33,9 +35,40 @@ class Financial extends Component
         $this->expandedPayments[] = $paymentId;
     }
 
+    /**
+     * Get a descriptive title for the payment.
+     *
+     * @param Payment $payment
+     * @return string
+     */
+    public function getPaymentDescription(Payment $payment): string
+    {
+        if ($payment->payable_type === 'App\\Models\\Installment') {
+            return 'پرداخت قسط';
+        }
+
+        if ($payment->order && $payment->order->orderItems->isNotEmpty()) {
+            $firstItem = $payment->order->orderItems->first();
+            $orderableType = $payment->order->orderable_type;
+
+            if ($orderableType === 'App\\Models\\InstallmentPlan' || str_contains($firstItem->name ?? '', 'پیش پرداخت')) {
+                return 'پیش پرداخت طرح اقساطی';
+            }
+
+            return($firstItem->name ?? 'خدمات');
+        }
+
+        return 'تراکنش مالی';
+    }
+
+
     public function render()
     {
-        $payments = Auth::user()->payments()->with('order.orderItems')->latest()->paginate(10);
+        $payments = Auth::user()
+            ->payments()
+            ->with(['order.orderItems', 'user.student']) // Eager load necessary relationships
+            ->latest()
+            ->paginate(10);
 
         $plan    = Auth::user()->student?->activeInstallmentPlan();
         $current = $plan?->currentDue();

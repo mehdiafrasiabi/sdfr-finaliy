@@ -2,6 +2,15 @@
 <html lang="fa" dir="rtl" class="dark">
 <head>
     <meta name="color-scheme" content="dark">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-22E7M47QKY"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-22E7M47QKY');
+    </script>
     <style>
         :root { color-scheme: dark; }
         /* ═══════ SDFR — Cosmic Light Lines (reusable) ═══════ */

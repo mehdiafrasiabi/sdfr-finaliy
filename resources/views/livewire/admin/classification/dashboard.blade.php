@@ -13,90 +13,97 @@
                 </div>
             </div>
         </div>
-        <!-- Stats Cards -->
-        <div class="row mb-4">
-            <div class="col-xl-4 col-md-6">
-                <div class="card card-animate">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1 overflow-hidden">
-                                <p class="text-uppercase fw-medium text-muted text-truncate mb-0">پروژه‌های در
-                                    انتظار</p>
-                            </div>
+
+        {{-- Student Analysis Dashboard --}}
+        @if(!empty($studentDashboardData) && !isset($studentDashboardData['error']))
+            <div class="row mb-4">
+                 <div class="col-12">
+                    <div class="alert alert-info">
+                        تحلیل دانش‌آموزان بر اساس پروژه: <strong>{{ $studentDashboardData['projectName'] }}</strong>
+                    </div>
+                </div>
+                <!-- Participation & Scores -->
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">آمار مشارکت و امتیازات</h5>
                         </div>
-                        <div class="d-flex align-items-end justify-content-between mt-4">
-                            <div>
-                                <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                    <span class="counter-value"
-                                          data-target="{{ $upcomingProjects }}">{{ $upcomingProjects }}</span>
-                                </h4>
-                                <span class="badge bg-info-subtle text-info">در انتظار شروع</span>
-                            </div>
-                            <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-info-subtle rounded fs-3">
-                                <i class="ri-time-line text-info"></i>
-                            </span>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6>مشارکت دانش‌آموزان</h6>
+                                    <p>انجام داده: <span class="fw-bold text-success">{{ $studentDashboardData['classifiedStudentsCount'] }} نفر</span></p>
+                                    <p>انجام نداده: <span class="fw-bold text-danger">{{ $studentDashboardData['unclassifiedStudentsCount'] }} نفر</span></p>
+                                    <hr>
+                                    <h6>پروژه بعدی</h6>
+                                     @if($studentDashboardData['nextClassificationDate'])
+                                        <p>شروع: <span class="fw-bold">{{ \Morilog\Jalali\Jalalian::fromCarbon($studentDashboardData['nextClassificationDate'])->format('Y/m/d') }}</span></p>
+                                     @else
+                                        <p class="text-muted">پروژه بعدی تعریف نشده.</p>
+                                     @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <h6>توزیع امتیازات</h6>
+                                    <ul class="list-unstyled">
+                                        @forelse($studentDashboardData['ratingDistribution'] as $rating => $count)
+                                            <li><span class="fw-bold">امتیاز {{ $rating }}:</span> {{ $count }} مورد</li>
+                                        @empty
+                                            <li class="text-muted">هنوز امتیازی ثبت نشده.</li>
+                                        @endforelse
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-xl-4 col-md-6">
-                <div class="card card-animate">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1 overflow-hidden">
-                                <p class="text-uppercase fw-medium text-muted text-truncate mb-0">پروژه‌های تمام‌شده</p>
-                            </div>
+
+                <!-- Strengths & Weaknesses -->
+                <div class="col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">نقاط قوت و ضعف دانش‌آموزان</h5>
                         </div>
-                        <div class="d-flex align-items-end justify-content-between mt-4">
-                            <div>
-                                <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                    <span class="counter-value"
-                                          data-target="{{ $endedProjects }}">{{ $endedProjects }}</span>
-                                </h4>
-                                <span class="badge bg-success-subtle text-success">پایان یافته</span>
-                            </div>
-                            <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-success-subtle rounded fs-3">
-                                <i class="ri-checkbox-circle-line text-success"></i>
-                            </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xl-4 col-md-6">
-                <div class="card card-animate">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div class="flex-grow-1 overflow-hidden">
-                                <p class="text-uppercase fw-medium text-muted text-truncate mb-0">روز تا پروژه بعدی</p>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-end justify-content-between mt-4">
-                            <div>
-                                <h4 class="fs-22 fw-semibold ff-secondary mb-4">
-                                    @if($daysToNext !== null)
-                                        <span class="counter-value"
-                                              data-target="{{ $daysToNext }}">{{ $daysToNext }}</span>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </h4>
-                                <span class="badge bg-warning-subtle text-warning">روز</span>
-                            </div>
-                            <div class="avatar-sm flex-shrink-0">
-                            <span class="avatar-title bg-warning-subtle rounded fs-3">
-                                <i class="ri-calendar-event-line text-warning"></i>
-                            </span>
-                            </div>
+                        <div class="card-body">
+                           <div class="row">
+                               <div class="col-md-6">
+                                   <h6 class="text-success">نقاط قوت (بیشترین امتیاز A)</h6>
+                                   <ul class="list-group list-group-flush">
+                                       @forelse($studentDashboardData['strengths'] as $item)
+                                           <li class="list-group-item">{{ $item['name'] }} <span class="badge bg-success float-end">{{$item['A']}}</span></li>
+                                       @empty
+                                           <li class="list-group-item text-muted">موردی یافت نشد.</li>
+                                       @endforelse
+                                   </ul>
+                               </div>
+                               <div class="col-md-6">
+                                   <h6 class="text-danger">نقاط ضعف تخصصی (بیشترین امتیاز C)</h6>
+                                   <ul class="list-group list-group-flush">
+                                       @forelse($studentDashboardData['weaknesses'] as $item)
+                                           <li class="list-group-item">{{ $item['name'] }} <span class="badge bg-danger float-end">{{$item['C']}}</span></li>
+                                       @empty
+                                            <li class="list-group-item text-muted">موردی یافت نشد.</li>
+                                       @endforelse
+                                   </ul>
+                                    <h6 class="text-warning mt-3">نقاط ضعف عمومی (بیشترین امتیاز C)</h6>
+                                   <ul class="list-group list-group-flush">
+                                       @forelse($studentDashboardData['generalWeaknesses'] as $item)
+                                           <li class="list-group-item">{{ $item['name'] }} <span class="badge bg-warning float-end">{{$item['C']}}</span></li>
+                                       @empty
+                                            <li class="list-group-item text-muted">موردی یافت نشد.</li>
+                                       @endforelse
+                                   </ul>
+                               </div>
+                           </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <!-- Projects List -->
+        @elseif(isset($studentDashboardData['error']))
+             <div class="alert alert-warning">{{ $studentDashboardData['error'] }}</div>
+        @endif
+
+
+        <!-- Projects List (Original Content) -->
         <div class="row">
             <div class="col-12">
                 <div class="card">

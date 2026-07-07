@@ -10,6 +10,7 @@ use App\Models\Student;
 use App\Services\NotificationService;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Livewire\Component;
 use Morilog\Jalali\Jalalian;
 
@@ -43,9 +44,17 @@ class Index extends Component
     // ── تعیینِ روزِ جلسه‌ی جبرانیِ مرخصی (کلید: sessionId) ──────────
     public array $makeupDay = [];
 
+    // ── داده‌های داشبورد جدید ──────────────────────────────────────
+    public int $totalStudentsCount = 0;
+    public int $heldSessionsCount = 0;
+    public int $totalMakeupSessionsCount = 0;
+    public Collection $absenteesThisWeek;
+
+
     public function mount(): void
     {
         $this->seo()->setTitle('جلسات مشاوره');
+        $this->absenteesThisWeek = collect();
     }
 
     protected function adminId()
@@ -370,6 +379,38 @@ class Index extends Component
         );
     }
 
+    /** متدهای مربوط به داشبورد جدید */
+    protected function calculateDashboardData(Collection $allStudents): void
+    {
+        $adminId = $this->adminId();
+        $today = Carbon::today();
+
+        // 1. تعداد کل دانش آموزان تحت مشاوره من
+        $this->totalStudentsCount = $allStudents->count();
+
+        // 2. تعداد جلسات برگزار شده + تعداد جلسات جبرانی
+        $this->heldSessionsCount = AdvisingSession::where('advisor_id', $adminId)
+            ->where('status', 'held') // FIX: Used string literal instead of undefined constant
+            ->where('activation_date', '<=', $today->toDateString())
+            ->count();
+
+        $this->totalMakeupSessionsCount = AdvisingSession::where('advisor_id', $adminId)
+            ->where('is_makeup', true)
+            ->count();
+
+        // 3. غایبین این هفته
+        $startOfWeek = $today->copy()->startOfWeek(Carbon::SATURDAY);
+        $endOfWeek = $today->copy()->endOfWeek(Carbon::FRIDAY);
+
+        // فرض: غایب یعنی جلسه‌اش در گذشته است ولی وضعیت 'برگزار شده' را ندارد
+        $this->absenteesThisWeek = AdvisingSession::where('advisor_id', $adminId)
+            ->whereBetween('activation_date', [$startOfWeek, $today])
+            ->where('status', '!=', 'held') // FIX: Used string literal instead of undefined constant
+            ->with('student.user.personalInformation')
+            ->get();
+    }
+
+
     public function render()
     {
         $adminId    = $this->adminId();
@@ -380,15 +421,20 @@ class Index extends Component
             ->where('advisor_id', $adminId)
             ->with(['user.personalInformation', 'user.profile']);
 
+        // جستجو باید قبل از گروه‌بندی اعمال شود
+        $searchableStudentsQuery = clone $studentsQuery;
         if ($this->search) {
-            $studentsQuery->whereHas('user.personalInformation', function ($q) {
+            $searchableStudentsQuery->whereHas('user.personalInformation', function ($q) {
                 $q->where('name', 'like', "%{$this->search}%")
-                    ->orWhere('name_full', 'like', "%{$this->search}%");
+                  ->orWhere('name_full', 'like', "%{$this->search}%");
             });
         }
-
-        $allStudents = $studentsQuery->get();
+        $allStudents = $searchableStudentsQuery->get();
         $grouped     = $allStudents->groupBy('session_day');
+
+        // محاسبه آمار داشبورد با همه دانش‌آموزان (بدون فیلتر جستجو)
+        $this->calculateDashboardData($studentsQuery->get());
+
 
         // وضعیتِ فردا (شاملِ روزِ ثابت + جلساتِ جبرانیِ فردا)
         $tomorrowStudents = $this->tomorrowStudents();

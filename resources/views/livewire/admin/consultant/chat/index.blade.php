@@ -8,10 +8,53 @@
         </nav>
     </div>
 
+    {{-- Stats Cards --}}
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card card-animate">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-info-subtle text-info rounded-2 fs-2">
+                                <i class="ri-message-3-line"></i>
+                            </span>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-uppercase fw-medium text-muted mb-3">پیام‌های خوانده نشده</p>
+                            <div class="d-flex align-items-center mb-3">
+                                <h4 class="fs-4 flex-grow-1 mb-0"><span class="counter-value">{{ $totalUnreadCount }}</span></h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card card-animate">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                         <div class="avatar-sm flex-shrink-0">
+                            <span class="avatar-title bg-success-subtle text-success rounded-2 fs-2">
+                                <i class="ri-user-follow-line"></i>
+                            </span>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <p class="text-uppercase fw-medium text-muted mb-3">کاربران آنلاین</p>
+                            <div class="d-flex align-items-center mb-3">
+                                <h4 class="fs-4 flex-grow-1 mb-0"><span class="counter-value">{{ $totalOnlineCount }}</span></h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="statbox widget box box-shadow">
         <div class="widget-header">
             <div class="row align-items-center">
-                <div class="col-md-6"><h4 class="mb-0">گفتگو با دانش‌آموزان</h4></div>
+                <div class="col-md-6"><h4 class="mb-0">لیست گفتگوها</h4></div>
                 <div class="col-md-6">
                     <input type="text" class="form-control" placeholder="جستجو: نام یا موبایل دانش‌آموز..."
                            wire:model.live.debounce.400ms="search">

@@ -29,6 +29,34 @@ class Index extends Component
         $this->seo()->setTitle('اقساط من');
     }
 
+    public function getInstallmentDescription(Installment $installment): string
+    {
+        if (! $installment->isPaid()) {
+            return '—'; // Or any other placeholder for unpaid
+        }
+
+        // Assuming a direct relationship 'payment' exists on Installment model
+        // Or we might need to query it based on the payment logic
+        $payment = Payment::query()
+            ->where('status', 'completed')
+            ->where(function ($query) use ($installment) {
+                $query->where('installment_id', $installment->id)
+                    ->orWhereJsonContains('installment_ids', $installment->id);
+            })
+            ->first();
+
+        if (! $payment) {
+            return 'پرداخت تک قسط'; // Default if payment not found but installment is paid
+        }
+
+        if ($payment->purpose === Payment::PURPOSE_INSTALLMENT_BULK) {
+            return 'پرداخت گروهی';
+        }
+
+        return 'پرداخت تک قسط';
+    }
+
+
     public function toggleGroupPaymentMode(): void
     {
         $this->groupPaymentMode = !$this->groupPaymentMode;
@@ -44,9 +72,9 @@ class Index extends Component
         }
 
         $dueInstallments = $plan->installments()
-            ->where('status', 'pending')
-            ->orderBy('sequence')
-            ->get();
+                                ->where('status', 'pending')
+                                ->orderBy('sequence')
+                                ->get();
 
         $selected = $dueInstallments->whereIn('id', $this->selectedInstallments)->sortBy('sequence');
 
@@ -166,10 +194,10 @@ class Index extends Component
         }
 
         $installments = $plan->installments()
-            ->whereIn('id', $this->selectedInstallments)
-            ->where('status', 'pending')
-            ->orderBy('sequence')
-            ->get();
+                             ->whereIn('id', $this->selectedInstallments)
+                             ->where('status', 'pending')
+                             ->orderBy('sequence')
+                             ->get();
 
         if ($installments->count() !== count($this->selectedInstallments)) {
             $this->dispatch('show-toast', ['type' => 'error', 'message' => 'یک یا چند قسطِ انتخاب‌شده نامعتبر است. لطفاً دوباره تلاش کنید.']);
@@ -226,15 +254,16 @@ class Index extends Component
 
     public function render()
     {
-        $plan    = $this->plan();
-        $current = $plan?->currentDue();
+        $plan = $this->plan();
 
         $installments = $plan
-            ? $plan->installments()->orderBy('sequence')->get()
+            ? $plan->installments()->with('payment')->orderBy('sequence')->get()
             : collect();
 
         $paid = $installments->where('status', 'paid');
-        $due  = $installments->where('status', 'pending');
+        $due = $installments->where('status', 'pending');
+        $current = $due->first();
+
 
         return view('livewire.client.profile.installment.index', [
             'plan'         => $plan,

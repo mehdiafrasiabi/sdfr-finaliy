@@ -45,7 +45,7 @@ class GradePrice extends Model
     ];
 
     /** شمارهٔ ماهِ شمسی به‌ازای هر اندیسِ سال خدمت (۰=تیر … ۱۱=خرداد). */
-    public const SERVICE_MONTHS = [4, 5, 6, 7, 8, 9, 10, 11, 12, 1, 2, 3];
+        public const SERVICE_MONTHS = [4, 5, 6, 7, 8, 9, 10, 11, 12];
 
     public const PERSIAN_MONTH_NAMES = [
         1 => 'فروردین', 2 => 'اردیبهشت', 3 => 'خرداد', 4 => 'تیر',
@@ -56,7 +56,7 @@ class GradePrice extends Model
     /** تخفیف‌های پیش‌فرض اکسل بر حسب اندیس ماهِ ورود. */
     public const DEFAULT_DISCOUNTS = [0 => 15, 1 => 12, 2 => 9, 3 => 6];
 
-    public const SERVICE_MONTH_COUNT = 12;
+    public const SERVICE_MONTH_COUNT = 9;
 
     // ───────────────────────── روابط ─────────────────────────
 

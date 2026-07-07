@@ -7,6 +7,8 @@ use App\Models\AdvisingSession;
 use App\Models\DailyReport;
 use Carbon\Carbon;
 use Artesaos\SEOTools\Traits\SEOTools;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Database\Eloquent\Builder;
@@ -22,15 +24,18 @@ class Index extends Component
     public string $exportStartDate = '';
     public string $exportEndDate = '';
     public array $selectedStudentIds = [];
+
+    // داده های داشبورد جدید
+    public array $dashboardStats = [];
+
     public function mount()
     {
-        // دریافت پارامتر course_id از URL
         $this->seoConfig();
     }
     public function seoConfig()
     {
         $this->seo()
-            ->setTitle('دانش آموزان');
+            ->setTitle('گزارشات دانش آموزان');
     }
 
     public function openExportModal(): void
@@ -106,21 +111,10 @@ class Index extends Component
     {
         $query = Student::query()
             ->with([
-                'payment.order.orderItems.product',
-                'payment.order.user',
                 'user.personalInformation',
                 'user.profile'
-            ])
-            ->withCount([
-                'reportdaily as unread_student_replies_count' => function (Builder $query) {
-                    $query->whereNotNull('student_reply')
-                        ->whereNull('student_reply_seen_at');
-                },
-            ])
-            ->withMax('reportdaily as latest_student_reply_at', 'student_replied_at')
-            ->with('advisor');
+            ]);
 
-        // مدیر مدرسه فقط دانش‌آموزان مدرسهٔ خود را می‌بیند.
         $admin = auth('admin')->user();
         if ($admin?->hasRole('school-manager') && $admin->school_id) {
             return $query->where('school_id', $admin->school_id);
@@ -128,24 +122,19 @@ class Index extends Component
 
         return $query->where('advisor_id', $adminId);
     }
-    /**
-     * Batch-compute not-sent report counts for a set of student IDs.
-     * Not-sent = past days in held sessions that have no report, excluding rest days.
-     */
+
     protected function computeNotSentCountsForStudents(array $studentIds): array
     {
         if (empty($studentIds)) return [];
 
         $today = Carbon::today();
 
-        // Load all held sessions with weekly programs + rest days for these students
         $sessionsByStudent = AdvisingSession::whereIn('student_id', $studentIds)
             ->where('result_status', 'held')
             ->with(['weeklyProgram.restDays'])
             ->get()
             ->groupBy('student_id');
 
-        // Load all report dates grouped by student_id + weekly_program_id key
         $reportsByKey = DailyReport::whereIn('student_id', $studentIds)
             ->select(['student_id', 'weekly_program_id', 'report_date'])
             ->get()
@@ -171,8 +160,8 @@ class Index extends Component
 
                 for ($idx = 0; $idx <= 7; $idx++) {
                     $day = $startDate->copy()->addDays($idx);
-                    if ($day->gt($today)) continue;            // future days don't count yet
-                    if (in_array($idx, $restDayIndices)) continue; // rest days are not missing
+                    if ($day->gt($today)) continue;
+                    if (in_array($idx, $restDayIndices)) continue;
                     if (!in_array($day->format('Y-m-d'), $existingDates)) {
                         $counts[$studentId]++;
                     }
@@ -183,12 +172,99 @@ class Index extends Component
         return $counts;
     }
 
+    protected function calculateDashboardData(Builder $studentsQuery): void
+    {
+        $adminId = auth()->id();
+        $studentIds = $studentsQuery->pluck('id')->toArray();
+        $totalStudents = count($studentIds);
+        $today = Carbon::today()->toDateString();
+        $thirtyDaysAgo = Carbon::today()->subDays(30)->toDateString();
+
+        // 1. تعداد گزارش ارسال شده / عدم ارسال
+        $reportsSentToday = DailyReport::whereIn('student_id', $studentIds)->whereDate('report_date', $today)->distinct('student_id')->count();
+        $reportsNotSentToday = $totalStudents - $reportsSentToday;
+
+        // 3. تعداد گزارشات جبرانی
+        $compensatoryReportsCount = DailyReport::whereIn('student_id', $studentIds)->where('is_compensatory', true)->count();
+
+        // 4. میانگین رضایت (rating) - با بررسی وجود ستون
+        $averageRating = 0;
+        if (Schema::hasColumn('daily_reports', 'rating')) {
+            $averageRating = DailyReport::whereIn('student_id', $studentIds)->avg('rating');
+        }
+
+        // 6. در انتظار گزارش
+        $pendingReportsCount = 0;
+        if (Schema::hasColumn('daily_reports', 'status')) {
+            $pendingReportsCount = DailyReport::whereIn('student_id', $studentIds)->where('status', 'pending')->count();
+        }
+
+
+        // 7. تعداد تست در نظر گرفته شده / انجام شده / انجام نشده
+        $testStats = ['planned' => 0, 'completed' => 0, 'not_completed' => 0];
+        // با فرض اینکه این داده ها در ستون lessons هستند
+        if (method_exists(DailyReport::class, 'lessons')) {
+            $reportsWithLessons = DailyReport::whereIn('student_id', $studentIds)->with('lessons.tests')->get();
+            foreach ($reportsWithLessons as $report) {
+                foreach($report->lessons as $lesson) {
+                    if ($lesson->relationLoaded('tests') && $lesson->tests) {
+                         $testStats['planned'] += $lesson->tests->count();
+                         $testStats['completed'] += $lesson->tests->where('is_done', true)->count();
+                         $testStats['not_completed'] += $lesson->tests->where('is_done', false)->count();
+                    }
+                }
+            }
+        }
+
+
+        // 5. میانگین ارسال گزارشات دانش آموزان
+        $dayOfWeekMapping = [1 => 'یکشنبه', 2 => 'دوشنبه', 3 => 'سه‌شنبه', 4 => 'چهارشنبه', 5 => 'پنجشنبه', 6 => 'جمعه', 7 => 'شنبه'];
+        $dayOfWeekStats = [];
+        if($totalStudents > 0) {
+            $dayOfWeekStats = DailyReport::whereIn('student_id', $studentIds)
+                ->select(DB::raw('DAYOFWEEK(report_date) as day_of_week'), DB::raw('COUNT(DISTINCT student_id) as student_count'))
+                ->groupBy(DB::raw('DAYOFWEEK(report_date)'))
+                ->pluck('student_count', 'day_of_week')->mapWithKeys(fn($v, $k) => [$dayOfWeekMapping[$k] => round(($v / $totalStudents) * 100)]);
+        }
+
+        // 2. دانش آموزان با بهترین و بدترین ارسال گزارش
+        $reportCounts = DailyReport::whereIn('student_id', $studentIds)
+            ->whereBetween('report_date', [$thirtyDaysAgo, $today])
+            ->select('student_id', DB::raw('COUNT(*) as count'))
+            ->groupBy('student_id')
+            ->pluck('count', 'student_id');
+
+        $studentReportPercentages = collect($studentIds)->mapWithKeys(function ($id) use ($reportCounts) {
+            $daysWithReport = $reportCounts->get($id, 0);
+            return [$id => ($daysWithReport / 30) * 100];
+        });
+
+        $bestPerformers = $studentReportPercentages->sortDesc()->take(3);
+        $worstPerformers = $studentReportPercentages->sort()->take(3);
+
+        $this->dashboardStats = [
+            'reportsSentToday' => $reportsSentToday,
+            'reportsNotSentToday' => $reportsNotSentToday,
+            'totalStudents' => $totalStudents,
+            'bestPerformers' => Student::whereIn('id', $bestPerformers->keys())->get(),
+            'worstPerformers' => Student::whereIn('id', $worstPerformers->keys())->get(),
+            'compensatoryReportsCount' => $compensatoryReportsCount,
+            'averageRating' => round($averageRating, 2),
+            'dayOfWeekStats' => $dayOfWeekStats,
+            'pendingReportsCount' => $pendingReportsCount,
+            'testStats' => $testStats,
+        ];
+    }
+
 
     public function render()
     {
         $adminId = auth()->id();
+        $baseStudentsQuery = $this->studentsBaseQuery($adminId);
 
-        $studentsQuery = $this->studentsBaseQuery($adminId);
+        $this->calculateDashboardData(clone $baseStudentsQuery);
+
+        $studentsQuery = $baseStudentsQuery;
 
         if ($this->search) {
             $searchTerm = '%' . $this->search . '%';
@@ -204,7 +280,6 @@ class Index extends Component
         }
 
         $students = $studentsQuery->paginate(10);
-        // Compute per-student report counts for the current page
         $studentIds = $students->pluck('id')->toArray();
 
         $sentCounts = DailyReport::whereIn('student_id', $studentIds)

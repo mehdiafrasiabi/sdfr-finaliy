@@ -1,20 +1,14 @@
-<div class="min-h-screen text-white" dir="rtl" style="font-family: inherit;" x-data="{ openAdvisorModal: false }">
+<div class="min-h-screen text-white" dir="rtl" style="font-family: inherit;" x-data="sdfrDashIntro" x-init="init">
 
-    {{-- ════════ انیمیشن ورود (ویدیو) — یکبار در ورود ════════ --}}
-    <div x-data="sdfrDashIntro()" x-init="init()" x-show="show" x-cloak wire:ignore
+    {{-- ════════ انیمیشن ورود (گیف) — یکبار در ورود ════════ --}}
+    <div x-show="show" x-cloak wire:ignore
          @keydown.escape.window="skip()"
          class="fixed inset-0 z-[120] flex items-center justify-center bg-black"
          x-transition:leave="transition ease-in duration-500"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0">
 
-        {{-- ۱. لودینگ ساده در صورت ضعیف بودن نت --}}
-        <div x-show="isLoading && !hasError" class="absolute inset-0 flex flex-col items-center justify-center z-10">
-            <div class="w-12 h-12 border-4 border-sky-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-            <p class="text-white font-semibold text-sm">در حال آماده‌سازی پرتال...</p>
-        </div>
-
-        {{-- ۲. پیغام خطای اینترنت یا فیلترشکن --}}
+        {{-- پیغام خطای اینترنت یا فیلترشکن --}}
         <div x-show="hasError" style="display: none;" class="absolute inset-0 flex flex-col items-center justify-center z-20 bg-black/95 p-6 text-center">
             <svg class="w-16 h-16 text-red-500 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -28,26 +22,22 @@
             </button>
         </div>
 
-        {{-- ۳. ویدیو اصلی --}}
-        <video x-ref="introVideo"
-               x-show="!hasError"
-               class="h-full w-full object-cover sm:object-contain relative z-0 transition-opacity duration-300"
-               :class="isLoading ? 'opacity-0' : 'opacity-100'"
-               muted playsinline preload="auto"
-               @loadstart="isLoading = true"
-               @canplay="isLoading = false"
-               @playing="isLoading = false"
-               @waiting="isLoading = true"
-               x-on:error="handleNetworkError()"
-               @ended="finish()">
-            <source src="/client/videos/sdfr-intro.mp4" type="video/mp4">
-        </video>
+        {{-- گیف اصلی (فقط موبایل) --}}
+        <img x-ref="introGif"
+             x-show="!hasError"
+             src="/client/videos/sdfr-intro.gif"
+             class="h-full w-full object-cover sm:hidden"
+             x-on:error="handleNetworkError()"
+             alt="SDFR Intro" />
     </div>
 
-    {{-- ════════ تور راهنمای داشبورد (اولین ورود + آیکون راهنما) ════════ --}}
-    <x-client.page-tour storage-key="dashboard_tour_done"
-                        :auto="(bool) session()->pull('start_dashboard_tour', false)"
-                        :steps="[
+    {{-- ════════ محتوای اصلی داشبورد (بعد از انیمیشن) ════════ --}}
+    <div x-show="introFinished" x-cloak>
+        <div x-data="{ openAdvisorModal: false }">
+            {{-- ════════ تور راهنمای داشبورد (اولین ورود + آیکون راهنما) ════════ --}}
+            <x-client.page-tour storage-key="dashboard_tour_done"
+                                :auto="(bool) session()->pull('start_dashboard_tour', false)"
+                                :steps="[
         /* ── موبایل: اشاره به منوی هدر ── */
         ['el' => '[data-tour=m-menu]',           'title' => 'منوها اینجاست',     'text' => 'با زدن این آیکون در بالای صفحه، به همه‌ی منوها و بخش‌های حساب کاربری‌ات دسترسی داری.',                                                                  'forced' => true],
         /* ── دسکتاپ: آیتم‌های سایدبار یکی‌یکی ── */
@@ -1142,73 +1132,55 @@
     <livewire:client.profile.sudden-event-modal/>
 
     <script data-navigate-once>
-        window.sdfrDashIntro = function () {
-            return {
-                show: false,
-                isLoading: true,
-                hasError: false,
-                timeoutId: null,
-                KEY: 'sdfr_intro_played',
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('sdfrDashIntro', function () {
+                return {
+                    show: false,
+                    introFinished: false,
+                    hasError: false,
+                    KEY: 'sdfr_intro_played',
 
-                init() {
-                    let played = false;
-                    try {
-                        // تغییر به sessionStorage برای پخش مجدد پس از بستن و باز کردن برنامه
-                        played = sessionStorage.getItem(this.KEY) === '1';
-                    } catch (e) {}
-
-                    if (played) return;
-
-                    this.show = true;
-                    document.body.style.overflow = 'hidden';
-
-                    if (!navigator.onLine) {
-                        this.handleNetworkError();
-                        return;
-                    }
-
-                    this.$nextTick(() => {
-                        const v = this.$refs.introVideo;
-                        if (v) {
-                            this.timeoutId = setTimeout(() => {
-                                if (this.isLoading || v.readyState === 0) {
-                                    this.handleNetworkError();
-                                }
-                            }, 10000);
-
-                            const p = v.play();
-                            if (p && p.catch) {
-                                p.catch((err) => {
-                                    console.warn("Video play interrupted:", err);
-                                });
-                            }
+                    init() {
+                        // اگر در دسکتاپ هستیم یا انیمیشن قبلا پخش شده، مستقیم داشبورد را نشان بده
+                        if (window.innerWidth >= 640 || sessionStorage.getItem(this.KEY) === '1') {
+                            this.show = false;
+                            this.introFinished = true;
+                            return;
                         }
-                    });
-                },
 
-                handleNetworkError() {
-                    this.isLoading = false;
-                    this.hasError = true;
-                    if (this.timeoutId) clearTimeout(this.timeoutId);
-                },
+                        if (!navigator.onLine) {
+                            this.handleNetworkError();
+                            return;
+                        }
 
-                finish() {
-                    // ذخیره در sessionStorage
-                    try { sessionStorage.setItem(this.KEY, '1'); } catch (e) {}
+                        this.show = true;
+                        document.body.style.overflow = 'hidden';
 
-                    this.show = false;
-                    this.hasError = false;
-                    document.body.style.overflow = '';
-                    if (this.timeoutId) clearTimeout(this.timeoutId);
-                },
+                        // گیف پس از 5 ثانیه تمام می‌شود
+                        setTimeout(() => this.finish(), 5000);
+                    },
 
-                skip() {
-                    const v = this.$refs.introVideo;
-                    if (v) { try { v.pause(); } catch (e) {} }
-                    this.finish();
-                },
-            }
-        }
+                    handleNetworkError() {
+                        this.hasError = true;
+                        this.show = true; // صفحه خطا را حتما نشان بده
+                    },
+
+                    finish() {
+                        try {
+                            sessionStorage.setItem(this.KEY, '1');
+                        } catch (e) {}
+
+                        this.show = false;
+                        this.introFinished = true;
+                        document.body.style.overflow = '';
+                    },
+
+                    skip() {
+                        this.finish();
+                    },
+                }
+            });
+        });
     </script>
 
     @script

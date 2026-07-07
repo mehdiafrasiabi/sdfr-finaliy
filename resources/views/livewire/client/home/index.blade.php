@@ -354,7 +354,7 @@
         /* ================== SECTION 1.5 : STORY (black) ================== */
         /* (1) اسکرولِ سفت‌تر و طولانی‌تر برای سؤال‌ها → ارتفاعِ بیشتر */
         .story-track {
-            height: 560vh;
+            height: 370vh;
             position: relative;
         }
 
@@ -1888,30 +1888,36 @@
 
             // ====== (12)(6) دانش‌آموزانِ منظومه SDFR (نمونه — تعداد بیشتر) ======
             $students = [
-                ['name'=>'مهسا رضایی',    'rank'=>'رتبه ۳۱۲ تجربی','uni'=>'پزشکی تهران','gender'=>'girl'],
-                ['name'=>'علی محمدی',     'rank'=>'رتبه ۸۹ ریاضی',  'uni'=>'کامپیوتر شریف','gender'=>'boy'],
-                ['name'=>'زهرا کریمی',    'rank'=>'رتبه ۱۵۰۴ تجربی','uni'=>'داروسازی بهشتی','gender'=>'girl'],
-                ['name'=>'امیرحسین نادری','rank'=>'رتبه ۲۲۰ ریاضی', 'uni'=>'برق تهران','gender'=>'boy'],
-                ['name'=>'فاطمه حسینی',   'rank'=>'رتبه ۴۲ انسانی', 'uni'=>'حقوق تهران','gender'=>'girl'],
-                ['name'=>'محمد قاسمی',    'rank'=>'رتبه ۵۶۷ تجربی', 'uni'=>'دندان‌پزشکی اصفهان','gender'=>'boy'],
-                ['name'=>'سارا اکبری',    'rank'=>'رتبه ۹۸۰ ریاضی', 'uni'=>'عمران علم‌وصنعت','gender'=>'girl'],
-                ['name'=>'رضا یوسفی',     'rank'=>'رتبه ۱۳۴ تجربی', 'uni'=>'پزشکی ایران','gender'=>'boy'],
-                ['name'=>'نگار صادقی',    'rank'=>'رتبه ۷۸ تجربی',  'uni'=>'پزشکی بهشتی','gender'=>'girl'],
-                ['name'=>'پارسا کاظمی',   'rank'=>'رتبه ۳۰۵ ریاضی', 'uni'=>'مکانیک شریف','gender'=>'boy'],
-                ['name'=>'یاسمن مرادی',   'rank'=>'رتبه ۱۹۰ انسانی','uni'=>'روان‌شناسی تهران','gender'=>'girl'],
-                ['name'=>'حسین رستمی',    'rank'=>'رتبه ۴۵۰ تجربی', 'uni'=>'پزشکی تبریز','gender'=>'boy'],
-                ['name'=>'الهام نوری',    'rank'=>'رتبه ۶۲۰ تجربی', 'uni'=>'پرستاری ایران','gender'=>'girl'],
-                ['name'=>'مهدی شریفی',    'rank'=>'رتبه ۱۱۰ ریاضی', 'uni'=>'کامپیوتر امیرکبیر','gender'=>'boy'],
-                ['name'=>'کیمیا جعفری',   'rank'=>'رتبه ۲۵ تجربی',  'uni'=>'پزشکی تهران','gender'=>'girl'],
-                ['name'=>'آرین بهرامی',   'rank'=>'رتبه ۱۹۸ ریاضی', 'uni'=>'برق شریف','gender'=>'boy'],
-                ['name'=>'ملیکا احمدی',   'rank'=>'رتبه ۳۴۰ تجربی', 'uni'=>'داروسازی تهران','gender'=>'girl'],
-                ['name'=>'سینا کریمی',    'rank'=>'رتبه ۶۷ ریاضی',  'uni'=>'مکانیک امیرکبیر','gender'=>'boy'],
-                ['name'=>'رومینا فلاحی',  'rank'=>'رتبه ۸۸۰ انسانی','uni'=>'علوم‌سیاسی تهران','gender'=>'girl'],
-                ['name'=>'پویا اسدی',     'rank'=>'رتبه ۴۱۲ تجربی', 'uni'=>'پزشکی شیراز','gender'=>'boy'],
-                ['name'=>'هستی موسوی',    'rank'=>'رتبه ۱۵۶ تجربی', 'uni'=>'دندان‌پزشکی تهران','gender'=>'girl'],
-                ['name'=>'کیان عباسی',    'rank'=>'رتبه ۲۹۰ ریاضی', 'uni'=>'عمران شریف','gender'=>'boy'],
-                ['name'=>'دیانا رحیمی',   'rank'=>'رتبه ۷۲۰ تجربی', 'uni'=>'پرستاری شهیدبهشتی','gender'=>'girl'],
-                ['name'=>'بردیا نجفی',    'rank'=>'رتبه ۱۴۵ ریاضی', 'uni'=>'هوافضا شریف','gender'=>'boy'],
+                ['name'=>'سارا احمدی', 'rank'=>'رتبه ۲۸۰ تجربی', 'uni'=>'پزشکی ایران', 'gender'=>'girl'],
+                ['name'=>'پرهام عزیزی', 'rank'=>'رتبه ۱۲۰ ریاضی', 'uni'=>'برق امیرکبیر', 'gender'=>'boy'],
+                ['name'=>'فاطمه نوری', 'rank'=>'رتبه ۴۵۰ تجربی', 'uni'=>'داروسازی بهشتی', 'gender'=>'girl'],
+                ['name'=>'شهاب مرادی', 'rank'=>'رتبه ۱۹۰ ریاضی', 'uni'=>'مکانیک علم‌وصنعت', 'gender'=>'boy'],
+                ['name'=>'آیدا محمودی', 'rank'=>'رتبه ۶۵ انسانی', 'uni'=>'حقوق تهران', 'gender'=>'girl'],
+                ['name'=>'نوید قاسمی', 'rank'=>'رتبه ۷۳۰ تجربی', 'uni'=>'دندان‌پزشکی اصفهان', 'gender'=>'boy'],
+                ['name'=>'شبنم اکبری', 'rank'=>'رتبه ۱۱۰۰ ریاضی', 'uni'=>'عمران تهران', 'gender'=>'girl'],
+                ['name'=>'فرزاد یوسفی', 'rank'=>'رتبه ۲۱۰ تجربی', 'uni'=>'پزشکی شیراز', 'gender'=>'boy'],
+                ['name'=>'ساناز صادقی', 'rank'=>'رتبه ۹۵ تجربی', 'uni'=>'پزشکی بهشتی', 'gender'=>'girl'],
+                ['name'=>'آرش کاظمی', 'rank'=>'رتبه ۳۸۰ ریاضی', 'uni'=>'کامپیوتر شریف', 'gender'=>'boy'],
+                ['name'=>'غزل مرادی', 'rank'=>'رتبه ۲۵۰ انسانی', 'uni'=>'روان‌شناسی تهران', 'gender'=>'girl'],
+                ['name'=>'داریوش رستمی', 'rank'=>'رتبه ۵۱۰ تجربی', 'uni'=>'پزشکی تبریز', 'gender'=>'boy'],
+                ['name'=>'رویا نوری', 'rank'=>'رتبه ۸۰۰ تجربی', 'uni'=>'پرستاری ایران', 'gender'=>'girl'],
+                ['name'=>'نیما شریفی', 'rank'=>'رتبه ۱۵۰ ریاضی', 'uni'=>'صنایع امیرکبیر', 'gender'=>'boy'],
+                ['name'=>'آناهیتا جعفری', 'rank'=>'رتبه ۴۰ تجربی', 'uni'=>'پزشکی تهران', 'gender'=>'girl'],
+                ['name'=>'ماهان بهرامی', 'rank'=>'رتبه ۲۵۰ ریاضی', 'uni'=>'برق شریف', 'gender'=>'boy'],
+                ['name'=>'مریم احمدی', 'rank'=>'رتبه ۴۰۰ تجربی', 'uni'=>'داروسازی تهران', 'gender'=>'girl'],
+                ['name'=>'پدرام کریمی', 'rank'=>'رتبه ۹۰ ریاضی', 'uni'=>'مکانیک امیرکبیر', 'gender'=>'boy'],
+                ['name'=>'آوا فلاحی', 'rank'=>'رتبه ۹۵۰ انسانی', 'uni'=>'علوم‌سیاسی تهران', 'gender'=>'girl'],
+                ['name'=>'مانی اسدی', 'rank'=>'رتبه ۴۸۰ تجربی', 'uni'=>'پزشکی مشهد', 'gender'=>'boy'],
+                ['name'=>'یکتا موسوی', 'rank'=>'رتبه ۱۸۰ تجربی', 'uni'=>'دندان‌پزشکی تهران', 'gender'=>'girl'],
+                ['name'=>'کیانوش عباسی', 'rank'=>'رتبه ۳۲۰ ریاضی', 'uni'=>'عمران شریف', 'gender'=>'boy'],
+                ['name'=>'مهتاب رحیمی', 'rank'=>'رتبه ۷۹۰ تجربی', 'uni'=>'پرستاری شهیدبهشتی', 'gender'=>'girl'],
+                ['name'=>'رامین نجفی', 'rank'=>'رتبه ۱۸۰ ریاضی', 'uni'=>'هوافضا شریف', 'gender'=>'boy'],
+                ['name'=>'نگین رسولی', 'rank'=>'رتبه ۳۵۰ تجربی', 'uni'=>'فیزیوتراپی تهران', 'gender'=>'girl'],
+                ['name'=>'کوروش صالحی', 'rank'=>'رتبه ۲۲۰ ریاضی', 'uni'=>'مواد شریف', 'gender'=>'boy'],
+                ['name'=>'ترانه سعیدی', 'rank'=>'رتبه ۶۰۰ تجربی', 'uni'=>'بینایی‌سنجی بهشتی', 'gender'=>'girl'],
+                ['name'=>'کاوه زمانی', 'rank'=>'رتبه ۳۰۰ ریاضی', 'uni'=>'عمران امیرکبیر', 'gender'=>'boy'],
+                ['name'=>'بیتا ملکی', 'rank'=>'رتبه ۵۵ انسانی', 'uni'=>'حقوق بهشتی', 'gender'=>'girl'],
+                ['name'=>'سعید عبدالهی', 'rank'=>'رتبه ۹۰۰ تجربی', 'uni'=>'پرستاری تهران', 'gender'=>'boy'],
             ];
             // آواتارهای سه‌بعدیِ جدید (بخش ستارگان)
             $boyAvatars = [
@@ -2285,11 +2291,11 @@
                     <div class="seam seam-top" style="--seam-color:#000;"></div>
                     <div id="price-intro-title" class="price-intro-title">
                         <span class=" price-intro-line">
-                            <span class="pi-pre" style="font-size: 1.5rem;margin-bottom: 1.5rem">
+                            <span class="pi-pre" style="font-size: 1.3rem; margin-bottom: 1.5rem;">
                                 در منظومه‌ی
                                 SDFR
                             </span>
-                            <span class="pi-post shimmer-text">سرمایه‌گذاری کن!</span>
+                            <span class="pi-post shimmer-text" style="white-space: nowrap;">سرمایه‌گذاری کن!</span>
                         </span>
                     </div>
 
@@ -2323,7 +2329,7 @@
                             @endforeach
                         </ul>
                         <div class="btn-trial-glow w-full">
-                            <a href="{{ route('client.onboarding', ['plan' => 'trial']) }}" class="btn-ghost w-full">شروع
+                            <a rel="canonical" href="{{ route('client.onboarding', ['plan' => 'trial']) }}" class="btn-ghost w-full">شروع
                                 هفته‌ی آزمایشی</a>
                         </div>
                     </div>
@@ -2372,7 +2378,7 @@
                             <span
                                 class="font-bold text-[11px] text-foreground">امکان پرداخت اقساطی با ۳۰٪ پیش‌پرداخت</span>
                         </div>
-                        <a href="{{ route('client.onboarding', ['plan' => 'cash']) }}" class="btn-brand w-full">شروع
+                        <a rel="canonical" href="{{ route('client.onboarding', ['plan' => 'cash']) }}" class="btn-brand w-full">شروع
                             ثبت‌نام</a>
                     </div>
 
@@ -2640,7 +2646,7 @@
                     if (heroChat) heroChat.style.opacity = (1 - clamp((p - 0.40) / 0.04, 0, 1)).toFixed(3);
 
                     // حروفِ S/D/F/R از همان لحظهٔ بالا آمدنِ موبایل، یکی‌یکی نمایش داده می‌شوند
-                    var fP = clamp((p - 0.08) / 0.88, 0, 1);
+                    var fP = clamp((p - 0.32) / 0.66, 0, 1);
                     var m = featMsgs.length;
                     featMsgs.forEach(function (msg, i) {
                         var seg = 1 / m;

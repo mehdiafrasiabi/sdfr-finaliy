@@ -11,6 +11,8 @@ use Livewire\Component;
 class Index extends Component
 {
     public string $search = '';
+    public int $totalUnreadCount = 0;
+    public int $totalOnlineCount = 0;
 
     public function render()
     {
@@ -28,6 +30,19 @@ class Index extends Component
             ->get()
             ->sortByDesc(fn ($s) => optional($s->conversation)->last_message_at?->timestamp ?? 0)
             ->values();
+
+        // Calculate total unread and online counts
+        $this->totalUnreadCount = 0;
+        $this->totalOnlineCount = 0;
+
+        foreach ($students as $student) {
+            if ($student->conversation) {
+                $this->totalUnreadCount += $student->conversation->unreadCountFor('advisor');
+                if ($student->conversation->isOnline('student')) {
+                    $this->totalOnlineCount++;
+                }
+            }
+        }
 
         return view('livewire.admin.consultant.chat.index', [
             'students' => $students,

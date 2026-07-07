@@ -343,7 +343,7 @@ class Index extends Component
                     Installment::create([
                         'installment_plan_id' => $plan->id,
                         'sequence'            => $k,
-                        'due_date'            => Jalalian::fromCarbon($purchase->copy())->addMonths($k)->toCarbon()->toDateString(),
+                        'due_date'            => Jalalian::fromCarbon($purchase->copy())->addMonths($k)->withDay(20)->toCarbon()->toDateString(),
                         'amount'              => max(0, $amount),
                         'status'              => Installment::STATUS_PENDING,
                     ]);

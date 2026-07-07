@@ -2,6 +2,13 @@
 
 namespace App\Livewire\Admin\Dashboard;
 
+use App\Models\ConversationMessage;
+use App\Models\EssayExam;
+use App\Models\EssayExamAssignment;
+use App\Models\StudentClassification;
+use App\Models\StudentClassificationSubmission;
+use App\Models\TypedExam;
+use App\Models\TypedExamAssignment;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 use Carbon\Carbon;
@@ -13,19 +20,25 @@ use App\Models\PersonalInformation;
 use App\Models\ProgramPart;
 use App\Models\Student;
 use App\Models\StudyPartSession;
+use App\Models\ClassificationProject;
+use App\Models\EssayExamAttempt;
+use App\Models\TypedExamAttempt;
+
 class Index extends Component
 {
     use SEOTools;
 
     public function mount()
     {
-            $this->seoConfig();
+        $this->seoConfig();
     }
+
     public function seoConfig()
     {
         $this->seo()
             ->setTitle('پیشخوان');
     }
+
     public function render()
     {
         $adminId = auth('admin')->id();
@@ -56,6 +69,14 @@ class Index extends Component
             })
             ->values();
 
+        // New Stats
+        $unreadMessagesCount = $this->getUnreadMessagesCount($adminId);
+        [$reportsSentTodayCount, $reportsNotSentTodayCount] = $this->getTodayReportStats($todayDate, $studentIds);
+        [$totalStudyDurationToday, $studentsNotStartedStudy] = $this->getTodayStudyStats($todayDate, $studentIds);
+        
+        $examStats = $this->getExamStats($studentIds);
+        $classificationStats = $this->getClassificationStats($studentIds);
+
         $studentsWithoutProgramOrSession = $this->getStudentsWithoutProgramOrSession($today, $studentIds);
         $todayCounselingSessions = $this->getTodayCounselingSessions($todayDate, $studentIds);
         $studentsWithoutTwoDaysReport = $this->getStudentsWithoutTwoDaysReport($today, $studentIds);
@@ -78,7 +99,152 @@ class Index extends Component
             'completionDistribution' => $completionDistribution,
             'weeklyCompletionChart' => $weeklyCompletionChart,
             'studentsPerState' => $studentsPerState,
+            
+            // New variables
+            'unreadMessagesCount' => $unreadMessagesCount,
+            'reportsSentTodayCount' => $reportsSentTodayCount,
+            'reportsNotSentTodayCount' => $reportsNotSentTodayCount,
+            'totalStudyDurationToday' => $totalStudyDurationToday,
+            'studentsNotStartedStudy' => $studentsNotStartedStudy,
+            'examStats' => $examStats,
+            'classificationStats' => $classificationStats,
+
         ])->layout('layouts.admin.app');
+    }
+    
+    private function getClassificationStats(array $studentIds): array
+    {
+        $activeProject = ClassificationProject::query()->where('is_active', true)->where('name', '!=', 'یک هفته آزمایشی')->first();
+        if (!$activeProject) {
+            return [
+                'classifiedStudentsCount' => 0,
+                'unclassifiedStudentsCount' => 0,
+                'activeClassificationProject' => null,
+            ];
+        }
+
+        // Get the user_ids that correspond to the advisor's student_ids
+        $studentUserIds = Student::query()->whereIn('id', $studentIds)->pluck('user_id')->all();
+
+        $classifiedUserIds = StudentClassificationSubmission::query()
+            ->where('classification_project_id', $activeProject->id)
+            ->whereIn('user_id', $studentUserIds)
+            ->where('is_completed', true)
+            ->pluck('user_id')->all();
+
+        $classifiedStudentsCount = count($classifiedUserIds);
+            
+        $unclassifiedStudentsCount = count($studentIds) - $classifiedStudentsCount;
+
+        return [
+            'classifiedStudentsCount' => $classifiedStudentsCount,
+            'unclassifiedStudentsCount' => $unclassifiedStudentsCount,
+            'activeClassificationProject' => $activeProject,
+        ];
+    }
+
+    private function getExamStats(array $studentIds): array
+    {
+        // Typed Exams
+        $totalTypedTestsCount = TypedExam::query()->published()->count();
+        
+        $unattendedTypedTestsCount = TypedExamAssignment::query()
+            ->whereIn('student_id', $studentIds)
+            ->whereHas('typedExam', fn($q) => $q->published())
+            ->whereDoesntHave('attempts')
+            ->count();
+
+        $overdueTypedTestsCount = TypedExamAssignment::query()
+            ->whereIn('student_id', $studentIds)
+            ->whereHas('typedExam', fn($q) => $q->published())
+            ->whereHas('time', fn($q) => $q->whereRaw("CONCAT(end_date, ' ', end_time) < ?", [now()]))
+            ->whereDoesntHave('attempts')
+            ->count();
+            
+        $avgTypedTestScore = TypedExamAttempt::query()
+            ->whereIn('student_id', $studentIds)
+            ->whereNotNull('score')
+            ->avg('score');
+
+        // Essay Exams
+        $totalEssayTestsCount = EssayExam::query()->count();
+
+        $unattendedEssayTestsCount = EssayExamAssignment::query()
+            ->whereIn('student_id', $studentIds)
+            ->whereHas('essayExam')
+            ->whereDoesntHave('attempts')
+            ->count();
+            
+        $overdueEssayTestsCount = EssayExamAssignment::query()
+            ->whereIn('student_id', $studentIds)
+            ->whereHas('essayExam')
+            ->whereHas('time', fn($q) => $q->where('end_at', '<', now()))
+            ->whereDoesntHave('attempts')
+            ->count();
+
+        $avgEssayTestScore = EssayExamAttempt::query()
+            ->whereHas('assignment', fn($q) => $q->whereIn('student_id', $studentIds))
+            ->whereNotNull('total_score')
+            ->avg('total_score');
+
+        return [
+            'totalTypedTestsCount' => $totalTypedTestsCount,
+            'unattendedTypedTestsCount' => $unattendedTypedTestsCount,
+            'overdueTypedTestsCount' => $overdueTypedTestsCount,
+            'avgTypedTestScore' => round($avgTypedTestScore ?? 0, 2),
+            
+            'totalEssayTestsCount' => $totalEssayTestsCount,
+            'unattendedEssayTestsCount' => $unattendedEssayTestsCount,
+            'overdueEssayTestsCount' => $overdueEssayTestsCount,
+            'avgEssayTestScore' => round($avgEssayTestScore ?? 0, 2),
+        ];
+    }
+
+    private function getTodayStudyStats(string $todayDate, array $studentIds): array
+    {
+        $studySessions = StudyPartSession::query()
+            ->whereIn('student_id', $studentIds)
+            ->whereDate('started_at', $todayDate)
+            ->get();
+            
+        $totalDuration = $studySessions->sum('duration_seconds');
+        
+        $studentsWhoStudiedIds = $studySessions->pluck('student_id')->unique()->all();
+        $studentsNotStartedStudy = Student::query()
+            ->whereIn('id', $studentIds)
+            ->whereNotIn('id', $studentsWhoStudiedIds)
+            ->with('user:id,name')
+            ->get();
+            
+        return [
+            $totalDuration,
+            $studentsNotStartedStudy,
+        ];
+    }
+
+    private function getTodayReportStats(string $todayDate, array $studentIds): array
+    {
+        $sentCount = DailyReport::query()
+            ->whereIn('student_id', $studentIds)
+            ->where('report_date', $todayDate)
+            ->count();
+
+        $notSentCount = count($studentIds) - $sentCount;
+
+        return [$sentCount, $notSentCount];
+    }
+
+    private function getUnreadMessagesCount(int $adminId): int
+    {
+        // We only count messages sent by students that have not been read yet,
+        // in conversations assigned to the current advisor.
+        return ConversationMessage::query()
+            ->where('sender_type', 'student')
+            ->whereNull('read_at')
+            ->whereHas('conversation', function ($query) use ($adminId) {
+                $query->where('advisor_id', $adminId);
+            })
+            ->count();
     }
 
     private function getScopedStudentIds(?int $adminId): array
@@ -174,10 +340,10 @@ class Index extends Component
             return [collect(), collect(), ['labels' => [], 'values' => []]];
         }
 
-        $studentIds = array_keys($byStudentParts);
+        $studentIdsWithParts = array_keys($byStudentParts);
 
         $students = Student::query()
-            ->whereIn('id', $studentIds)
+            ->whereIn('id', $studentIdsWithParts)
             ->with(['user.personalInformation.state'])
             ->get()
             ->keyBy('id');
@@ -200,12 +366,14 @@ class Index extends Component
             $completed = (int) ($completedByStudent[$studentId] ?? 0);
             $percentage = $planned > 0 ? (int) round(($completed / $planned) * 100) : 0;
 
-            $rows->push([
-                'student' => $students[$studentId] ?? null,
-                'planned' => $planned,
-                'completed' => $completed,
-                'percentage' => $percentage,
-            ]);
+            if(isset($students[$studentId])){
+                 $rows->push([
+                    'student' => $students[$studentId] ?? null,
+                    'planned' => $planned,
+                    'completed' => $completed,
+                    'percentage' => $percentage,
+                ]);
+            }
         }
 
         $distributionBuckets = [

@@ -10,6 +10,7 @@ use App\Models\UserProfile;
 use App\Models\PersonalInformation;
 use App\Notifications\SendOtpToUser;
 use App\Traits\NormalizesDigits;
+use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
@@ -18,7 +19,7 @@ use Livewire\Component;
 
 class TrialWeekOnboarding extends Component
 {
-    use NormalizesDigits;
+    use NormalizesDigits,SEOTools;
 
     public int $currentStep = 2;
     public int $totalSteps  = 6;
@@ -68,6 +69,8 @@ class TrialWeekOnboarding extends Component
         if (in_array($plan, ['trial', 'cash'], true)) {
             session(['intended_plan' => $plan]);
         }
+        $this->seo()
+            ->setTitle('ثبتنام');
     }
 
     public function next(): void

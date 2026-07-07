@@ -57,7 +57,7 @@
 
                             <a href="{{ route('client.profile.installment') }}" wire:navigate
                                class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-bold text-sm transition-colors">
-                                مشاهدهٔ اقساط
+                                مشاهده اقساط
                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                                 </svg>
@@ -99,13 +99,13 @@
 
                                         {{-- تصویر بالا (دقیقاً مشابه plan) --}}
                                         <div class="w-full h-36 flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200 dark:from-blue-950 dark:to-blue-900">
-                                            <img src="/client/icons/plan.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
+                                            <img src="/client/icons/omormali.webp" class="w-[9rem] h-[9rem] object-contain drop-shadow-md" alt="">
                                         </div>
 
                                         {{-- اطلاعات --}}
                                         <div class="p-4 space-y-3" dir="rtl">
-                                            <h3 class="font-bold text-foreground text-base">
-                                                کد رهگیری: {{ $payment->order_number }}
+                                            <h3 class="font-bold text-foreground text-base truncate">
+                                                {{ $this->getPaymentDescription($payment) }}
                                             </h3>
 
                                             <div class="flex flex-wrap items-center gap-2 mt-2">
@@ -151,7 +151,7 @@
 
                                         {{-- ستون تصویر (دقیقاً مشابه plan) --}}
                                         <div class="flex-shrink-0 w-[120px] flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-[#1e3a5f] dark:to-[#1e40af]">
-                                            <img src="/client/icons/plan.webp" class="w-20 h-20 object-contain drop-shadow-md" alt="">
+                                            <img src="/client/icons/omormali.webp" class="w-22 h-22 object-contain drop-shadow-md" alt="">
                                         </div>
 
                                         {{-- محتوا --}}
@@ -159,8 +159,8 @@
 
                                             {{-- راست: عنوان + تاریخ + بج‌ها --}}
                                             <div class="space-y-3 flex-1 min-w-0">
-                                                <h3 class="font-bold text-foreground text-base">
-                                                    کد رهگیری: {{ $payment->order_number }}
+                                                <h3 class="font-bold text-foreground text-base truncate">
+                                                    {{ $this->getPaymentDescription($payment) }}
                                                 </h3>
                                                 <div class="flex flex-wrap items-center gap-2">
                                                     @if($payment->status === 'completed')
@@ -207,10 +207,15 @@
                                          x-transition:leave="transition ease-in duration-150"
                                          x-transition:leave-start="opacity-100 translate-y-0"
                                          x-transition:leave-end="opacity-0 -translate-y-1"
-                                         class="border-t border-border bg-background/50 p-4"
+                                         class=" border-border bg-background/50 p-4"
                                          style="display: none;">
 
-                                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div class="mb-4 p-3 bg-secondary rounded-xl text-center border border-border/50">
+                                            <span class="text-xs text-muted">کد رهگیری</span>
+                                            <span class="block font-bold text-foreground text-sm mt-1 tracking-widest" dir="ltr">{{ $payment->order_number }}</span>
+                                        </div>
+
+                                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                                             <div class="flex flex-col items-center p-3 bg-secondary rounded-xl text-center">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -233,14 +238,6 @@
                                                 </svg>
                                                 <span class="text-xs text-muted">شماره صورتحساب</span>
                                                 <span class="font-bold text-foreground text-sm mt-1" dir="ltr">{{ $payment->refNumber ?? '—' }}</span>
-                                            </div>
-
-                                            <div class="flex flex-col items-center p-3 bg-secondary rounded-xl text-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-2 text-fuchsia-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                                                </svg>
-                                                <span class="text-xs text-muted">شرح</span>
-                                                <span class="font-bold text-foreground text-sm mt-1">خرید دوره</span>
                                             </div>
                                         </div>
                                     </div>

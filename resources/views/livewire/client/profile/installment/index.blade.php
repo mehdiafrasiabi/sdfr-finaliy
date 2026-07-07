@@ -19,12 +19,12 @@
                     </div>
 
                     @if (session('error'))
-                        <div class="rounded-xl bg-rose-50 dark:bg-rose-900/30 text-rose-700 dark:text-rose-200 px-4 py-3 border border-rose-200 dark:border-rose-800 text-sm">
+                        <div class="rounded-xl bg-rose-50 dark:bg-rose-900 text-rose-700 dark:text-rose-200 px-4 py-3 border border-rose-200 dark:border-rose-800 text-sm">
                             {{ session('error') }}
                         </div>
                     @endif
                     @if (session('success'))
-                        <div class="rounded-xl bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-200 px-4 py-3 border border-emerald-200 dark:border-emerald-800 text-sm">
+                        <div class="rounded-xl bg-emerald-50 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-200 px-4 py-3 border border-emerald-200 dark:border-emerald-800 text-sm">
                             {{ session('success') }}
                         </div>
                     @endif
@@ -110,7 +110,7 @@
                                     <div class="text-xs text-muted mt-1 text-end">{{ $progress }}٪ تکمیل شده</div>
                                 </div>
 
-                                <div class="border-t border-border pt-4 grid sm:grid-cols-2 gap-3">
+                                <div class=" border-border pt-4 grid sm:grid-cols-2 gap-3">
                                     @if ($current)
                                         <button wire:click="payInstallment({{ $current->id }})" wire:loading.attr="disabled"
                                                 class="w-full inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-bold text-sm transition-colors disabled:opacity-60">
@@ -164,57 +164,175 @@
                                         $isOverdue = $inst->status === 'pending' && $inst->isOverdue();
                                         $isSelected = in_array($inst->id, $selectedInstallments);
                                     @endphp
-                                    <div @class([
-                                            "glass border rounded-2xl p-4 flex items-center justify-between gap-4 flex-wrap transition-all",
+
+                                    <div wire:key="installment-card-{{ $inst->id }}"
+                                         x-data="{ expanded: false }"
+                                         @class([
+                                            "glass border rounded-2xl overflow-hidden flex flex-col transition-all",
                                             "border-blue-500/40 bg-blue-950/20 ring-2 ring-blue-500/20" => $groupPaymentMode && $isSelected,
                                             "border-border" => !$groupPaymentMode || !$isSelected,
-                                        ])>
-                                        <div class="flex items-start gap-3">
-                                            @if ($groupPaymentMode && $tab === 'due')
-                                                <input type="checkbox"
-                                                       value="{{ $inst->id }}"
-                                                       wire:model.live="selectedInstallments"
-                                                       class="mt-1 w-5 h-5 rounded border-border bg-secondary text-primary focus:ring-primary focus:ring-offset-secondary cursor-pointer">
-                                            @endif
-                                            <div class="space-y-1">
-                                                <div class="flex items-center gap-2 flex-wrap">
-                                                    <span class="font-bold text-foreground">قسط {{ $inst->sequence }} از {{ $count }}</span>
+                                         ])
+                                    >
+                                        {{-- ═══════════════════════════════════
+                                             موبایل: ساختار کپی‌شده از financial.blade.php
+                                        ════════════════════════════════════ --}}
+                                        <div class="md:hidden">
+                                            <div class="w-full h-36 flex items-center justify-center bg-gradient-to-b from-blue-100 to-blue-200 dark:from-blue-950 dark:to-blue-900">
+                                                <img src="{{ asset('client/icons/installment.webp') }}" class="w-[9rem] h-[9rem] object-contain drop-shadow-md" alt="Installment">
+                                            </div>
+
+                                            <div class="p-4 space-y-3" dir="rtl">
+                                                @if ($groupPaymentMode && $tab === 'due')
+                                                    <label class="flex items-center gap-4 cursor-pointer">
+                                                        <input type="checkbox"
+                                                               value="{{ $inst->id }}"
+                                                               wire:model.live="selectedInstallments"
+                                                               class="w-5 h-5 rounded border-border bg-secondary text-primary focus:ring-primary focus:ring-offset-secondary">
+                                                        <span class="font-bold text-foreground">انتخاب قسط {{ $inst->sequence }}</span>
+                                                    </label>
+                                                @endif
+                                                <h3 class="font-bold text-foreground text-base truncate">
+                                                    قسط {{ $inst->sequence }} — سررسید: {{ jalali($inst->due_date)->format('%d %B %Y') }}
+                                                </h3>
+                                                <div class="flex flex-wrap items-center gap-2 mt-2">
                                                     @if ($inst->status === 'paid')
-                                                        <span class="px-2 py-0.5 rounded-full text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">پرداخت‌شده</span>
+                                                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-full"><span class="h-1.5 w-1.5 rounded-full bg-green-500"></span> پرداخت‌شده</span>
                                                     @elseif ($isOverdue)
-                                                        <span class="px-2 py-0.5 rounded-full text-xs bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300">سررسید گذشته</span>
+                                                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-full"><span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span> سررسید گذشته</span>
                                                     @elseif ($isCurrent)
-                                                        <span class="px-2 py-0.5 rounded-full text-xs bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">قسط جاری</span>
+                                                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-full"><span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span> قسط جاری</span>
                                                     @else
-                                                        <span class="px-2 py-0.5 rounded-full text-xs bg-gray-200 text-gray-500 dark:bg-gray-700 dark:text-gray-400">در نوبت</span>
+                                                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400 text-xs font-bold rounded-full"><span class="h-1.5 w-1.5 rounded-full bg-gray-500"></span> در نوبت</span>
                                                     @endif
+                                                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">
+                                                        {{ number_format($inst->amount) }} تومان
+                                                    </span>
                                                 </div>
-                                                <div class="text-sm text-muted flex items-center gap-4 flex-wrap">
-                                                    <span>تاریخ سررسید: <span class="text-foreground font-semibold">{{ jalali($inst->due_date)->format('%Y/%m/%d') }}</span></span>
-                                                    <span class="text-foreground font-bold">{{ number_format($inst->amount) }} تومان</span>
-                                                </div>
-                                                @if ($inst->status === 'paid' && $inst->paid_at)
-                                                    <div class="text-xs text-emerald-600 dark:text-emerald-400">
-                                                        پرداخت‌شده در {{ jalali($inst->paid_at)->format('%Y/%m/%d') }}
-                                                        @if ($inst->paid_manually) (ثبت دستی) @endif
-                                                    </div>
+                                            </div>
+
+                                            <div class="px-4 pb-4 space-y-2" dir="rtl">
+                                                <button @click="expanded = !expanded" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
+                                                    <span>مشاهده جزئیات</span>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': expanded }" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                                </button>
+                                                @if ($tab === 'due' && !$groupPaymentMode)
+                                                     @if ($isCurrent)
+                                                         <button wire:click="payInstallment({{ $inst->id }})" wire:loading.attr="disabled"
+                                                                @class([
+                                                                    'w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-colors',
+                                                                    'bg-rose-600 hover:bg-rose-700 text-white' => $isOverdue,
+                                                                    'bg-primary hover:bg-primary/90 text-primary-foreground' => !$isOverdue,
+                                                                ])>
+                                                            پرداخت
+                                                         </button>
+                                                     @else
+                                                         <button disabled class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-colors bg-amber-500 text-white opacity-60 cursor-not-allowed">
+                                                            پرداخت
+                                                         </button>
+                                                     @endif
                                                 @endif
                                             </div>
                                         </div>
-                                        <div class="flex-shrink-0">
-                                            @if ($inst->status === 'paid')
-                                                <span class="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 text-sm font-semibold">✔ تسویه</span>
-                                            @elseif ($isCurrent && !$groupPaymentMode)
-                                                <button wire:click="payInstallment({{ $inst->id }})" wire:loading.attr="disabled"
-                                                        class="inline-flex items-center justify-center px-6 py-2 bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl font-bold text-sm transition-colors disabled:opacity-60">
-                                                    پرداخت
-                                                </button>
-                                            @elseif (!$isCurrent && !$groupPaymentMode)
-                                                <button disabled title="برای پرداخت این قسط، از حالت پرداخت گروهی استفاده کنید یا قسط جاری را بپردازید"
-                                                        class="inline-flex items-center justify-center px-6 py-2 bg-secondary text-muted rounded-xl font-semibold text-sm cursor-not-allowed opacity-70">
-                                                    پرداخت
-                                                </button>
-                                            @endif
+
+                                        {{-- ═══════════════════════════════════
+                                             دسکتاپ: ساختار کپی‌شده از financial.blade.php
+                                        ════════════════════════════════════ --}}
+                                        <div class="hidden md:flex flex-row min-h-[130px]">
+                                             @if ($groupPaymentMode && $tab === 'due')
+                                                <div class="flex-shrink-0 w-[120px] flex items-center justify-center">
+                                                     <input type="checkbox"
+                                                           value="{{ $inst->id }}"
+                                                           wire:model.live="selectedInstallments"
+                                                           class="w-6 h-6 rounded-md border-border bg-secondary text-primary focus:ring-primary focus:ring-offset-secondary cursor-pointer">
+                                                </div>
+                                             @else
+                                                <div class="flex-shrink-0 w-[120px] flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 dark:from-[#1e3a5f] dark:to-[#1e40af]">
+                                                    <img src="{{ asset('client/icons/installment.webp') }}" class="w-22 h-22 object-contain drop-shadow-md" alt="Installment">
+                                                </div>
+                                             @endif
+
+                                            <div class="flex-1 p-4 flex items-center justify-between gap-4" dir="rtl">
+                                                <div class="space-y-3 flex-1 min-w-0">
+                                                    <h3 class="font-bold text-foreground text-base truncate">
+                                                         قسط {{ $inst->sequence }} — سررسید: {{ jalali($inst->due_date)->format('%d %B %Y') }}
+                                                    </h3>
+                                                    <div class="flex flex-wrap items-center gap-2">
+                                                        @if ($inst->status === 'paid')
+                                                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 text-xs font-bold rounded-full"><span class="h-1.5 w-1.5 rounded-full bg-green-500"></span> پرداخت‌شده</span>
+                                                        @elseif ($isOverdue)
+                                                             <span class="inline-flex items-center gap-1 px-2 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-xs font-bold rounded-full"><span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span> سررسید گذشته</span>
+                                                        @elseif ($isCurrent)
+                                                             <span class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs font-bold rounded-full"><span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span> قسط جاری</span>
+                                                        @else
+                                                            <span class="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-900/30 text-gray-600 dark:text-gray-400 text-xs font-bold rounded-full"><span class="h-1.5 w-1.5 rounded-full bg-gray-500"></span> در نوبت</span>
+                                                        @endif
+                                                        <span class="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs font-bold rounded-full">
+                                                            مبلغ: {{ number_format($inst->amount) }} تومان
+                                                        </span>
+                                                         @if ($inst->status === 'paid' && $inst->paid_at)
+                                                            <div class="text-xs text-emerald-600 dark:text-emerald-400">
+                                                                (پرداخت در {{ jalali($inst->paid_at)->format('Y/m/d') }})
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex items-center gap-2 flex-shrink-0" dir="ltr">
+                                                     @if ($tab === 'due' && !$groupPaymentMode)
+                                                        @if ($isCurrent)
+                                                             <button wire:click="payInstallment({{ $inst->id }})" wire:loading.attr="disabled"
+                                                                    @class([
+                                                                        'inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl font-bold text-sm transition-colors',
+                                                                        'bg-rose-600 hover:bg-rose-700 text-white' => $isOverdue,
+                                                                        'bg-primary hover:bg-primary/90 text-primary-foreground' => !$isOverdue,
+                                                                    ])>
+                                                                پرداخت
+                                                             </button>
+                                                        @else
+                                                             <button disabled class="inline-flex items-center justify-center gap-2 px-5 py-2 rounded-xl font-bold text-sm transition-colors bg-amber-500 text-white opacity-60 cursor-not-allowed">
+                                                                پرداخت
+                                                             </button>
+                                                        @endif
+                                                    @endif
+                                                    <button @click="expanded = !expanded" class="inline-flex items-center justify-center gap-2 px-4 py-2 bg-background border border-border hover:bg-secondary rounded-xl font-semibold text-sm text-foreground transition-colors">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform duration-200" :class="{ 'rotate-180': expanded }" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {{-- ═══ جزئیات (کپی‌شده از financial.blade.php) ═══ --}}
+                                        <div x-show="expanded" x-cloak
+                                             x-transition:enter="transition ease-out duration-200"
+                                             x-transition:enter-start="opacity-0 -translate-y-1"
+                                             x-transition:enter-end="opacity-100 translate-y-0"
+                                             x-transition:leave="transition ease-in duration-150"
+                                             x-transition:leave-start="opacity-100 translate-y-0"
+                                             x-transition:leave-end="opacity-0 -translate-y-1"
+                                             class=" border-border bg-background/50 p-4" style="display: none;">
+
+                                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                <div class="flex flex-col items-center p-3 bg-secondary rounded-xl text-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-primary mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                                    <span class="text-xs text-muted">تاریخ سررسید</span>
+                                                    <span class="font-bold text-foreground text-sm mt-1">{{ jalali($inst->due_date)->format('%d %B %Y') }}</span>
+                                                </div>
+                                                <div class="flex flex-col items-center p-3 bg-secondary rounded-xl text-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-2" :class="$inst->status === 'paid' ? 'text-green-500' : 'text-orange-500'" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                                    <span class="text-xs text-muted">وضعیت</span>
+                                                    <span class="font-bold text-foreground text-sm mt-1">@if($inst->isPaid()) پرداخت شده @else در انتظار پرداخت @endif</span>
+                                                </div>
+                                                <div class="flex flex-col items-center p-3 bg-secondary rounded-xl text-center">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-indigo-500 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                                    <span class="text-xs text-muted">صورتحساب</span>
+                                                    <span class="font-bold text-foreground text-sm mt-1" dir="ltr">{{ $inst->payment->refNumber ?? '—' }}</span>
+                                                </div>
+                                                <div class="flex flex-col items-center p-3 bg-secondary rounded-xl text-center">
+                                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mb-2 text-fuchsia-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+                                                    <span class="text-xs text-muted">نوع پرداخت</span>
+                                                    <span class="font-bold text-foreground text-sm mt-1">{{ $this->getInstallmentDescription($inst) }}</span>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 @endforeach
@@ -250,7 +368,7 @@
                             <span class="font-semibold">{{ number_format($item->amount) }} تومان</span>
                         </div>
                     @endforeach
-                    <div class="flex items-center justify-between p-3 rounded-lg bg-secondary border-t-2 border-primary text-base">
+                    <div class="flex items-center justify-between p-3 rounded-lg bg-secondary border-primary text-base">
                         <span class="font-bold">جمع کل قابل پرداخت</span>
                         <span class="font-extrabold text-primary">{{ number_format($totalToPay) }} تومان</span>
                     </div>

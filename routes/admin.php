@@ -10,11 +10,8 @@ use App\Livewire\Admin\Student\Index as StudentIndex;
 use App\Livewire\Admin\Student\ReportDailyActivities\Detail as ReportDailyActivitiesDetail;
 use App\Livewire\Admin\Student\ReportDailyActivities\Index as ReportDailyActivitiesIndex;
 use App\Livewire\Admin\Student\Reports\ReportDaily as StudentReportDaily;
-use App\Livewire\Admin\Student\Reports\ReportMissing as ReportMissingIndex;
 use App\Livewire\Admin\Student\StudySession\Index as StudentStudySessionIndex;
 use App\Livewire\Admin\Student\StudySession\Show as StudentStudySessionShow;
-use App\Livewire\Admin\Ticket\Index as TicketIndex;
-use App\Livewire\Admin\Ticket\Show as TicketShow;
 use App\Livewire\Admin\AdminUser\Index as AdminUserIndex;
 use App\Livewire\Admin\AdminUser\WorkSchedule as AdminUserWorkSchedule;
 use App\Livewire\Admin\ContactDocumentation\Index as ContactDocumentationIndex;
@@ -220,9 +217,6 @@ Route::name('admin.')->group(function () {
             ->middleware('admin.permission:admin.contact-documentation.view');
         // گزارش‌های ارسال نشده
         // کارنامه هوشمند
-
-        Route::get('/report-not-send', ReportMissingIndex::class)->name('reportMissing')
-            ->middleware('admin.permission:admin.report-missing.view');
         // آزمون‌های تایپی
         Route::get('/typed-exams', \App\Livewire\Admin\TypedExam\ExamIndex::class)->name('typed-exams.index')
             ->middleware('admin.permission:admin.typed-exams.view');
@@ -246,11 +240,7 @@ Route::name('admin.')->group(function () {
                 ->name('answer-sheet');
         });
 
-        // تیکت‌ها و پشتیبانی
-        Route::get('/tickets', TicketIndex::class)->name('ticket.index');
-//            ->middleware('admin.permission:admin.tickets.view');
-        Route::get('/tickets/{ticket}', TicketShow::class)->name('ticket.show');
-//            ->middleware('admin.permission:admin.tickets.view');
+
         Route::prefix('classification')->name('classification.')->middleware('admin.permission:admin.classification.view')->group(function () {
             Route::get('/', \App\Livewire\Admin\Classification\Dashboard::class)->name('dashboard');
             Route::get('/{project}/students', \App\Livewire\Admin\Classification\Students::class)->name('students');

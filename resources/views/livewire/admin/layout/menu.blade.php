@@ -363,15 +363,6 @@
                                         </span>
                                         </a>
                                     </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{ route('admin.reportMissing') }}">
-                                            <i class="fi fi-rs-usd-circle">
-                                            </i>
-                                            <span class="menu-label">
-                                             ارسال نشده
-                                        </span>
-                                        </a>
-                                    </li>
                                     <li class="menu-heading">
                                    <span class="menu-label">
                                   ابزار
@@ -390,7 +381,16 @@
                                             <i class="fi fi-rr-unlock">
                                             </i>
                                             <span class="menu-label">
-                                             لیست آزمون
+                                              آزمون تستی
+                                        </span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link" href="{{route('admin.essay-exams.index')}}">
+                                            <i class="fi fi-rr-unlock">
+                                            </i>
+                                            <span class="menu-label">
+                                               آزمون تشریحی
                                         </span>
                                         </a>
                                     </li>
@@ -402,12 +402,6 @@
                                             <span class="menu-label">
                                             مستندات تماس
                                         </span>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{ route('admin.ticket.index') }}">
-                                            <i class="fi fi-rr-comment"></i>
-                                            <span class="menu-label">لیست تیکت‌ها</span>
                                         </a>
                                     </li>
                                     @if($admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('super admin'))

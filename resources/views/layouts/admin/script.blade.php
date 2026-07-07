@@ -1,7 +1,3 @@
-
-
-
-<!-- end::NexLink Page Scripts -->
 <script>
     const target = document.documentElement;
 

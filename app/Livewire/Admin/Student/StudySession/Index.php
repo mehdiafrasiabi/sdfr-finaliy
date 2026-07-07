@@ -2,10 +2,13 @@
 
 namespace App\Livewire\Admin\Student\StudySession;
 
-use App\Exports\StudentsByAdminExport;
+use App\Models\DailyReportPart;
+use App\Models\ProgramPart;
 use App\Models\Student;
+use App\Models\StudyPartSession;
+use App\Models\SessionFeedback;
 use Artesaos\SEOTools\Traits\SEOTools;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -13,29 +16,158 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\admin\StudySessionSummaryExport;
 use Illuminate\Database\Eloquent\Builder;
 use Morilog\Jalali\Jalalian;
+use Carbon\Carbon;
+
 class Index extends Component
 {
     use WithPagination,SEOTools;
 
-    public $search = ''; // جستجو در نام دانش‌آموز
+    public $search = '';
     public bool $exportModalOpen = false;
     public string $exportTarget = 'all';
-    public string $exportMode = 'date_range'; // 'date_range' | 'last_program'
-
+    public string $exportMode = 'date_range';
     public string $exportStartDate = '';
     public string $exportEndDate = '';
     public array $selectedStudentIds = [];
     public array $studentTotalDisplays = [];
+    public array $dashboardData = [];
+
     public function mount()
     {
-        // دریافت پارامتر course_id از URL
         $this->seoConfig();
     }
+
     public function seoConfig()
     {
-        $this->seo()
-            ->setTitle('دانش آموزان');
+        $this->seo()->setTitle('ساعت مطالعه دانش آموزان');
     }
+
+    private function formatSecondsToHours(int $seconds): float
+    {
+        return round($seconds / 3600, 2);
+    }
+
+    protected function calculateDashboardData(Builder $studentsQuery): void
+    {
+        $studentIds = $studentsQuery->pluck('id')->toArray();
+        $thirtyDaysAgo = Carbon::now()->subDays(30);
+
+        // 1. ساعت مطالعه کل ثبت شده (برنامه‌ریزی شده)
+        $totalPlannedSeconds = ProgramPart::whereHas('weeklyProgram', function ($q) use ($studentIds) {
+            $q->whereIn('student_id', $studentIds);
+        })->sum('duration_minutes') * 60;
+
+        // 2. ساعت مطالعه کل خوانده شده تا الان
+        $totalStudiedSeconds = StudyPartSession::whereIn('student_id', $studentIds)->sum('duration_seconds');
+
+        // 4. کل ساعت مطالعه جبرانی (از مدل MakeupSession)
+        $totalCompensatorySeconds = \App\Models\MakeupSession::whereIn('student_id', $studentIds)->sum('duration_seconds');
+
+        // 5. میانگین امتیازات هر پارت ثبت شده
+        $averagePartRating = SessionFeedback::whereIn('student_id', $studentIds)->avg('rating');
+
+        // 6. تعداد کل پارت های برنامه ریزی شده -> انجام شده / انجام نشده
+        $totalPartsPlanned = ProgramPart::whereHas('weeklyProgram', function ($q) use ($studentIds) {
+            $q->whereIn('student_id', $studentIds);
+        })->count();
+        $studiedPartIds = StudyPartSession::whereIn('student_id', $studentIds)->where('duration_seconds', '>', 0)->pluck('program_part_id')->unique();
+        $totalPartsDone = $studiedPartIds->count();
+        $totalPartsNotDone = $totalPartsPlanned - $totalPartsDone;
+
+        // 7. حذف شده - این آمار قابل محاسبه نبود
+        // $extraOrganizationalSeconds = \App\Models\MakeupSession::whereIn('student_id', $studentIds)->where('source', 'organizational')->sum('duration_seconds');
+
+        // 8. میانگین مطالعه دانش آموزان در روز
+        $totalDays = $thirtyDaysAgo->diffInDays(Carbon::now());
+        $averageDailyStudySeconds = ($totalStudents = count($studentIds)) > 0 && $totalDays > 0
+            ? $totalStudiedSeconds / $totalDays / $totalStudents
+            : 0;
+
+        // 3 & 9 & 10. بهترین/بدترین دانش آموزان, پارت های تقلب, دروس فراری
+        $bestPerformers = [];
+        $worstPerformers = [];
+        $cheatedPartsDetails = [];
+        $allFugitiveLessons = [];
+
+        $studentsData = Student::with('user.personalInformation')->whereIn('id', $studentIds)->get();
+
+        foreach ($studentsData as $student) {
+            $planned = ProgramPart::whereHas('weeklyProgram', function($q) use ($student) {
+                $q->where('student_id', $student->id);
+            })->where('created_at', '>=', $thirtyDaysAgo)->sum('duration_minutes') * 60;
+
+            $studied = StudyPartSession::where('student_id', $student->id)->where('created_at', '>=', $thirtyDaysAgo)->sum('duration_seconds');
+            $completionRate = $planned > 0 ? ($studied / $planned) * 100 : 0;
+
+            if ($completionRate > 80) $bestPerformers[] = $student;
+            if ($completionRate < 30) $worstPerformers[] = $student;
+
+            // 9. پارت های تقلب
+            $studentCheatedParts = DailyReportPart::whereHas('dailyReport', function($q) use ($student) {
+                $q->where('student_id', $student->id);
+            })
+                ->where('is_read', true)
+                ->whereDoesntHave('programPart.studyPartSessions', function (Builder $q) {
+                    $q->where('duration_seconds', '>', 0);
+                })
+                ->with('programPart.ccSubject')
+                ->get();
+
+            if ($studentCheatedParts->isNotEmpty()) {
+                $cheatedPartsDetails[] = [
+                    'student_name' => $student->user?->personalInformation?->name ?? $student->user->name,
+                    'count' => $studentCheatedParts->count(),
+                ];
+            }
+
+            // 10. دروس فراری
+            $studentPlannedParts = ProgramPart::whereHas('weeklyProgram', function($q) use ($student) {
+                $q->where('student_id', $student->id);
+            })->where('created_at', '>=', $thirtyDaysAgo)->with('ccSubject')->get();
+
+            $studiedPartIdsForStudent = StudyPartSession::where('student_id', $student->id)->where('created_at', '>=', $thirtyDaysAgo)->pluck('program_part_id');
+
+            $lessons = $studentPlannedParts->groupBy('cc_subject_id');
+            foreach ($lessons as $subjectId => $parts) {
+                if ($parts->pluck('id')->intersect($studiedPartIdsForStudent)->isEmpty()) {
+                     $lessonName = $parts->first()->ccSubject?->name ?? 'درس نامشخص';
+                     if (!isset($allFugitiveLessons[$lessonName])) $allFugitiveLessons[$lessonName] = 0;
+                     $allFugitiveLessons[$lessonName]++;
+                }
+            }
+        }
+        arsort($allFugitiveLessons);
+
+        // 11. تعداد تست در نظر گرفته -> انجام شده / انجام نشده
+        $totalTestsPlanned = ProgramPart::whereHas('weeklyProgram', function ($q) use ($studentIds) {
+            $q->whereIn('student_id', $studentIds);
+        })->sum('test_count');
+
+        $totalTestsDone = DailyReportPart::whereHas('dailyReport', function($q) use ($studentIds){
+            $q->whereIn('student_id', $studentIds);
+        })->sum('tests_done');
+
+        $totalTestsNotDone = $totalTestsPlanned - $totalTestsDone;
+
+        $this->dashboardData = [
+            'totalPlannedHours' => $this->formatSecondsToHours($totalPlannedSeconds),
+            'totalStudiedHours' => $this->formatSecondsToHours($totalStudiedSeconds),
+            'bestPerformers' => $bestPerformers,
+            'worstPerformers' => $worstPerformers,
+            'totalCompensatoryHours' => $this->formatSecondsToHours($totalCompensatorySeconds),
+            'averagePartRating' => round($averagePartRating, 2),
+            'totalPartsPlanned' => $totalPartsPlanned,
+            'totalPartsDone' => $totalPartsDone,
+            'totalPartsNotDone' => $totalPartsNotDone,
+            'averageDailyStudyHours' => $this->formatSecondsToHours($averageDailyStudySeconds),
+            'cheatedPartsDetails' => $cheatedPartsDetails,
+            'fugitiveLessons' => $allFugitiveLessons,
+            'totalTestsPlanned' => (int)$totalTestsPlanned,
+            'totalTestsDone' => (int)$totalTestsDone,
+            'totalTestsNotDone' => (int)($totalTestsPlanned - $totalTestsDone),
+        ];
+    }
+
 
     public function openExportModal(): void
     {
@@ -118,13 +250,10 @@ class Index extends Component
     {
         $query = Student::query()
             ->with([
-                'payment.order.orderItems.product',
-                'payment.order.user',
-                'user.personalInformation',  // ✅ این باید باشه
+                'user.personalInformation',
                 'user.profile',
                 'advisor',
             ]);
-        // مدیر مدرسه فقط دانش‌آموزان مدرسهٔ خود را می‌بیند.
         $admin = auth('admin')->user();
         if ($admin?->hasRole('school-manager') && $admin->school_id) {
             return $query->where('school_id', $admin->school_id);
@@ -142,10 +271,12 @@ class Index extends Component
     }
     public function render()
     {
-        $adminId = auth()->id(); // گرفتن ID پشتیبان لاگین شده
+        $adminId = auth()->id();
+        $baseStudentsQuery = $this->studentsBaseQuery($adminId);
 
-        $studentsQuery = $this->studentsBaseQuery($adminId);
-        // اگر جستجو فعال بود
+        $this->calculateDashboardData(clone $baseStudentsQuery);
+
+        $studentsQuery = $baseStudentsQuery;
         if ($this->search) {
             $studentsQuery->whereHas('user.personalInformation', function ($q) {
                 $q->where('name', 'like', '%' . $this->search . '%');
@@ -180,5 +311,6 @@ class Index extends Component
         return view('livewire.admin.student.study-session.index', [
             'students' => $students,
             'exportStudents' => $exportStudents,
-        ])->layout('layouts.admin.app');    }
+        ])->layout('layouts.admin.app');
+    }
 }
