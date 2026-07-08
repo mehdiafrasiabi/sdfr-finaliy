@@ -307,7 +307,7 @@
                     {{-- ═══ Signup link ═══ --}}
                     <div class="pt-2 border-t border-border text-center text-sm text-muted">
                         حساب کاربری ندارید؟
-                        <a wire:navigate href="{{ route('client.auth.signup') }}" class="font-bold text-primary hover:underline mr-1">ثبت نام کنید</a>
+                        <a wire:navigate href="{{ route('client.onboarding') }}" class="font-bold text-primary hover:underline mr-1">ثبت نام کنید</a>
                     </div>
                 </div>
             </div>

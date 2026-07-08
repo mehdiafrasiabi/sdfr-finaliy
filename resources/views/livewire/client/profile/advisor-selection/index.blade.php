@@ -26,7 +26,7 @@
                         </p>
                     </div>
 
-                    <div class="space-y-5" wire:poll.visible>
+                    <div class="space-y-5" wire:poll.visible.30000ms>
 
                         {{-- مشاورِ تاییدشده --}}
                         @if ($approvedAdvisor)

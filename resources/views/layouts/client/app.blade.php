@@ -251,25 +251,6 @@
 @include('layouts.client.pwa-install-modal')
 
 @include('layouts.client.script')
-<script data-navigate-once>
-    //remove wire:snapshot form tags in client
-    let attrs = [
-        'snapshot',
-        'effects',
-    ];
-    function snapKill() {
-        document.querySelectorAll('div').forEach(function (element) {
-            for (let i in attrs) {
-                if (element.getAttribute(`wire:${attrs[i]}`) !== null) {
-                    element.removeAttribute(`wire:${attrs[i]}`);
-                }
-            }
-        });
-    }
-    window.addEventListener('load', (ev) => {
-        snapKill();
-    });
-</script>
 
 {{-- Keyframe Animations --}}
 <style>

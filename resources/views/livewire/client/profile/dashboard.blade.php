@@ -1,4 +1,70 @@
-<div class="min-h-screen text-white" dir="rtl" style="font-family: inherit;" x-data="sdfrDashIntro" x-init="init">
+<div class="min-h-screen text-white" dir="rtl" style="font-family: inherit;"
+     x-data="{
+        show: false,
+        introFinished: false,
+        hasError: false,
+        timerId: null,
+        KEY: 'sdfr_intro_played',
+
+        init() {
+            if (window.innerWidth >= 640 || this.hasPlayed()) {
+                this.finish(false);
+                return;
+            }
+
+            if (!navigator.onLine) {
+                this.handleNetworkError();
+                return;
+            }
+
+            this.show = true;
+            document.body.style.overflow = 'hidden';
+            this.timerId = setTimeout(() => this.finish(), 5000);
+        },
+
+        hasPlayed() {
+            try {
+                return sessionStorage.getItem(this.KEY) === '1';
+            } catch (e) {
+                return true;
+            }
+        },
+
+        handleNetworkError() {
+            this.hasError = true;
+            this.show = true;
+            document.body.style.overflow = 'hidden';
+        },
+
+        finish(save = true) {
+            if (this.timerId) {
+                clearTimeout(this.timerId);
+                this.timerId = null;
+            }
+
+            if (save) {
+                try {
+                    sessionStorage.setItem(this.KEY, '1');
+                } catch (e) {}
+            }
+
+            this.show = false;
+            this.introFinished = true;
+            document.body.style.overflow = '';
+        },
+
+        skip() {
+            this.finish();
+        },
+
+        destroy() {
+            if (this.timerId) {
+                clearTimeout(this.timerId);
+            }
+            document.body.style.overflow = '';
+        },
+     }"
+     x-init="init()">
 
     {{-- ════════ انیمیشن ورود (گیف) — یکبار در ورود ════════ --}}
     <div x-show="show" x-cloak wire:ignore
@@ -1130,58 +1196,6 @@
 
     {{-- ════════════════ مودال اتفاقات یهویی ════════════════ --}}
     <livewire:client.profile.sudden-event-modal/>
-
-    <script data-navigate-once>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('sdfrDashIntro', function () {
-                return {
-                    show: false,
-                    introFinished: false,
-                    hasError: false,
-                    KEY: 'sdfr_intro_played',
-
-                    init() {
-                        // اگر در دسکتاپ هستیم یا انیمیشن قبلا پخش شده، مستقیم داشبورد را نشان بده
-                        if (window.innerWidth >= 640 || sessionStorage.getItem(this.KEY) === '1') {
-                            this.show = false;
-                            this.introFinished = true;
-                            return;
-                        }
-
-                        if (!navigator.onLine) {
-                            this.handleNetworkError();
-                            return;
-                        }
-
-                        this.show = true;
-                        document.body.style.overflow = 'hidden';
-
-                        // گیف پس از 5 ثانیه تمام می‌شود
-                        setTimeout(() => this.finish(), 5000);
-                    },
-
-                    handleNetworkError() {
-                        this.hasError = true;
-                        this.show = true; // صفحه خطا را حتما نشان بده
-                    },
-
-                    finish() {
-                        try {
-                            sessionStorage.setItem(this.KEY, '1');
-                        } catch (e) {}
-
-                        this.show = false;
-                        this.introFinished = true;
-                        document.body.style.overflow = '';
-                    },
-
-                    skip() {
-                        this.finish();
-                    },
-                }
-            });
-        });
-    </script>
 
     @script
     <script>

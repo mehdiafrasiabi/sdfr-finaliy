@@ -1,4 +1,4 @@
-<div dir="rtl">
+<div dir="rtl" data-weekly-program-view>
     @assets
     <style>
         @font-face { font-family: 'Digital'; src: url('/client/assets/fonts/digital-7.ttf') format('truetype'); }
@@ -47,7 +47,8 @@
              صفحه تمام‌صفحه تایمر
            ════════════════════════════════════════════════════════════ --}}
         @if($timerActive)
-            <div class="fixed inset-0 z-[90] overflow-y-auto"
+            <div wire:key="study-timer-overlay-{{ $isMakeupMode ? 'makeup' : 'part' }}-{{ $currentPartId ?? $makeupChapterId ?? 'timer' }}"
+                 class="fixed inset-0 z-[90] overflow-y-auto"
                  style="background:rgba(5,5,7,.94); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);"
                  x-data="{
                      wakeLock: null, keepOn: false, wantOn: false,
@@ -205,8 +206,12 @@
                     @endif
                     <div class="flex items-center justify-center gap-14 mt-10">
                         <!-- دکمه لغو کامل -->
-                        <button wire:click="openCancelConfirm"
-                                class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10" title="لغو">
+                        <button type="button"
+                                wire:click.prevent="openCancelConfirm"
+                                wire:loading.attr="disabled"
+                                wire:target="openCancelConfirm"
+                                class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50"
+                                title="لغو">
                             <span class="block w-5 h-5 rounded" style="background:{{ $ovColor }};"></span>
                         </button>
 
@@ -214,7 +219,7 @@
                             <!-- ================= حالت تایمر جبرانی ================= -->
                             @if($makeupTimerRunning)
                                 <!-- دکمه توقف جبرانی (سریع) -->
-                                <button wire:click="pauseMakeup"
+                                <button wire:click.prevent="pauseMakeup"
                                         wire:loading.attr="disabled"
                                         wire:target="pauseMakeup"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="توقف">
@@ -225,8 +230,10 @@
                                     <span wire:loading wire:target="pauseMakeup" class="spinner-circle" style="color:{{ $ovColor }};"></span>
                                 </button>
                             @else
+
                                 <!-- دکمه ادامه جبرانی -->
-                                <button wire:click="resumeMakeup"
+                                <button type="button"
+                                        wire:click.prevent="resumeMakeup"
                                         wire:loading.attr="disabled"
                                         wire:target="resumeMakeup"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="ادامه">
@@ -240,7 +247,8 @@
                             <!-- ================= حالت تایمر برنامه‌ای (عادی) ================= -->
                             @if($isRunning)
                                 <!-- دکمه توقف عادی (سریع) -->
-                                <button wire:click="pausePart"
+                                <button type="button"
+                                        wire:click.prevent="pausePart"
                                         wire:loading.attr="disabled"
                                         wire:target="pausePart"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="توقف">
@@ -252,7 +260,8 @@
                                 </button>
                             @elseif($pausedAtTs)
                                 <!-- دکمه ادامه عادی -->
-                                <button wire:click="resumePart"
+                                <button type="button"
+                                        wire:click.prevent="resumePart"
                                         wire:loading.attr="disabled"
                                         wire:target="resumePart"
                                         class="w-16 h-16 rounded-full flex items-center justify-center bg-white/5 border border-white/10 disabled:opacity-50" title="ادامه">
@@ -854,12 +863,25 @@
                     <p class="text-sm text-muted">با لغو تایمر، زمان مطالعه فعلی ثبت نمی‌شود. مطمئنی؟</p>
                     <div class="flex gap-3 justify-center pt-2">
                         <button @click="cancelModal=false" class="px-6 h-11 rounded-xl font-semibold text-sm bg-secondary text-muted border border-border">ادامه مطالعه</button>
-                        <button wire:click="{{ $isMakeupMode ? 'cancelMakeup' : 'cancelPart' }}" wire:loading.attr="disabled"
-                                wire:target="{{ $isMakeupMode ? 'cancelMakeup' : 'cancelPart' }}"
-                                class="px-8 h-11 rounded-xl font-semibold text-sm bg-red-500 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
-                            <span wire:loading.remove wire:target="{{ $isMakeupMode ? 'cancelMakeup' : 'cancelPart' }}">بله، لغو کن</span>
-                            <span wire:loading wire:target="{{ $isMakeupMode ? 'cancelMakeup' : 'cancelPart' }}" class="spinner-circle"></span>
-                        </button>
+                        @if($isMakeupMode)
+                            <button type="button"
+                                    wire:click.prevent="cancelMakeup"
+                                    wire:loading.attr="disabled"
+                                    wire:target="cancelMakeup"
+                                    class="px-8 h-11 rounded-xl font-semibold text-sm bg-red-500 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
+                                <span wire:loading.remove wire:target="cancelMakeup">بله، لغو کن</span>
+                                <span wire:loading wire:target="cancelMakeup" class="spinner-circle"></span>
+                            </button>
+                        @else
+                            <button type="button"
+                                    wire:click.prevent="cancelPart"
+                                    wire:loading.attr="disabled"
+                                    wire:target="cancelPart"
+                                    class="px-8 h-11 rounded-xl font-semibold text-sm bg-red-500 text-white disabled:opacity-60 inline-flex items-center justify-center gap-2 min-w-[120px]">
+                                <span wire:loading.remove wire:target="cancelPart">بله، لغو کن</span>
+                                <span wire:loading wire:target="cancelPart" class="spinner-circle"></span>
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -1174,146 +1196,497 @@
         </div>
 
     </div>
-
     @script
     <script>
-        const ALARMS = [
-            { id: 'Alarmclock', src: '/client/sounds/Alarmclock.ogg' },
-            { id: 'Funny',      src: '/client/sounds/Funny.mp3' },
-            { id: 'Modern',     src: '/client/sounds/Modern.mp3' },
-            { id: 'Loud',       src: '/client/sounds/alarm.wav' },
-        ];
-        const RING_CIRCUMFERENCE = 816.81;
-        const FALLBACK_ALARM_SRC = '/client/sounds/Alarmclock.ogg'; // تنها فایلی که قطعاً موجود است
-        const audioCache = {};
+        (() => {
+            const CLEANUP_KEY = '__weeklyProgramTimerCleanup'
+            if (typeof window[CLEANUP_KEY] === 'function') {
+                window[CLEANUP_KEY]()
+            }
 
-        function preloadAlarms() {
-            ALARMS.forEach(a => {
-                const audio = new Audio(a.src);
-                audio.preload = 'auto';
-                // اگر فایل صدا موجود نبود (مثل Bells/Digital/Beep)، به صدای کلاسیک برگرد
-                audio.addEventListener('error', () => { audio.src = FALLBACK_ALARM_SRC; audio.load(); });
-                audio.load();
-                audioCache[a.id] = audio;
-            });
-        }
-        function getSelectedAlarm() { return localStorage.getItem('selected_alarm') || 'Alarmclock'; }
-        function playAlarm() {
-            const id = getSelectedAlarm();
-            try {
-                const entry = audioCache[id] || audioCache['Alarmclock'];
-                const src = entry ? entry.src : FALLBACK_ALARM_SRC;
-                const a = new Audio(src); a.volume = 1;
-                // اگر پخش با خطا خورد (فایل ناموجود)، یک‌بار با صدای کلاسیک دوباره تلاش کن
-                a.play().catch(() => { const b = new Audio(FALLBACK_ALARM_SRC); b.volume = 1; b.play().catch(e => console.warn('alarm play failed:', e)); });
-                if ('Notification' in window && Notification.permission === 'granted') {
-                    new Notification('⏰ زمان مطالعه به پایان رسید!', { body: 'پارت مطالعاتی شما تکمیل شد.', icon: '/favicon.ico' });
+            const ALARMS = [
+                { id: 'Alarmclock', src: '/client/sounds/Alarmclock.ogg' },
+                { id: 'Funny',      src: '/client/sounds/Funny.mp3' },
+                { id: 'Modern',     src: '/client/sounds/Modern.mp3' },
+                { id: 'Loud',       src: '/client/sounds/alarm.wav' },
+            ]
+
+            const RING_CIRCUMFERENCE = 816.81
+            const FALLBACK_ALARM_SRC = '/client/sounds/Alarmclock.ogg'
+            const ROOT_SELECTOR = '[data-weekly-program-view]'
+            const initialRoot = document.querySelector(`${ROOT_SELECTOR}[wire\\:id]`) || document.querySelector(ROOT_SELECTOR)
+            const componentWire = (() => {
+                try {
+                    return typeof $wire !== 'undefined' ? $wire : null
+                } catch (e) {
+                    return null
                 }
-            } catch(e) { console.warn(e); }
-        }
+            })()
+            const audioCache = {}
+            const cleanups = []
 
-        let clientTimerInterval = null;
-        let syncInterval = null;
-        let componentAlive = true;
-        let lastSyncedEndsAt = null, lastMakeupEndsAt = null, lastExtraEndsAt = null;
-        let alarmFired = false, makeupAlarmFired = false, extraAlarmFired = false;
+            let clientTimerInterval = null
+            let syncInterval = null
+            let componentAlive = true
 
-        function startClientTimer() {
-            if (clientTimerInterval) clearInterval(clientTimerInterval);
-            alarmFired = false; makeupAlarmFired = false; extraAlarmFired = false;
-            clientTimerInterval = setInterval(() => {
-                if (!componentAlive) { clearInterval(clientTimerInterval); return; }
-                const now = Math.floor(Date.now() / 1000);
-                const endsAt = $wire.endsAtTs, isRunning = $wire.isRunning, isInExtra = $wire.isInExtraPhase;
-                if (!isInExtra && endsAt && isRunning) {
-                    const rem = Math.max(endsAt - now, 0), tgt = $wire.targetSeconds;
-                    updateClockDOM('main-clock', rem); updateRingDOM('main-ring', rem, tgt);
-                    if (rem === 0 && !alarmFired) { alarmFired = true; playAlarm(); $wire.call('syncTimers'); }
+            let lastSyncedEndsAt = null
+            let lastMakeupEndsAt = null
+            let lastExtraEndsAt = null
+
+            let alarmFired = false
+            let makeupAlarmFired = false
+            let extraAlarmFired = false
+
+            function getTimerRoot() {
+                if (initialRoot?.isConnected) return initialRoot
+
+                return document.querySelector(`${ROOT_SELECTOR}[wire\\:id]`) || document.querySelector(ROOT_SELECTOR)
+            }
+
+            function getLiveWireProxy() {
+                if (!componentAlive || !componentWire) return null
+
+                const root = getTimerRoot()
+
+                if (!root?.isConnected) {
+                    componentAlive = false
+                    return null
                 }
-                const extraEndsAt = $wire.extraEndsAtTs;
-                if (isInExtra && extraEndsAt && isRunning) {
-                    const rem = Math.max(extraEndsAt - now, 0), tgt = $wire.extraTargetSeconds;
-                    updateClockDOM('extra-clock', rem); updateRingDOM('extra-ring', rem, tgt);
-                    if (rem === 0 && !extraAlarmFired) { extraAlarmFired = true; playAlarm(); $wire.call('syncTimers'); }
+
+                return componentWire
+            }
+
+            function addSafeListener(target, eventName, handler, options = undefined) {
+                if (!target || typeof target.addEventListener !== 'function') return
+
+                target.addEventListener(eventName, handler, options)
+
+                cleanups.push(() => {
+                    try {
+                        target.removeEventListener(eventName, handler, options)
+                    } catch (e) {
+                        console.warn(e)
+                    }
+                })
+            }
+
+            function normalizeTs(value) {
+                if (value === null || value === undefined || value === '') return null
+
+                const numberValue = Number(value)
+
+                return Number.isFinite(numberValue) ? numberValue : null
+            }
+
+            function getWireValue(key, fallback = null) {
+                try {
+                    const wire = getLiveWireProxy()
+
+                    if (!wire) return fallback
+
+                    return wire[key] ?? fallback
+                } catch (e) {
+                    return fallback
                 }
-                const makeupEndsAt = $wire.makeupEndsAtTs, makeupRunning = $wire.makeupTimerRunning;
-                if (makeupEndsAt && makeupRunning) {
-                    const rem = Math.max(makeupEndsAt - now, 0), tgt = $wire.makeupTargetSeconds;
-                    updateClockDOM('makeup-clock', rem); updateRingDOM('makeup-ring', rem, tgt);
-                    if (rem === 0 && !makeupAlarmFired) { makeupAlarmFired = true; playAlarm(); $wire.call('syncTimers'); }
+            }
+
+            function safeWireCall(method) {
+                try {
+                    const wire = getLiveWireProxy()
+
+                    if (!wire) return
+
+                    if (typeof wire.call === 'function') {
+                        return wire.call(method)
+                    }
+
+                    if (typeof wire[method] === 'function') {
+                        return wire[method]()
+                    }
+                } catch (e) {
+                    console.warn(e)
                 }
-            }, 1000);
-        }
+            }
 
-        if (syncInterval) clearInterval(syncInterval);
-        syncInterval = setInterval(() => { if (componentAlive && ($wire.isRunning || $wire.makeupTimerRunning)) { $wire.call('syncTimers'); } }, 5000);
+            function safeWireCallDebounced(method, delay = 50) {
+                setTimeout(() => {
+                    safeWireCall(method)
+                }, delay)
+            }
 
-        function formatClock(s) {
-            s = Math.max(0, s);
-            const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
-            return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-        }
-        function updateClockDOM(id, seconds) { const el = document.getElementById(id); if (el) el.textContent = formatClock(seconds); }
-        function updateRingDOM(id, remaining, target) {
-            const el = document.getElementById(id); if (!el || !target) return;
-            const ratio = Math.min(1, Math.max(0, remaining / target));
-            el.style.strokeDashoffset = (RING_CIRCUMFERENCE * (1 - ratio)).toFixed(2);
-        }
+            function getEventData(event) {
+                return Array.isArray(event.detail) ? event.detail[0] : event.detail
+            }
 
-        // باز کردن قفل صدا + درخواست نوتیفیکیشن — حتماً داخلِ user-gesture (سافاری iOS این را لازم دارد)
-        window.unlockStudyPermissions = function() {
-            try {
-                const a = new Audio(FALLBACK_ALARM_SRC); a.volume = 0.01;
-                a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => {});
-                if ('Notification' in window && Notification.permission === 'default') {
-                    // داخل همین کلیک کاربر فراخوانی می‌شود تا سافاری اجازه دهد
-                    Notification.requestPermission().catch(() => {});
+            function markAlreadyFinishedAlarms() {
+                const now = Math.floor(Date.now() / 1000)
+
+                lastSyncedEndsAt = normalizeTs(getWireValue('endsAtTs'))
+                lastMakeupEndsAt = normalizeTs(getWireValue('makeupEndsAtTs'))
+                lastExtraEndsAt = normalizeTs(getWireValue('extraEndsAtTs'))
+
+                alarmFired = !!(lastSyncedEndsAt && now >= lastSyncedEndsAt)
+                makeupAlarmFired = !!(lastMakeupEndsAt && now >= lastMakeupEndsAt)
+                extraAlarmFired = !!(lastExtraEndsAt && now >= lastExtraEndsAt)
+            }
+
+            function refreshAlarmFlagsIfEndsChanged() {
+                const now = Math.floor(Date.now() / 1000)
+
+                const endsAt = normalizeTs(getWireValue('endsAtTs'))
+                const makeupEndsAt = normalizeTs(getWireValue('makeupEndsAtTs'))
+                const extraEndsAt = normalizeTs(getWireValue('extraEndsAtTs'))
+
+                if (endsAt !== lastSyncedEndsAt) {
+                    lastSyncedEndsAt = endsAt
+                    alarmFired = !!(endsAt && now >= endsAt)
                 }
-            } catch (e) { console.warn(e); }
-        };
 
-        window.addEventListener('alarm-selected', e => localStorage.setItem('selected_alarm', e.detail.alarm));
-        window.previewAlarm = function(id) {
-            // اگر کش هنوز پر نشده یا فایل موجود نیست، به صدای کلاسیک برمی‌گردیم
-            const entry = audioCache[id] || audioCache['Alarmclock'];
-            const src = entry ? entry.src : '/client/sounds/Alarmclock.ogg';
-            const a = new Audio(src); a.volume = 0.7;
-            a.play().catch(e => console.warn(e));
-        };
+                if (makeupEndsAt !== lastMakeupEndsAt) {
+                    lastMakeupEndsAt = makeupEndsAt
+                    makeupAlarmFired = !!(makeupEndsAt && now >= makeupEndsAt)
+                }
 
+                if (extraEndsAt !== lastExtraEndsAt) {
+                    lastExtraEndsAt = extraEndsAt
+                    extraAlarmFired = !!(extraEndsAt && now >= extraEndsAt)
+                }
+            }
 
-        preloadAlarms();
-        startClientTimer();
-        if ('Notification' in window && Notification.permission === 'granted') { $wire.call('onPermissionsGranted'); }
+            function preloadAlarms() {
+                ALARMS.forEach((alarm) => {
+                    try {
+                        const audio = new Audio(alarm.src)
 
-        // پاکسازی interval هنگام تخریب کامپوننت (جلوگیری از Snapshot missing با wire:navigate)
-        Livewire.hook('destroy', () => {
-            componentAlive = false;
-            if (clientTimerInterval) { clearInterval(clientTimerInterval); clientTimerInterval = null; }
-            if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
-        });
+                        audio.preload = 'auto'
 
-        Livewire.hook('morph.updated', () => {
-            if (!componentAlive) return;
-            const endsAt = $wire.endsAtTs, makeupEndsAt = $wire.makeupEndsAtTs, extraEndsAt = $wire.extraEndsAtTs;
-            if (endsAt !== lastSyncedEndsAt) { alarmFired = false; lastSyncedEndsAt = endsAt; }
-            if (makeupEndsAt !== lastMakeupEndsAt) { makeupAlarmFired = false; lastMakeupEndsAt = makeupEndsAt; }
-            if (extraEndsAt !== lastExtraEndsAt) { extraAlarmFired = false; lastExtraEndsAt = extraEndsAt; }
-        });
-        window.addEventListener('request-permissions', async () => {
-            try {
-                if ('Notification' in window && Notification.permission !== 'granted') { await Notification.requestPermission(); }
-                const a = new Audio(ALARMS[0].src); a.volume = 0.01; await a.play(); a.pause();
-            } catch(e) { console.warn(e); } finally { $wire.call('onPermissionsGranted'); }
-        });
-        window.addEventListener('play-alarm', () => playAlarm());
-        // برگشت به صفحه: فقط همگام‌سازی کن. پرچم‌های alarmFired را اینجا صفر نمی‌کنیم
-        // (وگرنه برای تایمری که قبلاً تمام شده دوباره آلارم پخش می‌شد). صفرشدن آن‌ها فقط
-        // وقتی endsAt عوض شود در morph.updated انجام می‌شود.
-        document.addEventListener('visibilitychange', () => {
-            if (componentAlive && !document.hidden) { $wire.call('syncTimers'); }
-        });
-        window.addEventListener('focus', () => { if (componentAlive) $wire.call('syncTimers'); });
+                        audio.addEventListener('error', () => {
+                            audio.src = FALLBACK_ALARM_SRC
+                            audio.load()
+                        })
+
+                        audio.load()
+                        audioCache[alarm.id] = audio
+                    } catch (e) {
+                        console.warn(e)
+                    }
+                })
+            }
+
+            function getSelectedAlarm() {
+                return localStorage.getItem('selected_alarm') || 'Alarmclock'
+            }
+
+            function playAlarm() {
+                const id = getSelectedAlarm()
+
+                try {
+                    const entry = audioCache[id] || audioCache.Alarmclock
+                    const src = entry ? entry.src : FALLBACK_ALARM_SRC
+
+                    const audio = new Audio(src)
+                    audio.volume = 1
+
+                    audio.play().catch(() => {
+                        const fallbackAudio = new Audio(FALLBACK_ALARM_SRC)
+                        fallbackAudio.volume = 1
+
+                        fallbackAudio.play().catch((e) => {
+                            console.warn('alarm play failed:', e)
+                        })
+                    })
+
+                    if ('Notification' in window && Notification.permission === 'granted') {
+                        new Notification('⏰ زمان مطالعه به پایان رسید!', {
+                            body: 'پارت مطالعاتی شما تکمیل شد.',
+                            icon: '/favicon.ico',
+                        })
+                    }
+                } catch (e) {
+                    console.warn(e)
+                }
+            }
+
+            function formatClock(seconds) {
+                seconds = Math.max(0, Number(seconds) || 0)
+
+                const hours = Math.floor(seconds / 3600)
+                const minutes = Math.floor((seconds % 3600) / 60)
+                const secs = seconds % 60
+
+                return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
+            }
+
+            function updateClockDOM(id, seconds) {
+                const element = document.getElementById(id)
+
+                if (element) {
+                    element.textContent = formatClock(seconds)
+                }
+            }
+
+            function updateRingDOM(id, remaining, target) {
+                const element = document.getElementById(id)
+
+                if (!element || !target) return
+
+                const ratio = Math.min(1, Math.max(0, remaining / target))
+
+                element.style.strokeDashoffset = (RING_CIRCUMFERENCE * (1 - ratio)).toFixed(2)
+            }
+
+            function startClientTimer() {
+                if (clientTimerInterval) {
+                    clearInterval(clientTimerInterval)
+                    clientTimerInterval = null
+                }
+
+                markAlreadyFinishedAlarms()
+
+                clientTimerInterval = setInterval(() => {
+                    if (!componentAlive || !getLiveWireProxy()) {
+                        clearInterval(clientTimerInterval)
+                        clientTimerInterval = null
+                        return
+                    }
+
+                    refreshAlarmFlagsIfEndsChanged()
+
+                    const now = Math.floor(Date.now() / 1000)
+
+                    const endsAt = normalizeTs(getWireValue('endsAtTs'))
+                    const isRunning = !!getWireValue('isRunning', false)
+                    const isInExtra = !!getWireValue('isInExtraPhase', false)
+
+                    if (!isInExtra && endsAt && isRunning) {
+                        const remaining = Math.max(endsAt - now, 0)
+                        const target = Number(getWireValue('targetSeconds', 0)) || 0
+
+                        updateClockDOM('main-clock', remaining)
+                        updateRingDOM('main-ring', remaining, target)
+
+                        if (remaining === 0 && !alarmFired) {
+                            alarmFired = true
+                            playAlarm()
+                            safeWireCall('syncTimers')
+                        }
+                    }
+
+                    const extraEndsAt = normalizeTs(getWireValue('extraEndsAtTs'))
+
+                    if (isInExtra && extraEndsAt && isRunning) {
+                        const remaining = Math.max(extraEndsAt - now, 0)
+                        const target = Number(getWireValue('extraTargetSeconds', 0)) || 0
+
+                        updateClockDOM('extra-clock', remaining)
+                        updateRingDOM('extra-ring', remaining, target)
+
+                        if (remaining === 0 && !extraAlarmFired) {
+                            extraAlarmFired = true
+                            playAlarm()
+                            safeWireCall('syncTimers')
+                        }
+                    }
+
+                    const makeupEndsAt = normalizeTs(getWireValue('makeupEndsAtTs'))
+                    const makeupRunning = !!getWireValue('makeupTimerRunning', false)
+
+                    if (makeupEndsAt && makeupRunning) {
+                        const remaining = Math.max(makeupEndsAt - now, 0)
+                        const target = Number(getWireValue('makeupTargetSeconds', 0)) || 0
+
+                        updateClockDOM('makeup-clock', remaining)
+                        updateRingDOM('makeup-ring', remaining, target)
+
+                        if (remaining === 0 && !makeupAlarmFired) {
+                            makeupAlarmFired = true
+                            playAlarm()
+                            safeWireCall('syncTimers')
+                        }
+                    }
+                }, 1000)
+            }
+
+            function startServerSync() {
+                if (syncInterval) {
+                    clearInterval(syncInterval)
+                    syncInterval = null
+                }
+
+                syncInterval = setInterval(() => {
+                    if (!componentAlive || !getLiveWireProxy()) {
+                        clearInterval(syncInterval)
+                        syncInterval = null
+                        return
+                    }
+
+                    const isRunning = !!getWireValue('isRunning', false)
+                    const makeupRunning = !!getWireValue('makeupTimerRunning', false)
+
+                    if (componentAlive && (isRunning || makeupRunning)) {
+                        safeWireCall('syncTimers')
+                    }
+                }, 5000)
+            }
+
+            /**
+             * این تابع در Blade با کلیک کاربر صدا و Notification را unlock می‌کند.
+             */
+            window.unlockStudyPermissions = function () {
+                try {
+                    const audio = new Audio(FALLBACK_ALARM_SRC)
+                    audio.volume = 0.01
+
+                    audio.play()
+                        .then(() => {
+                            audio.pause()
+                            audio.currentTime = 0
+                        })
+                        .catch(() => {})
+
+                    if ('Notification' in window && Notification.permission === 'default') {
+                        Notification.requestPermission().catch(() => {})
+                    }
+                } catch (e) {
+                    console.warn(e)
+                }
+            }
+
+            window.unlockStudyPermissions.__weeklyProgramTimer = true
+
+            window.previewAlarm = function (id) {
+                try {
+                    const entry = audioCache[id] || audioCache.Alarmclock
+                    const src = entry ? entry.src : FALLBACK_ALARM_SRC
+
+                    const audio = new Audio(src)
+                    audio.volume = 0.7
+
+                    audio.play().catch((e) => {
+                        console.warn(e)
+                    })
+                } catch (e) {
+                    console.warn(e)
+                }
+            }
+
+            window.previewAlarm.__weeklyProgramTimer = true
+
+            addSafeListener(window, 'alarm-selected', (event) => {
+                const data = getEventData(event)
+                const alarm = data?.alarm || data
+
+                if (alarm) {
+                    localStorage.setItem('selected_alarm', alarm)
+                }
+            })
+
+            addSafeListener(window, 'request-permissions', async () => {
+                try {
+                    if ('Notification' in window && Notification.permission !== 'granted') {
+                        await Notification.requestPermission()
+                    }
+
+                    const audio = new Audio(ALARMS[0].src)
+                    audio.volume = 0.01
+
+                    await audio.play()
+
+                    audio.pause()
+                    audio.currentTime = 0
+                } catch (e) {
+                    console.warn(e)
+                } finally {
+                    safeWireCall('onPermissionsGranted')
+                }
+            })
+
+            addSafeListener(window, 'play-alarm', () => {
+                playAlarm()
+            })
+
+            addSafeListener(document, 'visibilitychange', () => {
+                if (componentAlive && !document.hidden) {
+                    safeWireCall('syncTimers')
+                }
+            })
+
+            addSafeListener(window, 'focus', () => {
+                if (componentAlive) {
+                    safeWireCall('syncTimers')
+                }
+            })
+
+            /**
+             * موقع خروج با wire:navigate همه‌چیز را پاک می‌کنیم.
+             */
+            function cleanupWeeklyProgramTimer() {
+                componentAlive = false
+
+                if (clientTimerInterval) {
+                    clearInterval(clientTimerInterval)
+                    clientTimerInterval = null
+                }
+
+                if (syncInterval) {
+                    clearInterval(syncInterval)
+                    syncInterval = null
+                }
+
+                while (cleanups.length) {
+                    const cleanup = cleanups.pop()
+
+                    try {
+                        cleanup()
+                    } catch (e) {
+                        console.warn(e)
+                    }
+                }
+
+                if (window.previewAlarm?.__weeklyProgramTimer) {
+                    try {
+                        delete window.previewAlarm
+                    } catch (e) {
+                        window.previewAlarm = undefined
+                    }
+                }
+
+                if (window.unlockStudyPermissions?.__weeklyProgramTimer) {
+                    try {
+                        delete window.unlockStudyPermissions
+                    } catch (e) {
+                        window.unlockStudyPermissions = undefined
+                    }
+                }
+
+                if (window[CLEANUP_KEY] === cleanupWeeklyProgramTimer) {
+                    try {
+                        delete window[CLEANUP_KEY]
+                    } catch (e) {
+                        window[CLEANUP_KEY] = undefined
+                    }
+                }
+            }
+
+            window[CLEANUP_KEY] = cleanupWeeklyProgramTimer
+
+            const cleanupOnNavigate = () => {
+                if (typeof window[CLEANUP_KEY] === 'function') {
+                    window[CLEANUP_KEY]()
+                }
+            }
+
+            addSafeListener(document, 'livewire:navigate', cleanupOnNavigate, { once: true })
+            addSafeListener(document, 'livewire:navigating', cleanupOnNavigate, { once: true })
+
+            preloadAlarms()
+            startClientTimer()
+            startServerSync()
+
+            if ('Notification' in window && Notification.permission === 'granted') {
+                safeWireCallDebounced('onPermissionsGranted')
+            }
+        })()
     </script>
     @endscript
 
