@@ -36,9 +36,20 @@ class Index extends Component
     public bool $showModal = false;
     public ?int $modalAdvisorId = null;
 
+    // مودال انتخاب روز و ساعت
+    public bool $showSlotModal = false;
+
+    // مودالِ تایید انتخاب مشاور
+    public bool $showConfirmModal = false;
+    public ?int $confirmAdvisorId = null;
+
     public function mount(): void
     {
         $this->seo()->setTitle('انتخاب مشاور');
+
+        if ($this->student()?->needsAdvisorSelection() && ! $this->hasSlotFilter()) {
+            $this->showSlotModal = true;
+        }
     }
 
     protected function student(): ?Student
@@ -103,6 +114,50 @@ class Index extends Component
         $this->modalAdvisorId = null;
     }
 
+    public function openSlotModal(): void
+    {
+        $this->showSlotModal = true;
+    }
+
+    public function applySlotSelection(): void
+    {
+        if (! $this->validateSlot()) {
+            return;
+        }
+
+        $this->showSlotModal = false;
+    }
+
+    public function openConfirmModal(int $advisorId): void
+    {
+        $student = $this->student();
+        if (! $student || $student->advisor_id !== null) {
+            $this->dispatch('error', 'امکان انتخاب مشاور وجود ندارد.');
+            return;
+        }
+
+        if (! $this->validateSlot()) {
+            return;
+        }
+
+        $advisor = $this->eligibleAdvisors()->firstWhere('id', $advisorId);
+        if (! $advisor) {
+            $this->dispatch('error', 'این مشاور در روز/ساعتِ انتخابی در دسترس نیست یا ظرفیتش تکمیل است.');
+            return;
+        }
+
+        $this->confirmAdvisorId = $advisorId;
+        $this->showConfirmModal = true;
+        $this->showModal = false;
+        $this->modalAdvisorId = null;
+    }
+
+    public function closeConfirmModal(): void
+    {
+        $this->showConfirmModal = false;
+        $this->confirmAdvisorId = null;
+    }
+
     /**
      * اعتبارسنجیِ فیلترِ روز/ساعت پیش از هر انتخاب.
      */
@@ -143,7 +198,13 @@ class Index extends Component
                 'weekly_day'     => (int) $this->filterDay,
                 'preferred_hour' => sprintf('%02d:00', (int) $this->filterHour),
                 'mode'           => $mode,
-                'status'         => AdvisorSelection::STATUS_PENDING,
+                'status'         => AdvisorSelection::STATUS_APPROVED,
+                'reviewed_at'    => now(),
+            ]);
+
+            $student->update([
+                'advisor_id'  => $advisor->id,
+                'session_day' => (int) $this->filterDay,
             ]);
         });
     }
@@ -168,7 +229,19 @@ class Index extends Component
 
         $this->storeSelection($advisor, AdvisorSelection::MODE_MANUAL);
         $this->closeModal();
-        $this->dispatch('success', 'انتخابِ شما ثبت شد و برای تاییدِ مدیر آموزشی ارسال گردید.');
+        $this->closeConfirmModal();
+        session()->put('start_dashboard_tour', true);
+        $this->dispatch('success', 'مشاور شما با موفقیت انتخاب شد.');
+        $this->redirect(route('client.profile.dashboard'), navigate: true);
+    }
+
+    public function confirmAdvisorSelection(): void
+    {
+        if (! $this->confirmAdvisorId) {
+            return;
+        }
+
+        $this->selectAdvisor($this->confirmAdvisorId);
     }
 
     public function selectRandom(): void
@@ -236,6 +309,10 @@ class Index extends Component
             ? Admin::with('workSchedules')->withCount('advisedStudents')->find($this->modalAdvisorId)
             : null;
 
+        $confirmAdvisor = $this->confirmAdvisorId
+            ? Admin::with('workSchedules')->withCount('advisedStudents')->find($this->confirmAdvisorId)
+            : null;
+
         $hours = range(self::SLOT_START_HOUR, self::SLOT_END_HOUR);
 
         return view('livewire.client.profile.advisor-selection.index', [
@@ -246,6 +323,7 @@ class Index extends Component
             'pending'         => $pending,
             'approvedAdvisor' => $approvedAdvisor,
             'modalAdvisor'    => $modalAdvisor,
+            'confirmAdvisor'  => $confirmAdvisor,
             'defaultCapacity' => $this->defaultCapacity(),
         ])->layout('layouts.client.app');
     }

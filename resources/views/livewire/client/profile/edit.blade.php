@@ -72,9 +72,7 @@
                         <div class="space-y-5">
 
                             @php
-                                $avList = $gender === 'female'
-                                    ? ['/client/assets/images/avatars/star-girl-1.webp', '/client/assets/images/avatars/star-girl-2.webp', '/client/assets/images/avatars/star-girl-3.png']
-                                    : ['/client/assets/images/avatars/star-boy-1.webp', '/client/assets/images/avatars/star-boy-2.webp', '/client/assets/images/avatars/star-boy-3.png'];
+                                $avList = $this->avatarOptions();
                                 $currentSrc = $photo
                                     ? ((str_starts_with($photo, '/') || str_starts_with($photo, 'http')) ? $photo : asset('user/img/' . auth()->id() . '/' . $photo))
                                     : null;
@@ -107,19 +105,25 @@
                                 </div>
 
                                 {{-- گرید آواتارها بر اساس جنسیت --}}
-                                <div class="grid grid-cols-3 gap-4 max-w-sm mx-auto sm:mx-0">
-                                    @foreach($avList as $a)
-                                        <button type="button" wire:click="selectAvatar('{{ $a }}')" wire:loading.attr="disabled" wire:target="selectAvatar"
-                                                class="relative aspect-square rounded-2xl overflow-hidden border-2 bg-secondary transition-all {{ $photo === $a ? 'border-primary ring-2 ring-primary/40' : 'border-border hover:border-primary/50' }}">
-                                            <img src="{{ $a }}" class="w-full h-full object-cover object-top" alt="آواتار" loading="lazy">
-                                            @if($photo === $a)
-                                                <span class="absolute top-1.5 left-1.5 w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center shadow">
-                                                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
-                                                </span>
-                                            @endif
-                                        </button>
-                                    @endforeach
-                                </div>
+                                @if(count($avList))
+                                    <div class="grid grid-cols-3 gap-4 max-w-sm mx-auto sm:mx-0">
+                                        @foreach($avList as $a)
+                                            <button type="button" wire:click="selectAvatar('{{ $a }}')" wire:loading.attr="disabled" wire:target="selectAvatar"
+                                                    class="relative aspect-square rounded-2xl overflow-hidden border-2 bg-secondary transition-all {{ $photo === $a ? 'border-primary ring-2 ring-primary/40' : 'border-border hover:border-primary/50' }}">
+                                                <img src="{{ $a }}" class="w-full h-full object-cover object-top" alt="آواتار" loading="lazy">
+                                                @if($photo === $a)
+                                                    <span class="absolute top-1.5 left-1.5 w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center shadow">
+                                                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/></svg>
+                                                    </span>
+                                                @endif
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="max-w-sm rounded-2xl border border-dashed border-border px-4 py-5 text-sm text-muted">
+                                        هنوز آواتاری برای این جنسیت تعریف نشده است.
+                                    </div>
+                                @endif
 
                                 {{-- هشدار: برای تغییر اطلاعات، تیکت ثبت کنید --}}
                                 <div class="flex items-start gap-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 px-4 py-4">

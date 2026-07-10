@@ -640,7 +640,7 @@
                                     </div>
                                 @endforeach
                             </div>
-                            <p class="text-[10px] text-blue-500 dark:text-blue-400">این موارد به‌عنوان گزارش اضافه بر سازمان برای مشاور ارسال می‌شوند.</p>
+                            <p class="text-[10px] text-blue-500 dark:text-blue-400">این موارد به‌عنوان گزارش اضافه بر سازمان برای {{ $this->reportRecipientLabel }} ارسال می‌شوند.</p>
                         </div>
                     @endif
 

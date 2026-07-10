@@ -39,14 +39,13 @@
                     @if ($callPhase === 'select')
                         {{-- ───── انتخابِ پاسخگو پیش از تماس ───── --}}
                         <div class="mb-3">
-                            <label class="form-label">با چه شخصی تماس می‌گیرید؟ <span class="text-danger">*</span></label>
-                            <select wire:model="respondent" class="form-select">
-                                <option value="student">خودِ دانش‌آموز</option>
-                                <option value="student_father">دانش‌آموز + پدر</option>
-                                <option value="student_mother">دانش‌آموز + مادر</option>
+                            <label class="form-label">با چه کسانی صحبت شد؟ <span class="text-danger">*</span></label>
+                            <select wire:model="respondents" class="form-select" multiple size="3">
                                 <option value="father">پدر</option>
                                 <option value="mother">مادر</option>
+                                <option value="student">دانش‌آموز</option>
                             </select>
+                            <div class="form-text">هر مورد انتخاب‌شده یعنی در همین تماس با آن شخص صحبت شده است.</div>
                         </div>
 
                     @elseif ($callPhase === 'ringing')
@@ -76,7 +75,9 @@
                         @endif
                         <div class="mb-2">
                             <span class="small text-muted">پاسخگو:</span>
-                            <span class="badge bg-light text-dark border">{{ \App\Models\ContactDocumentation::RESPONDENT[$respondent] ?? $respondent }}</span>
+                            @foreach($respondents as $selectedRespondent)
+                                <span class="badge bg-light text-dark border">{{ \App\Models\ContactDocumentation::RESPONDENT_MULTI[$selectedRespondent] ?? $selectedRespondent }}</span>
+                            @endforeach
                         </div>
                         <div class="mb-3">
                             <label class="form-label">توضیحاتِ تماس (اختیاری)</label>
@@ -90,7 +91,6 @@
                                 <option value="no_answer">عدم پاسخ</option>
                                 <option value="off">خاموش</option>
                                 <option value="rejected">رد تماس</option>
-                                <option value="wrong">شماره اشتباه</option>
                             </select>
                             @error('failReason')<div class="text-danger small mt-1">{{ $message }}</div>@enderror
                         </div>

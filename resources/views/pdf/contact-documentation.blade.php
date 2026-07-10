@@ -146,7 +146,7 @@
             $studentName     = $rec->student?->user?->personalInformation?->name
                             ?? $rec->student?->user?->name
                             ?? 'نامشخص';
-            $respondentLabel = ContactDocumentation::RESPONDENT[$rec->respondent] ?? $rec->respondent;
+            $respondentLabel = $rec->respondents_label;
         @endphp
         <tr>
             <td>{{ $i + 1 }}</td>

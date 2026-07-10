@@ -231,6 +231,45 @@
             </div>
         </div>
 
+        {{-- ───────────── جلسات امروز من ───────────── --}}
+        <div class="modern-card mb-4">
+            <div class="modern-card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <h5 class="mb-0 fw-bold"><i class="ri-time-line ms-1 text-primary"></i> جلسات امروز من</h5>
+                <span class="badge bg-primary rounded-pill">{{ $todaySessions->count() }} جلسه</span>
+            </div>
+            <div class="card-body p-0">
+                @forelse($todaySessions as $todaySession)
+                    <div class="student-item p-3">
+                        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                            <div>
+                                <div class="fw-bold d-flex align-items-center gap-2">
+                                    {{ $renderStudentName($todaySession->student) }}
+                                    @if($todaySession->is_makeup)
+                                        <span class="badge bg-warning text-dark rounded-pill">جبرانی</span>
+                                    @endif
+                                </div>
+                                <div class="small dash-text-muted mt-1">
+                                    {{ \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($todaySession->activation_date))->format('Y/m/d') }}
+                                    @if($todaySession->session_time)
+                                        <span dir="ltr"> - {{ $todaySession->session_time->format('H:i') }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-secondary-subtle dash-text-muted dash-border p-2" style="border: 1px solid">{{ $todaySession->result_label }}</span>
+                                <a href="{{ route('admin.student.advising-sessions.create', $todaySession->student?->user_id) }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">جزئیات</a>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="text-center dash-text-muted py-4">
+                        <i class="ri-calendar-check-line opacity-50 fs-1 d-block mb-2"></i>
+                        امروز جلسه‌ای ثبت نشده است.
+                    </div>
+                @endforelse
+            </div>
+        </div>
+
         {{-- ───────────── باکسِ فردا (قابلِ عملیات) ───────────── --}}
         <div class="modern-card border-primary mb-5" style="border-color: #0d6efd !important;">
             <div class="modern-card-header bg-primary-subtle d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -252,6 +291,7 @@
                         $called  = $calledIds->has($st->id);
                         $session = $tomorrowSessions->get($st->id);
                         $isFinal = $session && $session->finalized;
+                        $noAnswerCount = (int) ($noAnswerCounts[$st->id] ?? 0);
                     @endphp
                     <div class="student-item p-3">
                         <div class="row align-items-center py-1">
@@ -286,10 +326,17 @@
                                     </div>
                                 @elseif (! $called)
                                     <div class="d-flex align-items-center justify-content-lg-end flex-wrap gap-2">
-                                        <span class="small dash-text-muted me-2"><i class="ri-information-line ms-1"></i>برای تعیین ساعت، ابتدا تماس بگیرید.</span>
+                                        <span class="small dash-text-muted me-2"><i class="ri-information-line ms-1"></i>برای تعیین ساعت، ابتدا تماس بگیرید. تماس ناموفق امروز: {{ $noAnswerCount }}/3</span>
                                         <button wire:click="openCall({{ $st->id }})" class="btn btn-outline-primary btn-sm rounded-pill px-3">
                                             <i class="ri-phone-fill ms-1"></i> ثبت تماس و هماهنگی
                                         </button>
+                                        @if($noAnswerCount >= 3)
+                                            <button wire:click="markAbsentAfterNoAnswers({{ $st->id }})"
+                                                    wire:confirm="برای این دانش‌آموز غیبت ثبت شود و جلسه جبرانی در انتظار تعیین روز ساخته شود؟"
+                                                    class="btn btn-outline-danger btn-sm rounded-pill px-3">
+                                                <i class="ri-user-unfollow-line ms-1"></i> غیبت جلسه
+                                            </button>
+                                        @endif
                                     </div>
                                 @else
                                     <div class="p-3 saved-form-box rounded-3 shadow-sm">
@@ -325,6 +372,27 @@
                                             @error("schedule.{$st->id}.hour") <span class="text-danger small d-block"><i class="ri-error-warning-line ms-1"></i>{{ $message }}</span> @enderror
                                             @error("schedule.{$st->id}.minute") <span class="text-danger small d-block"><i class="ri-error-warning-line ms-1"></i>{{ $message }}</span> @enderror
                                             @error("schedule.{$st->id}.link") <span class="text-danger small d-block"><i class="ri-error-warning-line ms-1"></i>{{ $message }}</span> @enderror
+                                        </div>
+
+                                        <div class="border-top mt-3 pt-3">
+                                            <div class="row g-2 align-items-end">
+                                                <div class="col-12 col-md">
+                                                    <label class="form-label small dash-text-muted mb-1">در صورت نیاز به جبرانی، تاریخ را انتخاب کنید</label>
+                                                    <select wire:model="rescheduleMakeupDate.{{ $st->id }}" class="form-select form-select-sm">
+                                                        <option value="">انتخاب تاریخ جبرانی...</option>
+                                                        @foreach($allowedMakeupDates as $dateValue => $dateLabel)
+                                                            <option value="{{ $dateValue }}">{{ $dateLabel }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-12 col-md-auto">
+                                                    <button wire:click="rescheduleTomorrowSessionToMakeup({{ $st->id }})"
+                                                            wire:confirm="جلسه فردا غیبت ثبت شود و برای تاریخ انتخاب‌شده جلسه جبرانی ساخته شود؟"
+                                                            class="btn btn-outline-warning btn-sm w-100 text-nowrap">
+                                                        <i class="ri-calendar-todo-line ms-1"></i> جلسه جبرانی
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 @endif
@@ -367,7 +435,11 @@
                                     </span>
                                     </td>
                                     <td class="text-end">
-                                        <a href="{{ route('admin.student.advising-sessions.create', $session->student_id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3">بررسی جلسه</a>
+                                        <button wire:click="createMakeupForAbsentSession({{ $session->id }})"
+                                                class="btn btn-sm btn-outline-warning rounded-pill px-3 ms-2">
+                                            تعیین جلسه جبرانی
+                                        </button>
+                                        <a href="{{ route('admin.student.advising-sessions.create', $session->student?->user_id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3">بررسی جلسه</a>
                                     </td>
                                 </tr>
                             @endforeach
@@ -383,25 +455,37 @@
             <div class="modern-card mb-4" style="border-color: #ffc107 !important;">
                 <div class="modern-card-header bg-warning-subtle">
                     <h5 class="mb-0 text-warning fw-bold" style="filter: brightness(0.8);"><i class="ri-calendar-todo-fill ms-1"></i> جلسات جبرانی در انتظار ({{ $pendingMakeups->count() }})</h5>
-                    <p class="small dash-text-muted mb-0 mt-1">ناشی از مرخصیِ تاییدشده — برای هر دانش‌آموز روزِ جلسه‌ی جبرانی را مشخص کنید.</p>
+                    <p class="small dash-text-muted mb-0 mt-1">برای هر دانش‌آموز روزِ جلسه‌ی جبرانی را مشخص کنید؛ ساعت آن یک روز قبل با تماس هماهنگ می‌شود.</p>
                 </div>
                 <div class="card-body p-3">
+                    @if($pendingMakeups->contains(fn($mk) => $mk->created_at && $mk->created_at->lt(now()->subDays(7))))
+                        <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+                            <i class="ri-error-warning-line fs-5"></i>
+                            <div>برخی غیبت‌ها بیش از ۷ روز است تعیین تکلیف نشده‌اند. مسئولیت پیگیری و عواقب تأخیر با مشاور است.</div>
+                        </div>
+                    @endif
                     <div class="row g-3">
                         @foreach ($pendingMakeups as $mk)
+                            @php $isOverdueMakeup = $mk->created_at && $mk->created_at->lt(now()->subDays(7)); @endphp
                             <div class="col-12 col-xl-6">
-                                <div class="d-flex flex-wrap align-items-center justify-content-between p-3 dash-border rounded-3 shadow-sm dash-hover-item" style="border: 1px solid">
-                                    <div class="fw-bold mb-2 mb-md-0 d-flex align-items-center">
-                                        <i class="ri-user-smile-line text-primary ms-2 fs-5"></i>
-                                        {{ $mk->student?->user?->personalInformation?->name ?? $mk->student?->user?->name ?? 'دانش‌آموز' }}
+                                <div class="p-3 dash-border rounded-3 shadow-sm dash-hover-item {{ $isOverdueMakeup ? 'border-danger' : '' }}" style="border: 1px solid">
+                                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                                        <div class="fw-bold d-flex align-items-center">
+                                            <i class="ri-user-smile-line text-primary ms-2 fs-5"></i>
+                                            {{ $mk->student?->user?->personalInformation?->name ?? $mk->student?->user?->name ?? 'دانش‌آموز' }}
+                                        </div>
+                                        @if($isOverdueMakeup)
+                                            <span class="badge bg-danger">بیش از ۷ روز</span>
+                                        @endif
                                     </div>
-                                    <div class="d-flex align-items-center gap-2 w-100 w-md-auto">
-                                        <select wire:model="makeupDay.{{ $mk->id }}" class="form-select form-select-sm shadow-none" style="min-width: 140px;">
-                                            <option value="">انتخاب روز جبرانی...</option>
-                                            @foreach ($days as $d => $name)
-                                                <option value="{{ $d }}">{{ $name }}</option>
+                                    <div class="d-flex align-items-center gap-2 w-100">
+                                        <select wire:model="makeupDate.{{ $mk->id }}" class="form-select form-select-sm shadow-none">
+                                            <option value="">انتخاب تاریخ جبرانی...</option>
+                                            @foreach ($allowedMakeupDates as $dateValue => $dateLabel)
+                                                <option value="{{ $dateValue }}">{{ $dateLabel }}</option>
                                             @endforeach
                                         </select>
-                                        <button wire:click="assignMakeupDay({{ $mk->id }})" class="btn btn-warning btn-sm text-dark text-nowrap px-3 shadow-sm">تعیین روز</button>
+                                        <button wire:click="assignMakeupDate({{ $mk->id }})" class="btn btn-warning btn-sm text-dark text-nowrap px-3 shadow-sm">تعیین تاریخ</button>
                                     </div>
                                 </div>
                             </div>
@@ -410,55 +494,6 @@
                 </div>
             </div>
         @endif
-
-        {{-- ───────────── همه‌ی دانش‌آموزانِ من ───────────── --}}
-        <div class="modern-card mb-5">
-            <div class="modern-card-header">
-                <h5 class="mb-0 fw-bold"><i class="ri-team-line ms-1 text-primary"></i> همه‌ی دانش‌آموزانِ من ({{ $allStudents->count() }})</h5>
-                <p class="small dash-text-muted mb-0 mt-1">فهرست کامل دانش‌آموزانِ تحتِ مشاوره به‌همراه روزِ جلسه‌ی هفتگی.</p>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-modern mb-0 align-middle">
-                        <thead>
-                        <tr>
-                            <th style="width:50px" class="text-center">#</th>
-                            <th>نام دانش‌آموز</th>
-                            <th>شماره موبایل</th>
-                            <th>روز جلسه هفتگی</th>
-                            <th class="text-end">عملیات</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @forelse ($allStudents as $st)
-                            <tr>
-                                <td class="text-center dash-text-muted">{{ $loop->iteration }}</td>
-                                <td class="fw-bold">{{ $renderStudentName($st) }}</td>
-                                <td dir="ltr" class="text-end dash-text-muted">{{ $st->user?->mobile ?? '—' }}</td>
-                                <td>
-                                    @if ($st->session_day !== null)
-                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle p-2 px-3 rounded-pill"><i class="ri-calendar-line ms-1"></i>{{ $days[$st->session_day] ?? '—' }}</span>
-                                    @else
-                                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle p-2 px-3 rounded-pill"><i class="ri-error-warning-line ms-1"></i>تعیین‌نشده</span>
-                                    @endif
-                                </td>
-                                <td class="text-end">
-                                    <a href="{{ route('admin.student.advising-sessions.create', $st->user_id) }}" class="btn btn-sm btn-outline-secondary shadow-sm rounded-pill px-3">جزئیات / تاریخچه</a>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="text-center dash-text-muted py-5">
-                                    <i class="ri-user-search-line fs-1 opacity-50 d-block mb-2"></i>
-                                    در حال حاضر دانش‌آموزی ندارید.
-                                </td>
-                            </tr>
-                        @endforelse
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
 
         {{-- ───────────── باکس‌های سایرِ روزها (فقط نمایش) ───────────── --}}
         <h5 class="fw-bold mb-3"><i class="ri-calendar-2-line ms-1 dash-text-muted"></i> زمان‌بندی سایر روزهای هفته</h5>
@@ -476,11 +511,23 @@
                         </div>
                         <div class="card-body p-2">
                             @forelse ($dayStudents as $st)
+                                @php $activeMakeup = $activeMakeupsByStudent->get($st->id); @endphp
                                 <div class="d-flex align-items-center justify-content-between p-2 dash-border dash-hover-item rounded" style="border-bottom: 1px solid">
-                                    <a href="{{ route('admin.student.advising-sessions.create', $st->user_id) }}" class="small text-decoration-none fw-bold" style="color: var(--dash-text);">
-                                        <i class="ri-user-line dash-text-muted ms-1"></i> {{ $renderStudentName($st) }}
-                                    </a>
-                                    <span class="small dash-text-muted" dir="ltr">{{ $st->user?->mobile ?? '' }}</span>
+                                    <div>
+                                        <div class="small fw-bold d-flex align-items-center gap-2" style="color: var(--dash-text);">
+                                            <i class="ri-user-line dash-text-muted ms-1"></i> {{ $renderStudentName($st) }}
+                                            @if($activeMakeup)
+                                                <span class="badge bg-warning text-dark rounded-pill">جبرانی</span>
+                                            @endif
+                                        </div>
+                                        <div class="small dash-text-muted" dir="ltr">{{ $st->user?->mobile ?? '' }}</div>
+                                        @if($activeMakeup?->activation_date)
+                                            <div class="small text-warning mt-1">
+                                                {{ \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($activeMakeup->activation_date))->format('Y/m/d') }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                    <a href="{{ route('admin.student.advising-sessions.create', $st->user_id) }}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">جزئیات</a>
                                 </div>
                             @empty
                                 <div class="text-center dash-text-muted small py-4 opacity-50">

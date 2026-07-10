@@ -6,7 +6,7 @@ use App\Contracts\PaymentGateWayInterface;
 
 class Zarinpal implements PaymentGateWayInterface
 {
-    public function request($amount)
+    public function request($amount, $orderNumber)
     {
 
     }

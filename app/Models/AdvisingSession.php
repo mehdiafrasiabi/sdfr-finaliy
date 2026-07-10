@@ -44,6 +44,7 @@ class AdvisingSession extends Model
     // علتِ جلسه‌ی جبرانی
     const MAKEUP_STUDENT_RESCHEDULE = 'student_reschedule';
     const MAKEUP_ADVISOR_LEAVE      = 'advisor_leave';
+    const MAKEUP_STUDENT_ABSENCE    = 'student_absence';
 
 
     // وضعیت‌های جلسه
@@ -175,6 +176,7 @@ class AdvisingSession extends Model
         return match ($this->makeup_reason) {
             self::MAKEUP_STUDENT_RESCHEDULE => 'جابجایی توسط دانش‌آموز',
             self::MAKEUP_ADVISOR_LEAVE      => 'مرخصی مشاور',
+            self::MAKEUP_STUDENT_ABSENCE    => 'غیبت دانش‌آموز',
             default                          => '',
         };
     }

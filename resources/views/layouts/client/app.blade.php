@@ -226,6 +226,7 @@
     <main class="flex-auto @unless(request()->routeIs('client.home')) py-4 @endunless">
         {{$slot}}
         @if(request()->routeIs('client.profile.*'))
+            <x-client.profile-reconnect-overlay />
             <x-cosmic-lines class="!fixed hidden dark:block" />
         @endif
     </main>

@@ -1,13 +1,12 @@
 <?php
 
 namespace App\Livewire\Client\Profile;
+use App\Models\Avatar;
 use App\Notifications\SendOtpToUser;
 use App\Traits\UploadFile;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
-use Livewire\Attributes\Rule;
 use App\Models\City;
 use App\Models\State;
 use Livewire\Component;
@@ -66,7 +65,7 @@ class Edit extends Component
         $this->name = $user->name;
         $this->email = $user->email;
         $this->mobile = $user->mobile;
-        $this->photo = $user->picture;
+        $this->photo = $user->picture ?: $user->profile?->picture;
         $profile = $user->profile;
         $this->full_name = $profile?->full_name;
         $this->gender = $profile?->gender;
@@ -114,18 +113,9 @@ class Edit extends Component
      */
     public function avatarOptions(): array
     {
-        $boy = [
-            '/client/assets/images/avatars/star-boy-1.webp',
-            '/client/assets/images/avatars/star-boy-2.webp',
-            '/client/assets/images/avatars/star-boy-3.png',
-        ];
-        $girl = [
-            '/client/assets/images/avatars/star-girl-1.webp',
-            '/client/assets/images/avatars/star-girl-2.webp',
-            '/client/assets/images/avatars/star-girl-3.png',
-        ];
+        $gender = $this->gender === 'female' ? 'female' : 'male';
 
-        return $this->gender === 'female' ? $girl : $boy;
+        return Avatar::imagePathsForGender($gender);
     }
 
     /**

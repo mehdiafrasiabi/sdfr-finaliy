@@ -10,11 +10,14 @@ use App\Models\CcField;
 use App\Models\PersonalInformation;
 use App\Models\Student;
 use Artesaos\SEOTools\Traits\SEOTools;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class ClassScheduleUpload extends Component
 {
     use SEOTools;
+
+    private const MAX_ATTENDS_SCHOOL_CHANGES = 2;
 
     public bool $showModal = false;
     public ?int $selectedDay = null;
@@ -30,6 +33,10 @@ class ClassScheduleUpload extends Component
 
     public ?string $studentGrade = null;
     public ?string $studentField = null;
+    public bool $attendsSchool = true;
+    public bool $isGraduate = false;
+    public int $attendsSchoolChangeCount = 0;
+    public ?string $returnTo = null;
 
     public $subjects = [];
 
@@ -51,7 +58,12 @@ class ClassScheduleUpload extends Component
         if ($personalInfo) {
             $this->studentGrade = $personalInfo->grade;
             $this->studentField = $personalInfo->field;
+            $this->attendsSchool = (bool) ($personalInfo->attends_school ?? true);
+            $this->isGraduate = (bool) ($personalInfo->is_graduate ?? false);
+            $this->attendsSchoolChangeCount = (int) ($personalInfo->attends_school_change_count ?? 0);
         }
+
+        $this->returnTo = request()->query('return_to');
 
         $schedule = ClassSchedule::where('student_id', $student->id)->latest()->first();
         if ($schedule) {
@@ -65,6 +77,76 @@ class ClassScheduleUpload extends Component
     public function seoConfig()
     {
         $this->seo()->setTitle('برنامه هفتگی');
+    }
+
+    public function getRemainingAttendsSchoolChangesProperty(): int
+    {
+        return max(0, self::MAX_ATTENDS_SCHOOL_CHANGES - $this->attendsSchoolChangeCount);
+    }
+
+    public function getAttendsSchoolSwitchLockedProperty(): bool
+    {
+        return $this->isGraduate || $this->remainingAttendsSchoolChanges <= 0;
+    }
+
+    public function getShouldShowScheduleEditorProperty(): bool
+    {
+        return ! $this->isGraduate && $this->attendsSchool;
+    }
+
+    private function ensureScheduleEditorAvailable(): bool
+    {
+        if ($this->shouldShowScheduleEditor) {
+            return true;
+        }
+
+        $this->dispatch('warning', 'تا وقتی وضعیت شما روی «مدرسه نمی‌روم» باشد، امکان ثبت برنامه کلاسی وجود ندارد.');
+        return false;
+    }
+
+    public function updatedAttendsSchool($value): void
+    {
+        $newStatus = (bool) $value;
+        $user = Auth::user();
+        $personalInfo = $user?->personalInformation;
+
+        if (! $personalInfo) {
+            $this->attendsSchool = true;
+            $this->dispatch('warning', 'اطلاعات تحصیلی شما پیدا نشد.');
+            return;
+        }
+
+        $currentStatus = (bool) ($personalInfo->attends_school ?? true);
+
+        if ($newStatus === $currentStatus) {
+            return;
+        }
+
+        if ($this->attendsSchoolSwitchLocked) {
+            $this->attendsSchool = $currentStatus;
+            $this->dispatch('warning', $this->isGraduate
+                ? 'برای دانش‌آموز فارغ‌التحصیل امکان تغییر این وضعیت وجود ندارد.'
+                : 'امکان تغییر وضعیت مدرسه فقط تا ۲ بار وجود دارد و حالا قفل شده است.');
+            return;
+        }
+
+        $personalInfo->update([
+            'attends_school' => $newStatus,
+            'attends_school_change_count' => $personalInfo->attends_school_change_count + 1,
+        ]);
+
+        if ($trial = $user?->trialWeek) {
+            $trial->update([
+                'attends_school' => $newStatus && ! $trial->isGraduate(),
+            ]);
+        }
+
+        $this->attendsSchool = $newStatus;
+        $this->attendsSchoolChangeCount = (int) $personalInfo->fresh()->attends_school_change_count;
+
+        $this->dispatch('success', $newStatus
+            ? 'وضعیت شما به «مدرسه می‌روم» تغییر کرد.'
+            : 'وضعیت شما به «مدرسه نمی‌روم» تغییر کرد.');
     }
 
     protected function loadSubjects(): void
@@ -101,6 +183,10 @@ class ClassScheduleUpload extends Component
 
     public function openPartModal(int $dayOfWeek, int $partOrder): void
     {
+        if (! $this->ensureScheduleEditorAvailable()) {
+            return;
+        }
+
         $schedule = $this->classScheduleId ? ClassSchedule::find($this->classScheduleId) : null;
 
         if ($partOrder > 1 && $schedule) {
@@ -160,6 +246,10 @@ class ClassScheduleUpload extends Component
 
     public function savePart(): void
     {
+        if (! $this->ensureScheduleEditorAvailable()) {
+            return;
+        }
+
         if ($this->selectedDay === null || $this->selectedPart === null) {
             $this->dispatch('warning', 'خطا: اطلاعات پارت مشخص نیست. دوباره امتحان کنید.');
             return;
@@ -225,6 +315,10 @@ class ClassScheduleUpload extends Component
 
     public function deletePart(int $dayOfWeek, int $partOrder): void
     {
+        if (! $this->ensureScheduleEditorAvailable()) {
+            return;
+        }
+
         if (!$this->classScheduleId) {
             return;
         }
@@ -249,6 +343,10 @@ class ClassScheduleUpload extends Component
 
     public function deleteAllDayParts(int $dayOfWeek): void
     {
+        if (! $this->ensureScheduleEditorAvailable()) {
+            return;
+        }
+
         if (!$this->classScheduleId) {
             return;
         }
@@ -262,6 +360,10 @@ class ClassScheduleUpload extends Component
 
     public function openFinalizeModal(): void
     {
+        if (! $this->ensureScheduleEditorAvailable()) {
+            return;
+        }
+
         if (!$this->classScheduleId) {
             $this->dispatch('warning', 'ابتدا باید حداقل یک پارت ثبت کنید.');
             return;
@@ -283,6 +385,10 @@ class ClassScheduleUpload extends Component
 
     public function finalizeSchedule(\App\Services\TrialWeekService $trialService): void
     {
+        if (! $this->ensureScheduleEditorAvailable()) {
+            return;
+        }
+
         if (!$this->classScheduleId) {
             $this->dispatch('warning', 'ابتدا باید حداقل یک پارت ثبت کنید.');
             return;
@@ -376,6 +482,9 @@ class ClassScheduleUpload extends Component
             'schedule'    => $schedule,
             'days'        => $days,
             'canFinalize' => $canFinalize,
+            'backUrl'     => $this->returnTo && str_starts_with($this->returnTo, url('/'))
+                ? $this->returnTo
+                : null,
         ])->layout('layouts.client.app');
     }
 }

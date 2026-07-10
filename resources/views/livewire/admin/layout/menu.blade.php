@@ -102,6 +102,20 @@
                             </svg>
                         </a>
                     </li>
+                    <li class="nav-item" data-bs-placement="right" data-bs-title="همکاری با مدارس"
+                        data-bs-toggle="tooltip">
+                        <a aria-controls="adminUsersTab" aria-selected="false" class="menu-link" data-bs-toggle="tab"
+                           href="#cooperationSchoolTab" role="tab">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                 class="icon icon-tabler icons-tabler-outline icon-tabler-user-shield menu-icon">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                <path d="M6 21v-2a4 4 0 0 1 4 -4h2"></path>
+                                <path d="M12 11a4 4 0 1 0 0 -8a4 4 0 0 0 0 8z"></path>
+                                <path d="M22 16c0 4 -2.5 6 -3.5 6s-3.5 -2 -3.5 -6c1 0 2.5 -.5 3.5 -1.5c1 1 2.5 1.5 3.5 1.5z"></path>
+                            </svg>
+                        </a>
+                    </li>
                 @endif
             </ul>
         </div>
@@ -280,7 +294,7 @@
                                             <i class="fi fi-rr-house-blank">
                                             </i>
                                             <span class="menu-label">
-                                           داشبورد پیش فرض
+                                           داشبورد
                                         </span>
                                         </a>
                                     </li>
@@ -300,7 +314,25 @@
                                             <i class="fi fi-rr-comment">
                                             </i>
                                             <span class="menu-label">
-                                                 همه دانش آموزان
+                                                 اطلاعات دانش آموزان
+                                        </span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link" href="{{route('admin.student.reportDailyActivities.index')}}">
+                                            <i class="fi fi-rs-usd-circle">
+                                            </i>
+                                            <span class="menu-label">
+                                             گزارش درسی جامع
+                                        </span>
+                                        </a>
+                                    </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link" href="{{route('admin.student.studySession.index')}}">
+                                            <i class="fi fi-rr-calendar">
+                                            </i>
+                                            <span class="menu-label">
+                                             ساعت مطالعه جامع
                                         </span>
                                         </a>
                                     </li>
@@ -318,23 +350,11 @@
                                         </span>
                                         </a>
                                     </li>
-
-
                                     <li class="menu-item">
-                                        <a class="menu-link" href="{{route('admin.student.reportDailyActivities.index')}}">
-                                            <i class="fi fi-rs-usd-circle">
-                                            </i>
+                                        <a class="menu-link" href="{{route('admin.classification.dashboard')}}">
+                                            <i class="fi fi-rr-flux-capacitor"></i>
                                             <span class="menu-label">
-                                             گزارش جامع
-                                        </span>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{route('admin.student.studySession.index')}}">
-                                            <i class="fi fi-rr-calendar">
-                                            </i>
-                                            <span class="menu-label">
-                                            ساعت مطالعه دانش آموزان
+                                           طبقه بندی دروس
                                         </span>
                                         </a>
                                     </li>
@@ -347,34 +367,20 @@
                                         </span>
                                         </a>
                                     </li>
+                                    <li class="menu-item">
+                                        <a class="menu-link" href="{{route('admin.contact-documentation.index')}}">
+                                            <i class="fi fi-rr-phone-call">
+                                            </i>
+                                            <span class="menu-label">
+                                            مستندات تماس
+                                        </span>
+                                        </a>
+                                    </li>
 
                                     <li class="menu-heading">
                                    <span class="menu-label">
-                                بررسی
+                                  آزمون ها
                                    </span>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link"
-                                           href="{{ route('admin.reportStudentDay', ['status' => 'pending']) }}">
-                                            <i class="fi fi-rs-usd-circle">
-                                            </i>
-                                            <span class="menu-label">
-                                             در انتظار تایید
-                                        </span>
-                                        </a>
-                                    </li>
-                                    <li class="menu-heading">
-                                   <span class="menu-label">
-                                  ابزار
-                                   </span>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{route('admin.classification.dashboard')}}">
-                                            <i class="fi fi-rr-flux-capacitor"></i>
-                                            <span class="menu-label">
-                                           طبقه بندی
-                                        </span>
-                                        </a>
                                     </li>
                                     <li class="menu-item">
                                         <a class="menu-link" href="{{route('admin.typed-exams.index')}}">
@@ -395,48 +401,10 @@
                                         </a>
                                     </li>
 
-                                    <li class="menu-item">
-                                        <a class="menu-link" href="{{route('admin.contact-documentation.index')}}">
-                                            <i class="fi fi-rr-phone-call">
-                                            </i>
-                                            <span class="menu-label">
-                                            مستندات تماس
-                                        </span>
-                                        </a>
-                                    </li>
-                                    @if($admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('super admin'))
-                                    <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.consultant.chat*') ? 'active' : '' }}" href="{{route('admin.consultant.chats')}}">
-                                            <i class="fi fi-rr-comment-alt">
-                                            </i>
-                                            <span class="menu-label">
-                                            گفتگو با دانش‌آموزان
-                                        </span>
-                                            <livewire:admin.consultant.chat.unread-badge />
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.consultant.grades') ? 'active' : '' }}" href="{{route('admin.consultant.grades')}}">
-                                            <i class="fi fi-rr-edit">
-                                            </i>
-                                            <span class="menu-label">
-                                            ثبت نمرات کارنامه
-                                        </span>
-                                        </a>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.consultant.emergency-calls') ? 'active' : '' }}" href="{{route('admin.consultant.emergency-calls')}}">
-                                            <i class="fi fi-rr-siren-on">
-                                            </i>
-                                            <span class="menu-label">
-                                            تماس اورژانسی
-                                        </span>
-                                        </a>
-                                    </li>
-                                    @endif
                                 </ul>
                             </nav>
                         </div>
+
                         <div class="tab-pane fade" id="adminUsersTab" role="tabpanel" tabindex="0">
                             <nav class="app-navbar" data-simplebar="">
                                 <ul class="side-menubar">
@@ -513,29 +481,76 @@
                                     </li>
                                     @endif
                                     @if($admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('super admin'))
-                                    <li class="menu-heading">
-                                        <span class="menu-label">مشاور</span>
-                                    </li>
-                                    <li class="menu-item">
-                                        <a class="menu-link {{ request()->routeIs('admin.consultant.leave') ? 'active' : '' }}"
-                                           href="{{ route('admin.consultant.leave') }}">
-                                            <i class="fi fi-rr-calendar-clock"></i>
-                                            <span class="menu-label">مرخصی من</span>
-                                        </a>
-                                    </li>
+                                    <li class="menu-heading"><span class="menu-label">مشاور</span></li>
+
                                         <li class="menu-item">
                                             <a class="menu-link" href="{{route('admin.student.notification')}}">
-                                                <i class="fi fi-rr-circle-user">
-                                                </i>
+                                                <i class="fi fi-rr-circle-user"></i>
                                                 <span class="menu-label">
-                                             ارسال اعلان
+                                                    اعلان در پنل دانش آموز
+                                                </span>
+                                            </a>
+                                        </li>
+                                        @if($admin?->hasRole('مشاور تحصیلی') || $admin?->hasRole('super admin'))
+                                            <li class="menu-item">
+                                                <a class="menu-link {{ request()->routeIs('admin.consultant.chat*') ? 'active' : '' }}" href="{{route('admin.consultant.chats')}}">
+                                                    <i class="fi fi-rr-comment-alt">
+                                                    </i>
+                                                    <span class="menu-label">
+                                            چت با دانش‌آموز
                                         </span>
+                                                    <livewire:admin.consultant.chat.unread-badge />
+                                                </a>
+                                            </li>
+
+                                        @endif
+                                        <li class="menu-item">
+                                            <a class="menu-link {{ request()->routeIs('admin.consultant.leave') ? 'active' : '' }}"
+                                               href="{{ route('admin.consultant.leave') }}">
+                                                <i class="fi fi-rr-calendar-clock"></i>
+                                                <span class="menu-label">مرخصی من</span>
                                             </a>
                                         </li>
                                     @endif
                                 </ul>
                             </nav>
                         </div>
+                            <div class="tab-pane fade" id="cooperationSchoolTab" role="tabpanel" tabindex="0">
+                                <nav class="app-navbar" data-simplebar="">
+                                    <ul class="side-menubar">
+                                        <li class="menu-heading">
+                                            <span class="menu-label">مدیر آموزشی</span>
+                                        </li>
+                                        <li class="menu-item">
+                                            <a class="menu-link {{ request()->routeIs('admin.consultant.grades') ? 'active' : '' }}" href="{{route('admin.consultant.grades')}}">
+                                                <i class="fi fi-rr-edit">
+                                                </i>
+                                                <span class="menu-label">
+                                           ثبت نمره
+                                        </span>
+                                            </a>
+                                        </li>
+                                        <li class="menu-item">
+                                            <a class="menu-link {{ request()->routeIs('admin.consultant.grades') ? 'active' : '' }}" href="{{route('admin.consultant.grades')}}">
+                                                <i class="fi fi-rr-edit">
+                                                </i>
+                                                <span class="menu-label">
+                                            کارنامه مدرسه
+                                        </span>
+                                            </a>
+                                        </li>
+                                        <li class="menu-item">
+                                            <a class="menu-link {{ request()->routeIs('admin.consultant.emergency-calls') ? 'active' : '' }}" href="{{route('admin.consultant.emergency-calls')}}">
+                                                <i class="fi fi-rr-siren-on">
+                                                </i>
+                                                <span class="menu-label">
+                                            تماس اورژانسی
+                                        </span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
                         <div class="tab-pane fade" id="formElementsTab" role="tabpanel" tabindex="0">
                             <nav class="app-navbar" data-simplebar="">
                                 <ul class="side-menubar">

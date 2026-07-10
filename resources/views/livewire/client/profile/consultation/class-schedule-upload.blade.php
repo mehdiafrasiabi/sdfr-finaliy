@@ -24,9 +24,11 @@
                                 <div class="w-2 h-2 bg-foreground rounded-full"></div>
                             </div>
                             <div class="font-black text-foreground">افزودن برنامه کلاسی</div>
-                            <a wire:navigate href="{{ $inTrialCs ? route('client.profile.trial.guide') : route('client.profile.dashboard') }}"
+                            <a wire:navigate href="{{ $backUrl ?: ($inTrialCs ? route('client.profile.trial.guide') : route('client.profile.dashboard')) }}"
                                class="inline-flex items-center justify-center gap-x-1.5 h-10 bg-secondary border border-border rounded-full text-muted transition-colors hover:text-foreground px-6 ms-auto">
-                                <span class="font-semibold text-xs">بازگشت{{ $inTrialCs ? ' به راهنما' : '' }}</span>
+                                <span class="font-semibold text-xs">
+                                    {{ $backUrl ? 'بازگشت به پیش‌جلسه' : ('بازگشت' . ($inTrialCs ? ' به راهنما' : '')) }}
+                                </span>
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                      stroke-width="1.5" stroke="currentColor" class="size-5">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -81,6 +83,46 @@
                             </div>
                         </div>
 
+                        <div dir="rtl" class="rounded-2xl border border-border bg-background p-4 md:p-5">
+                            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <h3 class="font-bold text-foreground">وضعیت مدرسه</h3>
+                                        @if($isGraduate)
+                                            <span class="inline-flex items-center rounded-full bg-secondary px-2.5 py-1 text-[11px] font-bold text-muted">فارغ‌التحصیل</span>
+                                        @elseif($this->attendsSchoolSwitchLocked)
+                                            <span class="inline-flex items-center rounded-full bg-rose-500/10 px-2.5 py-1 text-[11px] font-bold text-rose-500">قفل شده</span>
+                                        @endif
+                                    </div>
+                                    <p class="text-sm text-muted leading-6">اگر وضعیتت نسبت به زمان ثبت‌نام تغییر کرده، از همین‌جا آن را به‌روزرسانی کن.</p>
+                                    @if(!$isGraduate)
+                                        <p class="text-xs text-muted">
+                                            {{ $this->attendsSchoolSwitchLocked
+                                                ? 'سقف ۲ بار تغییر برای این بخش استفاده شده و دیگر قابل ویرایش نیست.'
+                                                : 'فقط ۲ بار امکان تغییر داری. تعداد باقی‌مانده: ' . $this->remainingAttendsSchoolChanges . ' بار' }}
+                                        </p>
+                                    @else
+                                        <p class="text-xs text-muted">برای دانش‌آموز فارغ‌التحصیل امکان تغییر این وضعیت وجود ندارد.</p>
+                                    @endif
+                                </div>
+
+                                <label class="inline-flex items-center gap-3 {{ $this->attendsSchoolSwitchLocked ? 'cursor-not-allowed opacity-70' : 'cursor-pointer' }}">
+                                    <span class="text-sm font-semibold text-foreground">
+                                        {{ $attendsSchool ? 'به مدرسه می‌روم' : 'به مدرسه نمی‌روم' }}
+                                    </span>
+                                    <span class="relative inline-flex items-center">
+                                        <input type="checkbox"
+                                               class="peer sr-only"
+                                               wire:model.live="attendsSchool"
+                                               @disabled($this->attendsSchoolSwitchLocked)>
+                                        <span class="block h-8 w-14 rounded-full bg-secondary transition peer-checked:bg-primary"></span>
+                                        <span class="absolute right-1 h-6 w-6 rounded-full bg-white shadow transition peer-checked:right-7"></span>
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        @if($this->shouldShowScheduleEditor)
                         {{-- راهنما --}}
                         <div dir="rtl" class="rounded-2xl border border-border bg-secondary p-4">
                             <div class="flex items-start gap-3">
@@ -287,6 +329,20 @@
 
                             </button>
                         </div>
+                        @else
+                            <div dir="rtl" class="rounded-2xl border border-sky-200/70 bg-sky-50 px-4 py-4 text-sm text-sky-800 dark:bg-sky-500/10 dark:text-sky-300 dark:border-sky-500/40">
+                                <div class="flex items-start gap-3">
+                                    <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <circle cx="12" cy="12" r="10"></circle>
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01"></path>
+                                    </svg>
+                                    <div class="space-y-2">
+                                        <p class="font-bold">در حال حاضر وضعیت شما روی «مدرسه نمی‌روم» است.</p>
+                                        <p class="leading-6">در این حالت نیازی به ثبت برنامه کلاسی مدرسه نداری. هر زمان دوباره مدرسه رفتی، همین سوییچ را روشن کن تا فرم برنامه کلاسی برایت فعال شود.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
 
                     </div>
                 </div>

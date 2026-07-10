@@ -593,7 +593,7 @@
 
         .device-status .ic {
             display: flex;
-            gap: 5px;
+            gap: 3px;
             align-items: center;
             color: #fff;
             opacity: .9;
@@ -1797,6 +1797,29 @@
         }
 
         @media (max-width: 767px) {
+            .hero-screen {
+                min-height: 82svh;
+                align-items: flex-start;
+                padding-top: clamp(4.5rem, 11vh, 6.5rem);
+                padding-bottom: 2.5rem;
+            }
+
+            .scroll-cue {
+                margin-top: 1.75rem;
+            }
+
+            .story-track {
+                height: 300vh;
+            }
+
+            .phone-track {
+                height: 380vh;
+            }
+
+            .phone-why {
+                top: 12%;
+            }
+
             .logos-track {
                 height: auto;
             }
@@ -2095,9 +2118,6 @@
                                 </div>
 
                                 <div class="device-body">
-                                    {{-- چتِ معرفی حذف شد؛ با بالا آمدنِ موبایل، حروف S/D/F/R یکی‌یکی نمایش داده می‌شوند --}}
-
-                                    {{-- (11) چهار پیامِ ویژگی --}}
                                     <div id="phone-feed" class="feat-feed">
                                         @foreach($phoneFeatures as $i => $pf)
                                             <div class="feat-msg" data-i="{{ $i }}">
@@ -2175,114 +2195,6 @@
             </div>
         </section>
 
-
-        {{-- ===================== FEATURES (در کانتینر) ===================== --}}
-        <div class="relative z-10 max-w-7xl mx-auto px-4 pt-12">
-            <section id="features" class="relative scroll-mt-24" wire:ignore>
-                <div class="feat-desktop">
-                    <div id="feat-track" class="feat-track">
-                        <div class="feat-sticky">
-                            <div class="w-full">
-                                <div class="text-center space-y-2 max-w-3xl mx-auto mb-6">
-                                    <div class="inline-flex items-center gap-2 glass-home rounded-full px-3 py-1.5">
-                                        <svg class="w-3.5 h-3.5 text-brand" viewBox="0 0 24 24" fill="none"
-                                             stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                             stroke-linejoin="round">
-                                            <path d="M12 2 2 7l10 5 10-5-10-5z"/>
-                                            <path d="m2 17 10 5 10-5"/>
-                                            <path d="m2 12 10 5 10-5"/>
-                                        </svg>
-                                        <span class="font-semibold text-xs text-foreground">امکانات پلتفرم</span>
-                                    </div>
-                                    <h2 class="font-black text-2xl md:text-4xl text-foreground">همه‌ی ابزارها در <span
-                                            class="shimmer-text">یک پلتفرم</span></h2>
-                                </div>
-                                <div class="grid grid-cols-12 gap-10 items-center">
-                                    <div class="col-span-5 space-y-2.5">
-                                        @foreach($features as $i => $f)
-                                            <div class="acc-item" data-i="{{ $i }}">
-                                                <div class="acc-head">
-                                                    <span class="acc-ico">
-                                                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"
-                                                             stroke="currentColor" stroke-width="2"
-                                                             stroke-linecap="round"
-                                                             stroke-linejoin="round">{!! $f['icon'] !!}</svg>
-                                                    </span>
-                                                    <h3 class="font-black text-xl text-foreground">{{ $f['t'] }}</h3>
-                                                </div>
-                                                <div class="acc-desc"><p
-                                                        class="font-medium text-sm text-muted leading-8">{{ $f['d'] }}</p>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    <div class="col-span-7">
-                                        <div class="feat-stage glass-home rounded-[30px] p-2 shadow-2xl">
-                                            @foreach($features as $i => $f)
-                                                <div class="feat-preview" data-i="{{ $i }}">
-                                                    <div class="w-full h-full rounded-[24px] overflow-hidden">
-                                                        @if(!empty($featImgs[$f['id']]))
-                                                            <img src="{{ $featImgs[$f['id']] }}" alt="{{ $f['t'] }}"
-                                                                 loading="lazy" class="w-full h-full object-cover">
-                                                        @else
-                                                            @include('livewire.client.home.feature-preview', ['type' => $f['id']])
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="feat-mobile">
-                    <div class="text-center space-y-2 max-w-3xl mx-auto">
-                        <div class="inline-flex items-center gap-2 glass-home rounded-full px-3 py-1.5">
-                            <svg class="w-3.5 h-3.5 text-brand" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M12 2 2 7l10 5 10-5-10-5z"/>
-                                <path d="m2 17 10 5 10-5"/>
-                                <path d="m2 12 10 5 10-5"/>
-                            </svg>
-                            <span class="font-semibold text-xs text-foreground">امکانات پلتفرم</span>
-                        </div>
-                        <h2 class="font-black text-2xl text-foreground">همه‌ی ابزارها در <span class="shimmer-text">یک پلتفرم</span>
-                        </h2>
-                    </div>
-                    <div class="mt-6 space-y-7">
-                        @foreach($features as $f)
-                            <div class="reveal-up glass rounded-3xl p-2.5 mb-3" >
-                                <div class="rounded-2xl overflow-hidden border-brand" style="height:250px;">
-                                    @if(!empty($featImgs[$f['id']]))
-                                        <img src="{{ $featImgs[$f['id']] }}" alt="{{ $f['t'] }}" loading="lazy"
-                                             class="w-full h-full object-cover">
-                                    @else
-                                        @include('livewire.client.home.feature-preview', ['type' => $f['id']])
-                                    @endif
-                                </div>
-                                <div class="p-4">
-                                    <div class="flex items-center gap-3 mb-2">
-                                        <span class="acc-ico"
-                                              style="opacity:1;background:hsl(var(--primary));color:hsl(var(--primary-foreground));border-color:transparent;">
-                                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                 stroke-width="2" stroke-linecap="round"
-                                                 stroke-linejoin="round">{!! $f['icon'] !!}</svg>
-                                        </span>
-                                        <h3 class="font-black text-lg text-foreground">{{ $f['t'] }}</h3>
-                                    </div>
-                                    <p class="font-medium text-sm text-muted leading-8">{{ $f['d'] }}</p>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-            </section>
-        </div>
-
-
         {{-- ===================== (3) PRICING — صفحه سیاه + عنوان، بعد پلن‌ها ===================== --}}
         <section id="pricing" class="relative z-10">
             {{-- صحنه‌ی سیاهِ پین‌شده با عنوانِ X-تور --}}
@@ -2342,17 +2254,56 @@
                             پیشنهاد ویژه
                         </div>
                         <div class="space-y-1">
-                            <h3 class="font-black text-xl text-foreground">نظارت روزانه مشاور متخصص و هوشمند</h3>
-                            <p class="font-medium text-xs text-muted">دسترسی کامل به همه‌ی امکانات</p>
+                            <h3 class="font-black text-xl text-foreground">نظارت روزانه مشاور متخصص</h3>
+                            <p class="font-medium text-xs text-muted">قیمت هر پایه بر اساس ماه جاری و تخفیف فعال</p>
                         </div>
-                        <div class="flex items-end gap-1 border-b border-border pb-5">
-                            @if($monthlyPrice)
-                                <span
-                                    class="font-black text-3xl text-foreground">{{ number_format((int) $monthlyPrice) }}</span>
-                                <span class="text-xs text-muted pb-1">تومان / ماه</span>
-                            @else
-                                <span class="font-black text-3xl text-foreground">به‌زودی</span>
-                                <span class="text-xs text-muted pb-1">اعلام قیمت</span>
+                        <div class="border-b border-border pb-5 space-y-3">
+                            <div class="space-y-2">
+                                <label class="block text-[11px] font-bold text-muted">انتخاب پایه</label>
+                                <x-ui.select wire:model.live="selectedFeaturedGrade"
+                                             :options="$featuredGradeOptions"
+                                             placeholder="انتخاب پایه" />
+                            </div>
+
+                            @php
+                                $plan = $this->selectedFeaturedPlan;
+                            @endphp
+                            @if($plan)
+                                <div class="rounded-2xl border border-white/10 bg-white/5 px-3 py-3">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div>
+                                            <div class="font-black text-sm text-foreground">{{ $plan['label'] }}</div>
+                                            @if(!empty($plan['duration_label']))
+                                                <div class="mt-1 text-[11px] text-muted">{{ $plan['duration_label'] }}</div>
+                                            @endif
+                                        </div>
+                                        @if($plan['has_discount'])
+                                            <span class="rounded-full bg-red-500/15 px-2.5 py-1 text-[10px] font-black text-red-400">
+                                                {{ $plan['discount'] }}٪ تخفیف
+                                            </span>
+                                        @endif
+                                    </div>
+
+                                    <div class="mt-3 flex items-end justify-between gap-3">
+                                        @if($plan['is_available'])
+                                            <div class="flex flex-col items-start gap-1">
+                                                @if($plan['has_discount'] && $plan['original_total'])
+                                                    <span class="text-xs font-bold text-red-400 line-through decoration-2 decoration-red-500">
+                                                        {{ number_format((int) $plan['original_total']) }} تومان
+                                                    </span>
+                                                @endif
+                                                <span class="text-lg font-black text-foreground">
+                                                    {{ number_format((int) $plan['total']) }} تومان
+                                                </span>
+                                            </div>
+                                        @else
+                                            <div class="flex flex-col items-start gap-1">
+                                                <span class="text-lg font-black text-foreground">به‌زودی</span>
+                                                <span class="text-[11px] text-muted">اعلام قیمت</span>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
                             @endif
                         </div>
                         <ul class="space-y-3 flex-1 price-ico-row">

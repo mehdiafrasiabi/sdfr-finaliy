@@ -2,16 +2,17 @@
 
 namespace App\Livewire\Client\Onboarding;
 
-use App\Models\City;
+use App\Models\Avatar;
 use App\Models\Otp;
-use App\Models\State;
 use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\PersonalInformation;
 use App\Notifications\SendOtpToUser;
 use App\Traits\NormalizesDigits;
 use Artesaos\SEOTools\Traits\SEOTools;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
@@ -36,8 +37,6 @@ class TrialWeekOnboarding extends Component
     public string $grade        = '10';
     public string $field        = 'math';
     public bool   $attendsSchool = true;
-    public int    $stateId      = 0;
-    public int    $cityId       = 0;
     public string $mobile       = '';
     public string $password     = '';
     public string $passwordConf = '';
@@ -50,10 +49,8 @@ class TrialWeekOnboarding extends Component
     public string $generalError = '';
 
     public bool $registered       = false;
-    public bool $citiesLoading    = false;
-
-    public $states = [];
-    public $cities = [];
+    public array $maleAvatarOptions = [];
+    public array $femaleAvatarOptions = [];
 
     public array $passwordStrength = ['length' => false, 'letter' => false, 'number' => false];
 
@@ -61,7 +58,8 @@ class TrialWeekOnboarding extends Component
 
     public function mount(): void
     {
-        $this->states = State::orderBy('name')->get();
+        $this->maleAvatarOptions = Avatar::imagePathsForGender('male');
+        $this->femaleAvatarOptions = Avatar::imagePathsForGender('female');
 
         // (A4) ذخیره‌ی پلنِ انتخابی از صفحه‌ی اصلی در session تا در مرحله‌ی نتیجه‌ی آزمون
         // (C8) دیگر صفحه‌ی انتخابِ «نقدی یا آزمایشی» به کاربر نمایش داده نشود.
@@ -144,7 +142,13 @@ class TrialWeekOnboarding extends Component
             'codeMell'     => ['required', 'digits:10'],
             'birthDate'    => ['required', 'regex:/^\d{4}\/\d{2}\/\d{2}$/'],
             'gender'       => ['required', 'in:male,female'],
-            'avatar'       => ['required', 'string'],
+            'avatar'       => [
+                'required',
+                'string',
+                Rule::exists('avatars', 'image_path')->where(fn ($query) => $query
+                    ->where('gender', $this->gender)
+                    ->where('is_active', true)),
+            ],
         ], [
             'firstName.required'    => 'نام الزامی است.',
             'firstName.regex'       => 'نام باید فارسی باشد.',
@@ -158,6 +162,7 @@ class TrialWeekOnboarding extends Component
             'gender.required'       => 'انتخاب جنسیت الزامی است.',
             'gender.in'             => 'جنسیت انتخاب‌شده معتبر نیست.',
             'avatar.required'       => 'انتخاب آواتار الزامی است.',
+            'avatar.exists'         => 'آواتار انتخاب‌شده معتبر نیست.',
         ]);
 
         if ($v->fails()) {
@@ -216,22 +221,16 @@ class TrialWeekOnboarding extends Component
         $this->motherMobile = $this->convertToEnglishDigits($this->motherMobile);
 
         $v = Validator::make([
-            'stateId'      => $this->stateId,
-            'cityId'       => $this->cityId,
             'mobile'       => $this->mobile,
             'password'     => $this->password,
             'passwordConf' => $this->passwordConf,
             'fatherMobile' => $this->fatherMobile,
             'motherMobile' => $this->motherMobile,
         ], [
-            'stateId'      => ['required', 'exists:states,id'],
-            'cityId'       => ['required', 'exists:cities,id'],
             'mobile'       => ['required', 'regex:/^09[0-9]{9}$/', 'unique:users,mobile', 'different:fatherMobile', 'different:motherMobile'],
             'password'     => ['required', 'min:8'],
             'passwordConf' => ['required', 'same:password'],
         ], [
-            'stateId.required'      => 'انتخاب استان الزامی است.',
-            'cityId.required'       => 'انتخاب شهر الزامی است.',
             'mobile.required'       => 'شماره موبایل الزامی است.',
             'mobile.regex'          => 'فرمت موبایل صحیح نیست.',
             'mobile.unique'         => 'این شماره قبلاً ثبت شده است.',
@@ -261,26 +260,8 @@ class TrialWeekOnboarding extends Component
     // (B1) با تغییرِ جنسیت، آواتارِ انتخابی پاک می‌شود تا آواتارِ هم‌جنسِ درست انتخاب شود.
     public function updatedGender(): void
     {
-        $this->avatar = '';
-        // فراخوانی ایونت برای باز شدن خودکار مودال در Alpine.js
-        $this->dispatch('open-avatar');
-    }
-
-    // FIX: nullable int to handle null/empty from Livewire
-    public function updatedStateId($value): void
-    {
-        $value = (int) ($value ?? 0);
-        $this->stateId = $value;
-        $this->cityId = 0;
-        $this->citiesLoading = true;
-
-        if ($value > 0) {
-            $this->cities = City::where('state_id', $value)->orderBy('name')->get();
-        } else {
-            $this->cities = [];
-        }
-
-        $this->citiesLoading = false;
+        // پاک‌سازی آواتار در فرانت انجام می‌شود تا انتخاب کاربر در اثر تاخیر
+        // پاسخ Livewire دوباره بازنویسی نشود.
     }
 
     public function updatedMobile($value): void       { $this->mobile = $this->convertToEnglishDigits($value); }
@@ -351,46 +332,80 @@ class TrialWeekOnboarding extends Component
             return;
         }
 
-        $otp->update(['is_used' => true]);
+        $markedAsUsed = Otp::query()
+            ->whereKey($otp->id)
+            ->where('is_used', false)
+            ->update(['is_used' => true]);
+
+        if (! $markedAsUsed) {
+            $this->otpError  = 'این کد قبلاً استفاده شده است. دوباره کد جدید بگیرید.';
+            $this->isLoading = false;
+            return;
+        }
+
         $this->createAccount();
         $this->isLoading = false;
     }
 
     private function createAccount(): void
     {
-        $user = User::create([
-            'name'     => trim($this->firstName . ' ' . $this->lastName),
-            'mobile'   => $this->mobile,
-            'password' => Hash::make($this->password),
-        ]);
+        $user = DB::transaction(function () {
+            $fullName = trim($this->firstName . ' ' . $this->lastName);
 
-        UserProfile::create([
-            'user_id'   => $user->id,
-            'full_name' => trim( $this->lastName),
-            'state_id'  => $this->stateId,
-            'city_id'   => $this->cityId,
-            'gender'    => in_array($this->gender, ['male', 'female'], true) ? $this->gender : 'male',
-            'picture'   => $this->avatar ?: null,
-        ]);
+            $user = User::query()
+                ->where('mobile', $this->mobile)
+                ->lockForUpdate()
+                ->first();
 
-        PersonalInformation::create([
-            'user_id'        => $user->id,
-            'name'           => $this->firstName,
-            'father_name'    => '',
-            'code_mell'      => $this->codeMell,
-            'father_mobile'  => $this->fatherMobile,
-            'mother_mobile'  => $this->motherMobile,
-            'grade'          => in_array($this->grade, ['10','11','12']) ? $this->grade : ($this->grade === 'graduate' ? '12' : '10'),
-            'is_graduate'    => $this->grade === 'graduate',
-            'attends_school' => $this->grade === 'graduate' ? false : $this->attendsSchool,
-            'field'          => $this->grade !== '9' ? $this->field : 'math',
-            'birth_date'     => $this->convertToEnglishDigits($this->birthDate),
-            'address'        => '',
-            'state_id'       => $this->stateId,
-            'city_id'        => $this->cityId,
-            'name_full'      => trim($this->lastName),
-            'place_of_birth' => ''
-        ]);
+            if ($user) {
+                $user->fill([
+                    'name'     => $fullName,
+                    'picture'  => $this->avatar ?: $user->picture,
+                    'password' => Hash::make($this->password),
+                ])->save();
+            } else {
+                $user = User::create([
+                    'name'     => $fullName,
+                    'mobile'   => $this->mobile,
+                    'picture'  => $this->avatar ?: null,
+                    'password' => Hash::make($this->password),
+                ]);
+            }
+
+            UserProfile::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'full_name' => trim($this->lastName),
+                    'state_id'  => null,
+                    'city_id'   => null,
+                    'gender'    => in_array($this->gender, ['male', 'female'], true) ? $this->gender : 'male',
+                    'picture'   => $this->avatar ?: null,
+                ]
+            );
+
+            PersonalInformation::updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'name'           => $this->firstName,
+                    'father_name'    => '',
+                    'code_mell'      => $this->codeMell,
+                    'father_mobile'  => $this->fatherMobile,
+                    'mother_mobile'  => $this->motherMobile,
+                    'grade'          => in_array($this->grade, ['10', '11', '12']) ? $this->grade : ($this->grade === 'graduate' ? '12' : '10'),
+                    'is_graduate'    => $this->grade === 'graduate',
+                    'attends_school' => $this->grade === 'graduate' ? false : $this->attendsSchool,
+                    'field'          => $this->grade !== '9' ? $this->field : 'math',
+                    'birth_date'     => $this->convertToEnglishDigits($this->birthDate),
+                    'address'        => '',
+                    'state_id'       => null,
+                    'city_id'        => null,
+                    'name_full'      => trim($this->lastName),
+                    'place_of_birth' => '',
+                ]
+            );
+
+            return $user;
+        });
 
         // ردیابی تبدیل: اگر کاربر از طریق لینک یکتای مشاور جذب تلفنی آمده باشد،
         // ثبت‌نام را به آن لینک (و در نتیجه به مشاور) نسبت می‌دهیم.

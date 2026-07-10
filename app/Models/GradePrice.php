@@ -14,14 +14,14 @@ use Morilog\Jalali\Jalalian;
  * مطابق فایل اکسل مجموعه.
  *
  * منطق:
- *   - سال خدمت از «تیر» (اندیس ۰) تا «خرداد» (اندیس ۱۱) است (۱۲ ماه).
+ *   - بازهٔ محاسبهٔ خرید از «تیر» (اندیس ۰) تا «اسفند» (اندیس ۸) است.
  *   - مدیر برای هر پایه «نرخ ماهانه» (monthly_rate) و «درصد پیش‌پرداخت»
  *     (initial_percentage) و سالِ خدمت (start_at = تیر۱، end_at = پایان خرداد) را
  *     مشخص می‌کند، و برای هر ماهِ ورود یک «تخفیف زودهنگام» در
  *     `GradePriceMonthDiscount` تعریف می‌کند (پیش‌فرض: تیر۱۵٪، مرداد۱۲٪، شهریور۹٪،
  *     مهر۶٪، بقیه ۰).
  *   - برای ماهِ ورودِ i:
- *       remainingMonths = 12 − i
+ *       remainingMonths = 9 − i
  *       effectiveRate   = monthly_rate × (1 − discount(i)/100)
  *       total           = effectiveRate × remainingMonths      (کل پرداختی سال)
  *       initial         = total × initial_percentage/100        (پیش‌پرداخت)
@@ -44,8 +44,8 @@ class GradePrice extends Model
         'initial_percentage' => 'integer',
     ];
 
-    /** شمارهٔ ماهِ شمسی به‌ازای هر اندیسِ سال خدمت (۰=تیر … ۱۱=خرداد). */
-        public const SERVICE_MONTHS = [4, 5, 6, 7, 8, 9, 10, 11, 12];
+    /** شمارهٔ ماهِ شمسی به‌ازای هر اندیسِ خرید (۰=تیر … ۸=اسفند). */
+    public const SERVICE_MONTHS = [4, 5, 6, 7, 8, 9, 10, 11, 12];
 
     public const PERSIAN_MONTH_NAMES = [
         1 => 'فروردین', 2 => 'اردیبهشت', 3 => 'خرداد', 4 => 'تیر',
@@ -134,12 +134,19 @@ class GradePrice extends Model
 
     /**
      * اندیس ماهِ ورود برای یک تاریخ (پیش‌فرض: امروز = ماهِ خرید).
-     * نگاشت: تیر(۴)→۰، مرداد(۵)→۱ … خرداد(۳)→۱۱.
+     * نگاشت: تیر(۴)→۰، مرداد(۵)→۱ … اسفند(۱۲)→۸.
      */
     public function entryMonthIndex(?Carbon $at = null): int
     {
         $jMonth = (int) Jalalian::fromCarbon($at ?? Carbon::now())->getMonth();
         return (($jMonth - 4) + 12) % 12;
+    }
+
+    /** ثبت‌نام اقساطی فقط از تیر تا پایان اسفند باز است. */
+    public static function installmentRegistrationOpen(?Carbon $at = null): bool
+    {
+        $jMonth = (int) Jalalian::fromCarbon($at ?? Carbon::now())->getMonth();
+        return $jMonth >= 4 && $jMonth <= 12;
     }
 
     /** درصد تخفیف زودهنگامِ ماهِ ورودِ i. */
@@ -155,7 +162,7 @@ class GradePrice extends Model
         return (int) ($this->monthDiscounts()->where('month_index', $i)->value('discount_percentage') ?? 0);
     }
 
-    /** تعداد ماه‌های باقی‌مانده تا پایان خرداد (با احتساب ماهِ ورود). */
+    /** تعداد ماه‌های باقی‌مانده تا پایان اسفند (با احتساب ماهِ ورود). */
     public function remainingMonths(int $i): int
     {
         return self::SERVICE_MONTH_COUNT - self::clampIndex($i);

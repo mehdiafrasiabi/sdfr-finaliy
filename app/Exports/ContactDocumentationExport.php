@@ -68,7 +68,7 @@ class ContactDocumentationExport implements FromCollection, WithHeadings, WithMa
             $record->description ?? '',
             ContactDocumentation::CONTACT_STATUS[$record->contact_status] ?? $record->contact_status,
             jdate($record->contact_date)->format('Y/m/d'),
-            ContactDocumentation::RESPONDENT[$record->respondent] ?? $record->respondent,
+            $record->respondents_label,
             jdate($record->created_at)->format('Y/m/d'),
         ];
     }

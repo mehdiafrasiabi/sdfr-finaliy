@@ -172,8 +172,6 @@
         foreach ($gradeLabels as $v => $l) { $gradeOptions[] = ['id' => (string) $v, 'name' => $l]; }
         $fieldOptions = [];
         foreach ($fieldLabels as $v => $l) { $fieldOptions[] = ['id' => $v, 'name' => $l]; }
-        $stateOptions = collect($states)->map(fn($s) => ['id' => $s->id, 'name' => $s->name])->values()->all();
-        $cityOptions  = collect($cities)->map(fn($c) => ['id' => $c->id, 'name' => $c->name])->values()->all();
 
         $features = [
             ['t' => 'برنامه‌ی هفتگی اختصاصی', 'd' => 'مشاور متخصص برای تو برنامه می‌نویسه', 'icon' => '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'],
@@ -189,16 +187,8 @@
         $svgSuccess = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" class="w-full h-full text-emerald-500 anim-pop"><circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/></svg>';
 
         // (B1) آواتارهای قابلِ انتخاب — همان تصاویرِ بخشِ «ستارگانِ SDFR»، تفکیک‌شده بر اساسِ جنسیت.
-        $boyAvatars = [
-            '/client/assets/images/avatars/star-boy-1.webp',
-            '/client/assets/images/avatars/star-boy-2.webp',
-            '/client/assets/images/avatars/star-boy-3.png',
-        ];
-        $girlAvatars = [
-            '/client/assets/images/avatars/star-girl-1.webp',
-            '/client/assets/images/avatars/star-girl-2.webp',
-            '/client/assets/images/avatars/star-girl-3.png',
-        ];
+        $boyAvatars = $maleAvatarOptions;
+        $girlAvatars = $femaleAvatarOptions;
     @endphp
 
     <div class="relative min-h-screen overflow-hidden bg-background text-foreground" dir="rtl" x-data="onboardingFlow()">
@@ -212,10 +202,17 @@
         <div x-data="{ openAv: false }"
              x-on:open-avatar.window="openAv = true"
              x-show="openAv" x-cloak
-             class="fixed inset-0 z-[60] flex items-center justify-center p-4">
+             class="fixed inset-0 z-[60] flex items-end justify-center sm:items-center p-0 sm:p-4">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" @click="openAv = false"></div>
-            <div class="relative w-full max-w-md glass-card rounded-3xl p-6"
-                 x-show="openAv" x-transition>
+            <div class="relative w-full max-w-md glass-card rounded-t-[2rem] sm:rounded-3xl px-5 pt-4 pb-[calc(env(safe-area-inset-bottom)+1.25rem)] sm:p-6"
+                 x-show="openAv"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-full sm:translate-y-4 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-full sm:translate-y-4 sm:scale-95">
+                <div class="mx-auto mb-4 h-1.5 w-14 rounded-full bg-foreground/10 sm:hidden"></div>
                 <div class="flex items-center justify-between mb-4">
                     <h3 class="font-black text-lg">انتخاب آواتار</h3>
                     <button type="button" @click="openAv = false" class="w-8 h-8 rounded-lg bg-secondary/60 flex items-center justify-center hover:bg-secondary">
@@ -226,26 +223,34 @@
 
                 {{-- نمایش آنی آواتارهای پسرانه --}}
                 <div class="grid grid-cols-3 gap-4" x-show="gender === 'male'">
-                    @foreach($boyAvatars as $a)
+                    @forelse($boyAvatars as $a)
                         <button type="button"
                                 @click="avatar = '{{ $a }}'; openAv = false"
                                 class="avatar-pick avatar-pick--boy"
                                 :class="avatar === '{{ $a }}' ? 'avatar-pick--on' : ''">
                             <img src="{{ $a }}" alt="آواتار" loading="lazy">
                         </button>
-                    @endforeach
+                    @empty
+                        <div class="col-span-3 rounded-2xl border border-dashed border-border px-4 py-6 text-center text-xs text-muted">
+                            هنوز آواتار پسرانه‌ای تعریف نشده است.
+                        </div>
+                    @endforelse
                 </div>
 
                 {{-- نمایش آنی آواتارهای دخترانه --}}
                 <div class="grid grid-cols-3 gap-4" x-show="gender === 'female'">
-                    @foreach($girlAvatars as $a)
+                    @forelse($girlAvatars as $a)
                         <button type="button"
                                 @click="avatar = '{{ $a }}'; openAv = false"
                                 class="avatar-pick avatar-pick--girl"
                                 :class="avatar === '{{ $a }}' ? 'avatar-pick--on' : ''">
                             <img src="{{ $a }}" alt="آواتار" loading="lazy">
                         </button>
-                    @endforeach
+                    @empty
+                        <div class="col-span-3 rounded-2xl border border-dashed border-border px-4 py-6 text-center text-xs text-muted">
+                            هنوز آواتار دخترانه‌ای تعریف نشده است.
+                        </div>
+                    @endforelse
                 </div>
             </div>
         </div>
@@ -389,28 +394,12 @@
                                 <div class="glass-card rounded-3xl p-6">
                                     <div class="flex items-center gap-3 mb-6">
                                         <div class="w-11 h-11 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary">
-                                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V8a5 5 0 0 1 10 0v3"/></svg>
                                         </div>
-                                        <div><h2 class="font-black text-lg">مکان و حساب</h2><p class="text-[11px] text-muted">شماره برای ورود به سامانه</p></div>
+                                        <div><h2 class="font-black text-lg">حساب کاربری</h2><p class="text-[11px] text-muted">شماره و رمز ورود به سامانه</p></div>
                                     </div>
 
                                     <form @submit.prevent="goNext()" autocomplete="on" class="space-y-4">
-                                        <div class="grid grid-cols-2 gap-3">
-                                            <div class="relative">
-                                                <label class="block text-xs font-semibold mb-1.5 text-muted">استان</label>
-                                                <x-ui.select wire:model.live="stateId" :options="$stateOptions" :searchable="true" placeholder="انتخاب استان" search-placeholder="جستجوی استان..." />
-                                                @error('stateId')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
-                                            </div>
-                                            <div class="relative" wire:key="city-m-{{ $stateId }}">
-                                                <label class="block text-xs font-semibold mb-1.5 text-muted">شهر</label>
-                                                <div wire:loading wire:target="updatedStateId" class="skeleton w-full h-[42px] rounded-lg"></div>
-                                                <div wire:loading.remove wire:target="updatedStateId">
-                                                    <x-ui.select wire:model="cityId" :options="$cityOptions" :searchable="true" :disabled="(int) $stateId === 0" placeholder="انتخاب شهر" search-placeholder="جستجوی شهر..." />
-                                                </div>
-                                                @error('cityId')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
-                                            </div>
-                                        </div>
-
                                         <div class="relative">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">شماره موبایل (برای ورود)</label>
                                             <input wire:model.blur="mobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="username" class="glass-input w-full rounded-xl px-4 py-3 text-sm font-mono @error('mobile') border-rose-500/60 shake @enderror">
@@ -489,10 +478,6 @@
                                         <svg class="w-5 h-5 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="48" stroke-linecap="round" opacity="0.35"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="14 60" stroke-linecap="round"/></svg>
                                         <span class="text-sm font-semibold">انتقال در <span x-text="secs">۵</span> ثانیه…</span>
                                     </div>
-                                    <button type="button" wire:click="startAssessments" class="btn-press mt-5 h-11 px-6 rounded-xl text-sm font-bold inline-flex items-center gap-2">
-                                        همین حالا شروع کن
-                                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-                                    </button>
                                 </div>
                             </div>
                         </section>
@@ -570,10 +555,6 @@
                                 <svg class="w-6 h-6 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="48" stroke-linecap="round" opacity="0.35"/><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-dasharray="14 60" stroke-linecap="round"/></svg>
                                 <span class="font-semibold">انتقال در <span x-text="secs">۵</span> ثانیه…</span>
                             </div>
-                            <button type="button" wire:click="startAssessments" class="btn-press mt-6 h-12 px-8 rounded-xl text-sm font-bold inline-flex items-center gap-2">
-                                همین حالا شروع کن
-                                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-                            </button>
                         </div>
                     </div>
                 </section>
@@ -701,23 +682,9 @@
                                 <fieldset class="space-y-4 pt-5 border-border">
                                     <legend class="flex items-center gap-2 font-bold text-sm text-foreground mb-1">
                                         <span class="flex items-center justify-center w-5 h-5 rounded-md bg-primary/10 text-primary text-[10px] font-black border border-primary/20">۳</span>
-                                        مکان و رمز عبور
+                                        حساب کاربری و رمز عبور
                                     </legend>
                                     <div class="grid grid-cols-2 gap-4">
-                                        <div class="relative">
-                                            <label class="block text-xs font-semibold mb-1.5 text-muted">استان</label>
-                                            <x-ui.select wire:model.live="stateId" :options="$stateOptions" :searchable="true" placeholder="انتخاب استان" search-placeholder="جستجوی استان..." />
-                                            @error('stateId')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
-                                        </div>
-                                        <div class="relative" wire:key="city-d-{{ $stateId }}">
-                                            <label class="block text-xs font-semibold mb-1.5 text-muted">شهر</label>
-                                            <div wire:loading wire:target="updatedStateId" class="skeleton w-full h-[42px] rounded-lg"></div>
-                                            <div wire:loading.remove wire:target="updatedStateId">
-                                                <x-ui.select wire:model="cityId" :options="$cityOptions" :searchable="true" :disabled="(int) $stateId === 0" placeholder="انتخاب شهر" search-placeholder="جستجوی شهر..." />
-                                            </div>
-                                            @error('cityId')<div class="text-xs text-rose-500 mt-1.5">{{ $message }}</div>@enderror
-                                        </div>
-
                                         <div class="col-span-2 relative" data-tour="mobile">
                                             <label class="block text-xs font-semibold mb-1.5 text-muted">شماره موبایل (برای ورود)</label>
                                             <input wire:model.blur="mobile" type="tel" placeholder="09..." dir="ltr" inputmode="numeric" autocomplete="username" class="glass-input w-full rounded-xl px-4 py-2.5 text-sm font-mono @error('mobile') border-rose-500/60 shake @enderror">

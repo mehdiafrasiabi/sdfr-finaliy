@@ -41,8 +41,10 @@
                     <tbody>
                     @forelse($sessions as $session)
                         @php
-                            $sessionDateTime = \Carbon\Carbon::parse($session->activation_date)->setTimeFromTimeString($session->session_time ? $session->session_time->format('H:i:s') : '00:00:00');
-                            $canAccess = \Carbon\Carbon::now()->gte($sessionDateTime);
+                            $sessionDateTime = $session->activation_date
+                                ? \Carbon\Carbon::parse($session->activation_date)->setTimeFromTimeString($session->session_time ? $session->session_time->format('H:i:s') : '00:00:00')
+                                : null;
+                            $canAccess = $sessionDateTime && \Carbon\Carbon::now()->gte($sessionDateTime);
                         @endphp
                         <tr>
                             <td class="text-nowrap">{{ $loop->iteration + $sessions->firstItem() - 1 }}</td>
@@ -59,7 +61,13 @@
                             </td>
                             <td>
                                 <div class="d-flex flex-column">
-                                    <span class="text-nowrap">{{ jalali($session->activation_date)->format('%d %B %Y') }}</span>
+                                    <span class="text-nowrap">
+                                        @if($session->activation_date)
+                                            {{ jalali($session->activation_date)->format('%d %B %Y') }}
+                                        @else
+                                            در انتظار تعیین روز
+                                        @endif
+                                    </span>
                                     @if($session->session_time)
                                         <small class="text-muted text-nowrap">{{ \Carbon\Carbon::parse($session->session_time)->format('H:i') }}</small>
                                     @endif
@@ -103,8 +111,23 @@
                                             دانش‌آموز غیبت داشت
                                         </option>
                                     </select>
+                                    @if($this->canMarkStudentAbsentDuringWindow($session->id))
+                                        <button wire:click="markStudentAbsentDuringWindow({{ $session->id }})"
+                                                wire:confirm="غیبت دانش‌آموز برای این جلسه ثبت شود و جلسه جبرانی ساخته شود؟"
+                                                class="btn btn-sm btn-outline-danger mt-2 w-100">
+                                            ثبت غیبت دانش‌آموز
+                                        </button>
+                                    @endif
                                 @else
-                                    <span class="badge bg-label-secondary">قفل</span>
+                                    @if($this->canMarkStudentAbsentDuringWindow($session->id))
+                                        <button wire:click="markStudentAbsentDuringWindow({{ $session->id }})"
+                                                wire:confirm="غیبت دانش‌آموز برای این جلسه ثبت شود و جلسه جبرانی ساخته شود؟"
+                                                class="btn btn-sm btn-outline-danger">
+                                            ثبت غیبت دانش‌آموز
+                                        </button>
+                                    @else
+                                        <span class="badge bg-label-secondary">قفل</span>
+                                    @endif
                                 @endif
                             </td>
                             <td>

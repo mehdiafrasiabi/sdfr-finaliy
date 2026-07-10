@@ -284,6 +284,38 @@ trait UploadFile
         return $filename;
     }
 
+    protected function uploadImageInWebpFormatAvatar($photo, int $avatarId, ?int $width = null, ?int $height = null): string
+    {
+        $relativeDir = "avatars/{$avatarId}";
+        $fullDir = public_path($relativeDir);
+
+        if (!file_exists($fullDir)) {
+            mkdir($fullDir, 0755, true);
+        }
+
+        $filename = sha1($photo->getClientOriginalName() . now() . uniqid()) . '.webp';
+        $fullPath = $fullDir . '/' . $filename;
+
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($photo->getRealPath());
+
+        if ($width && $height) {
+            $image->cover($width, $height);
+        } elseif ($width) {
+            $image->scaleDown($width, null);
+        } else {
+            $image->scaleDown(1200, 1200);
+        }
+
+        $image->toWebp(85)->save($fullPath);
+
+        if (file_exists($photo->getRealPath())) {
+            @unlink($photo->getRealPath());
+        }
+
+        return '/' . $relativeDir . '/' . $filename;
+    }
+
     /**
      * آپلود عکس سوالات با hash کردن نام فایل و فولدر
      * عرض پیشنهادی: 1200px - ارتفاع: متناسب با تصویر

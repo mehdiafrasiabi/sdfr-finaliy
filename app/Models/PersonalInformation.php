@@ -13,6 +13,7 @@ class PersonalInformation extends Model
     protected $casts = [
         'is_graduate'    => 'boolean',
         'attends_school' => 'boolean',
+        'attends_school_change_count' => 'integer',
     ];
 
     public function country()

@@ -100,14 +100,209 @@
     </div>
 
     {{-- Iran Map --}}
-    <div class="card mb-4">
-        <div class="card-header"><h5 class="mb-0">پراکندگی دانش‌آموزان بر اساس استان</h5></div>
-        <div class="card-body text-center">
+    <style>
+        .iran-map-card {
+            background:
+                radial-gradient(circle at top, rgba(99, 179, 237, 0.18), transparent 30%),
+                linear-gradient(180deg, #1f2431 0%, #161a24 100%);
+            border: 0;
+            overflow: hidden;
+        }
+
+        .iran-map-shell {
+            color: #e8eefb;
+        }
+
+        .iran-map-summary {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .iran-map-pill {
+            background: rgba(164, 208, 255, 0.12);
+            border: 1px solid rgba(164, 208, 255, 0.18);
+            color: #dcecff;
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+        }
+
+        .iran-map-board {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 280px;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .iran-map-stage {
+            position: relative;
+            min-height: 560px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+        }
+
+        #iran-map-container {
+            width: 100%;
+            max-width: 760px;
+            margin: auto;
+            position: relative;
+        }
+
+        #iran-map-container .iran-map-svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        #iran-map-container .iran-map-water {
+            fill: #73b7e6;
+        }
+
+        #iran-map-container .iran-map-border {
+            fill: rgba(255, 255, 255, 0.03);
+            stroke: rgba(255, 255, 255, 0.2);
+            stroke-width: 1.2px;
+        }
+
+        #iran-map-container .province {
+            fill: #d7d9df;
+            stroke: rgba(255, 255, 255, 0.92);
+            stroke-width: 2px;
+            transition: transform 0.2s ease, fill 0.2s ease, filter 0.2s ease, stroke 0.2s ease;
+            transform-origin: center;
+            transform-box: fill-box;
+            cursor: pointer;
+        }
+
+        #iran-map-container .province:hover,
+        #iran-map-container .province.is-active {
+            transform: translateY(-2px);
+            stroke: #ffffff;
+            filter: drop-shadow(0 8px 16px rgba(28, 44, 79, 0.35));
+        }
+
+        .iran-map-sidepanel {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            padding: 18px;
+            min-height: 320px;
+        }
+
+        .iran-map-sidepanel .eyebrow {
+            color: #96a6c6;
+            font-size: 0.8rem;
+            margin-bottom: 6px;
+        }
+
+        .iran-map-sidepanel .province-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .iran-map-sidepanel .province-count {
+            font-size: 2.3rem;
+            line-height: 1;
+            font-weight: 800;
+            color: #8fd3ff;
+            margin-bottom: 10px;
+        }
+
+        .iran-map-sidepanel .province-help {
+            color: #9fb0cf;
+            font-size: 0.92rem;
+            line-height: 1.8;
+        }
+
+        .iran-map-toplist {
+            margin-top: 18px;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .iran-map-topitem {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 0;
+            color: #d9e6ff;
+            font-size: 0.92rem;
+        }
+
+        .iran-map-topitem .badge {
+            min-width: 42px;
+        }
+
+        .iran-map-footer {
+            margin-top: 18px;
+            text-align: center;
+            color: #98abc9;
+            font-size: 0.92rem;
+        }
+
+        @media (max-width: 991.98px) {
+            .iran-map-board {
+                grid-template-columns: 1fr;
+            }
+
+            .iran-map-stage {
+                min-height: 0;
+            }
+        }
+    </style>
+
+    <div class="card iran-map-card mb-4">
+        <div class="card-header bg-transparent border-0 pt-4 px-4">
+            <h5 class="mb-1 text-white">پراکندگی دانش‌آموزان بر اساس استان</h5>
+            <p class="mb-0 text-white-50">روی هر استان هاور کنید تا تعداد دقیق دانش‌آموزان همان استان نمایش داده شود.</p>
+        </div>
+        <div class="card-body iran-map-shell px-4 pb-4">
             @if($studentsPerState->isNotEmpty())
-                <div id="iran-map-container" style="width: 100%; max-width: 700px; margin: auto; position: relative;">
-                    {{-- SVG map will be injected here by script --}}
+                <div class="iran-map-summary">
+                    <div class="iran-map-pill">کل دانش‌آموزان: {{ number_format($totalStudents) }}</div>
+                    <div class="iran-map-pill">استان‌های دارای دانش‌آموز: {{ number_format($studentsPerState->count()) }}</div>
+                    <div class="iran-map-pill">بیشترین تمرکز: {{ $studentsPerState->first()->state_name ?? '—' }}</div>
                 </div>
-                <p class="form-text mt-2">روی هر استان رنگی هاور کنید تا تعداد دانش آموزان را ببینید</p>
+
+                <div class="iran-map-board">
+                    <div class="iran-map-stage">
+                        <div id="iran-map-container">
+                            @include('livewire.admin.dashboard.partials.iran-map-svg')
+                        </div>
+                    </div>
+
+                    <div class="iran-map-sidepanel">
+                        <div class="eyebrow">وضعیت استان انتخابی</div>
+                        <div class="province-name" id="iran-map-province-name">نقشه ایران</div>
+                        <div class="province-count" id="iran-map-province-count">{{ number_format($totalStudents) }}</div>
+                        <div class="province-help" id="iran-map-province-help">
+                            ماوس را روی یکی از استان‌ها نگه دارید تا تعداد دقیق دانش‌آموزان آن استان را ببینید.
+                        </div>
+
+                        <div class="iran-map-toplist">
+                            <div class="eyebrow">استان‌های برتر</div>
+                            @foreach($studentsPerState->take(5) as $item)
+                                <div class="iran-map-topitem">
+                                    <span>{{ $item->state_name }}</span>
+                                    <span class="badge bg-primary-subtle text-primary">{{ number_format($item->students_count) }}</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                <div class="iran-map-footer">
+                    هرچه رنگ استان پررنگ‌تر باشد، تعداد دانش‌آموزان آن استان بیشتر است.
+                </div>
             @else
                 <div class="alert alert-light text-center">داده‌ای برای نمایش پراکندگی دانش‌آموزان وجود ندارد.</div>
             @endif
@@ -499,89 +694,166 @@
             function loadIranMap() {
                 const mapContainer = document.getElementById('iran-map-container');
                 if(!mapContainer) return;
-
-                // A simple SVG map of Iran with provinces. In a real project, this would be a separate file.
-                const iranSvg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="500" height="500" viewBox="0 0 1000 922">
-            <style>.province { fill: #d4d4d4; stroke: #fff; stroke-width: 2px; transition: fill 0.3s; } .province.has-students { fill: #405189; } .sea { fill: #aadaff; }</style>
-            <path class="sea" d="M371 0h133v33h-22v20h-91v-20h-20zm149 0h149v20h-20v13h-44v-13h-85zm165 0h109v20h-20v13h-30v-13h-59z"/>
-            <path class="sea" d="M0 869h1000v53h-1000z"/>
-            <text x="500" y="50" text-anchor="middle" font-size="24" fill="#003366">دریای خزر</text>
-            <text x="500" y="900" text-anchor="middle" font-size="24" fill="#003366">خلیج فارس</text>
-            <path id="آذربایجان-شرقی" class="province" d="M300 100 l50 -50 l100 0 l50 50 l-50 50 l-100 0z" data-name="آذربایجان شرقی"/>
-            <path id="آذربایجان-غربی" class="province" d="M200 150 l50 -50 l100 0 l50 50 l-50 50 l-100 0z" data-name="آذربایجان غربی"/>
-            <path id="اردبیل" class="province" d="M350 50 l50 -30 l100 0 l50 30 l-50 50 l-100 0z" data-name="اردبیل"/>
-            <path id="اصفهان" class="province" d="M450 450 l100 -50 l100 50 l0 100 l-100 50 l-100 -50z" data-name="اصفهان"/>
-            <path id="البرز" class="province" d="M400 300 l40 0 l10 40 l-50 0z" data-name="البرز"/>
-            <path id="ایلام" class="province" d="M250 450 l50 -50 l50 0 l0 100 l-50 0 l-50 -50z" data-name="ایلام"/>
-            <path id="بوشهر" class="province" d="M450 700 l50 -50 l100 0 l0 50 l-150 0z" data-name="بوشهر"/>
-            <path id="تهران" class="province" d="M450 300 l50 0 l0 50 l-50 0z" data-name="تهران"/>
-            <path id="چهارمحال-و-بختیاری" class="province" d="M380 550 l70 -40 l50 40 l-20 60 l-100 0z" data-name="چهارمحال و بختیاری"/>
-            <path id="خراسان-جنوبی" class="province" d="M700 450 l100 0 l50 100 l-50 50 l-100 0 l-50 -100z" data-name="خراسان جنوبی"/>
-
-<path id="خراسان-رضوی" class="province" d=" M 716.74 145.50 C 717.84 144.45 718.96 143.40 720.07 142.36 C 728.00 145.26 734.62 151.18 743.10 152.57 C 745.49 152.72 745.89 155.46 746.65 157.24 C 748.22 162.63 750.47 168.50 755.58 171.47 C 762.66 174.52 770.17 176.61 777.07 180.05 C 780.25 183.18 782.81 186.91 786.06 189.99 C 789.65 193.37 790.09 199.60 794.99 201.54 C 801.00 202.05 807.01 200.64 813.04 201.02 C 820.66 201.41 828.22 200.34 835.82 199.96 C 834.93 205.33 833.36 210.60 832.94 216.05 C 832.47 220.93 836.47 224.62 837.21 229.23 C 836.76 233.14 834.95 236.74 833.80 240.47 C 836.17 242.59 839.02 244.44 840.49 247.36 C 840.73 250.47 839.83 253.59 840.32 256.70 C 840.82 259.15 841.78 261.47 842.64 263.82 C 839.82 268.32 837.58 273.24 837.35 278.63 C 836.68 278.73 835.33 278.94 834.66 279.05 C 834.17 282.42 834.77 285.75 835.73 288.98 C 836.12 293.03 834.93 297.05 834.81 301.10 C 834.62 305.96 832.15 310.23 830.25 314.57 C 829.13 316.85 828.09 319.37 825.90 320.83 C 823.19 322.68 820.11 323.93 817.53 325.98 C 820.20 330.15 824.27 333.16 827.18 337.15 C 823.91 337.15 820.27 336.27 817.35 338.18 C 813.24 340.86 812.01 346.18 807.98 348.95 C 803.92 351.95 800.00 355.12 795.96 358.14 C 792.47 355.76 789.25 352.81 785.20 351.41 C 779.93 350.18 774.23 352.09 769.18 349.72 C 765.73 347.98 761.85 347.65 758.05 347.87 C 747.69 348.31 737.25 347.26 726.96 348.86 C 723.66 349.16 721.41 351.83 718.99 353.78 C 716.11 352.14 713.04 350.93 709.92 349.86 C 704.52 348.50 703.64 339.41 697.08 341.18 C 689.87 342.48 682.66 340.55 676.21 337.39 C 677.54 333.69 679.41 330.01 679.37 326.00 C 678.38 321.03 673.60 318.28 670.93 314.31 C 669.50 310.58 671.13 305.89 668.37 302.61 C 665.68 299.23 662.44 296.33 659.67 293.01 C 655.16 292.99 650.63 292.60 646.15 293.18 C 642.01 293.97 639.25 297.55 635.49 299.14 C 632.39 299.61 629.24 299.33 626.13 299.43 C 625.84 304.72 625.90 310.87 621.71 314.79 C 616.23 320.04 608.11 320.10 601.01 320.00 C 603.13 315.69 605.76 311.65 608.86 307.98 C 612.38 303.77 614.93 298.75 619.06 295.07 C 623.48 291.06 630.41 291.94 634.67 287.69 C 637.86 283.99 637.30 278.62 639.56 274.44 C 641.08 271.25 643.92 268.59 644.37 264.95 C 640.59 257.94 631.92 255.13 628.37 247.88 C 625.19 241.03 622.38 233.57 623.09 225.89 C 623.38 221.61 626.29 218.14 627.12 214.02 C 627.79 210.99 625.69 208.01 622.93 206.95 C 620.56 207.20 618.31 208.02 615.98 208.45 C 613.16 209.19 610.50 207.67 607.89 206.87 C 610.58 201.29 613.09 195.53 616.87 190.58 C 619.01 187.81 622.86 188.12 625.98 188.00 C 633.35 188.10 640.71 187.85 648.07 188.13 C 652.50 188.16 655.56 191.71 658.75 194.27 C 665.49 199.87 674.10 203.79 683.01 203.38 C 684.65 203.26 686.57 203.14 687.69 201.75 C 688.43 197.33 687.97 192.83 688.12 188.38 C 690.46 186.28 693.77 184.42 694.15 180.98 C 694.94 176.73 690.54 174.37 688.90 170.97 C 689.47 169.33 690.78 168.08 692.44 167.57 C 696.39 166.10 700.44 164.88 704.13 162.80 C 701.27 160.39 697.76 158.58 695.63 155.46 C 694.76 152.56 695.08 149.47 694.99 146.48 C 700.16 147.51 705.15 145.84 709.62 143.34 C 711.97 144.12 714.35 144.83 716.74 145.50 Z"></path>
-            <path id="خراسان-شمالی" class="province" d="M700 200 l100 0 l50 100 l-150 0z" data-name="خراسان شمالی"/>
-            <path id="خوزستان" class="province" d="M350 600 l100 0 l0 100 l-100 0z" data-name="خوزستان"/>
-            <path id="زنجان" class="province" d="M350 200 l100 -50 l100 50 l0 50 l-200 0z" data-name="زنجان"/>
-            <path id="سمنان" class="province" d="M550 300 l150 0 l0 100 l-150 0z" data-name="سمنان"/>
-            <path id="سیستان-و-بلوچستان" class="province" d="M750 600 l150 0 l50 150 l-200 -50z" data-name="سیستان و بلوچستان"/>
-            <path id="فارس" class="province" d="M500 600 l150 0 l50 100 l-200 -50z" data-name="فارس"/>
-            <path id="قزوین" class="province" d="M400 250 l50 -50 l50 50 l-50 50z" data-name="قزوین"/>
-            <path id="قم" class="province" d="M470 380 l40 0 l0 40 l-40 0z" data-name="قم"/>
-            <path id="کردستان" class="province" d="M250 300 l100 0 l0 100 l-100 0z" data-name="کردستان"/>
-            <path id="کرمان" class="province" d="M650 550 l100 50 l50 100 l-150 -50z" data-name="کرمان"/>
-            <path id="کرمانشاه" class="province" d="M250 380 l100 0 l0 70 l-100 0z" data-name="کرمانشاه"/>
-            <path id="کهگیلویه-و-بویراحمد" class="province" d="M430 600 l70 0 l0 70 l-70 0z" data-name="کهگیلویه و بویراحمد"/>
-            <path id="گلستان" class="province" d="M600 150 l100 50 l-50 50 l-50 -100z" data-name="گلستان"/>
-            <path id="گیلان" class="province" d="M450 100 l100 -50 l50 50 l-50 50z" data-name="گیلان"/>
-            <path id="لرستان" class="province" d="M350 500 l80 0 l0 80 l-80 0z" data-name="لرستان"/>
-            <path id="مازندران" class="province" d="M550 200 l100 0 l0 50 l-100 0z" data-name="مازندران"/>
-            <path id="مرکزی" class="province" d="M400 400 l50 0 l0 80 l-50 0z" data-name="مرکزی"/>
-            <path id="هرمزگان" class="province" d="M600 750 l150 0 l0 50 l-150 0z" data-name="هرمزگان"/>
-            <path id="همدان" class="province" d="M350 350 l50 0 l0 50 l-50 0z" data-name="همدان"/>
-            <path id="یزد" class="province" d="M600 450 l100 0 l0 100 l-100 0z" data-name="یزد"/>
-        </svg>
-        `;
-                mapContainer.innerHTML = iranSvg;
+                const provinceNameEl = document.getElementById('iran-map-province-name');
+                const provinceCountEl = document.getElementById('iran-map-province-count');
+                const provinceHelpEl = document.getElementById('iran-map-province-help');
 
                 const studentsPerState = @json($studentsPerState);
                 const provincePaths = mapContainer.querySelectorAll('.province');
+                if (!provincePaths.length) return;
+                if (mapContainer.dataset.iranMapBound === '1') return;
+                mapContainer.dataset.iranMapBound = '1';
                 const tooltip = document.createElement('div');
                 tooltip.style.position = 'absolute';
-                tooltip.style.background = 'rgba(0,0,0,0.8)';
+                tooltip.style.background = 'linear-gradient(180deg, rgba(18,27,43,0.96), rgba(25,36,57,0.96))';
                 tooltip.style.color = '#fff';
-                tooltip.style.padding = '5px 10px';
-                tooltip.style.borderRadius = '5px';
+                tooltip.style.padding = '8px 12px';
+                tooltip.style.borderRadius = '12px';
+                tooltip.style.border = '1px solid rgba(170, 214, 255, 0.25)';
+                tooltip.style.boxShadow = '0 14px 30px rgba(0,0,0,0.28)';
+                tooltip.style.fontSize = '13px';
                 tooltip.style.pointerEvents = 'none';
                 tooltip.style.display = 'none';
+                tooltip.style.zIndex = '20';
                 mapContainer.appendChild(tooltip);
+
+                const provinceAliases = {
+                    'آذربایجان شرقی': ['آذربایجان شرقی', 'آذربايجان شرقي'],
+                    'آذربایجان غربی': ['آذربایجان غربی', 'آذربايجان غربي'],
+                    'اردبیل': ['اردبیل', 'اردبيل'],
+                    'اصفهان': ['اصفهان'],
+                    'البرز': ['البرز'],
+                    'ایلام': ['ایلام', 'ايلام'],
+                    'بوشهر': ['بوشهر'],
+                    'تهران': ['تهران'],
+                    'چهارمحال و بختیاری': ['چهارمحال و بختیاری', 'چهارمحال و بختياري'],
+                    'خراسان جنوبی': ['خراسان جنوبی', 'خراسان جنوبي'],
+                    'خراسان رضوی': ['خراسان رضوی', 'خراسان رضوي'],
+                    'خراسان شمالی': ['خراسان شمالی', 'خراسان شمالي'],
+                    'خوزستان': ['خوزستان'],
+                    'زنجان': ['زنجان'],
+                    'سمنان': ['سمنان'],
+                    'سیستان و بلوچستان': ['سیستان و بلوچستان', 'سيستان و بلوچستان'],
+                    'فارس': ['فارس'],
+                    'قزوین': ['قزوین', 'قزوين'],
+                    'قم': ['قم'],
+                    'کردستان': ['کردستان'],
+                    'کرمان': ['کرمان'],
+                    'کرمانشاه': ['کرمانشاه'],
+                    'کهگیلویه و بویراحمد': ['کهگیلویه و بویراحمد', 'کهگيلويه و بويراحمد'],
+                    'گلستان': ['گلستان'],
+                    'گیلان': ['گیلان', 'گيلان'],
+                    'لرستان': ['لرستان'],
+                    'مازندران': ['مازندران'],
+                    'مرکزی': ['مرکزی', 'مرکزي'],
+                    'هرمزگان': ['هرمزگان'],
+                    'همدان': ['همدان'],
+                    'یزد': ['یزد'],
+                };
+
+                function normalizeProvinceName(name) {
+                    return String(name || '')
+                        .replace(/ك/g, 'ک')
+                        .replace(/ي/g, 'ی')
+                        .replace(/[‌\-]/g, ' ')
+                        .replace(/\s+/g, ' ')
+                        .trim();
+                }
 
                 const stateData = {};
                 studentsPerState.forEach(item => {
-                    stateData[item.state_name] = item.students_count;
+                    stateData[normalizeProvinceName(item.state_name)] = Number(item.students_count || 0);
                 });
+
+                const normalizedAliases = {};
+                Object.entries(provinceAliases).forEach(([canonicalName, aliases]) => {
+                    aliases.forEach(alias => {
+                        normalizedAliases[normalizeProvinceName(alias)] = canonicalName;
+                    });
+                    normalizedAliases[normalizeProvinceName(canonicalName)] = canonicalName;
+                });
+
+                function resolveProvinceCount(provinceName) {
+                    const canonicalName = normalizedAliases[normalizeProvinceName(provinceName)] || normalizeProvinceName(provinceName);
+                    return Number(stateData[canonicalName] || stateData[normalizeProvinceName(provinceName)] || 0);
+                }
+
+                const counts = Array.from(provincePaths).map(path => resolveProvinceCount(path.dataset.name));
+                const maxCount = Math.max(...counts, 0);
+
+                function getProvinceFill(count) {
+                    if (!count) {
+                        return '#d6d8de';
+                    }
+
+                    if (!maxCount) {
+                        return '#6ea8fe';
+                    }
+
+                    const ratio = count / maxCount;
+
+                    if (ratio >= 0.85) return '#164eab';
+                    if (ratio >= 0.65) return '#2563c9';
+                    if (ratio >= 0.45) return '#3d7be0';
+                    if (ratio >= 0.25) return '#5b9aee';
+
+                    return '#84b9f8';
+                }
+
+                function updateProvincePanel(provinceName, count) {
+                    if (!provinceNameEl || !provinceCountEl || !provinceHelpEl) {
+                        return;
+                    }
+
+                    provinceNameEl.textContent = provinceName;
+                    provinceCountEl.textContent = count.toLocaleString('fa-IR');
+                    provinceHelpEl.textContent = count > 0
+                        ? `در حال حاضر ${count.toLocaleString('fa-IR')} دانش‌آموز از استان ${provinceName} در سیستم ثبت شده است.`
+                        : `در حال حاضر دانش‌آموزی با استان ${provinceName} ثبت نشده است.`;
+                }
+
+                function resetProvincePanel() {
+                    if (!provinceNameEl || !provinceCountEl || !provinceHelpEl) {
+                        return;
+                    }
+
+                    provinceNameEl.textContent = 'نقشه ایران';
+                    provinceCountEl.textContent = '{{ number_format($totalStudents) }}';
+                    provinceHelpEl.textContent = 'ماوس را روی یکی از استان‌ها نگه دارید تا تعداد دقیق دانش‌آموزان آن استان را ببینید.';
+                }
 
                 provincePaths.forEach(path => {
                     const provinceName = path.dataset.name;
-                    if (stateData[provinceName]) {
-                        path.classList.add('has-students');
-                        path.dataset.count = stateData[provinceName];
-                    }
+                    const count = resolveProvinceCount(provinceName);
 
-                    path.addEventListener('mousemove', (e) => {
-                        const count = path.dataset.count;
-                        if(count) {
-                            tooltip.style.display = 'block';
-                            tooltip.style.left = `${e.offsetX + 15}px`;
-                            tooltip.style.top = `${e.offsetY}px`;
-                            tooltip.innerHTML = `${provinceName}: <strong>${count}</strong>`;
-                        }
+                    path.dataset.count = count;
+                    path.style.fill = getProvinceFill(count);
+
+                    path.addEventListener('mouseenter', () => {
+                        provincePaths.forEach(item => item.classList.remove('is-active'));
+                        path.classList.add('is-active');
+                        updateProvincePanel(provinceName, count);
+                        tooltip.style.display = 'block';
+                        tooltip.innerHTML = `
+                            <div style="font-weight:700; margin-bottom:4px;">${provinceName}</div>
+                            <div>تعداد دانش‌آموز: <strong>${count.toLocaleString('fa-IR')}</strong></div>
+                        `;
+                    });
+
+                    path.addEventListener('mousemove', (event) => {
+                        const rect = mapContainer.getBoundingClientRect();
+                        tooltip.style.left = `${event.clientX - rect.left + 18}px`;
+                        tooltip.style.top = `${event.clientY - rect.top - 10}px`;
                     });
 
                     path.addEventListener('mouseleave', () => {
+                        path.classList.remove('is-active');
                         tooltip.style.display = 'none';
+                        resetProvincePanel();
                     });
                 });
+
+                resetProvincePanel();
             }
 
         </script>

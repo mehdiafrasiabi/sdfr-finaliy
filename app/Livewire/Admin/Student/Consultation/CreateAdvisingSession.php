@@ -5,6 +5,7 @@ namespace App\Livewire\Admin\Student\Consultation;
 use App\Models\Student;
 use App\Models\User;
 use App\Models\AdvisingSession;
+use Carbon\Carbon;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -63,6 +64,11 @@ class CreateAdvisingSession extends Component
             'result_status' => $status,
             'status'        => AdvisingSession::STATUS_COMPLETED,
         ]);
+
+        if ($status === AdvisingSession::RESULT_STUDENT_ABSENT) {
+            $this->createMakeupForAbsence($session);
+        }
+
         $this->dispatch('success', 'وضعیت جلسه با موفقیت ثبت شد.');
     }
 
@@ -84,6 +90,83 @@ class CreateAdvisingSession extends Component
         }
 
         return $weeklyProgram->parts()->where('duration_minutes', 0)->count() === 0;
+    }
+
+    protected function sessionDateTime(AdvisingSession $session): ?Carbon
+    {
+        if (! $session->activation_date || ! $session->session_time) {
+            return null;
+        }
+
+        return Carbon::parse($session->activation_date)
+            ->setTimeFromTimeString($session->session_time->format('H:i:s'));
+    }
+
+    public function canMarkStudentAbsentDuringWindow(int $sessionId): bool
+    {
+        $session = AdvisingSession::find($sessionId);
+        if (! $session || (int) $session->student_id !== (int) $this->studentId) {
+            return false;
+        }
+
+        if (! $session->finalized || $session->result_status !== null || $session->status === AdvisingSession::STATUS_COMPLETED) {
+            return false;
+        }
+
+        $sessionDateTime = $this->sessionDateTime($session);
+        if (! $sessionDateTime) {
+            return false;
+        }
+
+        $now = Carbon::now();
+
+        return $now->gte($sessionDateTime) && $now->lte($sessionDateTime->copy()->addHour());
+    }
+
+    protected function createMakeupForAbsence(AdvisingSession $sourceSession): void
+    {
+        AdvisingSession::firstOrCreate(
+            [
+                'advisor_id'        => $sourceSession->advisor_id,
+                'student_id'        => $sourceSession->student_id,
+                'source_session_id' => $sourceSession->id,
+                'is_makeup'         => true,
+            ],
+            [
+                'title'           => 'جلسه جبرانی',
+                'description'     => 'جلسه جبرانی (غیبت دانش‌آموز)',
+                'activation_date' => null,
+                'session_time'    => null,
+                'location_type'   => AdvisingSession::LOCATION_ONLINE,
+                'status'          => AdvisingSession::STATUS_INACTIVE,
+                'is_active'       => false,
+                'finalized'       => false,
+                'makeup_reason'   => AdvisingSession::MAKEUP_STUDENT_ABSENCE,
+            ]
+        );
+    }
+
+    public function markStudentAbsentDuringWindow(int $sessionId): void
+    {
+        if (! $this->canMarkStudentAbsentDuringWindow($sessionId)) {
+            $this->dispatch('warning', 'امکان ثبت غیبت برای این جلسه در این زمان وجود ندارد.');
+            return;
+        }
+
+        $session = AdvisingSession::find($sessionId);
+        if (! $session) {
+            return;
+        }
+
+        $session->update([
+            'result_status' => AdvisingSession::RESULT_STUDENT_ABSENT,
+            'status'        => AdvisingSession::STATUS_COMPLETED,
+            'is_active'     => false,
+        ]);
+
+        $this->createMakeupForAbsence($session);
+
+        $this->dispatch('success', 'غیبت دانش‌آموز ثبت شد و جلسه‌ی جبرانی در انتظار تعیین روز قرار گرفت.');
     }
 
     public function render()

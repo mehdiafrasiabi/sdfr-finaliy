@@ -125,6 +125,7 @@ class StudentDetail extends Component
 
             $reports = DailyReport::with(['detail', 'feedback', 'weeklyProgram'])
                 ->where('student_id', $student->id)
+                ->where('admin_id', $this->trialWeek->acquisition_supporter_id)
                 ->orderByDesc('report_date')
                 ->limit(30)
                 ->get();

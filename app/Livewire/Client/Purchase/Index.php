@@ -5,6 +5,7 @@ namespace App\Livewire\Client\Purchase;
 use App\Contracts\PaymentGateWayInterface;
 use App\Models\Coupons;
 use App\Models\CouponUsage;
+use App\Models\City;
 use App\Models\GradePrice;
 use App\Models\Installment;
 use App\Models\InstallmentPlan;
@@ -12,6 +13,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\PersonalInformation;
+use App\Models\State;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -45,6 +47,8 @@ class Index extends Component
     public string $infoMotherMobile = '';
     public string $infoPlaceOfBirth = '';
     public string $infoAddress      = '';
+    public string $infoStateId      = '';
+    public string $infoCityId       = '';
 
     public const GRADE_OPTIONS = ['10' => 'دهم', '11' => 'یازدهم', '12' => 'دوازدهم'];
     public const FIELD_OPTIONS = ['math' => 'ریاضی و فیزیک', 'experimental' => 'علوم تجربی', 'human' => 'علوم انسانی'];
@@ -78,8 +82,13 @@ class Index extends Component
                 return;
             }
 
-            if (empty(trim($this->infoAddress)) || empty(trim($this->infoPlaceOfBirth))) {
-                $this->dispatch('warning', 'برای ورود به مرحله بعد، تکمیل «آدرس» و «محل تولد» الزامی است. لطفاً روی "ویرایش" کلیک کنید.');
+            if (
+                empty(trim($this->infoAddress))
+                || empty(trim($this->infoPlaceOfBirth))
+                || empty($this->infoStateId)
+                || empty($this->infoCityId)
+            ) {
+                $this->dispatch('warning', 'برای ورود به مرحله بعد، تکمیل «استان»، «شهر»، «آدرس» و «محل تولد» الزامی است. لطفاً روی "ویرایش" کلیک کنید.');
                 return;
             }
         }
@@ -113,6 +122,13 @@ class Index extends Component
         $this->infoMotherMobile = (string) $pi->mother_mobile;
         $this->infoPlaceOfBirth = (string) $pi->place_of_birth;
         $this->infoAddress      = (string) $pi->address;
+        $this->infoStateId      = (string) ($pi->state_id ?? '');
+        $this->infoCityId       = (string) ($pi->city_id ?? '');
+    }
+
+    public function updatedInfoStateId($value): void
+    {
+        $this->infoCityId = '';
     }
 
     public function startEditInfo(): void
@@ -148,16 +164,21 @@ class Index extends Component
             'infoMotherMobile' => ['required', 'string', 'max:20'],
             'infoPlaceOfBirth' => ['required', 'string', 'max:255'], // محل تولد اجباری شد
             'infoAddress'      => ['required', 'string', 'max:500'], // آدرس اجباری شد
+            'infoStateId'      => ['required', 'integer', 'exists:states,id'],
+            'infoCityId'       => ['required', 'integer', Rule::exists('cities', 'id')->where(fn ($query) => $query->where('state_id', $this->infoStateId))],
         ], [], [
             'infoName'         => 'نام',
             'infoFatherName'   => 'نام پدر',
             'infoCodeMell'     => 'کد ملی',
             'infoGrade'        => 'پایه',
             'infoField'        => 'رشته',
+            'infoBirthDate'    => 'تاریخ تولد',
             'infoFatherMobile' => 'موبایل پدر',
             'infoMotherMobile' => 'موبایل مادر',
             'infoPlaceOfBirth' => 'محل تولد',
             'infoAddress'      => 'آدرس',
+            'infoStateId'      => 'استان',
+            'infoCityId'       => 'شهر',
         ]);
 
         $pi->update([
@@ -172,6 +193,8 @@ class Index extends Component
             'mother_mobile'  => $this->infoMotherMobile,
             'place_of_birth' => $this->infoPlaceOfBirth,
             'address'        => $this->infoAddress,
+            'state_id'       => $this->infoStateId,
+            'city_id'        => $this->infoCityId,
         ]);
 
         $this->editingInfo = false;
@@ -233,6 +256,10 @@ class Index extends Component
         $user = Auth::user();
         if (! $user) return $this->redirect(route('client.auth.login'), navigate: true);
 
+        if ($user->student && $user->student->hasActivePaidAccess()) {
+            return $this->redirect(route('client.profile.dashboard'), navigate: true);
+        }
+
         if (! $this->agreedToTerms) {
             $this->dispatch('error', 'برای پرداخت باید قوانین و شرایط را بپذیرید.');
             return;
@@ -245,6 +272,10 @@ class Index extends Component
             return;
         }
 
+        if (! $this->ensureProfileReadyForPurchase($pi)) {
+            return;
+        }
+
         $i      = $price->entryMonthIndex();
         $amount = $this->finalFullPrice($price, $i);
         if ($amount <= 0) {
@@ -252,15 +283,33 @@ class Index extends Component
             return;
         }
 
+        $existingPendingPayment = Payment::query()
+            ->where('user_id', $user->id)
+            ->where('status', 'pending')
+            ->where('purpose', Payment::PURPOSE_COURSE_FULL)
+            ->latest('id')
+            ->first();
+
+        if ($existingPendingPayment) {
+            return $this->requestGateway(
+                $paymentGateway,
+                $existingPendingPayment->amount,
+                $existingPendingPayment->order_number,
+                'پرداخت قبلی پیدا شد اما اتصال به درگاه انجام نشد. لطفاً چند لحظه دیگر دوباره تلاش کنید.'
+            );
+        }
+
         $orderNumber = 'SDFR-' . Str::uuid()->toString();
 
         try {
-            DB::transaction(function () use ($user, $pi, $amount, $orderNumber) {
+            $paymentMethodId = $paymentGateway->getPaymentMethodId() ?: 1;
+
+            DB::transaction(function () use ($user, $pi, $amount, $orderNumber, $paymentMethodId) {
                 $order = Order::query()->create([
                     'amount'            => $amount,
                     'order_number'      => $orderNumber,
                     'user_id'           => $user->id,
-                    'payment_method_id' => 1,
+                    'payment_method_id' => $paymentMethodId,
                     'paid_with_wallet'  => false,
                     'wallet_amount'     => 0,
                     'status'            => 'pending',
@@ -281,17 +330,27 @@ class Index extends Component
                 $this->logCouponUsage($user->id);
             });
         } catch (\Throwable $e) {
-            $this->dispatch('error', 'خطا در ثبت سفارش.');
+            report($e);
+            $this->dispatch('error', $this->friendlyPurchaseError('خطا در ثبت سفارش.', $e));
             return;
         }
 
-        return $paymentGateway->request($amount, $orderNumber);
+        return $this->requestGateway(
+            $paymentGateway,
+            $amount,
+            $orderNumber,
+            'سفارش ثبت شد اما اتصال به درگاه انجام نشد. دوباره روی پرداخت نقدی بزنید تا همان پرداخت ادامه پیدا کند.'
+        );
     }
 
     public function payInstallment(PaymentGateWayInterface $paymentGateway)
     {
         $user = Auth::user();
         if (! $user) return $this->redirect(route('client.auth.login'), navigate: true);
+
+        if ($user->student && $user->student->hasActivePaidAccess()) {
+            return $this->redirect(route('client.profile.dashboard'), navigate: true);
+        }
 
         if (! $this->agreedToTerms) {
             $this->dispatch('error', 'برای پرداخت باید قوانین و شرایط را بپذیرید.');
@@ -302,6 +361,45 @@ class Index extends Component
         $pi    = PersonalInformation::where('user_id', $user->id)->first();
         if (! $price || ! $pi) {
             $this->dispatch('error', 'قیمتی برای پایهٔ شما تعریف نشده یا اطلاعات شخصی کامل نیست.');
+            return;
+        }
+
+        if (! $this->ensureProfileReadyForPurchase($pi)) {
+            return;
+        }
+
+        $existingPlan = $this->existingIncompleteInstallmentPlan($user->id);
+        if ($existingPlan) {
+            $pendingInitialPayment = Payment::query()
+                ->where('user_id', $user->id)
+                ->where('status', 'pending')
+                ->where('purpose', Payment::PURPOSE_INSTALLMENT_INITIAL)
+                ->where('installment_plan_id', $existingPlan->id)
+                ->latest('id')
+                ->first();
+
+            if ($pendingInitialPayment) {
+                return $this->requestGateway(
+                    $paymentGateway,
+                    $pendingInitialPayment->amount,
+                    $pendingInitialPayment->order_number,
+                    'پیش‌پرداخت قبلی پیدا شد اما اتصال به درگاه انجام نشد. لطفاً چند لحظه دیگر دوباره تلاش کنید.'
+                );
+            }
+
+            if ($existingPlan->status === InstallmentPlan::STATUS_ACTIVE) {
+                $this->dispatch('warning', 'شما یک طرح اقساطی فعال دارید. برای ادامه یا پرداخت قسط، وارد صفحه اقساط شوید.');
+                $this->redirect(route('client.profile.installment'), navigate: true);
+                return;
+            }
+
+            $this->dispatch('warning', 'طرح اقساطی قبلی شما هنوز کامل نشده است. لطفاً همان فرایند را ادامه دهید.');
+            $this->redirect(route('client.profile.installment'), navigate: true);
+            return;
+        }
+
+        if (! GradePrice::installmentRegistrationOpen()) {
+            $this->dispatch('error', 'پرداخت اقساطی از ۱ فروردین تا ۳۱ خرداد فعال نیست؛ لطفاً پرداخت نقدی را انتخاب کنید.');
             return;
         }
 
@@ -319,8 +417,10 @@ class Index extends Component
         $orderNumber = 'SDFR-' . Str::uuid()->toString();
 
         try {
-            return DB::transaction(function () use ($user, $pi, $price, $i, $count, $total, $initial, $monthly, $purchase, $orderNumber, $paymentGateway) {
-                $plan = InstallmentPlan::create([
+            $paymentMethodId = $paymentGateway->getPaymentMethodId() ?: 1;
+
+            DB::transaction(function () use ($user, $pi, $price, $i, $count, $total, $initial, $monthly, $purchase, $orderNumber, $paymentMethodId) {
+                $plan = InstallmentPlan::query()->create([
                     'user_id'           => $user->id,
                     'student_id'        => $user->student?->id,
                     'grade_price_id'    => $price->id,
@@ -343,7 +443,7 @@ class Index extends Component
                     Installment::create([
                         'installment_plan_id' => $plan->id,
                         'sequence'            => $k,
-                        'due_date'            => Jalalian::fromCarbon($purchase->copy())->addMonths($k)->withDay(20)->toCarbon()->toDateString(),
+                        'due_date'            => $this->installmentDueDate($purchase, $i, $k)->toDateString(),
                         'amount'              => max(0, $amount),
                         'status'              => Installment::STATUS_PENDING,
                     ]);
@@ -353,7 +453,7 @@ class Index extends Component
                     'amount'            => $initial,
                     'order_number'      => $orderNumber,
                     'user_id'           => $user->id,
-                    'payment_method_id' => 1,
+                    'payment_method_id' => $paymentMethodId,
                     'paid_with_wallet'  => false,
                     'wallet_amount'     => 0,
                     'status'            => 'pending',
@@ -371,13 +471,50 @@ class Index extends Component
                     'purpose'                 => Payment::PURPOSE_INSTALLMENT_INITIAL,
                     'installment_plan_id'     => $plan->id,
                 ]);
-
-                return $paymentGateway->request($initial, $orderNumber);
             });
         } catch (\Throwable $e) {
-            $this->dispatch('error', 'خطا در ثبت طرح اقساطی.');
+            report($e);
+            $this->dispatch('error', $this->friendlyPurchaseError('خطا در ثبت طرح اقساطی.', $e));
             return;
         }
+
+        return $this->requestGateway(
+            $paymentGateway,
+            $initial,
+            $orderNumber,
+            'طرح اقساطی ثبت شد اما اتصال به درگاه انجام نشد. دوباره روی پرداخت اقساطی بزنید تا همان پیش‌پرداخت ادامه پیدا کند.'
+        );
+    }
+
+    protected function existingIncompleteInstallmentPlan(int $userId): ?InstallmentPlan
+    {
+        return InstallmentPlan::query()
+            ->where('user_id', $userId)
+            ->whereIn('status', [InstallmentPlan::STATUS_PENDING, InstallmentPlan::STATUS_ACTIVE, InstallmentPlan::STATUS_DEFAULTED])
+            ->latest('id')
+            ->first();
+    }
+
+    protected function requestGateway(PaymentGateWayInterface $paymentGateway, int $amount, string $orderNumber, string $fallback): mixed
+    {
+        try {
+            return $paymentGateway->request($amount, $orderNumber);
+        } catch (\Throwable $e) {
+            report($e);
+            $this->dispatch('error', $this->friendlyPurchaseError($fallback, $e));
+            return null;
+        }
+    }
+
+    protected function installmentDueDate(Carbon $purchase, int $entryMonthIndex, int $sequence): Carbon
+    {
+        $purchaseJalali = Jalalian::fromCarbon($purchase);
+        $dueMonth = GradePrice::persianMonthForIndex($entryMonthIndex + $sequence);
+
+        return Jalalian::fromFormat(
+            'Y/m/d',
+            sprintf('%04d/%02d/20', (int) $purchaseJalali->getYear(), $dueMonth)
+        )->toCarbon()->startOfDay();
     }
 
     protected function finalFullPrice(GradePrice $price, int $i): int
@@ -403,6 +540,46 @@ class Index extends Component
         }
     }
 
+    protected function ensureProfileReadyForPurchase(?PersonalInformation $pi): bool
+    {
+        if (! $pi) {
+            $this->dispatch('error', 'اطلاعات شخصی شما یافت نشد.');
+            return false;
+        }
+
+        if (
+            blank(trim((string) $pi->address))
+            || blank(trim((string) $pi->place_of_birth))
+            || blank($pi->state_id)
+            || blank($pi->city_id)
+        ) {
+            $this->dispatch('warning', 'برای ادامه خرید، تکمیل «استان»، «شهر»، «آدرس» و «محل تولد» الزامی است.');
+            $this->step = 2;
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function friendlyPurchaseError(string $fallback, \Throwable $e): string
+    {
+        $message = trim((string) $e->getMessage());
+
+        if ($message === '') {
+            return $fallback;
+        }
+
+        if (str_contains($message, 'هیچ درگاهی وجود ندارد')) {
+            return 'درگاه پرداخت فعال نیست. لطفاً با پشتیبانی تماس بگیرید.';
+        }
+
+        if (app()->hasDebugModeEnabled()) {
+            return $fallback . ' ' . $message;
+        }
+
+        return $fallback;
+    }
+
     public function render()
     {
         $price = $this->gradePrice();
@@ -422,7 +599,11 @@ class Index extends Component
                 'full_with_coupon'  => $this->finalFullPrice($price, $i),
                 'initial'           => $price->initialPayment($i),
                 'installment_count' => $price->installmentCount($i),
+                'installment_open'  => GradePrice::installmentRegistrationOpen(),
                 'monthly'           => $price->installmentAmount($i),
+                'installment_until_label' => ($price->installmentCount($i) > 0 && GradePrice::installmentRegistrationOpen())
+                    ? Jalalian::fromCarbon($this->installmentDueDate(Carbon::now(), $i, $price->installmentCount($i)))->format('Y/m/d')
+                    : null,
                 'access_ends_label' => $price->accessEndsAt()
                     ? Jalalian::fromCarbon($price->accessEndsAt())->format('Y/m/d')
                     : '—',
@@ -430,6 +611,10 @@ class Index extends Component
         }
 
         $pi = PersonalInformation::with(['state', 'city'])->where('user_id', Auth::id())->first();
+        $states = State::query()->select('id', 'name')->orderBy('name')->get();
+        $cities = $this->infoStateId
+            ? City::query()->where('state_id', $this->infoStateId)->select('id', 'name')->orderBy('name')->get()
+            : collect();
 
         return view('livewire.client.purchase.index', [
             'price'        => $price,
@@ -437,6 +622,10 @@ class Index extends Component
             'pi'           => $pi,
             'gradeOptions' => self::GRADE_OPTIONS,
             'fieldOptions' => self::FIELD_OPTIONS,
+            'gradeSelectOptions' => collect(self::GRADE_OPTIONS)->map(fn ($label, $id) => ['id' => $id, 'name' => $label])->values(),
+            'fieldSelectOptions' => collect(self::FIELD_OPTIONS)->map(fn ($label, $id) => ['id' => $id, 'name' => $label])->values(),
+            'states'       => $states,
+            'cities'       => $cities,
         ])->layout('layouts.client.app');
     }
 }

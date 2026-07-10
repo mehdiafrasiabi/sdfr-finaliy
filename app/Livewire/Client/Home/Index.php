@@ -3,6 +3,7 @@
 namespace App\Livewire\Client\Home;
 
 use App\Models\ContactUs;
+use App\Models\GradePrice;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Livewire\Component;
 
@@ -10,12 +11,9 @@ class Index extends Component
 {
     use SEOTools;
 
-    /**
-     * قیمت نقدی ماهانه (تومان). فعلاً null → در صفحه «به‌زودی» نمایش داده می‌شود.
-     * برای اتصال بعدی به دیتابیس:
-     *   $this->monthlyPrice = \App\Models\GradePrice::where('is_active', true)->min('monthly_rate');
-     */
-    public $monthlyPrice = null;
+    public array $featuredGradePlans = [];
+    public array $featuredGradeOptions = [];
+    public string $selectedFeaturedGrade = '12';
 
     public $contact_name;
     public $contact_phone;
@@ -25,6 +23,7 @@ class Index extends Component
     public function mount()
     {
         $this->seoConfig();
+        $this->loadFeaturedGradePlans();
     }
 
     public function seoConfig()
@@ -62,6 +61,69 @@ class Index extends Component
 
         session()->flash('contact_sent', true);
         $this->dispatch('success', 'پیامت با موفقیت ارسال شد. به‌زودی با تو تماس می‌گیریم.');
+    }
+
+    private function loadFeaturedGradePlans(): void
+    {
+        $gradeLabels = [
+            9 => 'پایه نهم',
+            10 => 'پایه دهم',
+            11 => 'پایه یازدهم',
+            12 => 'پایه دوازدهم',
+        ];
+
+        $this->featuredGradeOptions = collect($gradeLabels)
+            ->map(fn (string $label, int $grade) => ['id' => (string) $grade, 'name' => $label])
+            ->values()
+            ->all();
+
+        $this->featuredGradePlans = collect([9, 10, 11, 12])->map(function (int $grade) use ($gradeLabels) {
+            $price = GradePrice::activeFor($grade)?->load('monthDiscounts');
+
+            if (! $price) {
+                return [
+                    'grade' => $grade,
+                    'label' => $gradeLabels[$grade],
+                    'is_available' => false,
+                    'has_discount' => false,
+                    'discount' => 0,
+                    'month_label' => null,
+                    'duration_label' => $grade === 12
+                        ? 'برای یک سال تحصیلی، تا پایان روز کنکور'
+                        : 'برای یک سال تحصیلی، تا پایان امتحانات نوبت دوم',
+                    'total' => null,
+                    'original_total' => null,
+                ];
+            }
+
+            $entryIndex = $price->entryMonthIndex(now());
+            $row = collect($price->entryMonthsTable(now()))
+                ->firstWhere('index', $entryIndex);
+
+            return [
+                'grade' => $grade,
+                'label' => $gradeLabels[$grade],
+                'is_available' => (bool) $row,
+                'has_discount' => (bool) (($row['discount'] ?? 0) > 0),
+                'discount' => (int) ($row['discount'] ?? 0),
+                'month_label' => $row['label'] ?? null,
+                'duration_label' => $grade === 12
+                    ? 'برای یک سال تحصیلی، تا پایان روز کنکور'
+                    : 'برای یک سال تحصیلی، تا پایان امتحانات نوبت دوم',
+                'total' => $row['total'] ?? null,
+                'original_total' => $row['original_total'] ?? null,
+            ];
+        })->all();
+
+        if (! collect($this->featuredGradePlans)->contains(fn (array $plan) => (string) $plan['grade'] === $this->selectedFeaturedGrade)) {
+            $this->selectedFeaturedGrade = '12';
+        }
+    }
+
+    public function getSelectedFeaturedPlanProperty(): ?array
+    {
+        return collect($this->featuredGradePlans)
+            ->first(fn (array $plan) => (string) $plan['grade'] === $this->selectedFeaturedGrade);
     }
 
     public function render()

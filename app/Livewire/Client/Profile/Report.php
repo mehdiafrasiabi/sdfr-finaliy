@@ -9,13 +9,14 @@ use App\Models\DailyReportDetail;
 use App\Models\DailyReportFeedback;
 use App\Models\SessionFeedback;
 use App\Models\MakeupSession;
-
+use App\Models\TrialWeek;
 use App\Models\WeeklyProgram;
 use App\Models\WeeklyProgramRestDay;
 use App\Models\StudyPartSession;
 use Artesaos\SEOTools\Traits\SEOTools;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -135,6 +136,48 @@ class Report extends Component
             }
         }
     }
+
+    protected function isActiveTrialReportFlow(): bool
+    {
+        $student = Auth::user()->student;
+        $trialWeek = $student?->trialWeek;
+
+        return (bool) (
+            $student?->is_trial
+            && $trialWeek
+            && $trialWeek->status === TrialWeek::STATUS_PROGRAM_BUILT
+            && ! $trialWeek->isExpired()
+            && $trialWeek->acquisition_supporter_id
+        );
+    }
+
+    protected function resolveReportRecipient(): array
+    {
+        $student = Auth::user()->student;
+        $trialWeek = $student?->trialWeek;
+
+        if ($this->isActiveTrialReportFlow() && $trialWeek?->acquisition_supporter_id) {
+            return [
+                'id' => (int) $trialWeek->acquisition_supporter_id,
+                'label' => 'پشتیبان جذب',
+            ];
+        }
+
+        $advisorId = $this->currentSession?->advisor_id
+            ?? $this->currentProgram?->advisor_id
+            ?? $student?->advisor_id;
+
+        return [
+            'id' => $advisorId ? (int) $advisorId : null,
+            'label' => 'مشاور',
+        ];
+    }
+
+    public function getReportRecipientLabelProperty(): string
+    {
+        return $this->resolveReportRecipient()['label'] ?: 'مسئول پیگیری';
+    }
+
     protected function loadCompletedStudyParts()
     {
         $student = Auth::user()->student;
@@ -459,8 +502,24 @@ class Report extends Component
     public function submitReport()
     {
         try {
+            if ($this->selectedDayIndex === null || !isset($this->weekDays[$this->selectedDayIndex])) {
+                $this->dispatch('warning', 'روز گزارش مشخص نیست. لطفاً دوباره تلاش کنید.');
+                return;
+            }
+
             $student = Auth::user()->student;
+            if (!$student || !$this->currentSession || !$this->currentProgram) {
+                $this->dispatch('warning', 'اطلاعات برنامه یا جلسه برای ثبت گزارش کامل نیست.');
+                return;
+            }
+
             $day = $this->weekDays[$this->selectedDayIndex];
+            $recipient = $this->resolveReportRecipient();
+
+            if (!$recipient['id']) {
+                $this->dispatch('warning', 'هنوز مسئول بررسی گزارش برای شما مشخص نشده است. لطفاً با پشتیبانی تماس بگیرید.');
+                return;
+            }
 
             $unreadCount = count($day['parts']) - count($this->selectedParts);
 
@@ -496,48 +555,68 @@ class Report extends Component
                 $this->closeReportModal();
                 return;
             }
+
+            $existingReport = DailyReport::where('student_id', $student->id)
+                ->where('weekly_program_id', $this->currentProgram->id)
+                ->whereDate('report_date', $day['date'])
+                ->where('is_compensatory', false)
+                ->exists();
+
+            if ($existingReport) {
+                $this->dispatch('warning', 'گزارش این روز قبلاً ثبت شده است.');
+                $this->closeReportModal();
+                $this->loadWeekDays();
+                return;
+            }
+
             // ✅ محاسبه امتیاز از session_feedbacks (1-10)
             $avgRating = $this->computedRating;
 
-            $dailyReport = DailyReport::create([
-                'student_id' => $student->id,
-                'admin_id' => $student->advisor_id,
-                'session_id' => $this->currentSession->id,
-                'weekly_program_id' => $this->currentProgram->id,
-                'report_date' => $day['date'],
-                'day_of_week' => $day['day_of_week'],
-                'is_compensatory' => false,
-            ]);
-
-            DailyReportDetail::create([
-                'daily_report_id' => $dailyReport->id,
-                'phone_hours' => 0,
-                'description' => $this->description ?: null,
-                'missed_parts_reason' => $this->missedPartsReason ?: null,
-                'rating' => $avgRating,
-                'status' => 'pending',
-            ]);
-
-            DailyReportFeedback::create([
-                'daily_report_id' => $dailyReport->id,
-            ]);
-
-            foreach ($day['parts'] as $part) {
-                DailyReportPart::create([
-                    'daily_report_id' => $dailyReport->id,
-                    'program_part_id' => $part->id,
-                    'is_read' => in_array($part->id, $this->selectedParts),
-                    'tests_done' => $this->testsDone[$part->id] ?? 0,
-                    'part_rating' => null,
+            DB::transaction(function () use ($student, $day, $avgRating, $recipient) {
+                $dailyReport = DailyReport::create([
+                    'student_id' => $student->id,
+                    'admin_id' => $recipient['id'],
+                    'session_id' => $this->currentSession->id,
+                    'weekly_program_id' => $this->currentProgram->id,
+                    'report_date' => $day['date'],
+                    'day_of_week' => $day['day_of_week'],
                     'is_compensatory' => false,
                 ]);
-            }
 
-            $this->dispatch('success', 'گزارش با موفقیت ثبت شد.');
+                DailyReportDetail::create([
+                    'daily_report_id' => $dailyReport->id,
+                    'phone_hours' => 0,
+                    'description' => $this->description ?: null,
+                    'missed_parts_reason' => $this->missedPartsReason ?: null,
+                    'rating' => $avgRating,
+                    'status' => 'pending',
+                ]);
+
+                DailyReportFeedback::create([
+                    'daily_report_id' => $dailyReport->id,
+                ]);
+
+                foreach ($day['parts'] as $part) {
+                    DailyReportPart::create([
+                        'daily_report_id' => $dailyReport->id,
+                        'program_part_id' => $part->id,
+                        'is_read' => in_array($part->id, $this->selectedParts),
+                        'tests_done' => $this->testsDone[$part->id] ?? 0,
+                        'part_rating' => null,
+                        'is_compensatory' => false,
+                    ]);
+                }
+            });
+
+            $this->dispatch('success', 'گزارش با موفقیت ثبت شد و برای ' . $recipient['label'] . ' ارسال شد.');
             $this->closeReportModal();
             $this->loadWeekDays();
         } catch (\Throwable $e) {
-            \Log::error('Error in submitReport: ' . $e->getMessage());
+            \Log::error('Error in submitReport', [
+                'message' => $e->getMessage(),
+                'student_id' => Auth::user()?->student?->id,
+                'selected_day_index' => $this->selectedDayIndex,
+            ]);
             $this->dispatch('error', 'خطایی در ثبت گزارش رخ داد. لطفا دوباره تلاش کنید.');
         }
     }
@@ -619,8 +698,31 @@ class Report extends Component
 
 
             $student = Auth::user()->student;
+            if (!$student || !$this->currentSession || !$this->currentProgram) {
+                $this->dispatch('warning', 'اطلاعات برنامه یا جلسه برای ثبت گزارش جبرانی کامل نیست.');
+                return;
+            }
+
+            $recipient = $this->resolveReportRecipient();
+            if (!$recipient['id']) {
+                $this->dispatch('warning', 'هنوز مسئول بررسی گزارش برای شما مشخص نشده است. لطفاً با پشتیبانی تماس بگیرید.');
+                return;
+            }
+
             // ✅ استفاده از تاریخ مؤثر (با احتساب بازه ۶ صبح) بجای تاریخ تقویمی
             $effectiveDate = $this->getEffectiveDate();
+
+            $existingCompensatory = DailyReport::where('student_id', $student->id)
+                ->whereDate('report_date', $effectiveDate)
+                ->where('is_compensatory', true)
+                ->exists();
+
+            if ($existingCompensatory) {
+                $this->dispatch('warning', 'گزارش جبرانی این بازه قبلاً ثبت شده است.');
+                $this->closeCompensatoryModal();
+                $this->loadWeekDays();
+                return;
+            }
 
             // ✅ محاسبه امتیاز از session_feedbacks برای پارت‌های جبرانی انتخاب شده (1-10)
             $spsList = StudyPartSession::where('student_id', $student->id)
@@ -634,45 +736,51 @@ class Report extends Component
 
             $avgRating = $ratings->isNotEmpty() ? round($ratings->avg(), 1) : 0;
 
-            $dailyReport = DailyReport::create([
-                'student_id' => $student->id,
-                'admin_id' => $student->advisor_id,
-                'session_id' => $this->currentSession->id,
-                'weekly_program_id' => $this->currentProgram->id,
-                'report_date' => $effectiveDate,
-                'day_of_week' => jdate($effectiveDate)->getDayOfWeek(),
-                'is_compensatory' => true,
-            ]);
-
-            DailyReportDetail::create([
-                'daily_report_id' => $dailyReport->id,
-                'phone_hours' => 0,
-                'description' => null,
-                'missed_parts_reason' => $this->compensatoryMissedPartsReason ?: null,
-                'rating' => $avgRating,
-                'status' => 'pending',
-            ]);
-
-            DailyReportFeedback::create([
-                'daily_report_id' => $dailyReport->id,
-            ]);
-
-            foreach ($this->selectedCompensatoryParts as $partId) {
-                DailyReportPart::create([
-                    'daily_report_id' => $dailyReport->id,
-                    'program_part_id' => $partId,
-                    'is_read' => true,
-                    'tests_done' => $this->compensatoryTestsDone[$partId] ?? 0,
-                    'part_rating' => null,
+            DB::transaction(function () use ($student, $effectiveDate, $avgRating, $recipient) {
+                $dailyReport = DailyReport::create([
+                    'student_id' => $student->id,
+                    'admin_id' => $recipient['id'],
+                    'session_id' => $this->currentSession->id,
+                    'weekly_program_id' => $this->currentProgram->id,
+                    'report_date' => $effectiveDate,
+                    'day_of_week' => jdate($effectiveDate)->getDayOfWeek(),
                     'is_compensatory' => true,
                 ]);
-            }
 
-            $this->dispatch('success', 'گزارش جبرانی با موفقیت ثبت شد.');
+                DailyReportDetail::create([
+                    'daily_report_id' => $dailyReport->id,
+                    'phone_hours' => 0,
+                    'description' => null,
+                    'missed_parts_reason' => $this->compensatoryMissedPartsReason ?: null,
+                    'rating' => $avgRating,
+                    'status' => 'pending',
+                ]);
+
+                DailyReportFeedback::create([
+                    'daily_report_id' => $dailyReport->id,
+                ]);
+
+                foreach ($this->selectedCompensatoryParts as $partId) {
+                    DailyReportPart::create([
+                        'daily_report_id' => $dailyReport->id,
+                        'program_part_id' => $partId,
+                        'is_read' => true,
+                        'tests_done' => $this->compensatoryTestsDone[$partId] ?? 0,
+                        'part_rating' => null,
+                        'is_compensatory' => true,
+                    ]);
+                }
+            });
+
+            $this->dispatch('success', 'گزارش جبرانی با موفقیت ثبت شد و برای ' . $recipient['label'] . ' ارسال شد.');
             $this->closeCompensatoryModal();
             $this->loadWeekDays();
         } catch (\Throwable $e) {
-            \Log::error('Error in submitCompensatory: ' . $e->getMessage());
+            \Log::error('Error in submitCompensatory', [
+                'message' => $e->getMessage(),
+                'student_id' => Auth::user()?->student?->id,
+                'selected_compensatory_parts' => $this->selectedCompensatoryParts,
+            ]);
             $this->dispatch('error', 'خطایی در ثبت گزارش جبرانی رخ داد. لطفا دوباره تلاش کنید.');
         }
     }

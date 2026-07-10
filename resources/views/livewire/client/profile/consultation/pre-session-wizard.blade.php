@@ -148,7 +148,17 @@
         @if($schoolLocked)
             <div class="mb-6 flex items-start gap-2 rounded-2xl border border-sky-200/80 bg-sky-50 dark:bg-sky-500/10 px-4 py-3 text-xs text-sky-700 dark:border-sky-500/40 dark:text-sky-300">
                 <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                <p class="leading-6">چون در حال حاضر مدرسه نمی‌روی، بخش‌های «امتحانات»، «پرسش و پاسخ کلاسی» و «تکالیف» برای تو غیرفعال‌اند. فقط <strong>پارت درخواستی</strong> و <strong>متفرقه</strong> را ثبت کن.</p>
+                <div class="flex-1 space-y-3">
+                    <p class="leading-6">چون در حال حاضر مدرسه نمی‌روی، بخش‌های «امتحانات»، «پرسش و پاسخ کلاسی» و «تکالیف» برای تو غیرفعال‌اند. فقط <strong>پارت درخواستی</strong> و <strong>متفرقه</strong> را ثبت کن.</p>
+                    <a wire:navigate
+                       href="{{ route('client.profile.consultation.class-schedule', ['from' => 'pre-session', 'return_to' => request()->fullUrl()]) }}"
+                       class="inline-flex items-center gap-2 rounded-xl border border-sky-300/80 bg-white/80 px-3 py-2 text-xs font-bold text-sky-700 transition hover:bg-white dark:bg-sky-500/10 dark:border-sky-400/30 dark:text-sky-200">
+                        همین حالا تغییرش بده
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14m-7-7 7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
             </div>
         @endif
 

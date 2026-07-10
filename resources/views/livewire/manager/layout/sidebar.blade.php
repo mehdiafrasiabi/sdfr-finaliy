@@ -423,6 +423,10 @@
                                                    data-key="t-basic">خبرنامه</a>
                                             </li>
                                             <li class="nav-item">
+                                                <a href="{{route('manager.setting.avatar')}}" class="nav-link "
+                                                   data-key="t-basic">آواتارها</a>
+                                            </li>
+                                            <li class="nav-item">
                                                 <a href="{{route('manager.setting.contactUs')}}" class="nav-link "
                                                    data-key="t-basic">ارتباط با ما </a>
                                             </li>

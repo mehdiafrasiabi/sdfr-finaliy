@@ -122,7 +122,8 @@ class Header extends Component
             return asset($picture);
         }
 
-        $legacyPath = "user/img/{$user->id}/{$user->picture}";
+        $legacyPicture = $user?->picture ?: $user?->profile?->picture;
+        $legacyPath = "user/img/{$user->id}/{$legacyPicture}";
         if (file_exists(public_path($legacyPath))) {
             return asset($legacyPath);
         }

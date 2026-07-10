@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             SiteAcquisitionRoleSeeder::class,
             PhoneAcquisitionRoleSeeder::class,
             GeneralSettingsTableSeeder::class,
+            AvatarSeeder::class,
             EducationLevelsTableSeeder::class,
             CcFieldsTableSeeder::class,
             CcGradesTableSeeder::class,

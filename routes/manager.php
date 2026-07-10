@@ -47,6 +47,7 @@ use Illuminate\Support\Facades\Route;
 use App\Livewire\Manager\GiftCode\Index as GiftCodeIndex;
 use App\Livewire\Manager\Setting\PercentCalculator as SettingPercentCalculator;
 use App\Livewire\Manager\Setting\PercentCalculatorCkUpload;
+use App\Livewire\Manager\Setting\AvatarIndex as SettingAvatar;
 use App\Livewire\Manager\Setting\General as SettingGeneral;
 
 use App\Livewire\Manager\Setting\ExamCountdown as SettingExamCountdown;
@@ -93,6 +94,7 @@ Route::name('manager.')->group(function () {
         Route::get('/department', DepartmentIndex::class)->name('department');
 
         Route::get('/setting/general', SettingGeneral::class)->name('setting.general');
+        Route::get('/setting/avatar', SettingAvatar::class)->name('setting.avatar');
         Route::get('/setting/contactUs', SettingContactUs::class)->name('setting.contactUs');
         Route::get('/setting/sdfrStudent', SettingHomeTopStudent::class)->name('setting.topStudent');
         Route::get('/setting/sdfrSchool', SettingHomeSchoolSdfr::class)->name('setting.schoolSdfr');

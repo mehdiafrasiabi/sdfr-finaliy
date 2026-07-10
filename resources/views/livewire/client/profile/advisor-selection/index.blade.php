@@ -4,6 +4,16 @@
         $avatarFallback = asset('/client/assets/images/soon/soon.png');
     @endphp
 
+    @if ($showSlotModal || $showModal || $showConfirmModal)
+        <style>
+            html,
+            body {
+                overflow: hidden;
+                overscroll-behavior: none;
+            }
+        </style>
+    @endif
+
     <div class="max-w-7xl space-y-14 px-4 mx-auto">
         <div class="grid md:grid-cols-12 grid-cols-1 items-start gap-5">
 
@@ -103,10 +113,10 @@
                                         />
                                     </div>
                                     <div class="sm:col-span-2 lg:col-span-1">
-                                        <button wire:click="$refresh"
+                                        <button wire:click="openSlotModal"
                                                 class="w-full h-11 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:opacity-90 hover:shadow-lg hover:shadow-primary/30 transition-all flex items-center justify-center gap-2">
                                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m1.85-5.15a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" /></svg>
-                                            جستجو
+                                            انتخاب روز و ساعت
                                         </button>
                                     </div>
                                 </div>
@@ -129,6 +139,12 @@
                                 @else
                                     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-5">
                                         @foreach ($advisors as $advisor)
+                                            @php
+                                                $capacity = $advisor->student_capacity ?? $defaultCapacity;
+                                                $taken = (int) ($advisor->advised_students_count ?? 0);
+                                                $remaining = max(0, $capacity - $taken);
+                                                $capacityPercent = $capacity > 0 ? min(100, round(($taken / $capacity) * 100)) : 100;
+                                            @endphp
                                             <div class="glass rounded-2xl p-4 border border-border flex flex-col hover:shadow-md transition-all group">
                                                 <div class="flex items-center gap-3">
                                                     <img src="{{ $advisor->picture_url ?? $avatarFallback }}" alt="{{ $advisor->name }}"
@@ -143,12 +159,24 @@
                                                         @endif
                                                     </div>
                                                 </div>
+                                                <div class="mt-4 rounded-xl border border-border bg-secondary/45 p-3">
+                                                    <div class="flex items-center justify-between gap-3 text-[11px]">
+                                                        <span class="font-bold text-muted">ظرفیت مشاور</span>
+                                                        <span class="font-black {{ $remaining > 0 ? 'text-primary' : 'text-red-500' }}">
+                                                            {{ $remaining }} نفر مانده از {{ $capacity }}
+                                                        </span>
+                                                    </div>
+                                                    <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-border">
+                                                        <div class="h-full rounded-full {{ $remaining > 0 ? 'bg-primary' : 'bg-red-500' }}"
+                                                             style="width: {{ $capacityPercent }}%"></div>
+                                                    </div>
+                                                </div>
                                                 <div class="flex gap-2 mt-5">
                                                     <button wire:click="openModal({{ $advisor->id }})"
                                                             class="flex-1 h-10 rounded-xl bg-background border border-border text-xs font-bold text-muted hover:text-foreground hover:bg-secondary transition">
                                                         جزئیات
                                                     </button>
-                                                    <button wire:click="selectAdvisor({{ $advisor->id }})"
+                                                    <button wire:click="openConfirmModal({{ $advisor->id }})"
                                                             class="flex-[2] h-10 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:opacity-90 transition">
                                                         انتخاب مشاور
                                                     </button>
@@ -173,11 +201,62 @@
         </div>
     </div>
 
+    {{-- مودال انتخاب روز و ساعت --}}
+    @if ($showSlotModal)
+        <div class="fixed inset-0 z-[105] flex items-end justify-center overscroll-contain sm:items-center sm:p-4">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+            <div class="relative w-full rounded-t-3xl border border-border bg-background p-5 shadow-2xl sm:max-w-md sm:rounded-2xl sm:p-6">
+                <div class="mx-auto mb-4 h-1.5 w-14 rounded-full bg-border sm:hidden"></div>
+                <div class="pl-10">
+                    <div class="text-xs font-bold text-primary">شروع انتخاب مشاور</div>
+                    <h2 class="mt-1 text-lg font-black text-foreground">روز و ساعت جلسه هفتگی را انتخاب کن</h2>
+                    <p class="mt-2 text-xs leading-6 text-muted">بعد از انتخاب، فقط مشاورانی را می‌بینی که همان زمان ظرفیت و ساعت کاری فعال دارند.</p>
+                </div>
+
+                <div class="mt-5 grid gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-muted mb-2">روز هفته</label>
+                        <x-ui.select
+                            wire:model="filterDay"
+                            placeholder="انتخاب روز..."
+                            :drop-up="true"
+                            :options="collect($days)->map(fn($name, $id) => ['id' => $id, 'name' => $name])->values()->all()"
+                        />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-muted mb-2">ساعت</label>
+                        <x-ui.select
+                            wire:model="filterHour"
+                            placeholder="انتخاب ساعت..."
+                            :drop-up="true"
+                            :options="collect($hours)->map(fn($h) => ['id' => $h, 'name' => sprintf('%02d:00', $h)])->values()->all()"
+                        />
+                    </div>
+                </div>
+
+                <div class="mt-5 rounded-2xl border border-border bg-secondary/35 p-2">
+                    <button wire:click="applySlotSelection" wire:loading.attr="disabled" wire:target="applySlotSelection"
+                            class="flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60">
+                        <span wire:loading.remove wire:target="applySlotSelection">نمایش مشاوران</span>
+                        <span wire:loading wire:target="applySlotSelection">در حال بررسی...</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- مودالِ جزئیاتِ مشاور (این بخش خارج از گرید اصلی رندر می‌شود تا تمام‌صفحه باز شود) --}}
     @if ($showModal && $modalAdvisor)
-        <div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        @php
+            $modalCapacity = $modalAdvisor->student_capacity ?? $defaultCapacity;
+            $modalTaken = (int) ($modalAdvisor->advised_students_count ?? 0);
+            $modalRemaining = max(0, $modalCapacity - $modalTaken);
+            $modalCapacityPercent = $modalCapacity > 0 ? min(100, round(($modalTaken / $modalCapacity) * 100)) : 100;
+        @endphp
+        <div class="fixed inset-0 z-[100] flex items-end justify-center overscroll-contain sm:items-center sm:p-4">
             <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" wire:click="closeModal"></div>
-            <div class="relative glass bg-background/95 rounded-2xl w-full max-w-md p-6 max-h-[90vh] overflow-y-auto shadow-2xl border border-border">
+            <div class="relative glass w-full rounded-t-3xl border border-border bg-background/95 p-5 shadow-2xl sm:max-w-md sm:rounded-2xl sm:p-6">
+                <div class="mx-auto mb-4 h-1.5 w-14 rounded-full bg-border sm:hidden"></div>
                 <button wire:click="closeModal"
                         class="absolute top-4 left-4 p-1.5 bg-secondary rounded-full text-muted hover:text-foreground transition-colors">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
@@ -192,20 +271,38 @@
                     @endif
                 </div>
 
-                <div class="mt-6 space-y-4 text-sm bg-secondary/50 p-4 rounded-xl border border-border/50">
-                    @if ($modalAdvisor->education)
-                        <div class="flex justify-between items-center border-b border-border/50 pb-2">
-                            <span class="text-muted text-xs">تحصیلات</span>
-                            <span class="font-bold text-foreground">{{ $modalAdvisor->education }}</span>
+                <div class="mt-6 max-h-[56vh] space-y-4 overflow-y-auto overscroll-contain rounded-xl border border-border/50 bg-secondary/50 p-4 text-sm sm:max-h-[58vh]">
+                    <div class="rounded-xl border border-border bg-background/70 p-3">
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="text-muted text-xs">ظرفیت پذیرش</span>
+                            <span class="font-black {{ $modalRemaining > 0 ? 'text-primary' : 'text-red-500' }}">
+                                {{ $modalRemaining }} نفر مانده از {{ $modalCapacity }}
+                            </span>
                         </div>
-                    @endif
+                        <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-border">
+                            <div class="h-full rounded-full {{ $modalRemaining > 0 ? 'bg-primary' : 'bg-red-500' }}"
+                                 style="width: {{ $modalCapacityPercent }}%"></div>
+                        </div>
+                    </div>
 
-                    @if ($modalAdvisor->bio)
-                        <div class="border-b border-border/50 pb-3">
-                            <div class="text-muted text-xs mb-2">توضیحات و رزومه</div>
-                            <p class="leading-7 text-foreground/90 text-justify text-xs">{{ $modalAdvisor->bio }}</p>
+                    <div class="grid gap-3">
+                        <div class="flex items-center justify-between gap-4 border-b border-border/50 pb-2">
+                            <span class="text-muted text-xs">نام مشاور</span>
+                            <span class="font-bold text-foreground">{{ $modalAdvisor->name }}</span>
                         </div>
-                    @endif
+                        <div class="flex items-center justify-between gap-4 border-b border-border/50 pb-2">
+                            <span class="text-muted text-xs">تحصیلات</span>
+                            <span class="text-left font-bold text-foreground">{{ $modalAdvisor->education ?: '—' }}</span>
+                        </div>
+                        <div class="flex items-center justify-between gap-4 border-b border-border/50 pb-2">
+                            <span class="text-muted text-xs">رشته</span>
+                            <span class="text-left font-bold text-foreground">{{ $modalAdvisor->field_of_study ?: '—' }}</span>
+                        </div>
+                        <div class="border-b border-border/50 pb-3">
+                            <div class="text-muted text-xs mb-2">توضیحات</div>
+                            <p class="leading-7 text-foreground/90 text-justify text-xs">{{ $modalAdvisor->bio ?: 'توضیحاتی برای این مشاور ثبت نشده است.' }}</p>
+                        </div>
+                    </div>
 
                     <div>
                         <div class="text-muted text-xs mb-3">ساعات کاری فعال</div>
@@ -230,11 +327,79 @@
                 </div>
 
                 @if ($student && $student->advisor_id === null && !$pending)
-                    <button wire:click="selectAdvisor({{ $modalAdvisor->id }})"
+                    <button wire:click="openConfirmModal({{ $modalAdvisor->id }})"
                             class="w-full h-12 mt-6 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:shadow-lg hover:-translate-y-0.5 transition-all">
-                        انتخاب قطعی این مشاور
+                        انتخاب این مشاور
                     </button>
                 @endif
+            </div>
+        </div>
+    @endif
+
+    {{-- مودال تایید انتخاب مشاور --}}
+    @if ($showConfirmModal && $confirmAdvisor)
+        @php
+            $confirmCapacity = $confirmAdvisor->student_capacity ?? $defaultCapacity;
+            $confirmTaken = (int) ($confirmAdvisor->advised_students_count ?? 0);
+            $confirmRemaining = max(0, $confirmCapacity - $confirmTaken);
+        @endphp
+        <div class="fixed inset-0 z-[110] flex items-end justify-center overscroll-contain sm:items-center sm:p-4">
+            <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" wire:click="closeConfirmModal"></div>
+            <div class="relative w-full rounded-t-3xl border border-border bg-background p-5 shadow-2xl sm:max-w-md sm:rounded-2xl sm:p-6">
+                <div class="mx-auto mb-4 h-1.5 w-14 rounded-full bg-border sm:hidden"></div>
+                <button wire:click="closeConfirmModal"
+                        class="absolute left-4 top-4 rounded-full bg-secondary p-1.5 text-muted transition-colors hover:text-foreground">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
+                </button>
+
+                <div class="flex items-center gap-3 pl-10">
+                    <img src="{{ $confirmAdvisor->picture_url ?? $avatarFallback }}" alt="{{ $confirmAdvisor->name }}"
+                         class="h-16 w-16 rounded-2xl border border-border object-cover">
+                    <div class="min-w-0">
+                        <div class="text-xs font-bold text-primary">تایید انتخاب مشاور</div>
+                        <h3 class="mt-1 truncate text-lg font-black text-foreground">{{ $confirmAdvisor->name }}</h3>
+                        @if ($confirmAdvisor->education)
+                            <div class="mt-1 truncate text-xs font-semibold text-muted">{{ $confirmAdvisor->education }}</div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="mt-5 rounded-2xl border border-primary/15 bg-primary/10 p-4 text-sm leading-7 text-foreground">
+                    شما مشاور <span class="font-black">{{ $confirmAdvisor->name }}</span> را انتخاب کرده‌اید و جلسات شما هر هفته در
+                    <span class="font-black">{{ $days[(int) $filterDay] ?? '—' }}</span>
+                    @if ($filterHour !== null && $filterHour !== '')
+                        ساعت <span class="font-black">{{ sprintf('%02d:00', (int) $filterHour) }}</span>
+                    @endif
+                    برگزار خواهد شد. آیا تایید می‌کنید؟
+                </div>
+
+                <div class="mt-4 grid grid-cols-2 gap-3">
+                    <div class="rounded-2xl border border-border bg-secondary/50 p-3 text-center">
+                        <div class="text-[11px] text-muted">زمان انتخابی</div>
+                        <div class="mt-1 text-sm font-black text-foreground">
+                            {{ $days[(int) $filterDay] ?? '—' }}
+                            @if ($filterHour !== null && $filterHour !== '')
+                                {{ sprintf('%02d:00', (int) $filterHour) }}
+                            @endif
+                        </div>
+                    </div>
+                    <div class="rounded-2xl border border-border bg-secondary/50 p-3 text-center">
+                        <div class="text-[11px] text-muted">ظرفیت باقی‌مانده</div>
+                        <div class="mt-1 text-sm font-black text-primary">{{ $confirmRemaining }} نفر</div>
+                    </div>
+                </div>
+
+                <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                    <button wire:click="closeConfirmModal"
+                            class="min-h-12 rounded-2xl border border-border bg-red-500 px-5 py-3 text-sm font-black text-foreground shadow-sm transition hover:border-primary/40 hover:bg-secondary">
+                        منصرف شدم
+                    </button>
+                    <button wire:click="confirmAdvisorSelection" wire:loading.attr="disabled" wire:target="confirmAdvisorSelection"
+                            class="min-h-12 rounded-2xl bg-primary px-5 py-3 text-sm font-black text-primary-foreground shadow-lg shadow-primary/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60">
+                        <span wire:loading.remove wire:target="confirmAdvisorSelection">تایید به عنوان مشاور </span>
+                        <span wire:loading wire:target="confirmAdvisorSelection">در حال ثبت...</span>
+                    </button>
+                </div>
             </div>
         </div>
     @endif

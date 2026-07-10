@@ -73,15 +73,17 @@ class Sidebar extends Component
     }
     protected function resolveUserPictureUrl($user): ?string
     {
-        if (! $user?->picture) {
+        $raw = $user?->picture ?: $user?->profile?->picture;
+
+        if (! $raw) {
             return null;
         }
 
-        $picture = ltrim($user->picture, '/');
+        $picture = ltrim($raw, '/');
         if (file_exists(public_path($picture))) {
             return asset($picture);
         }
-        $legacyPath = "user/img/{$user->id}/{$user->picture}";
+        $legacyPath = "user/img/{$user->id}/{$raw}";
         if (file_exists(public_path($legacyPath))) {
             return asset($legacyPath);
         }
